@@ -630,7 +630,7 @@ def test_cli_cve_off_by_default(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
         called.append((args, kwargs))
         return [], LookupSummary()
 
-    monkeypatch.setattr("attackmap.cli.query_vulnerabilities", stub_query)
+    monkeypatch.setattr("attackmap.pipeline.query_vulnerabilities", stub_query)
     result = runner.invoke(app, ["analyze", str(repo), "--output", str(tmp_path / "out")])
     assert result.exit_code == 0
     assert called == []  # --cve not passed → lookup never runs
@@ -647,7 +647,7 @@ def test_cli_cve_flag_triggers_lookup(tmp_path: Path, monkeypatch: pytest.Monkey
         summary = LookupSummary(queried=len(list(deps)))
         return [_make_vuln()], summary
 
-    monkeypatch.setattr("attackmap.cli.query_vulnerabilities", stub_query)
+    monkeypatch.setattr("attackmap.pipeline.query_vulnerabilities", stub_query)
     result = runner.invoke(
         app, ["analyze", str(repo), "--output", str(tmp_path / "out"), "--cve"]
     )
@@ -674,7 +674,7 @@ def test_cli_cve_with_no_deps_does_not_call_lookup(
         called.append((args, kwargs))
         return [], LookupSummary()
 
-    monkeypatch.setattr("attackmap.cli.query_vulnerabilities", stub_query)
+    monkeypatch.setattr("attackmap.pipeline.query_vulnerabilities", stub_query)
     result = runner.invoke(app, ["analyze", str(repo), "--output", str(tmp_path / "out"), "--cve"])
     assert result.exit_code == 0
     assert called == []

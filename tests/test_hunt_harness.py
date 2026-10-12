@@ -475,7 +475,7 @@ def test_cli_hunt_verify_votes_writes_consensus(tmp_path: Path, monkeypatch) -> 
         seq["n"] += 1
         return _result(out)
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,
@@ -499,7 +499,7 @@ def test_cli_hunt_lenses_routes_through_harness(tmp_path: Path, monkeypatch) -> 
             return _result(gen)
         return _result("VERDICT H1: REFUTED — arg is constant")
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,
@@ -529,7 +529,7 @@ def test_cli_hunt_rounds_routes_through_harness(tmp_path: Path, monkeypatch) -> 
             return _result("- try races")
         return _result("VERDICT H1: REFUTED — constant")
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,
@@ -548,7 +548,7 @@ def test_cli_verify_votes_1_uses_single_pass(tmp_path: Path, monkeypatch) -> Non
         seen["modes"].append(kwargs.get("mode"))
         return _result("single-pass hunt+verify output")
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,

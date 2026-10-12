@@ -141,7 +141,7 @@ def translate_recon(scan: ScanResult) -> AnalysisOutputs:
     """
     attack_surfaces = to_attack_surface(scan)
     findings = to_findings(scan, attack_surfaces)
-    attack_paths = to_attack_paths(scan)
+    attack_paths = to_attack_paths(scan, attack_surfaces)
     return AnalysisOutputs(
         attack_surfaces=attack_surfaces,
         findings=findings,

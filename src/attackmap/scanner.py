@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from .index import RepoIndex
     from .progress import ScanProgress
 
 from .srcpaths import JS_TS_SUFFIXES, in_skipped_dir, is_skipped_dir, line_number
@@ -741,66 +742,44 @@ def scan_files(
     root: str | Path,
     suffixes: set[str] | None = None,
     progress: "ScanProgress | None" = None,
+    index: "RepoIndex | None" = None,
 ) -> ScanResult:
     """The per-file pass: routes, calls, hints, secrets and per-file weakness
     detectors for files with ``suffixes``. No whole-repo passes (#219)."""
+    from .index import RepoIndex
+
     root_path = Path(root).resolve()
     result = ScanResult(root=str(root_path))
+    if index is None:
+        index = RepoIndex.build(root_path)
+        result.limitations.extend(index.limitations)
 
-    # Materialize the scannable file list first so progress has a total to
-    # compute a percentage and ETA against. The extra directory walk is cheap
-    # next to reading + regex-scanning each file.
-    # Symlinks are never followed out of the repo (#234); the ones skipped
-    # are recorded so the report says what wasn't analyzed.
-    def _record_symlink(path: Path) -> None:
-        rel = path.relative_to(root_path)
-        if not any(part in _NOISY_SYMLINK_PARTS for part in rel.parts):
-            result.limitations.append(f"symlink not followed: {rel.as_posix()}")
-
-    scan_files = []
-    for p in walk_repo(root_path, prune=is_skipped_dir, on_symlink=_record_symlink):
-        if not should_scan_with_suffixes(p.relative_to(root_path), suffixes):
-            continue
-        if is_oversized(p):
-            # #236: a multi-MB file is generated or hostile; reading and
-            # regex-scanning it can stall the whole scan.
-            result.limitations.append(
-                f"oversized file skipped (> {max_file_bytes()} bytes): "
-                f"{p.relative_to(root_path).as_posix()}"
-            )
-            continue
-        scan_files.append(p)
+    indexed = [
+        item
+        for item in index.files
+        if should_scan_with_suffixes(Path(item.rel), suffixes)
+        and item.suffix in CODE_EXTENSIONS
+    ]
     if progress is not None:
-        progress.begin(len(scan_files))
+        progress.begin(len(indexed))
 
     csrf_protected = False
-    for file_path in scan_files:
+    for item in indexed:
         if progress is not None:
-            progress.advance(str(file_path.relative_to(root_path)))
+            progress.advance(item.rel)
 
         result.files_scanned += 1
-        language = CODE_EXTENSIONS[file_path.suffix]
+        language = CODE_EXTENSIONS[item.suffix]
         if language not in result.languages:
             result.languages.append(language)
 
-        try:
-            content = file_path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
-            continue
-        except OSError as exc:
-            # An unreadable file (permissions, vanished mid-scan, …) must not
-            # abort the whole scan (#217): skip it and say so in the report.
-            result.limitations.append(
-                f"unreadable file skipped ({type(exc).__name__}): {file_path.relative_to(root_path).as_posix()}"
-            )
-            continue
-
-        relative = str(file_path.relative_to(root_path))
+        content = item.text
+        relative = item.rel
         # Routes declared in test/spec or vendored files aren't real attack
         # surface — Laravel/Go/pytest test helpers call `.get('/x')` heavily
         # (#113). Skip them by default (ATTACKMAP_INCLUDE_TESTS / _VENDORED opt in).
         if not is_test_file(relative) and not is_vendored_file(relative):
-            file_routes = extract_routes(content, relative, file_path.suffix)
+            file_routes = extract_routes(content, relative, item.suffix)
             result.routes.extend(file_routes)
 
         for pattern in EXTERNAL_CALL_PATTERNS:
@@ -866,6 +845,7 @@ def run_repo_passes(
     root_path: Path,
     progress: "ScanProgress | None" = None,
     recall: bool = False,
+    index: "RepoIndex | None" = None,
 ) -> ScanResult:
     """Whole-repo passes over an assembled result — run once per scan, after
     every analyzer's per-file output is merged, so taint/authz/anomalies see
@@ -877,7 +857,7 @@ def run_repo_passes(
     if progress is not None:
         progress.stage("Taint / data-flow analysis")
     result.taint_chains = result.taint_chains + analyze_taint(
-        result, root_path, recall=recall_config() if recall else DEFAULT_RECALL
+        result, root_path, recall=recall_config() if recall else DEFAULT_RECALL, index=index
     )
     # SBOM inventory: direct-dep parse of manifest files (#48, slice 1).
     if progress is not None:

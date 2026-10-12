@@ -1,9 +1,9 @@
 """Centralized merge behavior for analyzer outputs.
 
 This module is the single source of truth for **how** analyzer-emitted
-signals are combined into a single ScanResult. It is loaded by both the
-public `merge_analyzer_results` (whole-repo analyzers) and the internal
-`merge_analyzer_signals` (file-by-file built-in micro-analyzers).
+signals are combined into a single ScanResult. It is loaded by
+`merge_analyzer_results` (whole-repo analyzers) and the test helper
+`merge_analyzer_signals`.
 
 A new structured signal type is added in one place: append a row to
 :data:`MERGE_SCHEMA` describing the field name and its dedup key. All

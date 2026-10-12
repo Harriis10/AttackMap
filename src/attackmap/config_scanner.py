@@ -71,6 +71,7 @@ CONFIG_EXCLUDE_FILENAMES = frozenset({
     # AttackMap's own artifacts (#216) — never re-ingest a previous report,
     # even from an output dir written before the output marker existed.
     "attackmap-report.json",
+    "run-manifest.json",
     "defensive-review.json",
     "review-context-pack.json",
     "fleet-summary.json",
@@ -212,13 +213,31 @@ def should_scan_config_file(path: Path) -> bool:
     return any(hint in name for hint in _CONFIG_FILENAME_HINTS) and name.startswith(".env") or name.endswith(".env") or ".env." in name
 
 
-def scan_config_repo(root: str | Path) -> ScanResult:
+def scan_config_repo(root: str | Path, index: object | None = None) -> ScanResult:
     """Walk `root`, extract config-shaped signals, return a ScanResult
     that merges naturally with source-scanner output via the standard
     merge pipeline."""
     repo = Path(root).resolve()
     result = ScanResult(root=str(repo))
     if not repo.exists() or not repo.is_dir():
+        return result
+
+    if index is not None:
+        candidates = [
+            (Path(item.rel), item.text)
+            for item in getattr(index, "files", ())
+            if should_scan_config_file(Path(item.rel))
+            and len(item.text.encode("utf-8")) <= min(_MAX_CONFIG_BYTES, max_file_bytes())
+        ]
+        for rel_path, content in candidates:
+            result.files_scanned += 1
+            relative = rel_path.as_posix()
+            _extract_db_urls(content, relative, result)
+            _extract_http_targets(content, relative, result)
+            _extract_secret_kvs(content, relative, result)
+            if rel_path.name.lower() in {".netrc", "_netrc"}:
+                _extract_netrc(content, relative, result)
+            _append_hardcoded_secret_hints(result, relative, content, entropy=False, generic=False)
         return result
 
     for path in walk_repo(repo, prune=is_skipped_dir):

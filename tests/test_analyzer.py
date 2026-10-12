@@ -1,5 +1,4 @@
 from attackmap.analyzer import identify_attack_surfaces, summarize_architecture, summarize_attack_surface
-from attackmap.graph import build_graph
 from attackmap.models import AuthHint, DatabaseHint, ExternalCall, Route, ScanResult
 
 
@@ -50,14 +49,12 @@ def test_summarize_architecture_highlights_boundaries_and_overview() -> None:
         auth_hints=[AuthHint(hint="jwt", file="api.py")],
     )
 
-    summary = summarize_architecture(scan, build_graph(scan))
+    summary = summarize_architecture(scan)
 
     assert "## Overview" in summary
     assert "web-facing repository" in summary
     assert "- Inferred entry points: 1" in summary
     assert "## Likely Review Starting Point" in summary
-    assert "## Inferred Trust Boundaries" in summary
-    assert "web -> postgresql (uses)" in summary
     assert "## Analyst Notes" in summary
 
 

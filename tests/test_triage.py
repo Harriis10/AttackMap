@@ -165,7 +165,7 @@ def test_cli_triage_deterministic_fallback(tmp_path: Path, monkeypatch) -> None:
     def boom(*args, **kwargs):
         raise LlmReviewError("no backend")
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", boom)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", boom)
     repo = _write_repo(tmp_path)
     out = tmp_path / "out"
     result = runner.invoke(app, ["analyze", str(repo), "--output", str(out), "--triage"])
@@ -190,7 +190,7 @@ def test_cli_triage_uses_llm_when_available(tmp_path: Path, monkeypatch) -> None
             backend="api",
         )
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     repo = _write_repo(tmp_path)
     out = tmp_path / "out"
     result = runner.invoke(app, ["analyze", str(repo), "--output", str(out), "--triage"])

@@ -548,9 +548,10 @@ def render_defensive_review(
     attack_surfaces: list[AttackSurface],
     findings: list[Finding],
     attack_paths: list[AttackPath],
+    overlay: SecurityOverlay | None = None,
 ) -> str:
     observed_runtime_public, protocol_derived, internal_only, low_quality = _entrypoint_counts(attack_surfaces)
-    overlay = build_security_overlay(scan, attack_surfaces, findings, attack_paths)
+    overlay = overlay or build_security_overlay(scan, attack_surfaces, findings, attack_paths)
     lines = [
         "# Defensive Review",
         "",

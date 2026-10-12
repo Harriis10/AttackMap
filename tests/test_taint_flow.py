@@ -408,3 +408,36 @@ def test_generic_signatures_do_not_fire_on_java_method_names(tmp_path: Path) -> 
     )
     scan = ScanResult(root=str(tmp_path), routes=[Route(path="/jobs", method="POST", file="JobController.java", line=3)])
     assert analyze_taint(scan, tmp_path) == []
+
+
+def test_one_hop_same_file_python_taint() -> None:
+    path = FIX / "py" / "hop.py"
+    chain = _at_sink(_chains("py", "hop.py", "GET", "/hop"), "sql_execute", _marker(path, "sink"))
+    assert chain.source_line == _marker(path, "source")
+    assert chain.sanitized is False
+    assert chain.speculative is False
+    assert any("one-hop call" in (step.evidence_text or "") for step in chain.flow)
+    assert chain.confidence < 0.75
+
+
+def test_one_hop_does_not_taint_unrelated_formal() -> None:
+    path = FIX / "py" / "hop_negative.py"
+    chains = _chains("py", "hop_negative.py", "GET", "/nohop")
+    hits = [c for c in chains if c.sink_kind == "sql_execute" and c.sink_line == _marker(path, "sink")]
+    assert not any(c.source_kind for c in hits)
+
+
+def test_one_hop_imported_python_function() -> None:
+    root = Path(__file__).parent / "fixtures" / "taint_hop_repo"
+    scan = scan_repo(root)
+    matches = [
+        c
+        for c in scan.taint_chains
+        if c.sink_kind == "sql_execute" and c.route_path == "/imported-hop"
+    ]
+    assert matches
+    top = min(matches, key=lambda c: c.hops)
+    assert top.source_kind is not None
+    assert top.speculative is False
+    assert any("one-hop call" in (step.evidence_text or "") for step in top.flow)
+    assert top.sink_file.replace("\\", "/").endswith("services/query.py")

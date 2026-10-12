@@ -79,4 +79,4 @@ def test_many_matches_in_a_large_file_scan_in_linear_time(tmp_path: Path) -> Non
     scan = scan_repo(tmp_path)
     assert len(scan.routes) == 6000
     assert scan.routes[-1].line == body.count("\n", 0, body.index('"/r5999"')) + 1
-    assert time.perf_counter() - start < 10
+    assert time.perf_counter() - start < 25

@@ -48,15 +48,7 @@ from .sdk.models import (
     ServiceHint,
 )
 from .scanner import (
-    AUTH_KEYWORDS,
-    AUTH_PATTERNS,
     CODE_EXTENSIONS,
-    DB_KEYWORDS,
-    DB_PATTERNS,
-    EXTERNAL_CALL_PATTERNS,
-    _external_call_fields,
-    SECRET_PATTERNS,
-    extract_routes,
     run_repo_passes,
     scan_files,
     scan_repo,
@@ -82,109 +74,6 @@ class AnalyzerSignals(BaseModel):
     databases: list[DatabaseHint] = Field(default_factory=list)
     auth_hints: list[AuthHint] = Field(default_factory=list)
     secret_hints: list[SecretHint] = Field(default_factory=list)
-
-
-@dataclass(frozen=True)
-class AnalyzerContext:
-    root_path: Path
-    file_path: Path
-    relative_path: str
-    content: str
-    suffix: str
-    language: str
-
-
-class FileAnalyzer(Protocol):
-    name: str
-
-    def analyze(self, context: AnalyzerContext) -> AnalyzerSignals: ...
-
-
-class RouteAnalyzer:
-    name = "routes"
-
-    def analyze(self, context: AnalyzerContext) -> AnalyzerSignals:
-        return AnalyzerSignals(routes=extract_routes(context.content, context.relative_path, context.suffix))
-
-
-class ExternalCallAnalyzer:
-    name = "external_calls"
-
-    def analyze(self, context: AnalyzerContext) -> AnalyzerSignals:
-        calls: list[ExternalCall] = []
-        for pattern in EXTERNAL_CALL_PATTERNS:
-            for match in pattern.finditer(context.content):
-                target, method = _external_call_fields(match)
-                calls.append(
-                    ExternalCall(target=target, method=method, file=context.relative_path)
-                )
-        return AnalyzerSignals(external_calls=calls)
-
-
-class DatabaseAnalyzer:
-    name = "databases"
-
-    def analyze(self, context: AnalyzerContext) -> AnalyzerSignals:
-        lowered = context.content.lower()
-        databases: list[DatabaseHint] = []
-        seen: set[tuple[str, str]] = set()
-
-        for pattern, kind in DB_PATTERNS:
-            if pattern.search(context.content) and (kind, context.relative_path) not in seen:
-                databases.append(DatabaseHint(kind=kind, file=context.relative_path))
-                seen.add((kind, context.relative_path))
-
-        for keyword, kind in DB_KEYWORDS.items():
-            if keyword in lowered and (kind, context.relative_path) not in seen:
-                databases.append(DatabaseHint(kind=kind, file=context.relative_path))
-                seen.add((kind, context.relative_path))
-
-        return AnalyzerSignals(databases=databases)
-
-
-class AuthAnalyzer:
-    name = "auth"
-
-    def analyze(self, context: AnalyzerContext) -> AnalyzerSignals:
-        lowered = context.content.lower()
-        auth_hints: list[AuthHint] = []
-        seen: set[tuple[str, str]] = set()
-
-        for pattern, hint in AUTH_PATTERNS:
-            if pattern.search(context.content) and (hint, context.relative_path) not in seen:
-                auth_hints.append(AuthHint(hint=hint, file=context.relative_path))
-                seen.add((hint, context.relative_path))
-
-        for keyword in AUTH_KEYWORDS:
-            if keyword in lowered and (keyword, context.relative_path) not in seen:
-                auth_hints.append(AuthHint(hint=keyword, file=context.relative_path))
-                seen.add((keyword, context.relative_path))
-
-        return AnalyzerSignals(auth_hints=auth_hints)
-
-
-class SecretAnalyzer:
-    name = "secrets"
-
-    def analyze(self, context: AnalyzerContext) -> AnalyzerSignals:
-        secret_hints: list[SecretHint] = []
-        for pattern in SECRET_PATTERNS:
-            for match in pattern.finditer(context.content):
-                secret_hints.append(SecretHint(name=match.groups()[0], file=context.relative_path))
-        return AnalyzerSignals(secret_hints=secret_hints)
-
-
-FILE_ANALYZERS: tuple[FileAnalyzer, ...] = (
-    RouteAnalyzer(),
-    ExternalCallAnalyzer(),
-    DatabaseAnalyzer(),
-    AuthAnalyzer(),
-    SecretAnalyzer(),
-)
-
-
-def get_builtin_analyzers() -> tuple[FileAnalyzer, ...]:
-    return FILE_ANALYZERS
 
 
 def merge_analyzer_signals(scan: ScanResult, signals: AnalyzerSignals) -> None:
@@ -239,12 +128,14 @@ class DefaultAnalyzer:
         return self.metadata.name
 
     def analyze(
-        self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False
+        self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
+        index=None,
     ) -> AnalyzerResult:
         return scan_files(
             root,
             suffixes=set(CODE_EXTENSIONS) - self._CLAIMED_SUFFIXES,
             progress=progress,
+            index=index,
         )
 
 
@@ -267,9 +158,10 @@ class BuiltinPythonWebAnalyzer:
         return self.metadata.name
 
     def analyze(
-        self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False
+        self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
+        index=None,
     ) -> AnalyzerResult:
-        return scan_files(root, suffixes={".py"}, progress=progress)
+        return scan_files(root, suffixes={".py"}, progress=progress, index=index)
 
 
 class BuiltinJavaScriptWebAnalyzer:
@@ -341,9 +233,10 @@ class BuiltinJavaScriptWebAnalyzer:
         return False
 
     def analyze(
-        self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False
+        self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
+        index=None,
     ) -> AnalyzerResult:
-        return scan_files(root, suffixes=self._JS_SUFFIXES, progress=progress)
+        return scan_files(root, suffixes=self._JS_SUFFIXES, progress=progress, index=index)
 
 
 class BuiltinConfigAnalyzer:
@@ -389,9 +282,9 @@ class BuiltinConfigAnalyzer:
             return False
         return False
 
-    def analyze(self, root: str | Path) -> AnalyzerResult:
+    def analyze(self, root: str | Path, index=None) -> AnalyzerResult:
         from .config_scanner import scan_config_repo
-        return scan_config_repo(root)
+        return scan_config_repo(root, index=index)
 
 
 def get_builtin_repository_analyzers() -> list[Analyzer]:
@@ -724,13 +617,16 @@ def analyze_repository(
     ``analyzer_errors`` and skipped. ``strict=True`` re-raises instead, for
     plugin development and CI that wants fail-fast.
     """
+    from .index import RepoIndex
+
     repo_root = Path(root).resolve()
     active_analyzers = resolve_run_analyzers(repo_root, analyzers=analyzers)
+    index = RepoIndex.build(repo_root)
     results: list[AnalyzerResult] = []
     errors: list[AnalyzerError] = []
     for analyzer in active_analyzers:
         try:
-            result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall), repo_root)
+            result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index), repo_root)
         except Exception as exc:
             if strict:
                 raise
@@ -748,8 +644,11 @@ def analyze_repository(
         results.append(result)
     merged = merge_analyzer_results(results, root=repo_root) if results else AnalyzerResult(root=str(repo_root))
     merged.analyzer_errors = errors
+    for note in index.limitations:
+        if note not in merged.limitations:
+            merged.limitations.append(note)
     # Whole-repo passes run once, over every analyzer's merged signals (#219).
-    run_repo_passes(merged, repo_root, progress=progress, recall=recall)
+    run_repo_passes(merged, repo_root, progress=progress, recall=recall, index=index)
     if progress is not None:
         progress.done()
     return merged
@@ -778,11 +677,12 @@ def _call_analyze(
     root: Path,
     progress: "ScanProgress | None",
     recall: bool = False,
+    index: object | None = None,
 ) -> AnalyzerResult:
-    """Invoke ``analyzer.analyze``, forwarding ``progress``/``recall`` only to
-    analyzers that accept them. Keeps the plugin ``analyze(root)`` contract
-    intact — old plugins that don't know about these kwargs are called
-    unchanged, and ``recall`` is only ever passed when it's on."""
+    """Invoke ``analyzer.analyze``, forwarding ``progress``/``recall``/``index``
+    only to analyzers that accept them. Keeps the plugin ``analyze(root)``
+    contract intact — old plugins that don't know about these kwargs are
+    called unchanged."""
     kwargs: dict[str, object] = {}
     try:
         params = inspect.signature(analyzer.analyze).parameters
@@ -790,6 +690,8 @@ def _call_analyze(
             kwargs["progress"] = progress
         if recall and "recall" in params:
             kwargs["recall"] = recall
+        if index is not None and "index" in params:
+            kwargs["index"] = index
     except (TypeError, ValueError):
         pass
     return analyzer.analyze(root, **kwargs)  # type: ignore[call-arg]

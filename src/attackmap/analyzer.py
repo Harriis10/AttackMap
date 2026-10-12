@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from collections import Counter
 
-import networkx as nx
-
 from .models import AttackSurface, AuthHint, Route, ScanResult
+from .topology import ServiceGraph, build_service_graph
 
 
 # Bounded line window used to attribute auth hints to a specific route
@@ -164,16 +163,16 @@ def identify_attack_surfaces(scan: ScanResult) -> list[AttackSurface]:
     return surfaces
 
 
-def summarize_architecture(scan: ScanResult, graph: nx.DiGraph) -> str:
+def summarize_architecture(scan: ScanResult, graph: ServiceGraph | None = None) -> str:
     route_count = len(scan.routes)
     dbs = sorted({db.kind for db in scan.databases})
     external_targets = sorted({call.target for call in scan.external_calls})
     auth_summary = sorted({hint.hint for hint in scan.auth_hints})
     secret_count = len(scan.secret_hints)
+    service_graph = graph if isinstance(graph, ServiceGraph) else build_service_graph(scan)
     graph_edges = sorted(
-        f"{source} -> {target} ({data['relation']})"
-        for source, target, data in graph.edges(data=True)
-        if "relation" in data
+        f"{edge.source} -> {edge.target} ({edge.kind})"
+        for edge in service_graph.edges
     )
 
     lines = [

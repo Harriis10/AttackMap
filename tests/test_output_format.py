@@ -37,6 +37,8 @@ _APP = (
 
 # Every report directory also gets the #216 output marker.
 MARKER = ".attackmap-output"
+# Always written by the pipeline, independent of --format.
+MANIFEST = "run-manifest.json"
 
 JSON_ARTIFACTS = {
     MARKER,
@@ -103,7 +105,7 @@ def test_cli_format_json_writes_only_machine_readable(tmp_path: Path) -> None:
     out = tmp_path / "out"
     result = runner.invoke(app, ["analyze", str(_repo(tmp_path, "solo")), "-o", str(out), "--format", "json"])
     assert result.exit_code == 0, result.output
-    assert {p.name for p in out.iterdir()} == JSON_ARTIFACTS
+    assert {p.name for p in out.iterdir()} == JSON_ARTIFACTS | {MANIFEST}
 
 
 def test_cli_format_markdown_writes_only_human_readable(tmp_path: Path) -> None:
@@ -112,7 +114,7 @@ def test_cli_format_markdown_writes_only_human_readable(tmp_path: Path) -> None:
         app, ["analyze", str(_repo(tmp_path, "solo")), "-o", str(out), "--format", "markdown"]
     )
     assert result.exit_code == 0, result.output
-    assert {p.name for p in out.iterdir()} == MARKDOWN_ARTIFACTS
+    assert {p.name for p in out.iterdir()} == MARKDOWN_ARTIFACTS | {MANIFEST}
 
 
 def test_cli_rejects_unknown_format(tmp_path: Path) -> None:
@@ -129,7 +131,7 @@ def test_fleet_format_json_skips_markdown_summaries(tmp_path: Path) -> None:
     assert (out / "fleet-summary.json").exists()
     assert not (out / "fleet-summary.md").exists()
     assert not (out / "fleet-graph.md").exists()
-    assert {p.name for p in (out / "svca").iterdir()} == JSON_ARTIFACTS
+    assert {p.name for p in (out / "svca").iterdir()} == JSON_ARTIFACTS | {MANIFEST}
 
 
 def test_fleet_format_markdown_skips_json_summary(tmp_path: Path) -> None:

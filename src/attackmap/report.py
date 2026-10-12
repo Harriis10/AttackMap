@@ -42,6 +42,7 @@ def write_reports(
     analyzer_metadata: list[dict[str, object]] | None = None,
     suppressed: list[SuppressedFinding] | None = None,
     output_format: str = "all",
+    overlay: object | None = None,
 ) -> None:
     """Write the report set for one scan.
 
@@ -67,7 +68,9 @@ def write_reports(
         write("architecture.md", architecture_md + "\n")
         write("attack-surface.md", attack_surface_md + "\n")
         write("defensive-review.md", defensive_review_md + "\n")
-    defensive_review_json = build_defensive_review_json(scan, attack_surfaces, findings, attack_paths)
+    defensive_review_json = build_defensive_review_json(
+        scan, attack_surfaces, findings, attack_paths, overlay=overlay  # type: ignore[arg-type]
+    )
     review_context_pack = build_review_context_pack(
         defensive_review_json,
         scan,

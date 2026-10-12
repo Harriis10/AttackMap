@@ -35,11 +35,14 @@ How it works:
 
 Documented limits (precision-first, heuristic — evidence, not proof):
 
-- **Intra-procedural only.** Taint does not cross a call boundary: a value
-  passed to a helper that runs the sink is not followed into the helper (the
-  helper's own parameters are treated as *unknown*, never as request input).
-  Cross-file reach is still the file-granular import walk in ``taint.py``;
-  there is no function-level call graph. Cross-repo taint is #196.
+- **One hop, Python only.** A request-derived value passed into a same-file
+  ``FunctionDef`` (or an imported function whose body is in the index) is
+  followed into that callee's formals, depth 1. ``self.method``, decorators,
+  and ``getattr`` are not followed. The hop is evidenced and confidence is
+  docked one bucket versus a same-function flow; it is not marked speculative.
+  Deeper wrappers, attribute stores, closures, and whole-program dispatch
+  stay out of scope. Cross-file *reach* is still the import walk in
+  ``taint.py``. Cross-repo taint is #196.
 - **Flow-insensitive within a function.** Assignments are replayed in source
   order up to the sink; branches are not distinguished, loops are a single
   pass, and a guard's polarity (``if ok`` vs ``if not ok``) is not checked —
@@ -164,6 +167,7 @@ class SinkFlow:
     sanitizer: str | None = None
     steps: list[Step] = field(default_factory=list)
     span: tuple[int, int] | None = None  # enclosing function (start_line, end_line), decorators included
+    one_hop: bool = False          # tainted via a depth-1 call into this function
 
 
 def _verdict(kind: str, atoms: list[Atom], sink_line: int, sink_note: str, span: tuple[int, int]) -> SinkFlow:
@@ -244,11 +248,16 @@ class _PyFlow:
         self.tree = ast.parse(content)
         self.blines = content.encode("utf-8", "surrogatepass").split(b"\n")
         self.funcs: list[tuple[int, int, ast.AST]] = []
+        self._top: dict[str, ast.AST] = {}
         for node in ast.walk(self.tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 start = min([d.lineno for d in node.decorator_list] + [node.lineno])
                 self.funcs.append((start, node.end_lineno or node.lineno, node))
+        for node in self.tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                self._top[node.name] = node
         self._fn: dict[int, tuple[list, dict]] = {}
+        self._hop: dict[int, dict[str, list[Atom]]] = {}
 
     # -- text helpers --
     def seg(self, node: ast.AST, cap: int = 2000) -> str:
@@ -575,6 +584,7 @@ class _PyFlow:
         snippet: str,
         match_start: int,
         match_end: int,
+        extra_env: dict[str, list[Atom]] | None = None,
     ) -> SinkFlow | None:
         anchor = match_start if args_spec == REST else paren
         line = line_number(self.content, anchor)
@@ -586,7 +596,7 @@ class _PyFlow:
             if found is None:
                 return None
             call_line, nodes = found
-            return self._finish(kind, fn, call_line, nodes, snippet)
+            return self._finish(kind, fn, call_line, nodes, snippet, extra_env)
         call = self._find_call(fn, paren)
         if call is None:
             return None
@@ -599,10 +609,112 @@ class _PyFlow:
             nodes += [kw.value for kw in call.keywords if kw.arg in _PY_ARG_KEYWORDS]
             if not nodes:
                 nodes = [kw.value for kw in call.keywords]
-        return self._finish(kind, fn, call.lineno, nodes, snippet)
+        return self._finish(kind, fn, call.lineno, nodes, snippet, extra_env)
 
-    def _finish(self, kind: str, fn: ast.AST, call_line: int, nodes: list[ast.AST], snippet: str) -> SinkFlow:
+    def _formals(self, fn: ast.AST) -> list[str]:
+        args = fn.args  # type: ignore[attr-defined]
+        names = [p.arg for p in list(args.posonlyargs) + list(args.args) + list(args.kwonlyargs)]
+        return [n for n in names if n not in ("self", "cls")]
+
+    def _map_call(self, callee: ast.AST, call: ast.Call, env: dict[str, list[Atom]]) -> dict[str, list[Atom]]:
+        formals = self._formals(callee)
+        out: dict[str, list[Atom]] = {}
+        for i, arg in enumerate(call.args):
+            if i >= len(formals):
+                break
+            atoms = [a for a in self._eval(arg, env) if a.weight == "high"]
+            if atoms:
+                out[formals[i]] = atoms
+        for kw in call.keywords:
+            if kw.arg and kw.arg in formals:
+                atoms = [a for a in self._eval(kw.value, env) if a.weight == "high"]
+                if atoms:
+                    out[kw.arg] = _dedupe(out.get(kw.arg, []) + atoms)
+        return out
+
+    def _is_route_handler(self, fn: ast.AST) -> bool:
+        for dec in getattr(fn, "decorator_list", ()) or ():
+            if not isinstance(dec, ast.Call):
+                continue
+            f = dec.func
+            name = f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else None
+            if name in PY_ROUTE_DECORATOR_NAMES:
+                return True
+        return False
+
+    def _one_hop_into(self, callee: ast.AST) -> dict[str, list[Atom]]:
+        cached = self._hop.get(id(callee))
+        if cached is not None:
+            return cached
+        name = getattr(callee, "name", None)
+        if not name:
+            self._hop[id(callee)] = {}
+            return {}
+        out: dict[str, list[Atom]] = {}
+        for cfn in self._top.values():
+            if cfn is callee:
+                continue
+            for node in ast.walk(cfn):
+                if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                    continue
+                if node.func.id != name:
+                    continue
+                env = self._env_at(cfn, node.lineno)
+                mapped = self._map_call(callee, node, env)
+                note = f"one-hop call {name}()"
+                for formal, atoms in mapped.items():
+                    hopped = [a.with_step(node.lineno, "propagation", note) for a in atoms]
+                    out[formal] = _dedupe(out.get(formal, []) + hopped)
+        self._hop[id(callee)] = out
+        return out
+
+    def taint_into_name(self, callee_name: str, callee: ast.AST | None = None) -> dict[str, list[Atom]]:
+        """High-weight actuals at calls to ``callee_name`` in this file (no hop)."""
+        target = callee or self._top.get(callee_name)
+        if target is None:
+            return {}
+        out: dict[str, list[Atom]] = {}
+        seen: set[int] = set()
+        for _start, _end, cfn in self.funcs:
+            if cfn is target or id(cfn) in seen:
+                continue
+            seen.add(id(cfn))
+            for node in ast.walk(cfn):
+                if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                    continue
+                if node.func.id != callee_name:
+                    continue
+                env = self._env_at(cfn, node.lineno)
+                mapped = self._map_call(target, node, env)
+                note = f"one-hop call {callee_name}()"
+                for formal, atoms in mapped.items():
+                    hopped = [a.with_step(node.lineno, "propagation", note) for a in atoms]
+                    out[formal] = _dedupe(out.get(formal, []) + hopped)
+        return out
+
+    def enclosing_name(self, line: int) -> str | None:
+        fn = self._enclosing(line)
+        return getattr(fn, "name", None) if fn is not None else None
+
+    def enclosing_fn(self, line: int) -> ast.AST | None:
+        return self._enclosing(line)
+
+    def _finish(
+        self,
+        kind: str,
+        fn: ast.AST,
+        call_line: int,
+        nodes: list[ast.AST],
+        snippet: str,
+        extra_env: dict[str, list[Atom]] | None = None,
+    ) -> SinkFlow:
         env = self._env_at(fn, call_line)
+        if extra_env:
+            for name, atoms in extra_env.items():
+                env[name] = _dedupe(env.get(name, []) + atoms)
+        elif not self._is_route_handler(fn):
+            for name, atoms in self._one_hop_into(fn).items():
+                env[name] = _dedupe(env.get(name, []) + atoms)
         atoms: list[Atom] = []
         for node in nodes:
             if _fixed_prefix(kind, self._leading_literal(node)):
@@ -611,7 +723,12 @@ class _PyFlow:
         atoms = _dedupe(atoms)
         atoms = self._apply_guards(kind, fn, call_line, env, atoms)
         start = min([d.lineno for d in fn.decorator_list] + [fn.lineno])  # type: ignore[attr-defined]
-        return _verdict(kind, atoms, call_line, snippet, (start, fn.end_lineno or start))  # type: ignore[attr-defined]
+        flow = _verdict(kind, atoms, call_line, snippet, (start, fn.end_lineno or start))  # type: ignore[attr-defined]
+        if flow.tainted and any(
+            any(note.startswith("one-hop call") for _ln, _k, note in a.steps) for a in atoms if a.weight == "high"
+        ):
+            flow.one_hop = True
+        return flow
 
     def _apply_guards(self, kind: str, fn: ast.AST, line: int, env: dict, atoms: list[Atom]) -> list[Atom]:
         live = {a.ident for a in atoms if a.sanitizer_for(kind) is None}
@@ -1230,7 +1347,9 @@ class _TextFlow:
         snippet: str,
         match_start: int,
         match_end: int,
+        extra_env: dict[str, list[Atom]] | None = None,
     ) -> SinkFlow | None:
+        del extra_env
         if args_spec == REST:
             paren = match_start
         found = self._enclosing_fn(paren)
@@ -1299,6 +1418,7 @@ class FileFlow:
         snippet: str = "",
         match_start: int | None = None,
         match_end: int | None = None,
+        extra_env: dict[str, list[Atom]] | None = None,
     ) -> SinkFlow | None:
         """Flow verdict for the sink call whose argument list opens at
         ``paren``; None when the enclosing function can't be determined (the
@@ -1311,6 +1431,10 @@ class FileFlow:
         if args_spec != REST and (paren < 0 or paren >= len(self.content) or self.content[paren] != "("):
             return None
         try:
-            return impl.sink_flow(kind, paren, args_spec, snippet, start, end)
+            return impl.sink_flow(kind, paren, args_spec, snippet, start, end, extra_env)
         except RecursionError:
             return None
+
+    def py_impl(self) -> _PyFlow | None:
+        impl = self._get()
+        return impl if isinstance(impl, _PyFlow) else None

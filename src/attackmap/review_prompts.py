@@ -11,7 +11,7 @@ from .safe_fs import contained_file
 from .weaknesses import PROMPT_INJECTION_RE
 from .diff import finding_id
 from .models import AttackPath, AttackSurface, Finding, ScanResult
-from .security_overlay import build_security_overlay
+from .security_overlay import SecurityOverlay, build_security_overlay
 
 LOW_QUALITY_SEGMENTS = ("/tests/", "/__tests__/", "/fixtures/", "/mocks/", "/examples/")
 
@@ -268,6 +268,7 @@ def _evidence_pack(
     attack_surfaces: list[AttackSurface],
     findings: list[Finding],
     attack_paths: list[AttackPath],
+    overlay: SecurityOverlay | None = None,
 ) -> dict:
     surfaces_payload = [
         {
@@ -321,7 +322,7 @@ def _evidence_pack(
         "low_quality": sum(1 for item in surfaces_payload if item["evidence_class"] == "low_quality"),
     }
 
-    overlay = build_security_overlay(scan, attack_surfaces, findings, attack_paths)
+    overlay = overlay or build_security_overlay(scan, attack_surfaces, findings, attack_paths)
     assets_payload = [asset.model_dump() for asset in overlay.assets]
     controls_payload = [control.model_dump() for control in overlay.controls]
     insights_payload = [insight.model_dump() for insight in overlay.insights]
@@ -374,8 +375,9 @@ def render_user_prompt(
     attack_surfaces: list[AttackSurface],
     findings: list[Finding],
     attack_paths: list[AttackPath],
+    overlay: SecurityOverlay | None = None,
 ) -> str:
-    evidence_payload = _evidence_pack(scan, attack_surfaces, findings, attack_paths)
+    evidence_payload = _evidence_pack(scan, attack_surfaces, findings, attack_paths, overlay=overlay)
     evidence_json = json.dumps(evidence_payload, indent=2, sort_keys=True)
     return USER_PROMPT_TEMPLATE.format(repo_context=_repo_context(scan), evidence_json=evidence_json).strip()
 
@@ -385,8 +387,9 @@ def render_review_prompts(
     attack_surfaces: list[AttackSurface],
     findings: list[Finding],
     attack_paths: list[AttackPath],
+    overlay: SecurityOverlay | None = None,
 ) -> RenderedReviewPrompt:
-    evidence_payload = _evidence_pack(scan, attack_surfaces, findings, attack_paths)
+    evidence_payload = _evidence_pack(scan, attack_surfaces, findings, attack_paths, overlay=overlay)
     evidence_json = json.dumps(evidence_payload, indent=2, sort_keys=True)
     return RenderedReviewPrompt(
         system=render_system_prompt(),

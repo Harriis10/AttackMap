@@ -312,6 +312,7 @@ def analyze_taint(
     scan: ScanResult,
     root: str | Path | None = None,
     recall: RecallConfig = DEFAULT_RECALL,
+    index: object | None = None,
 ) -> list[TaintChain]:
     """Walk the import graph from each route's file, emit TaintChains.
 
@@ -325,12 +326,12 @@ def analyze_taint(
     if not root_path.exists():
         return []
 
-    files = _index_repo(root_path)
+    files = _files_from_index(index, root_path) if index is not None else _index_repo(root_path)
     if not files:
         return []
 
-    graph = _build_import_graph(files, root_path)
-    sinks_by_file = _find_sinks(files, root_path, recall)
+    graph = _build_import_graph(files, root_path, index=index)
+    sinks_by_file = _find_sinks(files, root_path, recall, index=index, graph=graph)
 
     # Route lines per file, so a same-file flow is attributed only to the
     # route whose handler encloses the sink (#239).
@@ -365,10 +366,7 @@ def analyze_taint(
         seed_files = [route_file]
         if Path(route_file).suffix in _JS_TS_SUFFIXES:
             if route_file not in import_cache:
-                try:
-                    rf_content = files[route_file].read_text(encoding="utf-8")
-                except (OSError, UnicodeDecodeError):
-                    rf_content = ""
+                rf_content = _index_content(index, route_file, files[route_file]) or ""
                 content_cache[route_file] = rf_content
                 import_cache[route_file] = _named_import_modules(
                     rf_content, route_file, files, root_path
@@ -400,6 +398,30 @@ def analyze_taint(
 
 
 # --- Internals -------------------------------------------------------------
+
+
+def _files_from_index(index: object, root: Path) -> dict[str, Path]:
+    """Use a shared RepoIndex instead of walking again."""
+    out: dict[str, Path] = {}
+    for item in getattr(index, "files", ()):
+        rel = _normalize_rel(item.rel)
+        if Path(rel).suffix not in _SUPPORTED_SUFFIXES:
+            continue
+        if is_test_file(rel) or is_vendored_file(rel):
+            continue
+        out[rel] = item.path
+    return out
+
+
+def _index_content(index: object | None, rel: str, abs_path: Path) -> str | None:
+    if index is not None:
+        text = getattr(index, "text_of", lambda _r: None)(rel)
+        if text is not None:
+            return text
+    try:
+        return abs_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
 
 
 def _index_repo(root: Path) -> dict[str, Path]:
@@ -526,7 +548,7 @@ def _resolve_php_imports(
     return out
 
 
-def _build_import_graph(files: dict[str, Path], root: Path) -> dict[str, set[str]]:
+def _build_import_graph(files: dict[str, Path], root: Path, index: object | None = None) -> dict[str, set[str]]:
     """rel_path -> set of rel_paths this file imports (intra-repo only).
 
     For Python and JS/TS, import edges are pruned to those whose bound symbols
@@ -539,9 +561,8 @@ def _build_import_graph(files: dict[str, Path], root: Path) -> dict[str, set[str
     go_dirs = _go_dir_index(files)
     php_psr4 = _php_psr4_map(root)
     for rel, abs_path in files.items():
-        try:
-            content = abs_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+        content = _index_content(index, rel, abs_path)
+        if content is None:
             continue
         if abs_path.suffix in _PY_SUFFIXES:
             edges = _resolve_py_imports_named(content, rel, files)
@@ -939,7 +960,9 @@ def _line_end(content: str, offset: int) -> int:
 
 
 def _find_sinks(
-    files: dict[str, Path], root: Path, recall: RecallConfig = DEFAULT_RECALL
+    files: dict[str, Path], root: Path, recall: RecallConfig = DEFAULT_RECALL,
+    index: object | None = None,
+    graph: dict[str, set[str]] | None = None,
 ) -> dict[str, list[_SinkHit]]:
     """rel_path -> sink hits.
 
@@ -953,14 +976,26 @@ def _find_sinks(
     bypasses (#148b) — and the walk marks chains from such hits speculative.
     """
     out: dict[str, list[_SinkHit]] = {}
+    flow_cache: dict[str, FileFlow] = {}
+    contents: dict[str, str] = {}
+    importers: dict[str, list[str]] = {rel: [] for rel in files}
+    if graph:
+        for src, dests in graph.items():
+            for dest in dests:
+                importers.setdefault(dest, []).append(src)
     for rel, abs_path in files.items():
-        try:
-            content = abs_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+        content = _index_content(index, rel, abs_path)
+        if content is None:
+            continue
+        contents[rel] = content
+        flow_cache[rel] = FileFlow(content, abs_path.suffix)
+    for rel, abs_path in files.items():
+        content = contents.get(rel)
+        if content is None:
             continue
         suffix = abs_path.suffix
         lang = lang_for_suffix(suffix)
-        flows = FileFlow(content, suffix)  # parsed lazily, once per file
+        flows = flow_cache[rel]
         hits: list[_SinkHit] = []
         # Fallback per-file sanitizer lookup, memoized per sink kind.
         sanitizer_by_kind: dict[str, str | None] = {}
@@ -1000,6 +1035,23 @@ def _find_sinks(
                     continue
                 snippet = _line_snippet(content, match.start())
                 flow = flows.sink_flow(kind, paren, sink.args, snippet, match.start(), match.end())
+                if lang == PY and importers.get(rel) and (flow is None or not (flow.tainted or flow.sanitized)):
+                    py = flows.py_impl()
+                    callee = py.enclosing_fn(line_number(content, match.start())) if py is not None else None
+                    extra: dict = {}
+                    if py is not None and callee is not None:
+                        cname = getattr(callee, "name", None)
+                        for src in importers.get(rel, ()):
+                            other = flow_cache.get(src)
+                            opy = other.py_impl() if other is not None else None
+                            if opy is None or not cname:
+                                continue
+                            for key, atoms in opy.taint_into_name(cname, callee).items():
+                                extra[key] = extra.get(key, []) + atoms
+                        if extra:
+                            flow = flows.sink_flow(
+                                kind, paren, sink.args, snippet, match.start(), match.end(), extra
+                            )
                 traced = flow is not None and (flow.tainted or flow.sanitized)
                 flow_only = False
                 if sink.gate == "tainted":
@@ -1112,6 +1164,9 @@ def _walk_from_route(
             if flow is not None and flow.tainted:
                 # A traced source→sink flow is stronger evidence than reach.
                 confidence = round(min(0.9, confidence + 0.15), 2)
+                if flow.one_hop:
+                    # One-hop call is evidenced but weaker than a same-function flow.
+                    confidence = round(confidence * 0.75, 2)
             if hit.sanitizer is not None:
                 # A neutralizer is present at the sink — likely defended.
                 # Downgrade well below the HIGH threshold, keep as evidence.

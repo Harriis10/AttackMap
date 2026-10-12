@@ -50,14 +50,16 @@ def test_fleet_continues_past_a_failing_repo(tmp_path: Path, monkeypatch: pytest
     for d in (good, bad):
         d.mkdir()
         (d / "app.py").write_text(APP, encoding="utf-8")
-    real = cli.analyze_repository
+    import attackmap.pipeline as pipeline
+
+    real = pipeline.analyze_repository
 
     def flaky(root, **kwargs):
         if Path(root).name == "bad":
             raise RuntimeError("analyzer blew up")
         return real(root, **kwargs)
 
-    monkeypatch.setattr(cli, "analyze_repository", flaky)
+    monkeypatch.setattr(pipeline, "analyze_repository", flaky)
     out = tmp_path / "out"
     result = runner.invoke(app, ["analyze", str(bad), str(good), "-o", str(out)])
     assert result.exit_code == 1, result.output

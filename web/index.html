@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AttackMap</title>
+  <link rel="stylesheet" href="/src/app.css" />
+  <link rel="stylesheet" href="/src/exploitability.css" />
+</head>
+<body>
+  <header class="toolbar">
+    <label>Repo
+      <select id="repo-menu"><option>juice-shop</option></select>
+    </label>
+    <label>LLM
+      <select id="llm-menu">
+        <option value="none">None (heuristic only)</option>
+        <option value="anthropic">Anthropic (sends evidence off-box)</option>
+        <option value="openai">OpenAI (sends evidence off-box)</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="cve" /> CVE</label>
+    <label>Analyzers
+      <select id="analyzers"><option>Auto</option></select>
+    </label>
+    <label class="check"><input type="checkbox" id="watch" /> Watch</label>
+    <button type="button" class="run" id="run">Run scan</button>
+  </header>
+  <div class="status" id="status">
+    <span class="dot"></span>
+    <span id="status-text">Done — 0 findings</span>
+    <span class="delta" id="delta"></span>
+    <span id="watching" hidden>Watching</span>
+  </div>
+  <div class="shell">
+    <nav class="sidebar" id="sidebar">
+      <button type="button" data-view="overview">Overview</button>
+      <button type="button" data-view="findings">Findings</button>
+      <button type="button" data-view="exploitability" class="active">Exploitability</button>
+      <button type="button" data-view="paths">Attack paths</button>
+      <button type="button" data-view="surface">Attack surface</button>
+      <button type="button" data-view="diagrams">Diagrams</button>
+      <button type="button" data-view="review">Review</button>
+      <button type="button" data-view="ai-review">AI Review</button>
+    </nav>
+    <main id="main"></main>
+  </div>
+  <script src="/src/api.js"></script>
+  <script src="/src/app.js"></script>
+</body>
+</html>

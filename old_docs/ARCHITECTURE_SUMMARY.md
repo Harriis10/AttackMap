@@ -1,5 +1,7 @@
 # AttackMap Architecture Summary (Current)
 
+> Stale notes — the current architecture is the review that produced RunState, RepoIndex, and the Windows GUI. Do not drive changes from this folder.
+
 ## High-Level Pipeline
 
 1. Recon collection:

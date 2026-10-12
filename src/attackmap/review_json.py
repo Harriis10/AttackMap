@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .models import AttackPath, AttackSurface, Finding, ScanResult
-from .security_overlay import build_security_overlay
+from .security_overlay import SecurityOverlay, build_security_overlay
 
 SCHEMA_VERSION = "1.4.0"  # 1.3.0: weaknesses[].locations (#214); 1.4.0: weaknesses[].rule_id/taxonomy (#250)
 LOW_QUALITY_SEGMENTS = ("/tests/", "/__tests__/", "/fixtures/", "/mocks/", "/examples/")
@@ -210,9 +210,10 @@ def build_defensive_review_json(
     attack_surfaces: list[AttackSurface],
     findings: list[Finding],
     attack_paths: list[AttackPath],
+    overlay: SecurityOverlay | None = None,
 ) -> dict:
     evidence_counts = _evidence_class_counts(attack_surfaces)
-    overlay = build_security_overlay(scan, attack_surfaces, findings, attack_paths)
+    overlay = overlay or build_security_overlay(scan, attack_surfaces, findings, attack_paths)
     weaknesses, hotspots = _weaknesses_and_hotspots(attack_surfaces, overlay.findings)
     return {
         "schema_version": SCHEMA_VERSION,

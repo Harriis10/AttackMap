@@ -281,7 +281,7 @@ def scan_workflows(root: str | Path) -> list[WorkflowIssue]:
             continue
         if not isinstance(data, dict):
             continue
-        rel = str(path.relative_to(root_path))
+        rel = path.relative_to(root_path).as_posix()
         lines = text.splitlines()
         issues.extend(_scan_one(data, rel, lines))
     return issues
