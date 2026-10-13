@@ -464,7 +464,11 @@ def _resolve_openai_client(api_key: str | None, client: Any | None) -> Any:
             "No OpenAI API credentials found. Set OPENAI_API_KEY, or install the `codex` "
             "CLI and run `codex login` to use --llm-backend cli."
         )
-    return openai.OpenAI(api_key=resolved_key, timeout=OPENAI_API_TIMEOUT_SECONDS)
+    kwargs: dict[str, Any] = {"api_key": resolved_key, "timeout": OPENAI_API_TIMEOUT_SECONDS}
+    base_url = os.environ.get("OPENAI_BASE_URL")
+    if base_url:
+        kwargs["base_url"] = base_url
+    return openai.OpenAI(**kwargs)
 
 
 def _openai_output_text(response: Any) -> str:

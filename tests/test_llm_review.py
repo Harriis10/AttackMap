@@ -613,6 +613,32 @@ def test_openai_api_builds_client_with_key_from_env(monkeypatch) -> None:
     assert "timeout" in captured_ctor
 
 
+def test_openai_api_uses_openai_base_url_for_lmstudio(monkeypatch) -> None:
+    """LM Studio exposes an OpenAI-compatible endpoint via OPENAI_BASE_URL."""
+    monkeypatch.setenv("OPENAI_API_KEY", "lm-studio")
+    monkeypatch.setenv("OPENAI_BASE_URL", "http://localhost:1234/v1")
+    captured_ctor: dict[str, Any] = {}
+    response = _FakeOpenAIResponse(output_text="ok")
+
+    class _FakeOpenAIModule:
+        @staticmethod
+        def OpenAI(**kwargs):  # noqa: N802 (matches SDK class name)
+            captured_ctor.update(kwargs)
+            return _FakeOpenAIClient(response)
+
+    import sys
+
+    monkeypatch.setitem(sys.modules, "openai", _FakeOpenAIModule)
+
+    result = generate_llm_review(
+        _trivial_scan(), _surfaces(), _findings(), [],
+        provider="openai", backend="api", model="cyberstag-security-26b-a4b-v1",
+    )
+
+    assert result.backend == "api"
+    assert captured_ctor["base_url"] == "http://localhost:1234/v1"
+
+
 # ---------- Codex CLI backend tests ----------
 
 

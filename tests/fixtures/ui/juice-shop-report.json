@@ -18,5 +18,22 @@
   "defensive_review": "# Defensive review\n\nJuice Shop fixture.",
   "defensive_review_llm": "",
   "architecture_summary": "Express API with SQLite.",
-  "diff": {"new": 22, "resolved": 13, "persisted": 7}
+  "diff": {"new": 22, "resolved": 13, "persisted": 7},
+  "suppressed_findings": [
+    {"id": "s1", "title": "Old XSS", "rule_id": "xss", "severity": "low", "reason": "accepted in tests", "mitigation": "n/a", "locations": []}
+  ],
+  "scan": {
+    "root": "juice-shop",
+    "languages": ["javascript"],
+    "files_scanned": 12,
+    "routes": [{"method": "POST", "path": "/api/Feedbacks", "file": "routes/feedback.ts", "line": 12}],
+    "secret_hints": [{"name": "API_KEY", "kind": "generic", "file": "config/index.ts", "line": 4}],
+    "dependencies": [{"name": "express", "version": "4.18.0", "ecosystem": "npm"}],
+    "vulnerabilities": [],
+    "workflow_issues": [],
+    "taint_chains": [{"sink_kind": "nosql_injection", "file": "routes/feedback.ts", "line": 12}],
+    "analyzer_errors": [],
+    "limitations": []
+  },
+  "paths_mermaid": "# Attack paths\n\n## 1. Public feedback\n\n```mermaid\nflowchart TD\n  n0[\"POST /api/Feedbacks\"]\n  n1[\"Impact: Data integrity\"]\n  class n1 impact\n  n0 --> n1\n```\n"
 }

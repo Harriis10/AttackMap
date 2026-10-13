@@ -1,16 +1,27 @@
 const params = new URLSearchParams(location.search);
-const TOKEN = params.get("token") || "";
+let TOKEN = params.get("token") || "";
+if (TOKEN) {
+  try { sessionStorage.setItem("attackmap-token", TOKEN); } catch { /* private mode */ }
+  if (history.replaceState) history.replaceState({}, "", location.pathname);
+} else {
+  try { TOKEN = sessionStorage.getItem("attackmap-token") || ""; } catch { TOKEN = ""; }
+}
 
 async function api(path, opts) {
   const url = new URL(path, location.origin);
-  url.searchParams.set("token", TOKEN);
   const res = await fetch(url, Object.assign({ headers: { "X-AttackMap-Token": TOKEN } }, opts || {}));
   if (!res.ok) throw new Error(String(res.status));
-  return res.json();
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) return res.json();
+  return res.text();
 }
 
 function getState() {
   return api("/api/state");
+}
+
+function getReport() {
+  return api("/api/report");
 }
 
 function post(path, body) {

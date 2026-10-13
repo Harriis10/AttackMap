@@ -3,49 +3,100 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
   <title>AttackMap</title>
+  <style>
+    /* Critical: paint dark before external CSS arrives (kills the white FOUC flash). */
+    html { background: #141414; color-scheme: dark; }
+    body { margin: 0; background: #141414; color: #e8e8e8; font-family: "Segoe UI Variable", "Segoe UI", sans-serif; }
+    #boot {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 14px;
+      background: #141414; z-index: 9999;
+    }
+    #boot .logo { font-size: 20px; font-weight: 600; letter-spacing: 0.4px; }
+    #boot .spin {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 3px solid #2a2a2a; border-top-color: #0a84ff;
+      animation: bootspin 0.9s linear infinite;
+    }
+    @keyframes bootspin { to { transform: rotate(360deg); } }
+  </style>
   <link rel="stylesheet" href="/src/app.css" />
   <link rel="stylesheet" href="/src/exploitability.css" />
 </head>
 <body>
+  <div id="boot"><div class="logo">AttackMap</div><div class="spin"></div></div>
   <header class="toolbar">
-    <label>Repo
-      <select id="repo-menu"><option>juice-shop</option></select>
-    </label>
+    <button type="button" class="folder" id="pick">Pick folder</button>
+    <button type="button" class="ghost" id="add-folder" title="Add another repo for a fleet scan">+ Fleet</button>
+    <input class="repo-path" id="repo-label" placeholder="Repository path (or Pick folder)" spellcheck="false" />
     <label>LLM
       <select id="llm-menu">
         <option value="none">None (heuristic only)</option>
-        <option value="anthropic">Anthropic (sends evidence off-box)</option>
-        <option value="openai">OpenAI (sends evidence off-box)</option>
+        <option value="review">Review (--llm)</option>
+        <option value="hunt">Hunt hypotheses (--hunt)</option>
+        <option value="huntVerify">Hunt + verify (--hunt --verify)</option>
+        <option value="remediate">Remediate (--remediate)</option>
+        <option value="triage">Triage findings (--triage)</option>
       </select>
     </label>
+    <label>Provider
+      <select id="provider">
+        <option value="claude">Claude</option>
+        <option value="openai">OpenAI / Codex</option>
+        <option value="openai-lmstudio">LM Studio (local)</option>
+      </select>
+    </label>
+    <label id="base-url-label" hidden>Base URL
+      <input type="text" id="base-url" placeholder="http://localhost:1234/v1" style="width:180px" />
+    </label>
+    <label>Model
+      <input type="text" id="model" placeholder="auto" style="width:150px" />
+    </label>
     <label class="check"><input type="checkbox" id="cve" /> CVE</label>
+    <label class="check"><input type="checkbox" id="recall" /> Recall</label>
     <label>Analyzers
-      <select id="analyzers"><option>Auto</option></select>
+      <select id="analyzers"><option value="auto">Auto</option></select>
     </label>
     <label class="check"><input type="checkbox" id="watch" /> Watch</label>
+    <button type="button" class="ghost" id="settings-btn">Settings</button>
     <button type="button" class="run" id="run">Run scan</button>
   </header>
   <div class="status" id="status">
-    <span class="dot"></span>
-    <span id="status-text">Done — 0 findings</span>
+    <span class="dot" id="dot"></span>
+    <span id="status-text">Pick a repository and run a scan.</span>
+    <div class="bar" id="bar-wrap" hidden><div class="bar-fill" id="bar"></div></div>
+    <span id="eta"></span>
     <span class="delta" id="delta"></span>
     <span id="watching" hidden>Watching</span>
+    <button type="button" class="ghost" id="reveal" hidden>Reveal reports</button>
   </div>
   <div class="shell">
     <nav class="sidebar" id="sidebar">
-      <button type="button" data-view="overview">Overview</button>
+      <button type="button" data-view="overview" class="active">Overview</button>
       <button type="button" data-view="findings">Findings</button>
-      <button type="button" data-view="exploitability" class="active">Exploitability</button>
+      <button type="button" data-view="exploitability">Exploitability</button>
       <button type="button" data-view="paths">Attack paths</button>
       <button type="button" data-view="surface">Attack surface</button>
       <button type="button" data-view="diagrams">Diagrams</button>
       <button type="button" data-view="review">Review</button>
       <button type="button" data-view="ai-review">AI Review</button>
+      <button type="button" data-view="diff">Diff</button>
+      <button type="button" data-view="fleet">Fleet</button>
+      <button type="button" data-view="deps">Dependencies</button>
+      <button type="button" data-view="secrets">Secrets</button>
+      <button type="button" data-view="ci">CI workflows</button>
+      <button type="button" data-view="flows">Data flows</button>
+      <button type="button" data-view="analyzers">Analyzers</button>
+      <button type="button" data-view="recents">Recent scans</button>
+      <button type="button" data-view="settings">Settings</button>
     </nav>
     <main id="main"></main>
   </div>
   <script src="/src/api.js"></script>
+  <script src="/src/mermaid-lite.js"></script>
+  <script src="/src/markdown.js"></script>
   <script src="/src/app.js"></script>
 </body>
 </html>
