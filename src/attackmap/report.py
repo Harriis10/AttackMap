@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from .md import md_code, md_text
 from .context_pack import build_review_context_pack
@@ -43,7 +44,7 @@ def write_reports(
     suppressed: list[SuppressedFinding] | None = None,
     output_format: str = "all",
     overlay: object | None = None,
-) -> None:
+) -> dict[str, Any]:
     """Write the report set for one scan.
 
     ``output_format`` selects which artifacts are emitted (``--format``):
@@ -123,7 +124,7 @@ def write_reports(
         write("attackmap-report.sarif", json.dumps(sarif_report, indent=2) + "\n")
 
     if not emit_markdown:
-        return
+        return json_report
 
     # Mermaid + Graphviz DOT export of attack paths and service topology
     # (#49). Nothing new is computed — pure output transform of shapes
@@ -133,6 +134,7 @@ def write_reports(
     write("attackmap-topology.md", render_topology_mermaid(service_graph))
     write("attackmap-paths.dot", render_attack_paths_dot(attack_paths))
     write("attackmap-topology.dot", render_topology_dot(service_graph))
+    return json_report
 
 
 def render_exploitability_ranking(scores: list[ExploitabilityScore]) -> str:

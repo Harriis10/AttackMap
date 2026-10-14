@@ -8,15 +8,33 @@ import secrets
 import subprocess
 import sys
 import threading
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from ..analyzers import TRUSTED_ONLY_ENV
 from .config import ScanConfig
-from .output import fleet_dir, reports_dir, rotate_previous
-from .report import GuiReport, decode_report, fixture_report_path, load_report_file, web_root
+from .output import (
+    current_generation,
+    fleet_dir,
+    generation_dir,
+    promote_generation,
+    reports_dir,
+    rotate_previous,
+)
+from .report import (
+    GuiReport,
+    decode_report,
+    fixture_report_path,
+    load_current_report,
+    load_report_file,
+    web_root,
+)
 from .runner import ScanRunner, child_python_env
+from .run_state import GuiRunState, is_terminal
 from .secrets import child_llm_env, has_llm_key, save_llm_key
+from .spawn import discovery_argv, frozen_aware_argv, is_frozen_build
 from .suppress_write import append_suppression
 from .watch import Watcher
 
@@ -31,7 +49,8 @@ class LoopbackApp:
         self.report = report
         self.repos: list[Path] = []
         self.output: Path | None = None
-        self.status = "idle"
+        self._run_state = GuiRunState.IDLE
+        self.run_id: str | None = None
         self.progress: dict = {}
         self.exit_code: int | None = None
         self.error: str | None = None
@@ -57,6 +76,19 @@ class LoopbackApp:
         self.missing: list[dict] = []
         self.recents: list[dict] = _load_recents()
         self._lock = threading.Lock()
+
+    @property
+    def status(self) -> str:
+        """Frontend-compatible status label derived from the run state."""
+        status_map = {
+            GuiRunState.IDLE: "idle",
+            GuiRunState.RUNNING: "running",
+            GuiRunState.CANCELLING: "running",
+            GuiRunState.SUCCEEDED: "done",
+            GuiRunState.FAILED: "failed",
+            GuiRunState.CANCELLED: "failed",
+        }
+        return status_map.get(self._run_state, self._run_state.value)
 
     def _ensure_caps(self) -> set[str]:
         if self._caps_loaded:
@@ -158,7 +190,7 @@ def _handler(app: LoopbackApp):
                 length = 0
             if length < 0 or length > 1_000_000:
                 self._json(400, {"error": "invalid body"})
-                return
+                return {}
             raw = self.rfile.read(length) if length else b"{}"
             try:
                 data = json.loads(raw.decode("utf-8") or "{}")
@@ -225,8 +257,9 @@ def _handler(app: LoopbackApp):
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/cancel":
-                app.runner.cancel()
-                app.status = "cancelled"
+                if app._run_state == GuiRunState.RUNNING:
+                    app._run_state = GuiRunState.CANCELLING
+                    app.runner.cancel()
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/watch":
@@ -243,7 +276,8 @@ def _handler(app: LoopbackApp):
                 return
             if parsed.path == "/api/reveal":
                 if app.output and app.output.exists() and hasattr(os, "startfile"):
-                    os.startfile(app.output)  # noqa: S606 — user-opened local folder
+                    target = current_generation(app.output) or app.output
+                    os.startfile(target)  # noqa: S606 — user-opened local folder
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/suppress":
@@ -251,7 +285,11 @@ def _handler(app: LoopbackApp):
                     self._json(400, {"error": "no repo"})
                     return
                 dest = app.repo / ".attackmap-suppress.yaml"
-                append_suppression(dest, body)
+                try:
+                    append_suppression(dest, body)
+                except ValueError as exc:
+                    self._json(400, {"error": str(exc)})
+                    return
                 self._json(200, {"ok": True, "path": str(dest)})
                 return
             self._json(404, {"error": "not found"})
@@ -285,31 +323,37 @@ def _apply_config(app: LoopbackApp, body: dict) -> None:
 def _start_scan(app: LoopbackApp, body: dict) -> None:
     _apply_config(app, body)
     if not app.repos or not app.repos[0].exists():
-        app.status = "failed"
+        app._run_state = GuiRunState.FAILED
         app.error = "Pick a repository folder first."
         return
-    if app.runner.running:
+    if app._run_state in {GuiRunState.RUNNING, GuiRunState.CANCELLING}:
         return
     llm_active = app.llm_mode not in {"none", "None (heuristic only)", ""}
     is_local_openai = app.provider.lower().startswith("openai") and bool(app.base_url)
     if llm_active and not is_local_openai and not has_llm_key(app.provider):
-        app.status = "failed"
+        app._run_state = GuiRunState.FAILED
         app.error = f"No API key stored for {app.provider}. Open Settings and save a key, or keep heuristic-only mode."
         return
     _refresh_missing(app)
     fleet = len(app.repos) > 1
-    app.output = fleet_dir(app.repos) if fleet else reports_dir(app.repos[0])
+    report_base = fleet_dir(app.repos) if fleet else reports_dir(app.repos[0])
+    app.output = report_base
     baseline = None
     if not fleet and app.use_baseline:
-        baseline = rotate_previous(app.repos[0], app.output)
-    app.status = "running"
+        baseline = rotate_previous(app.repos[0], report_base)
+
+    run_id = uuid.uuid4().hex
+    app.run_id = run_id
+    app._run_state = GuiRunState.RUNNING
     app.error = None
     app.exit_code = None
     app.stderr_tail = ""
     app.progress = {"event": "begin", "label": "Starting scan"}
+    output = generation_dir(report_base, run_id)
     cfg = ScanConfig(
         repos=app.repos,
-        output=app.output,
+        output=output,
+        run_id=app.run_id,
         run_cve=app.cve,
         modules=[m for m in app.modules if m and m.lower() != "auto"],
         llm_mode=app.llm_mode,
@@ -321,77 +365,66 @@ def _start_scan(app: LoopbackApp, body: dict) -> None:
         fail_on_new_high=app.fail_on_new_high,
         capabilities=app.capabilities if app._caps_loaded else None,
     )
-    argv = [sys.executable, "-m", "attackmap", *cfg.cli_args()]
+    argv = frozen_aware_argv(cfg)
 
     def on_progress(event: dict) -> None:
+        if app.run_id != run_id:
+            return
         app.progress = event
-        app.status = "running"
 
     def on_done(code: int, report: Path | None, tail: str = "") -> None:
+        if app.run_id != run_id:
+            return
         app.exit_code = code
         app.stderr_tail = tail
-        if report is not None and report.is_file() and (code == 0 or (report.is_file() and "failing per --fail-on-new-high" in tail)):
-            name = app.repos[0].name if app.repos else "repo"
-            app.report = load_report_file(report, name)
-            app.status = "done"
-            app.error = None
-            _remember(app)
+        if app._run_state == GuiRunState.CANCELLING:
+            app._run_state = GuiRunState.CANCELLED
+            app.error = tail.strip() or "Scan cancelled."
+            return
+        if report is not None and report.is_file() and (
+            code == 0 or "failing per --fail-on-new-high" in tail
+        ):
+            try:
+                promote_generation(report_base, run_id)
+                name = app.repos[0].name if app.repos else "repo"
+                app.report = load_current_report(report_base, name)
+                app._run_state = GuiRunState.SUCCEEDED
+                app.error = None
+                _remember(app)
+            except (OSError, FileNotFoundError) as exc:
+                app._run_state = GuiRunState.FAILED
+                app.error = f"Report generated but could not be promoted: {exc}"
         else:
-            app.status = "failed"
+            app._run_state = GuiRunState.FAILED
             detail = tail.strip() or f"Scan exited with code {code} and no report."
             app.error = detail
             if app.missing:
-                names = ", ".join(item.get("plugin") or item.get("analyzer_name") or "?" for item in app.missing)
+                names = ", ".join(
+                    item.get("plugin") or item.get("analyzer_name") or "?"
+                    for item in app.missing
+                )
                 app.error = f"{detail}\nMissing recommended analyzers: {names}"
 
-    # Run in-process: the GUI is frozen (attackmap.exe), so sys.executable
-    # cannot be used to re-spawn `python -m attackmap` (-m is invalid there).
-    import threading
+    env_overlay = child_llm_env(
+        app.provider if app.llm_mode not in {"none", ""} else "none",
+        app.base_url if app.provider.lower().startswith("openai") else None,
+    )
+    if is_frozen_build():
+        env_overlay[TRUSTED_ONLY_ENV] = "1"
 
-    from attackmap.pipeline import AnalyzeOptions, run_scan
-
-    def _run() -> None:
-        report = app.output / "attackmap-report.json" if app.output else None
-        try:
-            options = AnalyzeOptions(
-                repo_path=app.repos[0].resolve(),
-                output=(app.output or (app.repos[0] / "reports")).resolve(),
-                output_format="all",
-                analyzers=None,
-                recall=app.recall,
-                cve=app.cve,
-                no_suppress=app.no_suppress,
-                suppress_file=str(cfg.suppress_file) if cfg.suppress_file else None,
-                baseline=str(cfg.baseline) if cfg.baseline else None,
-                fail_on_new_high=app.fail_on_new_high,
-                progress_format="json",
-                llm=app.llm_mode == "review",
-                llm_provider=app.provider,
-                llm_model=app.model,
-                llm_backend="api",
-                hunt=app.llm_mode == "hunt",
-                verify=app.llm_mode in {"huntVerify", "hunt+verify"},
-                remediate=app.llm_mode == "remediate",
-                triage=app.llm_mode == "triage",
-            )
-            import os
-
-            env = child_llm_env(
-                app.provider if app.llm_mode not in {"none", ""} else "none",
-                app.base_url if app.provider.lower().startswith("openai") else None,
-            )
-            for key, value in env.items():
-                os.environ[key] = value
-            state = run_scan(options)
-            code = state.exit_code
-        except Exception as exc:  # noqa: BLE001 — surface as failed scan
-            app.stderr_tail = f"{type(exc).__name__}: {exc}"
-            code = 1
-        on_done(code, report if report and report.is_file() else None, app.stderr_tail)
-
-    app.runner.running = True
-    app.runner._proc = None
-    threading.Thread(target=lambda: (_run(), setattr(app.runner, "running", False)), daemon=True).start()
+    report_path = output / ("fleet-summary.json" if fleet else "attackmap-report.json")
+    started = app.runner.start(
+        app.repos[0],
+        output,
+        on_progress=on_progress,
+        on_done=lambda code, report, tail="": on_done(code, report, tail),
+        argv=argv,
+        env=env_overlay,
+        report_path=report_path,
+    )
+    if not started:
+        app._run_state = GuiRunState.FAILED
+        app.error = "Scan could not start because a previous run is still finishing."
 
 
 def _sync_watch(app: LoopbackApp) -> None:
@@ -459,7 +492,7 @@ def _load_recents() -> list[dict]:
 def _load_capabilities() -> set[str] | None:
     try:
         raw = subprocess.check_output(
-            [sys.executable, "-m", "attackmap", "capabilities"],
+            discovery_argv("capabilities"),
             text=True,
             timeout=20,
             stderr=subprocess.DEVNULL,
@@ -475,7 +508,7 @@ def _load_capabilities() -> set[str] | None:
 def _load_modules() -> list[dict]:
     try:
         raw = subprocess.check_output(
-            [sys.executable, "-m", "attackmap", "modules", "--json"],
+            discovery_argv("modules") + ["--json"],
             text=True,
             timeout=20,
             stderr=subprocess.DEVNULL,

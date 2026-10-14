@@ -37,6 +37,7 @@ class GuiReport:
     review_md: str
     ai_review_md: str
     repo_name: str
+    ai_review_requested: bool = False
     new_count: int = 0
     resolved_count: int = 0
     suppressed: list[dict[str, Any]] = field(default_factory=list)
@@ -69,6 +70,7 @@ class GuiReport:
             "diagrams": self.diagrams,
             "reviewMd": self.review_md,
             "aiReviewMd": self.ai_review_md,
+            "aiReviewRequested": self.ai_review_requested,
             "repoName": self.repo_name,
             "newCount": self.new_count,
             "resolvedCount": self.resolved_count,
@@ -178,12 +180,61 @@ def load_report_file(path: Path, repo_name: str | None = None) -> GuiReport:
     report.diagrams["paths"] = _read_text(parent / "attackmap-paths.md") or report.diagrams.get("paths") or ""
     report.diagrams["topology"] = _read_text(parent / "attackmap-topology.md") or report.diagrams.get("topology") or ""
     report.diff_md = _read_text(parent / "attackmap-diff.md") or report.diff_md
+    llm_meta_files = [
+        "defensive-review-llm.meta.json",
+        "vulnerability-hypotheses.meta.json",
+        "remediation.meta.json",
+        "triage.meta.json",
+    ]
+    report.ai_review_requested = any((parent / name).is_file() for name in llm_meta_files)
     if not report.ai_review_md:
         report.ai_review_md = _read_text(parent / "defensive-review-llm.md")
+    if not report.ai_review_md:
+        report.ai_review_md = _read_text(parent / "vulnerability-hypotheses.md")
+    if not report.ai_review_md:
+        report.ai_review_md = _read_text(parent / "remediation.md")
+    if not report.ai_review_md:
+        report.ai_review_md = _read_text(parent / "triage.md")
     fleet_path = parent / "fleet-summary.json"
     if fleet_path.is_file():
         report.fleet = json.loads(fleet_path.read_text(encoding="utf-8"))
     return report
+
+
+def decode_fleet_summary(data: dict[str, Any], repo_name: str = "fleet") -> GuiReport:
+    """Build a minimal GuiReport that wraps a fleet summary JSON."""
+    return GuiReport(
+        finding_count=int(data.get("total_findings") or 0),
+        findings=[],
+        exploitability=[],
+        attack_paths=[],
+        attack_surfaces=[],
+        diagrams={},
+        review_md="",
+        ai_review_md="",
+        repo_name=repo_name,
+        fleet=data,
+        severity_counts={},
+    )
+
+
+def load_current_report(base_dir: Path, repo_name: str | None = None) -> GuiReport:
+    """Load the report from the promoted generation directory."""
+    from .output import current_generation
+
+    gen = current_generation(base_dir)
+    if gen is None:
+        raise FileNotFoundError(f"no promoted generation in {base_dir}")
+    report_path = gen / "attackmap-report.json"
+    if report_path.is_file():
+        return load_report_file(report_path, repo_name)
+    fleet_path = gen / "fleet-summary.json"
+    if fleet_path.is_file():
+        import json
+
+        data = json.loads(fleet_path.read_text(encoding="utf-8"))
+        return decode_fleet_summary(data, repo_name or "fleet")
+    raise FileNotFoundError(f"no report or fleet summary in {gen}")
 
 
 def _read_text(path: Path) -> str:

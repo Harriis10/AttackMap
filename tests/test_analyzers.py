@@ -758,3 +758,23 @@ def test_builtin_javascript_analyzer_merges_alongside_default_without_double_cou
     (tmp_path / "server.ts").write_text("const x = 1;\n", encoding="utf-8")
     result = analyze_repository(tmp_path)
     assert result.files_scanned == 1
+
+
+def test_analyze_repository_reports_index_mutation(tmp_path: Path) -> None:
+    """A file mutated during analyzer execution is reported in limitations."""
+    target = tmp_path / "app.js"
+    target.write_text("const x = 1;\n", encoding="utf-8")
+
+    class MutatingAnalyzer:
+        metadata = get_analyzer_metadata(DefaultAnalyzer())
+
+        @property
+        def name(self) -> str:
+            return self.metadata.name
+
+        def analyze(self, root: str | Path) -> AnalyzerResult:
+            target.write_text("const x = 2;\nconst y = 3;\n", encoding="utf-8")
+            return AnalyzerResult(root=str(root))
+
+    result = analyze_repository(tmp_path, analyzers=[MutatingAnalyzer()])
+    assert any("mutated" in note for note in result.limitations)

@@ -52,11 +52,12 @@ class ScanRunner:
         modules: str = "auto",
         baseline: Path | None = None,
         argv: list[str] | None = None,
+        report_path: Path | None = None,
         **kwargs: Any,
-    ) -> None:
+    ) -> bool:
         with self._lock:
             if self.running:
-                return
+                return False
             self.running = True
             self.stderr_tail = ""
         command = argv or analyze_argv(
@@ -83,10 +84,21 @@ class ScanRunner:
                 self.running = False
                 self.stderr_tail = str(exc)
             _invoke_done(on_done, 1, None, str(exc))
-            return
-        threading.Thread(target=self._pump, args=(output, on_progress, on_done), daemon=True).start()
+            return False
+        threading.Thread(
+            target=self._pump,
+            args=(output, report_path, on_progress, on_done),
+            daemon=True,
+        ).start()
+        return True
 
-    def _pump(self, output: Path, on_progress: ProgressHook | None, on_done: DoneHook | None) -> None:
+    def _pump(
+        self,
+        output: Path,
+        report_path: Path | None,
+        on_progress: ProgressHook | None,
+        on_done: DoneHook | None,
+    ) -> None:
         proc = self._proc
         assert proc is not None and proc.stderr is not None
         tail: deque[str] = deque(maxlen=50)
@@ -118,11 +130,11 @@ class ScanRunner:
         except Exception as exc:  # noqa: BLE001 — always surface a terminal status
             code = getattr(proc, "returncode", None) or 1
             tail.append(f"{type(exc).__name__}: {exc}")
-        report = output / "attackmap-report.json"
-        report_path = report if report.is_file() else None
+        report = report_path or output / "attackmap-report.json"
+        report_file = report if report.is_file() else None
         self.stderr_tail = "\n".join(tail)
         try:
-            _invoke_done(on_done, code, report_path, self.stderr_tail)
+            _invoke_done(on_done, code, report_file, self.stderr_tail)
         finally:
             with self._lock:
                 self.running = False

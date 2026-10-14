@@ -17,8 +17,31 @@ AttackMap is a Python package. Development requires Python 3.11+.
 git clone https://github.com/mlaify/AttackMap.git
 cd AttackMap
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # On Windows PowerShell: .venv\Scripts\Activate.ps1
 pip install -e ".[llm]"
+```
+
+On Windows, use the equivalent PowerShell steps:
+
+```powershell
+git clone https://github.com/mlaify/AttackMap.git
+cd AttackMap
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e ".[llm]"
+```
+
+To build the Windows GUI executable, install PyInstaller and run:
+
+```powershell
+installer\build-installer.bat
+.\dist\attackmap\attackmap.exe --version
+.\dist\attackmap\attackmap.exe ui
+```
+
+The build requires a Windows environment with Python 3.11+ on PATH and enough
+privileges to create junctions/symlinks for `safe_write_text` tests (those tests
+skip automatically if symlinks are not permitted).
 ```
 
 To run the analyzer plugins locally, install each one editable from its sibling

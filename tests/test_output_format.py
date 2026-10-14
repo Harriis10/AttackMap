@@ -3,6 +3,7 @@ reports the single-sourced package version."""
 
 from __future__ import annotations
 
+import json
 import re
 import tomllib
 from pathlib import Path
@@ -47,6 +48,18 @@ JSON_ARTIFACTS = {
     "defensive-review.json",
     "review-context-pack.json",
 }
+
+SECTION_ARTIFACTS = {
+    "scan.json",
+    "findings.json",
+    "attack_paths.json",
+    "attack_surfaces.json",
+    "exploitability.json",
+    "suppressed_findings.json",
+    "artifact-manifest.json",
+}
+
+CLI_JSON_ARTIFACTS = JSON_ARTIFACTS | SECTION_ARTIFACTS
 MARKDOWN_ARTIFACTS = {
     MARKER,
     "architecture.md",
@@ -105,7 +118,7 @@ def test_cli_format_json_writes_only_machine_readable(tmp_path: Path) -> None:
     out = tmp_path / "out"
     result = runner.invoke(app, ["analyze", str(_repo(tmp_path, "solo")), "-o", str(out), "--format", "json"])
     assert result.exit_code == 0, result.output
-    assert {p.name for p in out.iterdir()} == JSON_ARTIFACTS | {MANIFEST}
+    assert {p.name for p in out.iterdir()} == CLI_JSON_ARTIFACTS | {MANIFEST}
 
 
 def test_cli_format_markdown_writes_only_human_readable(tmp_path: Path) -> None:
@@ -131,7 +144,7 @@ def test_fleet_format_json_skips_markdown_summaries(tmp_path: Path) -> None:
     assert (out / "fleet-summary.json").exists()
     assert not (out / "fleet-summary.md").exists()
     assert not (out / "fleet-graph.md").exists()
-    assert {p.name for p in (out / "svca").iterdir()} == JSON_ARTIFACTS | {MANIFEST}
+    assert {p.name for p in (out / "svca").iterdir()} == CLI_JSON_ARTIFACTS | {MANIFEST}
 
 
 def test_fleet_format_markdown_skips_json_summary(tmp_path: Path) -> None:
@@ -142,6 +155,29 @@ def test_fleet_format_markdown_skips_json_summary(tmp_path: Path) -> None:
     assert (out / "fleet-summary.md").exists()
     assert (out / "fleet-graph.md").exists()
     assert not (out / "fleet-summary.json").exists()
+
+
+def test_cli_run_id_is_written_to_artifact_manifest(tmp_path: Path) -> None:
+    out = tmp_path / "out"
+    run_id = "cli-run-abc-123"
+    result = runner.invoke(
+        app,
+        [
+            "analyze",
+            str(_repo(tmp_path, "solo")),
+            "-o",
+            str(out),
+            "--format",
+            "json",
+            "--run-id",
+            run_id,
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    manifest_path = out / "artifact-manifest.json"
+    assert manifest_path.is_file()
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["generation_id"] == run_id
 
 
 def test_version_flag_prints_package_version() -> None:

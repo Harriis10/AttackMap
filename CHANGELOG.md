@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Versioned artifact manifest.** JSON output now includes `artifact-manifest.json` and extracted section files (`scan.json`, `findings.json`, `attack_paths.json`, `attack_surfaces.json`, `exploitability.json`, `suppressed_findings.json`). The monolithic `attackmap-report.json` remains a compatibility export. A `--run-id` option lets CI/GUI correlate the manifest with an external run identity.
+- **Index scaling.** `RepoIndex.get()` is now O(1) via an internal path map. Each indexed file records `size` and `mtime_ns`. New `RepoIndex.total_bytes` reports aggregate size, and `max_bytes`/`ATTACKMAP_INDEX_BYTE_BUDGET` caps how much data is loaded in one pass. `RepoIndex.mutation_warnings()` detects files that changed or disappeared after indexing and the scan pipeline appends those diagnostics to the report limitations.
 - **More dependency ecosystems (#255).** `DependencyHint.ecosystem` and `Vulnerability.ecosystem` now accept `maven`, `nuget`, `conan`, `vcpkg`, `gem`, `cocoapods`, `hex` and `pub`. The set is exported from `attackmap.sdk` as `DependencyEcosystem` / `DEPENDENCY_ECOSYSTEMS`.
   - `--cve` maps these ecosystems to OSV's Maven, NuGet, ConanCenter, vcpkg, RubyGems, Hex and Pub. `swiftpm` now maps to OSV `SwiftURL`, keyed by the normalized repository URL, so Swift deps are CVE-checked for the first time.
   - CocoaPods has no OSV database. Those deps are inventory-only, and `--cve` says so instead of implying "no vulns".
@@ -94,6 +96,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **No redundant `line: null` finding locations.** A file cited with a line in one evidence entry (`sink at app.py:23`) and without one in another (`import path: app.py`) produced an extra line-less location, which showed up in SARIF and changed the finding's fingerprint set. The line-less citation is now dropped whenever the same file is cited with a line anywhere in the finding.
 - **Workflow findings point at the right step.** Line numbers came from the first matching line in the file, so identical steps in different jobs (two `uses: actions/checkout@v4`) all pointed at the first job. Lines are now looked up within the current job's and step's span, found from the YAML text. Flow-style YAML falls back to the old file-wide search.
 - `defensive-review.schema.json` now allows `weaknesses[].locations[].fingerprint`, which the report has emitted since #222.
+- **GUI scan orchestration now shares the CLI path.** `_start_scan` used to build and then discard a complete `ScanConfig`, dropping analyzer selections and fleet mode. The GUI now routes through the same `execute_scan_request()` the CLI uses, with a supervised subprocess worker, real cancellation, a `run_id`-guarded state machine, and frozen-build-aware argv generation.
+- **pytest collection no longer executes the CLI** on `import attackmap.__main__`; the entry point is guarded by `if __name__ == "__main__"`.
+- **LLM credentials no longer leak into global `os.environ`.** Per-scan environment overlays are passed only to the worker subprocess.
+- **Suppression writes hardened.** `append_suppression()` validates entries against the suppression schema, serializes with `yaml.safe_dump`, and writes through `safe_write_text` so symlinks/junctions and out-of-repo paths are refused.
+- **Frozen builds default to trusted analyzers only** (`ATTACKMAP_TRUSTED_ANALYZERS_ONLY=1`) and use the correct executable argv for `capabilities` / `modules --json` discovery.
 
 ## [0.5.1] - 2026-10-02
 

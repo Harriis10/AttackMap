@@ -18,7 +18,7 @@ sends your code anywhere.
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 
-> **Status: beta (v0.5.0).** Core engine + 15 analyzer plugins, installed straight
+> **Status: beta (v0.5.1).** Core engine + 15 analyzer plugins, installed straight
 > from GitHub and validated on real codebases. AttackMap is heuristic by
 > design — findings are confidence-tiered evidence, not proof. Roadmap to 1.0:
 > [issue #209](https://github.com/mlaify/AttackMap/issues/209).
@@ -41,6 +41,18 @@ brew install --cask mlaify/tap/attackmap-app
 | [![AttackMap macOS app — overview](https://raw.githubusercontent.com/mlaify/AttackMap/main/docs/screenshots/04-overview.png)](https://docs.mlaify.io/gui/) | [![AttackMap macOS app — exploitability](https://raw.githubusercontent.com/mlaify/AttackMap/main/docs/screenshots/06-exploitability-ranked.png)](https://docs.mlaify.io/gui/) |
 
 *Scanning OWASP Juice Shop. Walkthrough in the [macOS app docs](https://docs.mlaify.io/gui/); source at [mlaify/AttackMap-mac](https://github.com/mlaify/AttackMap-mac).*
+
+### The Windows GUI
+
+A Windows front-end is bundled in this repo (`src/attackmap/ui/`) and ships with
+the PyInstaller build. Build it with:
+
+```powershell
+installer\build-installer.bat
+.\dist\attackmap\attackmap.exe ui
+```
+
+Or run from source: `python -m attackmap ui`.
 
 ## Quickstart
 
@@ -92,7 +104,7 @@ See the [outputs reference](https://docs.mlaify.io/scanning/) for the full list.
 
 ## Supported ecosystems
 
-Fourteen analyzer plugins (each installable on its own; `[all]` installs every one):
+Fifteen analyzer plugins (each installable on its own; `[all]` installs every one):
 **Python**, **JavaScript/TypeScript** (Node services), **Go**, **Java/Kotlin**
 (Spring), **C#** (ASP.NET Core), **Rust**, **PHP** (web / Laminas / Omeka-S),
 **C**, **C++**, **Terraform**, **IaC** (Docker / compose / GitHub Actions),

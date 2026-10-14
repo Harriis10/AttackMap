@@ -34,7 +34,7 @@ def no_scan(monkeypatch: pytest.MonkeyPatch) -> list[str]:
         started.append("scan")
         raise AssertionError("scan started before option validation")
 
-    monkeypatch.setattr(cli, "run_scan", boom)
+    monkeypatch.setattr(cli, "execute_scan_request", boom)
     return started
 
 

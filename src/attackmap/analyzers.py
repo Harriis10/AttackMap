@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from typing import Protocol, TYPE_CHECKING
+from typing import Callable, Protocol, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from .progress import ScanProgress
@@ -127,6 +127,10 @@ class DefaultAnalyzer:
     def name(self) -> str:
         return self.metadata.name
 
+    def detect(self, root: str | Path) -> bool:
+        """Default analyzer runs on any repository; it filters by unclaimed suffixes."""
+        return Path(root).is_dir()
+
     def analyze(
         self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
         index=None,
@@ -156,6 +160,10 @@ class BuiltinPythonWebAnalyzer:
     @property
     def name(self) -> str:
         return self.metadata.name
+
+    def detect(self, root: str | Path) -> bool:
+        """Python-web runs on any repository; the scanner filters by suffix."""
+        return Path(root).is_dir()
 
     def analyze(
         self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
@@ -331,7 +339,7 @@ def discover_installed_analyzers(group: str = ANALYZER_ENTRYPOINT_GROUP) -> list
     if hasattr(all_entry_points, "select"):
         candidates = list(all_entry_points.select(group=group))
     else:
-        candidates = list(all_entry_points.get(group, ()))
+        candidates = list(all_entry_points.get(group, ()))  # type: ignore[attr-defined]
 
     trusted_only = trusted_analyzers_only()
     for analyzer_entry_point in sorted(candidates, key=lambda candidate: candidate.name):
@@ -361,7 +369,7 @@ def discover_installed_analyzers(group: str = ANALYZER_ENTRYPOINT_GROUP) -> list
 def _load_discovered_analyzer(analyzer_entry_point: object) -> Analyzer | None:
     entry_name = getattr(analyzer_entry_point, "name", "<unknown>")
     try:
-        loaded_object = analyzer_entry_point.load()
+        loaded_object = analyzer_entry_point.load()  # type: ignore[attr-defined]
     except Exception as exc:
         logger.warning("Failed to load analyzer entry point '%s': %s", entry_name, exc)
         return None
@@ -386,7 +394,7 @@ def _load_discovered_analyzer(analyzer_entry_point: object) -> Analyzer | None:
     if not _is_valid_analyzer(analyzer):
         logger.warning("Skipping entry point '%s': loaded object is not a valid analyzer.", entry_name)
         return None
-    return analyzer
+    return cast(Analyzer, analyzer)
 
 
 def _coerce_analyzer_instance(loaded_object: object) -> object:
@@ -633,7 +641,7 @@ def analyze_repository(
             error = AnalyzerError(
                 analyzer=analyzer.name,
                 error_type=type(exc).__name__,
-                message=redact_text(str(exc))[:_ANALYZER_ERROR_MAX_CHARS],
+                message=str(redact_text(str(exc)) or "")[:_ANALYZER_ERROR_MAX_CHARS],
             )
             errors.append(error)
             logger.warning("Analyzer %r failed: %s: %s", analyzer.name, error.error_type, error.message)
@@ -644,11 +652,17 @@ def analyze_repository(
         results.append(result)
     merged = merge_analyzer_results(results, root=repo_root) if results else AnalyzerResult(root=str(repo_root))
     merged.analyzer_errors = errors
-    for note in index.limitations:
-        if note not in merged.limitations:
-            merged.limitations.append(note)
+
+    def _append_notes(notes: list[str]) -> None:
+        for note in notes:
+            if note not in merged.limitations:
+                merged.limitations.append(note)
+
+    _append_notes(list(index.limitations))
+    _append_notes(list(index.mutation_warnings()))
     # Whole-repo passes run once, over every analyzer's merged signals (#219).
     run_repo_passes(merged, repo_root, progress=progress, recall=recall, index=index)
+    _append_notes(list(index.mutation_warnings()))
     if progress is not None:
         progress.done()
     return merged
@@ -727,7 +741,12 @@ def resolve_run_analyzers(
     """
     repo_root = Path(root).resolve()
     explicit = analyzers is not None
-    registered = sorted(list(analyzers) if explicit else get_registered_analyzers(), key=_run_order_key)
+    registered: list[Analyzer]
+    if explicit:
+        assert analyzers is not None
+        registered = sorted(list(analyzers), key=_run_order_key)
+    else:
+        registered = sorted(get_registered_analyzers(), key=_run_order_key)
     selected: list[Analyzer] = []
     for analyzer in registered:
         if not _should_run_analyzer(analyzer, repo_root):

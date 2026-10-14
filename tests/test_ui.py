@@ -7,16 +7,25 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Any
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 import pytest
 
 from attackmap.ui.config import ScanConfig, analyze_argv, filter_unknown_flags
-from attackmap.ui.output import fleet_dir, previous_report_path, reports_dir
-from attackmap.ui.report import decode_report, fixture_report_path, web_root
+from attackmap.ui.output import (
+    current_generation,
+    fleet_dir,
+    generation_dir,
+    previous_report_path,
+    promote_generation,
+    reports_dir,
+    rotate_previous,
+)
+from attackmap.ui.report import decode_report, fixture_report_path, load_report_file, web_root
 from attackmap.ui.runner import ScanRunner, child_python_env
-from attackmap.ui.server import LoopbackApp, make_server
+from attackmap.ui.server import LoopbackApp, _start_scan, make_server
 from attackmap.ui.suppress_write import append_suppression
 from attackmap.ui.watch import Watcher
 
@@ -66,6 +75,8 @@ def test_exploitability_window_matches_fixture_rows() -> None:
     assert "renderExploitability" in app
     assert report.severity_counts["high"] == 2
     assert report.top_path is not None
+    assert "AI Review is generated only when an LLM mode" in app
+    assert "AI Review was requested but produced no output" in app
 
 
 def test_fixture_report_ships_with_the_ui() -> None:
@@ -330,7 +341,7 @@ def test_lmstudio_scan_needs_no_api_key(tmp_path: Path, monkeypatch: pytest.Monk
         running = False
 
         def start(self, *a, **k):  # noqa: ANN001
-            pass
+            return True
 
     app.runner = _Stub()  # type: ignore[assignment]
     _start_scan(app, {"repo": str(repo)})
@@ -339,10 +350,13 @@ def test_lmstudio_scan_needs_no_api_key(tmp_path: Path, monkeypatch: pytest.Monk
 
 def test_append_suppression_keeps_existing(tmp_path: Path) -> None:
     path = tmp_path / ".attackmap-suppress.yaml"
-    path.write_text("version: 1\nsuppress:\n  - id: old\n    reason: prior\n", encoding="utf-8")
-    append_suppression(path, {"id": "new", "reason": "accepted"})
+    path.write_text(
+        "version: 1\nsuppress:\n  - id: 0123456789abcdef\n    reason: prior\n",
+        encoding="utf-8",
+    )
+    append_suppression(path, {"id": "fedcba9876543210", "reason": "accepted"})
     text = path.read_text(encoding="utf-8")
-    assert "old" in text and "new" in text
+    assert "0123456789abcdef" in text and "fedcba9876543210" in text
 
 
 def test_real_mini_scan_renders_overview(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -452,3 +466,289 @@ def test_decode_report_keeps_inventory_sections() -> None:
     assert isinstance(payload["secrets"], list)
     assert isinstance(payload["suppressed"], list) and payload["suppressed"]
     assert payload["diagrams"]["paths"].startswith("# Attack paths")
+
+
+def test_overlapping_run_rejected_while_running(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A second /api/run while one is in progress must not start a new scan."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "app.py").write_text("x = 1\n", encoding="utf-8")
+    app = LoopbackApp()
+
+    class _Stub:
+        running = False
+
+        def start(self, *a, **k):  # noqa: ANN001
+            self.running = True
+            return True
+
+    app.runner = _Stub()  # type: ignore[assignment]
+    _start_scan(app, {"repo": str(repo)})
+    assert app._run_state.value == "running"
+    first_run_id = app.run_id
+    _start_scan(app, {"repo": str(repo)})
+    assert app.run_id == first_run_id
+    assert app._run_state.value == "running"
+
+
+def test_stale_runner_callback_ignored(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A callback from a previous run must not overwrite the current run's state."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "app.py").write_text("x = 1\n", encoding="utf-8")
+    app = LoopbackApp()
+
+    class _Stub:
+        running = False
+        _done: Any = None
+        _report_path: Path | None = None
+
+        def start(self, repo_path, output, **kwargs):  # noqa: ANN001
+            self.running = True
+            self._done = kwargs.get("on_done")
+            self._report_path = kwargs.get("report_path")
+            output.mkdir(parents=True, exist_ok=True)
+            assert self._report_path is not None
+            self._report_path.write_text(
+                '{"findings": [], "exploitability": []}', encoding="utf-8"
+            )
+            return True
+
+    runner = _Stub()
+    app.runner = runner  # type: ignore[assignment]
+    _start_scan(app, {"repo": str(repo)})
+    first_run_id = app.run_id
+    stale_callback = runner._done
+    # first run finishes normally
+    assert stale_callback is not None
+    stale_callback(0, runner._report_path, "")
+    assert app._run_state.value == "succeeded"
+    # start a second run
+    _start_scan(app, {"repo": str(repo)})
+    assert app.run_id != first_run_id
+    assert app._run_state.value == "running"
+    # the first run's delayed callback arrives again
+    stale_callback(0, runner._report_path, "")
+    assert app._run_state.value == "running"
+
+
+def test_generation_dir_is_isolated_per_run(tmp_path: Path) -> None:
+    base = tmp_path / "reports"
+    a = generation_dir(base, "run-a")
+    b = generation_dir(base, "run-b")
+    assert a != b
+    assert a.is_dir()
+    assert "run-a" in a.parts
+
+
+def test_promote_generation_atomically_points_current(tmp_path: Path) -> None:
+    base = tmp_path / "reports"
+    gen = generation_dir(base, "run-1")
+    assert current_generation(base) is None
+    (gen / "attackmap-report.json").write_text('{"findings": []}', encoding="utf-8")
+    promote_generation(base, "run-1")
+    assert current_generation(base) == gen
+
+
+def test_rotate_previous_copies_from_promoted_generation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    report_base = reports_dir(repo)
+    gen = generation_dir(report_base, "run-1")
+    (gen / "attackmap-report.json").write_text('{"findings": []}', encoding="utf-8")
+    promote_generation(report_base, "run-1")
+    baseline = rotate_previous(repo, report_base)
+    assert baseline is not None
+    assert baseline == previous_report_path(repo)
+    assert baseline.is_file()
+
+
+def test_start_scan_promotes_generation_and_loads_report(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Successful scan writes into a run-specific generation and promotes it."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "app.py").write_text("x = 1\n", encoding="utf-8")
+    app = LoopbackApp()
+
+    class _Stub:
+        running = False
+        output: Path | None = None
+        report_path: Path | None = None
+        _done: Any = None
+
+        def start(self, repo_path, output, **kwargs):  # noqa: ANN001
+            self.running = True
+            self.output = output
+            self.report_path = kwargs.get("report_path")
+            output.mkdir(parents=True, exist_ok=True)
+            (output / "attackmap-report.json").write_text(
+                '{"findings": [], "exploitability": []}', encoding="utf-8"
+            )
+            self._done = kwargs.get("on_done")
+            return True
+
+    runner = _Stub()
+    app.runner = runner  # type: ignore[assignment]
+    _start_scan(app, {"repo": str(repo)})
+    assert app._run_state.value == "running"
+    assert runner.output is not None
+    assert runner.report_path == runner.output / "attackmap-report.json"
+    assert runner.output.name == app.run_id
+    assert runner.output.parent == reports_dir(repo)
+    assert runner._done is not None
+    runner._done(0, runner.report_path, "")
+    assert app._run_state.value == "succeeded"
+    assert current_generation(reports_dir(repo)) == runner.output
+
+
+def test_stale_callback_does_not_unpromote_new_generation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A delayed callback from run A must not demote the promoted run B."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "app.py").write_text("x = 1\n", encoding="utf-8")
+    app = LoopbackApp()
+
+    class _Stub:
+        running = False
+        _done: Any = None
+        _report_path: Path | None = None
+
+        def start(self, repo_path, output, **kwargs):  # noqa: ANN001
+            self.running = True
+            self._done = kwargs.get("on_done")
+            self._report_path = kwargs.get("report_path")
+            output.mkdir(parents=True, exist_ok=True)
+            assert self._report_path is not None
+            self._report_path.write_text(
+                '{"findings": [], "exploitability": []}', encoding="utf-8"
+            )
+            return True
+
+    runner = _Stub()
+    app.runner = runner  # type: ignore[assignment]
+    _start_scan(app, {"repo": str(repo)})
+    first_callback = runner._done
+    first_output = reports_dir(repo) / app.run_id
+    assert first_callback is not None
+    first_callback(0, runner._report_path, "")
+    assert app._run_state.value == "succeeded"
+    assert current_generation(reports_dir(repo)) == first_output
+    # start a second run and let it finish
+    _start_scan(app, {"repo": str(repo)})
+    second_output = reports_dir(repo) / app.run_id
+    assert second_output != first_output
+    assert app._run_state.value == "running"
+    assert current_generation(reports_dir(repo)) == first_output
+    second_callback = runner._done
+    assert second_callback is not None
+    second_callback(0, runner._report_path, "")
+    assert app._run_state.value == "succeeded"
+    assert current_generation(reports_dir(repo)) == second_output
+    # the first run's delayed callback arrives again
+    first_callback(0, first_output / "attackmap-report.json", "")
+    assert current_generation(reports_dir(repo)) == second_output
+    assert app._run_state.value == "succeeded"
+
+
+def test_fleet_start_scan_promotes_generation_and_loads_summary(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fleet mode promotes a generation and loads the fleet summary JSON."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
+    a = tmp_path / "repo-a"
+    b = tmp_path / "repo-b"
+    a.mkdir()
+    b.mkdir()
+    (a / "app.py").write_text("x = 1\n", encoding="utf-8")
+    (b / "app.py").write_text("y = 2\n", encoding="utf-8")
+    app = LoopbackApp()
+    app.repos = [a, b]
+
+    class _Stub:
+        running = False
+        report_path: Path | None = None
+        _done: Any = None
+
+        def start(self, repo_path, output, **kwargs):  # noqa: ANN001
+            self.running = True
+            self.report_path = kwargs.get("report_path")
+            self._done = kwargs.get("on_done")
+            output.mkdir(parents=True, exist_ok=True)
+            assert self.report_path is not None
+            assert self.report_path.name == "fleet-summary.json"
+            self.report_path.write_text(
+                '{"repo_count": 2, "total_findings": 5, "repos": [], "cross_repo_links": []}',
+                encoding="utf-8",
+            )
+            return True
+
+    runner = _Stub()
+    app.runner = runner  # type: ignore[assignment]
+    _start_scan(app, {})
+    assert app._run_state.value == "running"
+    assert runner.report_path is not None
+    assert runner.report_path.name == "fleet-summary.json"
+    assert runner._done is not None
+    runner._done(0, runner.report_path, "")
+    assert app._run_state.value == "succeeded"
+    assert app.report is not None
+    assert app.report.fleet is not None
+    assert app.report.fleet["repo_count"] == 2
+    assert app.report.fleet["total_findings"] == 5
+    assert app.report.repo_name == a.name
+
+
+def test_load_report_file_flags_ai_review_requested_when_meta_exists(tmp_path: Path) -> None:
+    report_dir = tmp_path / "reports"
+    report_dir.mkdir()
+    (report_dir / "attackmap-report.json").write_text(json.dumps({}), encoding="utf-8")
+    (report_dir / "defensive-review-llm.meta.json").write_text(
+        json.dumps({"backend": "openai", "model": "test"}), encoding="utf-8"
+    )
+    report = load_report_file(report_dir / "attackmap-report.json")
+    assert report.ai_review_requested is True
+
+
+def test_load_report_file_flags_ai_review_not_requested_without_meta(tmp_path: Path) -> None:
+    report_dir = tmp_path / "reports"
+    report_dir.mkdir()
+    (report_dir / "attackmap-report.json").write_text(json.dumps({}), encoding="utf-8")
+    report = load_report_file(report_dir / "attackmap-report.json")
+    assert report.ai_review_requested is False
+
+
+def test_load_report_file_falls_back_to_llm_markdown_file(tmp_path: Path) -> None:
+    report_dir = tmp_path / "reports"
+    report_dir.mkdir()
+    (report_dir / "attackmap-report.json").write_text(
+        json.dumps({"defensive_review_llm": ""}), encoding="utf-8"
+    )
+    (report_dir / "defensive-review-llm.meta.json").write_text(json.dumps({}), encoding="utf-8")
+    (report_dir / "defensive-review-llm.md").write_text("# AI review", encoding="utf-8")
+    report = load_report_file(report_dir / "attackmap-report.json")
+    assert report.ai_review_requested is True
+    assert report.ai_review_md == "# AI review"
+
+
+def test_load_report_file_falls_back_to_hunt_hypotheses(tmp_path: Path) -> None:
+    report_dir = tmp_path / "reports"
+    report_dir.mkdir()
+    (report_dir / "attackmap-report.json").write_text(json.dumps({}), encoding="utf-8")
+    (report_dir / "vulnerability-hypotheses.meta.json").write_text(json.dumps({}), encoding="utf-8")
+    (report_dir / "vulnerability-hypotheses.md").write_text("# Hypotheses", encoding="utf-8")
+    report = load_report_file(report_dir / "attackmap-report.json")
+    assert report.ai_review_requested is True
+    assert report.ai_review_md == "# Hypotheses"

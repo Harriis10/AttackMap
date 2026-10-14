@@ -2,17 +2,18 @@
 
 ## Final Windows build
 
-- **Final EXE: `dist\final\attackmap\attackmap.exe`** (2026-10-13, v0.5.0)
+- **Final EXE: `dist\attackmap\attackmap.exe`** (v0.5.1)
 - Contains all **19 analyzers** (15 plugins: php-web, php-laminas, omeka-s, python, node-service, iac, rust, go, java-spring, dotnet, terraform, c, cpp, swift, atproto + 4 built-ins: config, default, javascript-web, python-web).
-- GUI: `dist\final\attackmap\attackmap.exe ui`
-- Rebuild: `installer\build-installer.bat` (~4–6 min, PyInstaller onedir, entry `installer\entry.py`, spec `installer\attackmap.spec`).
+- GUI: `dist\attackmap\attackmap.exe ui`
+- Rebuild: `installer\build-installer.bat` (~3–6 min, PyInstaller onedir, entry `installer\entry.py`, spec `installer\attackmap.spec`).
 - Stale dirs `dist\attackmap`, `dist\new`, `dist\attackmap-min` are leftovers — deletable when Explorer doesn't hold them (empty/locked).
 
 ## Architecture (GUI)
 
 - `attackmap ui` → WebView2 window (pywebview) + loopback HTTP server (127.0.0.1, token in `X-AttackMap-Token` header + sessionStorage).
-- Scan runs **in-process** (`run_scan(AnalyzeOptions)`) — never spawn `sys.executable -m attackmap` from the frozen exe (breaks with `No such option '-m'`).
+- Scan runs in a **supervised subprocess worker**. The GUI builds a frozen-aware argv (`python -m attackmap analyze …` in dev, `attackmap.exe analyze …` in PyInstaller), spawns it, streams NDJSON progress, and can terminate it for cancellation. A `run_id` and explicit state machine (`idle → running → cancelling → succeeded|failed|cancelled`) prevent overlapping runs and stale callbacks.
 - Reports OUTSIDE the repo: `%LOCALAPPDATA%\AttackMap\scans\<name>-<normcase-sha256-12>\reports`.
+- In frozen builds, `ATTACKMAP_TRUSTED_ANALYZERS_ONLY=1` is passed to the worker by default so only official analyzers load.
 - Splash-first navigation: window opens with inline dark HTML, `load_url` fires on `events.loaded` (kills white WebView2 "Loading <url>" page; `background_color=#141414` → dark resize repaints).
 - LLM keys: DPAPI blobs `%LOCALAPPDATA%\AttackMap\llm-{anthropic,openai}.key`. LM Studio = provider openai + `OPENAI_BASE_URL` (no key needed, placeholder `lm-studio`).
 - LM Studio endpoint used: `http://localhost:1234/v1`, model `cyberstag-security-26b-a4b-v1` (effort low — 26B local is slow on high).

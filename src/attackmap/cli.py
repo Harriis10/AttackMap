@@ -5,6 +5,7 @@ import os
 import shlex
 import sys
 from pathlib import Path
+from typing import Any
 
 import typer
 
@@ -17,29 +18,8 @@ from .analyzers import (
     install_analyzer_module,
     select_requested_analyzers,
 )
-from .anomalies import route_auth_signals
-from .contracts import link_contracts
-from .crossrepo import (
-    find_cross_boundary_flows,
-    find_cross_repo_anomalies,
-    find_trust_gaps,
-)
-from .fleet import (
-    FleetRepoResult,
-    FleetScan,
-    fleet_repo_ids,
-    fleet_summary_json,
-    render_fleet_graph_mermaid,
-    render_fleet_summary,
-)
 from .progress import PROGRESS_PROTOCOL_VERSION
-from .pipeline import (
-    AnalyzeOptions,
-    HUNT_BANNER,
-    REMEDIATION_BANNER,
-    TRIAGE_BANNER,
-    run_scan,
-)
+from .scan_service import ScanRequest, ScanRequestError, execute_scan_request
 from .review_prompts import HUNT_LENSES
 from . import __version__
 from .safe_fs import UnsafePathError, ensure_output_dir, safe_write_text
@@ -200,11 +180,10 @@ def _run_fleet(
     install_missing: bool = False,
     suppress_from_ref: str | None = None,
     strict_analyzers: bool = False,
+    max_workers: int = 1,
+    **single_repo_kwargs: Any,
 ) -> None:
-    """Multi-repo fleet scan (#146a). Scans each repo independently — reusing the
-    same building blocks a single-repo run uses — writes per-repo reports into
-    ``output/<repo_id>/``, and assembles a fleet summary. No cross-repo detection
-    yet (that is #146b–#146d); this is the foundation."""
+    """Multi-repo fleet scan adapter around the shared ``execute_scan_request``."""
     active_flags = [flag for flag, on in fleet_incompatible.items() if on]
     if active_flags:
         raise typer.BadParameter(
@@ -216,85 +195,28 @@ def _run_fleet(
     if module:
         selected_analyzers = _select_modules(module, install_missing)
 
-    output_root = Path(output)
-    repo_ids = fleet_repo_ids(repo_paths)
-    fleet = FleetScan()
-
-    for repo_id, repo_path in zip(repo_ids, repo_paths):
-        typer.echo("")
-        typer.echo(f"── {repo_id}  ({repo_path}) ──")
-        try:
-            repo_out = output_root / repo_id
-            state = run_scan(
-                AnalyzeOptions(
-                    repo_path=repo_path,
-                    output=repo_out,
-                    output_format=output_format,
-                    analyzers=selected_analyzers,
-                    recall=recall,
-                    cve=cve,
-                    no_suppress=no_suppress,
-                    suppress_file=suppress_file,
-                    suppress_from_ref=suppress_from_ref,
-                    strict_analyzers=strict_analyzers,
-                    progress_format=progress_format,
-                    no_progress=no_progress,
-                )
-            )
-            assert state.scan is not None
-            fleet.results.append(
-                FleetRepoResult(
-                    repo_id=repo_id,
-                    root=str(repo_path),
-                    report_dir=str(repo_out.resolve()),
-                    scan=state.scan,
-                    findings=state.findings,
-                    attack_paths=state.paths,
-                    suppressed_count=len(state.suppressed),
-                )
-            )
-        except (typer.Exit, typer.Abort, typer.BadParameter):
-            raise  # usage / configuration errors stop the whole run
-        except Exception as exc:  # noqa: BLE001 — one bad repo must not sink the fleet (#217)
-            message = f"{type(exc).__name__}: {exc}"
-            typer.echo(f"Error: {repo_id} failed and was skipped — {message}", err=True)
-            fleet.failed.append({"repo_id": repo_id, "root": str(repo_path), "error": message})
-
-    # Cross-repo contract linking (#146b): match one repo's outbound calls to
-    # another repo's routes, over the assembled fleet.
-    repo_scans = [(r.repo_id, r.scan) for r in fleet.results]
-    fleet.links = link_contracts(repo_scans)
-    # Cross-boundary trust flows (#146c): confused-deputy leads over the links.
-    fleet.cross_boundary = find_cross_boundary_flows(fleet.links, repo_scans)
-    # Trust-assumption gaps + cross-repo anomalies (#146d / #149b). Per-route auth
-    # signals are resolved per repo (each with its own root).
-    auth_by_repo = {r.repo_id: route_auth_signals(r.scan, r.root) for r in fleet.results}
-    fleet.trust_gaps = find_trust_gaps(fleet.links, repo_scans, auth_by_repo)
-    fleet.cross_repo_anomalies = find_cross_repo_anomalies(repo_scans, auth_by_repo)
-
-    _ensure_output_dir(output_root, mark=True)
-    emit_markdown = output_format in {"all", "markdown"}
-    if emit_markdown:
-        _write_text(output_root / "fleet-summary.md", render_fleet_summary(fleet) + "\n")
-        _write_text(output_root / "fleet-graph.md", render_fleet_graph_mermaid(fleet) + "\n")
-    if output_format in {"all", "json"}:
-        _write_text(
-            output_root / "fleet-summary.json",
-            json.dumps(fleet_summary_json(fleet), indent=2) + "\n",
-        )
-    summary_name = "fleet-summary.md" if emit_markdown else "fleet-summary.json"
-    typer.echo("")
-    typer.echo(
-        f"Fleet: {fleet.repo_count} repositories, {fleet.total_findings()} finding(s), "
-        f"{len(fleet.links)} cross-repo link(s), "
-        f"{len(fleet.cross_boundary)} cross-boundary + {len(fleet.trust_gaps)} trust-gap + "
-        f"{len(fleet.cross_repo_anomalies)} anomaly (all speculative). "
-        f"Summary written to: {(output_root / summary_name).resolve()}"
+    request = ScanRequest(
+        repo_paths=repo_paths,
+        output=Path(output),
+        output_format=output_format,
+        analyzers=selected_analyzers,
+        recall=recall,
+        cve=cve,
+        no_suppress=no_suppress,
+        suppress_file=suppress_file,
+        suppress_from_ref=suppress_from_ref,
+        strict_analyzers=strict_analyzers,
+        progress_format=progress_format,
+        no_progress=no_progress,
+        max_workers=max_workers,
+        **single_repo_kwargs,
     )
-    if fleet.failed:
-        typer.echo(f"{len(fleet.failed)} repository scan(s) failed: "
-                   f"{', '.join(f['repo_id'] for f in fleet.failed)}", err=True)
-        raise typer.Exit(1)
+    try:
+        summary = execute_scan_request(request)
+    except ScanRequestError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    if summary.exit_code:
+        raise typer.Exit(code=summary.exit_code)
 
 
 @app.command()
@@ -480,6 +402,17 @@ def analyze(
         "--suppress-file",
         help="Path to a suppression baseline, overriding auto-discovery of .attackmap-suppress.yaml at the repo root (#144).",
     ),
+    run_id: str | None = typer.Option(
+        None,
+        "--run-id",
+        help="Optional run identifier written into artifact-manifest.json. Useful for GUI/CI correlation.",
+    ),
+    fleet_workers: int = typer.Option(
+        1,
+        "--fleet-workers",
+        help="Maximum parallel repository scans in multi-repo mode. Default 1 (serial). "
+        "Capped by ATTACKMAP_FLEET_MAX_WORKERS if set.",
+    ),
 ) -> None:
     repo_paths = [Path(p).resolve() for p in (paths or ["."])]
     for rp in repo_paths:
@@ -535,6 +468,10 @@ def analyze(
             install_missing=install_missing,
             suppress_from_ref=suppress_from_ref,
             strict_analyzers=strict_analyzers,
+            allow_pr_suppressions=allow_pr_suppressions,
+            strict_suppressions=strict_suppressions,
+            run_id=run_id,
+            max_workers=fleet_workers,
             # Single-repo-only features aren't fleet-aware yet — reject rather
             # than silently ignore, so the user isn't surprised (#146b+ wire them).
             fleet_incompatible={
@@ -555,46 +492,49 @@ def analyze(
     selected_analyzers = None
     if module:
         selected_analyzers = _select_modules(module, install_missing)
-    state = run_scan(
-        AnalyzeOptions(
-            repo_path=repo_paths[0],
-            output=Path(output),
-            output_format=format,
-            analyzers=selected_analyzers,
-            recall=recall,
-            cve=cve,
-            no_suppress=no_suppress,
-            suppress_file=suppress_file,
-            suppress_from_ref=suppress_from_ref,
-            allow_pr_suppressions=allow_pr_suppressions,
-            strict_suppressions=strict_suppressions,
-            strict_analyzers=strict_analyzers,
-            progress_format=progress_format,
-            no_progress=no_progress,
-            secrets_history=secrets_history,
-            baseline=baseline,
-            diff_output=diff_output,
-            fail_on_new_high=fail_on_new_high,
-            fail_on_new_suppression=fail_on_new_suppression,
-            pr_comment=pr_comment,
-            llm=llm,
-            llm_provider=llm_provider,
-            llm_model=llm_model,
-            llm_effort=llm_effort,
-            llm_backend=llm_backend,
-            llm_speed=llm_speed,
-            hunt=hunt,
-            verify=verify,
-            verify_votes=verify_votes,
-            hunt_lenses=hunt_lenses,
-            hunt_rounds=hunt_rounds,
-            hunt_budget=hunt_budget,
-            remediate=remediate,
-            triage=triage,
-        )
+    request = ScanRequest(
+        repo_paths=repo_paths,
+        output=Path(output),
+        output_format=format,
+        analyzers=selected_analyzers,
+        recall=recall,
+        cve=cve,
+        no_suppress=no_suppress,
+        suppress_file=suppress_file,
+        suppress_from_ref=suppress_from_ref,
+        allow_pr_suppressions=allow_pr_suppressions,
+        strict_suppressions=strict_suppressions,
+        strict_analyzers=strict_analyzers,
+        progress_format=progress_format,
+        no_progress=no_progress,
+        secrets_history=secrets_history,
+        baseline=baseline,
+        diff_output=diff_output,
+        fail_on_new_high=fail_on_new_high,
+        fail_on_new_suppression=fail_on_new_suppression,
+        pr_comment=pr_comment,
+        run_id=run_id,
+        llm=llm,
+        llm_provider=llm_provider,
+        llm_model=llm_model,
+        llm_effort=llm_effort,
+        llm_backend=llm_backend,
+        llm_speed=llm_speed,
+        hunt=hunt,
+        verify=verify,
+        verify_votes=verify_votes,
+        hunt_lenses=hunt_lenses,
+        hunt_rounds=hunt_rounds,
+        hunt_budget=hunt_budget,
+        remediate=remediate,
+        triage=triage,
     )
-    if state.exit_code:
-        raise typer.Exit(code=state.exit_code)
+    try:
+        summary = execute_scan_request(request)
+    except ScanRequestError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    if summary.exit_code:
+        raise typer.Exit(code=summary.exit_code)
 
 
 

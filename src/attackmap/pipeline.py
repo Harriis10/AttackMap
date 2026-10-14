@@ -17,6 +17,7 @@ import typer
 
 from . import __version__
 from .analyzer import summarize_architecture, summarize_attack_surface
+from .artifact_manifest import make_run_id, write_artifact_manifest
 from .analyzers import (
     analyze_repository,
     get_analyzer_metadata,
@@ -104,6 +105,7 @@ class AnalyzeOptions:
     hunt_budget: int = 0
     remediate: bool = False
     triage: bool = False
+    run_id: str | None = None
     echo: Callable[..., None] = field(default=typer.echo)
 
 
@@ -380,14 +382,26 @@ def run_scan(options: AnalyzeOptions) -> RunState:
 
     architecture_md = getattr(state, "_architecture_md")
     attack_surface_md = getattr(state, "_attack_surface_md")
+    scan_report: dict[str, Any] | None = None
+    analyzer_meta: list[dict[str, Any]] = []
 
     def _publish() -> None:
+        nonlocal scan_report, analyzer_meta
         state.overlay = build_security_overlay(scan, attack_surfaces, findings, attack_paths)
         defensive_review_md = render_defensive_review(
             scan, attack_surfaces, findings, attack_paths, overlay=state.overlay
         )
+        analyzer_meta = [
+            {
+                "name": metadata.name,
+                "description": metadata.description,
+                "scope": metadata.scope,
+                "ecosystems": list(metadata.ecosystems),
+            }
+            for metadata in (get_analyzer_metadata(a) for a in state.analyzers)
+        ]
         try:
-            write_reports(
+            scan_report = write_reports(
                 output,
                 scan,
                 architecture_md,
@@ -396,15 +410,7 @@ def run_scan(options: AnalyzeOptions) -> RunState:
                 attack_surfaces,
                 findings,
                 attack_paths,
-                analyzer_metadata=[
-                    {
-                        "name": metadata.name,
-                        "description": metadata.description,
-                        "scope": metadata.scope,
-                        "ecosystems": list(metadata.ecosystems),
-                    }
-                    for metadata in (get_analyzer_metadata(a) for a in state.analyzers)
-                ],
+                analyzer_metadata=analyzer_meta,
                 suppressed=suppressed_findings,
                 output_format=options.output_format,
                 overlay=state.overlay,
@@ -747,4 +753,18 @@ def run_scan(options: AnalyzeOptions) -> RunState:
         write_run_manifest(state, output)
 
     state.exit_code = diff_exit_code
+
+    if scan_report is not None and options.output_format in {"all", "json"}:
+        write_artifact_manifest(
+            output,
+            run_id=options.run_id or make_run_id(),
+            engine_version=__version__,
+            repo_root=str(repo_path),
+            repo_name=repo_path.name,
+            analyzer_metadata=analyzer_meta,
+            exit_code=state.exit_code,
+            status="succeeded" if state.exit_code == 0 else "failed",
+            report_data=scan_report,
+        )
+
     return state

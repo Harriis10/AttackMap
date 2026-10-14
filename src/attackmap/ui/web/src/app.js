@@ -203,10 +203,13 @@ function renderMain(state, report) {
   }
   if (currentView === "review") return renderMarkdown(report.reviewMd || "");
   if (currentView === "ai-review") {
-    if (!report.aiReviewMd) {
-      return `<div class="empty">AI Review stays empty until you choose an LLM provider. Heuristic-only runs never send code off this machine.</div>`;
+    if (report.aiReviewMd) {
+      return renderMarkdown(report.aiReviewMd);
     }
-    return renderMarkdown(report.aiReviewMd);
+    if (report.aiReviewRequested) {
+      return `<div class="empty">AI Review was requested but produced no output. Check the *.meta.json files in the report folder for backend details.</div>`;
+    }
+    return `<div class="empty">AI Review is generated only when an LLM mode (review / hunt / remediate / triage) is enabled for a scan. Heuristic-only runs never send code off this machine.</div>`;
   }
   if (currentView === "diff") return renderMarkdown(report.diffMd || "No baseline diff. Re-run the same repo to compare.");
   if (currentView === "fleet") return renderFleet(report.fleet);

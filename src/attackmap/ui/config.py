@@ -26,6 +26,7 @@ VALUE_FLAGS = {
     "--baseline",
     "--diff-output",
     "--pr-comment",
+    "--run-id",
 }
 
 JURY_DEFAULTS = {"verifyVotes": 3, "lenses": 1, "rounds": 1, "budget": 0}
@@ -50,6 +51,7 @@ class ScanConfig:
     diff_output: Path | None = None
     fail_on_new_high: bool = False
     pr_comment: Path | None = None
+    run_id: str | None = None
     capabilities: set[str] | None = None
 
     @property
@@ -59,6 +61,8 @@ class ScanConfig:
     def cli_args(self) -> list[str]:
         repos = [str(path.resolve()) for path in self.repos]
         args = ["analyze", *repos, "--format", "all", "--output", str(self.output), "--progress-format", "json"]
+        if self.run_id:
+            args.extend(["--run-id", self.run_id])
         if self.run_cve:
             args.append("--cve")
         if self.recall:
