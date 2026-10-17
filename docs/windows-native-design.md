@@ -31,7 +31,7 @@ rejected in user screenshots. Actual desktop/scaling acceptance remains open.
 | Finding detail | Persistent inspector: basis, confidence, provenance, evidence and recommendation together; reasoned suppression dialog | Precomputed static context, live source inspection/reveal/copy and reasoned preview/apply/undo implemented; detector-owned control links and full C23 acceptance remain open |
 | Architecture | Searchable supplied service/edge/surface records with basis/unknown labels | Real-report smoke: 1,547 records; full graph interaction and task acceptance open |
 | Inventory | Searchable supplied route/dependency/datastore/framework records | Real-report smoke: 472 records, version/ecosystem detail; broader inventory tabs and acceptance open |
-| Reports | Defensive review, selected JSON/Markdown export, manifest-listed inert artifact text including AI review only if supplied | Actual selected-run export/artifact smoke: 19 listed, architecture.md read; no guessed AI output or HTML execution; manual dialogs/PDF remain open |
+| Reports | Defensive review, selected JSON/Markdown/HTML/PDF export, manifest-listed inert artifact text including AI review only if supplied | Actual selected-run export/artifact smoke: 19 listed, architecture.md read; no guessed AI output or HTML execution; rendered HTML/PDF export prints via located Edge/Chrome with browser fallback; manual dialog journeys remain open |
 | History | Native baseline picker and displayed-current coverage-aware comparison | Core/native seeded action smoke; dated run browser, retention/pinning and manual picker journey remain open |
 | Settings | Appearance, engine/analyzer status, provider disclosure, protected credentials, diagnostic reveal | Paths/options and provider Save/restore/test, network disclosure, local diagnostics reveal implemented; appearance/analyzer status and manual credential journeys remain open |
 
@@ -40,9 +40,11 @@ aggregate overview. Recall/CVE/analyzers/baseline/gates/suppressions/AI modes/ju
 options map to advanced scan configuration; unavailable capabilities must be
 explained, never silently changed. Implemented shell actions include shortcuts,
 source copy/folder reveal and current-display geometry restore. Suppression writes
-require reviewed reasons and support undo. JSON/Markdown export and verified
-selected-run artifact browsing are implemented; PDF export, a dated history
-browser, watch/fleet interaction and advanced capability coverage remain gaps.
+require reviewed reasons and support undo. JSON/Markdown/HTML/PDF export and
+verified selected-run artifact browsing are implemented (HTML renders locally;
+PDF prints through located headless Edge/Chrome, falling through candidates
+that fail silently); a dated history browser, watch/fleet interaction and
+advanced capability coverage remain gaps.
 
 ## Required states
 

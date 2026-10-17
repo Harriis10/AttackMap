@@ -48,6 +48,9 @@ fixtures or fake brokers to inject faults. They do not prove an HTTP model call.
 - `ReportAdapter.Tests`, `SelectedArtifacts.Tests`, `SourceLocation.Tests`,
   `C23ReportComposition.Tests`: report integrity, exact selected-run export,
   source changes and uncertainty.
+- `ReportExport.Tests`: rendered review export — HTML conversion with escaping
+  and the severity palette, verified Markdown read, and a real local
+  headless-browser PDF print with candidate fallback.
 - Remaining focused native projects cover settings, credentials, launch,
   rendering adapters and window state. `ControlledFakeBroker` and
   `NativeFaultBroker` are fault-injection fixtures, not production analyzers.

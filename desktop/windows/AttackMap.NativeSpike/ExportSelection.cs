@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 namespace AttackMap.NativeSpike;
 
@@ -7,6 +8,7 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
     public bool Verified => RunId != null;
     public string Disclosure => Verified ? $"Displayed run {RunId}; captured manifest integrity checked." : "Legacy import: run identity and manifest integrity unverified. JSON copy only.";
     public string SuggestedName(bool markdown) => "attackmap-" + (Verified ? SafeName(RunId!) : "legacy-unverified") + (markdown ? "-review.md" : "-report.json");
+    public string SuggestedName(string renderedExtension) => "attackmap-" + (Verified ? SafeName(RunId!) : "legacy-unverified") + "-review" + renderedExtension;
     public static string SafeName(string value)
     {
         string safe = string.Concat(value.Take(80).Select(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' ? c : '_'));
@@ -55,13 +57,7 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
     {
         destination = Path.GetFullPath(destination);
         string source = markdown ? MarkdownPath ?? throw new InvalidDataException("Markdown export requires a displayed broker run whose manifest lists defensive-review.md. Open JSON or run a local scan.") : ReportPath;
-        if (string.Equals(destination,source,StringComparison.OrdinalIgnoreCase) || string.Equals(destination,ReportPath,StringComparison.OrdinalIgnoreCase) || string.Equals(destination,ManifestPath,StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Choose an export destination outside the selected source artifacts.");
-        if (Verified)
-        {
-            string relative = Path.GetRelativePath(Path.GetDirectoryName(ReportPath)!,destination);
-            if (!Path.IsPathFullyQualified(relative) && relative != ".." && !relative.StartsWith(".." + Path.DirectorySeparatorChar)) throw new InvalidDataException("Export outside the immutable selected generation directory.");
-        }
+        EnsureExportDestination(destination, source);
         if (ManifestPath != null && Hash(ReadBounded(ManifestPath,1024 * 1024)) != ManifestHash) throw new InvalidDataException("Selected run manifest changed. Reopen the report before exporting.");
         byte[] report = ReadBounded(ReportPath,64 * 1024 * 1024);
         if (Hash(report) != ReportHash) throw new InvalidDataException("Displayed report source changed. Reopen it before exporting; destination preserved.");
@@ -70,6 +66,29 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
         string temporary = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try { await File.WriteAllBytesAsync(temporary,content); File.Move(temporary,destination,overwrite:true); }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
+    }
+    /// <summary>Returns the displayed run's Markdown review after the same
+    /// integrity checks as Export, for derived renderings (HTML/PDF).</summary>
+    public string ReadVerifiedMarkdown()
+    {
+        if (MarkdownPath == null || MarkdownHash == null) throw new InvalidDataException("Verified Markdown requires a displayed broker run whose manifest lists defensive-review.md.");
+        if (ManifestPath != null && Hash(ReadBounded(ManifestPath,1024 * 1024)) != ManifestHash) throw new InvalidDataException("Selected run manifest changed. Reopen the report before exporting.");
+        byte[] report = ReadBounded(ReportPath,64 * 1024 * 1024);
+        if (Hash(report) != ReportHash) throw new InvalidDataException("Displayed report source changed. Reopen it before exporting.");
+        byte[] content = ReadBounded(MarkdownPath,64 * 1024 * 1024);
+        if (Hash(content) != MarkdownHash) throw new InvalidDataException("Selected Markdown does not match its captured manifest.");
+        return new UTF8Encoding(false).GetString(content);
+    }
+    public void EnsureExportDestination(string destination, string source)
+    {
+        destination = Path.GetFullPath(destination);
+        if (string.Equals(destination,source,StringComparison.OrdinalIgnoreCase) || string.Equals(destination,ReportPath,StringComparison.OrdinalIgnoreCase) || string.Equals(destination,ManifestPath,StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Choose an export destination outside the selected source artifacts.");
+        if (Verified)
+        {
+            string relative = Path.GetRelativePath(Path.GetDirectoryName(ReportPath)!,destination);
+            if (!Path.IsPathFullyQualified(relative) && relative != ".." && !relative.StartsWith(".." + Path.DirectorySeparatorChar)) throw new InvalidDataException("Export outside the immutable selected generation directory.");
+        }
     }
     private static byte[] ReadBounded(string path,int limit)
     {

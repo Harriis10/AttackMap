@@ -260,6 +260,37 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception) { if (!actionLifetime.IsCancellationRequested) Status.Text = "Export or save picker unavailable. Try again; the selected report is preserved."; }
     }
+    private async void ExportHtml(object sender, RoutedEventArgs args) => await ExportRendered(".html");
+    private async void ExportPdf(object sender, RoutedEventArgs args) => await ExportRendered(".pdf");
+    private async Task ExportRendered(string extension)
+    {
+        var selected = exportSelection;
+        if (selected == null) { Status.Text = "Open a canonical report or complete a scan before exporting. Synthetic fixture export is unavailable."; return; }
+        bool pdf = extension == ".pdf";
+        Status.Text = selected.Disclosure;
+        try
+        {
+        var picker = new Windows.Storage.Pickers.FileSavePicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker,WinRT.Interop.WindowNative.GetWindowHandle(this));
+        picker.SuggestedFileName = Path.GetFileNameWithoutExtension(selected.SuggestedName(extension));
+        picker.FileTypeChoices.Add(pdf ? "Printed defensive review PDF" : "Rendered defensive review HTML",new List<string> { extension });
+            var destination = await picker.PickSaveFileAsync();
+            if (destination == null || actionLifetime.IsCancellationRequested) return;
+            // Verified runs render the manifest-bound Markdown; legacy imports
+            // render exactly the review text already displayed.
+            string markdown = selected.MarkdownPath != null ? await Task.Run(() => selected.ReadVerifiedMarkdown()) : ReviewText.Text;
+            selected.EnsureExportDestination(destination.Path,selected.ReportPath);
+            string html = ReviewExport.BuildHtml(markdown,Path.GetFileNameWithoutExtension(selected.SuggestedName(extension)));
+            if (pdf)
+            {
+                if (ReviewExport.FindPrintBrowsers().Count == 0) { Status.Text = "PDF export requires Microsoft Edge or Google Chrome; neither was found. HTML export is unaffected."; return; }
+                await ReviewExport.WritePdfWithAvailableBrowserAsync(html,destination.Path);
+            }
+            else await ReviewExport.WriteHtmlAsync(destination.Path,html);
+            Status.Text = $"Exported selected report {extension}. {selected.Disclosure}";
+        }
+        catch (Exception) { if (!actionLifetime.IsCancellationRequested) Status.Text = pdf ? "PDF export unavailable. Check that Edge or Chrome is installed and try again; the selected report is preserved." : "HTML export unavailable. Try again; the selected report is preserved."; }
+    }
     private async void OpenReport(object sender, RoutedEventArgs args)
     {
         try
@@ -554,8 +585,22 @@ public sealed partial class MainWindow : Window
             UpdateRunSummary();
             await selected.Export(Path.Combine(output,selected.SuggestedName(false)),false);
             await selected.Export(Path.Combine(output,selected.SuggestedName(true)),true);
-            bool passedExport = loaded && artifactsListed && artifactRead && selected.RunId == fixtureIdentity.RunId && RunSummary.Text.Contains("PREVIOUS VALID REPORT") && RunSummary.Text.Contains("different-active-run");
-            File.WriteAllText(Path.Combine(AppContext.BaseDirectory,"export-smoke.json"),JsonSerializer.Serialize(new { passed = passedExport, artifactsListed, artifactRead, artifactCount = ArtifactRows.Items.Count, artifactPreview = previewArtifact?.Name, selectedRun = selected.RunId, activeRun = "different-active-run (presentation fixture only)", disclosure = selected.Disclosure, jsonHash = ExportSelection.Hash(File.ReadAllBytes(Path.Combine(output,selected.SuggestedName(false)))), markdownHash = ExportSelection.Hash(File.ReadAllBytes(Path.Combine(output,selected.SuggestedName(true)))) }));
+            string reviewMarkdown = await Task.Run(() => selected.ReadVerifiedMarkdown());
+            string exportTitle = Path.GetFileNameWithoutExtension(selected.SuggestedName(".html"));
+            string renderedHtml = ReviewExport.BuildHtml(reviewMarkdown,exportTitle);
+            string htmlPath = Path.Combine(output,selected.SuggestedName(".html"));
+            await ReviewExport.WriteHtmlAsync(htmlPath,renderedHtml);
+            var printBrowsers = ReviewExport.FindPrintBrowsers();
+            string? pdfHash = null;
+            if (printBrowsers.Count > 0)
+            {
+                string pdfPath = Path.Combine(output,selected.SuggestedName(".pdf"));
+                await ReviewExport.WritePdfWithAvailableBrowserAsync(renderedHtml,pdfPath);
+                pdfHash = ExportSelection.Hash(File.ReadAllBytes(pdfPath));
+            }
+            bool htmlWritten = File.Exists(htmlPath);
+            bool passedExport = loaded && artifactsListed && artifactRead && selected.RunId == fixtureIdentity.RunId && RunSummary.Text.Contains("PREVIOUS VALID REPORT") && RunSummary.Text.Contains("different-active-run") && htmlWritten && (printBrowsers.Count == 0 || pdfHash != null);
+            File.WriteAllText(Path.Combine(AppContext.BaseDirectory,"export-smoke.json"),JsonSerializer.Serialize(new { passed = passedExport, artifactsListed, artifactRead, artifactCount = ArtifactRows.Items.Count, artifactPreview = previewArtifact?.Name, selectedRun = selected.RunId, activeRun = "different-active-run (presentation fixture only)", disclosure = selected.Disclosure, jsonHash = ExportSelection.Hash(File.ReadAllBytes(Path.Combine(output,selected.SuggestedName(false)))), markdownHash = ExportSelection.Hash(File.ReadAllBytes(Path.Combine(output,selected.SuggestedName(true)))), htmlHash = htmlWritten ? ExportSelection.Hash(File.ReadAllBytes(htmlPath)) : null, pdfHash, pdfBrowsers = printBrowsers, pdfSkipped = printBrowsers.Count == 0 }));
             Close();
             return;
         }

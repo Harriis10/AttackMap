@@ -129,7 +129,7 @@
     </StackPanel></Expander>
    </StackPanel></Border></ScrollViewer>
    <ScrollViewer x:Name="ReportsPanel" Grid.Row="2" Visibility="Collapsed" HorizontalScrollBarVisibility="Disabled"><Border Style="{StaticResource AttackCardStyle}"><StackPanel Spacing="12">
-    <StackPanel Orientation="Horizontal" Spacing="8"><Button Content="Export JSON" Click="ExportJson"/><Button Content="Export Markdown" Click="ExportMarkdown"/><Button Content="Show folder" Click="RevealReportFolder"/></StackPanel>
+    <StackPanel Orientation="Horizontal" Spacing="8"><Button Content="Export JSON" Click="ExportJson"/><Button Content="Export Markdown" Click="ExportMarkdown"/><Button Content="Export to PDF" Click="ExportPdf" AutomationProperties.Name="Export displayed review as PDF via headless Edge or Chrome"/><Button Content="Export to HTML" Click="ExportHtml" AutomationProperties.Name="Export displayed review as standalone HTML"/><Button Content="Show folder" Click="RevealReportFolder"/></StackPanel>
     <Border Background="{ThemeResource AttackRaisedBrush}" BorderBrush="{ThemeResource AttackStrokeBrush}" BorderThickness="1" CornerRadius="10" Padding="18"><StackPanel Spacing="12">
      <TextBlock Text="AI-assisted defensive review" FontSize="20" FontWeight="SemiBold" Foreground="{ThemeResource AttackTextBrush}"/>
      <TextBlock Text="Optional generated prose, not verified findings. Read its scope and uncertainty alongside the core evidence. Displaying a saved review makes no provider request." TextWrapping="Wrap"/>
