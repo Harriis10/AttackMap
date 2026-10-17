@@ -673,6 +673,7 @@ def collect_suppressions(
     explicit_file: Path | None = None,
     trusted_ref: str | None = None,
     allow_pr_suppressions: bool = False,
+    id_aliases: dict[str, str] | None = None,
 ) -> tuple[SuppressionSet, list[str]]:
     """Gather suppress-file + inline suppressions into a ready-to-apply set.
 
@@ -681,6 +682,11 @@ def collect_suppressions(
     inline directives on lines added since, are *pending*: reported on the
     returned set's ``pending`` list and not applied, unless
     ``allow_pr_suppressions``. Expired entries are never applied.
+
+    ``id_aliases`` carries baseline-derived legacy-id migration aliases
+    (``attackmap.finding_identity.legacy_id_aliases``) so suppressions
+    recorded against pre-migration title ids keep applying to the stable
+    identity across title edits; ambiguous records never acquire an alias.
     """
     warnings: list[str] = []
     suppressions = load_suppress_file(root, warnings, explicit=explicit_file)
@@ -713,7 +719,7 @@ def collect_suppressions(
             inline = [s for s in inline if id(s) not in pending_ids]
 
     live, expired = drop_expired(suppressions + inline, warnings)
-    suppset = SuppressionSet(live)
+    suppset = SuppressionSet(live, id_aliases=id_aliases)
     suppset.pending = pending
     suppset.pending_applied = allow_pr_suppressions
     suppset.expired = expired

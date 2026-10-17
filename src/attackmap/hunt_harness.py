@@ -27,7 +27,8 @@ from typing import Literal
 
 from .ai_budget import (AiBudget, AiBudgetExhausted, budget_scope,
                         current_budget, reservation_scope)
-from .citations import (CitationContext, citation_scope, context_from_payload,
+from .citations import (ClaimSupport, CitationContext, assess_claim_support,
+                        claim_support_state, citation_scope, context_from_payload,
                         current_citation_context, validate_references)
 
 from .review_prompts import HYPOTHESIS_MARKER, VERDICT_MARKER, build_citation_context
@@ -57,6 +58,12 @@ class Consensus:
     abstained: int = 0
     planned_votes: int = 0
     assessment_kind: Literal["model_assessment"] = "model_assessment"
+    # Closed-set deterministic claim support (AM016): "supported_by_cited_evidence"
+    # only when a captured span bound to a cited reference contains an
+    # identifier/route/secret-kind the hypothesis names. Distinct from the
+    # model verdict above and never implied by reference validity.
+    claim_support: ClaimSupport = "not_assessed"
+    claim_support_terms: tuple[str, ...] = ()
 
 
 # `H1: title [evidence: …]` lines in the generation pass's marker block.
@@ -297,6 +304,25 @@ _VERDICT_HEADING = {
 }
 
 
+def _assess_consensus_support(hypotheses: list[Hypothesis], consensus: list[Consensus]) -> None:
+    """Deterministic, closed-set claim support per hypothesis (AM016).
+
+    The claim is the hypothesis itself (title plus cited evidence ids); the
+    check is whether a captured span bound to one of its cited references
+    contains an identifier, route, or secret-kind the hypothesis names. This
+    never touches the model verdicts above and is never implied by reference
+    validity alone.
+    """
+    captured = current_citation_context()
+    if captured is None:
+        return
+    for hyp, item in zip(hypotheses, consensus):
+        assessments = assess_claim_support(f"{hyp.title} {hyp.evidence}", captured)
+        item.claim_support = claim_support_state(assessments)
+        item.claim_support_terms = tuple(dict.fromkeys(
+            term for assessment in assessments for term in assessment.matched_terms))
+
+
 def render_consensus_report(consensus: list[Consensus], votes: int) -> str:
     """Render the adjudicated shortlist, grouped by consensus verdict."""
     lines = [
@@ -306,7 +332,9 @@ def render_consensus_report(consensus: list[Consensus], votes: int) -> str:
         "requires a strict majority of planned votes. Missing, failed, or malformed "
         "votes abstain; no majority is INCONCLUSIVE. Model agreement does not "
         "establish verified facts or confirmed exploitability. Citation checks "
-        "validate reference identity only; semantic claim support is not independently assessed._",
+        "validate reference identity only; per-claim support below is a separate "
+        "deterministic token check (a cited captured span containing an identifier "
+        "the claim names), never semantic verification._",
         "",
     ]
     ordered = sorted(consensus, key=lambda c: (_VERDICT_ORDER[c.verdict], c.id))
@@ -322,6 +350,14 @@ def render_consensus_report(consensus: list[Consensus], votes: int) -> str:
             if c.needs_review:
                 tally += f", {c.needs_review} needs-review"
             lines.append(f"- `{c.id}` — **{c.title}** ({tally})")
+            if c.claim_support == "supported_by_cited_evidence":
+                terms = ", ".join(f"`{term}`" for term in c.claim_support_terms[:6])
+                lines.append(f"  - claim support: supported_by_cited_evidence "
+                             f"(cited span names {terms}) — token presence only, "
+                             "not verification of the claim's conclusion")
+            else:
+                lines.append("  - claim support: not_assessed (no deterministic "
+                             "identifier match in cited captured spans)")
             reason = _reason_for(c)
             if reason:
                 lines.append(f"  - {reason}")
@@ -520,6 +556,7 @@ def _run_majority_verify(
         )
 
     consensus = combine_verdicts(hypotheses, per_pass)
+    _assess_consensus_support(hypotheses, consensus)
     report = render_consensus_report(consensus, votes)
     return MajorityVerifyResult(
         report=report,

@@ -195,19 +195,35 @@ def _validate_analyze_options(
         raise typer.BadParameter(f"--hunt-budget must be 0 (no cap) or more (got {hunt_budget}).")
 
 
-def _parse_deployment_aliases(service_alias: list[str], service_dns_suffix: list[str]):
+def _parse_deployment_aliases(
+    service_alias: list[str],
+    service_dns_suffix: list[str],
+    service_port: list[str],
+    service_protocol: list[str],
+    via_proxy: list[str],
+):
     """Build a validated DeploymentAliases from CLI declarations, or None."""
-    if not service_alias and not service_dns_suffix:
+    if not any((service_alias, service_dns_suffix, service_port, service_protocol, via_proxy)):
         return None
     from .contracts import DeploymentAliases
-    hosts: dict[str, str] = {}
-    for item in service_alias:
-        host, sep, repo = item.partition("=")
-        if not sep or not host.strip() or not repo.strip():
-            raise typer.BadParameter(f"--service-alias expects HOST=REPO, got: {item!r}")
-        hosts[host.strip()] = repo.strip()
+
+    def _pairs(items: list[str], flag: str, shape: str) -> dict[str, str]:
+        out: dict[str, str] = {}
+        for item in items:
+            key, sep, value = item.partition("=")
+            if not sep or not key.strip() or not value.strip():
+                raise typer.BadParameter(f"{flag} expects {shape}, got: {item!r}")
+            out[key.strip()] = value.strip()
+        return out
+
     try:
-        return DeploymentAliases(hosts=hosts, dns_suffixes=tuple(service_dns_suffix))
+        return DeploymentAliases(
+            hosts=_pairs(service_alias, "--service-alias", "HOST=REPO"),
+            dns_suffixes=tuple(service_dns_suffix),
+            service_ports=_pairs(service_port, "--service-port", "REPO=PORT"),
+            service_protocols=_pairs(service_protocol, "--service-protocol", "REPO=SCHEME"),
+            proxies=_pairs(via_proxy, "--via-proxy", "PROXY=REPO"),
+        )
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
@@ -491,6 +507,24 @@ def analyze(
         help="Fleet only. Declare a DNS namespace suffix (e.g. .internal) that may strip to a repo "
         "identity; repeatable. Undeclared suffixes never strip.",
     ),
+    service_port: list[str] = typer.Option(
+        [],
+        "--service-port",
+        help="Fleet only. Declare a service's listen port REPO=PORT (C28); repeatable. An "
+        "explicitly-ported call resolves only against declared ports or host:port aliases.",
+    ),
+    service_protocol: list[str] = typer.Option(
+        [],
+        "--service-protocol",
+        help="Fleet only. Declare the scheme a service serves, REPO=http|https (C28); repeatable. "
+        "A call whose URL scheme contradicts the declaration stays a candidate.",
+    ),
+    via_proxy: list[str] = typer.Option(
+        [],
+        "--via-proxy",
+        help="Fleet only. Declare PROXY=REPO: calls to PROXY reach REPO through it (C28); repeatable. "
+        "Such links resolve as observed via the proxy, never as direct service-to-service edges.",
+    ),
 ) -> None:
     validation_started = time.perf_counter()
     fleet_incompatible = {
@@ -543,10 +577,13 @@ def analyze(
             secrets_history=secrets_history,
         )
 
-        deployment_aliases = _parse_deployment_aliases(service_alias, service_dns_suffix)
+        deployment_aliases = _parse_deployment_aliases(
+            service_alias, service_dns_suffix, service_port, service_protocol, via_proxy
+        )
         if len(repo_paths) == 1 and deployment_aliases is not None:
             raise typer.BadParameter(
-                "--service-alias/--service-dns-suffix apply to multi-repo fleet scans only."
+                "--service-alias/--service-dns-suffix/--service-port/--service-protocol/--via-proxy "
+                "apply to multi-repo fleet scans only."
             )
         if len(repo_paths) > 1:
             _validate_fleet_options(fleet_incompatible)

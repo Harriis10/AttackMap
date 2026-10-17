@@ -1,0 +1,34 @@
+{
+  "scan": {
+    "root": "identity-matrix-fixture",
+    "files_scanned": 1,
+    "scanned_files": [
+      "src/routes.js"
+    ],
+    "signals": [],
+    "limitations": [],
+    "analyzer_errors": []
+  },
+  "findings": [
+    {
+      "title": "Unsafe eval of user input",
+      "rule_id": "js-eval-user-input",
+      "entity_id": "route:/api/run",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "Remove the eval call; validate inputs instead.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "locations": [
+        {
+          "file": "src/routes.js",
+          "line": 14,
+          "fingerprint": "fp-eval-run"
+        }
+      ],
+      "id": "598c3298c072dae7",
+      "identity_scheme": "rule-entity/v2"
+    }
+  ]
+}

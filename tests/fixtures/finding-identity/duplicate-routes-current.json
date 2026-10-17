@@ -1,0 +1,60 @@
+{
+  "scan": {
+    "root": "identity-matrix-fixture",
+    "files_scanned": 2,
+    "scanned_files": [
+      "src/routes/admin.py",
+      "src/routes/orders.py"
+    ],
+    "signals": [],
+    "limitations": [],
+    "analyzer_errors": []
+  },
+  "findings": [
+    {
+      "title": "Authorization missing on route",
+      "rule_id": "missing-authorization",
+      "entity_id": "route:/api/orders",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "Require authorization on this route.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "locations": [
+        {
+          "file": "src/routes/orders.py",
+          "line": 11,
+          "fingerprint": "fp-orders-list"
+        },
+        {
+          "file": "src/routes/admin.py",
+          "line": 40,
+          "fingerprint": "fp-orders-admin"
+        }
+      ],
+      "id": "37dfa5c7ac5d7ed4",
+      "identity_scheme": "rule-entity/v2"
+    },
+    {
+      "title": "Authorization missing on route",
+      "rule_id": "missing-authorization",
+      "entity_id": "route:/api/users",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "Require authorization on this route.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "locations": [
+        {
+          "file": "src/routes/users.py",
+          "line": 8,
+          "fingerprint": "fp-users-list"
+        }
+      ],
+      "id": "248a1882e5c4b56c",
+      "identity_scheme": "rule-entity/v2"
+    }
+  ]
+}

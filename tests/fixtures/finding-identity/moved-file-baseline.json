@@ -1,0 +1,34 @@
+{
+  "scan": {
+    "root": "identity-matrix-fixture",
+    "files_scanned": 1,
+    "scanned_files": [
+      "src/legacy/handler.py"
+    ],
+    "signals": [],
+    "limitations": [],
+    "analyzer_errors": []
+  },
+  "findings": [
+    {
+      "title": "Unvalidated redirect target",
+      "rule_id": "open-redirect",
+      "entity_id": "route:/legacy/goto",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "Validate redirect targets against an allowlist.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "locations": [
+        {
+          "file": "src/legacy/handler.py",
+          "line": 3,
+          "fingerprint": "fp-handler-old"
+        }
+      ],
+      "id": "02e0d772ebb18dc5",
+      "identity_scheme": "rule-entity/v2"
+    }
+  ]
+}

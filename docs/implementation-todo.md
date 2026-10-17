@@ -164,6 +164,8 @@ Once the inventory exists, create the design foundation and workflow prototypes 
 
   Centralize process-tree ownership, bounded logs, timeouts, admission control, and cancellation; keep the slot occupied until exit is verified. Prevent shared mutable request configuration.
 
+  2026-10-17 Windows campaign recorded: `tools/c09_campaign.py` ran 50 real start/cancel cycles with the ignoring-graceful parent/child fixture plus the 20-way simultaneous-start admission check on this Windows 10 dev host — acknowledgement p95 0.000773 s (budget 0.25 s), tree death max 3.030 s / verified exit max 3.042 s (budget 5 s), 1 of 20 concurrent starts admitted with exactly one Popen launch, slot held after acknowledgement until verified exit; evidence JSON with raw samples in `.pytest_cache/c09-campaign/evidence.json`, details in [windows-process-supervision](windows-process-supervision.md). Measured at the core `request_cancel()` return, not an HTTP round trip. No supervision code change was required. macOS proof, packaged and ARM64 acceptance remain open.
+
   **Done when:** [C09 Process supervision](roadmap-2026-2028.md#c09-process-supervision) passes independently on Windows and macOS, including all 50 cancel cycles and the concurrent-start test.
 
 
@@ -180,6 +182,8 @@ Once the inventory exists, create the design foundation and workflow prototypes 
 
   Extend the existing signal model with observation identity and origin, preserve contradictions and corroboration, deduplicate coverage, and avoid mutating analyzer objects. Adapt legacy plugin output explicitly.
 
+  2026-10-17 conflict/ranking slice delivered: fixture-driven conflict matrix (`tests/fixtures/signal_conflicts/` + `tests/test_merge_conflict_matrix.py`) proving contradictory properties (route auth present/absent and upgrade, taint hops, direct-signal exposure) survive merge as `SignalConflict` with corroborating origins under every input permutation, stable observation IDs, analyzer-input immutability by deep-copy snapshot proof, and coverage counted once. Per-finding ranking-factor decomposition exposed additively in finding contexts and `attackmap-report.json` (`tests/test_ranking_factors.py`, `tests/test_finding_presentation.py`): severity band, confidence multiplier with visible weights, fused exploitability factors summing to the raw score, source-quality qualitative filter, plus explicit `not_applied` factors and unresolved assumptions — no score is changed, only made visible; ranking tests pin confidence and source-quality direction and state scores are not calibrated probabilities. Remaining: finding→score link is value-matched (a `models.py` reference field would make it first-class); trust-boundary crossing is not yet a fused ranking factor; conflict surface beyond route auth/taint hops needs richer analyzer emission.
+
   **Done when:** [C11 Source provenance](roadmap-2026-2028.md#c11-source-provenance) passes conflict, ordering, and immutability tests.
 
 
@@ -188,13 +192,17 @@ Once the inventory exists, create the design foundation and workflow prototypes 
 
   Centralize source classification and distinguish observed edges from candidates. Use explicit evidence references for route ownership and expose scoring factors and uncertainty consistently.
 
+  2026-10-17 ranking-exposure note: see the AM012 slice above — the C12 ranking-factor decomposition, direction tests, and explicit unresolved assumptions are delivered there. Source-role classification and candidate-vs-observed edge distinction were already in place; full C12 closure still needs broader route-ownership counterexamples across output formats.
+
   **Done when:** [C12 Evidence ownership](roadmap-2026-2028.md#c12-evidence-ownership) passes source-quality, ownership, and ranking tests.
 
 
 
-- [ ] **AM014 Stabilize finding and baseline identity** — High; suggested owner: findings and triage; dependencies: AM012.
+- [ ] **AM014 IN PROGRESS Stabilize finding and baseline identity** — High; suggested owner: findings and triage; dependencies: AM012.
 
   Replace title-dependent identity with stable rule/entity semantics; implement baseline and suppression migration, collision handling, and visible unmapped-record handling.
+
+  2026-10-17 matrix slice delivered: paired fixture matrix under `tests/fixtures/finding-identity/` with `tests/test_finding_identity_matrix.py` (title/recommendation edits, line drift, duplicate routes, moved files, old-baseline migration round-tripping suppression reason/owner/ticket onto stable ids). Two real gaps wired: `compare_reports` now emits `legacy_id_aliases` notices for baselines (foreign/ambiguous ids were silently re-identified before), and `collect_suppressions` accepts baseline-derived `id_aliases`; `pipeline.py` passes baseline-derived aliases end to end (`tests/test_pipeline_suppression_migration.py`: legacy title-id suppression keeps applying; an unrelated legacy id never suppresses). Identity stayed conservative — no title-similarity or rename inference. Remaining: per-instance removal tracking for moved files is documented as intended semantics, not implemented.
 
   **Done when:** [C13 Finding identity](roadmap-2026-2028.md#c13-finding-identity) passes all migration and identity-change fixtures.
 
@@ -208,9 +216,11 @@ Once the inventory exists, create the design foundation and workflow prototypes 
 
 
 
-- [ ] **AM016 Validate AI evidence references** — High; suggested owner: AI integration and evidence; dependencies: AM008, AM012.
+- [ ] **AM016 IN PROGRESS Validate AI evidence references** — High; suggested owner: AI integration and evidence; dependencies: AM008, AM012.
 
   Replace substring citation checks with structured IDs and bounded source spans. Distinguish citation validity from claim support, minimize/redact excerpts, and test hostile instructions embedded in analyzed files. Capture the cited contents consistently; the shared snapshot system follows in AM047.
+
+  2026-10-17 claim-support slice delivered: closed-set `claim_support` (`supported_by_cited_evidence` only when a cited captured span names an identifier/route/secret-kind the claim itself names — assessment vocabulary structurally excluded so hostile files cannot spoof it; otherwise `not_assessed`) wired through hunt consensus reports, narrative `reference_validation` (one honest entry per cited claim), and defensive-review JSON weaknesses/recommendations (schema stays 1.5.0, fields additive). `review_eval` gained `claim_support_discipline` (proof verbs attached to citations fail). Excerpt redaction verified across all nine prompt paths; new `tests/fixtures/hostile_citation_repo` proves forged evidence IDs, embedded foreign `source:` IDs, and citation-spoofing text are rejected. Honest limits stated in `docs/ai-citations.md`: token presence is not semantic entailment; narrative prompts still supply no captured spans.
 
   **Done when:** the citation, privacy, and authority portions of [C14 AI boundaries](roadmap-2026-2028.md#c14-ai-boundaries) pass without weakening deterministic results.
 
@@ -421,6 +431,8 @@ M3 tasks may be developed against fixtures early, but the beta milestone cannot 
 - [ ] **AM040 Resolve cross-repository edges conservatively** — High; suggested owner: distributed-system analysis; dependencies: AM039.
 
   Match destinations using service identity and endpoint semantics; preserve ambiguous candidate edges and case-sensitive paths. Build the three-service reference fixture.
+
+  2026-10-17 remainder slice delivered: protocol/proxy/port modeling and alias provenance. `DeploymentAliases` gained `proxies` (proxy host → exactly one backend identity), `service_ports` (identity → declared listen port), and `service_protocols` (identity → http/https), all positive-only with malformed values rejected, exposed as fleet-only `--via-proxy`/`--service-port`/`--service-protocol` flags. `ContractLink` records the call's `scheme`, `alias_provenance` (`hosts:`/`dns_suffix:`/`host_ports:`/`service_ports:`/`proxies:`, `None` for identity matches), and `proxy_host`; same-host scheme contradictions stay candidates (`scheme_mismatch`) and only fire when the destination already resolved to that server; declared listen ports resolve explicit-port calls; a declared proxy resolves its portless calls as `observed_via_proxy` — a distinct resolution rendered through a proxy node in mermaid and its own markdown section, never a direct edge or trust-path finding (crossrepo gates pinned by test with a direct-link control). Three-service reference fixture extended (12 calls / 16 links, exact observed/candidate sets with reasons and provenance); real CLI fleet run verified all flags end to end. Remaining: config-file extraction (k8s/nginx/compose) of ports/schemes/proxies; multi-backend proxy routing; other protocols (grpc/ws).
 
   **Done when:** the cross-repository portions of [C28 Service resolution](roadmap-2026-2028.md#c28-service-resolution) pass without unsupported observed links.
 
@@ -679,6 +691,18 @@ Reviewer:
 | 2026-10-16 (night) | AM041 | Release-readiness tooling (unsigned) | SBOM generator (re-verifies every package manifest entry, deterministic; live run over dev-20261016201719: 785 files, 50 pinned Python deps), release lock (canonical source inventory + toolchain probes), rollback procedure test on synthetic packages (install v1→v2→rollback, user files preserved, exit 0). 14 tests + docs; canonical-format test made fixture-based after the live snapshot was superseded. Open: signing certificate, clean-machine, real-release upgrade. |
 
 | 2026-10-16 (night) | AM046 prep | Gate matrix written | docs/project_notes/m4-gate-status-2026-10-16.md: honest C01–C32 status with evidence pointers and an explicit not-faked list (C19/C24/C25/C27/C29/C32). Integration regression 3,407 passed / 6 skipped / 1 fixed. | Final package rebuild + morning summary |
+
+| 2026-10-17 | AM014 | C13 matrix slice: identity fixtures + migration wiring | Fixture matrix (9 tests) for title edits, line drift, duplicate routes, moved files, old-baseline suppression round trips; `compare_reports` emits `legacy_id_aliases` notices (silent re-identification fixed); `collect_suppressions` accepts baseline `id_aliases`; `pipeline.py` wires baseline aliases end to end (2 CLI tests). | C13 acceptance review; per-instance removal tracking intentionally absent |
+
+| 2026-10-17 | AM016 | C14 claim-support slice: closed-set states | `assess_claim_support` (`supported_by_cited_evidence` only on deterministic token presence in cited captured spans, else `not_assessed`) wired through hunt consensus, narrative `reference_validation`, and defensive-review JSON (schema 1.5.0 additive); `review_eval` rejects proof verbs on citations; redaction verified across all nine prompt paths; hostile citation-spoofing fixture rejected. 302 focused tests passed (1 env-gated skip). Live LM Studio verification at integration: real `cyberstag-security-26b-a4b-v1` call via loopback (140.96 s, 6,302/3,885 tokens, completed) produced 28 per-claim assessments, all honestly `not_assessed` on the narrative path, closed set held — evidence `.pytest_cache/m5-juice-shop/<gen>/live-claim-support-smoke.meta.json`. | Semantic entailment remains unassessed by design; narrative prompts supply no captured spans |
+
+| 2026-10-17 | AM040 | C28 remainder: protocol/proxy/ports + alias provenance | `proxies`/`service_ports`/`service_protocols` declarations + CLI flags; scheme-aware resolution (`scheme_mismatch` candidates); `observed_via_proxy` distinct resolution never feeding trust gaps; provenance on every alias-resolved link; three-service fixture 12 calls/16 links; real CLI fleet run verified. 104 contracts/crossrepo/fleet tests passed. `fleet.py` rendering-only edits accepted by root review. | Config-file extraction; multi-backend proxies; grpc/ws |
+
+| 2026-10-17 | AM010 | C09 Windows campaign evidence | 50 real start/cancel cycles with ignoring-graceful child: ack p95 0.000773 s (≤250 ms), tree death max 3.030 s (≤5 s), verified exit max 3.042 s; 20-way admission → exactly one launch; slot held until verified exit. `tools/c09_campaign.py` + `.pytest_cache/c09-campaign/evidence.json` + windows-process-supervision.md section. No code change required. | macOS, packaged/ARM64, HTTP-layer ack measurement |
+
+| 2026-10-17 | AM012/AM013 | C11 conflict matrix + C12 ranking-factor exposure | 5 conflict fixtures × permutation/immutability/coverage proofs (21 tests); additive per-finding score decomposition (severity band, confidence multiplier, exploitability factors summing to raw score, source-quality filter, `not_applied` factors, unresolved assumptions) in finding contexts + report JSON; direction tests for confidence/source quality (8 tests). No score policy changed. | models.py reference field for finding→score link; trust-boundary crossing not yet fused |
+
+| 2026-10-17 | Integration | Five-agent batch integrated and verified | Root reviewed all diffs (fleet.py rendering-only edits accepted; crossrepo proxy gates inspected), wired the missing `pipeline.py` baseline-alias pass-through with 2 end-to-end CLI tests, appended the claim-support semantics section to docs/ai-citations.md. Combined focused pass 572 passed; full regression **3,510 passed / 6 explained skips in 426.13 s** (exit 0, basetemp outside checkout; log `.pytest_cache/m5-batch-full.log`); fresh Juice Shop scan 862 files → 18 findings / 266 routes, zero analyzer errors, report carries the new ranking decomposition and claim-support fields; live LM Studio claim-support call completed (above). | Package rebuild deferred — engine changes will need a new dev package identity before installed-engine re-verification |
 
 
 

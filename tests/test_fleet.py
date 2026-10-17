@@ -158,6 +158,84 @@ def test_fleet_summary_json_includes_links() -> None:
     assert link["server_location"] == "s.py:5"
 
 
+def _proxied_link() -> ContractLink:
+    # A proxy-fronted seam (C28): observed through the declared proxy, with
+    # the proxy identity and the resolving declaration carried on the link.
+    return ContractLink(
+        client_repo="client",
+        server_repo="server",
+        method="GET",
+        path_template="api/orders/*",
+        client_target="http://edge.internal/api/orders/",
+        client_file="c.py",
+        client_line=3,
+        server_route_path="/api/orders/<id>",
+        server_file="s.py",
+        server_line=5,
+        scheme="http",
+        resolution="observed_via_proxy",
+        alias_provenance="proxies:edge.internal",
+        proxy_host="edge.internal",
+    )
+
+
+def test_summary_renders_provenance_and_via_proxy_links() -> None:
+    aliased = ContractLink(
+        client_repo="client",
+        server_repo="server",
+        method="GET",
+        path_template="api/orders/*",
+        client_target="https://orders.bsky.social/api/orders/",
+        client_file="c.py",
+        client_line=3,
+        server_route_path="/api/orders/<id>",
+        server_file="s.py",
+        server_line=5,
+        alias_provenance="hosts:orders.bsky.social",
+    )
+    fleet = FleetScan(
+        results=[_result("client", []), _result("server", [])],
+        links=[_link(), aliased, _proxied_link()],
+    )
+    md = render_fleet_summary(fleet)
+    # Provenance is rendered next to each observed link; identity-resolved
+    # links say so plainly.
+    assert "hosts:orders.bsky.social" in md
+    assert "repo identity" in md
+    # Via-proxy links get their own section, distinct from direct edges.
+    assert "1 observed link(s) via a declared proxy" in md
+    assert "`edge.internal`" in md
+    assert "proxies:edge.internal" in md
+
+
+def test_mermaid_routes_via_proxy_links_through_proxy_node() -> None:
+    fleet = FleetScan(
+        results=[_result("client", []), _result("server", [])],
+        links=[_link(), _proxied_link()],
+    )
+    graph = render_fleet_graph_mermaid(fleet)
+    # The proxy appears as its own node; the proxied seam routes through it
+    # (client → proxy → server) instead of a direct client→server edge.
+    assert '"proxy: edge.internal"' in graph
+    assert graph.index("R0") < graph.index('["proxy: edge.internal"]')  # stable node block
+    assert "-->|\"GET /api/orders/*\"| P0" in graph
+    assert "P0 -->|\"GET /api/orders/*\"| R1" in graph
+    # The direct observed link keeps its own unproxied edge.
+    assert "R0 -->|\"GET /api/orders/*\"| R1" in graph
+
+
+def test_fleet_summary_json_carries_provenance_scheme_and_proxy() -> None:
+    fleet = FleetScan(
+        results=[_result("client", []), _result("server", [])], links=[_proxied_link()]
+    )
+    data = fleet_summary_json(fleet)
+    link = data["cross_repo_links"][0]
+    assert link["resolution"] == "observed_via_proxy"
+    assert link["proxy_host"] == "edge.internal"
+    assert link["alias_provenance"] == "proxies:edge.internal"
+    assert link["scheme"] == "http"
+
+
 # ---------------------------------------------------------------------------
 # CLI integration
 # ---------------------------------------------------------------------------
@@ -317,3 +395,80 @@ def test_multi_repo_trust_gap_end_to_end(tmp_path: Path) -> None:
     assert gaps[0]["method"] == "POST"
     assert gaps[0]["speculative"] is True
     assert "Trust-assumption gaps" in (out / "fleet-summary.md").read_text()
+
+
+# ---------------------------------------------------------------------------
+# service-resolution declarations end to end (C28)
+# ---------------------------------------------------------------------------
+
+_SEAM_FLEET = Path(__file__).parent / "fixtures" / "service-seam-fleet"
+
+
+def test_service_resolution_flags_thread_to_fleet_links(tmp_path: Path) -> None:
+    # The checked-in seam fixture (web-app -> auth-api) proves each new flag
+    # end to end: --via-proxy, --service-port, --service-protocol, and the
+    # existing --service-alias all reach link_contracts and show up in the
+    # fleet summary with resolutions, reasons, and provenance.
+    web_app = _SEAM_FLEET / "web-app"
+    auth_api = _SEAM_FLEET / "auth-api"
+    out = tmp_path / "out"
+    result = runner.invoke(
+        app,
+        [
+            "analyze", str(web_app), str(auth_api), "-o", str(out),
+            "--via-proxy", "edge.internal=auth-api",
+            "--service-port", "auth-api=8443",
+            "--service-protocol", "auth-api=https",
+            "--service-alias", "auth.bsky.social=auth-api",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads((out / "fleet-summary.json").read_text())
+    by_target = {lk["client_target"]: lk for lk in data["cross_repo_links"]}
+    assert len(by_target) == 4
+    proxied = by_target["https://edge.internal/users/"]
+    assert proxied["resolution"] == "observed_via_proxy"
+    assert proxied["proxy_host"] == "edge.internal"
+    assert proxied["alias_provenance"] == "proxies:edge.internal"
+    assert by_target["https://auth-api:8443/users/"]["resolution"] == "observed"
+    assert (
+        by_target["https://auth-api:8443/users/"]["alias_provenance"]
+        == "service_ports:auth-api:8443"
+    )
+    insecure = by_target["http://auth-api:8443/users/"]
+    assert insecure["resolution"] == "candidate"
+    assert insecure["resolution_reason"] == "scheme_mismatch"
+    assert insecure["scheme"] == "http"
+    public = by_target["https://auth.bsky.social/users/"]
+    assert public["resolution"] == "observed"
+    assert public["alias_provenance"] == "hosts:auth.bsky.social"
+    # Markdown and mermaid render the proxied seam and provenance distinctly.
+    md = (out / "fleet-summary.md").read_text()
+    assert "via a declared proxy" in md and "edge.internal" in md
+    assert "hosts:auth.bsky.social" in md
+    graph = (out / "fleet-graph.md").read_text()
+    assert "proxy: edge.internal" in graph
+
+
+def test_service_declaration_flags_reject_malformed_values(tmp_path: Path) -> None:
+    a = _repo(tmp_path, "svcA")
+    b = _repo(tmp_path, "svcB")
+    result = runner.invoke(
+        app, ["analyze", str(a), str(b), "-o", str(tmp_path / "out"), "--service-port", "svcA=https"]
+    )
+    assert result.exit_code != 0
+    assert "service port" in _norm(result.output)
+    result = runner.invoke(
+        app, ["analyze", str(a), str(b), "-o", str(tmp_path / "out"), "--via-proxy", "svcA:8080=svcB"]
+    )
+    assert result.exit_code != 0
+    assert "bare hostname" in _norm(result.output)
+
+
+def test_service_declaration_flags_rejected_for_single_repo(tmp_path: Path) -> None:
+    repo = _repo(tmp_path, "solo")
+    result = runner.invoke(
+        app, ["analyze", str(repo), "-o", str(tmp_path / "out"), "--via-proxy", "edge=solo"]
+    )
+    assert result.exit_code != 0
+    assert "multi-repo fleet scans only" in _norm(result.output)

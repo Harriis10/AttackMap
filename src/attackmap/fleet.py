@@ -160,27 +160,50 @@ def render_fleet_summary(fleet: FleetScan) -> str:
     if fleet.links:
         loc = lambda f, ln: f"{f}:{ln}" if ln else f  # noqa: E731
         observed = [lk for lk in fleet.links if lk.resolution == "observed"]
-        candidates = [lk for lk in fleet.links if lk.resolution != "observed"]
+        via_proxy = [lk for lk in fleet.links if lk.resolution == "observed_via_proxy"]
+        candidates = [lk for lk in fleet.links if lk.resolution == "candidate"]
         lines.append(
             f"{len(observed)} observed client→server contract link(s) — an outbound call "
             "in one repo whose destination positively identifies the server repo:"
         )
         lines.append("")
-        lines.append("| Client | Call | → | Server | Route |")
-        lines.append("|---|---|---|---|---|")
+        lines.append("| Client | Call | → | Server | Route | Resolved by |")
+        lines.append("|---|---|---|---|---|---|")
         for lk in observed:
             lines.append(
                 f"| `{lk.client_repo}` | `{lk.method} {lk.client_target}` "
                 f"[{loc(lk.client_file, lk.client_line)}] | → | `{lk.server_repo}` | "
-                f"`{lk.method} {lk.server_route_path}` [{loc(lk.server_file, lk.server_line)}] |"
+                f"`{lk.method} {lk.server_route_path}` [{loc(lk.server_file, lk.server_line)}] | "
+                f"{lk.alias_provenance or 'repo identity'} |"
             )
         lines.append("")
+        if via_proxy:
+            # Proxy-fronted links are observed seams without a direct edge (C28):
+            # rendered with the proxy identity, distinct from direct links.
+            lines.append(
+                f"{len(via_proxy)} observed link(s) via a declared proxy — the call dials "
+                "the proxy, which the fleet declares fronts the server; there is no "
+                "direct service-to-service edge:"
+            )
+            lines.append("")
+            lines.append("| Client | Call | → Proxy → | Server | Route | Declared by |")
+            lines.append("|---|---|---|---|---|---|")
+            for lk in via_proxy:
+                lines.append(
+                    f"| `{lk.client_repo}` | `{lk.method} {lk.client_target}` "
+                    f"[{loc(lk.client_file, lk.client_line)}] | `{lk.proxy_host or lk.destination}` | "
+                    f"`{lk.server_repo}` | "
+                    f"`{lk.method} {lk.server_route_path}` [{loc(lk.server_file, lk.server_line)}] | "
+                    f"{lk.alias_provenance or ''} |"
+                )
+            lines.append("")
         if candidates:
             reason_text = {
                 "no_destination": "no destination authority in the call target",
                 "unresolved_host": "destination host matches no repo identity",
                 "ambiguous_identity": "destination identity answered by multiple repos",
-                "explicit_port": "explicit port with no matching server binding",
+                "explicit_port": "explicit port with no matching declaration",
+                "scheme_mismatch": "call scheme contradicts the server's declared protocol",
             }
             lines.append(
                 f"{len(candidates)} candidate link(s) — path and method align but the "
@@ -279,20 +302,41 @@ def render_fleet_summary(fleet: FleetScan) -> str:
 
 def render_fleet_graph_mermaid(fleet: FleetScan) -> str:
     """A Mermaid flowchart of the fleet: one node per repo, one edge per distinct
-    client→server route link (labeled with the served contract)."""
+    client→server route link (labeled with the served contract). Proxy-fronted
+    links route through a proxy node instead of a direct edge (C28)."""
     lines = ["```mermaid", "flowchart LR"]
     ids = {r.repo_id for r in fleet.results}
     node_id = {rid: f"R{i}" for i, rid in enumerate(sorted(ids))}
     for rid in sorted(ids):
         lines.append(f'    {node_id[rid]}["{rid}"]')
-    # Collapse multiple links between the same pair to one edge per route.
-    seen: set[tuple[str, str, str, str]] = set()
+    # One node per distinct declared proxy host carried by via-proxy links.
+    proxy_id: dict[str, str] = {}
     for lk in fleet.links:
+        if lk.resolution == "observed_via_proxy" and lk.proxy_host and lk.proxy_host not in proxy_id:
+            proxy_id[lk.proxy_host] = f"P{len(proxy_id)}"
+    for host, pid in proxy_id.items():
+        lines.append(f'    {pid}["proxy: {host}"]')
+    # Collapse multiple links between the same pair to one edge per route.
+    seen: set[tuple] = set()
+    for lk in fleet.links:
+        if lk.client_repo not in node_id or lk.server_repo not in node_id:
+            continue
+        label = f"{lk.method} /{lk.path_template}"
+        if lk.resolution == "observed_via_proxy" and lk.proxy_host in proxy_id:
+            edge = (lk.client_repo, lk.proxy_host, lk.server_repo, lk.method, lk.path_template)
+            if edge in seen:
+                continue
+            seen.add(edge)
+            # The declared intermediary is drawn: client → proxy → server,
+            # never a direct service-to-service edge (C28).
+            pid = proxy_id[lk.proxy_host]
+            lines.append(f'    {node_id[lk.client_repo]} -->|"{label}"| {pid}')
+            lines.append(f'    {pid} -->|"{label}"| {node_id[lk.server_repo]}')
+            continue
         edge = (lk.client_repo, lk.server_repo, lk.method, lk.path_template)
-        if edge in seen or lk.client_repo not in node_id or lk.server_repo not in node_id:
+        if edge in seen:
             continue
         seen.add(edge)
-        label = f"{lk.method} /{lk.path_template}"
         if lk.resolution == "observed":
             lines.append(f'    {node_id[lk.client_repo]} -->|"{label}"| {node_id[lk.server_repo]}')
         else:
@@ -329,6 +373,9 @@ def fleet_summary_json(fleet: FleetScan) -> dict:
                 "destination": lk.destination,
                 "resolution": lk.resolution,
                 "resolution_reason": lk.resolution_reason,
+                "scheme": lk.scheme,
+                "alias_provenance": lk.alias_provenance,
+                "proxy_host": lk.proxy_host,
                 "client_location": f"{lk.client_file}:{lk.client_line}"
                 if lk.client_line
                 else lk.client_file,

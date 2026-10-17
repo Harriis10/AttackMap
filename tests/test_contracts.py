@@ -453,11 +453,233 @@ def test_alias_colliding_with_repo_identity_is_ambiguous() -> None:
         {"host_ports": {"auth-api:http": "auth-api"}},  # non-numeric port
         {"dns_suffixes": ("internal",)},  # missing leading dot
         {"dns_suffixes": (".",)},  # empty namespace
+        {"proxies": {"": "auth-api"}},
+        {"proxies": {"edge": ""}},
+        {"proxies": {"edge:8080": "auth-api"}},  # not a bare hostname
+        {"proxies": {"edge": "auth-api"}, "hosts": {"edge": "auth-api"}},  # alias and proxy
+        {"service_ports": {"auth-api": 0}},
+        {"service_ports": {"auth-api": 70000}},
+        {"service_ports": {"auth-api": "https"}},  # non-numeric port
+        {"service_protocols": {"auth-api": "grpc"}},  # unmodeled protocol
+        {"service_protocols": {"auth-api": ""}},
     ],
 )
 def test_malformed_alias_declarations_raise(kwargs: dict) -> None:
     with pytest.raises(ValueError):
         DeploymentAliases(**kwargs)
+
+
+# ---------------------------------------------------------------------------
+# protocol agreement (C28)
+# ---------------------------------------------------------------------------
+
+
+def test_scheme_mismatch_on_same_host_stays_candidate() -> None:
+    # The host positively identifies the server, but the call's scheme
+    # contradicts the declared protocol: same host, different scheme — a
+    # candidate with an explicit reason, never a silently observed link.
+    aliases = DeploymentAliases(service_protocols={"b": "https"})
+    https = link_contracts(
+        [("a", _client("a", "https://b/users/5")), ("b", _server("b", "/users/{id}"))],
+        aliases=aliases,
+    )
+    assert len(https) == 1
+    assert https[0].resolution == "observed"
+    assert https[0].scheme == "https"
+    http = link_contracts(
+        [("a", _client("a", "http://b/users/5")), ("b", _server("b", "/users/{id}"))],
+        aliases=aliases,
+    )
+    assert len(http) == 1
+    assert http[0].resolution == "candidate"
+    assert http[0].resolution_reason == "scheme_mismatch"
+    assert http[0].destination == "b"
+
+
+def test_scheme_check_requires_both_sides_declared() -> None:
+    # One-sided declarations change nothing: an undeclared server resolves an
+    # http call exactly as before; a scheme-less call declares nothing either.
+    plain = link_contracts(
+        [("a", _client("a", "http://b/users/5")), ("b", _server("b", "/users/{id}"))]
+    )
+    assert plain[0].resolution == "observed"
+    declared_client_only = link_contracts(
+        [("a", _client("a", "http://b/users/5")), ("b", _server("b", "/users/{id}"))],
+        aliases=DeploymentAliases(service_protocols={"other": "https"}),
+    )
+    assert declared_client_only[0].resolution == "observed"
+
+
+# ---------------------------------------------------------------------------
+# declared proxies (C28)
+# ---------------------------------------------------------------------------
+
+
+def test_proxy_fronted_call_is_observed_via_proxy_not_direct() -> None:
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://edge.internal/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+            ("feed-generator", _server("feed-generator", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(proxies={"edge.internal": "auth-api"}),
+    )
+    by_server = {lk.server_repo: lk for lk in links}
+    proxied = by_server["auth-api"]
+    assert proxied.resolution == "observed_via_proxy"
+    assert proxied.proxy_host == "edge.internal"
+    assert proxied.destination == "edge.internal"
+    assert proxied.alias_provenance == "proxies:edge.internal"
+    assert proxied.resolution_reason == ""
+    # The proxy fronts auth-api only: feed-generator keeps a plain candidate.
+    assert by_server["feed-generator"].resolution == "candidate"
+    assert by_server["feed-generator"].resolution_reason == "unresolved_host"
+
+
+def test_proxy_call_scheme_not_compared_to_backend_protocol() -> None:
+    # The proxy decouples the client→proxy leg from what the backend serves:
+    # an http call through the proxy resolves even when the backend declares
+    # https.
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://edge.internal/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(
+            proxies={"edge.internal": "auth-api"},
+            service_protocols={"auth-api": "https"},
+        ),
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "observed_via_proxy"
+
+
+def test_proxy_host_colliding_with_repo_identity_is_ambiguous() -> None:
+    # "auth-api" is the backend's own identity AND a declared proxy host: the
+    # declarations conflict, so nothing resolves.
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://auth-api/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(proxies={"auth-api": "auth-api"}),
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "ambiguous_identity"
+
+
+def test_ported_call_to_proxy_host_stays_candidate() -> None:
+    # The proxy declaration is host-level and cannot vouch for a port; the
+    # ported host itself identifies no repo directly, so the call stays an
+    # unresolved candidate — never an observed seam through the proxy.
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://edge.internal:8080/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(proxies={"edge.internal": "auth-api"}),
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "unresolved_host"
+
+
+# ---------------------------------------------------------------------------
+# server-declared listen ports (C28)
+# ---------------------------------------------------------------------------
+
+
+def test_declared_listen_port_resolves_ported_call() -> None:
+    aliases = DeploymentAliases(service_ports={"auth-api": 8443})
+    links = link_contracts(
+        [
+            ("web", _client("web", "https://auth-api:8443/sessions/9")),
+            ("auth-api", _server("auth-api", "/sessions/{id}")),
+        ],
+        aliases=aliases,
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "observed"
+    assert links[0].alias_provenance == "service_ports:auth-api:8443"
+
+
+def test_declared_listen_port_does_not_vouch_for_other_ports() -> None:
+    aliases = DeploymentAliases(service_ports={"auth-api": 8443})
+    links = link_contracts(
+        [
+            ("web", _client("web", "https://auth-api:9999/sessions/9")),
+            ("auth-api", _server("auth-api", "/sessions/{id}")),
+        ],
+        aliases=aliases,
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "explicit_port"
+
+
+def test_listen_port_declared_under_alias_identity_still_resolves() -> None:
+    # The port map addresses repos by any of their identity names, so a repo
+    # whose fleet id differs from its checkout name still vouches for its port.
+    aliases = DeploymentAliases(
+        hosts={"auth.bsky.social": "auth-api"},
+        service_ports={"auth-api": 8443},
+    )
+    links = link_contracts(
+        [
+            ("web", _client("web", "https://auth.bsky.social:8443/sessions/9")),
+            ("auth-api", _server("auth-api", "/sessions/{id}")),
+        ],
+        aliases=aliases,
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "observed"
+    assert links[0].alias_provenance == "service_ports:auth-api:8443"
+
+
+# ---------------------------------------------------------------------------
+# alias provenance (C28)
+# ---------------------------------------------------------------------------
+
+
+def test_alias_resolutions_record_provenance_identity_does_not() -> None:
+    aliases = DeploymentAliases(
+        hosts={"auth.bsky.social": "auth-api"},
+        dns_suffixes=(".internal",),
+    )
+    links = link_contracts(
+        [
+            (
+                "web",
+                _scan(
+                    "web",
+                    calls=[
+                        ExternalCall(target="http://auth-api/users/1", method="GET", file="c.py", line=1),
+                        ExternalCall(target="http://auth.bsky.social/users/2", method="GET", file="c.py", line=2),
+                        ExternalCall(target="http://worker.internal/users/3", method="GET", file="c.py", line=3),
+                    ],
+                ),
+            ),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+            (
+                "worker",
+                _scan(
+                    "C:/deploy/worker",
+                    routes=[Route(path="/users/{id}", method="GET", file="s.py", line=1)],
+                ),
+            ),
+        ],
+        aliases=aliases,
+    )
+    by_target = {lk.client_target: lk for lk in links if lk.resolution == "observed"}
+    assert set(by_target) == {
+        "http://auth-api/users/1",
+        "http://auth.bsky.social/users/2",
+        "http://worker.internal/users/3",
+    }
+    assert by_target["http://auth-api/users/1"].alias_provenance is None
+    assert by_target["http://auth.bsky.social/users/2"].alias_provenance == "hosts:auth.bsky.social"
+    assert by_target["http://worker.internal/users/3"].alias_provenance == "dns_suffix:.internal"
 
 
 # ---------------------------------------------------------------------------
@@ -470,7 +692,10 @@ def _reference_fleet():
     ``feed-generator``. Hyphenated names throughout; ``feed-generator`` is
     deployed under a directory (``gateway``) distinct from its repo id; the two
     servers share one endpoint path (``/users/{id}``) so host identity — not
-    path shape — must pick the server."""
+    path shape — must pick the server. The declarations cover the full C28
+    service-resolution scope: exact hosts, a DNS suffix, a host:port binding,
+    a declared listen port, a declared served scheme, and a declared proxy
+    fronting ``auth-api``."""
     web_app = _scan(
         "C:/deploy/web-app",
         calls=[
@@ -481,6 +706,11 @@ def _reference_fleet():
             ExternalCall(target="https://auth.bsky.social/sessions/2", method="GET", file="src/client.py", line=14),
             ExternalCall(target="http://auth-api:8081/users/7", method="GET", file="src/client.py", line=15),
             ExternalCall(target="http://feed-generator:9000/feeds/3", method="GET", file="src/client.py", line=16),
+            ExternalCall(target="http://feed-generator.internal/feeds/9", method="GET", file="src/client.py", line=17),
+            ExternalCall(target="https://feed-generator:9000/feeds/5", method="GET", file="src/client.py", line=18),
+            ExternalCall(target="https://feed-generator:9443/feeds/8", method="GET", file="src/client.py", line=19),
+            ExternalCall(target="http://edge.internal/users/6", method="GET", file="src/client.py", line=20),
+            ExternalCall(target="http://edge.internal/sessions/4", method="GET", file="src/client.py", line=21),
         ],
     )
     auth_api = _scan(
@@ -501,6 +731,9 @@ def _reference_fleet():
         hosts={"auth.bsky.social": "auth-api", "gateway": "auth-api"},
         host_ports={"auth-api:8081": "auth-api"},
         dns_suffixes=(".internal",),
+        proxies={"edge.internal": "auth-api"},
+        service_ports={"feed-generator": 9000},
+        service_protocols={"feed-generator": "https"},
     )
     return [("web-app", web_app), ("auth-api", auth_api), ("feed-generator", feed_generator)], aliases
 
@@ -510,10 +743,11 @@ def test_three_service_reference_system_with_declared_aliases() -> None:
     links = link_contracts(fleet, aliases)
 
     observed = [lk for lk in links if lk.resolution == "observed"]
-    # Exactly the explicitly supported edges resolve — identity (sessions),
-    # shared-path disambiguated by host (users -> auth-api), the declared DNS
-    # suffix (feeds -> feed-generator), the public alias (auth.bsky.social),
-    # and the declared port binding (auth-api:8081) — and nothing else.
+    # Exactly the explicitly supported direct edges resolve — identity
+    # (sessions), shared-path disambiguated by host (users -> auth-api), the
+    # declared DNS suffix (feeds -> feed-generator), the public alias
+    # (auth.bsky.social), the declared port binding (auth-api:8081), and the
+    # declared listen port (feed-generator:9000) — and nothing else.
     assert {(lk.client_repo, lk.server_repo, lk.path_template) for lk in observed} == {
         ("web-app", "auth-api", "sessions/*"),
         ("web-app", "auth-api", "users/*"),
@@ -525,7 +759,32 @@ def test_three_service_reference_system_with_declared_aliases() -> None:
         "feed-generator.internal",
         "auth.bsky.social",
         "auth-api:8081",
+        "feed-generator:9000",
     }
+    # Alias provenance (C28): every alias-resolved observed link names the
+    # declaration that vouched for it; identity matches carry none.
+    assert {lk.destination: lk.alias_provenance for lk in observed} == {
+        "auth-api": None,
+        "feed-generator.internal": "dns_suffix:.internal",
+        "auth.bsky.social": "hosts:auth.bsky.social",
+        "auth-api:8081": "host_ports:auth-api:8081",
+        "feed-generator:9000": "service_ports:feed-generator:9000",
+    }
+
+    # Proxy-fronted calls resolve as observed seams through the declared
+    # proxy — never direct edges, never unprovenanced.
+    via_proxy = [lk for lk in links if lk.resolution == "observed_via_proxy"]
+    assert {(lk.server_repo, lk.path_template) for lk in via_proxy} == {
+        ("auth-api", "sessions/*"),
+        ("auth-api", "users/*"),
+    }
+    assert all(
+        lk.proxy_host == "edge.internal"
+        and lk.alias_provenance == "proxies:edge.internal"
+        and lk.destination == "edge.internal"
+        and lk.resolution_reason == ""
+        for lk in via_proxy
+    )
 
     candidates = {
         (lk.server_repo, lk.path_template, lk.resolution_reason)
@@ -539,22 +798,34 @@ def test_three_service_reference_system_with_declared_aliases() -> None:
         # ambiguous for both, observed for neither
         ("auth-api", "users/*", "ambiguous_identity"),
         ("feed-generator", "users/*", "ambiguous_identity"),
-        # explicit port with no declared binding
+        # same host as a resolving call but plain http against the declared
+        # https surface — ported or suffixed, a scheme contradiction kills it
+        ("feed-generator", "feeds/*", "scheme_mismatch"),
+        # explicit port no declaration vouches for
         ("feed-generator", "feeds/*", "explicit_port"),
     }
+    # The two scheme-mismatched call sites stay individually inspectable.
+    mismatched = [lk for lk in links if lk.resolution_reason == "scheme_mismatch"]
+    assert {lk.client_target for lk in mismatched} == {
+        "http://feed-generator:9000/feeds/3",
+        "http://feed-generator.internal/feeds/9",
+    }
+    assert all(lk.scheme == "http" for lk in mismatched)
     # Every candidate call site stays individually inspectable with its authority.
-    ported = [lk for lk in links if lk.client_target == "http://feed-generator:9000/feeds/3"]
+    ported = [lk for lk in links if lk.client_target == "https://feed-generator:9443/feeds/8"]
     assert len(ported) == 1
-    assert ported[0].destination == "feed-generator:9000"
-    # 7 calls -> 10 (client, server, call-site) links: 5 observed, 5 candidate.
-    assert len(links) == 10 and len(observed) == 5
+    assert ported[0].destination == "feed-generator:9443"
+    # 12 calls -> 16 (client, server, call-site) links: 6 observed direct,
+    # 2 observed via the declared proxy, 8 candidate.
+    assert len(links) == 16 and len(observed) == 6 and len(via_proxy) == 2
 
 
 def test_three_service_reference_system_without_aliases() -> None:
     # The same fleet with no declarations resolves strictly by identity: the
-    # DNS-suffixed and public hostnames stay candidates, the port binding is
-    # gone, and "gateway" now resolves to feed-generator alone (its directory
-    # name) — the alias is what made it ambiguous instead.
+    # DNS-suffixed and public hostnames stay candidates, the port bindings and
+    # listen ports are gone, and "gateway" now resolves to feed-generator
+    # alone (its directory name) — the alias is what made it ambiguous
+    # instead. None of the new declaration kinds resolves anything on its own.
     fleet, _aliases = _reference_fleet()
     links = link_contracts(fleet)
 
@@ -564,9 +835,17 @@ def test_three_service_reference_system_without_aliases() -> None:
         ("web-app", "auth-api", "users/*"),
         ("web-app", "feed-generator", "users/*"),
     }
+    assert not [lk for lk in links if lk.resolution == "observed_via_proxy"]
     reasons = {(lk.client_target, lk.resolution_reason)
                for lk in links if lk.resolution == "candidate"}
     assert ("https://feed-generator.internal/feeds/77", "unresolved_host") in reasons
     assert ("https://auth.bsky.social/sessions/2", "unresolved_host") in reasons
     assert ("http://auth-api:8081/users/7", "explicit_port") in reasons
     assert ("http://feed-generator:9000/feeds/3", "explicit_port") in reasons
+    # The calls exercising the new declarations: without them every one is an
+    # unresolved host or an unvouched explicit port.
+    assert ("http://feed-generator.internal/feeds/9", "unresolved_host") in reasons
+    assert ("https://feed-generator:9000/feeds/5", "explicit_port") in reasons
+    assert ("https://feed-generator:9443/feeds/8", "explicit_port") in reasons
+    assert ("http://edge.internal/users/6", "unresolved_host") in reasons
+    assert ("http://edge.internal/sessions/4", "unresolved_host") in reasons

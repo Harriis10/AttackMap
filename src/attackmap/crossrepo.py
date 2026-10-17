@@ -139,7 +139,10 @@ def find_cross_boundary_flows(
     seen: set[tuple] = set()
     for link in links:
         if link.resolution != "observed":
-            continue  # Candidate links never support observed trust paths (C28).
+            continue  # Candidate links never support observed trust paths (C28);
+            # observed_via_proxy stops here too — the declared proxy is an
+            # intermediary core does not model, and it may itself enforce the
+            # controls this pass would report as missing.
         server_scan = scan_by_repo.get(link.server_repo)
         if server_scan is None:
             continue
@@ -254,7 +257,9 @@ def find_trust_gaps(
     seen: set[tuple] = set()
     for link in links:
         if link.resolution != "observed":
-            continue  # Candidate links never support observed trust paths (C28).
+            continue  # Candidate links never support observed trust paths (C28);
+            # observed_via_proxy stops here too — a declared proxy may be the
+            # authentication point this pass would report as missing.
         server = scan_by_repo.get(link.server_repo)
         if server is None:
             continue

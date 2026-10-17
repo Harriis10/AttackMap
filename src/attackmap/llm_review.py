@@ -106,6 +106,31 @@ class LlmReviewResult:
 
 
 
+def _claim_support_assessments(markdown: str, candidates: list[str]) -> list[dict]:
+    """Per-claim closed-set support assessment for narrative review output.
+
+    The selected narrative prompt supplies no captured snapshot spans, so every
+    cited claim honestly stays 'not_assessed'. Reference validity never implies
+    support, and this never reads live source files to manufacture it.
+    """
+    from .citations import reference_tokens
+
+    candidate_set = set(candidates)
+    assessments: list[dict] = []
+    for line in markdown.splitlines():
+        cited = [token for token in reference_tokens(line) if token in candidate_set]
+        if not cited:
+            continue
+        if len(assessments) >= 40:
+            break
+        claim = line.strip()[:160]
+        for reference in cited:
+            assessments.append({"claim": claim, "reference": reference,
+                                "claim_support": "not_assessed",
+                                "reason": "no captured source spans in the selected narrative prompt"})
+    return assessments
+
+
 def _validate_narrative_references(result: LlmReviewResult, rendered) -> LlmReviewResult:
     """Check producer IDs in precisely the selected, sanitized prompt, not claims."""
     import hashlib
@@ -143,6 +168,11 @@ def _validate_narrative_references(result: LlmReviewResult, rendered) -> LlmRevi
     unresolved_sources = list(source_check.invalid_references)
     metadata = {"reference_validity": status, "scope": "selected_prompt_producer_evidence_ids",
                 "claim_support": "not_assessed",
+                "claim_support_assessments": _claim_support_assessments(result.markdown, candidates),
+                "claim_support_basis": "Reference validity never implies claim support. The "
+                "selected narrative prompt supplies no captured snapshot spans, so every cited "
+                "claim remains not_assessed; this check never reads live source files to "
+                "manufacture support.",
                 "source_location_validation": "unvalidated" if unresolved_sources else "not_assessed",
                 "source_reference_validity": "unresolved" if unresolved_sources else "missing",
                 "source_references": unresolved_sources,

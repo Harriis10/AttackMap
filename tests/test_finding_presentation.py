@@ -3,8 +3,9 @@ from pathlib import Path
 
 import pytest
 
+from attackmap.exploitability import score_exploitability
 from attackmap.finding_presentation import FindingPresentationIndex, MAX_CANDIDATES
-from attackmap.models import Finding, ScanResult, Signal
+from attackmap.models import AttackSurface, Finding, ScanResult, Signal, TaintChain
 from attackmap.report import write_reports
 
 
@@ -18,8 +19,68 @@ def test_missing_support_is_explicit_and_scores_are_not_decomposed():
     assert context["source"]["role"] == "unknown"
     assert context["observed_controls"]["items"] == []
     assert context["trust_chain"]["status"] == "unknown"
+    # No factor list was supplied, so nothing may pretend to be decomposed.
     assert context["priority"]["point_contributions"] == "not_supplied"
+    assert context["priority"]["decomposition"] == []
     assert all(f["points"] is None for f in context["priority"]["factors"])
+    assumptions = " ".join(context["priority"]["unresolved_assumptions"])
+    assert "not calibrated probabilities" in assumptions
+    assert "factor list was not supplied" in assumptions
+    assert "source-quality weighting cannot be applied" in assumptions
+
+
+def test_ranking_factors_expose_policy_without_rescoring():
+    context = FindingPresentationIndex(ScanResult(root=".")).for_finding(finding(confidence="low", locations=[{"file": "src/a.py", "line": 1}]))
+    factors = {f["name"]: f for f in context["priority"]["factors"]}
+    assert set(factors) == {"severity", "confidence", "exploitability", "source_quality", "trust_boundary_crossing"}
+    assert factors["severity"]["kind"] == "ordering_band"
+    assert factors["confidence"]["kind"] == "ordering_multiplier"
+    assert "0.5" in factors["confidence"]["note"]  # low-confidence multiplier, made visible
+    assert factors["exploitability"]["kind"] == "not_applied"
+    assert factors["source_quality"]["value"] == "unclassified"
+    assert factors["source_quality"]["kind"] == "qualitative_filter"
+    assert factors["trust_boundary_crossing"]["kind"] == "not_applied"
+    # Exposure is presentation-only: the finding's own numbers pass through unchanged.
+    assert context["priority"]["score"] is None
+
+
+def test_exploitability_decomposition_is_additive_and_corroborated():
+    scan = ScanResult(root=".", taint_chains=[TaintChain(
+        route_path="/items", route_method="GET", route_file="src/routes/items.py",
+        sink_kind="sql_execute", sink_file="src/db/query.py", sink_line=42, hops=1,
+        files=["src/routes/items.py", "src/db/query.py"])])
+    surfaces = [AttackSurface(route="/items", method="GET", file="src/routes/items.py",
+                              category="public_api", exposure="public", risk="high")]
+    scores = score_exploitability(scan, surfaces)
+    assert scores
+    best = scores[0]
+    f = finding(score=100, exploitability=best.score, exploitability_tier=best.tier,
+                locations=[{"file": "src/db/query.py", "line": 42}])
+    context = FindingPresentationIndex(scan, exploitability_scores=scores).for_finding(f)
+    assert context["priority"]["point_contributions"] == "supplied"
+    decomposition = context["priority"]["decomposition"]
+    assert decomposition and decomposition[0]["score"] == best.score
+    assert decomposition[0]["match_basis"] == "score_and_tier_value"
+    assert decomposition[0]["location_corroborated"] is True
+    points = [factor["points"] for factor in decomposition[0]["factors"]]
+    assert all(isinstance(p, int) for p in points)
+    assert sum(points) == decomposition[0]["raw_score"]
+    assert decomposition[0]["sums_to_raw_score"] is True
+    names = {factor["name"] for factor in decomposition[0]["factors"]}
+    assert any("exposure" in name for name in names)
+    assert any("auth" in name for name in names)  # privilege sensitivity at entry
+    assert any("reachability" in name for name in names)  # chain depth
+
+
+def test_decomposition_is_deterministic_and_value_matched_only():
+    scan = ScanResult(root=".")
+    scores = score_exploitability(scan, [])
+    f = finding(exploitability=99, exploitability_tier="high")
+    context = FindingPresentationIndex(scan, exploitability_scores=scores).for_finding(f)
+    # A finding whose score matches nothing gets no invented decomposition.
+    assert context["priority"]["decomposition"] == []
+    assert context["priority"]["point_contributions"] == "not_supplied"
+    assert "factor list was not supplied" in " ".join(context["priority"]["unresolved_assumptions"])
 
 
 def test_exact_location_is_only_candidate_not_control_or_trust_link():
@@ -69,6 +130,26 @@ def test_report_contains_precomputed_context(tmp_path):
     row = payload["findings"][0]
     assert row["context"]["finding_id"] == row["id"]
     assert row["context"]["context_version"] == "1.0"
+
+
+def test_report_json_exposes_exploitability_decomposition(tmp_path):
+    scan = ScanResult(root=".", taint_chains=[TaintChain(
+        route_path="/items", route_method="GET", route_file="src/routes/items.py",
+        sink_kind="sql_execute", sink_file="src/db/query.py", sink_line=42, hops=1,
+        files=["src/routes/items.py", "src/db/query.py"])])
+    surfaces = [AttackSurface(route="/items", method="GET", file="src/routes/items.py",
+                              category="public_api", exposure="public", risk="high")]
+    best = score_exploitability(scan, surfaces)[0]
+    f = finding(score=100, exploitability=best.score, exploitability_tier=best.tier,
+                locations=[{"file": "src/db/query.py", "line": 42}])
+    write_reports(tmp_path, scan, "# Synthetic", "# Synthetic", "# Synthetic", surfaces, [f], [])
+    payload = json.loads((tmp_path / "attackmap-report.json").read_text(encoding="utf-8"))
+    priority = payload["findings"][0]["context"]["priority"]
+    assert priority["point_contributions"] == "supplied"
+    assert priority["decomposition"][0]["score"] == best.score
+    assert sum(factor["points"] for factor in priority["decomposition"][0]["factors"]) == priority["decomposition"][0]["raw_score"]
+    assert priority["unresolved_assumptions"]
+    assert "not calibrated probabilities" in priority["meaning"]
 
 
 @pytest.mark.parametrize("name", ["previous", "current", "partial-coverage", "suppressed"])

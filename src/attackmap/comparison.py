@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .diff import ComparisonCoverage, FindingSnapshot, diff_findings
+from .finding_identity import legacy_id_aliases
 
 COMPARISON_VERSION = "1.0"
 MAX_REPORT_BYTES = 64 * 1024 * 1024
@@ -73,6 +74,10 @@ def compare_reports(baseline: dict[str, Any], current: dict[str, Any], *,
     notes = list(result.identity_notices)
     notes.extend("Current coverage limitation: " + note for note in coverage.limitations)
     notes.extend(result.coverage_notes)
+    # Baseline records that cannot be mapped to a stable identity (foreign
+    # recorded ids, ambiguous legacy titles) still diff, but are flagged for
+    # review instead of being silently re-identified (C13).
+    notes.extend(legacy_id_aliases(baseline["findings"]).notices)
     return {
         "comparison_version": COMPARISON_VERSION,
         "baseline": {"report_path": baseline_path, "repository_root": baseline["scan"]["root"]},

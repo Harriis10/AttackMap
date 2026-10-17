@@ -1,0 +1,47 @@
+{
+  "description": "Two analyzers emit the same route-to-sink taint chain identity but disagree on the import-edge distance (hops 1 vs 2). The disagreement must survive as a hops conflict; the chains must not double-count files.",
+  "inputs": [
+    {
+      "root": ".",
+      "files_scanned": 2,
+      "scanned_files": ["routes/items.py", "db/query.py"],
+      "taint_chains": [
+        {
+          "route_path": "/items",
+          "route_method": "GET",
+          "route_file": "routes/items.py",
+          "sink_kind": "sql_execute",
+          "sink_file": "db/query.py",
+          "sink_line": 42,
+          "hops": 1,
+          "files": ["routes/items.py", "db/query.py"],
+          "source_analyzer": "php-web"
+        }
+      ]
+    },
+    {
+      "root": ".",
+      "files_scanned": 2,
+      "scanned_files": ["routes/items.py", "db/query.py"],
+      "taint_chains": [
+        {
+          "route_path": "/items",
+          "route_method": "GET",
+          "route_file": "routes/items.py",
+          "sink_kind": "sql_execute",
+          "sink_file": "db/query.py",
+          "sink_line": 42,
+          "hops": 2,
+          "files": ["routes/items.py", "lib/mid.py", "db/query.py"],
+          "source_analyzer": "php-laminas"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "conflict_field": "hops",
+    "conflict_values": ["1", "2"],
+    "origin_analyzers": ["php-laminas", "php-web"],
+    "merged_taint_chains": 1
+  }
+}

@@ -63,6 +63,26 @@ def _flat_keywords(*, groups: list[list[str]] | None, legacy: list[str] | None) 
     return []
 
 
+def _citation_overclaims(review_text: str, citation_pattern: str, verbs: list[str]) -> list[str]:
+    """Lines where a proof verb is attached to a citation in either order.
+
+    Deterministic adjacency check: the verb and a citation token must share a
+    line within a short window. It flags the conflation C14 forbids (a citation
+    "proving" a claim); hedged language is untouched.
+    """
+    if not verbs:
+        return []
+    verb_alternation = "|".join(re.escape(verb) for verb in verbs)
+    citation = f"(?:{citation_pattern})"
+    forward = re.compile(rf"\b(?:{verb_alternation})\b[^\n]{{0,60}}{citation}", re.IGNORECASE)
+    reverse = re.compile(rf"{citation}[^\n]{{0,60}}?\b(?:{verb_alternation})\b", re.IGNORECASE)
+    hits: list[str] = []
+    for line in review_text.splitlines():
+        if forward.search(line) or reverse.search(line):
+            hits.append(line.strip()[:160])
+    return hits
+
+
 def evaluate_review_text(review_text: str, fixture: dict[str, Any]) -> dict[str, Any]:
     expectations = fixture.get("expectations", {})
     checks: list[dict[str, Any]] = []
@@ -206,6 +226,27 @@ def evaluate_review_text(review_text: str, fixture: dict[str, Any]) -> dict[str,
             "details": {
                 "found_banned_phrases": found_banned,
                 "missing_required_caution_groups": missing_caution_groups,
+            },
+        }
+    )
+
+    # AM016/C14: reference validity is not claim support. A review that attaches
+    # proof verbs directly to a citation ("proven by finding:2", "finding:2
+    # confirms…") conflates the two; both orders are rejected.
+    support_expectation = expectations.get("claim_support", {})
+    overclaim_verbs = [verb.lower() for verb in support_expectation.get(
+        "citation_overclaim_verbs",
+        ["proves", "proven", "confirms", "confirmed", "establishes", "established",
+         "verifies", "verified", "guarantees", "guaranteed", "demonstrates", "demonstrated"],
+    )]
+    overclaim_lines = _citation_overclaims(review_text, citation_pattern, overclaim_verbs)
+    checks.append(
+        {
+            "name": "claim_support_discipline",
+            "passed": not overclaim_lines,
+            "details": {
+                "citation_overclaim_lines": overclaim_lines[:20],
+                "policy": "A citation establishes a reference, not claim support; proof verbs attached to citations are rejected.",
             },
         }
     )

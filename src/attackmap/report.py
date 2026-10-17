@@ -87,7 +87,9 @@ def write_reports(
     if emit_markdown:
         write("attackmap-exploitability.md", render_exploitability_ranking(exploitability) + "\n")
 
-    finding_presentation = FindingPresentationIndex(scan)
+    # The fused scores are passed in read-only so per-finding contexts can
+    # expose the additive ranking-factor decomposition (C12) without rescoring.
+    finding_presentation = FindingPresentationIndex(scan, exploitability_scores=exploitability)
     json_report = {
         "scan": scan.model_dump(),
         "architecture_summary": architecture_md,

@@ -74,3 +74,42 @@ acknowledgement p95 0.000933 s, verified tree-exit p95 3.043700 s, maximum
 exit 3.065347 s. Both parent and ignoring child were checked dead every cycle.
 The three shared supervisor tests completed in 170.57 s. These are local
 source-run measurements, not packaged-release or cross-platform certification.
+
+## C09 campaign evidence (Windows 10 dev host, 2026-10-17)
+
+`tools/c09_campaign.py` is the repeatable platform-proof harness for C09. It
+runs the 50 real start/cancel cycles against the same ignoring-SIGBREAK
+parent/child fixture, plus the 20-way simultaneous-start admission check, and
+writes raw samples and host context to
+`.pytest_cache/c09-campaign/evidence.json`, exiting non-zero on any breach.
+Command: `.venv/Scripts/python.exe tools/c09_campaign.py`.
+
+Measured layer, stated honestly: acknowledgement latency is the
+`ProcessSupervisor.request_cancel()` return observed by the caller — the same
+primitive the desktop `/api/cancel` adapter dispatches on a background thread
+before returning its `CANCELLING` snapshot. No HTTP round trip is measured by
+the campaign; the adapter's own one-shot acknowledgement assertion lives in
+`tests/test_ui_supervision.py`.
+
+Windows 10 10.0.19045 dev host (Intel64, 8 logical processors, Python 3.13.15),
+2026-10-17, 50/50 cycles in 166.5 s, all thresholds met:
+
+- acknowledgement p50 0.000639 s, p95 0.000773 s, max 0.000779 s (budget p95
+  ≤ 0.250 s)
+- externally probed tree death p50 3.013893 s, p95 3.026214 s, max 3.030027 s
+  (budget ≤ 5 s; the ~3 s floor is the supervisor's deliberate graceful
+  window, which the ignoring fixture always exhausts before forced job
+  termination)
+- verified completion (`wait()` return, which upper-bounds admission release)
+  p50 3.028336 s, p95 3.041341 s, max 3.042289 s
+- admission: 1 of 20 simultaneous starts admitted, exactly one `Popen`
+  launch; the slot stayed occupied after acknowledgement in every cycle and
+  was only released after verified exit (a subsequent start succeeded)
+- every cycle: parent and ignoring child verified dead by an external
+  `OpenProcess` probe independent of the supervisor's own handles
+
+No supervision change was required; the existing implementation met every
+threshold. `tests/test_execution_supervision.py` passed 4/4 in 166.74 s on the
+same host. This is Windows 10 dev-host, source-run evidence only: macOS
+remains unmeasured, and packaged/ARM64 clean-install behavior is not
+established by this campaign.

@@ -111,3 +111,21 @@ def test_source_locations_are_unresolved_even_when_producer_id_is_valid(tmp_path
     assert metadata['unresolved_source_references'] == ['routes/handler.ts:42', 'handler.ts:10-12']
     assert metadata['claim_support'] == 'not_assessed'
     assert 'Source file/line references are unresolved' in result.markdown
+
+
+def test_per_claim_assessments_carry_the_closed_set_and_stay_not_assessed():
+    result = check('OBSERVED syntax [finding:2].\nA second claim cites finding:2 and find:2.\nUncited line.')
+    metadata = result.reference_validation
+    assessments = metadata['claim_support_assessments']
+    # One entry per (claim line, cited reference); uncited lines are not claims.
+    assert [(a['reference'], a['claim_support']) for a in assessments] == [
+        ('finding:2', 'not_assessed'), ('finding:2', 'not_assessed'), ('find:2', 'not_assessed'),
+    ]
+    assert all(a['reason'] == 'no captured source spans in the selected narrative prompt' for a in assessments)
+    assert 'never implies claim support' in metadata['claim_support_basis']
+    json.dumps(assessments)
+
+
+def test_claim_support_assessments_are_absent_without_citations():
+    result = check('No citations; plain narrative only.')
+    assert result.reference_validation['claim_support_assessments'] == []

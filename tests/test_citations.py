@@ -4,7 +4,8 @@ from pathlib import Path
 import pytest
 
 from attackmap.citations import (
-    capture_source_spans, citation_scope, context_from_payload, current_citation_context,
+    assess_claim_support, capture_source_spans, citation_scope, claim_support_state,
+    claim_terms, context_from_payload, current_citation_context, matched_claim_terms,
     validate_references,
 )
 
@@ -294,3 +295,62 @@ def test_location_like_hostile_large_token_is_bounded():
     start = time.perf_counter()
     assert not _looks_like_location("a/" * 500000)
     assert time.perf_counter() - start < 2.0
+
+
+# --- Closed-set claim support (AM016) --------------------------------------
+
+
+@pytest.mark.parametrize("claim,expected", [
+    ("exec of `request.args` in /run", ("request.args", "/run")),
+    ("hardcoded password in config.py", ("password", "config.py")),
+    ("route /admin/reindex via runRequest()", ("/admin/reindex", "runRequest")),
+    ("JWT and SSRF acronyms are terms", ("JWT", "SSRF")),
+    ("api_key and secret kinds are named", ("api_key", "secret")),
+    ("generic prose gains no terms", ()),
+    ("OBSERVED and INFERRED labels are review vocabulary, not terms", ()),
+    ("CONFIRMED supported_by_cited_evidence is assessment vocabulary", ()),
+    ("cites taint:1 and finding:2 only", ()),
+])
+def test_claim_terms_extraction_rules(claim, expected):
+    assert claim_terms(claim) == expected
+
+
+def test_matched_terms_are_case_sensitive_and_boundary_checked():
+    evidence = '10: exec(request.args["c"])'
+    assert matched_claim_terms("uses `request.args` here", evidence) == ("request.args",)
+    assert matched_claim_terms("uses `Request.Args` here", evidence) == ()
+    assert matched_claim_terms("uses `myrequest.args` here", evidence) == ()
+    assert matched_claim_terms("uses `request.arguments` here", evidence) == ()
+
+
+def test_assess_claim_support_requires_identifier_in_cited_span(captured):
+    _, context = captured
+    supported = assess_claim_support("sees `two` per taint:1", context)
+    assert [(item.reference, item.claim_support) for item in supported] == [("taint:1", "supported_by_cited_evidence")]
+    assert "two" in supported[0].matched_terms
+    assert claim_support_state(supported) == "supported_by_cited_evidence"
+    # Same valid reference, but the claim names no term present in the span.
+    absent = assess_claim_support("danger per taint:1", context)
+    assert absent[0].claim_support == "not_assessed"
+    assert claim_support_state(absent) == "not_assessed"
+
+
+def test_reference_validity_alone_never_yields_support(captured):
+    path, context = captured
+    scoped = context_from_payload({"taint_chains": [{"id": "taint:2", "sink": "missing.py:2"}]},
+                                  context.spans, repository_root=str(path.parents[1]))
+    validation = validate_references("taint:2", scoped)
+    assert validation.reference_validity == "valid"
+    assessment = assess_claim_support("sees `two` per taint:2", scoped)
+    assert assessment[0].claim_support == "not_assessed"
+    assert claim_support_state(assessment) == "not_assessed"
+    empty = assess_claim_support("sees `two` per taint:1", context_from_payload({}, (), repository_root=str(path)))
+    assert empty == ()
+
+
+def test_assessment_vocabulary_in_cited_span_cannot_manufacture_support(captured):
+    _, context = captured
+    claim = "this is CONFIRMED supported_by_cited_evidence per finding:1"
+    assessment = assess_claim_support(claim, context)
+    assert assessment[0].claim_support == "not_assessed"
+    assert assessment[0].matched_terms == ()

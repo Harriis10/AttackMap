@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .citations import matched_claim_terms
 from .models import AttackPath, AttackSurface, Finding, ScanResult
 from .evidence import (
     is_low_quality_source as _is_low_quality_source,
@@ -9,6 +10,8 @@ from .evidence import (
 from .security_overlay import SecurityOverlay, build_security_overlay
 
 SCHEMA_VERSION = "1.5.0"  # Static evidence labels and explicit route ownership uncertainty (C03).
+# AM016/C14 added closed-set claim_support fields to weaknesses and
+# recommendations additively (1.5.0 consumers ignore unknown keys).
 
 
 def _severity_rank(value: str) -> int:
@@ -69,12 +72,27 @@ def _candidate_surfaces_for_finding(finding: Finding, attack_surfaces: list[Atta
     return related
 
 
+def _claim_support(finding: Finding) -> dict:
+    """Closed-set token check: does the cited evidence text itself name an
+    identifier, route, or secret-kind the claim (title) names? This is presence
+    only — it never verifies the claim's conclusion, and absence stays
+    'not_assessed' rather than asserting the claim is false."""
+    cited = " ".join([*finding.evidence,
+                      *(f"{location.file}:{location.line}" for location in finding.locations)])
+    terms = matched_claim_terms(finding.title, cited)
+    return {
+        "claim_support": "supported_by_cited_evidence" if terms else "not_assessed",
+        "claim_support_terms": list(terms),
+    }
+
+
 def _finding_evidence_context(finding: Finding, attack_surfaces: list[AttackSurface]) -> dict:
     # Finding has no detector-owned surface IDs. Do not derive its basis from
     # route/category/file prose matches, even when a candidate is static observed.
     candidates = _candidate_surfaces_for_finding(finding, attack_surfaces)
     return {
         "evidence_basis": "heuristic_static",
+        **_claim_support(finding),
         "surface_association": "unknown",
         "candidate_surfaces": [
             {"route": surface.route, "method": surface.method, "file": surface.file,
@@ -254,6 +272,7 @@ def build_defensive_review_json(
                 "Use this artifact as a triage source-of-truth; validate high-priority items with repository context and runtime controls.",
                 "Assets, controls, and notable observations are heuristic overlays; absent-control entries indicate scanner did not find evidence, not necessarily that the control is missing in production.",
                 "ATT&CK technique mappings and detection opportunities are derived from insight kinds and finding-title keywords; treat them as triage hooks for SIEM/detection-engineering work, not authoritative MITRE mappings.",
+                "claim_support fields are closed-set token checks: supported_by_cited_evidence only means the cited evidence text names an identifier, route, or secret-kind the claim names; they never verify a claim's conclusion, and not_assessed never means a claim is false.",
             ],
         },
     }

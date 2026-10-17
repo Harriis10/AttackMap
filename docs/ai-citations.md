@@ -46,3 +46,21 @@ claim-support evaluation beyond mechanical reference identity.
 Narrative review output is checked against producer IDs in the exact selected, sanitized prompt, including loopback prompt truncation. Duplicate IDs, malformed aliases such as `find:2`, and omitted evidence do not validate a citation. The original model prose is retained below an explicit status notice; the atomic output persists `reference_validation` beside provider metadata.
 
 File/line references are classified separately. The narrative prompt currently supplies no captured snapshot spans, so detected source references remain individually unresolved and unvalidated, even when producer IDs resolve. This check never reads current source files to manufacture snapshot support. Reference checks do not assess whether the evidence supports the claim and cannot promote model text to deterministic findings.
+
+## Claim support is a closed set, separate from reference validity (2026-10-17)
+
+Reference validity never establishes that evidence supports a claim. `attackmap.citations.assess_claim_support`
+records one of exactly two states per claim: `supported_by_cited_evidence`, only when a cited captured span
+itself contains an identifier, route, or secret-kind that the claim's own text names (a deterministic
+token-presence check; review/assessment vocabulary like "confirmed" or "supported_by_cited_evidence" is
+structurally excluded from the extracted terms, so hostile analyzed files cannot talk the check into the
+supported state), or `not_assessed`, which is the honest state for everything else — including valid
+references whose spans name nothing the claim names. No state ever asserts a claim is false.
+
+Consumers: hunt/skeptic consensus items and their reports carry per-item `claim_support`; narrative review
+`reference_validation` persists one closed-set entry per cited claim (honestly `not_assessed`, because the
+narrative prompt supplies no captured spans); deterministic defensive-review JSON weaknesses/recommendations
+carry the same per-claim fields computed from the finding's own evidence text. `review_eval` rejects proof
+verbs ("proves", "confirms", …) attached to citations in either order. Limits: token presence is not semantic
+entailment, and a hostile file that prints a claim's identifier can still earn the token-level state; both
+limits are stated in report/limitations text.

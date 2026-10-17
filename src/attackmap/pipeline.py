@@ -35,6 +35,7 @@ from .diff import (
     load_baseline,
     render_diff_markdown,
 )
+from .finding_identity import legacy_id_aliases
 from .gitref import GitRefError
 from .hunt_harness import run_majority_verify
 from .llm_review import LlmReviewError, generate_llm_review
@@ -413,6 +414,24 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
 
         def _suppress() -> None:
             nonlocal findings, suppressed_findings, suppression_governance
+            id_aliases = None
+            if options.baseline is not None:
+                # Migration aliases from the baseline let suppressions recorded
+                # against pre-migration title ids keep applying (C13). A baseline
+                # that fails to parse here fails authoritatively in the baseline
+                # phase below; suppression simply runs unaliased until then.
+                try:
+                    records = [
+                        {"id": snap.id, "title": snap.title, "rule_id": snap.rule_id}
+                        for snap in load_baseline(Path(options.baseline))
+                    ]
+                except (OSError, ValueError):
+                    records = None
+                if records is not None:
+                    migration = legacy_id_aliases(records)
+                    id_aliases = migration.aliases or None
+                    for notice in migration.notices:
+                        echo(f"Baseline identity notice: {notice}", err=True)
             try:
                 suppset, sup_warnings = collect_suppressions(
                     repo_path,
@@ -420,6 +439,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                     explicit_file=explicit,
                     trusted_ref=options.suppress_from_ref,
                     allow_pr_suppressions=options.allow_pr_suppressions,
+                    id_aliases=id_aliases,
                 )
             except GitRefError as exc:
                 raise AnalysisConfigurationError(str(exc)) from exc
