@@ -111,3 +111,33 @@ def test_shared_index_events_survive_legacy_plugin(tmp_path, monkeypatch):
     assert len(result.resource_limit_events) == 1
     assert result.resource_limit_reporting == "partial"
     assert result.resource_limit_scopes == ["repo_index.file_bytes", "repo_index.index_bytes"]
+
+
+def test_resource_limit_events_reach_published_diagnostic_context(tmp_path, monkeypatch):
+    """A real resource-limited run surfaces its events in the published
+    diagnostic manifest without the skipped file's path."""
+    import json
+    from attackmap.analyzers import BuiltinPythonWebAnalyzer
+    from attackmap.artifact_publisher import current_generation
+    from attackmap.pipeline import AnalyzeOptions, run_scan
+    monkeypatch.setenv("ATTACKMAP_MAX_FILE_BYTES", "100")
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "PRIVATE-SKIPPED.py").write_bytes(b"x" * 101)
+    (repo / "app.py").write_text("from flask import Flask\napp = Flask(__name__)\n", encoding="utf-8")
+    output = tmp_path / "reports"
+    state = run_scan(AnalyzeOptions(repo_path=repo, output=output, run_id="limits",
+        analyzers=[BuiltinPythonWebAnalyzer()], echo=lambda *args, **kwargs: None))
+    assert state.exit_code == 0
+    context = json.loads((current_generation(output) / "run-manifest.json")
+                         .read_text(encoding="utf-8"))["diagnostic_context"]
+    resources = context["resource_events"]
+    assert resources["status"] in {"complete", "partial"}
+    assert resources["items"] and resources["items"][0]["producer"] == "repo_index"
+    assert resources["items"][0]["action"] == "skipped_file"
+    assert "repo_index.file_bytes" in resources["scopes"]
+    # Enumeration coverage stays complete (no analyzer errors); the skipped
+    # file simply never enters it, and its name never enters the diagnostic.
+    assert context["coverage"]["status"] == "complete"
+    assert context["coverage"]["accepted_file_count"] == 1
+    assert "PRIVATE-SKIPPED" not in json.dumps(context)

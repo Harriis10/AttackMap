@@ -469,3 +469,140 @@ def test_diagnostic_additive_scan_timing_preserved(tmp_path):
               "started_at": "2026-10-15T10:00:00+00:00", "finished_at": "2026-10-15T10:00:02+00:00", "outcome": "failed"}
     doc = json.loads(write_diagnostic(tmp_path, "timed", state="failed", scan_timing=timing).read_text())
     assert doc["scan_timing"] == timing
+
+
+# --- Real-OS interrupted-write matrix (Windows leg of the C10 proof) ----------
+# Unlike the fault-injection tests above, these drive the real publisher on the
+# real NTFS filesystem: torn bytes come from a hard-terminated process, locked
+# targets fail inside the OS, and remnant artifacts are mangled on disk.
+
+from pathlib import Path
+
+KILL_WORKER = Path(__file__).resolve().parent / "fixtures" / "interrupted_publish_worker.py"
+
+
+def _terminate_worker_at_hold(base, run_id, mode, target, marker, timeout=25.0):
+    import time
+    proc = subprocess.Popen([sys.executable, str(KILL_WORKER), str(base), run_id, mode, target, str(marker)],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    try:
+        deadline = time.monotonic() + timeout
+        while not marker.exists():
+            if proc.poll() is not None:
+                raise AssertionError(f"worker exited before holding: {proc.stderr.read().decode(errors='replace')}")
+            if time.monotonic() > deadline:
+                raise AssertionError("worker never reached its hold point")
+            time.sleep(0.02)
+        proc.kill()  # TerminateProcess on Windows: no Python cleanup runs.
+        return proc.wait(timeout)
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait(timeout)
+
+
+def _assert_recovery_after_fault(base, old):
+    from attackmap.artifact_publisher import diagnostic_context_from_generation
+    context = diagnostic_context_from_generation(base, "new", outcome="failed")
+    diagnostic = write_diagnostic(base, "new", state="failed", context=context)
+    payload = json.loads(diagnostic.read_text())
+    assert payload["state"] == "failed" and payload["artifact_readiness"] == "unavailable"
+    assert current_generation(base) == old
+    with pytest.raises(ValueError):
+        publish_generation(base, "new")  # a half-published run can never commit later
+    assert current_generation(base) == old
+    fresh = stage(base, "recovered")
+    publish_generation(base, "recovered")
+    assert current_generation(base) == fresh
+    validate_generation(old)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Real-OS Windows interrupted-write matrix")
+@pytest.mark.parametrize("target", ["run-manifest.json", "artifact-manifest.json", "pointer"])
+def test_terminated_process_midwrite_keeps_previous_generation_current(tmp_path, target):
+    from attackmap.artifact_publisher import CURRENT_POINTER
+    base = tmp_path / "reports"
+    old = stage(base, "old")
+    publish_generation(base, "old")
+    pointer_before = (base / CURRENT_POINTER).read_bytes()
+    returncode = _terminate_worker_at_hold(base, "new", "midwrite", target, tmp_path / "hold.marker")
+    assert returncode != 0, "worker must be hard-terminated, not exit cleanly"
+    if target == "pointer":
+        torn_tmps = [path for path in base.glob(".current-*.tmp")]
+        assert len(torn_tmps) == 1, "expected the torn commit file to remain"
+        with pytest.raises(ValueError):
+            json.loads(torn_tmps[0].read_text(encoding="utf-8"))
+        assert (base / CURRENT_POINTER).read_bytes() == pointer_before
+    else:
+        torn = (base / "new" / target).read_bytes()
+        assert torn, "expected torn bytes from the terminated write"
+        with pytest.raises(ValueError):
+            json.loads(torn)  # genuine partial JSON from a killed writer
+    assert current_generation(base) == old
+    validate_generation(old)
+    _assert_recovery_after_fault(base, old)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Real-OS Windows interrupted-write matrix")
+def test_terminated_process_before_commit_leaves_stray_tmp_but_never_mixes(tmp_path):
+    from attackmap.artifact_publisher import CURRENT_POINTER
+    base = tmp_path / "reports"
+    old = stage(base, "old")
+    publish_generation(base, "old")
+    pointer_before = (base / CURRENT_POINTER).read_bytes()
+    returncode = _terminate_worker_at_hold(base, "new", "precommit", "", tmp_path / "hold.marker")
+    assert returncode != 0, "worker must be hard-terminated, not exit cleanly"
+    strays = list(base.glob(".current-*.tmp"))
+    assert len(strays) == 1, "hard kill between staging and switch must leave the unswapped pointer tmp"
+    assert (base / CURRENT_POINTER).read_bytes() == pointer_before
+    assert json.loads(strays[0].read_text())["generation"] == "new"
+    assert current_generation(base) == old
+    validate_generation(old)
+    _assert_recovery_after_fault(base, old)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Real-OS Windows interrupted-write matrix")
+@pytest.mark.parametrize("mangle", ["torn-prefix", "empty", "binary-garbage"])
+@pytest.mark.parametrize("name", ["run-manifest.json", "artifact-manifest.json", "attackmap-report.json", "findings.json"])
+def test_crash_remnant_artifacts_never_publish_or_replace_current(tmp_path, name, mangle):
+    base = tmp_path / "reports"
+    old = stage(base, "old")
+    publish_generation(base, "old")
+    new = stage(base, "new")
+    target = new / name
+    if mangle == "torn-prefix":
+        raw = target.read_bytes()
+        target.write_bytes(raw[: len(raw) // 2])  # leading bytes of the real content only
+    elif mangle == "empty":
+        target.write_bytes(b"")
+    else:
+        target.write_bytes(bytes(range(256)) * 8)
+    with pytest.raises(ValueError):
+        publish_generation(base, "new")
+    assert current_generation(base) == old
+    validate_generation(old)
+    _assert_recovery_after_fault(base, old)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows share-mode file locking semantics")
+def test_locked_current_pointer_blocks_switch_and_preserves_previous(tmp_path):
+    from attackmap.artifact_publisher import CURRENT_POINTER
+    base = tmp_path / "reports"
+    old = stage(base, "old")
+    publish_generation(base, "old")
+    stage(base, "new")
+    pointer_before = (base / CURRENT_POINTER).read_bytes()
+    with (base / CURRENT_POINTER).open("rb") as held_open:
+        # A real OS denial: the open handle has no delete sharing, so the
+        # atomic swap inside publish_generation fails with WinError 5.
+        assert current_generation(base) == old
+        with pytest.raises(PermissionError):
+            publish_generation(base, "new")
+        assert current_generation(base) == old
+        assert (base / CURRENT_POINTER).read_bytes() == pointer_before
+        assert not list(base.glob(".current-*.tmp")), "failed swap must clean its tmp"
+    validate_generation(old)
+    fresh = stage(base, "later")
+    publish_generation(base, "later")
+    assert current_generation(base) == fresh
+    validate_generation(old)

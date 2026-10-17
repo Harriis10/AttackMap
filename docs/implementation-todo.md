@@ -54,7 +54,7 @@ Priority meanings: **High** blocks a reliable baseline, the native redesign, or 
 
 | M0 Correctness | AM001 to AM008 | Corrections integrated; complete release matrix remains open | Latest Windows 3.11/3.12: 3,214 passed / 4 explained skips each; corrected full 3.13 pending. Linux 3.12: 3,213 passed / 5 skips; original failures retained | Pending for applicable core checks | C01 to C07 |
 
-| M1 Contracts | AM009 to AM018 | In progress: contract adapter, Windows supervision, normalized provenance | Foundation integrated; full gates open | Pending | C08 to C15 |
+| M1 Contracts | AM009 to AM018 | Windows legs delivered for every criterion: contract adapter + compatibility matrix, Windows supervision proof, atomic publication + interrupted-write matrix, provenance/conflict matrix, ranking-factor exposure, identity matrix, budgets + citations + claim support, import-boundary matrix + terminal-outcome diagnostics | Full regression green; installed engine verified | macOS legs open (no adapter/host); CLI end-to-end envelope emission open | C08 to C15 |
 
 | M2 Native design | AM019 to AM025 | Windows bounded WinUI spike/design | Build, publish and synthetic native smoke pass; C19/C20 acceptance open | Inventory only | C16 to C20 |
 
@@ -154,9 +154,11 @@ Once the inventory exists, create the design foundation and workflow prototypes 
 
 
 
-- [ ] **AM009 Define the versioned run contract** — High; suggested owner: core API and desktop integration; dependencies: AM004, AM006, AM007.
+- [ ] **AM009 IN PROGRESS Define the versioned run contract** — High; suggested owner: core API and desktop integration; dependencies: AM004, AM006, AM007.
 
   Specify requests, progress, terminal results, run/generation IDs, revisions, policy outcome, artifact readiness, compatibility ranges, and old-report import behavior. Publish shared golden fixtures.
+
+  2026-10-17 consumer-compatibility matrix delivered: all four kinds accept current + previous versions via `parse_run_message`, drop injected additive unknowns (top-level and nested), reject incompatible majors with the supported-range message (now derived from constants); the desktop adapter publishes its range independent of app version. Remaining: CLI/supervisor end-to-end envelope emission, macOS consumer, wiring the `fixtures/run-contract/faults/` corpus.
 
   **Done when:** [C08 Run protocol](roadmap-2026-2028.md#c08-run-protocol) passes consumer compatibility tests.
 
@@ -172,9 +174,11 @@ Once the inventory exists, create the design foundation and workflow prototypes 
 
 
 
-- [ ] **AM011 Publish complete artifact generations** — High; suggested owner: artifacts and execution; dependencies: AM005, AM009, AM010.
+- [ ] **AM011 IN PROGRESS Publish complete artifact generations** — High; suggested owner: artifacts and execution; dependencies: AM005, AM009, AM010.
 
   Reuse one atomic publisher for CLI, desktop, and fleet. Validate before switching current, preserve a previous valid generation, finalize error/cancel diagnostics, and include publication timing.
+
+  2026-10-17 Windows interrupted-write leg delivered: real-OS NTFS matrix (child-process mid-write kills with genuine partial bytes on disk, pre-commit hard kills, 12 crash-remnant mangles, real share-mode locking) proves previous-or-new-never-mixture, terminal diagnostics without replacing current, and clean recovery — no publisher defect found. macOS leg remains open (tests ship `skipif(non-nt)`).
 
   **Done when:** [C10 Atomic results](roadmap-2026-2028.md#c10-atomic-results) passes the interruption/failure matrix without breaking supported output access.
 
@@ -412,9 +416,11 @@ M3 tasks may be developed against fixtures early, but the beta milestone cannot 
 
 
 
-- [ ] **AM038 Improve weak detection families and establish quality scope** — High; suggested owner: analysis engine; dependencies: AM037.
+- [ ] **AM038 IN PROGRESS Improve weak detection families and establish quality scope** — High; suggested owner: analysis engine; dependencies: AM037.
 
   Improve BOLA and unauthenticated state-change detection using training fixtures; run frozen evaluation for every advertised family and preserve negative controls. Keep immature capabilities visibly experimental.
+
+  2026-10-17 quality slice delivered: bench recall bola 1/2→3/3, unauth 2/5→8/8, webhook 0/1→2/2 at precision 100% (0 FPs) with labels untouched; frozen evaluate tuning side 100%/100% for all three families, holdout recorded never tuned against; Juice Shop findings byte-identical. See delivery log for the diagnosed heuristic fixes. C27's corpus-size targets still need human-reviewed labels — every family stays visibly experimental until then.
 
   **Done when:** the quality/scope requirements of [C27 Detector evaluation](roadmap-2026-2028.md#c27-detector-evaluation) pass with complete results, not selected favorable scores.
 
@@ -709,6 +715,18 @@ Reviewer:
 | 2026-10-17 | AM041/AM006 | Development package dev-20261017193157-2f19d5a3 with the integrated engine delivered and installed-verified | Full re-freeze from `617f4bd` (124-file snapshot inventory; 107 core modules, 276 payload files, 19 analyzers; worker scan + compare + diagnostics actions verified through the frozen exe). Package ZIP SHA256 871ee933…3df8; installed as current. Installed verification: Juice Shop scan exit 0 (18 findings, zero analyzer errors, decomposition + claim_support fields present); diagnostics CLI redacted; menu/retention/history/scan smokes all exit 0 (backslash paths); **C06 packaged Unicode/space-path fleet matrix**: serial + 2-worker × json/markdown/all on Czech-diacritic + space paths → 5 warm runs with one identical normalized digest; **C28 flags on frozen engine** produce observed_via_proxy / service_ports / scheme_mismatch / hosts resolutions. Evidence: `.pytest_cache/package-verification/installed-package-verification-2026-10-17.json`. | Two recorded anomalies: first-launch exit 1 with no output (suspect AV first-run scan; not reproduced warm — clean-machine first-launch check belongs to C29), and analyzer pin drift dev-.venv vs freeze venv (270 vs 266 routes incl. EXPOSE surfacing; findings identical 18=18). C06 clean-machine leg stays open |
 
 | 2026-10-17 | Audit | Mimosa deep scan completed; 10 engine-source findings dispositioned | Scan `scan-2026-10-17T19-52-20.280Z-3fdd21eef98c` (seal 1c46a933…5a76) returned 54 findings; coverage partial, offline advisory DB unavailable. All 10 findings in maintained `src/attackmap` reviewed one by one in [mimosa-audit-dispositions-2026-10-17](project_notes/mimosa-audit-dispositions-2026-10-17.md): 3 loopback-only placeholder keys, 1 reproducibility RNG, 2 opt-in/constant-destination network features, 2 false positives (docstring example, local UI transport), 2 schema/channel-guarded desktop paths — none actionable; two optional hardening notes recorded (`--offline` modules listing, `quote(vuln_id)`). Remaining 44 findings point at test harnesses, byte-identical package-artifact copies, and deliberate vuln fixtures. Not a safety certification — coverage was partial. | Optional hardening follow-ups only; rescan when advisory DB is reachable |
+
+| 2026-10-17 | AM009 | C08 consumer-compatibility matrix closed at contract level | `test_consumer_compatibility_matrix` (4 kinds × 4 modes via `parse_run_message`): accepts current 1.1 + previous 1.0, drops injected additive unknowns (top-level and nested), rejects major 2.0 with the supported range and upgrade/export action (message now derived from `SUPPORTED_SCHEMA_VERSIONS`, cannot drift); adapter test proves `/api/state` publishes its range from contract constants independent of app version. 40 focused tests green. | CLI/supervisor end-to-end envelope emission, macOS consumer, `fixtures/run-contract/faults/` corpus wiring |
+
+| 2026-10-17 | AM011 | C10 Windows interrupted-write leg delivered | Real-OS NTFS matrix in `tests/test_artifact_publisher.py` (17 new tests + `tests/fixtures/interrupted_publish_worker.py` kill harness): child `TerminateProcess` mid-write of run-manifest/artifact-manifest/pointer tmp (genuine partial bytes), hard kill pre-commit (stray tmp proven unswapped), 12 crash-remnant mangles through the real validator, real share-mode lock during switch (WinError 5). Every case: complete previous or new generation current, never a mixture; terminal diagnostics without replacing current; half-published runs can never commit; clean recovery. **No publisher defect found — `artifact_publisher.py` unchanged.** 100/100 across the four publication files. | macOS leg (tests are `skipif(non-nt)`); orchestration faults stay mock-based by design |
+
+| 2026-10-17 | AM038 | Weak-family recall raised with labels untouched | Diagnosed and fixed heuristic gaps: BOLA ownership markers now handler-region-scoped with caller-identity-coupled query scoping and unauthenticated-write defer (`authz.py`); unauth-state-change covers admin + evidence-backed internal mutations and resolves in-handler 401/403 gates (`route_auth_fusion.py`); webhook exposure synthesizes for webhook/hook/callback paths without region-scoped signature verification. Bench: **bola 1/2→3/3, unauth 2/5→8/8, webhook 0/1→2/2, precision 100%, 0 FPs** (new paired bench case `hooks-admin-demo`, append-only). Frozen evaluate (tuning side): all three families 100%/100%, both pre-existing unauth FPs cleared; holdout recorded, never tuned against. 190 focused tests (557 incl. adjacent); Juice Shop findings byte-identical before/after. One test-pin split (`test_admin_route_not_double_reported`) justified against immutable labeled ground truth, not a score. | Corpus still 10/17+/9/2 vs 30/300/300/10 (human labels); webhook evidence same-file not route-linked; upload mutations + JS in-handler gates open |
+
+| 2026-10-17 | AM040 | C28 config-file seam extraction delivered | `extract_deployment_aliases` in `config_scanner.py`: k8s Service/Deployment manifests, docker-compose ports, nginx upstream blocks → `DeploymentAliases` declarations with per-file provenance (`service_ports:auth-api:8443 (auth-api/k8s/service.yaml)`); malformed/conflicting/multi-backend declarations skipped with explicit reasons; CLI flags override/add. Config-only fleet run over the new three-service `deployment-seam-fleet` fixture resolved k8s port + compose port + nginx proxy (observed_via_proxy) with negative controls staying candidates. 119 focused tests green (config/contracts/fleet). | Multi-backend proxies, grpc/ws, extraction-side protocol declarations (TLS never guessed) |
+
+| 2026-10-17 | AM043/AM014/AM016 | Formal acceptance write-ups for C30/C13/C14 | [criterion-acceptance-2026-10-17](criterion-acceptance-2026-10-17.md): clause-by-clause mapping with fresh test runs (283 passed, 1 explained env-gated skip): C30 51 fresh tests + recorded live/installed evidence; C13 35 fresh tests; C14 197 fresh tests + live LM Studio smoke. Verdicts non-overclaiming — all three "passed within recorded scope" with explicit outside-scope lists (manual Narrator pass, macOS, semantic entailment, per-instance removal tracking, dollar ceiling vacuous, findings byte-immutability regression noted). | Clauses marked qualified are listed in the document; no clause marked open |
+
+| 2026-10-17 | AM017/AM018 | C15 layering + terminal-outcome legs delivered | Import-boundary matrix in `tests/test_application_boundary.py` (full resolver: relative, aliased, function-level imports): service layer (`pipeline`/`scan_service`/`run_contract`/`application_errors`) imports zero Typer/Click/UI/desktop modules; the 39-module analyzer-facing closure imports zero rendering/scoring modules — **zero violations, zero exceptions**. Terminal-outcome matrix (`tests/test_diagnostic_context.py` + adapters): execution failure vs degraded coverage vs policy failure are pairwise-distinct, source-free, exercised engine-direct, via CLI and the desktop-worker adapter; `diagnostics.py` now marks analyzer-error runs `coverage.status="partial"` (a dead analyzer no longer reports complete coverage). 74 + 52 consumer tests green. | Single-fixture-through-both-adapters test; macOS adapter does not exist; resource-limit-only runs keep `complete` coverage by documented design |
 
 
 

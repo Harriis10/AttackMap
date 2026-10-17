@@ -46,8 +46,21 @@ supplies import identity; the adapter preserves the original payload and records
 that policy and artifact integrity are unverified. It never declares artifacts
 ready and does not claim that legacy report evidence has been revalidated.
 
+The consumer-compatibility matrix is pinned by tests for all four kinds: a
+consumer accepts the current and immediately preceding supported versions,
+ignores injected additive unknown fields on current-version payloads (top level
+and nested options/artifact entries), and rejects an incompatible major version
+with an error naming the supported range and the upgrade/export action. The
+range text in that error is derived from the contract constants so it cannot
+drift. The Windows desktop `/api/state` adapter publishes its supported range
+from the same constants on every snapshot, independently of the application
+version; a test asserts that publication and that each emitted message stays
+inside the advertised range.
+
 Integration requires adapters at CLI/progress, supervisor, artifact publisher,
 and each desktop consumer. Existing unversioned progress and final reports are
-not automatically migrated by this module. Full C08 remains open until those
-consumers pass compatibility and lifecycle tests; this foundation alone does
-not establish Windows or macOS beta readiness.
+not automatically migrated by this module. Full C08 remains open: the CLI and
+supervisor do not yet emit or consume these envelopes end-to-end, the macOS
+consumer is untested, and the scenario corpus under
+`fixtures/run-contract/faults/` is not yet wired to a consumer harness; this
+foundation alone does not establish Windows or macOS beta readiness.

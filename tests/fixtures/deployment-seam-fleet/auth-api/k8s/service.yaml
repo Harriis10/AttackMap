@@ -1,0 +1,14 @@
+# C28 config-extraction fixture: the seam callers dial — Service port 8443.
+# The port is *named* "https" as plain metadata; extraction must declare the
+# listen port only and never infer a served scheme from the name.
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-api
+spec:
+  selector:
+    app: auth-api
+  ports:
+    - name: https
+      port: 8443
+      targetPort: 8443

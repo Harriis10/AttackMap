@@ -284,3 +284,32 @@ def test_windows_junction_preflight_does_not_write_redirected_output(tmp_path):
         assert list(target.iterdir()) == []
     finally:
         os.rmdir(junction)  # Remove only the exact test-owned junction, never its target.
+
+
+def test_service_adapter_publishes_degraded_coverage_diagnostic(tmp_path):
+    """Degraded coverage through the shared application service: the scan
+    completes, the published diagnostic marks coverage partial with the
+    analyzer-error count as the explicit reason, and no analyzer text leaks."""
+    from attackmap.analyzers import BuiltinPythonWebAnalyzer
+    from attackmap.artifact_publisher import current_generation
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "app.py").write_text("from flask import Flask\napp = Flask(__name__)\n", encoding="utf-8")
+
+    class BrokenAnalyzer:
+        name = "adapter-degraded-fixture"
+        metadata = BuiltinPythonWebAnalyzer.metadata.model_copy(update={"name": name})
+        def detect(self, root): return True
+        def analyze(self, root): raise RuntimeError("ADAPTER_DEGRADED_SENTINEL")
+
+    request = scan_service.ScanRequest(repo_paths=[repo], output=tmp_path / "out", run_id="degraded",
+        analyzers=[BrokenAnalyzer(), BuiltinPythonWebAnalyzer()])
+    summary = scan_service.execute_scan_request(request)
+    assert summary.exit_code == 0
+    context = json.loads((current_generation(request.output) / "run-manifest.json")
+                         .read_text(encoding="utf-8"))["diagnostic_context"]
+    assert context["outcome"] == "completed" and context["policy_outcome"] == "passed"
+    assert context["coverage"]["status"] == "partial"
+    assert context["coverage"]["analyzer_error_count"] == 1
+    assert context["coverage"]["accepted_file_count"] >= 1
+    assert "ADAPTER_DEGRADED_SENTINEL" not in json.dumps(context)

@@ -1,4 +1,7 @@
-from attackmap.run_contract import parse_run_message
+from attackmap import __version__
+from attackmap.run_contract import (
+    CURRENT_SCHEMA_VERSION, SUPPORTED_SCHEMA_VERSIONS, parse_run_message,
+)
 from attackmap.ui.contract_adapter import LegacyRunContractAdapter
 
 BASE = dict(runId="run1",repositoryKey="repo1",status="running",progress={})
@@ -61,3 +64,15 @@ def test_idle_or_missing_identity_has_no_contract_and_cross_repository_report_is
     assert adapter.snapshot(BASE | {"status":"idle"}) is None
     assert adapter.snapshot(BASE | {"runId":None}) is None
     assert adapter.snapshot(BASE | {"reportGeneration":"old","reportRepositoryKey":"other"})["legacyGeneration"] is None
+
+
+def test_publishes_contract_schema_range_independent_of_app_version():
+    # The desktop consumer advertises the contract module's supported range on
+    # every snapshot; it is sourced from the contract constants, never derived
+    # from the application version, and every emitted message stays in range.
+    result = LegacyRunContractAdapter().snapshot(BASE)
+    published = result["supportedSchemaVersions"]
+    assert published == list(SUPPORTED_SCHEMA_VERSIONS)
+    assert CURRENT_SCHEMA_VERSION in published
+    assert parse_run_message(result["message"]).schema_version in published
+    assert __version__ not in published

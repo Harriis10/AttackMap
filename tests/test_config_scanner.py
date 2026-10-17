@@ -303,3 +303,177 @@ def test_skips_oversized_config_file(tmp_path: Path, monkeypatch) -> None:
     files = {c.file for c in scan_config_repo(tmp_path).external_calls}
     assert "big.json" not in files
     assert "small.json" in files
+
+
+# ---------------------------------------------------------------------------
+# deployment seam extraction (C28)
+# ---------------------------------------------------------------------------
+
+from attackmap.config_scanner import extract_deployment_aliases  # noqa: E402
+
+
+def _service_yaml(name: str, port: int, *, target_port: int | None = None, port_name: str = "web") -> str:
+    target = f"      targetPort: {target_port}\n" if target_port is not None else ""
+    return (
+        "apiVersion: v1\n"
+        "kind: Service\n"
+        "metadata:\n"
+        f"  name: {name}\n"
+        "spec:\n"
+        "  ports:\n"
+        f"    - name: {port_name}\n"
+        f"      port: {port}\n"
+        f"{target}"
+    )
+
+
+def test_k8s_service_declares_listen_port_with_file_provenance(tmp_path: Path) -> None:
+    repo = tmp_path / "auth-api"
+    (repo / "k8s").mkdir(parents=True)
+    (repo / "k8s" / "service.yaml").write_text(
+        _service_yaml("auth-api", 8443, target_port=8443, port_name="https"),
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_ports == {"auth-api": 8443}
+    assert aliases.source_files["service_ports:auth-api:8443"] == "auth-api/k8s/service.yaml"
+    # A port *named* https is metadata, not a TLS observation — no scheme is
+    # invented (C28).
+    assert aliases.service_protocols == {}
+    assert aliases.proxies == {}
+    assert notes == []
+
+
+def test_k8s_service_port_wins_over_deployment_containerport(tmp_path: Path) -> None:
+    repo = tmp_path / "auth-api"
+    (repo / "k8s").mkdir(parents=True)
+    (repo / "k8s" / "01-deployment.yaml").write_text(
+        "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: auth-api\nspec:\n"
+        "  template:\n    spec:\n      containers:\n        - name: auth-api\n"
+        "          ports:\n            - containerPort: 8080\n",
+        encoding="utf-8",
+    )
+    (repo / "k8s" / "02-service.yaml").write_text(_service_yaml("auth-api", 8443), encoding="utf-8")
+    aliases, notes = extract_deployment_aliases([repo])
+    # The Service port is the seam callers dial; the Deployment fills nothing here.
+    assert aliases.service_ports == {"auth-api": 8443}
+    assert aliases.source_files["service_ports:auth-api:8443"] == "auth-api/k8s/02-service.yaml"
+    assert any("overrides port 8080" in n for n in notes)
+
+
+def test_k8s_deployment_containerport_declares_when_no_service(tmp_path: Path) -> None:
+    repo = tmp_path / "worker"
+    repo.mkdir()
+    (repo / "deployment.yaml").write_text(
+        "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: worker\nspec:\n"
+        "  template:\n    spec:\n      containers:\n        - name: worker\n"
+        "          ports:\n            - containerPort: 7000\n",
+        encoding="utf-8",
+    )
+    aliases, _ = extract_deployment_aliases([repo])
+    assert aliases.service_ports == {"worker": 7000}
+
+
+def test_k8s_multi_port_service_skipped_with_note(tmp_path: Path) -> None:
+    repo = tmp_path / "gateway"
+    repo.mkdir()
+    (repo / "svc.yaml").write_text(
+        _service_yaml("gateway", 80) + "    - name: admin\n      port: 8081\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_ports == {}
+    assert any("gateway" in n and "ambiguous" in n for n in notes)
+
+
+def test_compose_declares_container_port_keyed_by_service_name(tmp_path: Path) -> None:
+    repo = tmp_path / "feed-generator"
+    repo.mkdir()
+    (repo / "docker-compose.yml").write_text(
+        "services:\n  feed-generator:\n    ports:\n      - \"9000:9000\"\n"
+        "  portal:\n    ports:\n      - \"8080:80\"\n"
+        "  busy:\n    ports:\n      - \"8001:8001\"\n      - \"8002:8002\"\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    # The container port is the declared listen port; the published host port
+    # (8080) is a different seam. Multiple distinct listen ports stay ambiguous.
+    assert aliases.service_ports == {"feed-generator": 9000, "portal": 80}
+    assert aliases.source_files["service_ports:feed-generator:9000"] == (
+        "feed-generator/docker-compose.yml"
+    )
+    assert any("busy" in n and "ambiguous" in n for n in notes)
+
+
+def test_nginx_single_backend_upstream_declares_proxy(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "nginx.conf").write_text(
+        "upstream auth_backend {\n    server auth-api:8443;\n}\n"
+        "server {\n    listen 80;\n    server_name edge.internal;\n"
+        "    location / {\n        proxy_pass http://auth_backend;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {"edge.internal": "auth-api"}
+    assert aliases.source_files["proxies:edge.internal"] == "edge/nginx.conf"
+    assert notes == []
+
+
+def test_nginx_multi_backend_upstream_skipped_with_note(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "edge.conf").write_text(
+        "upstream multi_backend {\n    server auth-api:8443;\n    server feed-generator:9000;\n}\n"
+        "server {\n    listen 80;\n    server_name edge-multiple.internal;\n"
+        "    location / {\n        proxy_pass http://multi_backend;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {}
+    assert any("multi_backend" in n and "not modeled" in n for n in notes)
+
+
+def test_malformed_yaml_skipped_with_note_no_declarations(tmp_path: Path) -> None:
+    repo = tmp_path / "auth-api"
+    (repo / "k8s").mkdir(parents=True)
+    (repo / "k8s" / "broken.yaml").write_text(
+        "kind: Service\nmetadata:\n  name: broken\n   bad_indent: [\nspec:\n  ports:\n    - port: 1234\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_ports == {}
+    assert any("broken.yaml" in n and "malformed" in n for n in notes)
+
+
+def test_conflicting_same_kind_port_declarations_dropped(tmp_path: Path) -> None:
+    repo = tmp_path / "svc"
+    repo.mkdir()
+    (repo / "a.yaml").write_text(_service_yaml("svc", 8000), encoding="utf-8")
+    (repo / "b.yaml").write_text(_service_yaml("svc", 9000), encoding="utf-8")
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_ports == {}
+    assert any("conflicting Service ports 8000" in n and "9000" in n for n in notes)
+
+
+def test_deployment_seam_fixture_extraction(tmp_path: Path) -> None:
+    # The checked-in three-service fixture is the config-only counterpart of
+    # the CLI-flag service-seam fixture: k8s + compose + nginx declare every
+    # seam, and the negative controls (multi-backend upstream, malformed YAML,
+    # multi-port compose service) stay notes, never declarations.
+    fleet = Path(__file__).parent / "fixtures" / "deployment-seam-fleet"
+    aliases, notes = extract_deployment_aliases(
+        [fleet / "web-app", fleet / "auth-api", fleet / "feed-generator"]
+    )
+    assert aliases.service_ports["auth-api"] == 8443
+    assert aliases.service_ports["feed-generator"] == 9000
+    assert aliases.source_files["service_ports:auth-api:8443"] == "auth-api/k8s/service.yaml"
+    assert aliases.source_files["service_ports:feed-generator:9000"] == (
+        "feed-generator/docker-compose.yml"
+    )
+    assert aliases.proxies == {"edge.internal": "auth-api"}
+    assert aliases.source_files["proxies:edge.internal"] == "auth-api/deploy/nginx/edge.conf"
+    assert aliases.service_protocols == {}
+    assert any("multi_backend" in n for n in notes)
+    assert any("broken-service.yaml" in n and "malformed" in n for n in notes)
+    assert any("worker" in n for n in notes)

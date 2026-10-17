@@ -208,16 +208,123 @@ public class AdminController {
 # ---------------------------------------------------------------------------
 
 
-def test_admin_route_not_double_reported(tmp_path: Path) -> None:
-    # /admin/* is category=admin — it has its own dedicated finding, so the
-    # general unauthenticated-route pass must not also flag it.
+def test_admin_route_with_control_not_flagged(tmp_path: Path) -> None:
+    # /admin/* guarded by a middleware arg stays out of the unauthenticated
+    # pass — no duplicate of the dedicated (architectural) admin finding.
+    scan = _write(
+        tmp_path,
+        "server.js",
+        "const app = require('express')();\n"
+        "function requireAuth(req,res,next){ next(); }\n"
+        "app.post('/admin/wipe', requireAuth, (req, res) => { db.wipe(); });\n",
+    )
+    assert _unauth_findings(scan) == []
+
+
+def test_unguarded_admin_mutation_is_flagged(tmp_path: Path) -> None:
+    # AM038: an admin mutation with no resolved auth control carries the
+    # precise missing-auth claim here — the dedicated admin finding is
+    # architectural and never asserts it (labeled ground truth: the bench
+    # corpus holds e.g. POST /admin/refund as an unauth_state_change).
     scan = _write(
         tmp_path,
         "server.js",
         "const app = require('express')();\n"
         "app.post('/admin/wipe', (req, res) => { db.wipe(); });\n",
     )
+    findings = _unauth_findings(scan)
+    assert len(findings) == 1
+    assert "/admin/wipe" in "\n".join(findings[0].evidence)
+
+
+def test_get_admin_route_is_never_flagged(tmp_path: Path) -> None:
+    # Only mutations carry the state-change claim, whatever the category.
+    scan = _write(
+        tmp_path,
+        "server.js",
+        "const app = require('express')();\n"
+        "app.get('/admin/status', (req, res) => { res.json(db.stats()); });\n",
+    )
     assert _unauth_findings(scan) == []
+
+
+def test_internal_mutation_flagged_only_with_observed_state_change(tmp_path: Path) -> None:
+    # AM038: an internal-named mutating route counts only when a route-linked
+    # chain observes an actual state change — the path name alone is not
+    # evidence (exposure stays honestly "unknown" in the evidence text).
+    (tmp_path / "app.py").write_text(
+        "from flask import Flask\n"
+        "app = Flask(__name__)\n\n"
+        '@app.route("/internal/reindex", methods=["POST"])\n'
+        "def reindex():\n"
+        '    return db.execute("reindex")\n',
+        encoding="utf-8",
+    )
+    surfaces = [
+        AttackSurface(
+            route="/internal/reindex", method="POST", file="app.py",
+            category="internal", exposure="unknown", risk="medium", line=4,
+            data_store_interaction=True, relationship_basis="inferred_route_chain",
+        )
+    ]
+    unlinked = surfaces[0].model_copy(update={"data_store_interaction": False, "relationship_basis": "unknown"})
+
+    def scan_with(surface: AttackSurface) -> ScanResult:
+        return ScanResult(
+            root=str(tmp_path),
+            routes=[Route(path="/internal/reindex", method="POST", file="app.py", line=4)],
+        )
+
+    evidenced = synthesize_unauthenticated_routes(scan_with(surfaces[0]), [surfaces[0]])
+    assert len(evidenced) == 1
+    text = "\n".join(evidenced[0].evidence)
+    assert "/internal/reindex" in text
+    assert "no network boundary is established" in text
+
+    bare = synthesize_unauthenticated_routes(scan_with(unlinked), [unlinked])
+    assert bare == []
+
+
+def test_in_handler_session_gate_is_a_control(tmp_path: Path) -> None:
+    # AM038: a handler that rejects unauthenticated callers with 401 before
+    # the write is guarded — decorators are not the only enforcement point.
+    scan = _write(
+        tmp_path,
+        "app.py",
+        "from flask import Flask, abort, request, session\n"
+        "app = Flask(__name__)\n\n"
+        '@app.route("/notes", methods=["POST"])\n'
+        "def create_note():\n"
+        '    if "user_id" not in session:\n'
+        "        abort(401)\n"
+        "    db.save(request.json)\n"
+        "    return {'created': True}\n",
+    )
+    assert _unauth_findings(scan) == []
+
+
+def test_in_handler_gate_in_sibling_does_not_guard_this_route(tmp_path: Path) -> None:
+    # The gate is resolved on the route's own handler, not file-wide.
+    scan = _write(
+        tmp_path,
+        "app.py",
+        "from flask import Flask, abort, session\n"
+        "app = Flask(__name__)\n\n"
+        '@app.route("/notes", methods=["POST"])\n'
+        "def create_note():\n"
+        '    if "user_id" not in session:\n'
+        "        abort(401)\n"
+        "    db.save({})\n\n"
+        '@app.route("/digest", methods=["POST"])\n'
+        "def refresh_digest():\n"
+        "    db.update()\n"
+        "    return {'refreshed': True}\n",
+    )
+    findings = _unauth_findings(scan)
+    assert len(findings) == 1
+    evidence = "\n".join(findings[0].evidence)
+    assert "/digest" in evidence
+    assert "/notes" not in evidence
 
 
 def test_auth_hints_still_emitted(tmp_path: Path) -> None:
@@ -247,3 +354,64 @@ def test_finding_carries_technique_and_evidence(tmp_path: Path) -> None:
     assert findings[0].attack_techniques
     assert findings[0].attack_techniques[0].technique_id == "T1190"
     assert "chain" in " ".join(findings[0].evidence).lower()
+
+
+# ---------------------------------------------------------------------------
+# Webhook exposure (AM038)
+# ---------------------------------------------------------------------------
+
+_WEBHOOK_PAIRS = Path(__file__).parent / "fixtures" / "webhook_pairs"
+
+
+def _webhook_findings(scan: ScanResult):
+    return [f for f in generate_findings(scan) if f.rule_id == "public-webhook"]
+
+
+def test_unverified_webhook_hook_path_flagged() -> None:
+    # `/hooks/*` never gets the analyzer's webhook category; the synthesis
+    # recognizes the path shape and the missing signature verification.
+    scan = scan_repo(_WEBHOOK_PAIRS)
+    findings = _webhook_findings(scan)
+    assert len(findings) == 1
+    evidence = "\n".join(findings[0].evidence)
+    assert "POST /hooks/orders" in evidence
+    assert "/hooks/signed" not in evidence   # HMAC twin: verified
+    assert "/hooks/status" not in evidence   # read-only twin
+
+
+def test_verified_webhook_twin_not_flagged() -> None:
+    scan = scan_repo(_WEBHOOK_PAIRS)
+    evidence = "\n".join(_webhook_findings(scan)[0].evidence)
+    assert "compare_digest" not in evidence
+
+
+def test_webhook_style_paths_stay_out_of_the_unauth_pass() -> None:
+    # A webhook's auth model is signature verification, not middleware — the
+    # unauthenticated pass must not double-claim the route (verified or not).
+    scan = scan_repo(_WEBHOOK_PAIRS)
+    unauth = _unauth_findings(scan)
+    assert len(unauth) == 1
+    evidence = "\n".join(unauth[0].evidence)
+    assert "/sync/run" in evidence
+    assert "/hooks/" not in evidence
+
+
+def test_webhook_secret_read_without_verification_called_out(tmp_path: Path) -> None:
+    scan = _write(
+        tmp_path,
+        "app.py",
+        "from fastapi import FastAPI\n"
+        "import os, sqlite3\n"
+        "app = FastAPI()\n\n"
+        '@app.post("/webhook/stripe")\n'
+        "def stripe_webhook():\n"
+        '    secret = os.getenv("STRIPE_WEBHOOK_SECRET")\n'
+        '    db = sqlite3.connect("billing.db")\n'
+        '    db.execute("insert into events values (?)", (bool(secret),))\n'
+        "    return {'processed': True}\n",
+    )
+    findings = _webhook_findings(scan)
+    assert len(findings) == 1
+    evidence = "\n".join(findings[0].evidence)
+    assert "POST /webhook/stripe" in evidence
+    assert "webhook secret is read" in evidence

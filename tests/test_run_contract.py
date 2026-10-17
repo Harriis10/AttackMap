@@ -5,6 +5,7 @@ import pytest
 from pydantic import ValidationError
 
 from attackmap.run_contract import (
+    CURRENT_SCHEMA_VERSION, SUPPORTED_SCHEMA_VERSIONS,
     RunArtifact, RunArtifactManifest, RunProgress, RunRequest, RunTerminal,
     accepts_update, import_legacy_report, parse_run_message,
 )
@@ -96,3 +97,47 @@ def test_manifest_rejects_duplicate_artifacts():
 def test_failed_execution_cannot_claim_policy_result():
     with pytest.raises(ValidationError, match="Only a completed"):
         RunTerminal(**BASE,state="failed",execution_outcome="failed",policy_outcome="passed")
+
+
+# C08 consumer-compatibility matrix: every kind must accept the current and the
+# immediately preceding supported version, ignore additive unknown fields, and
+# reject an incompatible major version with the supported range and an action.
+# Versions are derived from the contract constants so the matrix follows bumps.
+MATRIX_BASE = dict(run_id="matrix-1", repository_id="repo-matrix", generation=1, revision=1)
+MATRIX_KINDS = {
+    "request": dict(kind="request", repository_path="C:/repos/sample",
+                    output_path="C:/reports/sample", modules=[]),
+    "progress": dict(kind="progress", state="running", stage="analyze"),
+    "terminal": dict(kind="terminal", state="completed", execution_outcome="succeeded"),
+    "manifest": dict(kind="manifest", artifact_readiness="ready", artifacts=[
+        dict(path="report.json", media_type="application/json", sha256="0" * 64, size_bytes=2)]),
+}
+
+
+@pytest.mark.parametrize("kind", sorted(MATRIX_KINDS))
+def test_consumer_compatibility_matrix(kind):
+    payload = MATRIX_BASE | MATRIX_KINDS[kind]
+    previous = SUPPORTED_SCHEMA_VERSIONS[-2]
+    # (a) current and (b) immediately preceding supported versions are accepted.
+    assert parse_run_message(payload | {"schema_version": CURRENT_SCHEMA_VERSION}).schema_version == CURRENT_SCHEMA_VERSION
+    assert parse_run_message(payload | {"schema_version": previous}).schema_version == previous
+    # (c) current-version payloads with injected additive unknown fields are accepted and cleaned.
+    additive = payload | {"schema_version": CURRENT_SCHEMA_VERSION,
+                          "future_additive_field": {"ignored": True}}
+    if kind == "request":
+        additive["options"] = {"recall": True, "future_option_field": 1}
+    if kind == "manifest":
+        additive["artifacts"] = [dict(additive["artifacts"][0], future_artifact_field=1)]
+    accepted = parse_run_message(additive)
+    assert all("future_" not in key for key in accepted.model_dump())
+    if kind == "request":
+        assert "future_option_field" not in accepted.model_dump()["options"]
+    if kind == "manifest":
+        assert "future_artifact_field" not in accepted.model_dump()["artifacts"][0]
+    # (d) an incompatible major version is rejected naming the supported range and the action.
+    incompatible = f"{int(CURRENT_SCHEMA_VERSION.split('.')[0]) + 1}.0"
+    with pytest.raises(ValidationError, match=(
+            rf"supported range is {SUPPORTED_SCHEMA_VERSIONS[0]}–{SUPPORTED_SCHEMA_VERSIONS[-1]}\. "
+            "Upgrade the consumer or export using a supported schema"
+    )):
+        parse_run_message(payload | {"schema_version": incompatible})

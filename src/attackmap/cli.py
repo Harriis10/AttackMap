@@ -511,7 +511,8 @@ def analyze(
         [],
         "--service-port",
         help="Fleet only. Declare a service's listen port REPO=PORT (C28); repeatable. An "
-        "explicitly-ported call resolves only against declared ports or host:port aliases.",
+        "explicitly-ported call resolves only against declared ports or host:port aliases. "
+        "Listen ports in k8s/compose manifests are also read automatically; this flag overrides them.",
     ),
     service_protocol: list[str] = typer.Option(
         [],
@@ -523,7 +524,8 @@ def analyze(
         [],
         "--via-proxy",
         help="Fleet only. Declare PROXY=REPO: calls to PROXY reach REPO through it (C28); repeatable. "
-        "Such links resolve as observed via the proxy, never as direct service-to-service edges.",
+        "Such links resolve as observed via the proxy, never as direct service-to-service edges. "
+        "Single-backend nginx upstreams are also read automatically; this flag overrides them.",
     ),
 ) -> None:
     validation_started = time.perf_counter()

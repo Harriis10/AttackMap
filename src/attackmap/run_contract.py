@@ -26,7 +26,8 @@ class RunEnvelope(BaseModel):
     def supported_version(cls, value: str) -> str:
         if value not in SUPPORTED_SCHEMA_VERSIONS:
             raise ValueError(
-                f"Unsupported run schema {value!r}; supported range is 1.0–1.1. "
+                f"Unsupported run schema {value!r}; supported range is "
+                f"{SUPPORTED_SCHEMA_VERSIONS[0]}–{SUPPORTED_SCHEMA_VERSIONS[-1]}. "
                 "Upgrade the consumer or export using a supported schema. "
                 "Schema-less reports require import_legacy_report()."
             )

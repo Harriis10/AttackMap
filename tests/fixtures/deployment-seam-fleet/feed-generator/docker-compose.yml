@@ -1,0 +1,17 @@
+# C28 config-extraction fixture: compose declares feed-generator's listen
+# port (9000). The worker's two distinct listen ports are a negative control
+# (ambiguous — skipped with a note); portal shows the *container* port (80)
+# is the declared listen port, not the published host port (8080).
+services:
+  feed-generator:
+    build: .
+    ports:
+      - "9000:9000"
+  worker:
+    ports:
+      - "8001:8001"
+      - "8002:8002"
+  portal:
+    image: nginx:latest
+    ports:
+      - "8080:80"

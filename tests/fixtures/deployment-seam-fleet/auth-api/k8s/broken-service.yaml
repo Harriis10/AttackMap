@@ -1,0 +1,11 @@
+# C28 config-extraction negative control: malformed YAML (broken indentation
+# and an unterminated flow sequence). Extraction must skip this file with an
+# explicit note and take no declarations from it.
+apiVersion: v1
+kind: Service
+metadata:
+  name: broken-service
+   bad_indent: [
+spec:
+  ports:
+    - port: 1234

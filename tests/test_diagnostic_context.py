@@ -189,3 +189,80 @@ def test_actual_policy_threshold_publishes_completed_context(tmp_path):
     assert context["outcome"] == "completed" and context["policy_outcome"] == "failed"
     assert any(stage["stage_id"] == "publication" and stage["duration_milliseconds"] >= 0 for stage in context["stages"])
     assert not (output / "diagnostics").exists()
+
+
+def test_terminal_outcome_matrix_distinguishes_execution_failure_degraded_coverage_and_policy(tmp_path, monkeypatch):
+    """C15: execution failure, degraded coverage and policy failure are three
+    distinguishable terminal outcomes, each with a structured diagnostic
+    manifest and no source excerpts or exception text."""
+    from attackmap.analyzers import BuiltinPythonWebAnalyzer
+    from attackmap.artifact_publisher import current_generation
+    from attackmap.pipeline import AnalyzeOptions, run_scan
+
+    echo = lambda *args, **kwargs: None
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "app.py").write_text("from flask import Flask\napp = Flask(__name__)\n", encoding="utf-8")
+
+    # (i) Execution failure: the engine dies inside the scan stage.
+    def explode(*args, **kwargs):
+        raise RuntimeError("EXECUTION_FAILURE_SENTINEL")
+    monkeypatch.setattr("attackmap.pipeline.analyze_repository", explode)
+    execution_output = tmp_path / "execution"
+    with pytest.raises(RuntimeError):
+        run_scan(AnalyzeOptions(repo_path=repo, output=execution_output, run_id="execution", echo=echo))
+    monkeypatch.undo()
+    execution = json.loads((execution_output / "diagnostics/execution/terminal-diagnostic.json")
+                           .read_text(encoding="utf-8"))
+    execution_context = execution["diagnostic_context"]
+    assert "EXECUTION_FAILURE_SENTINEL" not in json.dumps(execution)
+    assert execution_context["outcome"] == "failed"
+    assert execution_context["policy_outcome"] == "not_evaluated"
+    assert execution_context["coverage"]["accepted_file_count"] is None
+    assert any(stage["stage_id"] == "scan_and_merge" and stage["outcome"] == "failed"
+               for stage in execution_context["stages"])
+    assert current_generation(execution_output) is None  # failure publishes nothing
+
+    # (ii) Degraded coverage: one analyzer fails, the scan still completes.
+    class BrokenAnalyzer:
+        name = "degraded-fixture"
+        metadata = BuiltinPythonWebAnalyzer.metadata.model_copy(update={"name": name})
+        def detect(self, root): return True
+        def analyze(self, root): raise RuntimeError("DEGRADED_COVERAGE_SENTINEL")
+    degraded_output = tmp_path / "degraded"
+    degraded_state = run_scan(AnalyzeOptions(repo_path=repo, output=degraded_output, run_id="degraded",
+        analyzers=[BrokenAnalyzer(), BuiltinPythonWebAnalyzer()], echo=echo))
+    assert degraded_state.exit_code == 0
+    degraded_context = json.loads((current_generation(degraded_output) / "run-manifest.json")
+                                  .read_text(encoding="utf-8"))["diagnostic_context"]
+    assert degraded_context["outcome"] == "completed"
+    assert degraded_context["policy_outcome"] == "passed"
+    assert degraded_context["coverage"]["status"] == "partial"
+    assert degraded_context["coverage"]["analyzer_error_count"] == 1
+    assert degraded_context["coverage"]["accepted_file_count"] >= 1
+    # The structured diagnostic carries counts, never the analyzer's error text.
+    assert "DEGRADED_COVERAGE_SENTINEL" not in json.dumps(degraded_context)
+
+    # (iii) Policy failure: the analysis completes and the gate fails it.
+    policy_repo = tmp_path / "policy"
+    policy_repo.mkdir()
+    (policy_repo / "app.py").write_text("from flask import Flask, request\nfrom worker import run\napp=Flask(__name__)\n@app.route('/admin/users', methods=['DELETE'])\ndef delete_user():\n    return run(request.get_json())\n")
+    (policy_repo / "worker.py").write_text("def run(payload):\n    return eval(payload['expr'])\n")
+    baseline = tmp_path / "baseline.json"
+    baseline.write_text('{"findings": []}')
+    policy_output = tmp_path / "policy-reports"
+    policy_state = run_scan(AnalyzeOptions(repo_path=policy_repo, output=policy_output, run_id="matrix-policy",
+        baseline=str(baseline), fail_on_new_high=True, echo=echo))
+    assert policy_state.exit_code != 0
+    policy_context = json.loads((current_generation(policy_output) / "run-manifest.json")
+                                .read_text(encoding="utf-8"))["diagnostic_context"]
+    assert policy_context["outcome"] == "completed"
+    assert policy_context["policy_outcome"] == "failed"
+    assert policy_context["coverage"]["status"] == "complete"
+    assert policy_context["coverage"]["analyzer_error_count"] == 0
+
+    assert {(context["outcome"], context["policy_outcome"], context["coverage"]["status"])
+            for context in (execution_context, degraded_context, policy_context)} == {
+        ("failed", "not_evaluated", "unknown"),
+        ("completed", "passed", "partial"),
+        ("completed", "failed", "complete")}

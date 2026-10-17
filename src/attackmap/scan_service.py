@@ -531,9 +531,66 @@ def _run_fleet_parallel(
     fleet.failed.sort(key=lambda failure: order[failure["repo_id"]])
 
 
+def _effective_deployment_aliases(
+    request: ScanRequest,
+) -> tuple[DeploymentAliases | None, list[str]]:
+    """Resolve the fleet's deployment-seam declarations (C28).
+
+    Precedence is simple: config-file extraction (k8s manifests, compose
+    files, nginx upstream configs across the fleet's repos) provides the base,
+    and CLI declarations override config entries with the same key — an
+    operator flag beats a file. If the two sources claim conflicting
+    topologies for one host (e.g. a CLI host alias vs a config proxy), the CLI
+    set alone is used: it is authoritative and was validated at parse time.
+    Returns the effective aliases (``None`` when nothing declares anything)
+    plus user-facing notes about skipped or conflicting extractions.
+    """
+    from .config_scanner import extract_deployment_aliases
+
+    extracted, notes = extract_deployment_aliases(request.repo_paths)
+    cli = request.deployment_aliases
+    if cli is None:
+        if not extracted.service_ports and not extracted.proxies:
+            return None, notes
+        return extracted, notes
+
+    def overridden(key: str) -> bool:
+        # A CLI re-declaration must not keep the config file's provenance.
+        return (
+            (key.startswith("hosts:") and key[len("hosts:"):] in cli.hosts)
+            or (key.startswith("host_ports:") and key[len("host_ports:"):] in cli.host_ports)
+            or (key.startswith("proxies:") and key[len("proxies:"):] in cli.proxies)
+            or any(key.startswith(f"service_ports:{name}:") for name in cli.service_ports)
+        )
+
+    try:
+        merged = DeploymentAliases(
+            hosts={**extracted.hosts, **cli.hosts},
+            host_ports={**extracted.host_ports, **cli.host_ports},
+            dns_suffixes=tuple(extracted.dns_suffixes)
+            + tuple(s for s in cli.dns_suffixes if s not in extracted.dns_suffixes),
+            proxies={**extracted.proxies, **cli.proxies},
+            service_ports={**extracted.service_ports, **cli.service_ports},
+            service_protocols={**extracted.service_protocols, **cli.service_protocols},
+            source_files={
+                key: path for key, path in extracted.source_files.items() if not overridden(key)
+            },
+        )
+    except ValueError as exc:
+        notes.append(
+            "config-extracted declarations conflicted with CLI declarations "
+            f"({exc}); using CLI declarations only"
+        )
+        return cli, notes
+    return merged, notes
+
+
 def _finalize_fleet(request: ScanRequest, fleet: FleetScan, output_root: Path) -> RunSummary:
     repo_scans = [(r.repo_id, r.scan) for r in fleet.results]
-    fleet.links = link_contracts(repo_scans, aliases=request.deployment_aliases)
+    aliases, alias_notes = _effective_deployment_aliases(request)
+    for note in alias_notes:
+        request.echo(f"Config extraction: {note}")
+    fleet.links = link_contracts(repo_scans, aliases=aliases)
     fleet.cross_boundary = find_cross_boundary_flows(fleet.links, repo_scans)
     auth_by_repo = {r.repo_id: route_auth_signals(r.scan, r.root) for r in fleet.results}
     fleet.trust_gaps = find_trust_gaps(fleet.links, repo_scans, auth_by_repo)

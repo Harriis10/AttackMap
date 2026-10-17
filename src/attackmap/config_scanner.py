@@ -11,6 +11,13 @@ into a `ScanResult`, and let the merge pipeline dedup as usual.
 Deliberately no YAML / TOML / JSON *parsers* — the goal is broad,
 resilient extraction that works on malformed files too. Callers who
 want structural analysis can extend on top; this layer stays regex-only.
+
+The one structural exception is deployment-seam extraction (C28):
+`extract_deployment_aliases` reads k8s / docker-compose / nginx configs
+with a real YAML parse and brace-matched nginx blocks, because port and
+upstream declarations must be exact — a regex guess would either miss
+or invent seams. Malformed or ambiguous configs are skipped with an
+explicit note, never guessed.
 """
 
 from __future__ import annotations
@@ -407,9 +414,389 @@ def _extract_secret_kvs(content: str, relative: str, result: ScanResult) -> None
         )
 
 
+# --- Deployment seam declarations (C28) ---------------------------------------
+#
+# DeploymentAliases used to be CLI-only. Real deployment configs already state
+# much of the surface: k8s Services/Deployments and compose files declare
+# listen ports; nginx upstream blocks declare which host fronts which single
+# backend. extract_deployment_aliases converts those files into declarations
+# carrying per-declaration file provenance (DeploymentAliases.source_files), so
+# a fleet run without CLI flags still resolves declared seams. Deliberately
+# conservative: only what a config positively states is extracted — schemes are
+# never inferred (a port *named* "https" declares nothing), a Service's port
+# wins over a same-named Deployment's containerPort (the Service port is the
+# seam callers dial), ambiguous declarations (multi-port services, multi-server
+# upstreams, same-kind conflicts) are recorded and skipped, and malformed files
+# are skipped with an explicit note instead of guessed.
+
+_COMPOSE_FILENAMES = frozenset({
+    "docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml",
+})
+# Precedence ranks when several files declare a listen port for one identity:
+# a k8s Service is the dial seam, compose declares the container port, and a
+# Deployment's containerPort only fills a name nothing better declared.
+_RANK_SERVICE, _RANK_COMPOSE, _RANK_DEPLOYMENT = 2, 1, 0
+_HOST_TOKEN = re.compile(r"^[a-zA-Z0-9._-]+$")
+
+
+def _deployment_config_kind(path: Path) -> str | None:
+    """'k8s' | 'compose' | 'nginx' for files that may declare deployment seams."""
+    name = path.name.lower()
+    if name in _COMPOSE_FILENAMES:
+        return "compose"
+    if name in CONFIG_EXCLUDE_FILENAMES:
+        return None
+    suffix = path.suffix.lower()
+    if suffix in {".yaml", ".yml"}:
+        return "k8s"  # confirmed by a `kind:` pre-filter before parsing
+    if suffix == ".conf":
+        return "nginx"
+    return None
+
+
+def _int_or_none(value: object) -> int | None:
+    try:
+        return int(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+
+
+def _declare_port(
+    declared: dict[str, tuple[int, str, int]],
+    dropped: set[str],
+    name: str,
+    port: int,
+    provenance: str,
+    rank: int,
+    kind_label: str,
+    notes: list[str],
+) -> None:
+    """Record a service_ports declaration under explicit conflict rules: a
+    higher-precedence source overrides, an equal one with a *different* port
+    makes the identity ambiguous (dropped, noted), and equal ports dedupe."""
+    if name in dropped:
+        return
+    existing = declared.get(name)
+    if existing is None:
+        declared[name] = (port, provenance, rank)
+        return
+    e_port, e_prov, e_rank = existing
+    if e_port == port:
+        if rank > e_rank:
+            declared[name] = (port, provenance, rank)
+        return
+    if rank == e_rank:
+        del declared[name]
+        dropped.add(name)
+        notes.append(
+            f"dropped service port for {name!r}: conflicting {kind_label} ports "
+            f"{e_port} ({e_prov}) and {port} ({provenance})"
+        )
+    elif rank > e_rank:
+        notes.append(
+            f"service port for {name!r}: {kind_label} port {port} ({provenance}) "
+            f"overrides port {e_port} ({e_prov})"
+        )
+        declared[name] = (port, provenance, rank)
+
+
+def _k8s_manifest_port(
+    doc: dict, provenance: str, notes: list[str]
+) -> tuple[str, int, int, str] | None:
+    """(name, port, rank, kind) for a Service/Deployment declaring exactly one
+    listen port, else None — with an explicit note whenever something
+    ambiguous or unparsable was skipped. Schemes are never inferred: a port
+    named "https" declares nothing."""
+    kind = str(doc.get("kind", "")).strip()
+    if kind not in {"Deployment", "Service"}:
+        return None
+    name = str((doc.get("metadata") or {}).get("name") or "").strip().lower()
+    if not name:
+        notes.append(f"skipped {provenance}: {kind} without metadata.name")
+        return None
+    ports: list[int] = []
+    if kind == "Service":
+        entries = (doc.get("spec") or {}).get("ports") or []
+        if not isinstance(entries, list) or not entries:
+            notes.append(f"skipped {provenance}: Service {name} declares no ports")
+            return None
+        for entry in entries:
+            if not isinstance(entry, dict):
+                notes.append(f"skipped port entry {entry!r} in {provenance}: not a mapping")
+                continue
+            port = _int_or_none(entry.get("port"))
+            if port is None:
+                notes.append(f"skipped port entry {entry!r} in {provenance}: no numeric port")
+                continue
+            ports.append(port)
+            target = _int_or_none(entry.get("targetPort"))
+            if target is not None and target != port:
+                notes.append(
+                    f"Service {name} in {provenance}: targetPort {target} differs from "
+                    f"port {port}; only the Service port {port} is declared (the dial seam)"
+                )
+        if not ports:
+            return None  # per-entry notes above name what was unparsable
+        if len(set(ports)) != 1:
+            notes.append(
+                f"skipped {provenance}: Service {name} exposes {len(set(ports))} ports; "
+                "which one serves the seam is ambiguous"
+            )
+            return None
+        return (name, ports[0], _RANK_SERVICE, "Service")
+    # Deployment: the containerPort the pod listens on.
+    containers = ((doc.get("spec") or {}).get("template") or {}).get("spec", {}).get("containers") or []
+    if not isinstance(containers, list):
+        return None
+    for container in containers:
+        if not isinstance(container, dict):
+            continue
+        for entry in container.get("ports") or []:
+            if not isinstance(entry, dict):
+                continue
+            port = _int_or_none(entry.get("containerPort"))
+            if port is not None:
+                ports.append(port)
+    if len(set(ports)) != 1:
+        if ports:
+            notes.append(
+                f"skipped {provenance}: Deployment {name} declares {len(set(ports))} distinct "
+                "containerPorts; which one serves the seam is ambiguous"
+            )
+        return None
+    return (name, ports[0], _RANK_DEPLOYMENT, "Deployment")
+
+
+def _compose_container_port(mapping: object) -> int | None:
+    """The container (listen) port of a compose `ports` entry, or None when the
+    mapping is not a plain tcp host:container binding (long forms with other
+    protocols, udp suffixes, or unparsable values stay undeclared). The
+    container port is declared — it is the port the service itself listens on;
+    a differing published host port is a different seam."""
+    if isinstance(mapping, dict):
+        if str(mapping.get("protocol", "tcp")).lower() != "tcp":
+            return None
+        return _int_or_none(mapping.get("target"))
+    if isinstance(mapping, str):
+        text = mapping.strip()
+        if "/" in text:
+            text, _, proto = text.partition("/")
+            if proto.strip().lower() != "tcp":
+                return None
+        parts = text.split(":")
+        if not 1 <= len(parts) <= 3:
+            return None
+        return _int_or_none(parts[-1])
+    return None
+
+
+def _extract_compose_ports(
+    doc: dict, provenance: str, declared: dict, dropped: set[str], notes: list[str]
+) -> None:
+    """compose `services.<name>.ports` → service_ports keyed by service name
+    (the compose DNS identity)."""
+    services = doc.get("services")
+    if not isinstance(services, dict):
+        return
+    for svc_name, svc in services.items():
+        if not isinstance(svc, dict) or not isinstance(svc.get("ports"), list):
+            continue
+        name = str(svc_name).strip().lower()
+        ports = {
+            port
+            for port in (_compose_container_port(m) for m in svc["ports"])
+            if port is not None
+        }
+        if not ports:
+            notes.append(
+                f"skipped service {svc_name!r} in {provenance}: no parsable tcp port mapping"
+            )
+            continue
+        if len(ports) > 1:
+            notes.append(
+                f"skipped service {svc_name!r} in {provenance}: {len(ports)} distinct listen "
+                "ports; which one serves the seam is ambiguous"
+            )
+            continue
+        port = ports.pop()
+        if not 1 <= port <= 65535:
+            notes.append(f"skipped service {svc_name!r} in {provenance}: port {port} out of range")
+            continue
+        _declare_port(declared, dropped, name, port, provenance, _RANK_COMPOSE, "compose", notes)
+
+
+def _nginx_blocks(text: str, keyword: str) -> list[tuple[str, str, int, int]]:
+    """(header, body, start, end) for each ``keyword … { … }`` block with
+    balanced braces. Hand-rolled brace matching because nginx conf is not YAML
+    and nested blocks (location inside server) defeat flat regexes."""
+    blocks: list[tuple[str, str, int, int]] = []
+    for m in re.finditer(rf"(?<![\w.-]){keyword}\b([^{{}}]*)\{{", text):
+        depth, i = 1, m.end()
+        while i < len(text) and depth:
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+            i += 1
+        if depth == 0:
+            blocks.append((m.group(1).strip(), text[m.end(): i - 1], m.start(), i))
+    return blocks
+
+
+def _extract_nginx_proxies(
+    text: str,
+    provenance: str,
+    proxies: dict[str, str],
+    proxy_sources: dict[str, str],
+    dropped: set[str],
+    notes: list[str],
+) -> None:
+    """nginx upstream-backed server blocks → proxies (C28). The proxy host is
+    the ``server_name``; the backend is the single ``server`` host of the
+    upstream it ``proxy_pass``es to. Multi-server upstreams route to more than
+    one backend — unmodeled (recorded and skipped, never guessed), as are
+    proxy_pass targets that are not a defined single-backend upstream."""
+    upstreams: dict[str, str] = {}
+    blank = list(text)
+    for header, body, start, end in _nginx_blocks(text, "upstream"):
+        name = header.split()[0].strip().lower() if header.split() else ""
+        hosts = []
+        for entry in re.findall(r"(?<![\w.-])server\s+([^;{}]+);", body):
+            host = entry.strip().split(":")[0].strip().lower()
+            if host:
+                hosts.append(host)
+        for i in range(start, end):
+            blank[i] = " "  # hide upstream bodies: their `server` entries are not server blocks
+        if not name:
+            continue
+        if len(set(hosts)) == 1:
+            upstreams[name] = hosts[0]
+        else:
+            notes.append(
+                f"skipped upstream {name!r} in {provenance}: {len(set(hosts))} backends "
+                "(multi-backend proxy routing is not modeled)"
+            )
+
+    for _header, body, _s, _e in _nginx_blocks("".join(blank), "server"):
+        name_m = re.search(r"(?<![\w.-])server_name\s+([^;]+);", body)
+        if not name_m:
+            continue
+        hosts = {n.strip().lower().rstrip(".") for n in name_m.group(1).split()}
+        valid = {h for h in hosts if _HOST_TOKEN.match(h) and h not in {"_", "*"}}
+        if not valid:
+            notes.append(f"skipped server block in {provenance}: no concrete server_name")
+            continue
+        backends = {
+            upstreams[a.split(":")[0].strip().lower()]
+            for a in re.findall(r"(?<![\w.-])proxy_pass\s+\w+://([^/;\s]+)", body)
+            if a.split(":")[0].strip().lower() in upstreams
+        }
+        if not backends:
+            continue  # not upstream-backed (or a skipped upstream): out of scope
+        if len(backends) > 1:
+            notes.append(
+                f"skipped proxy {sorted(valid)[0]!r} in {provenance}: proxy_pass targets "
+                "multiple backends"
+            )
+            continue
+        backend = backends.pop()
+        for host in sorted(valid):
+            if host in dropped:
+                continue
+            if host in proxies and proxies[host] != backend:
+                prior = proxies.pop(host)
+                proxy_sources.pop(host, None)
+                dropped.add(host)
+                notes.append(
+                    f"dropped proxy {host!r}: fronting multiple backends across configs "
+                    f"({prior}, {backend})"
+                )
+                continue
+            proxies[host] = backend
+            proxy_sources[host] = provenance
+
+
+def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAliases", list[str]]:
+    """Extract deployment-seam declarations from each repo's config files (C28).
+
+    Returns ``(aliases, notes)``: the aliases carry ``source_files`` provenance
+    (``repo-dir/rel-path``) for every extracted declaration, and the notes name
+    every skipped or conflicting extraction with its reason. Only
+    ``service_ports`` (k8s Service/Deployment container ports, compose container
+    ports) and ``proxies`` (nginx upstream-backed server blocks) are extracted —
+    schemes are never inferred and no host aliases are guessed.
+    """
+    from .contracts import DeploymentAliases
+    import yaml  # type: ignore[import-untyped]  # core dependency (suppress.py et al.)
+
+    declared: dict[str, tuple[int, str, int]] = {}
+    dropped_ports: set[str] = set()
+    proxies: dict[str, str] = {}
+    proxy_sources: dict[str, str] = {}
+    dropped_proxies: set[str] = set()
+    notes: list[str] = []
+
+    for root in repo_roots:
+        repo = Path(root).resolve()
+        if not repo.is_dir():
+            continue
+        label = repo.name
+        for path in walk_repo(repo, prune=is_skipped_dir):
+            if in_skipped_dir(path.relative_to(repo)):
+                continue
+            kind = _deployment_config_kind(path)
+            if kind is None:
+                continue
+            try:
+                if path.stat().st_size > _MAX_CONFIG_BYTES:
+                    continue
+                text = path.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                continue
+            provenance = f"{label}/{path.relative_to(repo).as_posix()}"
+            if kind == "nginx":
+                _extract_nginx_proxies(
+                    text, provenance, proxies, proxy_sources, dropped_proxies, notes
+                )
+                continue
+            if kind == "k8s" and "kind:" not in text:
+                continue  # cheap pre-filter: ordinary YAML is not a k8s manifest
+            try:
+                docs = [d for d in yaml.safe_load_all(text) if isinstance(d, dict)]
+            except yaml.YAMLError:
+                notes.append(f"skipped {provenance}: malformed YAML; no declarations taken")
+                continue
+            if kind == "compose":
+                if docs:
+                    _extract_compose_ports(docs[0], provenance, declared, dropped_ports, notes)
+                continue
+            for doc in docs:
+                parsed = _k8s_manifest_port(doc, provenance, notes)
+                if parsed is None:
+                    continue
+                name, port, rank, kind_label = parsed
+                if not 1 <= port <= 65535:
+                    notes.append(f"skipped {provenance}: {kind_label} {name} port {port} out of range")
+                    continue
+                _declare_port(declared, dropped_ports, name, port, provenance, rank, kind_label, notes)
+
+    source_files = {
+        f"service_ports:{name}:{port}": provenance
+        for name, (port, provenance, _rank) in declared.items()
+    }
+    source_files.update({f"proxies:{host}": proxy_sources[host] for host in proxies})
+    aliases = DeploymentAliases(
+        service_ports={name: port for name, (port, _p, _r) in declared.items()},
+        proxies=proxies,
+        source_files=source_files,
+    )
+    return aliases, notes
+
+
 __all__ = [
     "scan_config_repo",
     "should_scan_config_file",
+    "extract_deployment_aliases",
     "CONFIG_SUFFIXES",
     "CONFIG_EXCLUDE_FILENAMES",
 ]

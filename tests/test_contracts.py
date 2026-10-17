@@ -462,6 +462,9 @@ def test_alias_colliding_with_repo_identity_is_ambiguous() -> None:
         {"service_ports": {"auth-api": "https"}},  # non-numeric port
         {"service_protocols": {"auth-api": "grpc"}},  # unmodeled protocol
         {"service_protocols": {"auth-api": ""}},
+        {"source_files": {"": "f.yaml"}},  # empty key
+        {"source_files": {"service_ports:auth-api:8443": ""}},  # empty path
+        {"source_files": {"bogus:auth-api": "f.yaml"}},  # unknown declaration prefix
     ],
 )
 def test_malformed_alias_declarations_raise(kwargs: dict) -> None:
@@ -680,6 +683,64 @@ def test_alias_resolutions_record_provenance_identity_does_not() -> None:
     assert by_target["http://auth-api/users/1"].alias_provenance is None
     assert by_target["http://auth.bsky.social/users/2"].alias_provenance == "hosts:auth.bsky.social"
     assert by_target["http://worker.internal/users/3"].alias_provenance == "dns_suffix:.internal"
+
+
+# ---------------------------------------------------------------------------
+# config-extracted declaration provenance (C28)
+# ---------------------------------------------------------------------------
+
+
+def test_config_extracted_declarations_carry_their_declaring_file() -> None:
+    # source_files (config-file extraction) appends the declaring file to the
+    # provenance string; CLI declarations (no source entry) stay bare.
+    aliases = DeploymentAliases(
+        service_ports={"auth-api": 8443},
+        proxies={"edge.internal": "auth-api"},
+        source_files={
+            "service_ports:auth-api:8443": "auth-api/k8s/service.yaml",
+            "proxies:edge.internal": "auth-api/deploy/nginx/edge.conf",
+        },
+    )
+    links = link_contracts(
+        [
+            (
+                "web",
+                _scan(
+                    "web",
+                    calls=[
+                        ExternalCall(target="http://auth-api:8443/users/1", method="GET", file="c.py", line=1),
+                        ExternalCall(target="http://edge.internal/users/2", method="GET", file="c.py", line=2),
+                    ],
+                ),
+            ),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+        ],
+        aliases=aliases,
+    )
+    by_target = {lk.client_target: lk for lk in links}
+    direct = by_target["http://auth-api:8443/users/1"]
+    assert direct.resolution == "observed"
+    assert direct.alias_provenance == "service_ports:auth-api:8443 (auth-api/k8s/service.yaml)"
+    proxied = by_target["http://edge.internal/users/2"]
+    assert proxied.resolution == "observed_via_proxy"
+    assert proxied.alias_provenance == "proxies:edge.internal (auth-api/deploy/nginx/edge.conf)"
+
+
+def test_source_files_without_a_matching_declaration_change_nothing() -> None:
+    # A source entry keyed for a declaration that never resolves a link (here:
+    # a different port) never surfaces — provenance strings stay bare.
+    aliases = DeploymentAliases(
+        service_ports={"auth-api": 8443},
+        source_files={"service_ports:auth-api:9999": "auth-api/k8s/other.yaml"},
+    )
+    links = link_contracts(
+        [
+            ("a", _client("a", "http://auth-api:8443/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+        ],
+        aliases=aliases,
+    )
+    assert links[0].alias_provenance == "service_ports:auth-api:8443"
 
 
 # ---------------------------------------------------------------------------

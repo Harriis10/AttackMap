@@ -9,7 +9,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from attackmap.cli import app
-from attackmap.contracts import ContractLink
+from attackmap.contracts import ContractLink, DeploymentAliases
 from attackmap.fleet import (
     FleetRepoResult,
     FleetScan,
@@ -472,3 +472,129 @@ def test_service_declaration_flags_rejected_for_single_repo(tmp_path: Path) -> N
     )
     assert result.exit_code != 0
     assert "multi-repo fleet scans only" in _norm(result.output)
+
+
+# ---------------------------------------------------------------------------
+# config-file seam extraction end to end (C28)
+# ---------------------------------------------------------------------------
+
+_DEPLOY_FLEET = Path(__file__).parent / "fixtures" / "deployment-seam-fleet"
+
+
+def test_config_files_resolve_fleet_seams_without_cli_flags(tmp_path: Path) -> None:
+    # The counterpart of the CLI-flag test above, with NO flags: k8s Service
+    # + compose + nginx configs in the scanned repos declare the seams, and
+    # link_contracts resolves them with file provenance. Negative controls
+    # (undeclared port, multi-backend upstream) stay candidates with reasons.
+    out = tmp_path / "out"
+    result = runner.invoke(
+        app,
+        [
+            "analyze",
+            str(_DEPLOY_FLEET / "web-app"),
+            str(_DEPLOY_FLEET / "auth-api"),
+            str(_DEPLOY_FLEET / "feed-generator"),
+            "-o",
+            str(out),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads((out / "fleet-summary.json").read_text())
+    by_target = {lk["client_target"]: lk for lk in data["cross_repo_links"]}
+    assert len(by_target) == 5
+    # Listen port declared by a k8s Service manifest.
+    k8s = by_target["http://auth-api:8443/users/"]
+    assert k8s["resolution"] == "observed"
+    assert k8s["alias_provenance"] == "service_ports:auth-api:8443 (auth-api/k8s/service.yaml)"
+    # Listen port declared by docker-compose.
+    compose = by_target["http://feed-generator:9000/feeds/"]
+    assert compose["resolution"] == "observed"
+    assert compose["alias_provenance"] == (
+        "service_ports:feed-generator:9000 (feed-generator/docker-compose.yml)"
+    )
+    # Proxy declared by an nginx single-backend upstream.
+    proxied = by_target["http://edge.internal/users/"]
+    assert proxied["resolution"] == "observed_via_proxy"
+    assert proxied["proxy_host"] == "edge.internal"
+    assert proxied["alias_provenance"] == "proxies:edge.internal (auth-api/deploy/nginx/edge.conf)"
+    # Negative controls stay candidates with reasons, never guesses.
+    wrong_port = by_target["http://auth-api:9999/users/"]
+    assert wrong_port["resolution"] == "candidate"
+    assert wrong_port["resolution_reason"] == "explicit_port"
+    ambiguous = by_target["http://edge-multiple.internal/users/"]
+    assert ambiguous["resolution"] == "candidate"
+    assert ambiguous["resolution_reason"] == "unresolved_host"
+    # Skipped extractions surface as explicit notes, and the config-extracted
+    # provenance renders in the summary.
+    assert "Config extraction:" in result.output
+    assert "multi_backend" in result.output
+    assert "malformed" in result.output
+    md = (out / "fleet-summary.md").read_text()
+    assert "auth-api/k8s/service.yaml" in md
+    assert "via a declared proxy" in md
+
+
+def test_cli_service_port_overrides_config_declaration(tmp_path: Path) -> None:
+    # CLI declarations beat same-key config entries: --service-port
+    # auth-api=9999 overrides the k8s Service's 8443, so 9999 resolves with a
+    # bare (CLI) provenance and 8443 falls back to an unvouched explicit port.
+    out = tmp_path / "out"
+    result = runner.invoke(
+        app,
+        [
+            "analyze",
+            str(_DEPLOY_FLEET / "web-app"),
+            str(_DEPLOY_FLEET / "auth-api"),
+            str(_DEPLOY_FLEET / "feed-generator"),
+            "-o",
+            str(out),
+            "--service-port", "auth-api=9999",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads((out / "fleet-summary.json").read_text())
+    by_target = {lk["client_target"]: lk for lk in data["cross_repo_links"]}
+    assert by_target["http://auth-api:9999/users/"]["resolution"] == "observed"
+    assert by_target["http://auth-api:9999/users/"]["alias_provenance"] == (
+        "service_ports:auth-api:9999"
+    )
+    assert by_target["http://auth-api:8443/users/"]["resolution"] == "candidate"
+    assert by_target["http://auth-api:8443/users/"]["resolution_reason"] == "explicit_port"
+    # Untouched config declarations still apply.
+    assert by_target["http://feed-generator:9000/feeds/"]["resolution"] == "observed"
+
+
+def test_effective_deployment_aliases_merges_and_falls_back(tmp_path: Path) -> None:
+    from attackmap.scan_service import ScanRequest, _effective_deployment_aliases
+
+    fleet = Path(__file__).parent / "fixtures" / "deployment-seam-fleet"
+    repos = [fleet / "web-app", fleet / "auth-api", fleet / "feed-generator"]
+    # No CLI declarations: the config-extracted set is the effective one.
+    base, notes = _effective_deployment_aliases(ScanRequest(repo_paths=repos, output=tmp_path))
+    assert base is not None
+    assert base.service_ports["auth-api"] == 8443
+    assert base.proxies == {"edge.internal": "auth-api"}
+    assert notes
+    # CLI overrides a config key without inheriting its file provenance.
+    cli_overridden, _ = _effective_deployment_aliases(
+        ScanRequest(
+            repo_paths=repos,
+            output=tmp_path,
+            deployment_aliases=DeploymentAliases(service_ports={"auth-api": 9999}),
+        )
+    )
+    assert cli_overridden.service_ports["auth-api"] == 9999
+    assert "service_ports:auth-api:9999" not in cli_overridden.source_files
+    assert cli_overridden.proxies == {"edge.internal": "auth-api"}  # config entries kept
+    # Conflicting topologies (CLI alias vs config proxy on one host): the CLI
+    # set alone is used, with an explicit note.
+    cli_conflict, conflict_notes = _effective_deployment_aliases(
+        ScanRequest(
+            repo_paths=repos,
+            output=tmp_path,
+            deployment_aliases=DeploymentAliases(hosts={"edge.internal": "auth-api"}),
+        )
+    )
+    assert cli_conflict.hosts == {"edge.internal": "auth-api"}
+    assert cli_conflict.proxies == {}
+    assert any("conflicted" in n for n in conflict_notes)

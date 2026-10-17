@@ -126,10 +126,13 @@ def scan_diagnostic(scan: object | None) -> tuple[DiagnosticCoverage, Diagnostic
     if scan is None:
         return DiagnosticCoverage(), DiagnosticResources()
     files = getattr(scan, "scanned_files", None)
-    coverage = DiagnosticCoverage(status="complete" if files is not None else "partial",
+    analyzer_errors = list(getattr(scan, "analyzer_errors", []) or [])
+    # Analyzer errors mean the accepted files were not fully analyzed: the run
+    # completed but coverage is degraded, not complete.
+    coverage = DiagnosticCoverage(status="complete" if files is not None and not analyzer_errors else "partial",
         accepted_file_count=len(set(files)) if files is not None else None,
         legacy_files_scanned_count=getattr(scan, "files_scanned", None),
-        analyzer_error_count=len(getattr(scan, "analyzer_errors", [])),
+        analyzer_error_count=len(analyzer_errors),
         limitation_count=len(getattr(scan, "limitations", [])))
     events = list(getattr(scan, "resource_limit_events", []))
     scopes = list(getattr(scan, "resource_limit_scopes", []))

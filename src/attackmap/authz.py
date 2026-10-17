@@ -15,12 +15,17 @@ A route is a BOLA/IDOR candidate when ALL of:
    taint chain from this route to a ``sql_execute`` sink, and
 3. There is **no ownership/authorization check** visible near the
    handler — no ``current_user`` / ``request.user`` / ``owner`` /
-   ``authorize`` / policy / guard / ``WHERE user_id``-style scoping in
-   the route's file.
+   ``authorize`` / policy / guard / caller-scoped ``WHERE user_id``-style
+   filtering in the route's handler region or the file's shared preamble.
 
 Condition 3 is the main false-positive reducer: a well-scoped handler
-that filters by the caller's identity is not flagged. Import-edge and
-name heuristics are imprecise, so findings are evidence, not proof.
+that filters by the caller's identity is not flagged. It is scoped to the
+route's own handler region (AM038) so a sibling handler's markers do not
+suppress this route. Write routes with *no resolved authentication control*
+defer to the unauthenticated-state-change finding instead (authentication
+is the missing control; BOLA presupposes an authenticated caller).
+Import-edge and name heuristics are imprecise, so findings are evidence,
+not proof.
 """
 
 from __future__ import annotations
@@ -30,6 +35,7 @@ from pathlib import Path
 
 from .safe_fs import contained_file, is_unsafe_link
 from .models import BolaCandidate, Route, ScanResult
+from .route_auth_fusion import resolve_route_control
 from .srcpaths import JS_TS_SUFFIXES, is_test_file, is_vendored_file
 
 # Path parameter forms across frameworks:
@@ -81,26 +87,48 @@ _QUERY_ACCESS_RES = (
     re.compile(r"""\b(\w+)\s*:\s*[\w\[\]|. ]+?=\s*Query\s*\("""),  # FastAPI `id: str = Query(...)`
 )
 
-# Ownership / authorization markers. If ANY appear in the route's file we
-# assume authorization is enforced and suppress the finding. Deliberately
+# Ownership / authorization markers. If ANY appear near the route's handler
+# we assume authorization is enforced and suppress the finding. Deliberately
 # broad — recall on the *suppression* side keeps false positives down.
+# The bare `user_id` name is deliberately NOT a marker, and neither is
+# `user_id = ...`: a typed parameter (`def handler(user_id: str)`), a JSON
+# key, and a SQL binding (`where user_id = ?`) are declarations/plumbing, not
+# checks — query scoping is judged by the coupled rule below (AM038).
 _OWNERSHIP_MARKERS = re.compile(
     r"""
     current_user | currentUser | \brequest\.user\b | \breq\.user\b | \bctx\.user\b
-    | \bowner\b | owner_id | ownerId | user_id\s*(?:==|===|=|:) | userId
+    | \bowner\b | owner_id | ownerId | userId
     | account_id | tenant_id | org_id | \bself\.user\b
     | authorize | authoriz | \.can\s*\( | cannot | \bpolicy\b | \bpolicies\b
     | \bguard\b | can_access | canAccess | has_access | hasAccess
     | check_access | verify_owner | assert_owner | ensure_owner
     | require[s]?_permission | permission_required | requiresAuth | requireAuth
     | login_required | @authenticated | ensureAuthenticated | is_authorized
-    | filter_by\s*\(\s*user | \.where\([^)]*user | WHERE\s+\w*user
     | scope_to | scoped_to | for_user | belongs_to
     """,
     re.IGNORECASE | re.VERBOSE,
 )
 
+# Query scoping by a user-ish column (`WHERE user_id = ?`, `.where(user...)`,
+# `filter_by(user...)`). On its own that is *object addressing*, not an
+# ownership check: the classic miss is the clause being bound to the request's
+# own id parameter. It only counts as a check when the caller's identity is in
+# scope in the same region (a session/current_user/… token) (AM038).
+_SCOPED_QUERY_MARKERS = re.compile(
+    r"filter_by\s*\(\s*user | \.where\([^)]*user | WHERE\s+\w*user",
+    re.IGNORECASE | re.VERBOSE,
+)
+_CALLER_IDENTITY_RE = re.compile(
+    r"current_user|currentUser|request\.user|req\.user|ctx\.user|c\.user"
+    r"|g\.user|self\.user|\bsession\b|req\.session|getSession",
+    re.IGNORECASE,
+)
+
 _WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+# The write-defer (AM038) resolves per-route auth controls, which is
+# self-contained for JS/TS and Python routes only.
+_DEFER_SUFFIXES = JS_TS_SUFFIXES | {".py"}
 
 _MAX_FILE_BYTES = 1_000_000  # skip absurdly large files
 
@@ -164,7 +192,7 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
         if not reaches_db:
             continue
 
-        has_check = bool(content and _OWNERSHIP_MARKERS.search(content))
+        has_check = bool(content and _ownership_check_near(scan, route, content))
 
         key = (route.method, route.path, route.file, id_param)
         if key in seen:
@@ -173,6 +201,20 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
 
         if has_check:
             # Authorization is (probably) enforced — not a candidate.
+            continue
+
+        # Write-defer (AM038): a *write* route with no resolved authentication
+        # control is already claimed by the unauth-state-change finding, and
+        # the missing control there is authentication — BOLA presupposes an
+        # authenticated caller whose object access is unscoped. Defer the
+        # BOLA-write claim to that finding; writes WITH a resolved control
+        # still get the classic authenticated-but-unscoped BOLA treatment.
+        if (
+            route.method in _WRITE_METHODS
+            and content
+            and Path(route.file).suffix.lower() in _DEFER_SUFFIXES
+            and resolve_route_control(route, content) is None
+        ):
             continue
 
         candidates.append(
@@ -270,6 +312,60 @@ def _read_file_content(rel_file: str, root: Path, cache: dict[str, str | None]) 
         content = None
     cache[rel_file] = content
     return content
+
+
+# --- Region-scoped ownership checks (AM038) ----------------------------------
+
+
+def _ownership_check_near(scan: ScanResult, route: Route, content: str) -> bool:
+    """True when ownership/authorization markers appear near THIS route.
+
+    The search is scoped to the route's own handler region (from a couple of
+    lines above its registration — stacked decorators — to the next route
+    registration in the same file) plus the shared file preamble (imports,
+    router-level dependencies, guard helpers), which plausibly guards every
+    route in the file. A marker in a *sibling* handler — e.g. another
+    handler's `user_id` parameter annotation — says nothing about this route
+    and must not suppress it. Without line info the whole file is searched
+    (the previous behavior).
+    """
+    if route.line is None:
+        return _ownership_check_text(content)
+    lines = content.splitlines()
+    if not lines:
+        return False
+    route_lines = sorted(
+        r.line for r in scan.routes
+        if r.file == route.file and r.line is not None
+    )
+    if not route_lines:
+        return _ownership_check_text(content)
+    first = route_lines[0]
+    later = [ln for ln in route_lines if ln > route.line]
+    region_start = max(1, route.line - 2)
+    region_end = min((min(later) - 1) if later else len(lines), len(lines))
+    # Shared preamble (everything before the file's first route) + the route's
+    # own region; overlapping slices for the file's first route are harmless.
+    preamble = "\n".join(lines[: first - 1])
+    region = "\n".join(lines[region_start - 1 : region_end])
+    if _OWNERSHIP_MARKERS.search(preamble + "\n" + region):
+        return True
+    # A user-scoped query only counts as an ownership check when the caller's
+    # identity is *used* in the handler region — a `session`/`user` import in
+    # the preamble is not usage (see _SCOPED_QUERY_MARKERS).
+    return bool(
+        _SCOPED_QUERY_MARKERS.search(region) and _CALLER_IDENTITY_RE.search(region)
+    )
+
+
+def _ownership_check_text(text: str) -> bool:
+    if _OWNERSHIP_MARKERS.search(text):
+        return True
+    # A user-scoped query only counts as an ownership check when the caller's
+    # identity is in scope nearby (see _SCOPED_QUERY_MARKERS).
+    return bool(
+        _SCOPED_QUERY_MARKERS.search(text) and _CALLER_IDENTITY_RE.search(text)
+    )
 
 
 def _db_reachability(

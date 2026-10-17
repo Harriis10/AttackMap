@@ -43,7 +43,8 @@ resolves). A declared ``proxies`` hostname fronting one repo resolves a call to
 it as ``observed_via_proxy`` — the logical seam is positively declared, but no
 direct service-to-service edge is claimed and no trust-path finding rides it.
 Every alias-resolved observed link records which declaration vouched for it in
-``alias_provenance``.
+``alias_provenance``; declarations extracted from config files additionally
+carry their declaring file via ``source_files``.
 
 Pure and deterministic — takes ``(repo_id, ScanResult)`` primitives so it stays
 unit-testable without a real scan and imports nothing from the CLI/fleet layer.
@@ -139,6 +140,10 @@ class DeploymentAliases:
     - ``service_protocols``: repo identity → the scheme the service serves
       (``http``/``https``); a call whose URL scheme contradicts it stays a
       candidate.
+    - ``source_files``: provenance key → the config file that declared it
+      (config-file extraction, C28), e.g. ``service_ports:auth-api:8443`` →
+      ``auth-api/k8s/service.yaml``. Surfaced by appending the file to the
+      link's ``alias_provenance``; CLI declarations carry none.
 
     Alias values address a repo by any of its identities (fleet id or root
     directory name, case-insensitive) and may name repos outside the current
@@ -153,6 +158,7 @@ class DeploymentAliases:
     proxies: Mapping[str, str] = field(default_factory=dict)
     service_ports: Mapping[str, int] = field(default_factory=dict)
     service_protocols: Mapping[str, str] = field(default_factory=dict)
+    source_files: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         hosts = _declared_hosts(self.hosts)
@@ -162,6 +168,7 @@ class DeploymentAliases:
         object.__setattr__(self, "proxies", _declared_proxies(self.proxies, hosts))
         object.__setattr__(self, "service_ports", _declared_service_ports(self.service_ports))
         object.__setattr__(self, "service_protocols", _declared_service_protocols(self.service_protocols))
+        object.__setattr__(self, "source_files", _declared_sources(self.source_files))
 
 
 def _declared_hosts(mapping: Mapping[str, str]) -> dict[str, str]:
@@ -247,6 +254,41 @@ def _declared_service_protocols(mapping: Mapping[str, str]) -> dict[str, str]:
             raise ValueError(f"service protocol {repo!r}={scheme!r} must be REPO=http or REPO=https")
         out[r] = s
     return out
+
+
+# Provenance-key prefixes source_files entries are keyed by — the same strings
+# link_contracts records in ContractLink.alias_provenance (C28).
+_SOURCE_KEY_PREFIXES = ("hosts:", "host_ports:", "dns_suffix:", "service_ports:", "proxies:")
+
+
+def _declared_sources(mapping: Mapping[str, str]) -> dict[str, str]:
+    """Normalize declaration provenance: provenance key → non-empty file path.
+    Keys must carry a known declaration prefix — an unrecognized one can never
+    match a link's provenance and would silently hide a config mistake."""
+    out: dict[str, str] = {}
+    for key, path in mapping.items():
+        k, p = str(key).strip(), str(path).strip()
+        if not k or not p:
+            raise ValueError(
+                f"declaration source {key!r} -> {path!r} needs a provenance key and a file path"
+            )
+        if not k.startswith(_SOURCE_KEY_PREFIXES):
+            raise ValueError(
+                f"declaration source key {key!r} must start with one of: "
+                f"{', '.join(_SOURCE_KEY_PREFIXES)}"
+            )
+        out[k] = p
+    return out
+
+
+def _sourced(aliases: DeploymentAliases, provenance: str | None) -> str | None:
+    """Append the declaring file to a provenance string when the declaration
+    carried one (config-file extraction, C28); CLI declarations carry none and
+    keep the bare key."""
+    if provenance is None:
+        return None
+    source = aliases.source_files.get(provenance)
+    return f"{provenance} ({source})" if source else provenance
 
 
 _SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
@@ -488,7 +530,7 @@ def link_contracts(
                 return destination, "candidate", "unresolved_host", None, None
             if len(backend_repos) > 1:
                 return destination, "candidate", "ambiguous_identity", None, None
-            return destination, "observed_via_proxy", "", f"proxies:{host}", host
+            return destination, "observed_via_proxy", "", _sourced(aliases, f"proxies:{host}"), host
 
         if explicit_port:
             # A port routes where a bare hostname cannot vouch: only equally
@@ -532,7 +574,7 @@ def link_contracts(
         # stays a candidate.
         if scheme_contradicts(scheme, server_id):
             return destination, "candidate", "scheme_mismatch", None, None
-        return destination, "observed", "", provenance, None
+        return destination, "observed", "", _sourced(aliases, provenance), None
 
     links: list[ContractLink] = []
     seen: set[tuple] = set()
