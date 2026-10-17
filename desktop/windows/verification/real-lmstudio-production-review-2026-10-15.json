@@ -1,0 +1,136 @@
+{
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "source_report_sha256": "bcc0a8815c6e8acfdba962f6af51989ebd3f8de5cde856c0ee32e10b4c1ef263",
+  "source_findings": 18,
+  "started_at": "2026-10-15T17:49:03.210422+00:00",
+  "scope": "Full original18finding inputs through production local-only bounded context selection; partial selected evidence review",
+  "status": "completed",
+  "usage": {
+    "input_tokens": 5930,
+    "output_tokens": 3423
+  },
+  "result_model": "cyberstag-security-26b-a4b-v1",
+  "stop_reason": "completed",
+  "markdown_characters": 5418,
+  "finished_at": "2026-10-15T17:51:05.710852+00:00",
+  "actual_requests": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:1234/v1/responses",
+      "utc": "2026-10-15T17:49:04.242591+00:00",
+      "body_bytes": 19074,
+      "body_sha256": "da9a77aa00b8350a4db68cfb2978bfcf9789b588d8e2507319bc76c21d7cce9b"
+    }
+  ],
+  "provider_output_types": [
+    "reasoning",
+    "message"
+  ],
+  "provider_status": [
+    "completed"
+  ],
+  "incomplete_details": [
+    null
+  ],
+  "original_handle": 29231,
+  "original_process_exit_code": 0,
+  "provider_usage": {
+    "input_tokens": 5930,
+    "output_tokens": 3423,
+    "total_tokens": 9353,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens_details": {
+      "reasoning_tokens": 2151
+    }
+  },
+  "final_message_present": true,
+  "final_message_characters": 5266,
+  "output_allowance": 8192,
+  "visibly_ends_mid_sentence": false,
+  "observed_sections": [
+    "### 1. System Overview",
+    "### 2. Notable Observations",
+    "### 3. Asset and Control Map",
+    "### 4. Detection Opportunities",
+    "### 5. Strengths",
+    "### 6. Weaknesses / Risk Hotspots",
+    "### 7. Key Evidence Chains",
+    "### 8. Prioritized Recommendations",
+    "### 9. Analyst Confidence and Limitations"
+  ],
+  "quality_scope": "Actual final message contains scope, observations, recommendations and limitations and ends with a complete sentence; claims are not independently validated.",
+  "elapsed_seconds": 122.50043,
+  "context_selection": {
+    "available_count_scope": "Candidate records in the evidence pack, after existing pack limits; not total repository coverage.",
+    "character_budget": 14000,
+    "omission_policy": "Omitted evidence is unknown, never absent. Full scan totals are retained; selected records are not complete coverage.",
+    "omitted_metadata_sections": [
+      "evidence_counts"
+    ],
+    "scope": "partial selected evidence review",
+    "sections": {
+      "assets": {
+        "available": 9,
+        "included": 1,
+        "omitted": 8
+      },
+      "attack_paths": {
+        "available": 3,
+        "included": 0,
+        "omitted": 3
+      },
+      "attack_surfaces": {
+        "available": 50,
+        "included": 0,
+        "omitted": 50
+      },
+      "attack_techniques_observed": {
+        "available": 19,
+        "included": 0,
+        "omitted": 19
+      },
+      "controls": {
+        "available": 6,
+        "included": 0,
+        "omitted": 6
+      },
+      "detection_opportunities": {
+        "available": 6,
+        "included": 0,
+        "omitted": 6
+      },
+      "findings": {
+        "available": 18,
+        "included": 9,
+        "omitted": 9
+      },
+      "notable_observations": {
+        "available": 26,
+        "included": 0,
+        "omitted": 26
+      }
+    }
+  },
+  "files": {
+    "context-selection.json": "b19668d97fc961803541e26c9d1a12aa141c74aa24d6735f0e5c2b2f19606d0f",
+    "defensive-review-llm.md": "c62ab462d57371bf10a1294a3a7a5e421406d7889a02b1deb3f60b58bd014cd0",
+    "provider-response.json": "2a3f19136a22bc57f94eecf6d59ab735b34762c59a9e666e99c6fe8440a2c7a3",
+    "raw-final-message.md": "995352acfd55c4f51fb1eb67700ffd307c41b45677ef370a97fe16081aab7b54",
+    "requests.json": "ced18fc886806759d9027bdd83e065a57b5ffbc08f8f58eb3c0a4abd3742c90d",
+    "run.log": "921c7870c0de76515ee746041306392bfdc310ed71011356cafb77f0fb124489",
+    "run.py": "bddaa174844e1c940c7fb658b0af3a11ca5bea18e446dddea49d2afb4dcc8ff4"
+  },
+  "source_files": {
+    "src/attackmap/llm_review.py": "a13c7d3dfd37974ed34cca65840822315fc5ea335aff4ff606b877ad707883aa",
+    "src/attackmap/review_prompts.py": "678ec407a845b4d356a27d02d9161922468694bdfb284de2c305e1c09e483268"
+  },
+  "limitations": [
+    "Selected9of18candidatefindings; omitted evidence unknown",
+    "Real generated narrative is not independently verified claim support or whole-repository review",
+    "Default remote behavior unchanged; no remote fallback",
+    "Earlier reasoning-only and truncated attempts preserved as negative quality outcomes"
+  ]
+}

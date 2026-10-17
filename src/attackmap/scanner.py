@@ -749,10 +749,13 @@ def scan_files(
     from .index import RepoIndex
 
     root_path = Path(root).resolve()
-    result = ScanResult(root=str(root_path))
+    result = ScanResult(root=str(root_path), scanned_files=[])
     if index is None:
         index = RepoIndex.build(root_path)
         result.limitations.extend(index.limitations)
+    result.resource_limit_events = list(index.resource_limit_events)
+    result.resource_limit_scopes = list(index.resource_limit_scopes)
+    result.resource_limit_reporting = index.resource_limit_reporting
 
     indexed = [
         item
@@ -769,6 +772,7 @@ def scan_files(
             progress.advance(item.rel)
 
         result.files_scanned += 1
+        result.scanned_files.append(item.rel.replace("\\", "/"))
         language = CODE_EXTENSIONS[item.suffix]
         if language not in result.languages:
             result.languages.append(language)
@@ -837,6 +841,8 @@ def scan_files(
             i for i in result.web_hardening_issues if i.kind != "csrf_unprotected_session"
         ]
     result.languages.sort()
+    result.scanned_files = sorted(set(result.scanned_files))
+    result.files_scanned = len(result.scanned_files)
     return result
 
 

@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "recorded_utc": "2026-10-15T17:00:43.378494+00:00",
+  "scope": "Python 3.13 corrective regular phase only; negative result, not a full matrix or completed fifty-cycle campaign",
+  "authoritative_session": 6837,
+  "exit_code": 1,
+  "passed": 3282,
+  "failed": 1,
+  "skipped": 4,
+  "seconds": 365.88,
+  "source_unchanged": true,
+  "failure": {
+    "nodeid": "tests/test_execution_supervision.py::test_fifty_cancel_cycles",
+    "phase": "call",
+    "classification": "Controlled fixture startup readiness timeout",
+    "counterexample": "wait_for(ready.exists) timed out after 8 seconds awaiting child-2.pid before that cycle cancellation assertions",
+    "limit": "This is not a demonstrated cancellation cleanup assertion failure; the fifty-cycle campaign did not complete"
+  },
+  "owned_observations": {
+    "marker_reference": {
+      "path": ".pytest_cache/m3-c15-corrective-py313-cycle-markers.json",
+      "sha256": "117a4473862aa35c631fba0773fdf2dd8890144a60aa9c393d4485f697b8c108"
+    },
+    "process_audit_reference": {
+      "path": ".pytest_cache/m3-c15-corrective-py313-controlled-process-audit.json",
+      "sha256": "7e9981bc4005a836fedc245f71ea1941a02fb9210b92eed333c13beab3ae7094"
+    },
+    "scope": "Root recorded exactly two PID marker files and zero matching owned controlled workers in the bounded read-only process audit. Zero matches does not establish complete descendant-tree exit or rule out PID reuse/unobserved descendants."
+  },
+  "bindings": [
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/capture.json",
+      "sha256": "e4777d8602adb8a60a0722417f24bd421be684ff442a2def74cb8cbe32a3f58a"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/pytest.log",
+      "sha256": "99b5b58c1c242889bc901f0f5fabd204ca2a6278e975d1fbde26ce37faa74f36"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/results.xml",
+      "sha256": "38868c90e6edd6312b665d96ce662c7354b4cd0a9bef9a71541a22066a23166d"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/outcomes.jsonl",
+      "sha256": "ba3c241c3d032d537314c137fe7b8748d61c8195b987788c67479f938dfaa90e"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/collected-nodeids.json",
+      "sha256": "dfba8df443520b704d156afe9c9610fafea5b04f6be77f3fef46fe74ea1e41f2"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/environment.json",
+      "sha256": "5bbed44cd7add84f870e7e7d6dff76c26408ec05f30c69eeca42b6591108f3f8"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/run.json",
+      "sha256": "7ab71004323154796c2d9e9465e9f508208adef90dac7974f5c902ff40ade99b"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/exit-code.json",
+      "sha256": "922202c7fff19f59a0c8f09ad83a83e4d1024a0a83987412e576dca0673c7933"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/source-test-before.json",
+      "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py313/regular/source-test-after.json",
+      "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-corrective-py313-cycle-markers.json",
+      "sha256": "117a4473862aa35c631fba0773fdf2dd8890144a60aa9c393d4485f697b8c108"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-corrective-py313-controlled-process-audit.json",
+      "sha256": "7e9981bc4005a836fedc245f71ea1941a02fb9210b92eed333c13beab3ae7094"
+    }
+  ],
+  "limitations": [
+    "No test rerun or source/test edits by reviewer",
+    "Remaining Python phases and limits phases not aggregated here",
+    "No complete coverage, full corrective matrix, performance or M3 acceptance claim"
+  ]
+}

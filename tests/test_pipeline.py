@@ -73,6 +73,13 @@ def test_run_manifest_always_written_including_markdown_format(tmp_path: Path) -
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert MANIFEST_KEYS <= set(manifest)
     assert manifest["engine_version"] == __version__
+    from datetime import datetime
+    timing = manifest["scan_timing"]
+    assert timing["clock"] == "engine_utc"
+    assert timing["scope"] == "analysis_pipeline_before_publication"
+    assert timing["outcome"] == "completed"
+    assert datetime.fromisoformat(timing["started_at"]).utcoffset().total_seconds() == 0
+    assert datetime.fromisoformat(timing["finished_at"]) >= datetime.fromisoformat(timing["started_at"])
     assert isinstance(manifest["stages"], list)
     assert all("name" in s and "milliseconds" in s for s in manifest["stages"])
     dumped = json.dumps(manifest)

@@ -1,0 +1,33 @@
+{
+  "scan": {
+    "root": "C:/SYNTHETIC/žluťoučký",
+    "languages": ["synthetic-unsupported-language"],
+    "files_scanned": 12,
+    "scanned_files": ["src/ž.unknown", "src/ž.unknown"],
+    "limitations": ["SYNTHETIC: coverage truncated after supplied analyzer limit; unsupported language remains unexamined."],
+    "analyzer_errors": [{"analyzer":"synthetic-overlay","error_type":"unsupported_language","message":"SYNTHETIC unsupported language; no security conclusion"}]
+  },
+  "findings": [
+    {
+      "id":"synthetic-conflict",
+      "title":"Synthetic conflicting static evidence č",
+      "severity":"medium",
+      "confidence":"low",
+      "score":17,
+      "locations":[{"file":"src/ž.unknown","line":2}],
+      "mitigation":"Review supplied conflict; no inferred resolution.",
+      "context":{
+        "context_version":"1.0",
+        "finding_id":"synthetic-conflict",
+        "claim":{"kind":"heuristic_static_analysis","runtime_verification":"unknown"},
+        "priority":{"severity":"medium","confidence":"low","score":17,"point_contributions":"not_supplied"},
+        "source":{"role":"unclassified"},
+        "evidence":{"observation_links":"candidate_only","candidates_truncated":true,"candidates":[{"observation_id":"synthetic-obs-č","association":"exact_location_candidate_only","ownership":"unknown","conflicts":[{"field":"auth","values":["present","absent"]}],"origins":[{"analyzer":"synthetic-overlay","analyzer_version":"0","metadata_status":"unknown"}]}]},
+        "observed_controls":{"status":"unknown","items":[]},
+        "trust_chain":{"status":"unknown","flows":[],"trust_boundary_crossing":"unknown"},
+        "uncertainty":["SYNTHETIC conflict is not resolved; coverage truncation is not evidence of absence."]
+      }
+    },
+    {"id":"synthetic-no-location","title":"Synthetic location unavailable","severity":"low","confidence":"unknown"}
+  ]
+}

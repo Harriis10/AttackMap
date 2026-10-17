@@ -12,16 +12,17 @@
 reads a repository (or a whole fleet of them), reconstructs the attack surface —
 routes, data stores, external calls, auth signals, trust boundaries — traces
 request-to-sink data flow, and produces an evidence-grounded, prioritized security
-review. It finds the cross-cutting weaknesses single-file scanners miss, and never
-sends your code anywhere.
+review. Deterministic analysis runs locally. Optional AI sends evidence and may
+include source excerpts to the selected provider; optional CVE checks send package
+names and versions to OSV. See [privacy disclosures](docs/privacy.md).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 
-> **Status: beta (v0.5.1).** Core engine + 15 analyzer plugins, installed straight
+> **Status: beta (v1.5.1).** Core engine + 15 analyzer plugins, installed straight
 > from GitHub and validated on real codebases. AttackMap is heuristic by
-> design — findings are confidence-tiered evidence, not proof. Roadmap to 1.0:
-> [issue #209](https://github.com/mlaify/AttackMap/issues/209).
+> design — findings are confidence-tiered evidence, not proof. Current delivery plan:
+> [2026–2028 roadmap](docs/roadmap-2026-2028.md) and [implementation tracker](docs/implementation-todo.md).
 
 Full documentation: **[docs.mlaify.io](https://docs.mlaify.io)** ·
 architecture & internals: **[wiki](https://github.com/mlaify/AttackMap/wiki)**.
@@ -53,6 +54,39 @@ installer\build-installer.bat
 ```
 
 Or run from source: `python -m attackmap ui`.
+
+
+The separate [native Windows development preview](docs/windows-development-package.md)
+keeps AI off by default. To try local narration, start LM Studio with
+`cyberstag-security-26b-a4b-v1` served at `http://127.0.0.1:1234/v1`. In the native
+provider settings, choose `openai`, enter that endpoint and model, enable AI review,
+and then scan. Leave the credential empty for this local server; saving provider
+settings is not required to try the current configuration. Allow enough output
+tokens for both model reasoning and the final review (8,192 was used in the example
+below). Other models may behave differently.
+
+In the native preview, **Reports → Open selected run AI review** reads the saved
+review for the selected, verified generation without making another provider
+request. It shows the supplied model/backend and full scope notice as selectable
+text. A run without an AI artifact shows an explicit unavailable state.
+Reopening a report beside its matching artifact manifest preserves access to
+that saved run's review and exports. A bare legacy JSON still opens without
+adjacent-artifact access; an invalid manifest produces an import error.
+
+Local API narrative reviews select whole evidence records within a 14,000-character
+evidence JSON budget, preserving finding IDs and locations. This budget excludes
+the surrounding instructions and is not a token limit. The prompt records included
+and omitted counts; omitted evidence and controls remain unknown. The returned
+review is labeled partial. Reasoning-only responses are rejected as missing final
+text, and output near its allowance carries a possible-truncation notice. A provider
+reporting completion does not establish a complete or correct review.
+Review instructions distinguish source observations, static inferences and
+unverified runtime effects; model compliance still requires human review.
+
+An [actual local Juice Shop review](desktop/windows/verification/real-lmstudio-production-review-2026-10-15.json)
+returned nine finished sections in 122.5 seconds using selected evidence for 9 of
+18 findings. This is a bounded integration example, not whole-repository AI coverage
+or independent verification of the model's claims.
 
 ## Quickstart
 
@@ -101,6 +135,38 @@ CI setup: **[install guide](https://docs.mlaify.io/install/)**.
 Each run writes Markdown, JSON (`attackmap-report.json`), **SARIF 2.1.0**, and
 diagram artifacts; fleet runs add `fleet-summary.{md,json}` + `fleet-graph.md`.
 See the [outputs reference](https://docs.mlaify.io/scanning/) for the full list.
+
+CLI and desktop runs publish validated generations under the output directory.
+`current-generation.json` identifies the authoritative result; its manifest binds
+artifact checksums and, for fleets, each successful child generation. Failed or
+cancelled runs preserve the previous current result and record separate diagnostics.
+Flat files remain compatibility exports in the requested format; an export warning
+does not invalidate a successfully published generation. Partial fleet summaries
+and successful siblings remain in the failed run directory without becoming current.
+See [atomic artifacts](docs/atomic-artifacts.md) for the storage contract.
+
+New finding IDs use stable detector rules and explicit entity keys, so changing
+a title or recommendation does not create a new finding. Old baselines with
+recorded rules can migrate deterministically; ambiguous legacy references remain
+visible for review. See [finding identity](docs/finding-identity.md), including
+the explicit suppression-reference migration and SARIF compatibility notes.
+
+Static route evidence is labeled `static_observed`, protocol declarations
+`inferred_protocol`, and test/fixture/example evidence `low_quality`. These labels
+do not establish runtime exposure. `/internal` and `/debug` names alone leave
+exposure unknown; same-file datastore/outbound hints remain context until a
+route-linked chain supports the relationship. Nearby auth hints are indicators,
+not proof that authentication is enforced.
+
+Guard-based suppression currently recognizes fixed-string equality and Python
+membership in a literal string collection, with branch polarity and an unchanged
+sink value. Named allow-lists, custom predicates, regexes, and derived host checks
+remain uncertain and can still produce findings even when the application is
+safe. Flow-bound sanitizer support is unchanged.
+
+Repeated scans exclude generated artifacts using manifest checksums or recognized
+legacy report structures. A matching artifact filename alone does not exclude
+ordinary configuration, and a changed checksum makes a replaced file analyzable.
 
 ## Supported ecosystems
 

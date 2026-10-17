@@ -92,7 +92,16 @@
       <button type="button" data-view="recents">Recent scans</button>
       <button type="button" data-view="settings">Settings</button>
     </nav>
-    <main id="main"></main>
+    <main id="main">
+      <div class="viewbar" id="viewbar" hidden>
+        <span class="view-title" id="view-title"></span>
+        <div class="view-actions">
+          <button type="button" class="ghost" id="export-md">Markdown</button>
+          <button type="button" class="ghost" id="export-pdf">Print / PDF</button>
+        </div>
+      </div>
+      <div id="view"></div>
+    </main>
   </div>
   <script src="/src/api.js"></script>
   <script src="/src/mermaid-lite.js"></script>

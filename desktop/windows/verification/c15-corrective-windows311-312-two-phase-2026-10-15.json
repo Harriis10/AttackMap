@@ -1,0 +1,410 @@
+{
+  "schema_version": "1.0",
+  "recorded_utc": "2026-10-15T17:05:04.713801+00:00",
+  "scope": "Windows Python 3.11 and 3.12 complete node coverage across two disjoint fresh pytest processes per interpreter; not one full-suite invocation",
+  "results": [
+    {
+      "python": "311",
+      "status": "passed",
+      "full_collected": 3294,
+      "exact_union_independently_verified": true,
+      "disjoint": true,
+      "every_node_call_or_documented_setup_skip": true,
+      "zero_errors_failures_deselections": true,
+      "phases": [
+        {
+          "phase": "collection",
+          "collected": 3294,
+          "call_passed": 0,
+          "setup_skipped": 0,
+          "exit_code": 0,
+          "source_unchanged": true
+        },
+        {
+          "phase": "regular",
+          "collected": 3287,
+          "call_passed": 3283,
+          "setup_skipped": 4,
+          "exit_code": 0,
+          "source_unchanged": true
+        },
+        {
+          "phase": "limits",
+          "collected": 7,
+          "call_passed": 7,
+          "setup_skipped": 0,
+          "exit_code": 0,
+          "source_unchanged": true
+        }
+      ],
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00046300000394694507,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00022879999596625566,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00023999999393709004,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002150999935111031,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "bindings": [
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/verified-two-phase.json",
+          "sha256": "ebb8ddad86b4ac9b9daff5ec31de6b32e420f26f1b0b97491704821b93bd1b30"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/capture.json",
+          "sha256": "331d94bd92fa3d7a97152d72849e696d415e24d9d1771cc7b96875ade25c52f6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/collected-nodeids.json",
+          "sha256": "319bceb15a0ad389a478f3187444e6088c2bc0f52b33730f05b1526270973e64"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/environment.json",
+          "sha256": "630568e4a09829bb571bf685110a72bc6997549f9845c3fd0d3f056f48e803c6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/exit-code.json",
+          "sha256": "6ee033c8018f84ebe16e5349385af6239688b9fe0afb042c88721cf09198754f"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/run.json",
+          "sha256": "6ea971d12f02ae3a7c32200284754f25a35c1785c36ad0dd13cf7aacdf6fe426"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/capture.json",
+          "sha256": "e6b1b16e20bc31ddd32176d5f091301fd22f49da2b0005a4094d07c179ed1da0"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/collected-nodeids.json",
+          "sha256": "dfba8df443520b704d156afe9c9610fafea5b04f6be77f3fef46fe74ea1e41f2"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/environment.json",
+          "sha256": "66bcad5b4f82ce7b7785761a25db06b1fa9a0603084fcb654948fae9512ebc9b"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/exit-code.json",
+          "sha256": "9443fdc30a8e6586bf0be54a2f179bd7a1b262b55c866a29a8c8a6bd958886b0"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/run.json",
+          "sha256": "6aa3eb9284ce40cd72115653f80acfee388ce3565e9751e7a9c0f4e2a9ca9db9"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/capture.json",
+          "sha256": "cbb516eeeeb3a9510bc3c492dbc9850645055b30271ec487622ee13a18a9d3b1"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/collected-nodeids.json",
+          "sha256": "2f56ffa72737ad07caafa7fbfaeff7c2e3cfebfd7cc23386244903359fca07c5"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/environment.json",
+          "sha256": "e6be9d7b5c07cfd8a1da8fb0ad7837fb0456938e8f40e7ab8b1d1fd0be0b6717"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/exit-code.json",
+          "sha256": "9f3e5774aaabbaf9497f924c143303235aba4d6dcb734ff7fc69a75917dd8a80"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/run.json",
+          "sha256": "9c967b6f6031f34d2470505a94fdc054bd8ccea5a81f67a74eeb64b07b6832a4"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/pytest.log",
+          "sha256": "50b532eac51e0d0deae8c8cdb04fee0c67abfa12af914bdeef14eda5b78578a3"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/results.xml",
+          "sha256": "8501b0ef2656b97cb015b15b174ca061748c68c112a1a133973ec0ed3647b254"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/pytest.log",
+          "sha256": "9066daaff93c379a776480b73c9989468bc70c762d4ac44547de1c0d6613d46c"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/results.xml",
+          "sha256": "029adab5d766ccbf9f4be62460e28e79d46b7a780b637e4b7e9aeb69ffafd039"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/outcomes.jsonl",
+          "sha256": "2e72e44078096c00928d1308e57f61d39c55a430b317f0366279b365b2cbd184"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/pytest.log",
+          "sha256": "af570c6d02e877bcaf89377841054ef4c918561dc1f0586b2416e685390a3c52"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/results.xml",
+          "sha256": "a1a65c5ed2350279d27d4bfa721c591037c07778857a860929b24d552642331e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/outcomes.jsonl",
+          "sha256": "2e601442df6a695595a9b22cdd8ffec829d19953cf64a9c1cbd6dd81adc8939c"
+        }
+      ]
+    },
+    {
+      "python": "312",
+      "status": "passed",
+      "full_collected": 3294,
+      "exact_union_independently_verified": true,
+      "disjoint": true,
+      "every_node_call_or_documented_setup_skip": true,
+      "zero_errors_failures_deselections": true,
+      "phases": [
+        {
+          "phase": "collection",
+          "collected": 3294,
+          "call_passed": 0,
+          "setup_skipped": 0,
+          "exit_code": 0,
+          "source_unchanged": true
+        },
+        {
+          "phase": "regular",
+          "collected": 3287,
+          "call_passed": 3283,
+          "setup_skipped": 4,
+          "exit_code": 0,
+          "source_unchanged": true
+        },
+        {
+          "phase": "limits",
+          "collected": 7,
+          "call_passed": 7,
+          "setup_skipped": 0,
+          "exit_code": 0,
+          "source_unchanged": true
+        }
+      ],
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002823000104399398,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002486000012140721,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002911999908974394,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00022909999825060368,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "bindings": [
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/verified-two-phase.json",
+          "sha256": "2027ef944264abe70489c966f7a7e9d79831678976c5033a8dbdcd9d4d93424a"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/capture.json",
+          "sha256": "331d94bd92fa3d7a97152d72849e696d415e24d9d1771cc7b96875ade25c52f6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/collected-nodeids.json",
+          "sha256": "319bceb15a0ad389a478f3187444e6088c2bc0f52b33730f05b1526270973e64"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/environment.json",
+          "sha256": "14af45a878fb5d49a1782fbd0d55c1fafbcfab8f54e063cf981207d7b23cc900"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/exit-code.json",
+          "sha256": "fd302ef8c4bc35829b43e087b5b752f4feee847a37b0d33dde37300376847307"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/run.json",
+          "sha256": "ed3563fe5d63ae07fde042e253b8fb5f0d1e673d535601af08e48d229f318bdc"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/capture.json",
+          "sha256": "8b789f7e15c8119e95c13c6cc563a37e59b33755d25b0a4363b4ede16ea7e444"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/collected-nodeids.json",
+          "sha256": "dfba8df443520b704d156afe9c9610fafea5b04f6be77f3fef46fe74ea1e41f2"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/environment.json",
+          "sha256": "441dfa3fcab716ae6ccaf971f1e7c90cbb947a6cfa0adbad3cda5ec714b3d198"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/exit-code.json",
+          "sha256": "877ee29c75d46c1eae0ba49b66c0d44924c375bbffbed6571cd0948b15dbb22e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/run.json",
+          "sha256": "063074b30657a0368a79a2e3699d87a5b43f19bee530639df5bd4777e29fdea9"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/capture.json",
+          "sha256": "f2f611b783bb74b76d3164bdfeba0160d28e3545d57657513482fd664744eccc"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/collected-nodeids.json",
+          "sha256": "2f56ffa72737ad07caafa7fbfaeff7c2e3cfebfd7cc23386244903359fca07c5"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/environment.json",
+          "sha256": "58630d8a1995e401cfe710b3418befc3dbefc03f5fd9233733ee27d0378060c9"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/exit-code.json",
+          "sha256": "b1d5effbd0d71a2135f84c1c289f09922f60222dd8c031e1f541bf8cb7fc1b9a"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/run.json",
+          "sha256": "601b24613f0cb014a17cf7713b836dd4badd9beaa4121fb547b23fea57f775d1"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/pytest.log",
+          "sha256": "34e532498d8745ea24c0179d686a5afe20c66e8dba6f5027968b3370c149f669"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/results.xml",
+          "sha256": "9343d5abc95c8c800bde37ec1cacb8d54453deb4753b314413e19167db9879d8"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/pytest.log",
+          "sha256": "cc5852fa8a3828ea788069d989be892cab861614ab13d7b72acc9d79717aab5d"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/results.xml",
+          "sha256": "e0e8e4ba06887efd765d10311c846b0af06f7dae7dcda29a93f5d160cd3c40c0"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/outcomes.jsonl",
+          "sha256": "21e1fa266215e0a81b4eb60ca9d2a84aec6c8e41e856dfd78d07ac84a2ed4931"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/pytest.log",
+          "sha256": "47dbbbf11673f2c46225bdc4ddf7c91cc4d682373a2edfbe14fcd4f44be79db2"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/results.xml",
+          "sha256": "c4a3592836b5bbd8604cb7dc60ae30be34f89f9ccc3299fb0f1e1b2bbf0da00e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/outcomes.jsonl",
+          "sha256": "34d984d9fa8a5ac4de9458d072ec4a67f57e447d3503978c8dfeb606fb2cdbaf"
+        }
+      ]
+    }
+  ],
+  "authoritative_timing_seconds": {
+    "311": {
+      "regular": 516.6,
+      "limits": 19.23
+    },
+    "312": {
+      "regular": 533.34,
+      "limits": 19.11
+    }
+  },
+  "limits_execution": "Root executed limits sequentially with unchanged wall caps after regular phases terminated",
+  "limitations": [
+    "Python 3.13 remains negative separately; no all-three-version green claim",
+    "No tests or CPU campaigns run by reviewer; original root launches and proof captures retained",
+    "Source, tests and runner unchanged by this evidence recording",
+    "No frozen/package/platform/manual M3 acceptance claim"
+  ],
+  "python313_negative_reference": {
+    "path": "desktop/windows/verification/c15-corrective-py313-regular-negative-2026-10-15.json",
+    "sha256": "18189672ab093ff0356d8b62380fdc60f8b7071e10820debe446979179e9e4fe"
+  }
+}

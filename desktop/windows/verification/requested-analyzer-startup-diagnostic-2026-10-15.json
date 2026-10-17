@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T15:24:15.828248+00:00",
+  "scope": "Atomic ScanRequest requested-analyzer selection failure only; no broader CLI preflight or non-atomic diagnostic changes.",
+  "verification": {
+    "passed": 30,
+    "skipped": 1,
+    "seconds": 6.14,
+    "raw_log": ".pytest_cache\\m3-engine-scan-timing-proof\\startup-diagnostic-pytest.log",
+    "log_sha256": "b34401431c6bd654d37eabcd61a4bf69d4720be6fbe22057f8c4505c0a963516",
+    "environment": "PYTHONPATH=absolute workspace/src; pytest -o pythonpath same; .venv Python3.13"
+  },
+  "assertions": [
+    "Typed configuration error preserved",
+    "Generic diagnostic excludes exception sentinel details",
+    "Prior current pointer unchanged and valid",
+    "Explicit/generated run identity",
+    "Invalid traversal run identity produces no outside write",
+    "No invented scan timestamp before analysis starts"
+  ],
+  "subsequent_diagnostic_attempt": {
+    "log": ".pytest_cache/m3-engine-scan-timing-proof/startup-diagnostic-final-pytest.log",
+    "result": "1 failed,30 passed,1 skipped: newly added exploratory CLI test proved CLI preselects modules before service; unsupported assertion removed, production unchanged.",
+    "remaining_gap": "CLI _select_modules preflight still occurs before execute_scan_request; separately scoped CLI diagnostic integration would be needed. No CLI diagnostic claim."
+  },
+  "source_hashes": {
+    "src/attackmap/scan_service.py": "38bb3d899373972be8ac3d4bcf497bbeada0df0c1dbb3cf41e767373d6dd1124",
+    "tests/test_scan_service.py": "30fef25175ae19cc6b6a433af0e9e63123eae712c1306ca45ea73a5d87df2baf"
+  },
+  "limitations": [
+    "No full regression or frozen/native claim",
+    "Diagnostic write best effort; existing non-atomic behavior unchanged",
+    "Current immutable build snapshot predates this service edit"
+  ]
+}

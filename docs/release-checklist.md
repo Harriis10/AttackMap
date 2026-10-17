@@ -2,6 +2,29 @@
 
 Use this checklist before tagging a release or publishing a Windows build.
 
+## Reproducible core baseline
+
+The core CI matrix covers Ubuntu, macOS, and Windows with Python 3.11, 3.12,
+and 3.13. Node.js 22 is required for the shipped frontend cache regression
+tests; it is a development/test dependency, not an engine runtime dependency.
+Install the checkout in an isolated environment so CLI subprocess tests import
+the same source tree:
+
+```powershell
+py -3.13 -m venv .venv
+.venv\Scripts\python.exe -m pip install -e ".[llm,dev]"
+node --version
+.venv\Scripts\python.exe -m pytest --collect-only -q
+.venv\Scripts\python.exe -m pytest -q -ra
+```
+
+Record the interpreter/dependency versions, commit plus local changes, and every
+skip reason. A local Windows run does not establish that the full CI matrix or
+frozen package passed. Keep pytest temporary directories outside a Git checkout
+when testing behavior for non-Git directories. For live AI testing, follow the
+local LM Studio configuration and Juice Shop target in
+[project facts](project_notes/key_facts.md#current-source-and-targeted-testing-2026-10-15).
+
 ## Version identity
 
 - [ ] `src/attackmap/__init__.py` contains the intended version.

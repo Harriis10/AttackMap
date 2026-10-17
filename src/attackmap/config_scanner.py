@@ -22,7 +22,7 @@ from pathlib import Path
 from .srcpaths import SKIP_DIRS, in_skipped_dir, is_skipped_dir
 from .redact import mask_secret
 from .safe_fs import max_file_bytes, walk_repo
-from .models import DatabaseHint, ExternalCall, ScanResult, SecretHint
+from .models import DatabaseHint, ExternalCall, ResourceLimitEvent, ScanResult, SecretHint
 from .scanner import _append_hardcoded_secret_hints, _line_snippet
 
 # Config files larger than this are skipped — at that size they're invariably
@@ -68,15 +68,8 @@ _CONFIG_FILENAME_HINTS = ("env",)  # substring in stem for `.env`-family files
 # Filenames excluded even when they have a matching suffix. These carry
 # inventory / build state, not application config.
 CONFIG_EXCLUDE_FILENAMES = frozenset({
-    # AttackMap's own artifacts (#216) — never re-ingest a previous report,
-    # even from an output dir written before the output marker existed.
-    "attackmap-report.json",
-    "run-manifest.json",
-    "defensive-review.json",
-    "review-context-pack.json",
-    "fleet-summary.json",
-    "defensive-review-llm.meta.json",
-    "benchmark-results.json",
+    # Generated AttackMap artifacts are identified by walk_repo, using their
+    # manifest or legacy structure. Their basenames remain valid user config.
     "package-lock.json",
     "yarn.lock",
     "pnpm-lock.yaml",
@@ -218,26 +211,39 @@ def scan_config_repo(root: str | Path, index: object | None = None) -> ScanResul
     that merges naturally with source-scanner output via the standard
     merge pipeline."""
     repo = Path(root).resolve()
-    result = ScanResult(root=str(repo))
+    result = ScanResult(root=str(repo), scanned_files=[], resource_limit_reporting="complete",
+                        resource_limit_scopes=["config_scanner.file_bytes"])
     if not repo.exists() or not repo.is_dir():
         return result
 
     if index is not None:
-        candidates = [
-            (Path(item.rel), item.text)
-            for item in getattr(index, "files", ())
-            if should_scan_config_file(Path(item.rel))
-            and len(item.text.encode("utf-8")) <= min(_MAX_CONFIG_BYTES, max_file_bytes())
-        ]
+        result.resource_limit_events.extend(getattr(index, "resource_limit_events", ()))
+        result.resource_limit_scopes = sorted(set(result.resource_limit_scopes) | set(getattr(index, "resource_limit_scopes", ())))
+        if getattr(index, "resource_limit_reporting", "unknown") != "complete":
+            result.resource_limit_reporting = "partial"
+        candidates = []
+        config_limit = min(_MAX_CONFIG_BYTES, max_file_bytes())
+        for item in getattr(index, "files", ()):
+            if not should_scan_config_file(Path(item.rel)) or in_skipped_dir(Path(item.rel)):
+                continue
+            if len(item.text.encode("utf-8")) > config_limit:
+                result.resource_limit_events.append(ResourceLimitEvent.skipped_file(
+                    producer="config_scanner", category="file_bytes", relative=item.rel,
+                    limit=config_limit))
+                continue
+            candidates.append((Path(item.rel), item.text))
         for rel_path, content in candidates:
             result.files_scanned += 1
             relative = rel_path.as_posix()
+            result.scanned_files.append(relative)
             _extract_db_urls(content, relative, result)
             _extract_http_targets(content, relative, result)
             _extract_secret_kvs(content, relative, result)
             if rel_path.name.lower() in {".netrc", "_netrc"}:
                 _extract_netrc(content, relative, result)
             _append_hardcoded_secret_hints(result, relative, content, entropy=False, generic=False)
+        result.scanned_files = sorted(set(result.scanned_files))
+        result.files_scanned = len(result.scanned_files)
         return result
 
     for path in walk_repo(repo, prune=is_skipped_dir):
@@ -246,13 +252,19 @@ def scan_config_repo(root: str | Path, index: object | None = None) -> ScanResul
         if not should_scan_config_file(path):
             continue
         try:
-            if path.stat().st_size > min(_MAX_CONFIG_BYTES, max_file_bytes()):
+            size = path.stat().st_size
+            config_limit = min(_MAX_CONFIG_BYTES, max_file_bytes())
+            if size > config_limit:
+                result.resource_limit_events.append(ResourceLimitEvent.skipped_file(
+                    producer="config_scanner", category="file_bytes", relative=path.relative_to(repo).as_posix(),
+                    limit=config_limit, observed_bytes=size))
                 continue
             content = path.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
             continue
         result.files_scanned += 1
         relative = str(path.relative_to(repo)).replace("\\", "/")
+        result.scanned_files.append(relative)
         _extract_db_urls(content, relative, result)
         _extract_http_targets(content, relative, result)
         _extract_secret_kvs(content, relative, result)
@@ -262,6 +274,8 @@ def scan_config_repo(root: str | Path, index: object | None = None) -> ScanResul
         # (#252). No entropy fallback or keyword rule here: config already
         # has the key/value pass, and the entropy fallback is noisy on data.
         _append_hardcoded_secret_hints(result, relative, content, entropy=False, generic=False)
+    result.scanned_files = sorted(set(result.scanned_files))
+    result.files_scanned = len(result.scanned_files)
     return result
 
 

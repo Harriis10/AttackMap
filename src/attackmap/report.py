@@ -13,6 +13,8 @@ from .diagrams import (
     render_topology_mermaid,
 )
 from .diff import finding_id
+from .finding_identity import identity_scheme
+from .finding_presentation import FindingPresentationIndex
 from .exploitability import score_exploitability
 from .models import AttackPath, AttackSurface, ExploitabilityScore, Finding, ScanResult
 from .review_json import build_defensive_review_json
@@ -85,6 +87,7 @@ def write_reports(
     if emit_markdown:
         write("attackmap-exploitability.md", render_exploitability_ranking(exploitability) + "\n")
 
+    finding_presentation = FindingPresentationIndex(scan)
     json_report = {
         "scan": scan.model_dump(),
         "architecture_summary": architecture_md,
@@ -94,17 +97,20 @@ def write_reports(
         "review_context_pack": review_context_pack,
         "attack_surfaces": [surface.model_dump() for surface in attack_surfaces],
         "findings": [
-            {"id": finding_id(finding.title), **finding.model_dump()} for finding in findings
+            {"id": finding_id(finding), "identity_scheme": identity_scheme(finding), **finding.model_dump(),
+             "context": finding_presentation.for_finding(finding)} for finding in findings
         ],
         # Suppressed findings are retained (not dropped) with their reason so
         # audits can see what was silenced and why (#144).
         "suppressed_findings": [
             {
                 "id": s.id,
+                "identity_scheme": identity_scheme(s.finding),
                 "rule": s.rule,
                 "reason": s.reason,
                 "suppressed_by": [m.label() for m in s.matched],
                 **s.finding.model_dump(),
+                "context": finding_presentation.for_finding(s.finding, suppression_reason=s.reason),
             }
             for s in suppressed
         ],
@@ -138,9 +144,10 @@ def write_reports(
 
 
 def render_exploitability_ranking(scores: list[ExploitabilityScore]) -> str:
-    """Render the 'Most exploitable now' section — fused route→sink risk,
+    """Render the static route-to-sink risk section — fused route→sink risk,
     ranked, with every score showing its contributing factors."""
-    lines = ["# Most exploitable now", ""]
+    lines = ["# Highest static route-to-sink risk scores", "",
+             "Heuristic static analysis; runtime reachability and exploitability are not verified.", ""]
     if not scores:
         lines.append(
             "No request-to-sink data-flow paths were found, so there is nothing to "
@@ -179,13 +186,14 @@ def render_pr_comment(
 
     With a `DiffReport` (duck-typed: `.new`/`.resolved`/`.has_new_high`), leads
     with what the PR introduced/resolved; otherwise summarizes current findings.
-    Always surfaces the top 'most exploitable now' entries. Pure function —
+    Always surfaces the top static finding risk scores. Pure function —
     the GitHub Action posts the string via `gh pr comment` / github-script."""
     sev_rank = {"high": 0, "medium": 1, "low": 2}
     lines = ["## 🗺️ AttackMap security review", ""]
 
     new = list(getattr(diff, "new", []) or []) if diff is not None else []
     resolved = list(getattr(diff, "resolved", []) or []) if diff is not None else []
+    uncertain = list(getattr(diff, "resolution_uncertain", []) or []) if diff is not None else []
 
     if diff is not None:
         gate = "⚠️ introduces new HIGH-severity findings" if getattr(diff, "has_new_high", False) else "no new HIGH findings"
@@ -193,9 +201,20 @@ def render_pr_comment(
         instance_total = sum(len(labels) for _, labels in new_instances)
         lines.append(
             f"**{len(new)} new**, **{instance_total} new instance(s) of existing findings**, "
-            f"**{len(resolved)} resolved** vs. baseline — {gate}."
+            f"**{len(resolved)} resolved**"
+            + (f", **{len(uncertain)} resolution uncertain**" if getattr(diff, "coverage_compared", False) else "")
+            + f" vs. baseline — {gate}."
         )
         lines.append("")
+        for note in getattr(diff, "coverage_notes", []):
+            lines.append(f"_Coverage note: {md_text(note)}_")
+        if uncertain:
+            lines.append("### Resolution uncertain due to changed coverage")
+            reasons = getattr(diff, "resolution_reasons", {})
+            for snapshot in sorted(uncertain, key=lambda item: sev_rank.get(item.severity, 3)):
+                lines.append(f"- **[{snapshot.severity.upper()}]** {md_text(snapshot.title)}: "
+                             f"{md_text(reasons.get(snapshot.id, 'Comparable coverage is unknown.'))}")
+            lines.append("")
         if new:
             lines.append("### New findings")
             for s in sorted(new, key=lambda s: sev_rank.get(s.severity, 3)):
@@ -229,7 +248,7 @@ def render_pr_comment(
         key=lambda f: -(f.exploitability or 0),
     )
     if exploitable:
-        lines.append("### Most exploitable now")
+        lines.append("### Highest static finding risk scores")
         for f in exploitable[:3]:
             lines.append(
                 f"- `{f.exploitability}/100` **{(f.exploitability_tier or '').upper()}** — {md_text(f.title)}"
@@ -298,6 +317,7 @@ def _render_console_summary(scan: ScanResult, findings: list[Finding], attack_pa
         f"External calls: {len(scan.external_calls)}",
         f"Datastores: {len(scan.databases)}",
         "",
+        "Heuristic static analysis; runtime reachability and exploitability are not verified.",
         "Findings:",
     ]
     for finding in ordered_findings:
@@ -314,7 +334,7 @@ def _render_console_summary(scan: ScanResult, findings: list[Finding], attack_pa
     )
     if exploitable:
         lines.append("")
-        lines.append("Most exploitable now:")
+        lines.append("Highest static finding risk scores:")
         for finding in exploitable[:5]:
             lines.append(
                 f"- {finding.exploitability}/100 [{finding.exploitability_tier}] {finding.title}"

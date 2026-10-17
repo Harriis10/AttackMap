@@ -116,7 +116,10 @@ def test_find_sanitizer_table() -> None:
         == "escapeshellarg/escapeshellcmd"
     )
     assert _find_sanitizer("dynamic_open", "p = secure_filename(name)") == "werkzeug.secure_filename"
-    assert _find_sanitizer("open_redirect", "if is_safe_url(u):") == "is_safe_url"
+    assert _find_sanitizer("open_redirect", "if is_safe_url(u):") is None
+    assert _find_sanitizer("ssrf", "if ip.is_private: return") is None
+    assert _find_sanitizer("ssrf", "if is_allowed_url(u): return") is None
+    assert _find_sanitizer("dynamic_open", "if realpath(p).startswith(root):") is None
     # No neutralizer present, or a kind with none defined.
     assert _find_sanitizer("subprocess_shell", "subprocess.run(cmd)") is None
     assert _find_sanitizer("eval", "shlex.quote(x)") is None

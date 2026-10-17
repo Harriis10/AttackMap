@@ -25,6 +25,13 @@ def test_version_matches_source() -> None:
     assert all(p.isdigit() for p in parts[:2]), "major/minor must be numeric"
 
 
+def test_cli_preserves_review_banner_imports() -> None:
+    from attackmap import cli, pipeline
+
+    for name in ("HUNT_BANNER", "REMEDIATION_BANNER", "TRIAGE_BANNER"):
+        assert getattr(cli, name) == getattr(pipeline, name)
+
+
 def test_cli_version_matches_source() -> None:
     result = subprocess.run(
         [sys.executable, "-m", "attackmap", "--version"],

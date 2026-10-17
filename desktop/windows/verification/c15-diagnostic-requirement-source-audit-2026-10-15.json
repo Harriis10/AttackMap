@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T16:30:46.734401+00:00",
+  "scope": "Read-only source counterexamples against exact C15 wording; CodeGraph first, no runtime reproduction or acceptance claim. Integrated tests pending separately.",
+  "requirement": {
+    "path": "docs/roadmap-2026-2028.md",
+    "lines": [
+      146,
+      148
+    ],
+    "summary": "Typed neutral seam; structured diagnostics for every attempted run incl writable-output startup; default logs contain no source excerpts/secrets; CLI and both client adapters proof."
+  },
+  "demonstrated_source_gaps": [
+    {
+      "id": "semantic_cli_validation_startup",
+      "paths": [
+        {
+          "path": "src/attackmap/cli.py",
+          "lines": [
+            460,
+            463,
+            478,
+            185,
+            222
+          ]
+        }
+      ],
+      "counterexample": "Valid repository and existing safe writable --output plus --diff-output some.md without --baseline enters analyze, then _validate_analyze_options raises BadParameter before module wrapper/application service; no diagnostic attempt. Missing repository and fleet-incompatible --baseline/AI flags similarly raise before guarded module selection.",
+      "required_minimal_repair": "One analyze semantic-request-validation boundary using existing startup_diagnostic(request_validation) with actual duration, generic error, validated/generated run id and safe best-effort atomic output. Preserve original BadParameter/prompt/exit, direct-generation semantics and prior current. Do not infer a run attempt from --help or parser rejection before analyze."
+    },
+    {
+      "id": "empty_typed_service_request",
+      "paths": [
+        {
+          "path": "src/attackmap/scan_service.py",
+          "lines": [
+            675,
+            676
+          ]
+        }
+      ],
+      "counterexample": "execute_scan_request(ScanRequest(repo_paths=[], output=existing_safe_writable_output)) raises ScanRequestError before diagnostic/output boundary. This is a typed attempted service request with known output.",
+      "required_minimal_repair": "Use the same neutral request-validation startup context at the service boundary, preserving typed error; no duplicate context system."
+    },
+    {
+      "id": "raw_analyzer_exception_default_log",
+      "paths": [
+        {
+          "path": "src/attackmap/analyzers.py",
+          "lines": [
+            374,
+            380,
+            386,
+            647,
+            779
+          ]
+        }
+      ],
+      "counterexample": "An analyzer detect() exception whose str contains a credential/source excerpt reaches logger.warning at779 unchanged; entry-point load/initialize/metadata warnings likewise interpolate exc. Analyze failure warning647 uses redact_text for secrets but can still repeat arbitrary source excerpt in error.message. These default warning paths bypass source-free DiagnosticContext.",
+      "required_minimal_repair": "Default warning should retain safe analyzer identity/error class and generic failure category; avoid raw exception text/source snippets. Keep any explicit detailed debugging policy separate and redacted. No runtime leak proof claimed."
+    }
+  ],
+  "supported_current_scope": [
+    "Canonical resource events come from real existing byte-limit branches; explicit scopes prevent empty lists claiming whole-engine zero. Legacy unknown and observed subset remain partial.",
+    "New neutral context carries stage/duration, declared analyzer versions, bounded accepted-path/resource metadata, policy versus execution outcome and known/unknown statuses.",
+    "Windows offers selectable diagnostic run-folder text and Reveal last scan folder; successful manifest-listed run-manifest text can be inspected/exported through existing artifact surfaces. C15 does not explicitly require a dedicated new diagnostic-view feature."
+  ],
+  "proof_only_gaps": [
+    "End-to-end CLI/Windows/current macOS adapter evidence remains required; absence of macOS proof is not classified here as a demonstrated code defect.",
+    "Pending integrated/current matrix tests cannot be promoted to success. Native/frozen packages predating new context do not certify it."
+  ],
+  "reference_hashes": {
+    "docs/roadmap-2026-2028.md": "a60f2242bd07c63a48853200c331c99715a20b83f6d5763543b7d06f613a9252",
+    "src/attackmap/cli.py": "60afa532a198b400dd39432db71db6b7c88583ca2283ba0457dab70c06d8de09",
+    "src/attackmap/scan_service.py": "c36334281280eae7c41173e8c83c954d80cc0713da7a884cca7be21fb7ff0cd1",
+    "src/attackmap/analyzers.py": "e8449aad75202100e90b438790b0b799cb560e2a9bf33536e6e382eab68f41f2",
+    "src/attackmap/diagnostics.py": "80053b060b4117108cbd8e8ab551293b1c1d7f7ec96b0424446f21552fe615a3",
+    "src/attackmap/artifact_publisher.py": "88cd8317f8dd1a567b72066019d618112919dd54017920a22f410f967fdd99ee",
+    "src/attackmap/pipeline.py": "a2058a92cc48b8187b3ef59b91027a05dfd7b1d8f1e102ba6023b3c1d1302179",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml": "eea54ec0612eb7c3b09610a0dc6992619abb81a9edf11c54fa7c23bd074e4165",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs": "b2658975640c2feb884d3ad06646dcf6f4b6a0b9668fd8dd34aaa427c78f9910"
+  },
+  "limits": [
+    "No source/tests/docs/runner changes or test campaigns.",
+    "Exact line positions/source hashes bind this pre-repair checkpoint.",
+    "Parser-level errors before analyze have not been classified as attempted runs; unsafe/unwritable outputs remain best effort."
+  ]
+}

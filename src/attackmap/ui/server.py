@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 import os
 import secrets
 import subprocess
-import sys
 import threading
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -15,6 +15,7 @@ from urllib.parse import parse_qs, urlparse
 
 from ..analyzers import TRUSTED_ONLY_ENV
 from .config import ScanConfig
+from .contract_adapter import LegacyRunContractAdapter
 from .output import (
     current_generation,
     fleet_dir,
@@ -28,13 +29,17 @@ from .report import (
     decode_report,
     fixture_report_path,
     load_current_report,
-    load_report_file,
     web_root,
 )
 from .runner import ScanRunner, child_python_env
-from .run_state import GuiRunState, is_terminal
-from .secrets import child_llm_env, has_llm_key, save_llm_key
+from .run_state import GuiRunState
+from .secrets import child_llm_env, has_llm_key, save_llm_key, is_loopback_endpoint
 from .spawn import discovery_argv, frozen_aware_argv, is_frozen_build
+from .export_md import (
+    SUPPORTED_SUFFIXES,
+    render_view_markdown,
+    suggested_export_name,
+)
 from .suppress_write import append_suppression
 from .watch import Watcher
 
@@ -45,9 +50,15 @@ _RECENTS_LIMIT = 12
 
 class LoopbackApp:
     def __init__(self, report: GuiReport | None = None) -> None:
+        self._lock = threading.RLock()
+        self._contract_adapter = LegacyRunContractAdapter()
+        self._contract_repository_key = None
+        self._repos: list[Path] = []
+        self.workspace_revision = 0
         self.token = secrets.token_urlsafe(24)
         self.report = report
-        self.repos: list[Path] = []
+        self.report_generation = uuid.uuid4().hex if report else None
+        self.report_repository = self.repository_key if report else None
         self.output: Path | None = None
         self._run_state = GuiRunState.IDLE
         self.run_id: str | None = None
@@ -75,7 +86,46 @@ class LoopbackApp:
         self._caps_loaded = False
         self.missing: list[dict] = []
         self.recents: list[dict] = _load_recents()
-        self._lock = threading.Lock()
+
+    @property
+    def repos(self) -> list[Path]:
+        return self._repos
+
+    @repos.setter
+    def repos(self, values: list[Path]) -> None:
+        with self._lock:
+            repos = [p.resolve() for p in values]
+            if repos == self._repos:
+                return
+            self._repos = repos
+            self.workspace_revision += 1
+            self.report = None
+            self.report_generation = None
+            self.report_repository = None
+            self.output = None
+            self.error = None
+            self.stderr_tail = ""
+            if self._run_state not in {GuiRunState.RUNNING, GuiRunState.CANCELLING}:
+                self._run_state = GuiRunState.IDLE
+                self.run_id = None
+            # Switching workspace/repository must stop the previous watcher
+            # (its callback closes over this app and would scan stale state).
+            _sync_watch(self)
+
+    @property
+    def repository_key(self) -> str:
+        return json.dumps([os.path.normcase(str(p)) for p in self._repos])
+
+    def report_snapshot(self) -> dict | None:
+        with self._lock:
+            if (self.report is None or self.status not in {"idle", "done"}
+                    or self.report_repository != self.repository_key):
+                return None
+            return {
+                **self.report.as_json(),
+                "repositoryKey": self.report_repository,
+                "generationId": self.report_generation,
+            }
 
     @property
     def status(self) -> str:
@@ -118,7 +168,11 @@ class LoopbackApp:
 
     def state(self) -> dict:
         with self._lock:
-            return {
+            current_report = (
+                self.report if self.status in {"idle", "done"}
+                and self.report_repository == self.repository_key else None
+            )
+            snapshot = {
                 "status": self.status,
                 "progress": self.progress,
                 "exitCode": self.exit_code,
@@ -126,6 +180,10 @@ class LoopbackApp:
                 "stderrTail": self.stderr_tail,
                 "repo": str(self.repo) if self.repo else None,
                 "repos": [str(p) for p in self.repos],
+                "repositoryKey": self.repository_key,
+                "runId": self.run_id,
+                "reportGeneration": self.report_generation,
+                "reportRepositoryKey": self.report_repository,
                 "output": str(self.output) if self.output else None,
                 "cve": self.cve,
                 "recall": self.recall,
@@ -136,11 +194,12 @@ class LoopbackApp:
                 "baseUrl": self.base_url,
                 "modules": self.modules or ["auto"],
                 "watch": self.watch,
+                "watchNotice": _watch_notice(self),
                 "running": self.runner.running,
-                "hasReport": self.report is not None,
-                "findingCount": self.report.finding_count if self.report else 0,
-                "newCount": self.report.new_count if self.report else 0,
-                "resolvedCount": self.report.resolved_count if self.report else 0,
+                "hasReport": current_report is not None,
+                "findingCount": current_report.finding_count if current_report else 0,
+                "newCount": current_report.new_count if current_report else 0,
+                "resolvedCount": current_report.resolved_count if current_report else 0,
                 "capabilities": sorted(self.capabilities) if self.capabilities else [],
                 "availableModules": self.available_modules,
                 "missingAnalyzers": self.missing,
@@ -148,12 +207,17 @@ class LoopbackApp:
                 "hasAnthropicKey": has_llm_key("claude"),
                 "hasOpenAIKey": has_llm_key("openai"),
                 "llmOffBoxWarning": (
-                    "Heuristic only stays on this machine. Enabling an LLM provider "
-                    "sends an evidence pack off-box."
+                    "AI sends structured evidence and may include source excerpts to the selected "
+                    "provider or endpoint. Local endpoints stay local; remote providers receive the data."
                     if self.llm_mode not in {"none", "None (heuristic only)"}
                     else None
                 ),
             }
+            contract_snapshot = {**snapshot, "repositoryKey": self._contract_repository_key or self.repository_key}
+            snapshot["runContract"] = self._contract_adapter.snapshot(
+                contract_snapshot, run_state=self._run_state.value,
+            )
+            return snapshot
 
 
 def _handler(app: LoopbackApp):
@@ -228,10 +292,25 @@ def _handler(app: LoopbackApp):
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/report":
-                if app.report is None:
+                report = app.report_snapshot()
+                if report is None:
                     self._json(404, {"error": "no report"})
                     return
-                self._json(200, app.report.as_json())
+                query = parse_qs(parsed.query)
+                if any(query.get(key, [report[key]])[0] != report[key]
+                       for key in ("repositoryKey", "generationId")):
+                    self._json(409, {"error": "report generation changed"})
+                    return
+                self._json(200, report)
+                return
+            if parsed.path == "/api/export-source":
+                view = str(parse_qs(parsed.query).get("view", [""])[0])
+                if not app.report or view == "settings":
+                    self._json(409, {"error": "not available"})
+                    return
+                repo = app.report.repo_name or (app.repo.name if app.repo else "report")
+                markdown = render_view_markdown(view, app.report.as_json(), repo_name=repo, recents=app.recents)
+                self._send(200, markdown.encode("utf-8"), "text/markdown; charset=utf-8")
                 return
             self._json(404, {"error": "not found"})
 
@@ -257,9 +336,7 @@ def _handler(app: LoopbackApp):
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/cancel":
-                if app._run_state == GuiRunState.RUNNING:
-                    app._run_state = GuiRunState.CANCELLING
-                    app.runner.cancel()
+                _request_scan_cancel(app)
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/watch":
@@ -268,10 +345,14 @@ def _handler(app: LoopbackApp):
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/settings":
-                if body.get("anthropicKey"):
-                    save_llm_key(str(body["anthropicKey"]), "claude")
-                if body.get("openaiKey"):
-                    save_llm_key(str(body["openaiKey"]), "openai")
+                try:
+                    if body.get("anthropicKey"):
+                        save_llm_key(str(body["anthropicKey"]), "claude")
+                    if body.get("openaiKey"):
+                        save_llm_key(str(body["openaiKey"]), "openai")
+                except OSError:
+                    self._json(503, {"error": "Secure credential storage unavailable; key was not saved."})
+                    return
                 self._json(200, app.state())
                 return
             if parsed.path == "/api/reveal":
@@ -292,12 +373,45 @@ def _handler(app: LoopbackApp):
                     return
                 self._json(200, {"ok": True, "path": str(dest)})
                 return
+            if parsed.path == "/api/export":
+                result = _handle_export(app, body)
+                self._json(result["code"], result["body"])
+                return
+            if parsed.path == "/api/pick-save":
+                self._json(200, {"path": _pick_save_path(str(body.get("suggestedName", ""))) or ""})
+                return
             self._json(404, {"error": "not found"})
 
     return Handler
 
 
+def _request_scan_cancel(app: LoopbackApp) -> None:
+    """Acknowledge cancellation without waiting for process-tree cleanup."""
+    with app._lock:
+        if app._run_state != GuiRunState.RUNNING:
+            return
+        app._run_state = GuiRunState.CANCELLING
+        run_id, runner = app.run_id, app.runner
+
+    def cleanup() -> None:
+        try:
+            verified = runner.cancel()
+        except Exception:
+            verified = False
+        if verified is False:
+            with app._lock:
+                if app.run_id == run_id and app.runner is runner and app._run_state == GuiRunState.CANCELLING:
+                    app.error = "Cancellation could not verify process-tree exit; restart remains blocked."
+
+    threading.Thread(target=cleanup, daemon=True).start()
+
+
 def _apply_config(app: LoopbackApp, body: dict) -> None:
+    with app._lock:
+        _apply_config_locked(app, body)
+
+
+def _apply_config_locked(app: LoopbackApp, body: dict) -> None:
     if body.get("repo"):
         app.repos = [Path(body["repo"]).resolve()]
     if body.get("repos"):
@@ -321,15 +435,20 @@ def _apply_config(app: LoopbackApp, body: dict) -> None:
 
 
 def _start_scan(app: LoopbackApp, body: dict) -> None:
+    with app._lock:
+        _start_scan_locked(app, body)
+
+
+def _start_scan_locked(app: LoopbackApp, body: dict) -> None:
+    if app._run_state in {GuiRunState.RUNNING, GuiRunState.CANCELLING}:
+        return
     _apply_config(app, body)
     if not app.repos or not app.repos[0].exists():
         app._run_state = GuiRunState.FAILED
         app.error = "Pick a repository folder first."
         return
-    if app._run_state in {GuiRunState.RUNNING, GuiRunState.CANCELLING}:
-        return
     llm_active = app.llm_mode not in {"none", "None (heuristic only)", ""}
-    is_local_openai = app.provider.lower().startswith("openai") and bool(app.base_url)
+    is_local_openai = app.provider.lower().startswith("openai") and is_loopback_endpoint(app.base_url)
     if llm_active and not is_local_openai and not has_llm_key(app.provider):
         app._run_state = GuiRunState.FAILED
         app.error = f"No API key stored for {app.provider}. Open Settings and save a key, or keep heuristic-only mode."
@@ -343,7 +462,11 @@ def _start_scan(app: LoopbackApp, body: dict) -> None:
         baseline = rotate_previous(app.repos[0], report_base)
 
     run_id = uuid.uuid4().hex
+    run_repos = list(app.repos)
+    workspace_revision = app.workspace_revision
+    repository_key = app.repository_key
     app.run_id = run_id
+    app._contract_repository_key = app.repository_key
     app._run_state = GuiRunState.RUNNING
     app.error = None
     app.exit_code = None
@@ -351,7 +474,7 @@ def _start_scan(app: LoopbackApp, body: dict) -> None:
     app.progress = {"event": "begin", "label": "Starting scan"}
     output = generation_dir(report_base, run_id)
     cfg = ScanConfig(
-        repos=app.repos,
+        repos=run_repos,
         output=output,
         run_id=app.run_id,
         run_cve=app.cve,
@@ -368,12 +491,24 @@ def _start_scan(app: LoopbackApp, body: dict) -> None:
     argv = frozen_aware_argv(cfg)
 
     def on_progress(event: dict) -> None:
-        if app.run_id != run_id:
-            return
-        app.progress = event
+        with app._lock:
+            if app.run_id == run_id and app.workspace_revision == workspace_revision:
+                app.progress = event
 
     def on_done(code: int, report: Path | None, tail: str = "") -> None:
+        with app._lock:
+            finish(code, report, tail)
+            # Changes observed during the run are processed by exactly one
+            # follow-up scan once the run has completed.
+            _drain_watch_pending_locked(app)
+
+    def finish(code: int, report: Path | None, tail: str) -> None:
         if app.run_id != run_id:
+            return
+        if app.workspace_revision != workspace_revision:
+            app._run_state = GuiRunState.IDLE
+            app.run_id = None
+            app.progress = {}
             return
         app.exit_code = code
         app.stderr_tail = tail
@@ -386,8 +521,10 @@ def _start_scan(app: LoopbackApp, body: dict) -> None:
         ):
             try:
                 promote_generation(report_base, run_id)
-                name = app.repos[0].name if app.repos else "repo"
+                name = run_repos[0].name
                 app.report = load_current_report(report_base, name)
+                app.report_generation = run_id
+                app.report_repository = repository_key
                 app._run_state = GuiRunState.SUCCEEDED
                 app.error = None
                 _remember(app)
@@ -412,9 +549,11 @@ def _start_scan(app: LoopbackApp, body: dict) -> None:
     if is_frozen_build():
         env_overlay[TRUSTED_ONLY_ENV] = "1"
 
+    argv.append("--direct-generation-output")
+
     report_path = output / ("fleet-summary.json" if fleet else "attackmap-report.json")
     started = app.runner.start(
-        app.repos[0],
+        run_repos[0],
         output,
         on_progress=on_progress,
         on_done=lambda code, report, tail="": on_done(code, report, tail),
@@ -435,13 +574,56 @@ def _sync_watch(app: LoopbackApp) -> None:
         return
     out = app.output or reports_dir(app.repos[0])
 
+    watcher = Watcher(
+        app.repos[0], out, lambda: None,
+        is_running=lambda: app.runner.running,
+    )
+
     def on_quiet() -> None:
         if app.runner.running:
+            # A scan is active; remember the burst for exactly one
+            # follow-up drained when the run completes.
+            watcher.mark_pending()
             return
         _start_scan(app, {})
 
-    app.watcher = Watcher(app.repos[0], out, on_quiet)
-    app.watcher.start()
+    watcher.on_quiet = on_quiet
+    app.watcher = watcher
+    watcher.start()
+
+
+def _drain_watch_pending(app: LoopbackApp) -> None:
+    with app._lock:
+        _drain_watch_pending_locked(app)
+
+
+def _drain_watch_pending_locked(app: LoopbackApp) -> None:
+    """Start exactly one follow-up scan for changes seen during the last run."""
+    watcher = app.watcher
+    if not app.watch or watcher is None:
+        return
+    if app._run_state in {GuiRunState.RUNNING, GuiRunState.CANCELLING}:
+        # The active run already reads the changed files; recheck when it ends.
+        return
+    if app._run_state == GuiRunState.CANCELLED:
+        # The user stopped the scan on purpose; do not auto-rescan.
+        watcher.take_pending()
+        return
+    if watcher.take_pending():
+        _start_scan_locked(app, {})
+
+
+def _watch_notice(app: LoopbackApp, platform: str | None = None) -> str | None:
+    """Honest watch-coverage limitation surfaced to the UI; never silent."""
+    if not app.watch:
+        return None
+    if (platform or os.name) != "nt":
+        return "Live watching is only implemented on Windows; changes are not detected automatically."
+    if app.watcher is not None and app.watcher.limitation:
+        return app.watcher.limitation
+    if len(app.repos) > 1:
+        return f"Watching covers only the first selected repository (1 of {len(app.repos)})."
+    return None
 
 
 def _refresh_missing(app: LoopbackApp) -> None:
@@ -518,6 +700,143 @@ def _load_modules() -> list[dict]:
         return data if isinstance(data, list) else []
     except (OSError, subprocess.SubprocessError, json.JSONDecodeError):
         return []
+
+
+def _handle_export(app: LoopbackApp, body: dict) -> dict[str, Any]:
+    view = str(body.get("view", ""))
+    path_str = str(body.get("path", "")).strip('"').strip("'")
+    if not app.report:
+        return {"code": 409, "body": {"error": "no report"}}
+    if view == "settings" or view not in {
+        "overview", "findings", "exploitability", "paths", "surface", "diagrams",
+        "review", "ai-review", "diff", "fleet", "deps", "secrets", "ci", "flows",
+        "analyzers", "recents",
+    }:
+        return {"code": 400, "body": {"error": "invalid view"}}
+    target = Path(path_str)
+    suffix = target.suffix.lower()
+    if suffix == ".":
+        # tkinter asksaveasfilename may return a trailing dot when the user
+        # typed a name without extension and the dialog appended defaultextension.
+        # Re-derive the suffix from the requested filename or the view default.
+        suggested = suggested_export_name(
+            app.report.repo_name or (app.repo.name if app.repo else "report"), view, ".md"
+        )
+        target = target.with_suffix(Path(suggested).suffix)
+        suffix = target.suffix.lower()
+    if suffix not in SUPPORTED_SUFFIXES:
+        return {"code": 400, "body": {"error": f"unsupported suffix {suffix}"}}
+    try:
+        from ..safe_fs import safe_write_text
+
+        out_dir = target.parent
+        repo = app.report.repo_name or (app.repo.name if app.repo else "report")
+        markdown = render_view_markdown(
+            view,
+            app.report.as_json(),
+            repo_name=repo,
+            recents=app.recents,
+        )
+        if suffix == ".md":
+            safe_write_text(out_dir, target, markdown)
+            return {"code": 200, "body": {"ok": True, "path": str(target)}}
+        html = _markdown_to_pdf_html(markdown, repo, view)
+        tmp_html = out_dir / f"._attackmap_export_{uuid.uuid4().hex}.html"
+        tmp_html.write_text(html, encoding="utf-8")
+        try:
+            browser = _find_chrome_or_edge()
+            if not browser:
+                raise RuntimeError("Chrome or Edge not found")
+            subprocess.run(
+                [
+                    str(browser),
+                    "--headless",
+                    "--disable-gpu",
+                    "--no-pdf-header-footer",
+                    f"--print-to-pdf={target}",
+                    str(tmp_html),
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=60,
+            )
+        finally:
+            try:
+                tmp_html.unlink()
+            except OSError:
+                pass
+        return {"code": 200, "body": {"ok": True, "path": str(target)}}
+    except Exception as exc:  # noqa: BLE001 — surface expected file/PDF errors
+        return {"code": 400, "body": {"error": str(exc)}}
+
+
+def _markdown_to_pdf_html(markdown: str, repo: str, view: str) -> str:
+    """Wrap rendered Markdown in print-friendly HTML with dark-to-light colors."""
+    from html import escape
+
+    title = f"AttackMap – {repo} – {view}"
+    body = "\n".join(
+        f"<p>{escape(line)}</p>" if line and not line.startswith("<") else line
+        for line in markdown.splitlines()
+    )
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{escape(title)}</title>
+<style>
+  body {{ font-family: "Segoe UI", sans-serif; margin: 24px; color: #1a1a1a; background: #fff; line-height: 1.5; }}
+  h1 {{ font-size: 22px; margin-bottom: 8px; }}
+  h2 {{ font-size: 16px; margin-top: 24px; margin-bottom: 8px; }}
+  p {{ margin: 8px 0; }}
+  pre {{ background: #f4f4f4; padding: 10px; border-radius: 6px; overflow-x: auto; }}
+  table {{ border-collapse: collapse; width: 100%; margin: 12px 0; }}
+  th, td {{ border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; word-break: break-word; }}
+  th {{ background: #f0f0f0; }}
+</style>
+</head>
+<body>
+{body}
+</body>
+</html>"""
+
+
+def _find_chrome_or_edge() -> Path | None:
+    candidates = [
+        Path(os.environ.get("PROGRAMFILES(x86)", "")) / "Microsoft" / "Edge" / "Application" / "msedge.exe",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Microsoft" / "Edge" / "Application" / "msedge.exe",
+        Path(os.environ.get("PROGRAMFILES", "")) / "Microsoft" / "Edge" / "Application" / "msedge.exe",
+        Path(os.environ.get("PROGRAMFILES(x86)", "")) / "Google" / "Chrome" / "Application" / "chrome.exe",
+        Path(os.environ.get("PROGRAMFILES", "")) / "Google" / "Chrome" / "Application" / "chrome.exe",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Google" / "Chrome" / "Application" / "chrome.exe",
+    ]
+    for candidate in candidates:
+        if candidate and candidate.is_file():
+            return candidate
+    return None
+
+
+def _pick_save_path(suggested_name: str) -> str | None:
+    if threading.current_thread() is not threading.main_thread():
+        return None
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+
+        root = tk.Tk()
+        root.withdraw()
+        root.wm_attributes("-topmost", 1)
+        chosen = filedialog.asksaveasfilename(
+            title="Save report",
+            defaultextension=".md",
+            initialfile=suggested_name or "attackmap-report.md",
+            filetypes=[("Markdown files", "*.md"), ("PDF files", "*.pdf"), ("All files", "*.*")],
+        )
+        root.destroy()
+        return chosen if chosen else None
+    except Exception:
+        return None
 
 
 def _pick_folders(multi: bool = False) -> list[str]:

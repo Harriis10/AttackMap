@@ -138,6 +138,8 @@ def find_cross_boundary_flows(
     flows: list[CrossBoundaryFlow] = []
     seen: set[tuple] = set()
     for link in links:
+        if link.resolution != "observed":
+            continue  # Candidate links never support observed trust paths (C28).
         server_scan = scan_by_repo.get(link.server_repo)
         if server_scan is None:
             continue
@@ -251,6 +253,8 @@ def find_trust_gaps(
     out: list[TrustGap] = []
     seen: set[tuple] = set()
     for link in links:
+        if link.resolution != "observed":
+            continue  # Candidate links never support observed trust paths (C28).
         server = scan_by_repo.get(link.server_repo)
         if server is None:
             continue

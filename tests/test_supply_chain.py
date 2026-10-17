@@ -114,6 +114,7 @@ def test_unknown_module_errors_without_any_install(tmp_path: Path, monkeypatch: 
 
 
 def test_missing_official_module_without_flag_prints_pinned_command(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(analyzers, "get_registered_analyzers", lambda: [])
     calls: list = []
     monkeypatch.setattr(analyzers.subprocess, "run", lambda *a, **k: calls.append(a))
     result = runner.invoke(app, ["analyze", str(_repo(tmp_path)), "-m", "go"])
@@ -141,14 +142,13 @@ class _FakeGo:
 def test_install_missing_installs_the_pinned_commit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     installed: list[str] = []
     state = {"ready": False}
-    real_registry = analyzers.get_registered_analyzers
 
     def fake_install(repo_name: str) -> None:
         installed.append(analyzer_install_url(repo_name))
         state["ready"] = True
 
     monkeypatch.setattr(analyzers, "install_analyzer_module", fake_install)
-    monkeypatch.setattr(analyzers, "get_registered_analyzers", lambda: [*real_registry(), *([_FakeGo()] if state["ready"] else [])])
+    monkeypatch.setattr(analyzers, "get_registered_analyzers", lambda: [_FakeGo()] if state["ready"] else [])
     selected = select_requested_analyzers(["go"], auto_install=True)
     assert [a.name for a in selected] == ["go"]
     assert len(installed) == 1 and SHA.search(installed[0])

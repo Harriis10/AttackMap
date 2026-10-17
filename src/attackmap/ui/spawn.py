@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from ..execution.windows import WindowsProcessJob
 
 from .config import ScanConfig
 
@@ -32,3 +33,5 @@ def discovery_argv(subcommand: str) -> list[str]:
     if is_frozen_build():
         return [sys.executable, subcommand]
     return [sys.executable, "-m", "attackmap", subcommand]
+
+

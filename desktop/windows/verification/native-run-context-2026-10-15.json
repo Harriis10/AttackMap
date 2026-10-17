@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-15",
+  "focusedChecks": 24,
+  "publish": "Release win-x64 successful",
+  "legacyReportSmoke": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "legacyIntegrity": "unverified",
+    "runSummary": "Selected repository: none\nRun state: Idle\nDisplayed report: Legacy import; run identity unavailable\nReport repository: C:\\tmp\\juice-shop\nScan timestamp unavailable; opened (client UTC): 2026-10-15T11:00:32.6047160Z",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "syntheticRegression": {
+    "passed": true,
+    "loaded": 10000,
+    "filtered": 1,
+    "selected": "synthetic-00042",
+    "shellDestinations": 6
+  },
+  "liveNativeScan": {
+    "passed": true,
+    "loaded": 18,
+    "error": null,
+    "runSummary": "Selected repository: C:\\tmp\\juice-shop\nRun state: Engine completed; policy not_evaluated; artifacts ready\nDisplayed report: af2d132c84944a97a71698e4646904d7\nReport repository: C:\\tmp\\juice-shop\nRequested at (client UTC): 2026-10-15T11:00:50.0627717Z; engine scan timestamp unavailable",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "verifiedRunId": "af2d132c84944a97a71698e4646904d7",
+  "verifiedPointerManifestSha256": "ca25ab3016694aaba855f56cb583c91aadf18a0320e8ab2c675409aba2dada2a",
+  "verifiedArtifactCount": 19,
+  "priorResultStateProof": "Focused RunPresentation state tests: rescan, cancel, failure, promotion and repository switch. No claim of live cancel/failure native end-to-end proof.",
+  "limitations": [
+    "No engine scan timestamp supplied; client request time labeled separately",
+    "No shared fake-engine fault suite or manual keyboard/Narrator acceptance",
+    "No C22 gate closure"
+  ],
+  "cleanup": "Normal-user CIM verified no attackmap.desktop_worker Python processes remain after completion."
+}

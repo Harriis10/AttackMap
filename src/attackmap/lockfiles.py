@@ -84,6 +84,9 @@ def parse_lockfiles(root: str | Path) -> tuple[list[DependencyHint], set[tuple[s
     Returns ``(hints, superseded)`` where ``superseded`` is a set of
     ``(ecosystem, directory)`` pairs — the range-only manifests in those exact
     directories should be dropped in favour of the exact resolution.
+
+    Invalid lockfiles are skipped without superseding manifest ranges. This
+    legacy return type does not report semantic dependency-coverage diagnostics.
     """
     root_path = Path(root).resolve()
     if not root_path.exists() or not root_path.is_dir():
@@ -208,14 +211,20 @@ def _shortest_paths(graph: _Graph, roots: set[str], names: set[str]) -> dict[str
 
 
 def _parse_package_lock(path: Path) -> _Graph:
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = _npm_mapping(json.loads(path.read_text(encoding="utf-8")), "root")
     graph = _Graph(ecosystem="npm")
-    packages = data.get("packages")
-    if isinstance(packages, dict):
+    if "packages" in data:
+        packages = _npm_mapping(data["packages"], "packages")
         _parse_package_lock_v3(packages, graph)
     else:
-        _parse_package_lock_v1(data.get("dependencies") or {}, graph)
+        _parse_package_lock_v1(_npm_mapping(data.get("dependencies", {}), "dependencies"), graph)
     return graph
+
+
+def _npm_mapping(value: object, field: str) -> dict:
+    if not isinstance(value, dict):
+        raise ValueError(f"package-lock.json {field} must be an object")
+    return value
 
 
 def _pkg_name_from_path(pkg_path: str) -> str | None:
@@ -229,13 +238,17 @@ def _pkg_name_from_path(pkg_path: str) -> str | None:
 
 def _parse_package_lock_v3(packages: dict, graph: _Graph) -> None:
     # The "" entry is the root project; its deps are the direct dependencies.
-    root_meta = packages.get("") or {}
+    root_meta = _npm_mapping(packages.get("", {}), "root package")
     for section in ("dependencies", "devDependencies"):
-        for dep in (root_meta.get(section) or {}):
+        for dep in _npm_mapping(root_meta.get(section, {}), section):
             graph.roots.add(dep)
     for pkg_path, meta in packages.items():
-        if pkg_path == "" or not isinstance(meta, dict):
+        if pkg_path == "":
             continue
+        meta = _npm_mapping(meta, "package metadata")
+        children = set()
+        for section in ("dependencies", "optionalDependencies", "peerDependencies"):
+            children.update(_npm_mapping(meta.get(section, {}), section))
         name = _pkg_name_from_path(pkg_path)
         version = meta.get("version")
         if not name or not isinstance(version, str):
@@ -243,28 +256,24 @@ def _parse_package_lock_v3(packages: dict, graph: _Graph) -> None:
         dev = bool(meta.get("dev", False))
         # Keyed by (name, version): a hoisted x@2 and a nested x@1 both survive.
         graph.instances[(name, version)] = graph.instances.get((name, version), False) or dev
-        children = set()
-        for section in ("dependencies", "optionalDependencies", "peerDependencies"):
-            children.update((meta.get(section) or {}).keys())
         if children:
             graph.edges.setdefault(name, set()).update(children)
 
 
 def _parse_package_lock_v1(deps: dict, graph: _Graph, *, is_root: bool = True) -> None:
     for name, meta in deps.items():
-        if not isinstance(meta, dict):
-            continue
+        meta = _npm_mapping(meta, "dependency metadata")
+        requires = _npm_mapping(meta.get("requires", {}), "requires")
         version = meta.get("version")
         if isinstance(version, str):
             dev = bool(meta.get("dev", False))
             graph.instances[(name, version)] = graph.instances.get((name, version), False) or dev
             if is_root:
                 graph.roots.add(name)
-            requires = meta.get("requires") or {}
-            if isinstance(requires, dict) and requires:
+            if requires:
                 graph.edges.setdefault(name, set()).update(requires.keys())
-        nested = meta.get("dependencies")
-        if isinstance(nested, dict):
+        if "dependencies" in meta:
+            nested = _npm_mapping(meta["dependencies"], "nested dependencies")
             _parse_package_lock_v1(nested, graph, is_root=False)
 
 

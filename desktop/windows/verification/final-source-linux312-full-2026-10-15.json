@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T15:42:26.857300+00:00",
+  "status": "passed",
+  "scope": "Fresh final sealed-source copied Linux3.12 full regression; dirty workspace subset, not clean Git checkout. Separate from prior successful/negative runs.",
+  "passed": 3213,
+  "skipped": 5,
+  "seconds": 146.53,
+  "exit_code": 0,
+  "original_session": 58546,
+  "environment": {
+    "ownedRoot": "/tmp/attackmap-m3-lm4_n4va",
+    "project": "/tmp/attackmap-m3-lm4_n4va/project",
+    "uid": 1000,
+    "ordinaryHomePreserved": "/home/ubuntu",
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "sourceKind": "Current dirty Windows workspace subset copied to Linux /tmp; not clean Git checkout",
+    "sourceInventoryFiles": 570,
+    "pluginPinsVerified": 15,
+    "portablePipWheelSha256": "c46efd13b6aa8279f33f2864459c8ce587ea6a1a59ee20de055868d8f7688f7f"
+  },
+  "source_tests_before_after": {
+    "unchanged": true,
+    "beforeCount": 434,
+    "afterCount": 434
+  },
+  "sealed_frozen_input_matches": {
+    "matched": 117,
+    "all_matched_equal": true,
+    "excluded": "Six src/attackmap.egg-info build metadata inputs intentionally excluded by Linux copy recipe; remaining Python/static/installer inputs equal final frozen snapshot."
+  },
+  "critical_source_hashes": {
+    "src/attackmap/cli.py": "b2fd7f3b7bc9a72bf8afc6493f87e4ebf8598ba80a43d06b5bb833ad4a5e9263",
+    "src/attackmap/scan_service.py": "38bb3d899373972be8ac3d4bcf497bbeada0df0c1dbb3cf41e767373d6dd1124",
+    "src/attackmap/pipeline.py": "1ddc71d709ead53d8a861ef4cb1b431a331f978cef0f7876c22bf62044cb8674",
+    "tests/test_cli_validation.py": "e4a06e7aa0d76eb562ea2d81da5f5369f43c60b66f35bac573346f818ff88ab0",
+    "tests/test_scan_service.py": "30fef25175ae19cc6b6a433af0e9e63123eae712c1306ca45ea73a5d87df2baf"
+  },
+  "evidence": [
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\pytest.log",
+      "sha256": "8b76ad09909dc7cd4575f4779dbb9cdb47570ef97093786a387faadbc861a07b"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\results.xml",
+      "sha256": "ee76c9d797018951c76af47a53efd7ead17b3b38268559708edead7d9d2c56d7"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\exit-code.json",
+      "sha256": "574049a0ae2cdde150c1daa7141ccec457a94ce7256a6d8b771b27a88ce5abeb"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\setup-proof.json",
+      "sha256": "479941cfe3fe99c162b1fd9d3df9ae1b33d1fd729afe56723157b93cc5735e43"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\test-environment.json",
+      "sha256": "dbe64c932a12af538fd5a88bef8c89d3812a3d58b863174dbe2389a26df788e3"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\source-inventory.json",
+      "sha256": "c3a3502a47579c5d092213817605a650d11729d5a8ddc3a2a3101c96bbd3604c"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\source-test-before.json",
+      "sha256": "4f5a86e1d585e1a17f8e78cee9d6f25117d2a9f65081f1927e9afbe71d8cdc47"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\source-test-after.json",
+      "sha256": "4f5a86e1d585e1a17f8e78cee9d6f25117d2a9f65081f1927e9afbe71d8cdc47"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\inventory-verification.json",
+      "sha256": "1267665c2d733ec2ebd68f6fec5abdb6b22ce1eedc71063f4edf41c29cee2d4f"
+    },
+    {
+      "path": ".pytest_cache\\m3-wsl-linux-qa\\attempt-7ed04068d5044f51bf00346c212fb77b\\pip-check.log",
+      "sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+    }
+  ],
+  "previous_attempts_preserved": [
+    ".pytest_cache/m3-wsl-linux-qa/attempt-bc455506600d46638e7e867dfd831ede",
+    ".pytest_cache/m3-wsl-linux-qa/attempt-19cc185a04f9438289983d9409a622f1"
+  ],
+  "limitations": [
+    "No WindowsJob/DPAPI/Windows export symlink acceptance on Linux; five explicit skip reasons in raw log.",
+    "Live authenticated CLI AI test skipped; no model request.",
+    "WSL emitted systemd user-session warning but ordinary uid1000 setup and full run completed.",
+    "Not package, signing, clean-host or full M3 acceptance."
+  ]
+}

@@ -273,23 +273,15 @@ _SANITIZER_PATTERNS: dict[str, tuple[tuple[str, re.Pattern[str]], ...]] = {
     "dynamic_open": (
         ("werkzeug.secure_filename", re.compile(r"\bsecure_filename\s*\(")),
         ("os.path.basename", re.compile(r"\bos\.path\.basename\s*\(")),
-        ("path allow-list (realpath+startswith)", re.compile(r"\brealpath\s*\(")),
     ),
     "ssti": (
         ("markupsafe.escape", re.compile(r"\b(?:markupsafe|Markup)\.escape\s*\(|(?<![\w.])escape\s*\(")),
         ("bleach.clean", re.compile(r"\bbleach\.clean\s*\(")),
     ),
-    "open_redirect": (
-        ("is_safe_url", re.compile(r"\bis_safe_url\s*\(")),
-        ("url_has_allowed_host_and_scheme", re.compile(r"\burl_has_allowed_host_and_scheme\s*\(")),
-    ),
-    "ssrf": (
-        (
-            "private/loopback/link-local address check",
-            re.compile(r"\.is_(?:private|loopback|link_local|reserved)\b"),
-        ),
-        ("allow-list check", re.compile(r"\b(?:is_allowed_url|allowed_hosts|url_allowlist)\b")),
-    ),
+    # A file-level match cannot prove guard polarity, dominance or value
+    # identity. Unsupported flow frontends must not suppress on guard text.
+    "open_redirect": (),
+    "ssrf": (),
     "nosql_injection": (
         ("mongo-sanitize", re.compile(r"\b(?:mongoSanitize|mongo_sanitize|sanitize)\s*\(")),
     ),

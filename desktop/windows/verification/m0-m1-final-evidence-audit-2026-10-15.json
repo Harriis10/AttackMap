@@ -1,0 +1,685 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-15T15:59:29.072835+00:00",
+  "scope": "Read-only requirement-by-requirement M0/M1 audit, exact roadmap C01-C15; no gate promotion, no new execution",
+  "gateAccepted": false,
+  "roadmap": {
+    "path": "docs/roadmap-2026-2028.md",
+    "sha256": "a60f2242bd07c63a48853200c331c99715a20b83f6d5763543b7d06f613a9252"
+  },
+  "ledger": {
+    "path": "docs/windows-m3-gate-status.json",
+    "sha256": "6191b110e463a57d0336a736abf10dbaaa16b7994e68e65848c7d892cd4473f9"
+  },
+  "ledgerFreshness": "Some criterion prose retains historical3195counts/stale startup scope; newer authoritative final-source proofs take precedence only within their named scope. Corrective313full80020 active at audit cutoff, not counted as pass.",
+  "method": "Inspected exact requirements, named source/test assertions and proof scope. Passing node evidence supports only its assertions, not whole gate acceptance. No inferred platform/manual proof from file presence.",
+  "criteria": [
+    {
+      "id": "C01",
+      "title": "Release baseline",
+      "exactSuccess": "zero unexpected failures and zero collection errors in the complete supported core test matrix. Every skip has a recorded platform or dependency reason; required release checks cannot be skipped. Fix the hunt, remediate, and triage imports at an intentional API seam. The package, CLI, release metadata, README, and project facts report the same release identity. Windows receives core test coverage as well as frozen-build smoke coverage.",
+      "exactProof": "clean-checkout commands, Python and dependency versions, CI links, and wheel/frozen version outputs. Start with Python 3.11 to 3.13, which the reviewed CI uses, and record the supported OS matrix. A change to supported versions needs a documented compatibility decision.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Current-source guarded Windows311 and corrective312 full results are green; final Linux312 immutable copy is green; latest frozen build and installed candidate bind version/payload identities. Corrected313 full80020 is active at audit cutoff.",
+      "remaining": "Complete CI-declared3OS x3Python clean-checkout matrix is absent: macOS all versions/Linux311+313; WSL copied subset and dirty Windows runs are not clean checkout. Record required skips/release identity commands; do not promote active313.",
+      "inspectedInputs": [
+        {
+          "path": "desktop/windows/verification/final-source-windows-matrix-2026-10-15.json",
+          "sha256": "59c50cada5f76eef1c4eba758b32211af9be959ad89dba83ade8f532130c9562"
+        },
+        {
+          "path": "desktop/windows/verification/final-source-linux312-full-2026-10-15.json",
+          "sha256": "2c0d3673782e616e372b1f4ba9e2dd7037014064d6087ad521d94b7f8ea07b96"
+        },
+        {
+          "path": "desktop/windows/verification/final-source-frozen-engine-2026-10-15.json",
+          "sha256": "0bbbde440ba239d40fe0a05336a4f1c11df9e968f7cca91a3db4a56aed2b41b9"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "sha256": "503ea29aa33d130addf6cf9cfee6975c57fc7ba624a0ae5771db738a4ff7cb10"
+        },
+        {
+          "path": "tests/test_release_identity.py",
+          "sha256": "d746fa9cfd237666292b6fb18adf603b5dc1df293660db7fa8c24edee1e9c797"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C02",
+      "title": "Guard safety",
+      "exactSuccess": "recognized safe predicates suppress a flow only when their documented semantics, branch polarity, and control flow prove the sink receives a guarded value. Unknown predicates remain uncertain. Paired safe/unsafe fixtures cover positive and negated conditions, early returns, exceptions, enclosing branches, nested branches, reassignment after validation, and unrelated-variable checks in every implemented guard frontend. Reversing a protective guard must never silently preserve its sanitized classification.",
+      "exactProof": "the original reversed-condition reproduction plus the complete paired fixture matrix. Any unsupported form is reported conservatively and cannot suppress a finding merely because its text resembles a guard.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Inspected paired Python guard fixtures include polarity, early return/raise, nested branches, reassignment, unrelated aliases and caught exception; shared text matrix covers JS/TS/Go/PHP/Java/C#; original private-address reversal remains unsanitized.",
+      "remaining": "Source fixtures demonstrate bounded frontend semantics, not an exhaustive acceptance map of every implemented guard frontend/form. Retain unsupported forms as uncertain; no new counterexample established in this audit.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_taint_guard_safety.py",
+          "sha256": "8f6a6a537e682dbe3b84a8d0a9ee0658e54de29938025413997ac2a94efcc344"
+        },
+        {
+          "path": "src/attackmap/taint_flow.py",
+          "sha256": "56431c2a1c71c5a47d2b2657c7921f21e55fc5165b2b767951c39294f258ea13"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C03",
+      "title": "Scoped evidence",
+      "exactSuccess": "an unrelated worker hint, datastore, outbound call, or auth hint does not change a route's own exposure or control claims. Unresolved ownership is explicitly unknown. Static parsing never produces a runtime-observed label. Every output format and AI prompt uses the same evidence classification; a downstream formatter cannot strengthen a claim.",
+      "exactProof": "before/after fixtures varying one unrelated file at a time, including `/internal` and `/debug` routes without deployment evidence. The report retains separately labeled repository context without presenting it as a route-level fact.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Scoped ownership regressions and classification presentation exist; latest static/model wording correction has actual web renderer assertions and Python format checks.",
+      "remaining": "No consolidated unrelated-file x every output/prompt/native acceptance mapping. Static classification wording fixes do not establish model-generated prose semantics.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_scoped_evidence.py",
+          "sha256": "e0dde5f7f64e259ee38ca6a9be45ca0461f0f46f438ed8fb3e4741ec1a6b73bc"
+        },
+        {
+          "path": "tests/test_review_markdown_basis.py",
+          "sha256": "d1010349cf0b69f39904692da716795c097adce11b31285bf425021d7c9a6d60"
+        },
+        {
+          "path": "desktop/windows/verification/output-classification-copy-fix-2026-10-15.json",
+          "sha256": "0b4c7d73ec400430e39a0c74036e7c91780e2040d5b814bd7ee5cdc51e243e29"
+        },
+        {
+          "path": "docs/finding-presentation.md",
+          "sha256": "4a78a47c22b57385ddead70843a017781971b1db0428321b670295d502ad5238"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C04",
+      "title": "Fresh results",
+      "exactSuccess": "reports are keyed by repository and immutable generation identity. Across 100 scripted scan sequences, no view shows a prior generation as current. Cover rapid completion between polls, slow scans, navigation during a scan, delayed responses, failed rescans, and switching repositories. An older successful report may remain visible only with its timestamp and an explicit previous-result label.",
+      "exactProof": "frontend integration tests using the actual state/cache adapter, including the original completed \u00e2\u2020\u2019 running \u00e2\u2020\u2019 completed reproduction. Out-of-order responses cannot overwrite a newer state, and polling has at most one active request per state stream.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Actual web state/cache harness has100sequences plus delayed/mismatched response and one-active-state tests; native fault proof preserves prior report; native history baseline fix invalidates stale comparison UI.",
+      "remaining": "Native100sequence rapid scan/navigation/workspace/error/delayed-response campaign absent; web harness and single native control probe do not substitute.",
+      "inspectedInputs": [
+        {
+          "path": "tests/ui_freshness.cjs",
+          "sha256": "b8f8dc361a44610010dff29606cb93079efa0b1a14b1bfc150af201b0e61de46"
+        },
+        {
+          "path": "tests/test_ui_freshness.py",
+          "sha256": "5b50a8c19297230e7b0beb39dbbd6ffe7a9127f006bdae2ed8a0556329a2f566"
+        },
+        {
+          "path": "desktop/windows/verification/native-mainwindow-exitguard-runtime-2026-10-15.json",
+          "sha256": "35f32cf9fea51272331bfeb135abb65702d257388b69b18643c945e785a4aea8"
+        },
+        {
+          "path": "desktop/windows/verification/native-history-baseline-freshness-2026-10-15.json",
+          "sha256": "8d3e9f229b76a4f83fce4e6907d1bca47c0fe50c34deef7d9be81b77d5814c60"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C05",
+      "title": "Scan isolation",
+      "exactSuccess": "three consecutive unchanged scans have identical normalized findings and source-file coverage when output is at the repository root, below it, or outside it. Generated artifacts do not become input evidence. A user-owned file with the same basename as an artifact remains analyzable unless positively identified as generated output.",
+      "exactProof": "manifest-driven output-exclusion tests, including the existing failing root-output test, legacy artifact names, and a same-name legitimate source fixture.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Inspected test executes three CLI scans for root/nested/outside x json/all, checks exact findings/summaries and indexed source coverage, retains legitimate sources/scan.json outbound evidence. Other cases check changed checksum/unsafe manifests/legacy names.",
+      "remaining": "Supported clean-platform release execution remains missing; no current isolation counterexample found.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_output_exclusion.py",
+          "sha256": "d8feba291f24d5e37de94bef15231d3c78ea460944a9fbfd5a8f5fe3ce1f05c4"
+        },
+        {
+          "path": "tests/test_scanned_coverage.py",
+          "sha256": "a11fbe670d2552f2b45eb21ad64301466c02e1ef021af820d54117233d7b2e40"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C06",
+      "title": "Fleet formats",
+      "exactSuccess": "a fleet of two small repositories completes with identical normalized results for serial and two-worker execution for every supported presentation format. Internal worker interchange is always machine-readable regardless of requested rendering. Source and frozen Windows execution both work, including paths with spaces and non-ASCII characters. One failed child produces an explicit per-repository failure and preserves successful siblings.",
+      "exactProof": "the original Markdown/fleet reproduction, format-matrix tests, and a packaged-worker smoke test. No worker invokes a frozen executable as though it were a Python interpreter.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Actual frozen six-run all/json/markdown x1/2workers proof uses two spaced/Unicode repos and normalized parity; separate owned-worker death proof preserves successful sibling and rejects partial parent publication.",
+      "remaining": "Historical ebafb executable, selected python-web/config fixture scope. Fresh final-source packed-worker all-format/failure matrix and missing supported-platform execution not certified by old proof.",
+      "inspectedInputs": [
+        {
+          "path": "desktop/windows/verification/native-frozen-fleet-post-matrix-formats-2026-10-15.json",
+          "sha256": "c3faeaddbf9269b8b88a5201208c6b972f149be338ac619c33e7cd1a61092c78"
+        },
+        {
+          "path": "desktop/windows/verification/native-frozen-fleet-worker-death-post-matrix-utf8-2026-10-15.json",
+          "sha256": "6269d126ae3b5d0fdcb8c039f223ae336ddfebc55e711aae738e34215329adb0"
+        },
+        {
+          "path": "tests/test_fleet_parallelism.py",
+          "sha256": "6f208a84da85c4233fe81431dd52e8c6435398bf856acdd69a965aea7e774758"
+        },
+        {
+          "path": "tests/test_fleet_publication.py",
+          "sha256": "e7a96e68dfa18bc4bca83223909ec36822917b7c2ba71d164f2f8183f6abb16a"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C07",
+      "title": "Honest AI and privacy",
+      "exactSuccess": "missing, timed-out, and malformed individual votes count as abstentions, never refutations. A run with no usable votes or no strict majority of its planned votes resolves to an explicit inconclusive state. A model majority is labeled as model assessment, not confirmed exploitability. Settings and help explain which optional features contact a service and which inputs they send. AI is off for a fresh installation. Credentials never appear in reports, logs, or diagnostic exports.",
+      "exactProof": "consensus truth-table tests, provider-failure fixtures, sentinel-secret checks, and copy review across CLI, Windows, macOS specifications, and documentation. Existing useful local-only flows remain available.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Inspected consensus tests distinguish ties/missing votes/inconclusive and planned majority; provider proof uses synthetic transient credential and actual DPAPI roundtrip, AIoff and no secret in isolated JSON. Model-assessment wording correction is bounded.",
+      "remaining": "Complete sentinel/copy matrix across CLI/reports/diagnostics/prompts/native/macOS specification/runtime absent; protected-store proof is historical executable and excludes manual panel/dialog journey.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_hunt_harness.py",
+          "sha256": "5dfcd4c40218d9b371b034f2e0425b7d826d74d6c4e285cd68d649ce0fe88477"
+        },
+        {
+          "path": "desktop/windows/verification/native-protected-provider-current.json",
+          "sha256": "4f4536d0032c337d2afb953fdb5cc49491cc9ed433512c8dbb258c200fb8b4da"
+        },
+        {
+          "path": "desktop/windows/verification/output-classification-copy-fix-2026-10-15.json",
+          "sha256": "0b4c7d73ec400430e39a0c74036e7c91780e2040d5b814bd7ee5cdc51e243e29"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C08",
+      "title": "Run protocol",
+      "exactSuccess": "publish versioned schemas and fixtures for a scan request, progress event, terminal result, and artifact manifest. Include run ID, repository identity, generation, monotonic state revision, schema version, execution outcome, policy outcome, and artifact readiness. States distinguish queued, running, cancelling, completed, failed, and cancelled. A policy threshold breach is a completed analysis with a failed policy outcome. Sub-analyzer `done` events never mean the whole run completed.",
+      "exactProof": "CLI and client contract tests accept current and immediately preceding supported schema versions, ignore additive unknown fields, and reject incompatible major versions with an actionable message. Legacy schema-less reports have an explicit import adapter or clear unsupported result. Desktop consumers publish their supported schema range independently of app version.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Actual controlled process native cases explicitly accept1.0/1.1 policy-failed completed, missingstage, duplicate/regressive revisions, incompatible schema cleanup and abnormal-exit rejection; core worker contract tests cover subanalyzer done.",
+      "remaining": "Both desktop adapters current/previous/additive/major-rejection/legacy and all terminal policy combinations are not consolidated; childless fake is not process-tree or UI proof.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_run_contract.py",
+          "sha256": "295aaf7d000d2e948c364478e26211c08eb72360df6c936625f6e2313f81ec61"
+        },
+        {
+          "path": "tests/test_desktop_worker.py",
+          "sha256": "7d8f09380298d709f9d87d0e7fc037a53913001447f447e04acbd1758daa9f68"
+        },
+        {
+          "path": "desktop/windows/verification/native-engine-session-exitguard-current.json",
+          "sha256": "421758546a21db2d1c8721f17d7b4ad1adf6729beb1a4babb370ccc9752fd9a3"
+        },
+        {
+          "path": "desktop/windows/verification/native-fault-composition-exitguard-current.json",
+          "sha256": "c97645629c636d6e025e0bf32e7e7b59bb6a8c1d836e7e07c125d3587bde59a9"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C09",
+      "title": "Process supervision",
+      "exactSuccess": "one supervisor owns process creation, timeout, cancellation, bounded logs, and process-tree cleanup. In 50 start/cancel cycles per platform, UI acknowledgement is at most 250 ms at p95 and the controlled worker tree exits within 5 seconds, including a child that ignores graceful termination. Twenty simultaneous start requests for the same exclusive scan slot launch exactly one worker. Cancellation cannot release that slot until termination is verified.",
+      "exactProof": "OS process inspection and race tests on Windows and macOS. Use a 3-second graceful interval followed by a 2-second forced-termination allowance. A cleanup failure is visible and blocks an unsafe restart. Fleet admission is bounded by available worker slots, and cancelled queued work never starts.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Source controlled ignoring-child50cycle fixture passed after atomic PID publication repair with unchanged250ms/5s bounds; ordinary historical frozen50cycles passed held2attackmap+2conhost exits and20admission1/19. Cleanup-blocking fault cases exist.",
+      "remaining": "Native real UI acknowledgement50cycle evidence, macOS OS-tree/race execution and qualifying installed stubborn-descendant campaign missing. Observed pre-cancel handles do not enumerate future descendants; backend API return is not UI ack.",
+      "inspectedInputs": [
+        {
+          "path": "desktop/windows/verification/native-core-targeted-post-full-2026-10-15.json",
+          "sha256": "e7fe9e61962494b5342c3ec891e3a8a33547eeb0a17c9d94cbafc2c71aaff406"
+        },
+        {
+          "path": "desktop/windows/verification/native-frozen-cancellation-50-2026-10-15.json",
+          "sha256": "e2d1ab70f86b4afb1a1188a1bbd2feca55899c7f97113b15c149c3c8c2958e2a"
+        },
+        {
+          "path": "tests/test_execution_supervision.py",
+          "sha256": "5121a18fbac6841ded0cbcb508d72c8aaf60b35d0b55aa2ec82946e17b13084e"
+        },
+        {
+          "path": "tests/test_ui_supervision.py",
+          "sha256": "e00314c6c50f5791e04f2db5be027bae019ecaf392bfad10483828267780f9e5"
+        },
+        {
+          "path": "tests/test_fleet_parallelism.py",
+          "sha256": "6f208a84da85c4233fe81431dd52e8c6435398bf856acdd69a965aea7e774758"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C10",
+      "title": "Atomic results",
+      "exactSuccess": "CLI, desktop, and fleet use the same generation publisher. A generation becomes current only after required files and schemas validate. Fault injection at every publication boundary leaves either the complete previous generation or the complete new generation readable, never a mixture. Error and cancellation runs record a terminal diagnostic manifest without replacing a valid current result. Publication duration is present in finalized timing data.",
+      "exactProof": "filesystem failure, interrupted-write, invalid-artifact, and process-exit tests on both operating systems. Existing CLI output filenames remain supported through a documented compatibility view or export step; consumers never need to infer success from a stderr phrase.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Shared generation publisher validates schemas/hash identity before pointer; fault fixtures and coupled installed proof exercise prior preservation. Finalized timing explicitly records publication preparation duration; flat export documented nonauthoritative.",
+      "remaining": "BothOS filesystem/interrupted-write/process-exit boundary matrix absent; timing excludes final atomic replace by documented immutability design; no universal power-loss claim.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_artifact_publisher.py",
+          "sha256": "11ed94afd21c6c0d5e5aa626264be4bb12d7f01fdfcbb87ff141e0586a3ec509"
+        },
+        {
+          "path": "tests/test_pipeline_publication.py",
+          "sha256": "dc4a3b21fe0bcdc552c72c2ec62ede018cfac888148a43a79b1652920537f151"
+        },
+        {
+          "path": "tests/test_desktop_publication.py",
+          "sha256": "d70dbbfa25b9932ddb0fdd6dbe796f6a5ead03b5d0e4275891713132bc5822b0"
+        },
+        {
+          "path": "docs/atomic-artifacts.md",
+          "sha256": "fb9038032ab06654ffd45c7901656c1067afdfc147df23aca515a04ef49d7b5a"
+        },
+        {
+          "path": "desktop/windows/verification/engine-scan-timing-focused-2026-10-15.json",
+          "sha256": "97b60d002ed01fdf751954800290250ba61a5e83fcf2073e73b05da1f44c5f4c"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C11",
+      "title": "Source provenance",
+      "exactSuccess": "every new normalized observation carries an immutable observation ID, analyzer name/version, source role, location or explicit location-unavailable reason, and evidence kind. Conflicting auth or exposure observations survive merging and appear as conflicts. Duplicate observations retain corroborating provenance without double-counting files. Merge does not mutate analyzer-owned input objects. Older plugins are adapted with explicit unknown metadata.",
+      "exactProof": "multi-analyzer conflict fixtures, permutation-invariance tests, input-immutability tests, and unique-file coverage assertions. Extend the existing normalized model and signal bridge; avoid a parallel evidence system.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Inspected normalized merge fixtures assert owned deepcopies, permutation conflicts/origins, distinct locations/methods, legacy unknown metadata and unique/unknown coverage. Twelve normalized signal kinds are documented.",
+      "remaining": "Other typed weakness collections retain legacy merge rules; downstream detector-owned finding provenance not uniformly normalized. This is a documented implementation-scope gap, not a newly reproduced corruption.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_merge_signal_provenance.py",
+          "sha256": "6219431f22fc8860b5252155f268dce324456391e70841212e880aba5b8d889e"
+        },
+        {
+          "path": "tests/test_provenance.py",
+          "sha256": "8abd24eb3a9d1faa2c3e1acd032ceec7f3f69c6c873a9a66dc4b05a385cfa08c"
+        },
+        {
+          "path": "docs/signal-merge-provenance.md",
+          "sha256": "02105ae2583cf72023b392f0727c2a772e67fd122354d52baf7918da5797d244"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C12",
+      "title": "Evidence ownership",
+      "exactSuccess": "one core policy classifies production, test, fixture, mock, example, generated, and unknown sources. Route-to-service, route-to-datastore, and inter-service relationships are either backed by evidence IDs or explicitly marked candidates. Missing auth evidence stays distinct from observed anonymous access. For every displayed high-priority finding, users can identify the observed facts, inference steps, and unresolved assumptions.",
+      "exactProof": "source-role fixtures spanning supported path conventions, route ownership counterexamples, and cross-format golden reports. Ranking tests verify the intended effect of confidence and source quality without treating scores as calibrated probabilities.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Core source-role classification and finding context expose exact-location candidates, static detector codeflows, conflicts and explicit unknown control/trust associations without inferring links.",
+      "remaining": "Detector-owned finding-control/trust relationships and all high-priority facts/inference/assumption golden mappings remain incomplete. Unknowns are honestly displayed; absence of links alone is not proof of false claims.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_source_classification.py",
+          "sha256": "63b78fc6f79efe29633dd52156d0ca4082dc27ccf54c92978c3649d7c9e5e9f4"
+        },
+        {
+          "path": "tests/test_finding_presentation.py",
+          "sha256": "61bf2189e6b3aea73cd90f0fccc94caf7c2e000c33c01709c5633c4f4dc9bc1b"
+        },
+        {
+          "path": "docs/finding-presentation.md",
+          "sha256": "4a78a47c22b57385ddead70843a017781971b1db0428321b670295d502ad5238"
+        },
+        {
+          "path": "desktop/windows/verification/native-c23-report-composition-current.json",
+          "sha256": "cca01174430f07bfb2aff6f2b1fdda4a06cc359bf5b4d6b80280c56221f1707a"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C13",
+      "title": "Finding identity",
+      "exactSuccess": "changing a title or recommendation does not turn an unchanged finding into new/resolved findings. Stable identity uses rule and entity/location semantics with a documented collision policy. A migration adapter reads existing baselines and suppression references. Unmappable records are reported for review rather than silently dropped. Renames are either resolved by an explicit mapping or visibly treated as uncertain.",
+      "exactProof": "title changes, nearby line insertions, duplicate routes, moved files, and old-baseline migration fixtures; suppression reasons and provenance survive round trips.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Inspected identity fixture names/assertion intent cover title/prose changes, distinct rule/entity collisions, explicit rename uncertainty, legacy baseline/suppression migration, unmappable/ambiguous records and crossformat identity.",
+      "remaining": "Required duplicate-route/nearby-insertion/move/collision and suppression-provenance roundtrip acceptance mapping across all consumers still not consolidated; no new identity counterexample established.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_finding_identity.py",
+          "sha256": "64d11a6cc47ca50617fe8d2a6bccfdea4386a80817014eeee1c594ba5204572f"
+        },
+        {
+          "path": "tests/test_sarif_identity.py",
+          "sha256": "eac0306886da16783240c241b8f53d4678cc1aba0fdbb48250aa64327bbe1bdc"
+        },
+        {
+          "path": "docs/finding-identity.md",
+          "sha256": "cd13b031162fc9e1f948e5eaadceb6a26201459a6a0aab1a3a56be77d9c4c07c"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C14",
+      "title": "AI boundaries",
+      "exactSuccess": "every provider call reserves a call, time, and token allowance before dispatch, including retries, generation, and verification. Tests with a fixed ledger prove zero calls begin after allowance exhaustion and requested output limits fit remaining reservations. Unknown provider usage is marked unknown, not zero; a dollar ceiling is an estimate unless the provider supports enforceable billing controls. Evidence references resolve to allowed IDs and exact snapshot spans; basename or substring matches cannot validate a citation. Reference validity remains distinct from whether evidence supports a claim.",
+      "exactProof": "fake-provider tests for multi-round budgets, retries, cancellation, missing usage, malformed citations, and unsupported claims. Source excerpts are minimized and redacted. Embedded repository instructions cannot change tool permissions, recipients, or analysis policy. AI cannot rewrite deterministic findings or apply remediation without a separate user action.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Budget docs and inspected fake-provider tests cover shared predispatch call/deadline/OUTPUT reservation, retries, concurrent admission, cancellation, missing/malformed usage and failclosed CLI cap. Exact reference tests reject basename/substrings/foreign/mutated spans.",
+      "remaining": "Narrative outside parsed jury-verdict path is not mechanically/semantically validated; claim_support explicitly not_assessed. Complete unsupported-claim/embedded-instruction-authority/minimization acceptance remains open. OUTPUT-only cap is disclosed and not a total-token/dollar guarantee; fleet AI rejected, so no fleet-global claim.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_ai_budget.py",
+          "sha256": "692e7fdc70610e762516a9608dc5ec577173de1d6062cffb6a46f8d1b9655c8d"
+        },
+        {
+          "path": "tests/test_citations.py",
+          "sha256": "7df5346e0c16ccbb2cd54f28d999aa6c736967af3722d39f8fe67ace01f1aeda"
+        },
+        {
+          "path": "docs/ai-budgets.md",
+          "sha256": "752b81a9d4dff6bb0250ba89880f6abef3511b0d3da9c3ae6774021518bf995e"
+        },
+        {
+          "path": "docs/ai-citations.md",
+          "sha256": "015c0ec13960ce175082f11bb02afd24af279dc991a7f185c0e76c83485a37d0"
+        }
+      ],
+      "missingReferencedInputs": []
+    },
+    {
+      "id": "C15",
+      "title": "Architecture seams and diagnostics",
+      "exactSuccess": "the shared application service accepts typed requests and returns typed results without importing Typer or desktop modules. Presentation translates requests and renders results. Analyzer modules do not import report rendering or scoring policy. Structured local diagnostics include run/stage IDs, durations, analyzer versions, input coverage, resource-limit events, and terminal errors for every attempted run, including startup failures when the output directory is writable.",
+      "exactProof": "import-boundary checks and an end-to-end fixture exercised through CLI and both client adapters. Diagnostics distinguish execution failure, degraded coverage, and policy failure; default logs contain no source excerpts or secrets. Do not claim a remote observability service is needed to satisfy this gate.",
+      "ledgerStatus": "partial",
+      "auditStatus": "partial_no_gate_promotion",
+      "demonstratedScopedEvidence": "Typed neutral application service import boundary exists; current startup service and ordinary/fleetCLI module-selection failures now persist generic redacted diagnostic while preserving previous current/error. Actual native faults preserve report and offer diagnostic/retry.",
+      "remaining": "Demonstrated remaining schema gap: write_diagnostic payload lacks stageIDs/durations/analyzer versions/inputcoverage/resource-limit fields, including explicit unavailable/notstarted values, for startup calls. Other argument/parser outcomes and both adapters full diagnostic matrix remain unverified.",
+      "inspectedInputs": [
+        {
+          "path": "tests/test_application_boundary.py",
+          "sha256": "be154042590d0032d868a9ddae5d8bfb7ad9a030319eedb2de4e0aa4504c4203"
+        },
+        {
+          "path": "desktop/windows/verification/cli-all-analyzer-startup-diagnostic-2026-10-15.json",
+          "sha256": "f2050f7943f2be6d55978d91823d19de6eb9326155c2a62b6a7bbd7ce82a8a7f"
+        },
+        {
+          "path": "src/attackmap/artifact_publisher.py",
+          "sha256": "f078f018c32f3f8dfd72b12c42f9bcecc3ff76ab5f155da69cb73947f5e6f81a"
+        },
+        {
+          "path": "src/attackmap/scan_service.py",
+          "sha256": "38bb3d899373972be8ac3d4bcf497bbeada0df0c1dbb3cf41e767373d6dd1124"
+        },
+        {
+          "path": "src/attackmap/cli.py",
+          "sha256": "b2fd7f3b7bc9a72bf8afc6493f87e4ebf8598ba80a43d06b5bb833ad4a5e9263"
+        }
+      ],
+      "missingReferencedInputs": []
+    }
+  ],
+  "rawAssertionExecutionEvidence": {
+    "junit": {
+      "path": ".pytest_cache/m3-final-source-py311-90775f10dbcf45e59b30c8238c1b4efd/results.xml",
+      "sha256": "648d858d70083fb07a2bd45ada7a8dc514c0bdd31c7498f31ae38dc4f9159494"
+    },
+    "scope": "Windows311 final-production source full run before test-only PID publication repair; selected named testcase outcomes, not crossplatform certification",
+    "namedCaseSamples": {
+      "test_ai_budget": [
+        {
+          "name": "test_reservations_fit_remaining_and_known_usage_refunds_only_unused_output",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_missing_usage_keeps_allowance_and_zero_is_reported",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_parallel_admission_cannot_exceed_call_or_token_reservations",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_expired_or_cancelled_reservation_cannot_dispatch",
+          "outcome": "passed"
+        }
+      ],
+      "test_application_boundary": [
+        {
+          "name": "test_core_service_has_no_presentation_import[scan_service.py]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_core_service_has_no_presentation_import[pipeline.py]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_core_service_has_no_presentation_import[application_errors.py]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_invalid_configuration_is_neutral",
+          "outcome": "passed"
+        }
+      ],
+      "test_citations": [
+        {
+          "name": "test_capture_has_fixed_golden_source_and_redacted_span_identity",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_exact_allowed_reference_resolves_to_captured_span[taint:1]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_exact_allowed_reference_resolves_to_captured_span[finding:1]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_exact_allowed_reference_resolves_to_captured_span[src/app.py:2]",
+          "outcome": "passed"
+        }
+      ],
+      "test_desktop_worker": [
+        {
+          "name": "test_success_preserves_identity_revisions_and_ignores_subanalyzer_done",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_cancel_or_eof_emits_cancelling_then_verified_terminal[cancel\\n]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_cancel_or_eof_emits_cancelling_then_verified_terminal[]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_cancel_or_eof_emits_cancelling_then_verified_terminal[ignored\\ncancel\\n]",
+          "outcome": "passed"
+        }
+      ],
+      "test_finding_identity": [
+        {
+          "name": "test_title_recommendation_severity_and_location_addition_do_not_replace_aggregate",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_same_title_distinct_rules_have_distinct_ids",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_same_rule_distinct_explicit_entities_do_not_collide",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_dependency_entity_key_never_serializes_source_credentials",
+          "outcome": "passed"
+        }
+      ],
+      "test_hunt_harness": [
+        {
+          "name": "test_parse_hypotheses_from_marker_block",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_parse_hypotheses_dedupes_by_id",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_parse_verdicts_tolerates_formatting",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_majority_confirm_wins",
+          "outcome": "passed"
+        }
+      ],
+      "test_merge_signal_provenance": [
+        {
+          "name": "test_merge_owns_deep_copies_and_preserves_original_auth",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_normalized_conflicts_and_origins_are_permutation_invariant",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_known_coverage_is_unique_and_unknown_coverage_is_explicit",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_legacy_origin_unknown_and_json_roundtrip_retains_provenance",
+          "outcome": "passed"
+        }
+      ],
+      "test_output_exclusion": [
+        {
+          "name": "test_second_run_is_identical[None]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_second_run_is_identical[attackmap-reports]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_second_run_is_identical[custom/out]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_fleet_output_is_excluded",
+          "outcome": "passed"
+        }
+      ],
+      "test_run_contract": [
+        {
+          "name": "test_shared_golden_messages[path0]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_shared_golden_messages[path1]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_shared_golden_messages[path2]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_shared_golden_messages[path3]",
+          "outcome": "passed"
+        }
+      ],
+      "test_scoped_evidence": [
+        {
+          "name": "test_unrelated_file_does_not_change_route_facts[service_hints-signal0-/orders]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_unrelated_file_does_not_change_route_facts[service_hints-signal0-/internal/jobs]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_unrelated_file_does_not_change_route_facts[service_hints-signal0-/debug]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_unrelated_file_does_not_change_route_facts[databases-signal1-/orders]",
+          "outcome": "passed"
+        }
+      ],
+      "test_taint_guard_safety": [
+        {
+          "name": "test_python_guard_matrix[if target == \"https://api.example/\":\\n    sink(target)-True]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_python_guard_matrix[if target != \"https://api.example/\":\\n    sink(target)-False]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_python_guard_matrix[if not target != \"https://api.example/\":\\n    sink(target)-True]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_python_guard_matrix[if not target == \"https://api.example/\":\\n    sink(target)-False]",
+          "outcome": "passed"
+        }
+      ]
+    },
+    "note": "Named samples show executed assertion fixtures; full raw JUnit is bound above. Neither sample count nor aggregate count accepts a criterion."
+  },
+  "demonstratedCodeGap": {
+    "id": "C15-diagnostic-shape",
+    "source": "src/attackmap/artifact_publisher.py:220",
+    "counterexample": "Startup selection caller invokes write_diagnostic(base,run_id,state=failed,error=generic) without scan_timing. Payload construction contains schema_version,run_id,state,artifact_readiness,error only; no required stage/duration/analyzer/coverage/resource context or unavailable markers.",
+    "impact": "Cannot satisfy complete structured per-attempt C15 diagnostics even though redaction/current preservation now work.",
+    "newRuntimeReproduction": false
+  },
+  "otherGaps": "C11/C12/C14 documented incomplete modeling/validation scope remains; no additional newly demonstrated safety/correctness counterexample found in this bounded audit. Platform/manual/cleancheckout and explicit golden-matrix coverage remain independently required.",
+  "proposedC15PatchNotAuthorized": {
+    "design": "One additive typed neutral DiagnosticContext builder shared by generation publisher and application service; retain schema_version1.1 and existing top-level fields, add diagnostic_context with explicit context_version1.0. No Typer/client imports.",
+    "availableData": "Pipeline uses existing RunState.timings, explicitly declared analyzer metadata (unknown version if not declared), ScanResult.scanned_files/languages/analyzer_errors/limitations and supplied resource events; failed current stage duration collected with monotonic clock. Startup selection uses real preflight duration/stageID and requested names, but reports analyzer versions/coverage as not_started or unavailable. Fleet parent reports known child result/coverage only and marks unreported child fields unknown.",
+    "unknownSemantics": "Never invent zero coverage or duration for a stage not entered; distinguish not_started, unavailable, partial and reported. Resource events must be producer-issued structured categories/limits, not guessed from arbitrary limitation prose. No source excerpts, exception messages, raw paths or credentials in diagnostic context.",
+    "callersInventory": {
+      "src/attackmap/cli.py": [
+        79
+      ],
+      "src/attackmap/scan_service.py": [
+        618,
+        624,
+        629,
+        668
+      ],
+      "src/attackmap/pipeline.py": [
+        874
+      ],
+      "src/attackmap/desktop_worker.py": [
+        96,
+        102,
+        208
+      ]
+    },
+    "brokerComposition": "Broker cancellation/failure should enrich from validated staged run context when available and preserve prior detailed stage context, rather than overwrite it with bare terminal context. Unknown if process terminated before context flush. Ready policy-failed analysis stays completed; it is not converted to failed diagnostic.",
+    "compatibility": "Add diagnostic schema/fixture with additive-field old-reader acceptance; publish independent context version. Keep current pointer and original typed error unchanged. Invalid/unsafe/unwritable storage remains best effort and explicitly unrecordable.",
+    "tests": "Actual CLI/service startup unknown-module and sentinel; pipeline midstage exception and KeyboardInterrupt with real stage durations; broker EOF/cancel and abnormal exit preserving context; fleet child failure/queued cancel; policy threshold completed/failed-policy manifest; legacy diagnostic and additive schema readers; absent data explicitunknown; no double counting/fabricated limits; source/credential sentinels. Field presence alone cannot close C15.",
+    "authorization": "Proposal only; wait root authorization and original313full80020 terminal before source changes."
+  }
+}

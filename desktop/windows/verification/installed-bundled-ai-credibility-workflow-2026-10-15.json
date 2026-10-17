@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "scope": "One isolated installed bundled real JuiceShop+LMStudio workflow, not nativebutton or runtimevulnerability proof",
+  "package": {
+    "archive": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\development-packages\\dev-20261015182810-cb173755.zip",
+    "archive_sha256": "e7ba809eb9d36defc2c981c84f4ea177994236129802ee1b3e9001ea53e6614a",
+    "package": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\installed-bundled-ai-a37c473d0f8b4959b0cbdfaccb3353f6\\extracted",
+    "verified_payload_files": 809,
+    "install_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\installed-bundled-ai-a37c473d0f8b4959b0cbdfaccb3353f6\\installed",
+    "scope": "Isolated owned installation; personal AppData and existing user windows untouched"
+  },
+  "original_handle": 37141,
+  "broker_pid": 137432,
+  "engine_sha256": "499215d3fd09e3208d1f2f7dc2ed7d6c52a152018b3cea91a40274e2c1c4b818",
+  "terminal": {
+    "schema_version": "1.1",
+    "run_id": "dab901ef00774b179e7f7fbd8f9001ac",
+    "repository_id": "C:\\tmp\\juice-shop",
+    "generation": 1,
+    "revision": 111,
+    "kind": "terminal",
+    "state": "completed",
+    "execution_outcome": "succeeded",
+    "policy_outcome": "not_evaluated",
+    "artifact_readiness": "ready",
+    "error": null,
+    "limitations": [],
+    "artifact_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\installed-bundled-ai-a37c473d0f8b4959b0cbdfaccb3353f6\\output\\dab901ef00774b179e7f7fbd8f9001ac\\attackmap-report.json"
+  },
+  "exit_code": 0,
+  "seconds": 228.0678396000003,
+  "generation": {
+    "pointer_bound": true,
+    "listed_artifacts_validated": 21,
+    "run_id": "dab901ef00774b179e7f7fbd8f9001ac"
+  },
+  "provider": {
+    "response_id": "resp_3bb538551364288fb535db502934831872d1d974d716e7f3",
+    "created_at": 1792089320,
+    "completed_at": 1792089489,
+    "model": "cyberstag-security-26b-a4b-v1",
+    "status": "completed",
+    "incomplete_details": null,
+    "output_types": [
+      "reasoning",
+      "message"
+    ],
+    "usage": {
+      "input_tokens": 6302,
+      "output_tokens": 4927,
+      "total_tokens": 11229,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 3260
+      }
+    },
+    "request_endpoint": "http://127.0.0.1:1234/v1",
+    "attribution": "Exactly one completed response in existing server log after owned workflow start; no HTTP interception"
+  },
+  "selected_evidence": {
+    "available_count_scope": "Candidate records in the evidence pack, after existing pack limits; not total repository coverage.",
+    "character_budget": 14000,
+    "omission_policy": "Omitted evidence is unknown, never absent. Full scan totals are retained; selected records are not complete coverage.",
+    "omitted_metadata_sections": [
+      "evidence_counts"
+    ],
+    "scope": "partial selected evidence review",
+    "sections": {
+      "assets": {
+        "available": 13,
+        "included": 0,
+        "omitted": 13
+      },
+      "attack_paths": {
+        "available": 1,
+        "included": 0,
+        "omitted": 1
+      },
+      "attack_surfaces": {
+        "available": 50,
+        "included": 0,
+        "omitted": 50
+      },
+      "attack_techniques_observed": {
+        "available": 20,
+        "included": 1,
+        "omitted": 19
+      },
+      "controls": {
+        "available": 6,
+        "included": 0,
+        "omitted": 6
+      },
+      "detection_opportunities": {
+        "available": 7,
+        "included": 0,
+        "omitted": 7
+      },
+      "findings": {
+        "available": 18,
+        "included": 9,
+        "omitted": 9
+      },
+      "notable_observations": {
+        "available": 31,
+        "included": 0,
+        "omitted": 31
+      }
+    }
+  },
+  "semantic_review": {
+    "overall": "partial compliance; credibility gaps remain",
+    "checks": [
+      {
+        "claim": "Overview calls static input findings critical vulnerabilities",
+        "outcome": "overstated; runtime validation unavailable"
+      },
+      {
+        "claim": "Weaknesses say enabling arbitrary file access and direct RCE pathways",
+        "outcome": "fails required conditional runtime-unknown qualification"
+      },
+      {
+        "claim": "State-changing route bypasses authentication entirely within local scope",
+        "outcome": "local missing-signal evidence cannot establish effective bypass"
+      },
+      {
+        "claim": "Table cites find:2",
+        "outcome": "invalid supplied evidence ID; actual ID finding:2"
+      },
+      {
+        "claim": "Notable observation paragraphs use SOURCE OBSERVATION/STATIC INFERENCE/RUNTIME UNVERIFIED",
+        "outcome": "improvement observed, but not consistent throughout prose"
+      }
+    ]
+  },
+  "installation_status": "Held for inspection; no uninstall performed",
+  "privacy": "Credentials scrubbed and LOCALAPPDATA isolated. Proof omits source excerpts, prompt and raw reasoning; full local server tail not exported.",
+  "limitations": [
+    "One actual completed server response attributed by owned-run time window, no directHTTPinterception",
+    "Original transcript and historicalnegativeattempts preserved",
+    "No platform/M3 acceptance",
+    "Prompt instructions cannot enforce claim support"
+  ],
+  "files": {
+    "package-check.json": "8b9a54d8e32bbf10f5c2b64f66f4e6a724dd285b6588f1e3444cc3e17aeaff15",
+    "launch.json": "7770282e8a3a84589e5a8e5db99eb331318f17d7abe261f38bc3b0e1efce78ec",
+    "request.json": "7b18029819d346058a024d1e9e1ef71039e8ae3d58b3f15ef5a4772b2543eb71",
+    "result.json": "44188dbc330514945cfcd0621482b179b71c82c5bedeb8eaa374b42851c9e206",
+    "protocol.jsonl": "90939c3fdeb9233e4c875fd68af43db25d5cdc5450804967a9979833bdd7325b",
+    "server-response-summary.json": "9472d4d439db791734fff0bfb7c8fbda25e84e823eb64b12cba7c3da3ef217a2",
+    "selected-pack-index.json": "c405dd3357e5b5184fef768792429870dea1709820aaac2c79247a6e27002c8c",
+    "output/dab901ef00774b179e7f7fbd8f9001ac/defensive-review-llm.md": "f360850685a29b5d609321a4dd6500f8f4dbaf9073679c3e5b670ecf310debf4",
+    "output/dab901ef00774b179e7f7fbd8f9001ac/defensive-review-llm.meta.json": "32f362b4cd387da1de0663f95bd151cd9f824aec478e0d9d03393c152799fc76",
+    "output/dab901ef00774b179e7f7fbd8f9001ac/artifact-manifest.json": "fedbc74e79f5ccac85f4cdfe5a7981f0c01f4e51a1b8acf6ba7bb658987deb3b"
+  }
+}

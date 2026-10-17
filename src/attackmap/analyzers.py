@@ -8,6 +8,7 @@ import inspect
 import json
 import logging
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -55,6 +56,15 @@ from .scanner import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _log_identity(value: object) -> str:
+    return value if isinstance(value, str) and re.fullmatch(r"[a-z0-9][a-z0-9-]{0,127}", value) else "unknown"
+
+
+def _log_exception_type(exc: Exception) -> str:
+    name = type(exc).__name__
+    return name if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,79}", name) else "Exception"
 
 ANALYZER_ENTRYPOINT_GROUP = "attackmap.analyzers"
 
@@ -348,16 +358,16 @@ def discover_installed_analyzers(group: str = ANALYZER_ENTRYPOINT_GROUP) -> list
         # them entirely in trusted-only mode (the GitHub Action's default).
         distribution = _entry_point_distribution(analyzer_entry_point)
         if distribution not in _OFFICIAL_BY_PACKAGE:
-            entry_name = getattr(analyzer_entry_point, "name", "<unknown>")
+            entry_name = _log_identity(getattr(analyzer_entry_point, "name", None))
             if trusted_only:
                 logger.warning(
                     "Skipping analyzer '%s' from '%s': not an official AttackMap plugin "
-                    "(trusted-analyzers-only).", entry_name, distribution or "unknown distribution"
+                    "(trusted-analyzers-only).", entry_name, _log_identity(distribution)
                 )
                 continue
             logger.warning(
                 "Loading third-party analyzer '%s' from '%s' (not an official AttackMap plugin).",
-                entry_name, distribution or "unknown distribution",
+                entry_name, _log_identity(distribution),
             )
         analyzer = _load_discovered_analyzer(analyzer_entry_point)
         if analyzer is None:
@@ -367,23 +377,23 @@ def discover_installed_analyzers(group: str = ANALYZER_ENTRYPOINT_GROUP) -> list
 
 
 def _load_discovered_analyzer(analyzer_entry_point: object) -> Analyzer | None:
-    entry_name = getattr(analyzer_entry_point, "name", "<unknown>")
+    entry_name = _log_identity(getattr(analyzer_entry_point, "name", None))
     try:
         loaded_object = analyzer_entry_point.load()  # type: ignore[attr-defined]
     except Exception as exc:
-        logger.warning("Failed to load analyzer entry point '%s': %s", entry_name, exc)
+        logger.warning("Failed to load analyzer entry point '%s' (%s).", entry_name, _log_exception_type(exc))
         return None
 
     try:
         analyzer = _coerce_analyzer_instance(loaded_object)
     except Exception as exc:
-        logger.warning("Failed to initialize analyzer entry point '%s': %s", entry_name, exc)
+        logger.warning("Failed to initialize analyzer entry point '%s' (%s).", entry_name, _log_exception_type(exc))
         return None
 
     try:
         canonical_metadata = normalize_analyzer_metadata(getattr(analyzer, "metadata", None))
     except Exception as exc:
-        logger.warning("Failed to normalize analyzer metadata for '%s': %s", entry_name, exc)
+        logger.warning("Failed to normalize analyzer metadata for '%s' (%s).", entry_name, _log_exception_type(exc))
         return None
     try:
         setattr(analyzer, "metadata", canonical_metadata)
@@ -429,7 +439,7 @@ def get_registered_analyzers() -> list[Analyzer]:
 
     for analyzer in analyzers:
         if analyzer.name in seen_names:
-            logger.warning("Skipping duplicate analyzer name '%s'.", analyzer.name)
+            logger.warning("Skipping duplicate analyzer name '%s'.", _log_identity(analyzer.name))
             continue
         seen_names.add(analyzer.name)
         deduplicated.append(analyzer)
@@ -634,7 +644,7 @@ def analyze_repository(
     errors: list[AnalyzerError] = []
     for analyzer in active_analyzers:
         try:
-            result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index), repo_root)
+            result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index), repo_root).model_copy(deep=True)
         except Exception as exc:
             if strict:
                 raise
@@ -644,11 +654,16 @@ def analyze_repository(
                 message=str(redact_text(str(exc)) or "")[:_ANALYZER_ERROR_MAX_CHARS],
             )
             errors.append(error)
-            logger.warning("Analyzer %r failed: %s: %s", analyzer.name, error.error_type, error.message)
+            logger.warning("Analyzer '%s' analysis failed (%s); continuing.",
+                           _log_identity(analyzer.name), _log_exception_type(exc))
             if progress is not None:
-                progress.stage(f"Analyzer {analyzer.name} failed ({error.error_type}); continuing")
+                progress.stage(f"Analyzer {_log_identity(analyzer.name)} failed ({_log_exception_type(exc)}); continuing")
             continue
+        metadata = get_analyzer_metadata(analyzer)
+        declared_version = metadata.version if "version" in metadata.model_fields_set else None
         _stamp_provenance(result, analyzer.name)
+        from .signal_provenance import stamp_scan_provenance
+        stamp_scan_provenance(result, analyzer.name, declared_version)
         results.append(result)
     merged = merge_analyzer_results(results, root=repo_root) if results else AnalyzerResult(root=str(repo_root))
     merged.analyzer_errors = errors
@@ -658,7 +673,11 @@ def analyze_repository(
             if note not in merged.limitations:
                 merged.limitations.append(note)
 
-    _append_notes(list(index.limitations))
+    _append_notes(list(index.limitations))
+    _merge_resource_limits(merged, [merged, AnalyzerResult(
+        root=str(repo_root), resource_limit_events=list(index.resource_limit_events),
+        resource_limit_scopes=list(index.resource_limit_scopes),
+        resource_limit_reporting=index.resource_limit_reporting)])
     _append_notes(list(index.mutation_warnings()))
     # Whole-repo passes run once, over every analyzer's merged signals (#219).
     run_repo_passes(merged, repo_root, progress=progress, recall=recall, index=index)
@@ -768,8 +787,23 @@ def _should_run_analyzer(analyzer: Analyzer, repo_root: Path) -> bool:
     try:
         return bool(detect_fn(repo_root))
     except Exception as exc:
-        logger.warning("Analyzer '%s' detect() failed: %s", analyzer.name, exc)
+        logger.warning("Analyzer '%s' detect() failed (%s).", _log_identity(analyzer.name), _log_exception_type(exc))
         return False
+
+
+def _merge_resource_limits(target: AnalyzerResult, results: Iterable[AnalyzerResult]) -> None:
+    """Retain observed subsets; unknown legacy reporting never certifies zero."""
+    values = list(results)
+    events = {event.model_dump_json(): event for result in values for event in result.resource_limit_events}
+    target.resource_limit_events = [events[key] for key in sorted(events)]
+    target.resource_limit_scopes = sorted({scope for result in values for scope in result.resource_limit_scopes})
+    statuses = [result.resource_limit_reporting for result in values]
+    if statuses and all(status == "complete" for status in statuses) and target.resource_limit_scopes:
+        target.resource_limit_reporting = "complete"
+    elif target.resource_limit_scopes or target.resource_limit_events or any(status == "partial" for status in statuses):
+        target.resource_limit_reporting = "partial"
+    else:
+        target.resource_limit_reporting = "unknown"
 
 
 def merge_analyzer_results(
@@ -801,5 +835,8 @@ def merge_analyzer_results(
         for rule in MERGE_SCHEMA:
             merge_into(merged, getattr(result, rule.attr), rule, seen_by_attr[rule.attr])
 
+    from .signal_provenance import merge_scan_provenance
+    merge_scan_provenance(merged, result_list)
+    _merge_resource_limits(merged, result_list)
     merged.languages.sort()
     return merged

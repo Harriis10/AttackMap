@@ -159,20 +159,45 @@ def render_fleet_summary(fleet: FleetScan) -> str:
     lines.append("")
     if fleet.links:
         loc = lambda f, ln: f"{f}:{ln}" if ln else f  # noqa: E731
+        observed = [lk for lk in fleet.links if lk.resolution == "observed"]
+        candidates = [lk for lk in fleet.links if lk.resolution != "observed"]
         lines.append(
-            f"{len(fleet.links)} client→server contract link(s) — an outbound call "
-            "in one repo matched to a route another repo serves:"
+            f"{len(observed)} observed client→server contract link(s) — an outbound call "
+            "in one repo whose destination positively identifies the server repo:"
         )
         lines.append("")
         lines.append("| Client | Call | → | Server | Route |")
         lines.append("|---|---|---|---|---|")
-        for lk in fleet.links:
+        for lk in observed:
             lines.append(
                 f"| `{lk.client_repo}` | `{lk.method} {lk.client_target}` "
                 f"[{loc(lk.client_file, lk.client_line)}] | → | `{lk.server_repo}` | "
                 f"`{lk.method} {lk.server_route_path}` [{loc(lk.server_file, lk.server_line)}] |"
             )
         lines.append("")
+        if candidates:
+            reason_text = {
+                "no_destination": "no destination authority in the call target",
+                "unresolved_host": "destination host matches no repo identity",
+                "ambiguous_identity": "destination identity answered by multiple repos",
+                "explicit_port": "explicit port with no matching server binding",
+            }
+            lines.append(
+                f"{len(candidates)} candidate link(s) — path and method align but the "
+                "destination does not positively identify the server (C28); they are "
+                "inspectable leads and never observed trust paths:"
+            )
+            lines.append("")
+            lines.append("| Client | Call | → | Server | Route | Why unresolved |")
+            lines.append("|---|---|---|---|---|---|")
+            for lk in candidates:
+                lines.append(
+                    f"| `{lk.client_repo}` | `{lk.method} {lk.client_target}` "
+                    f"[{loc(lk.client_file, lk.client_line)}] | → | `{lk.server_repo}` | "
+                    f"`{lk.method} {lk.server_route_path}` [{loc(lk.server_file, lk.server_line)}] | "
+                    f"{reason_text.get(lk.resolution_reason, lk.resolution_reason)} |"
+                )
+            lines.append("")
     else:
         lines.append("_No cross-repo client→server HTTP links detected._")
         lines.append("")
@@ -268,7 +293,11 @@ def render_fleet_graph_mermaid(fleet: FleetScan) -> str:
             continue
         seen.add(edge)
         label = f"{lk.method} /{lk.path_template}"
-        lines.append(f'    {node_id[lk.client_repo]} -->|"{label}"| {node_id[lk.server_repo]}')
+        if lk.resolution == "observed":
+            lines.append(f'    {node_id[lk.client_repo]} -->|"{label}"| {node_id[lk.server_repo]}')
+        else:
+            # Candidate destinations stay visible but visually distinct (C28).
+            lines.append(f'    {node_id[lk.client_repo]} -.->|"{label} (candidate)"| {node_id[lk.server_repo]}')
     lines.append("```")
     return "\n".join(lines)
 
@@ -297,6 +326,9 @@ def fleet_summary_json(fleet: FleetScan) -> dict:
                 "method": lk.method,
                 "path_template": lk.path_template,
                 "client_target": lk.client_target,
+                "destination": lk.destination,
+                "resolution": lk.resolution,
+                "resolution_reason": lk.resolution_reason,
                 "client_location": f"{lk.client_file}:{lk.client_line}"
                 if lk.client_line
                 else lk.client_file,

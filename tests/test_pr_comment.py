@@ -45,5 +45,6 @@ def test_pr_comment_surfaces_top_exploitable() -> None:
         _f("open redirect", "medium", exploit=40, tier="medium"),
     ]
     md = render_pr_comment(findings)
-    assert "Most exploitable now" in md
+    assert "Highest static finding risk scores" in md
+    assert "Heuristic static analysis" in md
     assert "90/100" in md and "CRITICAL" in md

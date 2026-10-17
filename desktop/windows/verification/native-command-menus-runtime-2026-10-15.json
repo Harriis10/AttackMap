@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "scope": "New QA-only published native command menus, safe handler routing and compile verification; user preview/package untouched",
+  "process": {
+    "exit_code": 0,
+    "native_dll_sha256": "a279e1dae7453392a990f3911c3b0001e98872fb8b2fb37139a405d583661696",
+    "result_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-menu-runtime-12898a0a4c7d474d93181900758f8368.json",
+    "pid": 86524
+  },
+  "result": {
+    "passed": true,
+    "menus": [
+      {
+        "title": "File",
+        "items": [
+          {
+            "text": "Choose repository",
+            "shortcut": "Ctrl+Shift+O"
+          },
+          {
+            "text": "Open report",
+            "shortcut": "Ctrl+O"
+          },
+          {
+            "text": "Export displayed JSON",
+            "shortcut": "Ctrl+E"
+          },
+          {
+            "text": "Export displayed review Markdown",
+            "shortcut": ""
+          }
+        ]
+      },
+      {
+        "title": "Scan",
+        "items": [
+          {
+            "text": "Start scan",
+            "shortcut": "F5"
+          },
+          {
+            "text": "Cancel",
+            "shortcut": "Esc"
+          }
+        ]
+      },
+      {
+        "title": "View",
+        "items": [
+          {
+            "text": "Settings",
+            "shortcut": "Ctrl+,"
+          },
+          {
+            "text": "History",
+            "shortcut": "Ctrl+H"
+          }
+        ]
+      }
+    ],
+    "settingsSelected": true,
+    "historySelected": true,
+    "scanGuard": true,
+    "cancelGuard": true,
+    "personalSettingsRead": false,
+    "limitations": "Metadata and direct existing handler routing only; no popup, picker, Explorer, clipboard or manual keyboard acceptance."
+  },
+  "build": {
+    "exit_code": 0,
+    "output": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-commands-qa-6ad383cca9dc4eed8f78f7cd425ab682"
+  },
+  "source_and_log_hashes": {
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml": "855833455b1dfbbe83bfa440db32ed8df6134ca14193da343a36f778596de120",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs": "dede13a95502f55d141e03d6b22baa0dc7eca756880bc49e72f5c4ddd4c9e4d0",
+    ".pytest_cache/m3-native-commands-qa-build.log": "83cdd2e5c3fc44728a768610e6dbd311d8adb6cf18817b319ce58f0ab0346b14"
+  },
+  "changes": [
+    "Three folder reveal handlers treat launcher false as failure through existing guarded error messages",
+    "Clipboard event catches failure and preserves source warning",
+    "Native File/Scan/View commands call existing handlers with existing accelerator labels and scan/cancel guards",
+    "Repository/open-report/save picker failures produce actionable safe errors and preserve displayed report/workspace"
+  ],
+  "limitations": [
+    "No OS picker, Explorer, clipboard failure injection or manual popup/keyboard/Narrator acceptance",
+    "Menu smoke inspects actual loaded menu metadata but directly calls safe handlers; does not automate popup selection",
+    "No package promotion or engine changes; previous immutable user-visible package remains open"
+  ]
+}

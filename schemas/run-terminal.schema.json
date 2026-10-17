@@ -1,0 +1,107 @@
+{
+  "properties": {
+    "schema_version": {
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string",
+      "enum": [
+        "1.0",
+        "1.1"
+      ]
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "repository_id": {
+      "minLength": 1,
+      "title": "Repository Id",
+      "type": "string"
+    },
+    "generation": {
+      "minimum": 1,
+      "title": "Generation",
+      "type": "integer"
+    },
+    "revision": {
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "terminal",
+      "default": "terminal",
+      "title": "Kind",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "completed",
+        "failed",
+        "cancelled"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "execution_outcome": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "title": "Execution Outcome",
+      "type": "string"
+    },
+    "policy_outcome": {
+      "default": "not_evaluated",
+      "enum": [
+        "not_evaluated",
+        "passed",
+        "failed"
+      ],
+      "title": "Policy Outcome",
+      "type": "string"
+    },
+    "artifact_readiness": {
+      "default": "unavailable",
+      "enum": [
+        "pending",
+        "ready",
+        "unavailable"
+      ],
+      "title": "Artifact Readiness",
+      "type": "string"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "repository_id",
+    "generation",
+    "revision",
+    "state",
+    "execution_outcome"
+  ],
+  "title": "RunTerminal",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

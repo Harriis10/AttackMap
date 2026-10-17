@@ -1,0 +1,20 @@
+{
+  "scope": "Actual DesktopActionRunner and Python provider backend; explicit local models listing only, no repository inputs",
+  "isolatedLocalAppData": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\provider-roundtrip-49540b9ab40a49c29e6efd3eb28d8123",
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "checks": [
+    "Fresh isolated restore defaults AI off and creates no settings",
+    "Actual runner saves credential-free configuration",
+    "Saved versioned configuration has no credential fields",
+    "Fresh process restores exact safe settings with AI off",
+    "Explicit loopback model listing contains selected model",
+    "Connection check does not enable AI"
+  ],
+  "limitations": [
+    "No generation request",
+    "No manual provider panel/dialog acceptance",
+    "No DPAPI credential storage test",
+    "Restore/save paths contain no network operation in inspected production code"
+  ]
+}

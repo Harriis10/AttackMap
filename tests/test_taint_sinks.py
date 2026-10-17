@@ -4,6 +4,8 @@ Fixtures live under ``tests/fixtures/sinks/<kind>/<lang>_{positive,negative}.*``
 Each marks its handler with ``taint: route`` and the sink call with
 ``taint: sink``. A positive must yield an unsanitized chain of ``<kind>`` at
 the sink line; a negative must not (a sanitized chain kept as evidence is fine).
+Explicitly listed unsupported-safe guards retain an uncertain unsanitized flow;
+their fixed-literal counterparts exercise the supported C02 proof instead.
 """
 
 from __future__ import annotations
@@ -28,6 +30,10 @@ from attackmap.threat_model import _FLOW_FINDING_SPEC, _TAINT_FINDING_SPEC, gene
 
 FIX = Path(__file__).parent / "fixtures" / "sinks"
 CASES = sorted((p.parent.name, p.name) for p in FIX.glob("*/*") if p.is_file())
+UNPROVEN_SAFE_GUARDS = {
+    ("code_injection", "py_negative.py"),  # named mutable set + external raising validator
+    ("subprocess_shell", "csharp_negative.cs"),  # named mutable set + transformed argument
+}
 
 
 def _marker(text: str, marker: str) -> int:
@@ -69,7 +75,7 @@ def test_every_new_kind_has_a_positive_and_negative_fixture() -> None:
 def test_sink_fixture(kind_dir: str, name: str) -> None:
     chains, line = _chains_at_sink(kind_dir, name)
     live = [c for c in chains if c.sink_kind == kind_dir and not c.sanitized]
-    if "_positive." in name:
+    if "_positive." in name or (kind_dir, name) in UNPROVEN_SAFE_GUARDS:
         assert live, f"expected an unsanitized {kind_dir} chain at line {line}, got {chains}"
         findings = generate_findings(ScanResult(root=str(FIX / kind_dir), taint_chains=live))
         assert any("taint-chain" in f.tags for f in findings)

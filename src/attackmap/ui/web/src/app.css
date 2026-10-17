@@ -115,7 +115,21 @@ body { display: flex; flex-direction: column; }
   font: inherit;
 }
 .sidebar button.active { background: var(--select); color: #fff; }
-main { flex: 1; overflow: auto; }
+main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+.viewbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #1a1a1a;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+.view-title { font-weight: 600; color: #fff; }
+.view-actions { display: flex; gap: 8px; }
+.view-actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+#view { flex: 1; overflow: auto; }
 .empty, .failed, .running, .prose {
   padding: 24px;
   color: var(--muted);
@@ -287,4 +301,11 @@ table.grid th { background: #1c1c1c; position: sticky; top: 0; }
 @media (max-width: 720px) {
   .sidebar { width: 140px; }
   .master { grid-template-columns: 1fr; }
+  .viewbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+@media print {
+  header, .status, .sidebar, .viewbar { display: none !important; }
+  main { display: block; }
+  body { background: #fff; color: #111; }
+  a { color: #111; text-decoration: none; }
 }

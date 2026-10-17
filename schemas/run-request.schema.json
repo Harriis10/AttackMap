@@ -1,0 +1,182 @@
+{
+  "$defs": {
+    "ProviderOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "enable_ai": {
+          "default": false,
+          "title": "Enable Ai",
+          "type": "boolean"
+        },
+        "provider": {
+          "default": "openai",
+          "enum": [
+            "openai",
+            "claude"
+          ],
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "http://127.0.0.1:1234/v1",
+          "title": "Endpoint"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "cyberstag-security-26b-a4b-v1",
+          "title": "Model"
+        },
+        "max_calls": {
+          "default": 8,
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Max Calls",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 600,
+          "maximum": 3600,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        },
+        "output_token_limit": {
+          "default": 32000,
+          "maximum": 256000,
+          "minimum": 1,
+          "title": "Output Token Limit",
+          "type": "integer"
+        }
+      },
+      "title": "ProviderOptions",
+      "type": "object"
+    },
+    "ScanOptions": {
+      "description": "Desktop analysis options; optional network features remain opt-in.",
+      "properties": {
+        "recall": {
+          "default": false,
+          "title": "Recall",
+          "type": "boolean"
+        },
+        "strict_analyzers": {
+          "default": false,
+          "title": "Strict Analyzers",
+          "type": "boolean"
+        },
+        "no_suppress": {
+          "default": false,
+          "title": "No Suppress",
+          "type": "boolean"
+        },
+        "cve": {
+          "default": false,
+          "title": "Cve",
+          "type": "boolean"
+        },
+        "secrets_history": {
+          "default": 0,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Secrets History",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 600,
+          "maximum": 86400,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        },
+        "provider": {
+          "$ref": "#/$defs/ProviderOptions"
+        }
+      },
+      "title": "ScanOptions",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string",
+      "enum": [
+        "1.0",
+        "1.1"
+      ]
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "repository_id": {
+      "minLength": 1,
+      "title": "Repository Id",
+      "type": "string"
+    },
+    "generation": {
+      "minimum": 1,
+      "title": "Generation",
+      "type": "integer"
+    },
+    "revision": {
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "request",
+      "default": "request",
+      "title": "Kind",
+      "type": "string"
+    },
+    "repository_path": {
+      "minLength": 1,
+      "title": "Repository Path",
+      "type": "string"
+    },
+    "output_path": {
+      "minLength": 1,
+      "title": "Output Path",
+      "type": "string"
+    },
+    "modules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Modules",
+      "type": "array"
+    },
+    "options": {
+      "$ref": "#/$defs/ScanOptions"
+    }
+  },
+  "required": [
+    "run_id",
+    "repository_id",
+    "generation",
+    "revision",
+    "repository_path",
+    "output_path"
+  ],
+  "title": "RunRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

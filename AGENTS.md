@@ -197,6 +197,15 @@ Prefer reusable general capabilities first, then thin protocol/application overl
 - keep naming consistent with the current architecture
 
 ## Testing expectations
+For live AI integration tests, use the local LM Studio OpenAI-compatible
+endpoint `http://127.0.0.1:1234/v1` and its running model
+`cyberstag-security-26b-a4b-v1`. Do not switch to a remote AI provider for
+testing unless the user explicitly requests it. Deterministic unit tests
+should continue to use fixtures or fake providers where appropriate.
+
+Use `C:\tmp\juice-shop` as the targeted real-repository integration test.
+Keep generated test reports outside that repository.
+
 When making changes:
 - update or add focused tests
 - use small fixtures
@@ -209,6 +218,9 @@ Prefer:
 - targeted integration-style checks when appropriate
 
 ## Workflow expectations
+When delegating future work to subagents, use the `gpt-6.1-sol` model
+(GPT-6.1 Sol), as requested by the user on 2026-10-15.
+
 Before changing code:
 1. inspect relevant files
 2. summarize current behavior
@@ -244,3 +256,13 @@ A task is done when:
 - output quality or modeling quality is measurably improved
 - limitations are stated honestly
 - the next incremental step is clear
+
+## M3 user steering — 2026-10-15
+
+Prioritize visible desktop workflows and real local-model integration. Report
+fixture/unit checks separately from actual LM Studio HTTP calls and completed
+model responses; fixture passes never prove live provider integration. Avoid
+repeating full regression matrices after every small change. Use focused checks
+while integrating a batch, then run required broad verification at a stable
+checkpoint. GUI work must produce a visible preview and actual visual review;
+compilation or internal control assertions alone do not prove its appearance.

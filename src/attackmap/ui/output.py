@@ -8,6 +8,8 @@ import os
 import re
 from pathlib import Path
 
+from ..artifact_publisher import current_generation, generation_dir, publish_generation
+
 _CURRENT_POINTER = "current-generation.json"
 
 
@@ -48,39 +50,9 @@ def fleet_dir(repos: list[Path], base: Path | None = None) -> Path:
     return folder
 
 
-def generation_dir(base: Path, run_id: str) -> Path:
-    """Per-run artifact directory inside the report base."""
-    folder = base / run_id
-    folder.mkdir(parents=True, exist_ok=True)
-    return folder
-
-
 def promote_generation(base: Path, run_id: str) -> None:
-    """Atomically update the pointer to the current generation.
-
-    Writes a sibling file and renames it into place so readers never see a
-    partially written pointer.
-    """
-    pointer = base / _CURRENT_POINTER
-    tmp = base / f".{_CURRENT_POINTER}.tmp"
-    tmp.write_text(json.dumps({"generation": run_id}), encoding="utf-8")
-    tmp.replace(pointer)
-
-
-def current_generation(base: Path) -> Path | None:
-    """Return the currently promoted generation directory, if any."""
-    pointer = base / _CURRENT_POINTER
-    if not pointer.is_file():
-        return None
-    try:
-        data = json.loads(pointer.read_text(encoding="utf-8"))
-        run_id = data.get("generation")
-        if not isinstance(run_id, str):
-            return None
-        gen = base / run_id
-        return gen if gen.is_dir() else None
-    except (OSError, json.JSONDecodeError):
-        return None
+    """Compatibility entry point for the shared validating publisher."""
+    publish_generation(base, run_id)
 
 
 def rotate_previous(repo: Path, output: Path) -> Path | None:

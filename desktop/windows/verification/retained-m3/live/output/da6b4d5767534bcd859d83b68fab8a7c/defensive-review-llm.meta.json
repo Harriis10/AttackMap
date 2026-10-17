@@ -1,0 +1,55 @@
+{
+  "backend": "api",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "stop_reason": "completed",
+  "usage": {
+    "input_tokens": 6310,
+    "output_tokens": 4520
+  },
+  "usage_status": "reported",
+  "reference_validation": {
+    "reference_validity": "valid",
+    "scope": "selected_prompt_producer_evidence_ids",
+    "claim_support": "not_assessed",
+    "source_location_validation": "unvalidated",
+    "source_reference_validity": "unresolved",
+    "source_references": [
+      "profileImageFileUpload.ts:42",
+      "userProfile.ts:34",
+      "vulnCodeFixes.ts:83",
+      "routes/profileImageFileUpload.ts:42",
+      "userProfile.ts:65",
+      "vulnCodeSnippet.ts:90",
+      "ci.yml:374",
+      "routes/userProfile.ts:65",
+      "routes/vulnCodeFixes.ts:83",
+      "routes/vulnCodeSnippet.ts:90"
+    ],
+    "unresolved_source_references": [
+      "profileImageFileUpload.ts:42",
+      "userProfile.ts:34",
+      "vulnCodeFixes.ts:83",
+      "routes/profileImageFileUpload.ts:42",
+      "userProfile.ts:65",
+      "vulnCodeSnippet.ts:90",
+      "ci.yml:374",
+      "routes/userProfile.ts:65",
+      "routes/vulnCodeFixes.ts:83",
+      "routes/vulnCodeSnippet.ts:90"
+    ],
+    "source_reference_scope": "No captured snapshot spans supplied by the selected narrative prompt; live files are not consulted.",
+    "context_sha256": "53a47cc944e36377031cbfb8437cbf5cc18ccd105b076b563072d9fd7f5515e6",
+    "valid_references": [
+      "finding:2",
+      "finding:1",
+      "finding:7",
+      "finding:4",
+      "finding:5",
+      "finding:6",
+      "finding:9",
+      "finding:13"
+    ],
+    "invalid_references": [],
+    "allowed_reference_count": 9
+  }
+}

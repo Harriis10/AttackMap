@@ -13,6 +13,8 @@ from urllib.request import Request, urlopen
 
 import pytest
 
+from artifact_fixture import write_generation
+
 from attackmap.ui.config import ScanConfig, analyze_argv, filter_unknown_flags
 from attackmap.ui.output import (
     current_generation,
@@ -75,7 +77,7 @@ def test_exploitability_window_matches_fixture_rows() -> None:
     assert "renderExploitability" in app
     assert report.severity_counts["high"] == 2
     assert report.top_path is not None
-    assert "AI Review is generated only when an LLM mode" in app
+    assert "Optional AI and CVE features have separate network and data disclosures in Settings" in app
     assert "AI Review was requested but produced no output" in app
 
 
@@ -234,7 +236,9 @@ def test_runner_writes_report_outside_repo(tmp_path: Path, monkeypatch: pytest.M
         "import json, pathlib, sys\n"
         "out = pathlib.Path(sys.argv[sys.argv.index('--output') + 1])\n"
         "out.mkdir(parents=True, exist_ok=True)\n"
-        "(out / 'attackmap-report.json').write_text(json.dumps({'findings': [], 'exploitability': []}))\n",
+        f"sys.path.insert(0, {str(Path(__file__).parent)!r})\n"
+        "from artifact_fixture import write_generation\n"
+        "write_generation(out)\n",
         encoding="utf-8",
     )
     app = LoopbackApp()
@@ -277,13 +281,44 @@ def test_runner_writes_report_outside_repo(tmp_path: Path, monkeypatch: pytest.M
         httpd.server_close()
 
 
-def test_runner_cancel_sets_flag(tmp_path: Path) -> None:
+def test_runner_cancel_sets_flag(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    class ControlledProcess:
+        pid = 43210  # Synthetic identity; POSIX signalling is intercepted below.
+        returncode = None
+
+        def poll(self):
+            return self.returncode
+
+        def send_signal(self, value):
+            self.returncode = 1
+
+        def terminate(self):
+            self.returncode = 1
+
     runner = ScanRunner()
     assert runner.running is False
-    runner._proc = type("P", (), {"poll": lambda self: None, "pid": 1, "terminate": lambda self: None})()
+    proc = ControlledProcess()
+    signals = []
+    if os.name != "nt":
+        def killpg(pid, value):
+            assert pid == proc.pid
+            signals.append(value)
+            if value:
+                proc.send_signal(value)
+            elif proc.poll() is not None:
+                raise ProcessLookupError
+        monkeypatch.setattr("attackmap.execution.os.killpg", killpg)
+    runner._proc = proc
     runner.running = True
-    runner.cancel()
-    assert runner.running is False
+    assert runner.cancel()
+    assert proc.poll() == 1
+    assert runner._cancelled
+    if os.name != "nt":
+        import signal
+        assert signal.SIGTERM in signals
+    # Completion/pump owns release, so a new scan cannot race publication.
+    assert runner.running
+    assert not runner.start(tmp_path, tmp_path / "out")
 
 
 def test_watch_does_not_overlap(tmp_path: Path) -> None:
@@ -453,7 +488,8 @@ def test_markdown_renderer_covers_review_syntax() -> None:
 
 def test_exploitability_empty_state_explains_taint() -> None:
     js = (web_root() / "src" / "app.js").read_text(encoding="utf-8")
-    assert "No route→sink exploitability paths" in js
+    assert "No static route→sink paths to rank" in js
+    assert "runtime reachability and exploitability are not verified" in js
     assert "taint chains" in js
     assert "renderDependencies" in js
 
@@ -513,9 +549,7 @@ def test_stale_runner_callback_ignored(tmp_path: Path, monkeypatch: pytest.Monke
             self._report_path = kwargs.get("report_path")
             output.mkdir(parents=True, exist_ok=True)
             assert self._report_path is not None
-            self._report_path.write_text(
-                '{"findings": [], "exploitability": []}', encoding="utf-8"
-            )
+            write_generation(output)
             return True
 
     runner = _Stub()
@@ -549,7 +583,7 @@ def test_promote_generation_atomically_points_current(tmp_path: Path) -> None:
     base = tmp_path / "reports"
     gen = generation_dir(base, "run-1")
     assert current_generation(base) is None
-    (gen / "attackmap-report.json").write_text('{"findings": []}', encoding="utf-8")
+    write_generation(gen)
     promote_generation(base, "run-1")
     assert current_generation(base) == gen
 
@@ -562,7 +596,7 @@ def test_rotate_previous_copies_from_promoted_generation(
     repo.mkdir()
     report_base = reports_dir(repo)
     gen = generation_dir(report_base, "run-1")
-    (gen / "attackmap-report.json").write_text('{"findings": []}', encoding="utf-8")
+    write_generation(gen)
     promote_generation(report_base, "run-1")
     baseline = rotate_previous(repo, report_base)
     assert baseline is not None
@@ -591,9 +625,7 @@ def test_start_scan_promotes_generation_and_loads_report(
             self.output = output
             self.report_path = kwargs.get("report_path")
             output.mkdir(parents=True, exist_ok=True)
-            (output / "attackmap-report.json").write_text(
-                '{"findings": [], "exploitability": []}', encoding="utf-8"
-            )
+            write_generation(output)
             self._done = kwargs.get("on_done")
             return True
 
@@ -632,9 +664,7 @@ def test_stale_callback_does_not_unpromote_new_generation(
             self._report_path = kwargs.get("report_path")
             output.mkdir(parents=True, exist_ok=True)
             assert self._report_path is not None
-            self._report_path.write_text(
-                '{"findings": [], "exploitability": []}', encoding="utf-8"
-            )
+            write_generation(output)
             return True
 
     runner = _Stub()
@@ -693,6 +723,12 @@ def test_fleet_start_scan_promotes_generation_and_loads_summary(
                 '{"repo_count": 2, "total_findings": 5, "repos": [], "cross_repo_links": []}',
                 encoding="utf-8",
             )
+            from attackmap.artifact_publisher import publish_generation, write_fleet_manifest
+            for name in ("repo-a", "repo-b"):
+                child = generation_dir(output / name, "child-run")
+                write_generation(child)
+                publish_generation(output / name, "child-run")
+            write_fleet_manifest(output, output.name, engine_version="1.0", repo_roots=[str(a), str(b)])
             return True
 
     runner = _Stub()

@@ -127,7 +127,13 @@ def test_generate_llm_review_returns_markdown_and_passes_expected_kwargs() -> No
         client=client,
     )
 
-    assert result.markdown == "# Defensive Review\n\nBody."
+    notice = "> Evidence reference check: missing. Claim support and source-location validity are not assessed."
+    assert result.markdown == notice + "\n\n" + "# Defensive Review\n\nBody."
+    assert result.reference_validation["reference_validity"] == "missing"
+    assert result.reference_validation["valid_references"] == []
+    assert result.reference_validation["invalid_references"] == []
+    assert result.reference_validation["claim_support"] == "not_assessed"
+    assert result.reference_validation["source_reference_validity"] == "missing"
     assert result.model == DEFAULT_MODEL
     assert result.usage["input_tokens"] == 1234
     assert result.usage["output_tokens"] == 567
@@ -260,7 +266,7 @@ def test_generate_llm_review_uses_auth_token_when_api_key_is_absent(monkeypatch)
     )
 
     assert result.backend == "api"
-    assert captured_constructor_kwargs == {"auth_token": "oauth-bearer-xyz"}
+    assert captured_constructor_kwargs == {"auth_token": "oauth-bearer-xyz", "max_retries": 0}
 
 
 # ---------- Claude CLI backend tests ----------
@@ -305,7 +311,13 @@ def test_cli_backend_parses_result_field_and_passes_correct_flags() -> None:
     )
 
     assert result.backend == "cli"
-    assert result.markdown == "# Review\n\nNarrative body."
+    notice = "> Evidence reference check: missing. Claim support and source-location validity are not assessed."
+    assert result.markdown == notice + "\n\n" + "# Review\n\nNarrative body."
+    assert result.reference_validation["reference_validity"] == "missing"
+    assert result.reference_validation["valid_references"] == []
+    assert result.reference_validation["invalid_references"] == []
+    assert result.reference_validation["claim_support"] == "not_assessed"
+    assert result.reference_validation["source_reference_validity"] == "missing"
     assert result.stop_reason == "end_turn"
     assert result.usage["input_tokens"] == 12
     assert result.model == "claude-opus-4-7[1m]"
@@ -522,7 +534,13 @@ def test_openai_api_returns_markdown_and_passes_expected_kwargs() -> None:
     )
 
     assert result.backend == "api"
-    assert result.markdown == "# Defensive Review\n\nBody."
+    notice = "> Evidence reference check: missing. Claim support and source-location validity are not assessed."
+    assert result.markdown == notice + "\n\n" + "# Defensive Review\n\nBody."
+    assert result.reference_validation["reference_validity"] == "missing"
+    assert result.reference_validation["valid_references"] == []
+    assert result.reference_validation["invalid_references"] == []
+    assert result.reference_validation["claim_support"] == "not_assessed"
+    assert result.reference_validation["source_reference_validity"] == "missing"
     assert result.model == OPENAI_DEFAULT_MODEL
     assert result.stop_reason == "completed"
     assert result.usage == {"input_tokens": 100, "output_tokens": 200}
@@ -622,6 +640,11 @@ def test_openai_api_uses_openai_base_url_for_lmstudio(monkeypatch) -> None:
 
     class _FakeOpenAIModule:
         @staticmethod
+        def DefaultHttpxClient(**kwargs):
+            assert kwargs == {"trust_env": False, "follow_redirects": False}
+            return object()
+
+        @staticmethod
         def OpenAI(**kwargs):  # noqa: N802 (matches SDK class name)
             captured_ctor.update(kwargs)
             return _FakeOpenAIClient(response)
@@ -636,7 +659,7 @@ def test_openai_api_uses_openai_base_url_for_lmstudio(monkeypatch) -> None:
     )
 
     assert result.backend == "api"
-    assert captured_ctor["base_url"] == "http://localhost:1234/v1"
+    assert captured_ctor["base_url"] == "http://127.0.0.1:1234/v1"
 
 
 # ---------- Codex CLI backend tests ----------
@@ -656,7 +679,13 @@ def test_codex_cli_backend_reads_stdout_and_passes_correct_flags() -> None:
     )
 
     assert result.backend == "cli"
-    assert result.markdown == "# Review\n\nCodex narrative body."
+    notice = "> Evidence reference check: missing. Claim support and source-location validity are not assessed."
+    assert result.markdown == notice + "\n\n" + "# Review\n\nCodex narrative body."
+    assert result.reference_validation["reference_validity"] == "missing"
+    assert result.reference_validation["valid_references"] == []
+    assert result.reference_validation["invalid_references"] == []
+    assert result.reference_validation["claim_support"] == "not_assessed"
+    assert result.reference_validation["source_reference_validity"] == "missing"
     assert result.model == OPENAI_DEFAULT_MODEL
 
     cmd = captured["cmd"]

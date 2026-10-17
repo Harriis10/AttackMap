@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T16:13:18.715318+00:00",
+  "scope": "Existing byte-limit producer branches only; no new limits or changed acceptance/threshold policy. One canonical immutable ResourceLimitEvent shared with neutral diagnostics.",
+  "verification": {
+    "passed": 110,
+    "skipped": 2,
+    "seconds": 18.1,
+    "raw_log": ".pytest_cache/m3-resource-events-authoritative.log",
+    "raw_log_sha256": "6a05ef5eb99b89f96b3163092ed2adf61de1b8630371137ceba115745e1f4fd5",
+    "import_guard_log": ".pytest_cache/m3-resource-events-import.log",
+    "import_guard_sha256": "bac22f5ccabbe4989d3745635b6e220214a9ea09c06971696b2a7bdb6dc0670a",
+    "environment": "Explicit absolute src PYTHONPATH and pytest pythonpath; .venv Python3.13; unique external basetemp"
+  },
+  "contract": {
+    "model": "attackmap.models.ResourceLimitEvent",
+    "fields": [
+      "schema_version=1.0",
+      "event_id=opaque SHA256",
+      "category=file_bytes|index_bytes",
+      "producer=repo_index|config_scanner",
+      "limit=positive strict integer",
+      "unit=bytes",
+      "action=skipped_file|skipped_remaining_files",
+      "observed_bytes=optional nonnegative strict integer"
+    ],
+    "scan_fields": [
+      "resource_limit_events",
+      "resource_limit_scopes",
+      "resource_limit_reporting=complete|partial|unknown (default unknown)"
+    ],
+    "instrumented_scopes": [
+      "repo_index.file_bytes",
+      "repo_index.index_bytes",
+      "config_scanner.file_bytes"
+    ],
+    "completeness": "Only named instrumented producer/category scopes; never all resource/time/call limits or analyzer coverage. Empty events without complete explicit scope do not certify zero.",
+    "privacy": "Event identity hashes relative input; no raw path/source/exception/provider data stored in event."
+  },
+  "counterexample": {
+    "budget_bytes": 6,
+    "ordered_file_sizes": [
+      4,
+      8,
+      2
+    ],
+    "accepted_files": [
+      "first.py",
+      "later.py"
+    ],
+    "event": "index_bytes limit6 observed12 action skipped_file for overflow.py; no false all-remaining-files claim",
+    "prose_before": "remaining files skipped",
+    "prose_after": "files exceeding the remaining budget skipped"
+  },
+  "merge": "Deterministic union of event payloads and explicit scopes; preserves distinct events and observed subset with unknown legacy plugins (partial); no input mutation. Shared index bridge deduplicates known observations without manufacturing whole-engine completeness.",
+  "source_hashes": {
+    "src/attackmap/models.py": "150efc96ea93d15d998f13fa7c4a5f569f07ebf84b191be1db4b6bdcc2fa9c29",
+    "src/attackmap/index.py": "810f935c77c2a9af512d681bdb1b7802655c70200114c3003c45c61bb744aff7",
+    "src/attackmap/scanner.py": "82bb456379bb3610619bda0c7091b81a0bf9466928b67db965bc789cca190477",
+    "src/attackmap/config_scanner.py": "110ff95ccaf9576fbab626aac84e754d726b4e73015b5d751f60c78c12d7c144",
+    "src/attackmap/analyzers.py": "e8449aad75202100e90b438790b0b799cb560e2a9bf33536e6e382eab68f41f2",
+    "tests/test_resource_limit_events.py": "baf2e83878654d1ca75358fd2ae92d1ccaeb5bb4a91a0904b3b01a123d017e07",
+    "tests/test_merge.py": "df66ad0e3f5f7584eaeaa05a7f729e37c972ce0ae8d03d4596affb80b5e509b6"
+  },
+  "initial_corrections": [
+    "Synthetic legacy analyzer fixture lacked required metadata; fixed fixture only.",
+    "Existing merge-schema guard intentionally excluded exactly two explicitly merged diagnostic metadata lists; dedicated merge assertions cover both.",
+    "Two mistyped nonexistent test-module invocations collected no tests; authoritative result above uses confirmed paths."
+  ],
+  "limitations": [
+    "No full regression/new frozen/native/package acceptance inferred.",
+    "Only existing RepoIndex and config scanner byte-limit branches instrumented; other producers remain unknown.",
+    "DiagnosticContext projection integration owned by native lead; this proof verifies canonical producer/merge layer."
+  ]
+}

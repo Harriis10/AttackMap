@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-15",
+  "focusedChecks": 50,
+  "publish": "Release win-x64 passed",
+  "realReportSmoke": {
+    "passed": true,
+    "architectureCount": 1547,
+    "inventoryCount": 472,
+    "filteredDependencies": 176,
+    "detail": "Dependency: @angular/animations | version ^22.0.1 | ecosystem npm\nsupplied basis: unknown (not supplied); relationship: unknown\nSource: frontend/package.json\n\nname (supplied)\n@angular/animations\n\nversion (supplied)\n^22.0.1\n\necosystem (supplied)\nnpm\n\nfile (supplied)\nfrontend/package.json\n\ndirect (supplied)\nTrue\n\ndev (supplied)\nFalse\n\nresolved (supplied)\nFalse\n\nevidence_text (supplied)\ndependencies.@angular/animations = '^22.0.1'",
+    "notes": "Supplied static records only; no UI-inferred nodes or edges. Missing ownership/relationships remain unknown. Observed static evidence is not runtime verification.\nroutes: 266 supplied records.\ndependencies: 176 supplied records.\ndatabases: 30 supplied records.\nframework_hints: 0 supplied records."
+  },
+  "goldenNativeSmoke": {
+    "passed": true,
+    "architectureCount": 7,
+    "inventoryCount": 4,
+    "filteredDependencies": 2,
+    "detail": "Dependency: pkg-č | version ^2.0 | ecosystem npm\nsupplied basis: unknown (not supplied); relationship: unknown\nSource: package.json\n\nname (supplied)\npkg-č\n\nversion (supplied)\n^2.0\n\necosystem (supplied)\nnpm\n\nfile (supplied)\npackage.json\n\ndirect (supplied)\nTrue\n\ndev (supplied)\nFalse\n\nresolved (supplied)\nFalse",
+    "notes": "Supplied static records only; no UI-inferred nodes or edges. Missing ownership/relationships remain unknown. Observed static evidence is not runtime verification.\nroutes: 1 supplied records.\ndependencies: 2 supplied records.\ndatabases: 1 supplied records.\nframework_hints: unavailable; completeness unknown."
+  },
+  "sourceReportSha256": "B4FD62D2C31AC4F7C3F09C6D7FA6D2ECDADE8ABD81A1C6BF3BCDE8C25FD8B8CB",
+  "findingRegressionPassed": true,
+  "limitations": [
+    "List exploration only; no diagram or inferred service graph",
+    "Event-dispatch waits are synchronization, not performance measurements",
+    "No keyboard/Narrator or full C21 acceptance claim"
+  ]
+}

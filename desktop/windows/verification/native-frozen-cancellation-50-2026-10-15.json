@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "scope": "Ordinary frozen Windows broker/analyze-child cancellation through production EngineSession; no UI acknowledgement, stubborn-descendant, Narrator, supported-OS or final-package claim",
+  "engineScope": "Historical immutable timing engine; not final rebuilt executable acceptance",
+  "campaign": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-timing-0a7d1e482b6c461cae713f1c5a70996a\\cancellation-50-current.json",
+    "sha256": "441d52435ae90d231efa9fd85f39a7ec025405535e1e3eced76fe48fb1760bf7",
+    "sizeBytes": 121411
+  },
+  "rawLog": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-timing-0a7d1e482b6c461cae713f1c5a70996a\\cancellation-50-current.log",
+    "sha256": "f9146b141fbf670c922dd200805c48f48de3a46729a1ed717649e6b6083701ee",
+    "sizeBytes": 2761
+  },
+  "exitCode": 0,
+  "authoritativeSession": 22698,
+  "sampledCycles": 50,
+  "requestedCycles": 50,
+  "naturalCompletionSubstitutions": 0,
+  "cancelApiReturnP95Milliseconds": 0.4367,
+  "cancelApiReturnMaximumMilliseconds": 0.5738,
+  "observedOwnedTreeExitP95Milliseconds": 3334.4069,
+  "observedOwnedTreeExitMaximumMilliseconds": 3429.7857,
+  "allFiftyObservedTreesExitedWithinFiveSeconds": true,
+  "admission": {
+    "attempted": 20,
+    "started": 1,
+    "rejected": 19,
+    "requests": 1,
+    "cleanupBlocked": false
+  },
+  "observedImagesPerSample": {
+    "attackmap.exe": 2,
+    "conhost.exe": 2
+  },
+  "identityEvidence": "Per-process exact image path, PID, parent PID, creation UTC and owned argv are in the campaign samples. Retained OS handles verified exit. Staged engine request run/repository/output matched original request. No unrelated process command lines persisted.",
+  "sourceHashes": {
+    "EngineSession.cs": "7a1058a8ff3cfaf9e11aa1ba54d55265437869a404c24094d53512a9cdf7f4ef",
+    "EngineProtocol.cs": "0062aee1c9c44e457f648f0ce3ea470adb42887e53097b706599abbf0e1fd3d1",
+    "EngineLaunchSpec.cs": "4119f6a77ebd9b18f64517750e8dae1ab28eacff144537242cb183c20f6713e5",
+    "NativeScanOptions.cs": "c00856b253773868d3fee35288de287b6aa18f2d6401c0a18cab8366b4a297f8",
+    "ProviderConfiguration.cs": "7070e83eae2ee5d094265bddf24b6f5fa6cacdef4766b427ffd4a6dfc7795d0d",
+    "RunPresentation.cs": "cd598b99703fcfed8b9a885f0c3067890d8f3f6025aacb40fef3cca04c8e7ec2"
+  },
+  "harness": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FrozenCancellation.Tests\\Program.cs",
+    "sha256": "906cded2613f62aac26d87741cbb3289e2c92fee3255a42a8b70a49ad95a0d42",
+    "sizeBytes": 13434
+  },
+  "project": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FrozenCancellation.Tests\\FrozenCancellation.Tests.csproj",
+    "sha256": "901f7680c77c7bd7d23330f927b7d113e5e113470a7089b4fa256ab8762ec9a9",
+    "sizeBytes": 791
+  },
+  "testAssemblySha256": "0c2362c0e9c9403f71d32de7cbedad3818a4106866886a98b0fca0c8eaaff8f3",
+  "executable": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-timing-0a7d1e482b6c461cae713f1c5a70996a\\dist\\attackmap\\attackmap.exe",
+    "sha256": "fe1153740aa14724b7f98075a32f9044f14ffa9cd9b3454d6ccce2f950e86610"
+  },
+  "preservedNegativeCalibration": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-timing-0a7d1e482b6c461cae713f1c5a70996a\\cancellation-calibration.json",
+    "sha256": "4ed50c6aad6fa565fdde0304f9dcc56ffa32dfcad35185c83eb8721155ded2be",
+    "sizeBytes": 1796
+  },
+  "negativeCalibrationExplanation": "Zero samples; harness incorrectly required analyze argv. Actual child uses desktop-worker --engine --request with prepared identity. No engine stall claim. Corrected calibration preserved separately.",
+  "correctedCalibration": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-timing-0a7d1e482b6c461cae713f1c5a70996a\\cancellation-calibration-corrected.json",
+    "sha256": "62a8dea426005b12ab2617492d5e877df01007726b1aee8ffee0b1dceec119f5",
+    "sizeBytes": 5964
+  },
+  "finalSourceReview": {
+    "changedSnapshotInputs": {
+      "src/attackmap/cli.py": {
+        "snapshotSha256": "ac7fa3a28e6384807bb6890a6af88c74baf058fc97437ae5b4bbc11be095319e",
+        "currentSha256": "b2fd7f3b7bc9a72bf8afc6493f87e4ebf8598ba80a43d06b5bb833ad4a5e9263"
+      },
+      "src/attackmap/scan_service.py": {
+        "snapshotSha256": "c97f537f5875e415d37ea54b9f1b9b4a08683b2d1d0dda31f000ada66676ef20",
+        "currentSha256": "38bb3d899373972be8ac3d4bcf497bbeada0df0c1dbb3cf41e767373d6dd1124"
+      }
+    },
+    "linkedNativeSourcesUnchanged": {
+      "EngineSession.cs": true,
+      "EngineProtocol.cs": true,
+      "EngineLaunchSpec.cs": true,
+      "NativeScanOptions.cs": true,
+      "ProviderConfiguration.cs": true,
+      "RunPresentation.cs": true
+    },
+    "interpretation": "Only cli.py and scan_service.py differ. Additions write redacted diagnostics when requested-analyzer selection fails before pipeline. Successful installed-python selection and ordinary worker cancellation code are unchanged. This source review does not prove final executable cancellation acceptance.",
+    "pythonCancellationSourcesUnchanged": true
+  },
+  "limitations": [
+    "Windows10 development machine; concurrent unrelated team builds possible, not isolated reference-hardware performance campaign",
+    "Identity query may not observe descendants created after snapshot; engine cancellation/cleanup also required production verified completion",
+    "First calibration was unsampled due to incorrect analyze argv assumption; preserved separately, corrected to actual prepared --engine request",
+    "No global process termination or production hooks; only production Cancel/Disconnect used",
+    "Observed set contains two attackmap.exe and two conhost.exe processes per sample; it is not four engine workers.",
+    "No UI acknowledgement, stubborn-descendant campaign, final executable/package acceptance, or C26 reference-machine acceptance."
+  ]
+}

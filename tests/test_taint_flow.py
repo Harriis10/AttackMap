@@ -48,26 +48,32 @@ VULNERABLE = [
 ]
 
 SANITIZED = [
-    ("py", "ssrf_sanitized.py", "ssrf", "GET", "/fetch", "private/loopback/link-local address check"),
     ("py", "sqli_sanitized.py", "sql_execute", "GET", "/orders/lookup", "int() cast"),
     ("py", "path_sanitized.py", "dynamic_open", "GET", "/reports/download", "werkzeug.secure_filename"),
     ("py", "cmd_sanitized.py", "subprocess_shell", "POST", "/diag/ping", "shlex.quote"),
-    ("js", "ssrf_sanitized.js", "ssrf", "GET", "/fetch", "allow-list check"),
     ("js", "sqli_sanitized.js", "sql_execute", "GET", "/orders/:id", "parseInt/Number cast"),
     ("js", "path_sanitized.js", "dynamic_open", "GET", "/reports/download", "path.basename"),
-    ("js", "cmd_sanitized.js", "subprocess_shell", "POST", "/diag/ping", "allow-list check"),
-    ("go", "ssrf_sanitized.go", "ssrf", "GET", "/fetch", "allow-list check"),
     ("go", "sqli_sanitized.go", "sql_execute", "GET", "/orders/lookup", "strconv cast"),
     ("go", "path_sanitized.go", "dynamic_open", "GET", "/reports/download", "filepath.Base"),
-    ("go", "cmd_sanitized.go", "subprocess_shell", "POST", "/diag/ping", "regex validation"),
-    ("php", "ssrf_sanitized.php", "ssrf", "GET", "/fetch", "allow-list check"),
     ("php", "sqli_sanitized.php", "sql_execute", "GET", "/orders/lookup", "intval cast"),
     ("php", "path_sanitized.php", "dynamic_open", "GET", "/reports/download", "basename()"),
     ("php", "cmd_sanitized.php", "subprocess_shell", "POST", "/diag/ping", "escapeshellarg/escapeshellcmd"),
-    ("java", "FetchSanitizedController.java", "ssrf", "GET", "/fetch", "allow-list check"),
     ("java", "OrderLookupController.java", "sql_execute", "GET", "/orders/lookup", "Java numeric parse"),
     ("java", "ReportSanitizedController.java", "dynamic_open", "GET", "/reports/download", "FilenameUtils.getName"),
-    ("java", "PingSanitizedController.java", "subprocess_shell", "POST", "/diag/ping", "regex validation"),
+]
+
+# Historical *_sanitized fixture names are retained. These guards used to
+# suppress findings by text/source similarity; their semantics and the final
+# sink value are not proven by the implemented flow frontends (C02).
+UNPROVEN_GUARDS = [
+    ("py", "ssrf_sanitized.py", "ssrf", "GET", "/fetch"),
+    ("js", "ssrf_sanitized.js", "ssrf", "GET", "/fetch"),
+    ("js", "cmd_sanitized.js", "subprocess_shell", "POST", "/diag/ping"),
+    ("go", "ssrf_sanitized.go", "ssrf", "GET", "/fetch"),
+    ("go", "cmd_sanitized.go", "subprocess_shell", "POST", "/diag/ping"),
+    ("php", "ssrf_sanitized.php", "ssrf", "GET", "/fetch"),
+    ("java", "FetchSanitizedController.java", "ssrf", "GET", "/fetch"),
+    ("java", "PingSanitizedController.java", "subprocess_shell", "POST", "/diag/ping"),
 ]
 
 
@@ -138,6 +144,15 @@ def test_re_escape_elsewhere_does_not_sanitize_ssti() -> None:
     path = FIX / "py" / "ssti_re_escape.py"
     chain = _at_sink(_chains("py", "ssti_re_escape.py", "POST", "/preview"), "ssti", _marker(path, "sink"))
     assert chain.sanitized is False and chain.sanitizer_evidence is None
+    assert chain.source_line == _marker(path, "source")
+
+
+@pytest.mark.parametrize("lang,name,kind,method,route", UNPROVEN_GUARDS)
+def test_unproven_guard_retains_tainted_chain(lang, name, kind, method, route) -> None:
+    path = FIX / lang / name
+    chain = _at_sink(_chains(lang, name, method, route), kind, _marker(path, "sink"))
+    assert chain.sanitized is False
+    assert chain.sanitizer_evidence is None
     assert chain.source_line == _marker(path, "source")
 
 

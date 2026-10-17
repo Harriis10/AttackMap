@@ -4,6 +4,7 @@ import json
 import os
 import shlex
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,13 @@ from .analyzers import (
 )
 from .progress import PROGRESS_PROTOCOL_VERSION
 from .scan_service import ScanRequest, ScanRequestError, execute_scan_request
+# Preserve the CLI's banner imports after orchestration moved to the pipeline.
+from .pipeline import (
+    ScanAiLimits,
+    HUNT_BANNER as HUNT_BANNER,
+    REMEDIATION_BANNER as REMEDIATION_BANNER,
+    TRIAGE_BANNER as TRIAGE_BANNER,
+)
 from .review_prompts import HUNT_LENSES
 from . import __version__
 from .safe_fs import UnsafePathError, ensure_output_dir, safe_write_text
@@ -56,6 +64,29 @@ def _select_modules(module: list[str], install_missing: bool) -> list:
         ) from exc
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
+
+
+
+def _select_modules_for_output(module: list[str], install_missing: bool, output: Path,
+                               run_id: str | None, *, diagnostics: bool = True) -> list:
+    selection_started = time.perf_counter()
+    try:
+        return _select_modules(module, install_missing)
+    except typer.BadParameter:
+        selection_duration = round((time.perf_counter() - selection_started) * 1000)
+        if diagnostics:
+            from .artifact_manifest import make_run_id
+            from .artifact_publisher import write_diagnostic
+            from .diagnostics import startup_diagnostic
+            try:
+                write_diagnostic(Path(output), run_id or make_run_id(), state="failed",
+                                 error="Requested analyzer configuration unavailable.",
+                                 context=startup_diagnostic("select_analyzers",
+                                     duration_milliseconds=selection_duration,
+                                     requested_analyzers=module))
+            except (OSError, ValueError):
+                pass  # Diagnostic storage must not replace the original usage error.
+        raise
 
 
 def _ensure_output_dir(path: Path, *, mark: bool = False) -> Path:
@@ -164,6 +195,33 @@ def _validate_analyze_options(
         raise typer.BadParameter(f"--hunt-budget must be 0 (no cap) or more (got {hunt_budget}).")
 
 
+def _parse_deployment_aliases(service_alias: list[str], service_dns_suffix: list[str]):
+    """Build a validated DeploymentAliases from CLI declarations, or None."""
+    if not service_alias and not service_dns_suffix:
+        return None
+    from .contracts import DeploymentAliases
+    hosts: dict[str, str] = {}
+    for item in service_alias:
+        host, sep, repo = item.partition("=")
+        if not sep or not host.strip() or not repo.strip():
+            raise typer.BadParameter(f"--service-alias expects HOST=REPO, got: {item!r}")
+        hosts[host.strip()] = repo.strip()
+    try:
+        return DeploymentAliases(hosts=hosts, dns_suffixes=tuple(service_dns_suffix))
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+
+def _validate_fleet_options(fleet_incompatible: dict[str, bool]) -> None:
+    active_flags = [flag for flag, on in fleet_incompatible.items() if on]
+    if active_flags:
+        raise typer.BadParameter(
+            f"{', '.join(sorted(active_flags))} not yet supported in multi-repo mode — "
+            "run one repository at a time for these (fleet-aware wiring lands in #146b+)."
+        )
+
+
+
 def _run_fleet(
     repo_paths: list[Path],
     *,
@@ -181,19 +239,18 @@ def _run_fleet(
     suppress_from_ref: str | None = None,
     strict_analyzers: bool = False,
     max_workers: int = 1,
+    startup_diagnostics: bool = True,
+    deployment_aliases=None,
     **single_repo_kwargs: Any,
 ) -> None:
     """Multi-repo fleet scan adapter around the shared ``execute_scan_request``."""
-    active_flags = [flag for flag, on in fleet_incompatible.items() if on]
-    if active_flags:
-        raise typer.BadParameter(
-            f"{', '.join(sorted(active_flags))} not yet supported in multi-repo mode — "
-            "run one repository at a time for these (fleet-aware wiring lands in #146b+)."
-        )
+    _validate_fleet_options(fleet_incompatible)
 
     selected_analyzers = None
     if module:
-        selected_analyzers = _select_modules(module, install_missing)
+        selected_analyzers = _select_modules_for_output(
+            module, install_missing, Path(output), single_repo_kwargs.get("run_id"),
+            diagnostics=startup_diagnostics)
 
     request = ScanRequest(
         repo_paths=repo_paths,
@@ -209,6 +266,7 @@ def _run_fleet(
         progress_format=progress_format,
         no_progress=no_progress,
         max_workers=max_workers,
+        deployment_aliases=deployment_aliases,
         **single_repo_kwargs,
     )
     try:
@@ -290,12 +348,12 @@ def analyze(
     verify: bool = typer.Option(
         False,
         "--verify",
-        help="With --hunt: adjudicate each hypothesis against the actual source at cited locations — CONFIRMED / REFUTED / NEEDS HUMAN REVIEW (#hunt-verify). AttackMap feeds the code excerpts to the model.",
+        help="With --hunt: obtain a model assessment of each hypothesis against source at cited locations — CONFIRMED / REFUTED / NEEDS HUMAN REVIEW (#hunt-verify). AttackMap feeds code excerpts to the model; this does not establish verified runtime exploitability.",
     ),
     verify_votes: int = typer.Option(
         3,
         "--verify-votes",
-        help="With --hunt --verify: number of independent skeptic passes to adjudicate each hypothesis. A lead is CONFIRMED only on a strict majority (NEEDS_REVIEW only if a majority flags the evidence insufficient); ties/uncertainty are REFUTED (#147a). 1 = the classic single-pass verify.",
+        help="With --hunt --verify: number of independent skeptic passes to adjudicate each hypothesis. Each model assessment requires a strict majority of planned votes. Missing or failed votes abstain; ties and no-majority outcomes are INCONCLUSIVE. Model assessment does not establish verified exploitability.",
     ),
     hunt_lenses: int = typer.Option(
         1,
@@ -310,8 +368,14 @@ def analyze(
     hunt_budget: int = typer.Option(
         0,
         "--hunt-budget",
-        help="With --hunt-rounds: stop launching new hunting rounds once this many output tokens have been spent (0 = no budget cap). A guardrail on multi-round cost.",
+        help="With --hunt-rounds: stop launching new hunting rounds after this many output tokens (0 disables only this hunt sublimit; the whole-scan AI allowance still applies).",
     ),
+    ai_max_calls: int = typer.Option(8, "--ai-max-calls", min=1, max=64,
+        help="Per-repository whole-scan provider attempt limit shared by narrative, hunt/jury, remediation and triage. Fleet AI features are unsupported."),
+    ai_output_tokens: int = typer.Option(32000, "--ai-output-tokens", min=1, max=256000,
+        help="Whole-scan OUTPUT-token allowance; API backend required. Does not cap input tokens, hidden reasoning or billing."),
+    ai_timeout_seconds: int = typer.Option(600, "--ai-timeout-seconds", min=1, max=86400,
+        help="Whole-scan elapsed AI allowance in seconds; no provider attempt begins after its deadline."),
     remediate: bool = typer.Option(
         False,
         "--remediate",
@@ -413,43 +477,93 @@ def analyze(
         help="Maximum parallel repository scans in multi-repo mode. Default 1 (serial). "
         "Capped by ATTACKMAP_FLEET_MAX_WORKERS if set.",
     ),
+    fleet_result: Path | None = typer.Option(None, "--fleet-result", hidden=True),
+    direct_generation_output: bool = typer.Option(False, "--direct-generation-output", hidden=True),
+    service_alias: list[str] = typer.Option(
+        [],
+        "--service-alias",
+        help="Fleet only. Declare a deployment alias HOST=REPO for cross-repo link resolution (C28); "
+        "repeatable. Positive declarations only — destinations are never resolved by similarity.",
+    ),
+    service_dns_suffix: list[str] = typer.Option(
+        [],
+        "--service-dns-suffix",
+        help="Fleet only. Declare a DNS namespace suffix (e.g. .internal) that may strip to a repo "
+        "identity; repeatable. Undeclared suffixes never strip.",
+    ),
 ) -> None:
-    repo_paths = [Path(p).resolve() for p in (paths or ["."])]
-    for rp in repo_paths:
-        if not rp.exists():
-            raise typer.BadParameter(f"Path does not exist: {rp}")
+    validation_started = time.perf_counter()
+    fleet_incompatible = {
+        "--baseline": baseline is not None,
+        "--diff-output": diff_output is not None,
+        "--fail-on-new-high": fail_on_new_high,
+        "--fail-on-new-suppression": fail_on_new_suppression,
+        "--pr-comment": pr_comment is not None,
+        "--llm": llm,
+        "--hunt": hunt,
+        "--remediate": remediate,
+        "--triage": triage,
+        "--secrets-history": secrets_history > 0,
+    }
+    try:
+        repo_paths = [Path(p).resolve() for p in (paths or ["."])]
+        for rp in repo_paths:
+            if not rp.exists():
+                raise typer.BadParameter(f"Path does not exist: {rp}")
 
-    # Validate progress format before either branch, so the fleet path enforces
-    # the same option semantics as a single-repo run (#146a).
-    if trusted_analyzers_only and os.environ.get(TRUSTED_ONLY_ENV) != "1":
-        previous = os.environ.get(TRUSTED_ONLY_ENV)
-        os.environ[TRUSTED_ONLY_ENV] = "1"
+        # Validate progress format before either branch, so the fleet path enforces
+        # the same option semantics as a single-repo run (#146a).
+        if trusted_analyzers_only and os.environ.get(TRUSTED_ONLY_ENV) != "1":
+            previous = os.environ.get(TRUSTED_ONLY_ENV)
+            os.environ[TRUSTED_ONLY_ENV] = "1"
 
-        def _restore_trust_env() -> None:
-            if previous is None:
-                os.environ.pop(TRUSTED_ONLY_ENV, None)
-            else:
-                os.environ[TRUSTED_ONLY_ENV] = previous
+            def _restore_trust_env() -> None:
+                if previous is None:
+                    os.environ.pop(TRUSTED_ONLY_ENV, None)
+                else:
+                    os.environ[TRUSTED_ONLY_ENV] = previous
 
-        ctx.call_on_close(_restore_trust_env)
-    _validate_analyze_options(
-        ctx,
-        progress_format=progress_format,
-        output_format=format,
-        llm_provider=llm_provider,
-        llm_speed=llm_speed,
-        llm_effort=llm_effort,
-        llm_backend=llm_backend,
-        hunt=hunt,
-        verify=verify,
-        verify_votes=verify_votes,
-        hunt_lenses=hunt_lenses,
-        hunt_rounds=hunt_rounds,
-        hunt_budget=hunt_budget,
-        baseline=baseline,
-        diff_output=diff_output,
-        secrets_history=secrets_history,
-    )
+            ctx.call_on_close(_restore_trust_env)
+        _validate_analyze_options(
+            ctx,
+            progress_format=progress_format,
+            output_format=format,
+            llm_provider=llm_provider,
+            llm_speed=llm_speed,
+            llm_effort=llm_effort,
+            llm_backend=llm_backend,
+            hunt=hunt,
+            verify=verify,
+            verify_votes=verify_votes,
+            hunt_lenses=hunt_lenses,
+            hunt_rounds=hunt_rounds,
+            hunt_budget=hunt_budget,
+            baseline=baseline,
+            diff_output=diff_output,
+            secrets_history=secrets_history,
+        )
+
+        deployment_aliases = _parse_deployment_aliases(service_alias, service_dns_suffix)
+        if len(repo_paths) == 1 and deployment_aliases is not None:
+            raise typer.BadParameter(
+                "--service-alias/--service-dns-suffix apply to multi-repo fleet scans only."
+            )
+        if len(repo_paths) > 1:
+            _validate_fleet_options(fleet_incompatible)
+    except typer.BadParameter:
+        validation_duration = round((time.perf_counter() - validation_started) * 1000)
+        if not direct_generation_output:
+            from .artifact_manifest import make_run_id
+            from .artifact_publisher import write_diagnostic
+            from .diagnostics import startup_diagnostic
+            try:
+                write_diagnostic(Path(output), run_id or make_run_id(), state="failed",
+                    error="Request configuration unavailable.",
+                    context=startup_diagnostic("request_validation",
+                        duration_milliseconds=validation_duration))
+            except (OSError, ValueError):
+                pass  # Keep the original semantic usage error if storage is unavailable.
+        raise
 
     # Multi-repo fleet mode (#146a): scan each repo independently and assemble a
     # fleet view. Dispatched here so the single-repo path below is untouched.
@@ -472,26 +586,18 @@ def analyze(
             strict_suppressions=strict_suppressions,
             run_id=run_id,
             max_workers=fleet_workers,
+            deployment_aliases=deployment_aliases,
+            startup_diagnostics=not direct_generation_output,
             # Single-repo-only features aren't fleet-aware yet — reject rather
             # than silently ignore, so the user isn't surprised (#146b+ wire them).
-            fleet_incompatible={
-                "--baseline": baseline is not None,
-                "--diff-output": diff_output is not None,
-                "--fail-on-new-high": fail_on_new_high,
-                "--fail-on-new-suppression": fail_on_new_suppression,
-                "--pr-comment": pr_comment is not None,
-                "--llm": llm,
-                "--hunt": hunt,
-                "--remediate": remediate,
-                "--triage": triage,
-                "--secrets-history": secrets_history > 0,
-            },
+            fleet_incompatible=fleet_incompatible,
         )
         return
 
     selected_analyzers = None
     if module:
-        selected_analyzers = _select_modules(module, install_missing)
+        selected_analyzers = _select_modules_for_output(
+            module, install_missing, Path(output), run_id, diagnostics=not direct_generation_output)
     request = ScanRequest(
         repo_paths=repo_paths,
         output=Path(output),
@@ -514,6 +620,8 @@ def analyze(
         fail_on_new_suppression=fail_on_new_suppression,
         pr_comment=pr_comment,
         run_id=run_id,
+        fleet_result=fleet_result,
+        atomic_output=not direct_generation_output,
         llm=llm,
         llm_provider=llm_provider,
         llm_model=llm_model,
@@ -528,6 +636,7 @@ def analyze(
         hunt_budget=hunt_budget,
         remediate=remediate,
         triage=triage,
+        ai_limits=ScanAiLimits(ai_max_calls, ai_output_tokens, ai_timeout_seconds),
     )
     try:
         summary = execute_scan_request(request)
@@ -783,6 +892,88 @@ def bench(
         typer.echo(f"OK: lowest scored precision/recall {worst:.2f} ≥ --fail-under {fail_under:.2f}")
 
 
+@app.command("evaluate")
+def evaluate(
+    corpus: str = typer.Option(
+        "fixtures/evaluation/corpus.json",
+        "--corpus",
+        help="Path to the versioned evaluation corpus manifest (C27).",
+    ),
+    root: str = typer.Option(
+        ".",
+        "--root",
+        help="Repository root the corpus's case paths are relative to.",
+    ),
+    output: str | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Directory to write evaluation-report.md + .json (also printed to stdout).",
+    ),
+) -> None:
+    """Run the versioned detector-evaluation corpus (AM037 / C27).
+
+    Scores labeled positive/negative/clean expectations per detector family
+    with repository-level tuning/holdout split, Wilson intervals, sample
+    counts, and explicit experimental flags.
+    """
+    from .evaluation import load_corpus, render_markdown, report_json, run_evaluation
+
+    manifest = Path(corpus)
+    if not manifest.exists():
+        typer.echo(f"Corpus manifest not found: {manifest}")
+        typer.echo("Pass --corpus <path>, or run from a checkout that has fixtures/evaluation/.")
+        raise typer.Exit(code=2)
+
+    report = run_evaluation(load_corpus(manifest), root)
+    markdown = render_markdown(report)
+    typer.echo(markdown)
+
+    if output:
+        out = Path(output)
+        _ensure_output_dir(out)
+        _write_text(out / "evaluation-report.md", markdown + "\n")
+        _write_text(out / "evaluation-report.json", json.dumps(report_json(report), indent=2) + "\n")
+        typer.echo(f"Written to: {out.resolve()}")
+
+    errored = [r.case.case_id for r in report.results if r.error]
+    if errored:
+        typer.echo(f"Cases that failed to scan: {', '.join(errored)}")
+        raise typer.Exit(code=1)
+
+
+@app.command("diagnostics")
+def diagnostics(
+    output_dir: Path = typer.Argument(
+        ..., help="AttackMap output base containing report generations.",
+        exists=True, file_okay=False, resolve_path=True),
+    out: Path = typer.Option(
+        None, "--out",
+        help="Also write the previewed bundle to this JSON file (existing file is overwritten)."),
+    max_generations: int = typer.Option(
+        50, "--max-generations", min=1, max=500,
+        help="How many recent generations to include in the export."),
+) -> None:
+    """Preview a redacted, source-free diagnostic export for an output base.
+
+    Prints the exact bounded JSON payload that --out would write: generation
+    timing/coverage summaries, terminal diagnostics, pins, and a dry-run
+    retention posture. Report contents and source excerpts are never included;
+    free text is redacted.
+    """
+    from .diagnostics_export import collect_diagnostic_export, export_diagnostics
+    try:
+        if out is not None:
+            payload, target = export_diagnostics(output_dir, out, max_generations=max_generations)
+            typer.echo(json.dumps(payload, indent=2))
+            typer.echo(f"Diagnostic export written: {target}")
+        else:
+            typer.echo(json.dumps(collect_diagnostic_export(output_dir, max_generations=max_generations), indent=2))
+    except (OSError, ValueError) as exc:
+        typer.echo(f"Diagnostic export failed: {exc}", err=True)
+        raise typer.Exit(code=2)
+
+
 @app.command("ui")
 def ui() -> None:
     """Open the Windows desktop GUI (WebView2 window, loopback-hosted)."""
@@ -793,3 +984,24 @@ def ui() -> None:
 
 if __name__ == "__main__":
     app()
+
+
+@app.command("desktop-worker", hidden=True)
+def desktop_worker_command(
+    request: Path = typer.Option(..., "--request"),
+    engine: bool = typer.Option(False, "--engine", hidden=True),
+) -> None:
+    """Internal native desktop transport adapter."""
+    from .desktop_worker import run_request_file
+    raise typer.Exit(run_request_file(request, engine=engine))
+
+
+@app.command("desktop-action", hidden=True)
+def desktop_action_command(
+    request: Path = typer.Option(..., "--request"),
+    engine: bool = typer.Option(False, "--engine", hidden=True),
+    expected_sha256: str | None = typer.Option(None, "--expected-sha256", hidden=True),
+) -> None:
+    """Internal typed desktop action broker."""
+    from .desktop_actions import run_action_file
+    raise typer.Exit(run_action_file(request, engine=engine, expected_sha256=expected_sha256))

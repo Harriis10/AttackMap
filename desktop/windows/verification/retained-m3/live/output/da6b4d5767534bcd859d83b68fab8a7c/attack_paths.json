@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Distributed service trust-chain abuse",
+    "steps": [
+      "Entry: Attacker reaches EXPOSE container:80 in infrastructure/docker-compose.yml",
+      "Service entry: Request is handled by service `juice-shop-net`",
+      "Sink: Influence reaches database, creating a plausible unauthorized downstream action path",
+      "Evidence: confidence=0.80; route EXPOSE container:80 in infrastructure/docker-compose.yml; entry service from file-local hint: juice-shop-net; database sink in service juice-shop-net: redis (infrastructure/docker-compose.yml)"
+    ],
+    "impact": "A public API foothold can propagate across `juice-shop-net` and affect database if service boundaries or downstream trust checks are weak."
+  }
+]

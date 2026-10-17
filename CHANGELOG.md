@@ -9,6 +9,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Watch correctness (AM044/C31): the desktop watcher now receives per-path
+  change events (ReadDirectoryChangesW) and filters them through the shared
+  generated-output identification (output marker + artifact manifest), debounces
+  a burst into one scan, records a pending-dirty state for changes arriving
+  during analysis and runs exactly one follow-up afterwards, stops the previous
+  watcher on repository switch, and states fleet/platform watch limitations
+  visibly instead of silently watching one repository.
+- Detector-evaluation harness (AM037/C27 infrastructure): `attackmap evaluate`
+  runs a versioned corpus manifest with per-case label rationales,
+  repository-level seeded holdout splits, shared matching semantics with the
+  benchmark, per-family TP/FP/FN with Wilson intervals, and an experimental flag
+  below the C27 sample minimums. Seed corpus v0.1.0 ships 28 honestly labeled
+  cases over 10 repositories and prints its gap to the C27 targets in every
+  report; no family is ever hidden for scoring poorly.
+- Release-readiness tooling (AM041/C29 preparation, unsigned): a deterministic
+  SBOM generator that re-verifies every package manifest entry, a release lock
+  capturing exact source/toolchain inputs, and an install→upgrade→rollback→
+  uninstall procedure test on synthetic packages. All outputs state the
+  unsigned limitation; no signing is claimed.
+- Generation retention (AM043/C30 first slice): keep the current generation,
+  pinned runs, active runs, and by default the latest 20 completed generations
+  per output base under a 2 GiB soft budget. Finalized-but-invalid directories
+  are recovered as interrupted cleanups; staged runs, diagnostics, and user
+  files are never touched. Runs apply fail-open after every publish site.
+- `attackmap diagnostics <output-dir>` previews a redacted, source-free
+  diagnostic export (generation timing/coverage summaries, terminal
+  diagnostics, pins, dry-run retention posture); `--out` writes the exact
+  previewed JSON. The pins store and the export file are recognized as
+  generated output so repeated scans never re-ingest them.
+- Desktop retention slice: scans publish into a stable per-repository output
+  base so generations accumulate, and the native History view lists retained
+  generations with pin/unpin controls plus a redacted diagnostics export via
+  supervised engine actions (`pin_generation`, `unpin_generation`,
+  `diagnostics_preview`, `diagnostics_export`). Generation rows render through
+  an explicit item template after captures showed the code-created list never
+  painted `DisplayMemberPath` content.
+- Service-identity-preserving cross-repo linking (AM039/C28 first slice): a
+  client→server contract link is observed only when the call's destination
+  authority positively identifies the server repository (fleet id or root
+  directory name — no hostname truncation, so `auth-api` and `auth-worker`
+  stay distinct). DNS-suffixed or unknown hosts, relative targets, ambiguous
+  identities, and explicit ports keep the match as a candidate link with a
+  recorded reason; candidates never support cross-boundary flows, trust gaps,
+  or observed graph edges, and fleet summaries render them separately. AM040
+  completes destination resolution with explicit deployment aliases passed to
+  `link_contracts`: declared exact hostnames (`auth.bsky.social` → `auth-api`),
+  declared DNS-suffix namespaces (`.internal` strips to a whole repo identity),
+  and explicit `host:port` bindings — the only way an explicitly-ported call
+  resolves. Declarations are positive only (never inferred by similarity); a
+  host an alias maps to more than one repo, including collisions with another
+  repository's own identity, stays a candidate. A three-service reference
+  fixture (web-app → auth-api / feed-generator) pins every resolved and
+  candidate edge.
+
+### Fixed
+
+- Native Windows reports: `Expander` content no longer renders as a centered
+  block. All four expanders (raw artifacts, advanced scan options, suppression,
+  coverage limitations) now stretch content to the card column, the raw
+  artifact list shows file name plus muted role rows with joined action
+  buttons, and artifact text renders in monospace inside a raised block.
+- Publish validated CLI and fleet generations atomically; retain prior current
+  results on failure or cancellation, and preserve successful fleet siblings.
+  Compatibility-export failures no longer misreport a committed analysis as failed.
+- Use shared process-tree supervision for desktop and parallel fleet workers;
+  isolate engine stdin from desktop cancellation controls. The native Windows
+  integration now opens actual engine reports and completes a local repository scan.
+
+- Restore the CLI's review-banner imports after the orchestration extraction,
+  align current source version references, and add Windows to the Python core CI
+  matrix. Frontend regression tests run with Node.js 22.
+- Guard suppression now requires recognized literal constraints, correct branch
+  polarity, dominance, and the unchanged sink value. Unproven validators retain
+  a finding instead of suppressing it through matching text or source identity.
+- Scope route relationships to matching static chains and keep unrelated hints
+  as context. Shared evidence labels distinguish static observations, protocol
+  inferences, and low-quality sources; review JSON schema 1.5.0 replaces misleading
+  runtime-observation labels. Internal/debug path names alone leave exposure unknown.
+- Key Windows report state and cache by repository and generation, reject stale
+  callbacks/responses, and serialize state polling. Preserve existing export work.
+- Keep generated report sections out of subsequent scans, including output at
+  the repository root, using manifest checksums and recognized legacy structures.
+  Artifact basenames alone no longer exclude user-owned configuration files.
+
+### Added
+
 - **Versioned artifact manifest.** JSON output now includes `artifact-manifest.json` and extracted section files (`scan.json`, `findings.json`, `attack_paths.json`, `attack_surfaces.json`, `exploitability.json`, `suppressed_findings.json`). The monolithic `attackmap-report.json` remains a compatibility export. A `--run-id` option lets CI/GUI correlate the manifest with an external run identity.
 - **Index scaling.** `RepoIndex.get()` is now O(1) via an internal path map. Each indexed file records `size` and `mtime_ns`. New `RepoIndex.total_bytes` reports aggregate size, and `max_bytes`/`ATTACKMAP_INDEX_BYTE_BUDGET` caps how much data is loaded in one pass. `RepoIndex.mutation_warnings()` detects files that changed or disappeared after indexing and the scan pipeline appends those diagnostics to the report limitations.
 - **More dependency ecosystems (#255).** `DependencyHint.ecosystem` and `Vulnerability.ecosystem` now accept `maven`, `nuget`, `conan`, `vcpkg`, `gem`, `cocoapods`, `hex` and `pub`. The set is exported from `attackmap.sdk` as `DependencyEcosystem` / `DEPENDENCY_ECOSYSTEMS`.

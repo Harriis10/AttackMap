@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "scope": "Publisher-first early semantic diagnostics and Windows junction no-write regression; not full gate acceptance",
+  "result": {
+    "passed": 48,
+    "skipped": 0,
+    "seconds": 5.41,
+    "exit_code": 0
+  },
+  "negative_attempt": {
+    "passed": 47,
+    "failed": 1,
+    "reason": "Existing denied-storage fixture patched removed preliminary ensure seam; corrected to publisher seam without weakening originalerror/no-scan checks"
+  },
+  "checks": [
+    "Actual test-owned Windows junction refuses redirected writes",
+    "CLI semantic/module and serviceempty perform no preliminary directory writes",
+    "Original typed usage errors and direct generation ownership preserved"
+  ],
+  "files": {
+    "src/attackmap/cli.py": "a44dbd41c50de8ffe0491a91dae5ab5cca31a49411a3d535baf80a1bfe5c6e7a",
+    "src/attackmap/scan_service.py": "5959151212964672d007c3ecb3f4dc75be11b813144f6085248f1c15c7a153da",
+    "tests/test_diagnostic_adapters.py": "c1899f116872f26f4b4d34b975cc97839b1691353e2a91c141e45dbcabc30f39",
+    "tests/test_cli_validation.py": "16ef182e23ffa59912b12551e380cd460984efb3e640e8962fd597c0d49c165d",
+    ".pytest_cache/m3-early-semantic-safe-path.log": "1c46d5997dbfbcecbfe9bbbfe139027a518e883b101b459c14d24cff1a1de136",
+    ".pytest_cache/m3-early-semantic-safe-path-corrected.log": "e409668368823ce4ba19df7fbf6c37537d528f0e5f95a92d16f31b3ecc900822",
+    ".pytest_cache/m3-early-semantic-safe-path-corrected.xml": "ded7739ff38daa8710d6c24ff9f46cecba5f8d971be9bc0060600c2360f4e6a8"
+  }
+}

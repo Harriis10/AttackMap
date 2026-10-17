@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from attackmap.contracts import ContractLink, link_contracts
+import pytest
+
+from attackmap.contracts import ContractLink, DeploymentAliases, link_contracts
 from attackmap.models import ExternalCall, Route, ScanResult
 
 
@@ -24,31 +26,34 @@ def _server(root: str, path: str, method: str = "GET") -> ScanResult:
 
 
 def test_links_concatenated_client_url_to_templated_route() -> None:
-    # requests.get("http://svc/api/orders/" + oid) — captured up to trailing slash.
+    # requests.get("http://b/api/orders/" + oid) — captured up to trailing slash.
     links = link_contracts(
         [
-            ("client", _client("client", "http://order-svc/api/orders/")),
-            ("server", _server("server", "/api/orders/<id>")),
+            ("a", _client("a", "http://b/api/orders/")),
+            ("b", _server("b", "/api/orders/<id>")),
         ]
     )
     assert len(links) == 1
     lk = links[0]
-    assert lk.client_repo == "client" and lk.server_repo == "server"
+    assert lk.client_repo == "a" and lk.server_repo == "b"
     assert lk.method == "GET"
     assert lk.path_template == "api/orders/*"
     assert lk.server_route_path == "/api/orders/<id>"
     assert lk.client_line == 3 and lk.server_line == 5
+    assert lk.resolution == "observed" and lk.destination == "b"
 
 
 def test_links_literal_id_to_template() -> None:
     links = link_contracts(
         [
-            ("a", _client("a", "https://b.internal/users/12345")),
+            ("a", _client("a", "https://b/users/12345")),
             ("b", _server("b", "/users/{id}")),
         ]
     )
     assert len(links) == 1
     assert links[0].path_template == "users/*"
+    assert links[0].resolution == "observed"
+    assert links[0].destination == "b"
 
 
 def test_collection_route_not_confused_with_detail() -> None:
@@ -192,3 +197,376 @@ def test_bare_fetch_defaults_to_get_and_parses_init_method(tmp_path) -> None:
     by_target = {c.target: c.method for c in scan.external_calls}
     assert by_target.get("http://b/api/items/1") == "GET"
     assert by_target.get("http://b/api/items/2") == "POST"
+
+
+# ---------------------------------------------------------------------------
+# destination identity resolution (C28 / AM039)
+# ---------------------------------------------------------------------------
+
+
+def test_unresolved_host_is_candidate_not_observed() -> None:
+    # Same path and method, but the destination names a service that is not
+    # the server repo: path similarity alone must not create an observed link.
+    links = link_contracts(
+        [
+            ("a", _client("a", "http://order-svc/api/orders/9")),
+            ("b", _server("b", "/api/orders/{id}")),
+        ]
+    )
+    assert len(links) == 1
+    lk = links[0]
+    assert lk.resolution == "candidate"
+    assert lk.resolution_reason == "unresolved_host"
+    assert lk.destination == "order-svc"
+
+
+def test_dns_suffix_does_not_resolve_by_truncation() -> None:
+    # b.internal is not repo "b": no hostname truncation without an alias (C28).
+    links = link_contracts(
+        [
+            ("a", _client("a", "https://b.internal/users/12345")),
+            ("b", _server("b", "/users/{id}")),
+        ]
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "unresolved_host"
+    assert links[0].destination == "b.internal"
+
+
+def test_auth_api_and_auth_worker_stay_distinct() -> None:
+    auth_api = _server("auth-api", "/sessions/{id}")
+    auth_worker = _server("auth-worker", "/sessions/{id}")
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://auth-api/sessions/7")),
+            ("auth-api", auth_api),
+            ("auth-worker", auth_worker),
+        ]
+    )
+    by_server = {lk.server_repo: lk for lk in links}
+    assert by_server["auth-api"].resolution == "observed"
+    assert by_server["auth-worker"].resolution == "candidate"
+    assert by_server["auth-worker"].resolution_reason == "unresolved_host"
+
+
+def test_relative_target_without_authority_is_candidate() -> None:
+    links = link_contracts(
+        [
+            ("a", _client("a", "/users/12345")),
+            ("b", _server("b", "/users/{id}")),
+        ]
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "no_destination"
+    assert links[0].destination is None
+
+
+def test_explicit_port_keeps_link_candidate() -> None:
+    links = link_contracts(
+        [
+            ("a", _client("a", "http://b:8080/users/12345")),
+            ("b", _server("b", "/users/{id}")),
+        ]
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "explicit_port"
+    assert links[0].destination == "b:8080"
+
+
+def test_ambiguous_identity_is_candidate_for_both_owners() -> None:
+    # Two repos answer to the name "svc": a call to svc cannot resolve to one.
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://svc/users/1")),
+            ("svc", _server("svc", "/users/{id}")),
+            ("mirror", _scan("mirror-root/svc", routes=[Route(path="/users/{id}", method="GET", file="s.py", line=2)])),
+        ]
+    )
+    assert {lk.server_repo: lk.resolution for lk in links} == {
+        "svc": "candidate",
+        "mirror": "candidate",
+    }
+    assert all(lk.resolution_reason == "unresolved_host" or lk.resolution_reason == "ambiguous_identity"
+               for lk in links)
+
+
+def test_root_directory_name_is_a_valid_identity() -> None:
+    server = _scan("C:/repos/gateway", routes=[Route(path="/users/{id}", method="GET", file="s.py", line=9)])
+    links = link_contracts(
+        [
+            ("a", _client("a", "http://gateway/users/5")),
+            ("gw", server),
+        ]
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "observed"
+    assert links[0].destination == "gateway"
+
+
+def test_case_sensitive_host_normalized_for_identity_only() -> None:
+    links = link_contracts(
+        [
+            ("a", _client("a", "http://B-Service/users/5")),
+            ("b-service", _server("b-service", "/users/{id}")),
+        ]
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "observed"
+    assert links[0].destination == "b-service"
+
+
+# ---------------------------------------------------------------------------
+# deployment aliases (C28 / AM040)
+# ---------------------------------------------------------------------------
+
+
+def test_no_aliases_kwarg_matches_default_and_empty() -> None:
+    # Backward compatibility: None and an empty declaration set are the same
+    # identity-only resolution as not passing aliases at all.
+    scans = [
+        ("web", _client("web", "https://auth-api.internal/sessions/9")),
+        ("auth-api", _server("auth-api", "/sessions/{id}")),
+        ("feed-generator", _server("feed-generator", "/sessions/{id}")),
+    ]
+    assert link_contracts(scans) == link_contracts(scans, aliases=None)
+    assert link_contracts(scans) == link_contracts(scans, aliases=DeploymentAliases())
+
+
+def test_exact_host_alias_resolves_public_name() -> None:
+    links = link_contracts(
+        [
+            ("web-app", _client("web-app", "https://auth.bsky.social/sessions/9")),
+            ("auth-api", _server("auth-api", "/sessions/{id}")),
+        ],
+        aliases=DeploymentAliases(hosts={"auth.bsky.social": "auth-api"}),
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "observed"
+    assert links[0].destination == "auth.bsky.social"
+
+
+def test_alias_naming_another_repo_stays_candidate() -> None:
+    # The declaration positively names auth-api; the same path served by a
+    # different repo must not inherit the resolution.
+    links = link_contracts(
+        [
+            ("web-app", _client("web-app", "https://auth.bsky.social/sessions/9")),
+            ("auth-worker", _server("auth-worker", "/sessions/{id}")),
+        ],
+        aliases=DeploymentAliases(hosts={"auth.bsky.social": "auth-api"}),
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "unresolved_host"
+
+
+def test_alias_naming_a_repo_outside_the_fleet_is_ignored() -> None:
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://edge/users/1")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(hosts={"edge": "gateway-svc"}),
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "unresolved_host"
+
+
+def test_declared_dns_suffix_strips_whole_repo_identity() -> None:
+    # ".internal" is declared: auth-worker.internal strips to the whole identity
+    # "auth-worker" — it must not drift onto the similarly-named auth-api.
+    links = link_contracts(
+        [
+            ("web", _client("web", "https://auth-worker.internal/sessions/1")),
+            ("auth-api", _server("auth-api", "/sessions/{id}")),
+            ("auth-worker", _server("auth-worker", "/sessions/{id}")),
+        ],
+        aliases=DeploymentAliases(dns_suffixes=(".internal",)),
+    )
+    by_server = {lk.server_repo: lk for lk in links}
+    assert by_server["auth-worker"].resolution == "observed"
+    assert by_server["auth-api"].resolution == "candidate"
+    assert by_server["auth-api"].resolution_reason == "unresolved_host"
+
+
+def test_host_port_alias_resolves_ported_call() -> None:
+    aliases = DeploymentAliases(host_ports={"auth-api:8443": "auth-api"})
+    bound = link_contracts(
+        [
+            ("web", _client("web", "https://auth-api:8443/sessions/9")),
+            ("auth-api", _server("auth-api", "/sessions/{id}")),
+        ],
+        aliases=aliases,
+    )
+    assert len(bound) == 1
+    assert bound[0].resolution == "observed"
+    assert bound[0].destination == "auth-api:8443"
+    # A different port on the same host: the binding does not vouch for it.
+    unbound = link_contracts(
+        [
+            ("web", _client("web", "https://auth-api:9999/sessions/9")),
+            ("auth-api", _server("auth-api", "/sessions/{id}")),
+        ],
+        aliases=aliases,
+    )
+    assert len(unbound) == 1
+    assert unbound[0].resolution == "candidate"
+    assert unbound[0].resolution_reason == "explicit_port"
+
+
+def test_alias_colliding_with_repo_identity_is_ambiguous() -> None:
+    # "gateway" is declared for auth-api but is also feed-generator's checkout
+    # directory: the host names two repos, so neither may claim it.
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://gateway/users/1")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+            (
+                "feed-generator",
+                _scan(
+                    "C:/repos/gateway",
+                    routes=[Route(path="/users/{id}", method="GET", file="s.py", line=2)],
+                ),
+            ),
+        ],
+        aliases=DeploymentAliases(hosts={"gateway": "auth-api"}),
+    )
+    assert {lk.server_repo: lk.resolution for lk in links} == {
+        "auth-api": "candidate",
+        "feed-generator": "candidate",
+    }
+    assert all(lk.resolution_reason == "ambiguous_identity" for lk in links)
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"hosts": {"": "auth-api"}},
+        {"hosts": {"auth.bsky.social": ""}},
+        {"hosts": {"auth.bsky.social:8443": "auth-api"}},  # port belongs in host_ports
+        {"hosts": {"https://x/y": "auth-api"}},  # not a bare hostname
+        {"host_ports": {"auth-api": "auth-api"}},  # no port
+        {"host_ports": {"auth-api:http": "auth-api"}},  # non-numeric port
+        {"dns_suffixes": ("internal",)},  # missing leading dot
+        {"dns_suffixes": (".",)},  # empty namespace
+    ],
+)
+def test_malformed_alias_declarations_raise(kwargs: dict) -> None:
+    with pytest.raises(ValueError):
+        DeploymentAliases(**kwargs)
+
+
+# ---------------------------------------------------------------------------
+# three-service reference system (C28 / AM040)
+# ---------------------------------------------------------------------------
+
+
+def _reference_fleet():
+    """The C28 proof fixture: ``web-app`` calls into ``auth-api`` and
+    ``feed-generator``. Hyphenated names throughout; ``feed-generator`` is
+    deployed under a directory (``gateway``) distinct from its repo id; the two
+    servers share one endpoint path (``/users/{id}``) so host identity — not
+    path shape — must pick the server."""
+    web_app = _scan(
+        "C:/deploy/web-app",
+        calls=[
+            ExternalCall(target="http://auth-api/sessions/9", method="GET", file="src/client.py", line=10),
+            ExternalCall(target="http://auth-api/users/42", method="GET", file="src/client.py", line=11),
+            ExternalCall(target="https://feed-generator.internal/feeds/77", method="GET", file="src/client.py", line=12),
+            ExternalCall(target="http://gateway/users/5", method="GET", file="src/client.py", line=13),
+            ExternalCall(target="https://auth.bsky.social/sessions/2", method="GET", file="src/client.py", line=14),
+            ExternalCall(target="http://auth-api:8081/users/7", method="GET", file="src/client.py", line=15),
+            ExternalCall(target="http://feed-generator:9000/feeds/3", method="GET", file="src/client.py", line=16),
+        ],
+    )
+    auth_api = _scan(
+        "C:/deploy/auth-api",
+        routes=[
+            Route(path="/sessions/{id}", method="GET", file="src/sessions.py", line=1),
+            Route(path="/users/{id}", method="GET", file="src/users.py", line=2),
+        ],
+    )
+    feed_generator = _scan(
+        "C:/deploy/gateway",
+        routes=[
+            Route(path="/users/{id}", method="GET", file="src/profiles.py", line=3),
+            Route(path="/feeds/{id}", method="GET", file="src/feeds.py", line=4),
+        ],
+    )
+    aliases = DeploymentAliases(
+        hosts={"auth.bsky.social": "auth-api", "gateway": "auth-api"},
+        host_ports={"auth-api:8081": "auth-api"},
+        dns_suffixes=(".internal",),
+    )
+    return [("web-app", web_app), ("auth-api", auth_api), ("feed-generator", feed_generator)], aliases
+
+
+def test_three_service_reference_system_with_declared_aliases() -> None:
+    fleet, aliases = _reference_fleet()
+    links = link_contracts(fleet, aliases)
+
+    observed = [lk for lk in links if lk.resolution == "observed"]
+    # Exactly the explicitly supported edges resolve — identity (sessions),
+    # shared-path disambiguated by host (users -> auth-api), the declared DNS
+    # suffix (feeds -> feed-generator), the public alias (auth.bsky.social),
+    # and the declared port binding (auth-api:8081) — and nothing else.
+    assert {(lk.client_repo, lk.server_repo, lk.path_template) for lk in observed} == {
+        ("web-app", "auth-api", "sessions/*"),
+        ("web-app", "auth-api", "users/*"),
+        ("web-app", "feed-generator", "feeds/*"),
+    }
+    assert all(lk.resolution_reason == "" for lk in observed)
+    assert {lk.destination for lk in observed} == {
+        "auth-api",
+        "feed-generator.internal",
+        "auth.bsky.social",
+        "auth-api:8081",
+    }
+
+    candidates = {
+        (lk.server_repo, lk.path_template, lk.resolution_reason)
+        for lk in links
+        if lk.resolution == "candidate"
+    }
+    assert candidates == {
+        # shared path, destination names the other service
+        ("feed-generator", "users/*", "unresolved_host"),
+        # "gateway" is declared for auth-api but is feed-generator's directory:
+        # ambiguous for both, observed for neither
+        ("auth-api", "users/*", "ambiguous_identity"),
+        ("feed-generator", "users/*", "ambiguous_identity"),
+        # explicit port with no declared binding
+        ("feed-generator", "feeds/*", "explicit_port"),
+    }
+    # Every candidate call site stays individually inspectable with its authority.
+    ported = [lk for lk in links if lk.client_target == "http://feed-generator:9000/feeds/3"]
+    assert len(ported) == 1
+    assert ported[0].destination == "feed-generator:9000"
+    # 7 calls -> 10 (client, server, call-site) links: 5 observed, 5 candidate.
+    assert len(links) == 10 and len(observed) == 5
+
+
+def test_three_service_reference_system_without_aliases() -> None:
+    # The same fleet with no declarations resolves strictly by identity: the
+    # DNS-suffixed and public hostnames stay candidates, the port binding is
+    # gone, and "gateway" now resolves to feed-generator alone (its directory
+    # name) — the alias is what made it ambiguous instead.
+    fleet, _aliases = _reference_fleet()
+    links = link_contracts(fleet)
+
+    assert {(lk.client_repo, lk.server_repo, lk.path_template)
+            for lk in links if lk.resolution == "observed"} == {
+        ("web-app", "auth-api", "sessions/*"),
+        ("web-app", "auth-api", "users/*"),
+        ("web-app", "feed-generator", "users/*"),
+    }
+    reasons = {(lk.client_target, lk.resolution_reason)
+               for lk in links if lk.resolution == "candidate"}
+    assert ("https://feed-generator.internal/feeds/77", "unresolved_host") in reasons
+    assert ("https://auth.bsky.social/sessions/2", "unresolved_host") in reasons
+    assert ("http://auth-api:8081/users/7", "explicit_port") in reasons
+    assert ("http://feed-generator:9000/feeds/3", "explicit_port") in reasons

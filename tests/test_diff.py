@@ -340,7 +340,7 @@ def test_json_report_findings_carry_stable_id(tmp_path: Path) -> None:
     report = json.loads((out / "attackmap-report.json").read_text(encoding="utf-8"))
     for f in report["findings"]:
         assert "id" in f
-        assert f["id"] == compute_id(f["title"])
+        assert f["id"] == compute_id(f)
 
 
 def test_baseline_round_trip_via_current_report(tmp_path: Path) -> None:

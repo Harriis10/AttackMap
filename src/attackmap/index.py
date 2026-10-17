@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .safe_fs import max_file_bytes, walk_repo
+from .models import ResourceLimitEvent
 from .srcpaths import is_skipped_dir, line_number
 
 _NOISY_SYMLINK_PARTS = {"node_modules", ".git", ".venv", "venv", "dist", "build", "__pycache__"}
@@ -32,6 +33,9 @@ class RepoIndex:
     root: Path
     files: tuple[IndexedFile, ...]
     limitations: tuple[str, ...]
+    resource_limit_events: tuple[ResourceLimitEvent, ...] = ()
+    resource_limit_scopes: tuple[str, ...] = ()
+    resource_limit_reporting: str = "unknown"
     _by_rel: dict[str, IndexedFile] = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
@@ -85,6 +89,7 @@ class RepoIndex:
         root_path = Path(root).resolve()
         limitations: list[str] = []
         files: list[IndexedFile] = []
+        resource_events: list[ResourceLimitEvent] = []
         env_budget = int(os.environ.get("ATTACKMAP_INDEX_BYTE_BUDGET", "0") or "0")
         budget = max_bytes if max_bytes is not None and max_bytes > 0 else env_budget
         used_bytes = 0
@@ -106,19 +111,26 @@ class RepoIndex:
                 continue
 
             size = stat.st_size
-            if size > max_file_bytes():
+            file_limit = max_file_bytes()
+            if size > file_limit:
+                resource_events.append(ResourceLimitEvent.skipped_file(
+                    producer="repo_index", category="file_bytes", relative=path.relative_to(root_path).as_posix(),
+                    limit=file_limit, observed_bytes=size))
                 limitations.append(
-                    f"oversized file skipped (> {max_file_bytes()} bytes): "
+                    f"oversized file skipped (> {file_limit} bytes): "
                     f"{path.relative_to(root_path).as_posix()}"
                 )
                 continue
 
             if budget > 0:
                 if used_bytes + size > budget:
+                    resource_events.append(ResourceLimitEvent.skipped_file(
+                        producer="repo_index", category="index_bytes", relative=path.relative_to(root_path).as_posix(),
+                        limit=budget, observed_bytes=used_bytes + size))
                     if not budget_exceeded:
                         limitations.append(
                             f"aggregate byte budget exceeded ({budget} bytes); "
-                            "remaining files skipped"
+                            "files exceeding the remaining budget skipped"
                         )
                         budget_exceeded = True
                     continue
@@ -146,4 +158,7 @@ class RepoIndex:
                     size=size,
                 )
             )
-        return cls(root=root_path, files=tuple(files), limitations=tuple(limitations))
+        return cls(root=root_path, files=tuple(files), limitations=tuple(limitations),
+                   resource_limit_events=tuple(resource_events),
+                   resource_limit_scopes=("repo_index.file_bytes", "repo_index.index_bytes"),
+                   resource_limit_reporting="complete")

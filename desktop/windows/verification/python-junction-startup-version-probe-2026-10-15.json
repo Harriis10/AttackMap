@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T16:40:33.860047+00:00",
+  "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-junction-version-probe-84584c1753194c008418039b818e336a",
+  "results": [
+    {
+      "python": "311",
+      "exit_code": 2,
+      "original_semantic_error_preserved": true,
+      "junction": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-junction-version-probe-84584c1753194c008418039b818e336a\\py311\\junction",
+      "owned_target": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-junction-version-probe-84584c1753194c008418039b818e336a\\py311\\owned-outside-target",
+      "redirected_directories": [
+        "reports",
+        "reports\\diagnostics",
+        "reports\\diagnostics\\owned-invalid-311"
+      ],
+      "redirected_files": [
+        {
+          "relative_path": "reports\\diagnostics\\owned-invalid-311\\.attackmap-output",
+          "bytes": 84,
+          "sha256": "dd5681dafc3c23c35b9b232ee39cc2fc8f6220390e8df423f67ed9da662c9ac5"
+        },
+        {
+          "relative_path": "reports\\diagnostics\\owned-invalid-311\\terminal-diagnostic.json",
+          "bytes": 1327,
+          "sha256": "405028ed6260861c23b741a115230ecce6db70074e9c6b742ac65de402347b6d"
+        }
+      ],
+      "any_redirected_write": true,
+      "scope": "Actual invalidsemantic CLI only; no analysis/network/model. All junction/target paths owned under this QA root."
+    },
+    {
+      "python": "313",
+      "exit_code": 2,
+      "original_semantic_error_preserved": true,
+      "junction": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-junction-version-probe-84584c1753194c008418039b818e336a\\py313\\junction",
+      "owned_target": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-junction-version-probe-84584c1753194c008418039b818e336a\\py313\\owned-outside-target",
+      "redirected_directories": [],
+      "redirected_files": [],
+      "any_redirected_write": false,
+      "scope": "Actual invalidsemantic CLI only; no analysis/network/model. All junction/target paths owned under this QA root."
+    }
+  ],
+  "source_hashes": {
+    "src/attackmap/cli.py": "a44dbd41c50de8ffe0491a91dae5ab5cca31a49411a3d535baf80a1bfe5c6e7a",
+    "src/attackmap/artifact_publisher.py": "88cd8317f8dd1a567b72066019d618112919dd54017920a22f410f967fdd99ee",
+    "src/attackmap/safe_fs.py": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2"
+  },
+  "limits": [
+    "No source/test changes or fixes; active matrix untouched.",
+    "Owned junctions and artifacts preserved; no recursive delete or broad process action.",
+    "Two tiny CLI probes only, not full crossversion filesystem acceptance."
+  ]
+}

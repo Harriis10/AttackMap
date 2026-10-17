@@ -5,8 +5,52 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from attackmap.lockfiles import parse_lockfiles
 from attackmap.sbom import analyze_sbom
+
+
+@pytest.mark.parametrize("payload", [
+    [], None, "invalid", 1, True,
+    {"packages": []}, {"packages": None}, {"dependencies": ["express"]},
+    {"packages": {"": "invalid"}},
+    {"packages": {"": {"dependencies": ["express"]}}},
+    {"packages": {"node_modules/express": {"version": "4.18.2"}, "node_modules/bad": []}},
+    {"packages": {"node_modules/express": {"version": "4.18.2", "dependencies": []}}},
+    {"packages": {"node_modules/express": {"version": "4.18.2", "optionalDependencies": "bad"}}},
+    {"packages": {"node_modules/express": {"version": "4.18.2", "peerDependencies": None}}},
+    {"dependencies": {"express": {"version": "4.18.2"}, "bad": []}},
+    {"dependencies": {"express": {"version": "4.18.2", "requires": ["bad"]}}},
+    {"dependencies": {"express": {"version": "4.18.2", "dependencies": "bad"}}},
+])
+def test_malformed_npm_shapes_do_not_emit_partial_graph_or_supersede_ranges(tmp_path: Path, payload) -> None:
+    from attackmap.lockfiles import _parse_package_lock
+
+    lock = tmp_path / "package-lock.json"
+    lock.write_text(json.dumps(payload), encoding="utf-8")
+    (tmp_path / "package.json").write_text(json.dumps({"dependencies": {"express": "^4.18.0"}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="must be an object"):
+        _parse_package_lock(lock)
+    hints, superseded = parse_lockfiles(tmp_path)
+    assert hints == []
+    assert superseded == set()
+    hints = analyze_sbom(tmp_path)
+    assert [(hint.name, hint.version, hint.file, hint.resolved) for hint in hints] == [("express", "^4.18.0", "package.json", False)]
+
+
+def test_malformed_npm_lock_preserves_valid_sibling_resolution(tmp_path: Path) -> None:
+    invalid, valid = tmp_path / "invalid", tmp_path / "valid"
+    invalid.mkdir(); valid.mkdir()
+    (invalid / "package-lock.json").write_text("[]", encoding="utf-8")
+    (invalid / "package.json").write_text(json.dumps({"dependencies": {"express": "^4.18.0"}}), encoding="utf-8")
+    _write_package_lock_v3(valid)
+    hints, superseded = parse_lockfiles(tmp_path)
+    assert superseded == {("npm", "valid")}
+    assert hints and all(hint.file == "valid/package-lock.json" for hint in hints)
+    sbom = analyze_sbom(tmp_path)
+    express = {(hint.file, hint.version, hint.resolved) for hint in sbom if hint.name == "express"}
+    assert express == {("invalid/package.json", "^4.18.0", False), ("valid/package-lock.json", "4.18.2", True)}
 
 
 def _by_name(hints):

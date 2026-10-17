@@ -38,9 +38,22 @@ def test_unreadable_file_is_skipped_and_reported(tmp_path: Path) -> None:
         scan = scan_repo(tmp_path)
         assert [r.path for r in scan.routes] == ["/ok"]
         assert any(l.startswith("unreadable file skipped") and l.endswith("locked.py") for l in scan.limitations)
+        assert scan.scanned_files == ["app.py"]
         result = runner.invoke(app, ["analyze", str(tmp_path), "-o", str(tmp_path.parent / "o"), "--format", "json"])
         assert result.exit_code == 0, result.output
-        assert "Not analyzed: 1 unreadable file skipped" in _flat(result.output)
+        flat = _flat(result.output)
+        # Other analyzers can add coverage warnings before this category.
+        assert re.search(r"(?:Not analyzed: |, )1 unreadable file skipped(?:, | \()", flat), flat
+        from attackmap.artifact_publisher import current_generation
+        generation = current_generation(tmp_path.parent / "o")
+        assert generation is not None
+        saved = json.loads((generation / "attackmap-report.json").read_text(encoding="utf-8"))["scan"]
+        unreadable = [note for note in saved["limitations"] if note.startswith("unreadable file skipped")]
+        assert unreadable == ["unreadable file skipped (PermissionError): locked.py"]
+        if saved["scanned_files"] is None:
+            assert any(note.startswith("Unique-file coverage unavailable:") for note in saved["limitations"])
+        else:
+            assert saved["scanned_files"] == ["app.py"]
     finally:
         locked.chmod(0o644)
 
@@ -65,17 +78,27 @@ def test_fleet_continues_past_a_failing_repo(tmp_path: Path, monkeypatch: pytest
     assert result.exit_code == 1, result.output
     flat = _flat(result.output)
     assert "bad failed and was skipped — RuntimeError: analyzer blew up" in flat
-    summary = json.loads((out / "fleet-summary.json").read_text(encoding="utf-8"))
+    from attackmap.artifact_publisher import current_generation
+    assert current_generation(out) is None
+    partial = next(path for path in out.iterdir()
+                   if path.is_dir() and (path / "fleet-summary.json").is_file())
+    assert (out / "diagnostics" / partial.name / "terminal-diagnostic.json").is_file()
+    summary = json.loads((partial / "fleet-summary.json").read_text(encoding="utf-8"))
     assert [r["repo_id"] for r in summary["repos"]] == ["good"]
     assert summary["failed"][0]["repo_id"] == "bad"
-    assert "analyzer blew up" in (out / "fleet-summary.md").read_text(encoding="utf-8")
-    assert (out / "good" / "attackmap-report.json").exists()
+    assert "analyzer blew up" in (partial / "fleet-summary.md").read_text(encoding="utf-8")
+    assert current_generation(partial / "good") is not None
 
 
-def test_usage_errors_still_stop_the_fleet(tmp_path: Path) -> None:
+@pytest.mark.parametrize("workers", [1, 2])
+def test_usage_errors_still_stop_the_fleet(tmp_path: Path, workers: int) -> None:
     a, b = tmp_path / "a", tmp_path / "b"
     for d in (a, b):
         d.mkdir()
         (d / "app.py").write_text(APP, encoding="utf-8")
-    result = runner.invoke(app, ["analyze", str(a), str(b), "--suppress-file", str(tmp_path / "missing.yaml")])
+    result = runner.invoke(app, [
+        "analyze", str(a), str(b), "-o", str(tmp_path / "out"),
+        "--fleet-workers", str(workers), "--suppress-file", str(tmp_path / "missing.yaml"),
+    ])
     assert result.exit_code == 2
+    assert not (tmp_path / "out" / "fleet-summary.json").exists()

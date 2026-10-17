@@ -305,7 +305,7 @@ def findings_for_repo(root: str | Path) -> list[dict[str, Any]]:
     out = []
     for f in generate_findings(scan):
         d = f.model_dump()
-        d["id"] = finding_id(f.title)
+        d["id"] = finding_id(f)
         out.append(d)
     return out
 

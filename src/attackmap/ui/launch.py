@@ -59,6 +59,32 @@ class _Bridge:
         except Exception:
             return []
 
+    def pick_save(self, suggested_name: str = "attackmap-report.md", extension: str = ".md") -> str:
+        """Open a native save dialog and return the chosen path or ''."""
+        try:
+            import webview
+
+            window = webview.windows[0]
+            result = window.create_file_dialog(
+                webview.SAVE_DIALOG,
+                save_filename=suggested_name,
+            )
+            if not result:
+                return ""
+            # pywebview historically returns either a string or a one-item list.
+            if isinstance(result, (list, tuple)):
+                path = str(result[0]) if result else ""
+            else:
+                path = str(result)
+            if not path:
+                return ""
+            path = path.strip('"').strip("'")
+            if extension and not path.lower().endswith(extension.lower()):
+                path = path + extension
+            return path
+        except Exception:
+            return ""
+
 
 def _window_size(webview_module) -> tuple[int, int]:
     try:

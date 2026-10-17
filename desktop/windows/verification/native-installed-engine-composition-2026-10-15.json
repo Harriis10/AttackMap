@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "scope": "Actual isolated installed native-to-bundled-frozen-engine scan and report import; no AI/CVE, user profile install or clean-machine claim.",
+  "package_id": "dev-20261015132727-c6df7c2a",
+  "archive_sha256": "1b7bffe7ef8cbea928131c6067a251e48996f41adfdf7e792730d46b6af312c2",
+  "installed_native_dll_sha256": "26c9872a6719c70297a8b6f7f6278eb8a434834f4a0368ad8de80bb4a0b33739",
+  "installed_engine": {
+    "executable_sha256": "354bf73fec42c857d09782975c0419a29b3f6953e90ed2c620292a72bc9e5c7a",
+    "version": "attackmap 1.5.1",
+    "modules": 19
+  },
+  "report_process": {
+    "exit_code": 0,
+    "no_restart": true,
+    "exited": true,
+    "pid": 64060
+  },
+  "report_smoke": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "findingViewport": {
+      "width": 1055,
+      "height": 391,
+      "listHeight": 337,
+      "inspectorWidth": 519,
+      "stacked": false
+    },
+    "reviewVisible": true,
+    "sourceLocations": [
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 634,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      },
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 635,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      }
+    ],
+    "legacyIntegrity": "unverified",
+    "runSummary": "Selected repository: none\nRun state: Idle\nDisplayed report: Legacy import; run identity unavailable\nReport repository: C:\\tmp\\juice-shop\nScan timestamp unavailable; opened (client UTC): 2026-10-15T13:30:49.6900684Z",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "scan_start": {
+    "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-final-package-3f42362448e345e4b1c7f0b37b34bfe6\\install\\versions\\dev-20261015132727-c6df7c2a\\app\\engine\\attackmap.exe",
+    "output": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-final-package-3f42362448e345e4b1c7f0b37b34bfe6\\actual-installed-scan",
+    "pid": 70604,
+    "started_utc": "2026-10-15T13:30:50.0987839Z"
+  },
+  "scan_process": {
+    "exit_code": 0,
+    "no_restart": true,
+    "exited": true,
+    "pid": 70604
+  },
+  "scan_smoke": {
+    "passed": true,
+    "loaded": 18,
+    "error": null,
+    "runSummary": "Selected repository: C:\\tmp\\juice-shop\nRun state: Engine completed; policy not_evaluated; artifacts ready\nDisplayed report: bda65b9a8d6348bd84078b9f7c6ee1e9\nReport repository: C:\\tmp\\juice-shop\nRequested at (client UTC): 2026-10-15T13:30:51.1074291Z; engine scan timestamp unavailable",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 899\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []",
+    "options": {
+      "recall": false,
+      "strict_analyzers": false,
+      "no_suppress": false,
+      "cve": false,
+      "secrets_history": 0,
+      "timeout_seconds": 600
+    },
+    "modules": ""
+  },
+  "published_current": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-final-package-3f42362448e345e4b1c7f0b37b34bfe6\\actual-installed-scan\\bda65b9a8d6348bd84078b9f7c6ee1e9",
+  "atomic_current_verified_with_core_publisher": true,
+  "limitations": [
+    "Actual installed native scan used explicit bundled executable path; normal first-run auto-selection not inferred from this scan.",
+    "Windows 10 development host; no Windows 11 acceptance, signing or clean-machine prerequisite proof.",
+    "AI and CVE off; no provider request and no target repository writes.",
+    "A final native-only package is pending; this evidence remains bound to this exact native assembly and archive."
+  ]
+}

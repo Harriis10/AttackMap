@@ -425,7 +425,7 @@ def test_merge_analyzer_results_combines_languages_and_deduplicates_signals() ->
     assert len(merged.secret_hints) == 1
 
 
-def test_analyze_repository_merges_and_deduplicates_multiple_analyzer_results() -> None:
+def test_analyze_repository_merges_and_deduplicates_multiple_analyzer_results(tmp_path: Path) -> None:
     class FirstAnalyzer:
         metadata = get_analyzer_metadata(BuiltinPythonWebAnalyzer())
 
@@ -465,7 +465,8 @@ def test_analyze_repository_merges_and_deduplicates_multiple_analyzer_results() 
                 files_scanned=3,
             )
 
-    result = analyze_repository(".", analyzers=[FirstAnalyzer(), SecondAnalyzer()])
+    (tmp_path / "app.py").write_text('x = 1\n', encoding="utf-8")
+    result = analyze_repository(tmp_path, analyzers=[FirstAnalyzer(), SecondAnalyzer()])
 
     assert result.files_scanned == 5
     assert result.languages == ["javascript", "python"]
@@ -525,7 +526,7 @@ app.post("/xrpc/com.atproto.server.createSession", (_req, res) => res.json({ ok:
     assert "atproto_protocol:xrpc" in hint_values
 
 
-def test_analyze_repository_respects_optional_detect() -> None:
+def test_analyze_repository_respects_optional_detect(tmp_path: Path) -> None:
     class DetectFalseAnalyzer:
         metadata = get_analyzer_metadata(DefaultAnalyzer())
 
@@ -557,7 +558,8 @@ def test_analyze_repository_respects_optional_detect() -> None:
                 files_scanned=1,
             )
 
-    result = analyze_repository(".", analyzers=[DetectFalseAnalyzer(), DetectTrueAnalyzer()])
+    (tmp_path / "index.php").write_text('<?php echo "fixture";\n', encoding="utf-8")
+    result = analyze_repository(tmp_path, analyzers=[DetectFalseAnalyzer(), DetectTrueAnalyzer()])
 
     assert result.files_scanned == 1
     assert result.languages == ["php"]

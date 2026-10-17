@@ -29,6 +29,7 @@ merge / dedup behavior follows automatically.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -154,9 +155,12 @@ def merge_into(destination: Any, items: Iterable[Any], rule: MergeRule, seen: se
                     rule.upgrade(existing, item)
             continue
         seen.add(k)
-        target.append(item)
+        # The destination owns its signals: auth upgrades and downstream passes
+        # must never mutate an analyzer's reusable result objects.
+        owned = deepcopy(item)
+        target.append(owned)
         if index is not None:
-            index[k] = item
+            index[k] = owned
 
 
 def initial_seen(destination: Any, rule: MergeRule) -> set:

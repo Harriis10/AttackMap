@@ -26,8 +26,8 @@ from collections.abc import Callable, Iterator
 from pathlib import Path
 
 FOLLOW_SYMLINKS_ENV = "ATTACKMAP_FOLLOW_SYMLINKS"
-# Written into every report directory (#216); walk_repo never descends into a
-# directory that contains it, whatever the directory is called.
+# Written into every report directory (#216). Legacy output directories are
+# pruned; manifested output uses per-file identity to preserve replaced sources.
 OUTPUT_MARKER = ".attackmap-output"
 MAX_FILE_BYTES_ENV = "ATTACKMAP_MAX_FILE_BYTES"
 # Files larger than this are not read (#236): a hostile or generated multi-MB
@@ -153,6 +153,8 @@ def walk_repo(
     skipped. ``prune(dirname)`` returning True skips descending into a
     directory.
     """
+    from .artifact_manifest import MANIFEST_FILENAME, generated_artifact_names
+
     root_path = Path(root)
     follow = follow_symlinks_enabled()
     seen_dirs: set[str] = set()
@@ -169,9 +171,12 @@ def walk_repo(
             if prune is not None and prune(name):
                 continue
             child = current / name
-            # Our own report output, under any name (#216). Not checked for the
-            # root itself, so `-o .` can't make a repo unscannable.
-            if (child / OUTPUT_MARKER).is_file() and not (child / OUTPUT_MARKER).is_symlink():
+            # Legacy output directories retain their marker-based exclusion.
+            # Modern manifests identify individual files below, so replaced
+            # artifacts and added user sources remain visible to the scan.
+            if ((child / OUTPUT_MARKER).is_file()
+                    and not (child / OUTPUT_MARKER).is_symlink()
+                    and not (child / MANIFEST_FILENAME).is_file()):
                 continue
             if child.is_symlink() and not (follow and _resolved_within(root_path, child)):
                 if on_symlink is not None:
@@ -179,7 +184,10 @@ def walk_repo(
                 continue
             kept_dirs.append(name)
         dirnames[:] = kept_dirs
+        generated = generated_artifact_names(current, filenames)
         for name in sorted(filenames):
+            if name in generated or name == OUTPUT_MARKER:
+                continue
             child = current / name
             if child.is_symlink() and not (follow and _resolved_within(root_path, child)):
                 if on_symlink is not None:
@@ -247,5 +255,5 @@ def safe_write_text(out_dir: str | Path, path: str | Path, text: str, *, encodin
         if target.is_symlink():
             raise UnsafePathError(f"refusing to write through a symlink: {target}") from exc
         raise
-    with os.fdopen(fd, "w", encoding=encoding) as handle:
+    with os.fdopen(fd, "w", encoding=encoding, newline="") as handle:
         handle.write(text)

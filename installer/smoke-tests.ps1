@@ -74,3 +74,48 @@ try {
 }
 
 Write-Host "Smoke tests passed."
+
+Write-Host "== frozen fleet formats =="
+$fleetRoot = Join-Path $env:TEMP ("attackmap-fleet-smoke-" + [guid]::NewGuid())
+$fleetRepos = @(
+    (Join-Path $fleetRoot "service one"),
+    (Join-Path $fleetRoot ("sl" + [char]0x0175 + "ba two"))
+)
+try {
+    foreach ($fleetRepo in $fleetRepos) {
+        New-Item -ItemType Directory -Path $fleetRepo -Force | Out-Null
+        "x = 1" | Out-File -Encoding utf8 -LiteralPath (Join-Path $fleetRepo "app.py")
+    }
+    foreach ($format in @("all", "json", "markdown")) {
+        foreach ($workers in @(1, 2)) {
+            $fleetOut = Join-Path $fleetRoot "out-$format-$workers"
+            Invoke-AttackMapExe -ArgumentList @(
+                "analyze", $fleetRepos[0], $fleetRepos[1], "-o", $fleetOut,
+                "--format", $format, "--fleet-workers", "$workers", "--no-progress"
+            )
+            if ($format -eq "markdown") {
+                $summary = Get-Content -Raw -LiteralPath (Join-Path $fleetOut "fleet-summary.md")
+                if ($summary -notmatch "2 repositories analyzed" -or $summary -match "failed and") {
+                    throw "Frozen Markdown fleet did not preserve both repository results"
+                }
+                if (Get-ChildItem -LiteralPath $fleetOut -Recurse -Filter "attackmap-report.json") {
+                    throw "Markdown fleet unexpectedly emitted JSON presentation"
+                }
+            } else {
+                $summary = Get-Content -Raw -LiteralPath (Join-Path $fleetOut "fleet-summary.json") | ConvertFrom-Json
+                if ($summary.repo_count -ne 2 -or $summary.failed.Count -ne 0) {
+                    throw "Frozen fleet did not preserve both repository results"
+                }
+            }
+        }
+    }
+} finally {
+    $resolvedFleetRoot = [System.IO.Path]::GetFullPath($fleetRoot)
+    $resolvedTempRoot = [System.IO.Path]::GetFullPath($env:TEMP).TrimEnd('\') + '\'
+    if (-not $resolvedFleetRoot.StartsWith($resolvedTempRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Refusing cleanup outside the temporary directory: $resolvedFleetRoot"
+    }
+    Remove-Item -Recurse -Force -LiteralPath $resolvedFleetRoot -ErrorAction SilentlyContinue
+}
+
+Write-Host "Frozen fleet smoke tests passed."

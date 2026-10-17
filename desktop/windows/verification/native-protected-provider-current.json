@@ -1,0 +1,34 @@
+{
+  "scope": "Actual frozen provider_save via production DesktopActionRunner, actual Windows DPAPI, isolated production load_llm_key API process",
+  "frozen": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+  "frozenSha256": "354BF73FEC42C857D09782975C0419A29B3F6953E90ED2C620292A72BC9E5C7A",
+  "isolatedLocalAppData": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\protected-provider-store-eb82ad25550940648944439928f261e8",
+  "protectedLength": 320,
+  "credentialBlobRemoved": true,
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "checks": [
+    "Frozen provider save reports protected credential saved",
+    "Protected blob excludes plaintext synthetic credential",
+    "Actual Windows DPAPI blob header present",
+    "Existing production load API process exits without credential disclosure",
+    "Production load_llm_key protected roundtrip matches synthetic input",
+    "Protected save and restore retain AI off",
+    "Safe configuration JSON has no credential fields",
+    "No synthetic credential in isolated JSON snapshot cefa4f50ad65419a9eb09654257cf7ce.admitted.json",
+    "No synthetic credential in isolated JSON snapshot cefa4f50ad65419a9eb09654257cf7ce.request.json",
+    "No synthetic credential in isolated JSON snapshot cefa4f50ad65419a9eb09654257cf7ce.result.json",
+    "No synthetic credential in isolated JSON snapshot request.json",
+    "No synthetic credential in isolated JSON snapshot provider.json",
+    "Returned action JSON excludes synthetic credential",
+    "Owned synthetic protected credential blob removed"
+  ],
+  "loadApiSourceSha256": "BDF045A234ECB7D8C7340FCCD21A9E60584AA21971C4FC9A0C766C1973D226BF",
+  "limitations": [
+    "No provider_load desktop action exists; load uses existing production Python load_llm_key(allow_environment=False)",
+    "No independent cryptographic decrypt implementation",
+    "No personal protected store access, real keys or connection/model request",
+    "No native panel, dialog, keyboard, Narrator or installer acceptance claim"
+  ],
+  "loadApiMatchesFrozenSourceSnapshot": true
+}

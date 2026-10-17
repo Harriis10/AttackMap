@@ -15,8 +15,12 @@ from .models import (
 )
 from .security_overlay import SecurityOverlay, build_security_overlay
 from .taxonomy import taxonomy_label
-
-LOW_QUALITY_SEGMENTS = ("/tests/", "/__tests__/", "/fixtures/", "/mocks/", "/examples/")
+from .evidence import (
+    is_low_quality_source as _is_low_quality_source,
+    is_protocol_derived_surface as _is_protocol_derived_surface,
+    surface_evidence_class as _surface_provenance,
+    surface_evidence_counts as _provenance_counts,
+)
 
 
 def _severity_rank(value: str) -> int:
@@ -46,90 +50,10 @@ def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
     return any(keyword in lowered for keyword in keywords)
 
 
-def _is_low_quality_source(path_or_text: str) -> bool:
-    normalized = path_or_text.replace("\\", "/").lower()
-    return any(segment in f"/{normalized}/" for segment in LOW_QUALITY_SEGMENTS)
-
-
-def _is_protocol_derived_surface(surface: AttackSurface) -> bool:
-    file_lower = surface.file.lower()
-    route_lower = surface.route.lower()
-    return "lexicon" in file_lower or "/xrpc/" in route_lower or "atproto_" in " ".join(surface.auth_signals).lower()
-
-
-def _entrypoint_counts(attack_surfaces: list[AttackSurface]) -> tuple[int, int, int, int]:
-    observed_runtime_public = 0
-    protocol_derived = 0
-    internal_only = 0
-    low_quality = 0
-    for surface in attack_surfaces:
-        if _is_low_quality_source(surface.file):
-            low_quality += 1
-            continue
-        if surface.exposure == "internal":
-            internal_only += 1
-            continue
-        if _is_protocol_derived_surface(surface):
-            protocol_derived += 1
-            continue
-        if surface.exposure == "public":
-            observed_runtime_public += 1
-    return observed_runtime_public, protocol_derived, internal_only, low_quality
-
-
-def _surface_provenance(surface: AttackSurface) -> str:
-    if _is_low_quality_source(surface.file):
-        return "low_quality"
-    if _is_protocol_derived_surface(surface):
-        return "protocol_derived"
-    if surface.exposure == "public":
-        return "observed_runtime"
-    return "other"
-
-
 def _provenance_breakdown(surfaces: list[AttackSurface]) -> str:
-    if not surfaces:
-        return "observed_runtime=0%, protocol_derived=0%, low_quality=0%"
-    counts = {"observed_runtime": 0, "protocol_derived": 0, "low_quality": 0}
-    for surface in surfaces:
-        key = _surface_provenance(surface)
-        if key in counts:
-            counts[key] += 1
-    total = max(len(surfaces), 1)
-    observed_pct = round((counts["observed_runtime"] / total) * 100)
-    protocol_pct = round((counts["protocol_derived"] / total) * 100)
-    low_quality_pct = round((counts["low_quality"] / total) * 100)
-    return (
-        f"observed_runtime={observed_pct}%, "
-        f"protocol_derived={protocol_pct}%, "
-        f"low_quality={low_quality_pct}%"
-    )
-
-
-def _provenance_counts(surfaces: list[AttackSurface]) -> dict[str, int]:
-    counts = {"observed_runtime": 0, "protocol_derived": 0, "low_quality": 0}
-    for surface in surfaces:
-        key = _surface_provenance(surface)
-        if key in counts:
-            counts[key] += 1
-    return counts
-
-
-def _recommendation_basis_label(surfaces: list[AttackSurface]) -> str:
-    if not surfaces:
-        return "inferred-weak"
     counts = _provenance_counts(surfaces)
-    total = max(sum(counts.values()), 1)
-    observed_pct = (counts["observed_runtime"] / total) * 100
-    protocol_pct = (counts["protocol_derived"] / total) * 100
-    low_quality_pct = (counts["low_quality"] / total) * 100
-    if observed_pct >= 50:
-        return "observed"
-    if protocol_pct >= 50:
-        return "inferred-protocol"
-    if low_quality_pct >= 50:
-        return "low-quality-evidence"
-    return "mixed-evidence"
+    total = max(len(surfaces), 1)
+    return ", ".join(f"{key}={round(count / total * 100)}%" for key, count in counts.items())
 
 
 def _top_score_reasons(factors: dict[str, float], top_n: int = 3) -> str:
@@ -201,93 +125,24 @@ def _path_priority(path: AttackPath) -> tuple[float, dict[str, float]]:
     return round(sum(weighted.values()), 2), weighted
 
 
-def _related_surfaces_for_finding(finding: Finding, attack_surfaces: list[AttackSurface]) -> list[AttackSurface]:
-    combined = f"{finding.title} {' '.join(finding.evidence)}".lower()
-    related = [
-        surface
-        for surface in attack_surfaces
-        if surface.route.lower() in combined
-        or surface.file.lower() in combined
-        or surface.category.lower() in combined
-    ]
-    return related
-
-
-def _related_paths_for_finding(finding: Finding, attack_paths: list[AttackPath], surfaces: list[AttackSurface]) -> list[AttackPath]:
-    if not attack_paths:
-        return []
-    combined = f"{finding.title} {' '.join(finding.evidence)}".lower()
-    surface_tokens = [surface.route.lower() for surface in surfaces if surface.route]
-    related = [
-        path
-        for path in attack_paths
-        if path.name.lower() in combined
-        or any(step.lower() in combined for step in path.steps[:2])
-        or any(token in " ".join(path.steps).lower() for token in surface_tokens)
-    ]
-    return related
+def _finding_source_quality(finding: Finding) -> str:
+    paths = [location.file for location in finding.locations if location.file]
+    if not paths:
+        return "unknown"
+    low_quality = [_is_low_quality_source(path) for path in paths]
+    return "low_quality" if all(low_quality) else "mixed" if any(low_quality) else "unclassified"
 
 
 def _finding_priority(finding: Finding, attack_surfaces: list[AttackSurface], attack_paths: list[AttackPath]) -> tuple[float, dict[str, float]]:
-    surfaces = _related_surfaces_for_finding(finding, attack_surfaces)
-    paths = _related_paths_for_finding(finding, attack_paths, surfaces)
-
-    exposure_score = max((3.0 if surface.exposure == "public" else 1.0 for surface in surfaces), default=1.0)
-    privilege_score = max(
-        (
-            3.0
-            if surface.category in {"admin", "auth"}
-            else 2.0
-            if surface.category in {"webhook", "upload"}
-            else 1.0
-            for surface in surfaces
-        ),
-        default=1.0,
-    )
-    if _contains_any(finding.title, ("privilege", "admin", "auth", "token", "identity")):
-        privilege_score = max(privilege_score, 2.5)
-    reachability_score = max((2.0 if surface.exposure == "public" else 1.0 for surface in surfaces), default=1.0)
-    trust_boundary_score = max(
-        (
-            (2.0 if surface.data_store_interaction else 0.0) + (2.0 if surface.outbound_integration else 0.0)
-            for surface in surfaces
-        ),
-        default=1.0,
-    )
-    chain_depth_score = max((min(len(path.steps), 8) / 2.0 for path in paths), default=0.5)
-    numeric_confidence = max(
-        (
-            value
-            for value in (_extract_numeric_confidence(item) for item in finding.evidence)
-            if value is not None
-        ),
-        default=None,
-    )
-    confidence_score = _confidence_rank(finding.confidence) + (numeric_confidence if numeric_confidence is not None else 0.0)
-
+    # Finding has no detector-owned surface/path IDs. Repository prose matches
+    # cannot contribute exposure, reachability, boundary or chain scores.
     weighted = {
-        "exposure": 2.0 * exposure_score,
-        "privilege": 2.0 * privilege_score,
-        "reachability": 1.5 * reachability_score,
-        "trust_boundary": 2.0 * trust_boundary_score,
-        "chain_depth": 1.2 * chain_depth_score,
-        "confidence": 1.5 * confidence_score,
+        "heuristic_severity": {"high": 6.0, "medium": 4.0, "low": 2.0}[finding.severity],
+        "heuristic_confidence": 1.5 * _confidence_rank(finding.confidence),
     }
-    if not surfaces:
-        weighted["evidence_linkage_penalty"] = -8.0
-    elif len(surfaces) == 1:
-        weighted["evidence_linkage_bonus"] = 0.5
-    else:
-        weighted["evidence_linkage_bonus"] = min(2.0, 0.5 * len(surfaces))
-    provenance = _provenance_counts(surfaces)
-    weighted["source_quality"] = (
-        1.5 * provenance["observed_runtime"]
-        - 0.5 * provenance["protocol_derived"]
-        - 3.0 * provenance["low_quality"]
-    )
-    evidence_blob = f"{finding.title} {' '.join(finding.evidence)}"
-    if _is_low_quality_source(evidence_blob) and all(_is_low_quality_source(surface.file) for surface in surfaces):
-        weighted["source_quality_penalty"] = -10.0
+    quality = _finding_source_quality(finding)
+    if quality in {"low_quality", "mixed"}:
+        weighted["owned_source_quality_penalty"] = -10.0 if quality == "low_quality" else -3.0
     return round(sum(weighted.values()), 2), weighted
 
 
@@ -344,14 +199,13 @@ def _weaknesses(attack_surfaces: list[AttackSurface], findings: list[Finding], a
         reverse=True,
     )
     for (score, factors), finding in finding_scores[:3]:
-        related_surfaces = _related_surfaces_for_finding(finding, attack_surfaces)
         label = taxonomy_label(finding.rule_id)
         items.append(
             f"- [{finding.severity.upper()} | score {score:.1f}] {md_text(finding.title)}"
             + (f" ({label})" if label else "")
         )
         items.append(f"- Reason: {_top_score_reasons(factors, top_n=3)}")
-        items.append(f"- Provenance: {_provenance_breakdown(related_surfaces)}")
+        items.append(f"- Provenance: heuristic_static; source quality={_finding_source_quality(finding)}; surface/path association=unknown; runtime unverified")
 
     hotspot_surfaces = [surface for surface in attack_surfaces if not _is_low_quality_source(surface.file)]
     if not hotspot_surfaces:
@@ -418,10 +272,9 @@ def _recommendations(findings: list[Finding], attack_paths: list[AttackPath], at
     for (_score, _factors), finding in scored_findings:
         if not finding.mitigation:
             continue
-        related_surfaces = _related_surfaces_for_finding(finding, attack_surfaces)
-        basis = _recommendation_basis_label(related_surfaces)
-        line = f"- [{basis}] {finding.mitigation}"
-        if basis == "low-quality-evidence":
+        quality = _finding_source_quality(finding)
+        line = f"- [heuristic_static] {finding.mitigation} (source quality={quality}; surface/path association=unknown)"
+        if quality == "low_quality":
             if line not in low_quality_recommendations:
                 low_quality_recommendations.append(line)
             continue
@@ -550,7 +403,7 @@ def render_defensive_review(
     attack_paths: list[AttackPath],
     overlay: SecurityOverlay | None = None,
 ) -> str:
-    observed_runtime_public, protocol_derived, internal_only, low_quality = _entrypoint_counts(attack_surfaces)
+    evidence_counts = _provenance_counts(attack_surfaces)
     overlay = overlay or build_security_overlay(scan, attack_surfaces, findings, attack_paths)
     lines = [
         "# Defensive Review",
@@ -558,10 +411,11 @@ def render_defensive_review(
         "## System Overview",
         _overview_line(scan),
         f"- Raw inferred entry points: {len(scan.routes)}",
-        f"- Observed runtime/public surfaces: {observed_runtime_public}",
-        f"- Protocol/lexicon-derived surfaces (inferred): {protocol_derived}",
-        f"- Internal-only surfaces: {internal_only}",
-        f"- Test/example/mocked surfaces (down-weighted): {low_quality}",
+        f"- Static source surfaces (static_observed): {evidence_counts['static_observed']}",
+        f"- Protocol/lexicon-derived surfaces (inferred_protocol): {evidence_counts['inferred_protocol']}",
+        f"- Internal exposure candidates (static inference): {sum(s.exposure == 'internal' for s in attack_surfaces)}",
+        f"- Unknown exposure: {sum(s.exposure == 'unknown' for s in attack_surfaces)}",
+        f"- Test/example/mocked surfaces (low_quality): {evidence_counts['low_quality']}",
         f"- Languages: {', '.join(scan.languages) if scan.languages else 'none'}",
         f"- Datastores: {', '.join(sorted({db.kind for db in scan.databases})) if scan.databases else 'none'}",
         f"- External dependencies observed: {len(scan.external_calls)}",
@@ -598,6 +452,7 @@ def render_defensive_review(
         "",
         "## Analyst Notes",
         "- This defensive review is heuristic and intended as an engineering triage starting point.",
+        "- Static observations establish source declarations, never runtime reachability. Repository context does not establish route ownership.",
         "- Validate top risks with repository-specific architecture context and runtime controls.",
         "- Notable observations are cross-cutting hypotheses; treat them as triage prompts, not verdicts.",
     ]

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .finding_identity import dependency_entity_id
+
 from dataclasses import dataclass
 
 from .analyzer import identify_attack_surfaces
@@ -110,9 +112,9 @@ def _finding_evidence(surface: AttackSurface) -> str:
     else:
         details.append("no auth signals observed")
     if surface.data_store_interaction:
-        details.append("data store reachable")
+        details.append("inferred datastore relationship")
     if surface.outbound_integration:
-        details.append("external integration reachable")
+        details.append("inferred outbound relationship")
     return "; ".join(details)
 
 
@@ -915,6 +917,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         and surface.exposure == "public"
         and surface.method in {"POST", "PUT", "PATCH", "DELETE", "ANY"}
         and (surface.data_store_interaction or surface.outbound_integration)
+        and surface.auth != "required"
         and not any(signal in {"jwt", "oauth", "authorization", "service_auth"} for signal in surface.auth_signals)
     ]
     admin_surfaces = [surface for surface in runtime_surfaces if surface.category == "admin"]
@@ -929,6 +932,8 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         surface
         for surface in runtime_surfaces
         if surface.exposure == "public" and surface.outbound_integration
+        and surface.auth != "required"
+        and not any(signal in {"jwt", "oauth", "bearer", "token"} for signal in surface.auth_signals)
     ]
 
     if webhook_surfaces:
@@ -993,7 +998,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
     # the general public_api mutating-route case with per-route chain resolution.
     findings.extend(synthesize_unauthenticated_routes(scan, runtime_surfaces))
 
-    if public_integration_surfaces and not any(h.hint in {"jwt", "oauth", "bearer", "token"} for h in scan.auth_hints):
+    if public_integration_surfaces:
         findings.append(
             Finding(
                 title="Public routes appear to influence outbound integrations without clear auth signals",
@@ -1185,6 +1190,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
             Finding(
                 title=f"Vulnerable dependency: {name}@{version} ({eco})",
                 rule_id="vulnerable-dependency",
+                entity_id=dependency_entity_id(eco, name, version),
                 severity=finding_severity,  # type: ignore[arg-type]
                 evidence=[
                     f"{len(pkg_vulns)} known advisor{'y' if len(pkg_vulns) == 1 else 'ies'} for "

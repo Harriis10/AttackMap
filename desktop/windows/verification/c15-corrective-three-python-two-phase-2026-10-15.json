@@ -1,0 +1,1027 @@
+{
+  "schema_version": "1.0",
+  "recorded_utc": "2026-10-15T17:16:55.895871+00:00",
+  "scope": "Windows three-interpreter corrective matrix for immutable pre-prepare-output-helper snapshot; two disjoint fresh pytest jobs per interpreter, not one full-suite invocation",
+  "results": [
+    {
+      "python": "311",
+      "status": "passed",
+      "full_node_count": 3294,
+      "regular_passed": 3283,
+      "regular_setup_skipped": 4,
+      "limits_passed": 7,
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00046300000394694507,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00022879999596625566,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00023999999393709004,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002150999935111031,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "bindings": [
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/verified-two-phase.json",
+          "sha256": "ebb8ddad86b4ac9b9daff5ec31de6b32e420f26f1b0b97491704821b93bd1b30"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/seal.json",
+          "sha256": "87ffb7fb4d7c290014b8c1bec3608673aaccfaa92a1f9a8cc24a8c57be555dbc"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/capture.json",
+          "sha256": "331d94bd92fa3d7a97152d72849e696d415e24d9d1771cc7b96875ade25c52f6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/collected-nodeids.json",
+          "sha256": "319bceb15a0ad389a478f3187444e6088c2bc0f52b33730f05b1526270973e64"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/environment.json",
+          "sha256": "630568e4a09829bb571bf685110a72bc6997549f9845c3fd0d3f056f48e803c6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/exit-code.json",
+          "sha256": "6ee033c8018f84ebe16e5349385af6239688b9fe0afb042c88721cf09198754f"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/run.json",
+          "sha256": "6ea971d12f02ae3a7c32200284754f25a35c1785c36ad0dd13cf7aacdf6fe426"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/capture.json",
+          "sha256": "e6b1b16e20bc31ddd32176d5f091301fd22f49da2b0005a4094d07c179ed1da0"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/collected-nodeids.json",
+          "sha256": "dfba8df443520b704d156afe9c9610fafea5b04f6be77f3fef46fe74ea1e41f2"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/environment.json",
+          "sha256": "66bcad5b4f82ce7b7785761a25db06b1fa9a0603084fcb654948fae9512ebc9b"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/exit-code.json",
+          "sha256": "9443fdc30a8e6586bf0be54a2f179bd7a1b262b55c866a29a8c8a6bd958886b0"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/run.json",
+          "sha256": "6aa3eb9284ce40cd72115653f80acfee388ce3565e9751e7a9c0f4e2a9ca9db9"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/capture.json",
+          "sha256": "cbb516eeeeb3a9510bc3c492dbc9850645055b30271ec487622ee13a18a9d3b1"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/collected-nodeids.json",
+          "sha256": "2f56ffa72737ad07caafa7fbfaeff7c2e3cfebfd7cc23386244903359fca07c5"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/environment.json",
+          "sha256": "e6be9d7b5c07cfd8a1da8fb0ad7837fb0456938e8f40e7ab8b1d1fd0be0b6717"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/exit-code.json",
+          "sha256": "9f3e5774aaabbaf9497f924c143303235aba4d6dcb734ff7fc69a75917dd8a80"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/run.json",
+          "sha256": "9c967b6f6031f34d2470505a94fdc054bd8ccea5a81f67a74eeb64b07b6832a4"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/pytest.log",
+          "sha256": "50b532eac51e0d0deae8c8cdb04fee0c67abfa12af914bdeef14eda5b78578a3"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/collection/results.xml",
+          "sha256": "8501b0ef2656b97cb015b15b174ca061748c68c112a1a133973ec0ed3647b254"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/pytest.log",
+          "sha256": "9066daaff93c379a776480b73c9989468bc70c762d4ac44547de1c0d6613d46c"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/results.xml",
+          "sha256": "029adab5d766ccbf9f4be62460e28e79d46b7a780b637e4b7e9aeb69ffafd039"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/regular/outcomes.jsonl",
+          "sha256": "2e72e44078096c00928d1308e57f61d39c55a430b317f0366279b365b2cbd184"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/pytest.log",
+          "sha256": "af570c6d02e877bcaf89377841054ef4c918561dc1f0586b2416e685390a3c52"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/results.xml",
+          "sha256": "a1a65c5ed2350279d27d4bfa721c591037c07778857a860929b24d552642331e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py311/limits/outcomes.jsonl",
+          "sha256": "2e601442df6a695595a9b22cdd8ffec829d19953cf64a9c1cbd6dd81adc8939c"
+        }
+      ]
+    },
+    {
+      "python": "312",
+      "status": "passed",
+      "full_node_count": 3294,
+      "regular_passed": 3283,
+      "regular_setup_skipped": 4,
+      "limits_passed": 7,
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002823000104399398,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002486000012140721,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0002911999908974394,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00022909999825060368,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "bindings": [
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/verified-two-phase.json",
+          "sha256": "2027ef944264abe70489c966f7a7e9d79831678976c5033a8dbdcd9d4d93424a"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/seal.json",
+          "sha256": "87ffb7fb4d7c290014b8c1bec3608673aaccfaa92a1f9a8cc24a8c57be555dbc"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/capture.json",
+          "sha256": "331d94bd92fa3d7a97152d72849e696d415e24d9d1771cc7b96875ade25c52f6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/collected-nodeids.json",
+          "sha256": "319bceb15a0ad389a478f3187444e6088c2bc0f52b33730f05b1526270973e64"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/environment.json",
+          "sha256": "14af45a878fb5d49a1782fbd0d55c1fafbcfab8f54e063cf981207d7b23cc900"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/exit-code.json",
+          "sha256": "fd302ef8c4bc35829b43e087b5b752f4feee847a37b0d33dde37300376847307"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/run.json",
+          "sha256": "ed3563fe5d63ae07fde042e253b8fb5f0d1e673d535601af08e48d229f318bdc"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/capture.json",
+          "sha256": "8b789f7e15c8119e95c13c6cc563a37e59b33755d25b0a4363b4ede16ea7e444"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/collected-nodeids.json",
+          "sha256": "dfba8df443520b704d156afe9c9610fafea5b04f6be77f3fef46fe74ea1e41f2"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/environment.json",
+          "sha256": "441dfa3fcab716ae6ccaf971f1e7c90cbb947a6cfa0adbad3cda5ec714b3d198"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/exit-code.json",
+          "sha256": "877ee29c75d46c1eae0ba49b66c0d44924c375bbffbed6571cd0948b15dbb22e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/run.json",
+          "sha256": "063074b30657a0368a79a2e3699d87a5b43f19bee530639df5bd4777e29fdea9"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/capture.json",
+          "sha256": "f2f611b783bb74b76d3164bdfeba0160d28e3545d57657513482fd664744eccc"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/collected-nodeids.json",
+          "sha256": "2f56ffa72737ad07caafa7fbfaeff7c2e3cfebfd7cc23386244903359fca07c5"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/environment.json",
+          "sha256": "58630d8a1995e401cfe710b3418befc3dbefc03f5fd9233733ee27d0378060c9"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/exit-code.json",
+          "sha256": "b1d5effbd0d71a2135f84c1c289f09922f60222dd8c031e1f541bf8cb7fc1b9a"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/run.json",
+          "sha256": "601b24613f0cb014a17cf7713b836dd4badd9beaa4121fb547b23fea57f775d1"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/pytest.log",
+          "sha256": "34e532498d8745ea24c0179d686a5afe20c66e8dba6f5027968b3370c149f669"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/collection/results.xml",
+          "sha256": "9343d5abc95c8c800bde37ec1cacb8d54453deb4753b314413e19167db9879d8"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/pytest.log",
+          "sha256": "cc5852fa8a3828ea788069d989be892cab861614ab13d7b72acc9d79717aab5d"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/results.xml",
+          "sha256": "e0e8e4ba06887efd765d10311c846b0af06f7dae7dcda29a93f5d160cd3c40c0"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/regular/outcomes.jsonl",
+          "sha256": "21e1fa266215e0a81b4eb60ca9d2a84aec6c8e41e856dfd78d07ac84a2ed4931"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/pytest.log",
+          "sha256": "47dbbbf11673f2c46225bdc4ddf7c91cc4d682373a2edfbe14fcd4f44be79db2"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/results.xml",
+          "sha256": "c4a3592836b5bbd8604cb7dc60ae30be34f89f9ccc3299fb0f1e1b2bbf0da00e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c/py312/limits/outcomes.jsonl",
+          "sha256": "34d984d9fa8a5ac4de9458d072ec4a67f57e447d3503978c8dfeb606fb2cdbaf"
+        }
+      ]
+    },
+    {
+      "python": "313",
+      "status": "passed",
+      "full_node_count": 3294,
+      "regular_passed": 3283,
+      "regular_setup_skipped": 4,
+      "limits_passed": 7,
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00034640000376384705,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00042329999268986285,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00040929998795036227,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0006240999937290326,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "bindings": [
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/verified-two-phase.json",
+          "sha256": "3bc09e9f695ab118207fb4f13dfa2b9b31706651329790ad0a6c678899d2a55e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/seal.json",
+          "sha256": "55bf41f4ee12e4add855c0d0cde02b9f4ff0087659c1bf240a54d825385072f0"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/capture.json",
+          "sha256": "331d94bd92fa3d7a97152d72849e696d415e24d9d1771cc7b96875ade25c52f6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/collected-nodeids.json",
+          "sha256": "319bceb15a0ad389a478f3187444e6088c2bc0f52b33730f05b1526270973e64"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/environment.json",
+          "sha256": "f75d6f7ce75e929924927fa26fbf5efe4ed6207d8c24ea408ead629ccfb5ce3f"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/exit-code.json",
+          "sha256": "00f16edd2b0c8899c3b5d523dba7fcfa0cd6cabb6f1a3d634f91f30c1d10e9ff"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/run.json",
+          "sha256": "6577e2f68f136a2580734a6bb005776859e775cdc77e2dcaab6a198e6f7b3e45"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/capture.json",
+          "sha256": "d12747501c6c4c0e140a59807cdce9bd85aaaaf058c06840daff8a0912e11adf"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/collected-nodeids.json",
+          "sha256": "dfba8df443520b704d156afe9c9610fafea5b04f6be77f3fef46fe74ea1e41f2"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/environment.json",
+          "sha256": "781924d40f0251e20ff399aa02e5ff6cbb6976ebe4117bed9d62997ce7dfe41d"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/exit-code.json",
+          "sha256": "d3115fb3421c404c6211a8c883be4fb7e5a7191d59c3eb3c970ee201921ca150"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/run.json",
+          "sha256": "ba624b1cd772283b49b578f4d38cdffd0ad2bef2dbf0794aecc9008063d538cf"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/capture.json",
+          "sha256": "b95f2ad17578580bb5c875aae292a9962fc55a2ecd824b337aef64951d6d69a1"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/collected-nodeids.json",
+          "sha256": "2f56ffa72737ad07caafa7fbfaeff7c2e3cfebfd7cc23386244903359fca07c5"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/environment.json",
+          "sha256": "722acd10ef416762da1d9736e7f3bc9864930aa5b4cc9666906e6cd5d2d1434e"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/exit-code.json",
+          "sha256": "7a111b8fbddec34284ef7da3213c9af4e07733479bcd9eb2bb81253ef3dd25e6"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/run.json",
+          "sha256": "7c63b3ca28a337433f028823956818bcbaf07bb6cd431749b6d7beee4c4638ec"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/source-test-after.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/source-test-before.json",
+          "sha256": "a9eb9e8f1bd1a24946d27568297f1d8055355c03453f3b61cde9aba915b23212"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/pytest.log",
+          "sha256": "78a55980bb222ce93b780ccea93ca508d3c68cc9f8720f6f7a2d4dc49a894aca"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/collection/results.xml",
+          "sha256": "e29c902d85c6cfe31aafa45f20de1e030514dd26845ca75f4ab20122e8a791ac"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/pytest.log",
+          "sha256": "c04c44bf562e6a80bced3e9934ac5da074a33075c3056d50652fe860f6ac509a"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/results.xml",
+          "sha256": "dd67a80974e200717096d6f8bd83c58f597b7219037df857333cd237313bc387"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/regular/outcomes.jsonl",
+          "sha256": "cfaf71dda221884570890a6e6d54a98b2819c297a224fe58a45e4812f713c018"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/pytest.log",
+          "sha256": "f51fc9a09386424cf71cb83c889aec45f975608848279830d354ee7d2a590f00"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/results.xml",
+          "sha256": "6b9efe3e80392c20617099c389dbba80232342d9782570a40ab5d8812343b740"
+        },
+        {
+          "path": ".pytest_cache/m3-c15-py313-quiet-88204ccf71054af1bb67e2c820d8e488/py313/limits/outcomes.jsonl",
+          "sha256": "fd6ffe0f5831c35a5d38c2dc65a2a1084f60655d4154e5b9c758ef5952e78454"
+        }
+      ]
+    }
+  ],
+  "same_exact_full_nodeids_all_versions": true,
+  "same_sealed_source_test_schema_fixture_pyproject_hash_map_across_roots": true,
+  "sealed_input_count": 486,
+  "source_hash_map": {
+    "src/attackmap/__init__.py": "b2ae4c7dee0c0ce448af5b032fcdf042395b1a2df598d60eedcd5d8790693096",
+    "src/attackmap/__main__.py": "4b22351324de7472c9da5a0f1c93b7596c89a64a8ea0403cf30b974968ee5498",
+    "src/attackmap/ai_budget.py": "98527c906c139a6211a8e6b0bec353ca4a09032ba3625f59113767509ca08f28",
+    "src/attackmap/analyzer.py": "b0411163154290de6840f3c630dcff56d82d404f8b0d80a862d23281749b9d0a",
+    "src/attackmap/analyzer_contracts.py": "0e7c18a1094b4900861fbd73ce8aff75f45e185ac6231542ddffb3f176776996",
+    "src/attackmap/analyzers.py": "0775000039e5e52579e461931d748467f7dc09a94425e15fba03cbe7ddfe24c3",
+    "src/attackmap/anomalies.py": "c86e41d89f89f7e60434e11c64660f6be2cc143c3d32e45f461d28ec1f138702",
+    "src/attackmap/application_errors.py": "aac2fb8844c3d251b323b3402a2fc4d1229596c6fbc507827b645026f07c59f7",
+    "src/attackmap/artifact_manifest.py": "5370128119d4390dc6f16eb39011f8c1180084467191a04c9ada607e16b6654c",
+    "src/attackmap/artifact_publisher.py": "8121f68ac61e8229e4882fc6104f22d3f43ba857836ad7e5a90917baadb67494",
+    "src/attackmap/asset_model.py": "2e2d1d156d27e8072b10dfd233c54a310b5173b527d1be1ae1abea09cf6b8772",
+    "src/attackmap/attack_taxonomy.py": "f9e3b9bebcacb216fb40135cf8d5ddce1d00297f2da7a38b2f3fc7334dc28c5e",
+    "src/attackmap/authz.py": "40718f1491bc03247f2b70073ff80ec4a1ee414dc2646438aee675161eb04fea",
+    "src/attackmap/bench.py": "1aeac5ddeb98bd6b5336220f9797fafda6043b8db375046760fe98dee52f2cac",
+    "src/attackmap/citations.py": "93b36fc0ac930b8c6ed737cde4bbf8c505b16f62511567024632bef389b0a6a4",
+    "src/attackmap/cli.py": "a44dbd41c50de8ffe0491a91dae5ab5cca31a49411a3d535baf80a1bfe5c6e7a",
+    "src/attackmap/comparison.py": "5e79d05a84affda3e4cb77dfc0d4487b49b812557bc80b18e47ad63774227671",
+    "src/attackmap/config_scanner.py": "110ff95ccaf9576fbab626aac84e754d726b4e73015b5d751f60c78c12d7c144",
+    "src/attackmap/context_pack.py": "a27266090896feb036ab21fa63b0073b78fdddee2e753bab7b3497434f38f178",
+    "src/attackmap/contracts.py": "d89955cc95bb6f5163803c11b1add05eda30f8d9a3036e40095b2bb9fc1f4543",
+    "src/attackmap/control_model.py": "460d2be6b324597f86cb7228879884d2e03f5d7172ce49ea755cf0c88997813d",
+    "src/attackmap/crossrepo.py": "ccb669d968ed10ba7f08a936eb233a5462d3f2c5bb626c51d490d621a1cec5db",
+    "src/attackmap/crypto.py": "8f124cab0c4f4910424184a5c760371bec1c136fe48b35bc507f433058ef8e8e",
+    "src/attackmap/cve.py": "58920c623dda7ec28ba9aca1cafbe472186093addadcacd855d9bbc4da3d399c",
+    "src/attackmap/defensive_review.py": "68d542b104808489e4fd17dc775b9cd742330146f0fedfb3a30a9656233c6ae3",
+    "src/attackmap/desktop_actions.py": "16bf54cd7bb33696e945a9ee6cfc656cda904e6410f57150841176b26008e8ec",
+    "src/attackmap/desktop_provider.py": "c5d5269de5421673c16c9ba86a4c71baeb3112a32585960fde3367715bb12b31",
+    "src/attackmap/desktop_worker.py": "86713bf107bb120a0ea8772c8544f92350e4121c4bfeccfc1150c763171af0cd",
+    "src/attackmap/detection_opportunities.py": "91c406609564147b24339e49e32588caa9495c5cb56171f04e4d4eae64742620",
+    "src/attackmap/diagnostics.py": "80053b060b4117108cbd8e8ab551293b1c1d7f7ec96b0424446f21552fe615a3",
+    "src/attackmap/diagrams.py": "42e90f43fb88e93ef290b6982e60dce20d63475bc3855ef08c763952cf5d9b1e",
+    "src/attackmap/diff.py": "5a360968df7d0e5d20ab86c4c9b0a5bb2e6cffa0f0eb5a75da3f0c8851467b4f",
+    "src/attackmap/evidence.py": "4971e79aa79ceaef843c6c2d89d29458c20c4d47aca291ba46575d6e2c24ec1a",
+    "src/attackmap/execution/__init__.py": "23e4d8469938f5dd4d1f9fad38e069d3a579a806d10fd885b1812b21e50caa33",
+    "src/attackmap/execution/windows.py": "83b13fae1c25d1a2f8264bcc90bdf71e08cf22e0ef203a75f7fd55d2c6950eff",
+    "src/attackmap/exploitability.py": "cd9eec1d5e7eae794fd8c54f5c90ed0447011c827cd7f1d064681207287807c4",
+    "src/attackmap/finding_identity.py": "8b39c64faed23483e1105e2092f8800881fb0baefff2ab0f97aa16f8b5c5523f",
+    "src/attackmap/finding_presentation.py": "f7718cc3e3c361ffa4c65f7864bfb91555d70e8aea3b1f471f0926dc4a2a44ac",
+    "src/attackmap/fingerprint.py": "b6d046df6749ce07a05b22839b32dcf847bc448a38b2c5d85e3d738fbbd39b18",
+    "src/attackmap/fleet.py": "b0aa97774d8359b370c57b0cb2e05fd120dc36dad480a1c62dead17e3311ec05",
+    "src/attackmap/gitref.py": "f71fae545c67bd8046a96f1446a9d5707728a9e1092df73813a0ca9042192027",
+    "src/attackmap/graph.py": "28b1e7d275bd71540fb4821e0e6be433528db21fbb76cdf6a01146832e282e11",
+    "src/attackmap/hunt_harness.py": "83cc0e7ff61bd7e5ae045e38f092f9eb5128854b84fdd20b64e40fde65b78ba7",
+    "src/attackmap/index.py": "810f935c77c2a9af512d681bdb1b7802655c70200114c3003c45c61bb744aff7",
+    "src/attackmap/insights.py": "3e5958da647eddbb45bad97c5afa0ce42b20d6cd47679c143e6386ef2679ac13",
+    "src/attackmap/llm_review.py": "3fc83e3b254ae18ac75391ab74d686b3c27f347a518da4766702ec0319a712ae",
+    "src/attackmap/lockfiles.py": "42786605aab36e315e0ad4355165f473d4fa5a39bec986fe31aa6cae67911eba",
+    "src/attackmap/md.py": "1cdf8cf6b4884f206cb6f8f8fe1883cd05e91cb1104ab2ac97a56e4d3cd56c43",
+    "src/attackmap/merge.py": "88732107ae07ffc64894537c79dc19eab9f7f920423fba0051aad48586c7f809",
+    "src/attackmap/models.py": "150efc96ea93d15d998f13fa7c4a5f569f07ebf84b191be1db4b6bdcc2fa9c29",
+    "src/attackmap/pipeline.py": "a2058a92cc48b8187b3ef59b91027a05dfd7b1d8f1e102ba6023b3c1d1302179",
+    "src/attackmap/plugins_lock.py": "614f48ca34bba2a86ee3930a949945f5b344fa6f84dbed0ecdd4420a4ba34ad8",
+    "src/attackmap/popular_packages.py": "1bda564aded9c5a15ac6caadba07bcce288afe1614e90297069e4a29fd9cd8a7",
+    "src/attackmap/progress.py": "4bbb3cd2a1b17f49bc3ad54eb7956b7188b752bced15bbc0d9bff630bc7db71c",
+    "src/attackmap/provider_options.py": "92d297510475575eb9017c65803b5853eb8d6d07c8cf18251dc06800f37e88d6",
+    "src/attackmap/recon_models.py": "f406f6b33d21ab3b6caf9b367387d7daf48feec617043340c9c94dce5f282a5a",
+    "src/attackmap/recon_to_analysis.py": "f7ecbf9678f0db148b43e0537e10c48f1d5e83785b03673c0b1b373520903c37",
+    "src/attackmap/redact.py": "6ee079cc8b7925f4c19863266af77cbe4795be58bab94aa167745b0972786523",
+    "src/attackmap/report.py": "1ff2b744fc698cb2d00f813918f84c3c0e6962ac98b459d7d02a8a5979ba4927",
+    "src/attackmap/review_eval.py": "d319bff1b91eba0525980623e9c71355b5af874bbafb25b78a5e6f6156fb87a8",
+    "src/attackmap/review_json.py": "82ab937d9afad107700559f2b928b47e99d93d59ae298e939f10e2de3d16d730",
+    "src/attackmap/review_prompts.py": "5b220e1d293f1546f633777682a8dfbff0d97dc935fcdc27704e6734fe992d31",
+    "src/attackmap/route_auth_fusion.py": "360577bf3bf2851b52a1722a9ed71f79e6af9a8d6eb505329919a8c01e722df0",
+    "src/attackmap/rules.py": "5af5b7e966f6b5d5d4677dbb8b44b5c1ae38dd73deddb3855cc65794be383fdd",
+    "src/attackmap/run_contract.py": "9bca1666b9f6a416f8e111e655b9af99ba35aaf674c8643d88e19a75e2bd3fac",
+    "src/attackmap/safe_fs.py": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+    "src/attackmap/sarif.py": "3c1b514914415c2b059b910ab3705d09cf416a904c4a7945c0e38052bf1b27cc",
+    "src/attackmap/sbom.py": "ba2d5c67d88879bd48391b280c086da93e118eb5d40044978bc06882ce9cf8a9",
+    "src/attackmap/scan_service.py": "5959151212964672d007c3ecb3f4dc75be11b813144f6085248f1c15c7a153da",
+    "src/attackmap/scanner.py": "82bb456379bb3610619bda0c7091b81a0bf9466928b67db965bc789cca190477",
+    "src/attackmap/sdk/__init__.py": "eb4ac6289ce20d278868ed3f05d51920b3c8bf40cb845af897fadcb8de3806e5",
+    "src/attackmap/sdk/contracts.py": "1a6f0227c463f455afd53197a2ffae7e47ac125715935b08bff8a155aebbd45b",
+    "src/attackmap/sdk/fs.py": "e4d999889e5e3ce96c33ddde826c65c80edad39e81c4df79c210a5e3d6996471",
+    "src/attackmap/sdk/models.py": "6b8a955050a3f1b3113e98888d3e25d8688f2fe4df008b0afb1fa600da01bd76",
+    "src/attackmap/secrets_history.py": "53115714ed6896fc22efc59c7758190562ff8a0426c72d5fc5c921989a05ffa7",
+    "src/attackmap/security_overlay.py": "dfdf0bd5b6071a862b3240193139a02826531148f70f74432bab72911292ae68",
+    "src/attackmap/signal_provenance.py": "0522dc9c83aa5ee11175df230b5f32b9c819e3b91062c3a25c3fe5727d3d0134",
+    "src/attackmap/srcpaths.py": "0d5fb7df71d2f0e31a9f292cc690d2e99da3ec88117cb989738755bdc6fc4bd1",
+    "src/attackmap/suggest.py": "020506f1d45d7c421783891b4fcf7274518a5c87ee032262f62319092348146d",
+    "src/attackmap/supply_chain.py": "6f0fec83a9132b2057cd8635f16e45f075fce120749f0e2dacd8583a6be3a26e",
+    "src/attackmap/suppress.py": "76308fbee2fc1df4fbe2228293a6cc964e505d12941489788ec5418e537b717e",
+    "src/attackmap/suppression_actions.py": "891a3f6035f9c130ccafccbe59dd7f730ec21062058049af7c599dd4349bc3b2",
+    "src/attackmap/taint.py": "e6e4bbac31f18b800765aaed4e40b37a464388b333457bc7e93bdaa12538d818",
+    "src/attackmap/taint_flow.py": "56431c2a1c71c5a47d2b2657c7921f21e55fc5165b2b767951c39294f258ea13",
+    "src/attackmap/taint_sinks.py": "675e7e626f2d96c82903ee00ca0d5c276b14485cac4b112327705933d9414e56",
+    "src/attackmap/taint_sinks.yaml": "e8034c10442f3555e92ea23b06a55810fa8aa77329c5ee2446e5c13c9ed30df1",
+    "src/attackmap/taint_sources.py": "cf138a60e4a28d15ac1ca01dde0c60dc1880edf6ec2e3fa3658c63ebfbb22b60",
+    "src/attackmap/taxonomy.py": "86d88a9d552d8e91072b586fd6841f48b0982126896b23a72730308254f2b344",
+    "src/attackmap/threat_model.py": "a0482df85eaa451ac51e1e8f3a304fc0e317aac7813e0461eebcabe35dae1f98",
+    "src/attackmap/topology.py": "de57510c1900a774bac17f6a89f74effbe0881c59ffe888722f9a7b647a95a03",
+    "src/attackmap/triage.py": "03e0ce322df5b63245106b14e69d25eed37d9f4a12ba09305b289381fe5b8180",
+    "src/attackmap/ui/__init__.py": "e1bdc7dc3f87359e62f787924032ba3df416aa60f1881d87ea7822f22db254ef",
+    "src/attackmap/ui/config.py": "a89723f5fda14a087c9ee0e5a1bba7aa8f75c29a9d6c8bcac588171a9a3681ce",
+    "src/attackmap/ui/contract_adapter.py": "1a5352fbc61493a95d67ef154a0ee3392bb7d505beac1b3bb0616268456f9e55",
+    "src/attackmap/ui/export_md.py": "9e77677962c5fe095b4513d58bc8904bebf532d657e9a95cfa76c3c449e08105",
+    "src/attackmap/ui/fixtures/juice-shop-report.json": "7fcae49df3275f2a0dd23d43804509defcd4be2d7e2075c2f0fc569a7ed6317f",
+    "src/attackmap/ui/launch.py": "f7722e1f85b35201404def1eca0efda323a974250f83f1d3e23f79035ea1352e",
+    "src/attackmap/ui/output.py": "fb54d0ff060f65403f792549661ee95aef361374e14a8c45795ffed05dcd4c6a",
+    "src/attackmap/ui/report.py": "92cca8c2a1e6c50aa4f5bac6bf43ffcd665cb1f3304e9ae6b11cb3b2fa5cee32",
+    "src/attackmap/ui/run_state.py": "4a94a84c811419e8513f343dfc54bc7c0c8ae0b1c8c93d0bde70fc174abf3db7",
+    "src/attackmap/ui/runner.py": "546f4d5051cc20d17d0237acb53ec35672e5ec5ea94d9cda0fdda4a86d36ee52",
+    "src/attackmap/ui/secrets.py": "bdf045a234ecb7d8c7340fccd21a9e60584aa21971c4fc9a0c766c1973d226bf",
+    "src/attackmap/ui/server.py": "92ef4bb67d56e575c2ef6ea43402cb99e93f0f26c81cc78e4be5324ffbeec5eb",
+    "src/attackmap/ui/spawn.py": "1e5eae3eb6f8f5fe62725a7a7552a22c37b461adb5a990707502d144f1fd3d21",
+    "src/attackmap/ui/suppress_write.py": "626726be19e2f55bcb7d8de2ccbcc90820979d717c06e70e63864f0cc529150c",
+    "src/attackmap/ui/watch.py": "998ddd342847cc1844cfd248e0a415824aae69da33c724b66e73866eb9119cd6",
+    "src/attackmap/ui/web/index.html": "6322b37c5667eb5bf806fd882af13dda4f454f2686a42d1cf87b8f5c3f2ca467",
+    "src/attackmap/ui/web/src/api.js": "20afc9b576430971d231b66ded2a3efaedadf71779cf86874802d02894d25d42",
+    "src/attackmap/ui/web/src/app.css": "c60f4d94ae256ea5ff1aad9f04b6a0a6fa738ad235d561ddba7ea8bedc899441",
+    "src/attackmap/ui/web/src/app.js": "60aad50fa04217c816f5b3e5a580ea9bca0ac4b4355c597bf6ce35ecf20392d5",
+    "src/attackmap/ui/web/src/exploitability.css": "0e4e2c58fc6ee9f6cc9e84f77f032f2f666361637fec53428657d27711189ca9",
+    "src/attackmap/ui/web/src/markdown.js": "ebb81d77fed0eb50117c3a0b942434826fdcd5f51995920381f5f954aedf430a",
+    "src/attackmap/ui/web/src/mermaid-lite.js": "1b7c228cc084bb80c83699b3a62813047229d0f4c4b4c79afe695d5fe3f82bef",
+    "src/attackmap/weaknesses.py": "3ec98c539794c2822e12eeff27a6e86ea6d013e966b506139848feb8622cbf17",
+    "src/attackmap/webhardening.py": "57b461d19a4b8ce60c1d989483ae90e9a02ddc267d11a496bfbe91f167a99160",
+    "src/attackmap/workflow_scanner.py": "2d9763bf1e295d6f88ee91d1031627d24e97b239a8d30d841b8abc62da4a6df2",
+    "tests/artifact_fixture.py": "4233bcc004dac91eb659844575993849365cf56fcaf4c3d75b17b8a5b970947f",
+    "tests/fixtures/hostile_agent_repo/.claude/settings.json": "1f5752288b01425943645370ef99c8f196701c7a76c5ce3076b7a883bb0ca49f",
+    "tests/fixtures/hostile_agent_repo/.mcp.json": "1973c1c430f05f362a6e6ec175a9e654888a09170ea03dd9fd29d47913a9f42a",
+    "tests/fixtures/hostile_agent_repo/AGENTS.md": "ef31abba0632bef7a97157df2418c7704340fe9d49b4e8751a23a9a745dab784",
+    "tests/fixtures/hostile_agent_repo/app.py": "5a6da90440e898d155fd4c8890b231adb1cbad8c77b026f4816220c8f1bc919d",
+    "tests/fixtures/hostile_agent_repo/CLAUDE.md": "ef31abba0632bef7a97157df2418c7704340fe9d49b4e8751a23a9a745dab784",
+    "tests/fixtures/sarif/sarif-schema-2.1.0.json": "96b31419a1c0faf5c57effaab4f5f5323fff114576c44e162b1b447b69aa85b8",
+    "tests/fixtures/sbom_repo/backend/pyproject.toml": "b573c39bf2f0fce5c6ccf04c6ac559caa8de45fa010472a1e739a057b43752f2",
+    "tests/fixtures/sbom_repo/backend/requirements.txt": "ad45736e06904e7ff8a43ae2112ebea88a6a92086d57147281abe1f19ec51966",
+    "tests/fixtures/sbom_repo/frontend/package.json": "5c21a8ec83886fac40c538e9e90084dd524813f0a1bc56728014cfd8835ecc88",
+    "tests/fixtures/sbom_repo/gopkg/go.mod": "5b4dbf94b3e3e21c9467c163f357d18263a36ffa897f0f51035dead59edabf5b",
+    "tests/fixtures/sbom_repo/phpsvc/composer.json": "fe2128d2014baed74f05512e6339b6ca15307b29346a88480b2bbcc598314670",
+    "tests/fixtures/sbom_repo/rustpkg/Cargo.toml": "5656e7ebe283a8f5f50355b477c3d76f6ef3f34368dccb841391e27773089ace",
+    "tests/fixtures/sinks/code_injection/js_negative.js": "238447a4593bdb9ee1b4950c27edb8ab9700c7a79acb3c3aca9294b5613ceb30",
+    "tests/fixtures/sinks/code_injection/js_positive.js": "b813e47e1c76ff4c57d943dc389294a78b249b903e20159e796c2110fca61967",
+    "tests/fixtures/sinks/code_injection/py_literal_negative.py": "fb4af17627ad1c4577d7ae819e525d440720cc12da07b09e5d29017138f3f379",
+    "tests/fixtures/sinks/code_injection/py_literal_positive.py": "ac3c98e9ad02f3403d8467d534bc1f3fa5eea24abd3a4d126685ba5dc51899e9",
+    "tests/fixtures/sinks/code_injection/py_negative.py": "fa330599b17498c3e04d606982b56cf8d9010ca0699d3b3cddec7a148b33ff2c",
+    "tests/fixtures/sinks/code_injection/py_positive.py": "099a24c3b7d97c595f4e4b77e6889ee7d8f92be2967f6eeb5462bafbf15c79be",
+    "tests/fixtures/sinks/code_injection/ruby_negative.rb": "1b0d4439cb1272eb215618221ac6dc5be9c4df6df054d8db378dd39f7cf16383",
+    "tests/fixtures/sinks/code_injection/ruby_positive.rb": "c7a1f434e82a107ef3d0447704e47c1c3c85d90c45781caf01814fffe0b89a2f",
+    "tests/fixtures/sinks/expression_injection/java_negative.java": "82777f671002e5efa88de805cdcc4207b3a4f3a69a40687b2fa5fa48d7d333db",
+    "tests/fixtures/sinks/expression_injection/java_positive.java": "9b61348aaeaa967e49fc89aef50319036b1a8df337b09808a218d1a9684adcb0",
+    "tests/fixtures/sinks/header_injection/go_negative.go": "d99a0cd3f8c69df8a6d8e0f2a315367a287636e35bd4114528b45166874611d0",
+    "tests/fixtures/sinks/header_injection/go_positive.go": "221ab45ce9867d28bfff6a8c2dfafc10681e276ba16c2db6cca89b27fa2926af",
+    "tests/fixtures/sinks/header_injection/java_negative.java": "70e478fb7bad4ff91ff01f1640acc3cb25f8f77f64dbc16ffb2f918bd640a30c",
+    "tests/fixtures/sinks/header_injection/java_positive.java": "a3736b646fab91e9ac6e702749c117b108ee1db4ae685e60aa01c78b84b0f73b",
+    "tests/fixtures/sinks/header_injection/js_negative.js": "dee36fd4fc865521b87cdce1b068b5ec31e0aaf7ab802b1bf04de30b1c6eaff9",
+    "tests/fixtures/sinks/header_injection/js_positive.js": "8da24ad0edf30148f3b261d20a23cd03e56dedc96ced28c040938961d6275996",
+    "tests/fixtures/sinks/header_injection/php_negative.php": "b5a5986c45470d5355dffe66fde08e53ff765b8b9880bc9d8b725e0e0ca53814",
+    "tests/fixtures/sinks/header_injection/php_positive.php": "2d96145e78e7da76abe116359201a60484d49fa93c3f0b1df019a32963d957a2",
+    "tests/fixtures/sinks/header_injection/py_negative.py": "7537f64b1a0fe728d838b9e4c8012e9b97656f9fbb7901ea10b23fece606e8f9",
+    "tests/fixtures/sinks/header_injection/py_positive.py": "5857ee1de7298fb81788b3f74c99d62d9ff4768af0ed30515d876fdd62b28a4b",
+    "tests/fixtures/sinks/jndi_injection/java_negative.java": "778219ef43ab2d093b60dceabb5639cb3f2acd312b44abfe0a8246e29e752c51",
+    "tests/fixtures/sinks/jndi_injection/java_positive.java": "ab841cb338764d92f3592ac96a6eed9c6eb8bc68b34c21c5b331b298518f549b",
+    "tests/fixtures/sinks/ldap_injection/java_negative.java": "76eda1a28b491abcb5fcf0b10d08871a26c74a368404fb7fbec2e9abbcc3232c",
+    "tests/fixtures/sinks/ldap_injection/java_positive.java": "798bda5616966f10e6823585de77c9a1bd9cff83849ea7f733ea4fe8b83ea102",
+    "tests/fixtures/sinks/ldap_injection/php_negative.php": "4589039e885ab65adfa369be0ac6384b31b09a8b6493076ca9f77c7464ab8620",
+    "tests/fixtures/sinks/ldap_injection/php_positive.php": "a7513b9736e93c2a4c2f4ac314e8857cb3258dbad945fa40a8e0686b3374fadb",
+    "tests/fixtures/sinks/ldap_injection/py_negative.py": "4e130764aa5dc77dd9e8f0321fe8dbd0c9b3cf234b160266ee6c596c62cf86c3",
+    "tests/fixtures/sinks/ldap_injection/py_positive.py": "8ee1adb5f6e5845e888a014b8124f69ff45ceadc059c1644f65616b1faa0c239",
+    "tests/fixtures/sinks/path_traversal/go_negative.go": "6f54cb24d558908b4117f7aef815ba8102e741298e5894faa1c42713e7539423",
+    "tests/fixtures/sinks/path_traversal/go_positive.go": "ca8d2a76334b020ae495ef05bf21c781f3679369350f9e661d98198ae7e9ae51",
+    "tests/fixtures/sinks/path_traversal/js_negative.js": "5dd3f05865c038758188f52248d21f5ddbe3ad4ffd37acaf7b631cd7332d901d",
+    "tests/fixtures/sinks/path_traversal/js_positive.js": "36a2d01a511f82eb858e08540c317c916d9b5f6e40b58ed69d5dce33a1781852",
+    "tests/fixtures/sinks/path_traversal/php_negative.php": "e27cd0aefe0672c3abe2197351ee6754f9aab83c249c0ec95ba33c5c51d7e2c7",
+    "tests/fixtures/sinks/path_traversal/php_positive.php": "cddb12ef88fa3d2355ed0ed7184d147e2b9729f4fae6a359d300055c028e1b12",
+    "tests/fixtures/sinks/path_traversal/py_negative.py": "94ffd6d3eaf13a35652c9ba124bad0c78b3ac78ef1dfbb08e1435a0938a44724",
+    "tests/fixtures/sinks/path_traversal/py_positive.py": "638f666a1ecefea000d93966932bacf4ce7be1eb8063338b8da6eea1b19adcb7",
+    "tests/fixtures/sinks/regex_injection/go_negative.go": "0f67856e15aa91502fe88d46ca03dab5abf28c8e6cc0565ef0e13692d43d9645",
+    "tests/fixtures/sinks/regex_injection/go_positive.go": "88f6a4bd2ce09034a1b5410e3e1cb6b7a62a3625fb430ab24f8a7284a5799379",
+    "tests/fixtures/sinks/regex_injection/java_negative.java": "8c2e084c29eff01c3c654716708ced304f2a89d43e2d374780730a54073057ae",
+    "tests/fixtures/sinks/regex_injection/java_positive.java": "5ee62e58ce79827fa77087214e1acc01584802335866626b0681200eadc00443",
+    "tests/fixtures/sinks/regex_injection/js_negative.js": "d48cd69406b3e1e8f3702a67a35c57eca45ac415cdff2b6cf2d35a82169fa264",
+    "tests/fixtures/sinks/regex_injection/js_positive.js": "d7c9c96904128079fab4e067adce8ed55ddc684f905f937fa315487ac383bc9c",
+    "tests/fixtures/sinks/regex_injection/php_negative.php": "8fe5056345c0767da4849309a44d870904577d78f420b218b01f6cedac4b5828",
+    "tests/fixtures/sinks/regex_injection/php_positive.php": "b713eb55e887efaf0d9bb6f4753aebd6edb78da1f6dcf74b6861b4dec348ee8c",
+    "tests/fixtures/sinks/regex_injection/py_negative.py": "424c670b5c6f75f6b8d6ba313e1b90132ee9c00bd983aaaa2d7d8da7070d0493",
+    "tests/fixtures/sinks/regex_injection/py_positive.py": "c8c04a76b25ccf618562acfa7849bb4ac9d855616fc63f1219fffc16b9e2dc3c",
+    "tests/fixtures/sinks/subprocess_shell/csharp_literal_negative.cs": "daf293bb79852f2aa8cf536f7ed111e3fa3908d0644b08ccd0137540a450d417",
+    "tests/fixtures/sinks/subprocess_shell/csharp_literal_positive.cs": "aa1d6734b0db22caf1a9a98d13aa362ee97f58ae45a4779767ff124c15840bf5",
+    "tests/fixtures/sinks/subprocess_shell/csharp_negative.cs": "76420f0834337c65fbd0e881d0e206854ab976c70539b8ccfbae45e177d4904a",
+    "tests/fixtures/sinks/subprocess_shell/csharp_positive.cs": "9e75295d1385877ae6948d509b35ef9117f32bfd8b6a7b628da27af83937c8cb",
+    "tests/fixtures/sinks/subprocess_shell/js_negative.js": "12d62354e3df6bfe864be08ffe82158eee6b69fece6f94715e272292849c4ea6",
+    "tests/fixtures/sinks/subprocess_shell/js_positive.js": "793db16f3ecb725d485ece4a964074b92be73589eb8a8510b71a2906c0fdd6db",
+    "tests/fixtures/sinks/subprocess_shell/js_spawn_negative.js": "1a109bc42fad7a0fe0f7a747a10127ac08f36f7438e5bb7cbce21d366b2a0780",
+    "tests/fixtures/sinks/subprocess_shell/js_spawn_positive.js": "08d51619040b312d0056042706d65daee523eb5c83ff9a2fe1e7f1955c440b7d",
+    "tests/fixtures/sinks/subprocess_shell/ruby_negative.rb": "0f1a4f36fc55d6a68ac5656055efea8bd14e5fc5c567b0d109548828d3417f24",
+    "tests/fixtures/sinks/subprocess_shell/ruby_positive.rb": "fec1728dd6ffbdf5d7746aee1287f6d73346bda8cce22906b122ada9d4c4f2ce",
+    "tests/fixtures/sinks/unsafe_deserialization/csharp_negative.cs": "cb04e14722be48a0c04c0176640a86b19de7bfb6c2c9335f3c8c867789b76b2a",
+    "tests/fixtures/sinks/unsafe_deserialization/csharp_positive.cs": "07dd073ba5a014a8244320d4f72c2e787136ba04366fd1c393a6a7342f1b8a62",
+    "tests/fixtures/sinks/unsafe_deserialization/java_negative.java": "b9cda138b724735a366c1b1d8f3334438b751c2890b552594f419878d5b1a794",
+    "tests/fixtures/sinks/unsafe_deserialization/java_positive.java": "66effc77fe0e4437bf97ee6a4833cb134015323e117a4f8f21adf401afbea4dc",
+    "tests/fixtures/sinks/unsafe_deserialization/java_yaml_negative.java": "fb21bac984bfdd42c7527824fa7653b6e50a1bae6be01bb28e2cb68c83360c35",
+    "tests/fixtures/sinks/unsafe_deserialization/java_yaml_positive.java": "4c03e7935e694efcb086292ec2ccebdf4cdf8412368e77be56f1e86c34747906",
+    "tests/fixtures/sinks/unsafe_deserialization/py_negative.py": "1a824a0d1f5fdd743246a378c3762a5508954c32c6258f3589d3b7760e4780b3",
+    "tests/fixtures/sinks/unsafe_deserialization/py_positive.py": "04a5352b93de7c1f744ed767f5776d9026a3ecba0c16eb40b1bebde62fa6e1b2",
+    "tests/fixtures/sinks/xpath_injection/java_negative.java": "b93a3648c85cf8b9ad9e3c1692373b291f7da54a1effc14ee846a6c4ad8c0a32",
+    "tests/fixtures/sinks/xpath_injection/java_positive.java": "d50a901936905f1d1de73393cd94b68cac81cba9150789e88dbf8c19e7b16541",
+    "tests/fixtures/sinks/xpath_injection/js_negative.js": "94a4ec4d22ef8f94569e75a1d10c5a93a14b2096fadde82016e8526448836c68",
+    "tests/fixtures/sinks/xpath_injection/js_positive.js": "3f145b0b7264972ab837142eb9783bbe5bbdf77fef8e20f337aba6746face7d3",
+    "tests/fixtures/sinks/xpath_injection/py_negative.py": "a6913d87d3dba0ec063b9a8f55cbd6abda04a684e071f7f4b05839381163b41c",
+    "tests/fixtures/sinks/xpath_injection/py_positive.py": "251454e1996ebdc679f8f2dd0a35a88086dad7cab4b1dbe067608d820eb8b0ec",
+    "tests/fixtures/sinks/zip_slip/js_negative.js": "2b371888701f0b187fcf9f07bb92fb79398edc7c3fb9690067011cde8f8533ac",
+    "tests/fixtures/sinks/zip_slip/js_positive.js": "a192bd2404e617d3a38f8265023a09b1a60be010331049bf9a440351b54f2c52",
+    "tests/fixtures/sinks/zip_slip/py_negative.py": "2b032bd05e91d4ac25c69af45fe4bb180a1e5e4188ecc104a5b56b5dbc718cfa",
+    "tests/fixtures/sinks/zip_slip/py_positive.py": "e5c28045bfa6f30840fa25e55af5e23c523521e13e6fc72ea246b50ce0fe680e",
+    "tests/fixtures/taint_callgraph_repo/routes/app.py": "6252d5f0c3be32cf5b6ec7695df87afd19ea0493c806a84a9396bd08fa262f3a",
+    "tests/fixtures/taint_callgraph_repo/routes/live.py": "a910e2c554b406d46d42c4fc111d25b232297123703e91be8d342cc4bedf4f6b",
+    "tests/fixtures/taint_callgraph_repo/routes/local.py": "d560ce3d5f19b112aebc8278a0b7093927ab55ca1f019554cc76eba3ba2b76ad",
+    "tests/fixtures/taint_callgraph_repo/services/calc.py": "b106854ed8d8cc7bfe09c771e2dbf69495113325769f538b782831d56b93a98f",
+    "tests/fixtures/taint_callgraph_repo/services/reporting.py": "8ff5974c0ee057fa6600d20e860abb6c1aa086335a3655d0f421e50971d82666",
+    "tests/fixtures/taint_flow/go/cmd.go": "ee32f1aa13b001e9d1541adb296882dac4a4db587ef6d9a98ef356fc15e3bdee",
+    "tests/fixtures/taint_flow/go/cmd_sanitized.go": "0173e3cfd0c8db18772f6d1c9c2e5d1dd716c1d5e00171e557aa47e149aa5844",
+    "tests/fixtures/taint_flow/go/path.go": "456659269483420dc2e1956c4878c65545bc25b0fcdae8b176f60f67c4b9b73a",
+    "tests/fixtures/taint_flow/go/path_sanitized.go": "bb8c3ada631645bbbe8149e9a46907e1be7094ff9ee2054bcbdedbb3f06e955a",
+    "tests/fixtures/taint_flow/go/sqli.go": "43208ba73c33971b6e4cfdaaaa9cfca7eef5177199445bfaa736824cdb1a31c7",
+    "tests/fixtures/taint_flow/go/sqli_sanitized.go": "89ecd982d1d6542e9927af8a2225b8ce2c9a1c21911449d76ce35a607a920799",
+    "tests/fixtures/taint_flow/go/ssrf.go": "278f84cfa1d6c7c46f4231748994228ee5f6745d8e87d71e3e06c02336f53929",
+    "tests/fixtures/taint_flow/go/ssrf_sanitized.go": "fc71ff90cfbf356223394fa21c3dc6d83ab35acee763d4421d86441a0ce897f9",
+    "tests/fixtures/taint_flow/java/FetchController.java": "eed5c61d66a5f4236a75b88528505fe0994bd6ad8a62440bb324bf3f9b678a38",
+    "tests/fixtures/taint_flow/java/FetchSanitizedController.java": "dbec751223454ad7afafaaecc890c323c8d2a5b277c88a5f078d1ad9c99cff42",
+    "tests/fixtures/taint_flow/java/OrderLookupController.java": "c1faa236a0d90224f82ac36cf732aaa7c1f6e80c748c9960ab4a1ff6c164feee",
+    "tests/fixtures/taint_flow/java/OrderSearchController.java": "0fcd7a5cb99aeefd7d35f0c2eff8a06b8291da1a245ecba6e5a2631d5fb9b213",
+    "tests/fixtures/taint_flow/java/PingController.java": "13a2bbd98141afa5295eeb2b53dde21faa081116922a8ebc2e4354bc0fa70906",
+    "tests/fixtures/taint_flow/java/PingSanitizedController.java": "d4719582c8b199c418a1df4c3474ff12a1ad1598cf987e82672c8b78973d07a0",
+    "tests/fixtures/taint_flow/java/ReportController.java": "4a634c62e622ae6e5d9ab7b01a5019a0860762c93f85965271a822e40cab420d",
+    "tests/fixtures/taint_flow/java/ReportSanitizedController.java": "d39dccd9290a2aab3e32d91cb239522135cb073201ed6fb138372eb64e875246",
+    "tests/fixtures/taint_flow/js/cmd.js": "c9b45b55b842fb8df9b1a910d4b55293a042dca3a7946e02e05ce811e5768545",
+    "tests/fixtures/taint_flow/js/cmd_sanitized.js": "e2530d68da65951846c686670a01e26b3a7580f0157eac9b19b1f9ef7aba00dc",
+    "tests/fixtures/taint_flow/js/path.js": "228f58cbab904663accfe91af4d63664e6627bc5065ba2d95344456c967cc953",
+    "tests/fixtures/taint_flow/js/path_sanitized.js": "14fe2d415a610ace987fbbdfa84c0b7131ed1d6e777edb1a61d8739a2dfc401a",
+    "tests/fixtures/taint_flow/js/sqli.js": "a99fcb9917ea981568e9d85908af87baa65e6748514ce6fe6a4b57c60c13ecc9",
+    "tests/fixtures/taint_flow/js/sqli_sanitized.js": "59f3a352f398b47cedefa264afdea6fc0f92b9037492318f29f1043b1bf498df",
+    "tests/fixtures/taint_flow/js/ssrf.js": "c2df4c3c9e9e3e60c98437722af204ce259708431d53856d5a2a0bf718683169",
+    "tests/fixtures/taint_flow/js/ssrf_sanitized.js": "fe73d42801c8402226f11895eb4d0f9de3ea1304a8b4dd36c2e8384f731e4623",
+    "tests/fixtures/taint_flow/php/cmd.php": "d7045b67e4ee952ee60044fa4255418dd2c154294e0b7e924b294462be9bf655",
+    "tests/fixtures/taint_flow/php/cmd_sanitized.php": "1d69b87eb5fed4066895c76ca609e4c8cd029e0a5ba98956b26230277e60c823",
+    "tests/fixtures/taint_flow/php/path.php": "1bf071cdc231eb60e1721b5dcda28af555f8015d2a18c5a70cc7417663a7b1b4",
+    "tests/fixtures/taint_flow/php/path_sanitized.php": "148bf942a4722531fd029d87ff9924f2fb8280ce55b16a43fdeff07fe72492bc",
+    "tests/fixtures/taint_flow/php/sqli.php": "97168668f2ef9a84aae6d6334ee3aa6024038d026600a94d1dc2359b00ebaad3",
+    "tests/fixtures/taint_flow/php/sqli_sanitized.php": "0646c09a04a3e0d3fc388203b106492800c890c8ed20c752fa43e540c2432b89",
+    "tests/fixtures/taint_flow/php/ssrf.php": "911d0da46fc64d8ae3418641a9011c81a9b2256f3a6032f89d2a17690f4d543d",
+    "tests/fixtures/taint_flow/php/ssrf_sanitized.php": "31f082e60a91b47b53916d386b8c8e59f48c3ffb23f6ef8b70eb9039554e037d",
+    "tests/fixtures/taint_flow/py/cmd.py": "cfd423953c1d8bf5f32027f1018b3b920bce82131fa239bd5f440e0c3cdeca79",
+    "tests/fixtures/taint_flow/py/cmd_sanitized.py": "d45226a392e1a000f62e40ad3fa65b9664f488ff21f291271d7336b15ee88844",
+    "tests/fixtures/taint_flow/py/hop.py": "71615f02b52c523110e0de6ac0f01319ca0791709213a451fd0139893de84581",
+    "tests/fixtures/taint_flow/py/hop_negative.py": "6976a2c9037e435a2461975c32166b13913a4c5994b3a37eacc75c4cde17f2e8",
+    "tests/fixtures/taint_flow/py/path.py": "214ebfd41fbcdda4b90a38dbe4985be93d8059515fde8b8fd926f25e666c13f7",
+    "tests/fixtures/taint_flow/py/path_sanitized.py": "75481f960165651c02abfde52ef21d0c024e26830fcd9b7e3398f9b1faa84a51",
+    "tests/fixtures/taint_flow/py/sqli.py": "14bc19a557321a863914df3fdc26afe6fac2d1c83074e14d9f924b2744e4533b",
+    "tests/fixtures/taint_flow/py/sqli_sanitized.py": "7be21149e185534b8a75312711c0789470ee8b2e7069e0f8d8b99df890f0349c",
+    "tests/fixtures/taint_flow/py/ssrf.py": "94d04eb86039d62d11989d1b1c49a76d736242c51952838f61d767821741163c",
+    "tests/fixtures/taint_flow/py/ssrf_sanitized.py": "1cce4afff3210a80f34bf5067507cdced987d2c46a1eb5f199152d5a1eb4a35f",
+    "tests/fixtures/taint_flow/py/ssti_re_escape.py": "27fe1885edce6d6845d63553ff2845fd58a7a0d0f46ae1f61a1104547c8e5544",
+    "tests/fixtures/taint_hop_repo/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/fixtures/taint_hop_repo/routes/app.py": "58e58b9f3de65791c25fd387e88232f7c07c2a9f04f32d179fc5a9ae093c5793",
+    "tests/fixtures/taint_hop_repo/services/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/fixtures/taint_hop_repo/services/query.py": "d06c2aa32d0b77ee48b6277b9df450018bd1c5dcbe759bada1b9032a5f5b152b",
+    "tests/fixtures/taint_js_repo/src/db/orders.ts": "83dba202a094d1e541ea333fa9d2bb1c8bd133119dd57617120b13b776264b71",
+    "tests/fixtures/taint_js_repo/src/routes/orders.ts": "336d7fd331f652d761d0150be3c38b76a9b046ece6d823ac069a769dff15d00a",
+    "tests/fixtures/taint_js_repo/src/services/orders.ts": "c6fe9b240ec218ea6a4c162c5b6af128a1432359b4adc48c51e3de3d7dc8ad97",
+    "tests/fixtures/taint_repo/db/orders.py": "43df17be23ea06e74f99bedfcd27b518af42db4652637e07de38d197b558cc24",
+    "tests/fixtures/taint_repo/isolated/lonely.py": "aea7d646ceb8e8dd3bfe8ba3a7c31ba1f9e393db6fdb935729b28d99faa5f597",
+    "tests/fixtures/taint_repo/routes/exec_route.py": "1cdd8cb87b0b8035087e95b45bea4028c2642daea1c403b9e2ae90f4001e5296",
+    "tests/fixtures/taint_repo/routes/orders.py": "aa7327a77edc48afa6364629aac882fc5dc52e622245b790128ab95149ba37e7",
+    "tests/fixtures/taint_repo/routes/shell_route.py": "73a8490de0aae9d4ceb4bb889f58ff4f19446a762618adb152919242bdd284cf",
+    "tests/fixtures/taint_repo/services/calculator.py": "b87733645c8c4ed02f93d5e2fd27e3aba3850579d81b1d55acb68038e3eb8032",
+    "tests/fixtures/taint_repo/services/deploy.py": "d0aaa00cf3acce6c03cd973e0cc67ad384c9ba207bdb07f4bbe0187e601985c1",
+    "tests/fixtures/taint_repo/services/orders.py": "3d9e865dce20ffd0b62af474575edad9ee0f28fff6ab76a14d4c55a753585218",
+    "tests/fixtures/ui/juice-shop-report.json": "7fcae49df3275f2a0dd23d43804509defcd4be2d7e2075c2f0fc569a7ed6317f",
+    "tests/fixtures/workflows/cache_poisoning_pr_target/hardened.yml": "862ec5f53fccb426abd67ea157e9c5fa0ac1c3de0d978096cca337b4dd293aae",
+    "tests/fixtures/workflows/cache_poisoning_pr_target/vulnerable.yml": "2c5b1f14348ac576b18fc1e0b5311fc38861ddf9226fce6ca336612b4c5d4076",
+    "tests/fixtures/workflows/checkout_persist_credentials/hardened.yml": "273e47baaa47b5a24277cdc032006a6b6047537c0c47a59b9e1a8a71aa6837b9",
+    "tests/fixtures/workflows/checkout_persist_credentials/vulnerable.yml": "3b7c419d0c2662b39352736ceaaba74a1f333d7197768a1ade3fec99a96bcdb6",
+    "tests/fixtures/workflows/curl_pipe_shell/hardened.yml": "3518cae51228be85045ce9f9c48da19afad142ae86638c6af30be6e3313f9009",
+    "tests/fixtures/workflows/curl_pipe_shell/vulnerable.yml": "8cd967177ce6a9355b448c64e739fca3dec83f1d0f7edd250f5be50454f86790",
+    "tests/fixtures/workflows/default_token_permissions/hardened.yml": "47cdc4a6099d7da208300aacba184575e9d1a9a2eeeead9ea0d9b717d0cdaf08",
+    "tests/fixtures/workflows/default_token_permissions/vulnerable.yml": "e8bab9d811726b9f03eb186cf2e09219652668fa28205781750a0987eaab71af",
+    "tests/fixtures/workflows/docker_action_unpinned/hardened.yml": "35247984e047c451029a0b99fe825fa920978ae21075a0569e712c48319539c2",
+    "tests/fixtures/workflows/docker_action_unpinned/vulnerable.yml": "3b4f4aa4e6dd2c17ec5fcf0acb7aefcd447be7673aaeda9f84b9f164f28f0bab",
+    "tests/fixtures/workflows/github_env_injection/hardened.yml": "ac26a36ddd30b6e500552fef9f9e48fa459320124bffb1577bc6d7c8f7a5feb1",
+    "tests/fixtures/workflows/github_env_injection/vulnerable.yml": "23d34ad5e97f98b576bcad6a094fc3a3abf5b007512d9ad89346d018243f285e",
+    "tests/fixtures/workflows/github_script_injection/hardened.yml": "af3b430be0887ce02ec3bb02f438fafea925b933875c57cf3731a336336f40a1",
+    "tests/fixtures/workflows/github_script_injection/vulnerable.yml": "58afc6f83bd93c5f3665a5644730e3df291963cbccf30b5e98a5f34ae059e160",
+    "tests/fixtures/workflows/issue_comment_pr_checkout/hardened.yml": "9787d0599fab0c14776532136726010bf214a20216f9d1cc48e58394938f60ff",
+    "tests/fixtures/workflows/issue_comment_pr_checkout/vulnerable.yml": "2473da130b800e2e29fe01b7763786b0de00d79e0dc0aa7f7c11583749e06190",
+    "tests/fixtures/workflows/oidc_on_untrusted_trigger/hardened.yml": "dd2554c0e8ae4048013385b9e1165b40d364b4a5c457943de576327207a6314d",
+    "tests/fixtures/workflows/oidc_on_untrusted_trigger/vulnerable.yml": "2b70c99971b3f4f27fcd58aa09f0b50a2db37c8732301218e659cb0094d6bdf7",
+    "tests/fixtures/workflows/secrets_inherit/hardened.yml": "42231d8b96fedf23d76a9d819eaa12bef725d3774ec04679eddbd030edf8ce30",
+    "tests/fixtures/workflows/secrets_inherit/vulnerable.yml": "78edf665589c596ad1784502001dd67a7a417d13e4b809480c63ddc65db64050",
+    "tests/fixtures/workflows/workflow_run_artifact_poisoning/hardened.yml": "07c53d918da7bf394e1e58fa738a2094627ee2acaae340f88cec3a72664cff9f",
+    "tests/fixtures/workflows/workflow_run_artifact_poisoning/vulnerable.yml": "0fe9d0949dbf8b48f5ebbd8ed17f92a100393671800c14f589e8dd86e7c6c7b9",
+    "tests/test_ai_budget.py": "692e7fdc70610e762516a9608dc5ec577173de1d6062cffb6a46f8d1b9655c8d",
+    "tests/test_analyzer.py": "582b480556a6b9f61922ee65545a963965f095a2ba1c9d97ef283e1847387f32",
+    "tests/test_analyzer_isolation.py": "307370f137779ab5036a1a3471f5776c5e925d3f7a9910fdaf253a6e8d051c20",
+    "tests/test_analyzer_log_privacy.py": "93e7a07dedb78d33acf5ed882491b7eb90ebb51bc370f155d92a7d61ac06f9a2",
+    "tests/test_analyzer_metadata_schema.py": "fe815236c87e6e15f06b60e02f5b4bfba413c274df4b91a9af6d8af27c0e087f",
+    "tests/test_analyzer_order.py": "e0a66f1fefb1128a4a7614c3410a8b0cb4d6b52e8546dda644294708831f1bdf",
+    "tests/test_analyzers.py": "963bc3f729382aea7e7448991ee2fdf40c53a46ea2652c0e121d8fa0f947c0ef",
+    "tests/test_anomalies.py": "2a95c9b5796395077d1c2ddfbc4086506bbe0d5222c7a02f521271583b1e014a",
+    "tests/test_application_boundary.py": "be154042590d0032d868a9ddae5d8bfb7ad9a030319eedb2de4e0aa4504c4203",
+    "tests/test_artifact_manifest.py": "5571db235e06424c514b8e702caa047302d2a1fe8792a326ff17a3d6115648b4",
+    "tests/test_artifact_publisher.py": "07c3e34cb7a1d58edbd9d5b3332b1a39a2a959b1b6c0764353488f3fed99d381",
+    "tests/test_artifact_schemas.py": "cd01f4a81d6a3a6cc7928b7a0cbee43a3afa22cfe1b9fe7984c45772ead0df0a",
+    "tests/test_authz.py": "eb17254d3a8f2776d387cc3ed2959b4d34e5562c5dd957013e51f5157af46e68",
+    "tests/test_bench.py": "b41358d864ea7560a158f6a5f10a615e7463bea8b593a1763fcec3e7d4f16960",
+    "tests/test_capabilities.py": "df2a33a6d9c5993fd4beed88ecce3d5ae35deb598fe7389ee49dc28829969ec0",
+    "tests/test_citations.py": "7df5346e0c16ccbb2cd54f28d999aa6c736967af3722d39f8fe67ace01f1aeda",
+    "tests/test_cli_comparison_coverage.py": "99c4405c43c5b9e3cef68024f324f969fc80c17aa86ea7be01387a59ab120488",
+    "tests/test_cli_validation.py": "16ef182e23ffa59912b12551e380cd460984efb3e640e8962fd597c0d49c165d",
+    "tests/test_comparison.py": "46735683b00e7c2204e8b64138c7f2955e8b7124034a53b1601af628748d9da6",
+    "tests/test_config_scanner.py": "cf82db4f8bd7c8a4bf209881f249227166e16366415e43bf5aeda5b6192b1bd3",
+    "tests/test_context_pack.py": "6705717d2a27757f4835ce02b3015e01fe424f6746879284b5ceb7a201d6d7c3",
+    "tests/test_contracts.py": "8ea09a2e30ecf0160dd8f668db22a39cfc20f408b2d8b73c8fc9f379e6da55b3",
+    "tests/test_crossrepo.py": "c4ddb1dc31c18672cf833c06049879328fad762a0ac922f0891a2779b16808d3",
+    "tests/test_crypto.py": "193ff3a0caff69f4bdca0ee8f4b5a840fc21b9e575b8b377c33d0673759e9761",
+    "tests/test_cve.py": "4a1bd4b1ad6d1818e396924fe97e7d8247a59dcabfd69717fa4185f2b9dbeb86",
+    "tests/test_defensive_review.py": "59fdd8d5ae35bd4df394e51a6bf35278e3a6dd27264a217f74c5f3ffc89d9ac4",
+    "tests/test_desktop_action_review.py": "9a6c42ad0f4dff4526e80373dc76dea0a5a68555e6a750cac4289ede77ad7050",
+    "tests/test_desktop_actions.py": "dec5b004a4e27db6a7d8c7237f7f9faabdd6ea773374c57c64a55c91fb06b59d",
+    "tests/test_desktop_options.py": "2272f605296c8a1de8defbcbe41042d316882df61851ae6e9d77845187ed317a",
+    "tests/test_desktop_publication.py": "d70dbbfa25b9932ddb0fdd6dbe796f6a5ead03b5d0e4275891713132bc5822b0",
+    "tests/test_desktop_reference.py": "9cae46d0387039eb309a5c1311f670b2df53395b6c4e6e15600ab5ae7912f84a",
+    "tests/test_desktop_worker.py": "ecaea55866de429dcf5f2799f23f9ea6e1bf7da7bdc2873d5891ecf448ca0a50",
+    "tests/test_desktop_workflow_fixtures.py": "37320ddde4d88c9c88197d54dbc4eb07bf59fb289bc3337ec036b5a73aa16ec0",
+    "tests/test_diagnostic_adapters.py": "c1899f116872f26f4b4d34b975cc97839b1691353e2a91c141e45dbcabc30f39",
+    "tests/test_diagnostic_context.py": "77de27cfa26960f7eccd738adcb1f5fc10ca05728738745670c12472d1df4582",
+    "tests/test_diagrams.py": "1066624899e15861b9915a57a6648a43ebfc8b6c24c6a8e73ae86da98864ec67",
+    "tests/test_diff.py": "62d924ad59d08d9be190304eb39f7a12374479a5230b034e394c4e3fd3dafa7c",
+    "tests/test_execution_supervision.py": "5121a18fbac6841ded0cbcb508d72c8aaf60b35d0b55aa2ec82946e17b13084e",
+    "tests/test_exploitability.py": "05decf553be2e4308998138173d72a84258be222d04de5a1e11cc7e3ecc05617",
+    "tests/test_finding_identity.py": "64d11a6cc47ca50617fe8d2a6bccfdea4386a80817014eeee1c594ba5204572f",
+    "tests/test_finding_locations.py": "b56182d8f9371a445356866e101f817ae67c19d928fd990163880885aee78897",
+    "tests/test_finding_presentation.py": "61bf2189e6b3aea73cd90f0fccc94caf7c2e000c33c01709c5633c4f4dc9bc1b",
+    "tests/test_fleet.py": "d95f30b62047a6e685abc953783d29be812bd9453d5ff3cc7af331a650350656",
+    "tests/test_fleet_parallelism.py": "6f208a84da85c4233fe81431dd52e8c6435398bf856acdd69a965aea7e774758",
+    "tests/test_fleet_publication.py": "e7a96e68dfa18bc4bca83223909ec36822917b7c2ba71d164f2f8183f6abb16a",
+    "tests/test_gitref_hardening.py": "878e20d5444cec08eac5bb01ab1c2f390ddf76c2348e5416c2cc081066055012",
+    "tests/test_graph.py": "282203e6afc849efdc9aca5df48009791c4ab4bd6bb74bdc6598a02b033f0847",
+    "tests/test_hunt.py": "a7d298d1f23dc3037c288294c8bdd0a23220d05f6456d8e3563a531280df269c",
+    "tests/test_hunt_harness.py": "5dfcd4c40218d9b371b034f2e0425b7d826d74d6c4e285cd68d649ce0fe88477",
+    "tests/test_index.py": "b5e23e5d93b491107d452c2d87865796c8a17c0518eca6b6ba6e688a4e2e748d",
+    "tests/test_injection_sinks.py": "e27aff01bb5fb6d24d63c96d7abc8139ebff69948cac544bce0088a8cf30d9f0",
+    "tests/test_inline_scope.py": "da89c84109db5e9b190108d26ef1e175e579974bbe8d6b859651222bf597afe1",
+    "tests/test_installer_entry.py": "16399a44a9c111daeb4d7f4d963d1c54747295e9f24eae7bcc5bf8fc8251caea",
+    "tests/test_instance_diff.py": "c238ac5e289666ee26de1a6d3a2d44a68852b570e4e84b7111585e677483d81e",
+    "tests/test_js_suffixes.py": "a500467945345f73a0d717e6b903a80c9b3b6952552abe50e4a08c1eb6b494f7",
+    "tests/test_llm_cli_isolation.py": "36269167deef15575f8315cc2e153b947bd83793ff3ba56f17c3021e4f8d56bb",
+    "tests/test_llm_loopback_privacy.py": "716ff39c05bed323f9281481aba6c93eb577c82254f551465ca97b7a60c43257",
+    "tests/test_llm_review.py": "bcb8ba21656f8f8753a1b91e8b6a8d8bb84b3cbef78f638004f1322262e15a8b",
+    "tests/test_lockfiles.py": "d24e14e38b4ea9044d7453ef0d1f5b1462407103dfb98fb6d31a72fbe9a33002",
+    "tests/test_main_module.py": "493b16390b506194356b1f78fcdbf64e55266d33a9449c0abc2b3376fbedbe29",
+    "tests/test_markdown_escaping.py": "f51df4433b911258fc94cf8148c0ac87f82ee1229a34f1b0c5fb0fa5e1f6bb5c",
+    "tests/test_merge.py": "df66ad0e3f5f7584eaeaa05a7f729e37c972ce0ae8d03d4596affb80b5e509b6",
+    "tests/test_merge_signal_provenance.py": "6219431f22fc8860b5252155f268dce324456391e70841212e880aba5b8d889e",
+    "tests/test_modules_cli.py": "eb489598d6648ce04e8c8bf642625ef27a0822dad461e1025a3a87d1409aee60",
+    "tests/test_output_exclusion.py": "d8feba291f24d5e37de94bef15231d3c78ea460944a9fbfd5a8f5fe3ce1f05c4",
+    "tests/test_output_format.py": "18b5ff50e6f51693a476496493dfe1d5a8f9f8454bff7b40c83d1e1049f40ad6",
+    "tests/test_pipeline.py": "97d2b6e9f76c58e58d8a39078e83f044ac7d78bf3213fa0687c9b7283ddd1424",
+    "tests/test_pipeline_publication.py": "dc4a3b21fe0bcdc552c72c2ec62ede018cfac888148a43a79b1652920537f151",
+    "tests/test_pr_comment.py": "4393cbfee25fbbce793a0013cfdd07f94c9a6f64001cf122eda7b9cdfd11f871",
+    "tests/test_progress.py": "3f66814584711fa95064c644fd81e1f57d3a6c1f6a8da7af7daaf5387ab2c583",
+    "tests/test_prompt_injection.py": "0ce6e77850bf3fc9238bb65b9a03794996f016db66720b19d96cce5f4a5bf4ab",
+    "tests/test_provenance.py": "8abd24eb3a9d1faa2c3e1acd032ceec7f3f69c6c873a9a66dc4b05a385cfa08c",
+    "tests/test_provider_options.py": "f7aa02be20a2a795067458ea27ad84f3a25f648a94badd642f2413bd5b24f4a6",
+    "tests/test_recall.py": "02288a7c7b7e326fc0525c3b86788fa1323b4d215e55f7aab7e1da837ce40513",
+    "tests/test_recon_to_analysis.py": "af9e553f4f7375131de36a6fed8932d6de61792dcab5447f8212938d456a51ca",
+    "tests/test_redact.py": "cdb29e1cc7e2a4c74e73aba0a934660ca8fe1bf66f98daab588dacf928842708",
+    "tests/test_regex_budget.py": "de86cec0fd7a1aebb4373d098ffbded4316cb76f1fc62f96bdaf10a8453268c7",
+    "tests/test_release_identity.py": "d746fa9cfd237666292b6fb18adf603b5dc1df293660db7fa8c24edee1e9c797",
+    "tests/test_remediate.py": "9659198237d48bb50076e466a8b8c14a649a57704bd1867be6b659c1f6d7f14e",
+    "tests/test_report.py": "c314e923a2dc491f5e1be16910ad7387caa346ac8df45cdce58320ea94ce8d3c",
+    "tests/test_resource_limit_events.py": "baf2e83878654d1ca75358fd2ae92d1ccaeb5bb4a91a0904b3b01a123d017e07",
+    "tests/test_review_eval.py": "5a08776250f3c44ea7320b11a0f3e0acc1806009c0426135fc24067e7238dc75",
+    "tests/test_review_finding_basis.py": "6a0aac8e41ca96fd06dc6c5607789d1b792ed54f7e51d5f10e2dfec75d093f13",
+    "tests/test_review_json.py": "d4e1a09921fadd6f28ce3aaf249909370bebb93afdcc2f7c242a9086533dfd4a",
+    "tests/test_review_markdown_basis.py": "d1010349cf0b69f39904692da716795c097adce11b31285bf425021d7c9a6d60",
+    "tests/test_review_prompts.py": "39a8b1caaa7f859298d1249ef993bde99b3b1e250bb5f1dcfaf67882733750fd",
+    "tests/test_route_auth_contract.py": "b4c5950957dabb81ad0493156b8f1b40a91f0345bee19abd49da529b6d4844e6",
+    "tests/test_route_auth_fusion.py": "d4214f8f96f1f363db9cce718cd1448d6e7f990e885f6e3c8088ae6aa614a228",
+    "tests/test_rule_ids.py": "6f292ebf76755aa3f3dcc85ff5b4b4c9472151a9b67b92a38aa446318f31f1d4",
+    "tests/test_rules.py": "f040b06540f09835701fe2e78e0ff52500991fbf808ea9e2c792922efe379055",
+    "tests/test_run_contract.py": "295aaf7d000d2e948c364478e26211c08eb72360df6c936625f6e2313f81ec61",
+    "tests/test_safe_fs.py": "4264b54e5ef51768842cd32aa7590a1f7c97396d5e57e519b3ed6a75a903e829",
+    "tests/test_sarif.py": "00feaeef5487a0596eec381e76d254c503cffcec9b07a64a51713692ce9926ca",
+    "tests/test_sarif_identity.py": "eac0306886da16783240c241b8f53d4678cc1aba0fdbb48250aa64327bbe1bdc",
+    "tests/test_sbom.py": "d556bcb86a352fe407c0ccb149e18e78fd49f4c55882d7dc5588a3ae11318aaa",
+    "tests/test_scan_limits.py": "e1b31058d1210848ff77590475c4eb4e8960f9c0972259221ef85acc999ec99d",
+    "tests/test_scan_service.py": "30fef25175ae19cc6b6a433af0e9e63123eae712c1306ca45ea73a5d87df2baf",
+    "tests/test_scanned_coverage.py": "a11fbe670d2552f2b45eb21ad64301466c02e1ef021af820d54117233d7b2e40",
+    "tests/test_scanner.py": "868c49fff49ff1f118dfdb3540d7f16c5c336c6772929faa5fa903cedcd4cfa7",
+    "tests/test_scoped_evidence.py": "e0dde5f7f64e259ee38ca6a9be45ca0461f0f46f438ed8fb3e4741ec1a6b73bc",
+    "tests/test_sdk_fs.py": "48727ebc868eee41898032cded24d17e8fc309114be3b615fd4f05ed0625fc0b",
+    "tests/test_secrets_deep.py": "a3edde434e16428787d07123fe9d1c324d6d8c5e7526fb7058826059c2f4df11",
+    "tests/test_security_overlay.py": "628defea4f886609bc6348070d1357994ad3eaff44da4cc6018b090f7fdef719",
+    "tests/test_shared_contract_imports.py": "429616f8cb565f4347b9b49d98ae92a8a8c814f76222097bdbf6132ac17a1ec3",
+    "tests/test_signal_v2.py": "406c263b08250aacabe0238cb8260bd646f451cec63e678e2441be789fd631cf",
+    "tests/test_signal_v2_core.py": "3a29f496b1825c4e6ad44b163317efb394405e78a0be3ae4ec7fb859f04128b5",
+    "tests/test_single_pass.py": "be473e8aa1bda11c25178179f7ad3d2f51b6fc9bfb4771a58c1f3f474c335351",
+    "tests/test_skip_dirs.py": "4b7843877a6b534feefcb47277a8f0bb2888a2ac5ab508b1e2099435a9abb6ec",
+    "tests/test_source_classification.py": "63b78fc6f79efe29633dd52156d0ca4082dc27ccf54c92978c3649d7c9e5e9f4",
+    "tests/test_srcpaths.py": "b6cfebc5fbd87195fb36ef9c5ddd6b76f6e2c96306cc0eebb855d23781a5a830",
+    "tests/test_suggest.py": "41a1d8829e5cd947e88f80c45fad654f8cd6184d2d2cb2f98abe8b0c3510fd0c",
+    "tests/test_supply_chain.py": "92151a22381bd625e72362a780ed3e667a8b76da4a962add9e93357b2658c72f",
+    "tests/test_supply_chain_risk.py": "277fb92855afb4813a72a0168de617ca0c69f19518c5fd9e39a734e90089576c",
+    "tests/test_suppress.py": "63b3252b95fc59cb86c98e3255b5707f7a3405ed8465bcbcd90d4a6f60242cd7",
+    "tests/test_suppress_file_validation.py": "4ace3df64d4b1a32c9c077f39849b7c7cc7921de476affd90cb39473ddb6a569",
+    "tests/test_suppress_write.py": "53186836efaf3c5cbee0a90d2f4cec42a3180bb8d959edc3280e8c81eb719fd8",
+    "tests/test_suppression_actions.py": "f78c3b79662c2d1e81d4ff2aef2656ce883193eaeeaa106c3b13fc03d733eea0",
+    "tests/test_suppression_governance.py": "c02b662fb68978d995bf958661172bb0e86a9bc21f8efe683a45826c3ac41972",
+    "tests/test_taint.py": "fa6f4316d37e7846005fae3e8617fab98b885972652a388d21d8b48181366c2b",
+    "tests/test_taint_flow.py": "2907e6ded2b2956a317b49af177e9d023d4a0e1238190ef36b1dae3385d75c6c",
+    "tests/test_taint_guard_safety.py": "8f6a6a537e682dbe3b84a8d0a9ee0658e54de29938025413997ac2a94efcc344",
+    "tests/test_taint_sanitizer.py": "65ef6bf6f8c526d5675b564a5255064e559b3fcf4c636cd1fa16f50476f1d8f0",
+    "tests/test_taint_sinks.py": "3d9594fe736dbefd79fd5c628da2945430f121ff768e617a485efc5269edad23",
+    "tests/test_taxonomy.py": "d01a35a03f10dacb90e7b5faac280c9d915177f88bed87b501b16db41ab9ef1c",
+    "tests/test_threat_intel.py": "cd084aed19239ad871ea5d421e7bfa684763bb9ba724d830641c4654e1dcd9e6",
+    "tests/test_threat_model.py": "2abbc7b7dc963ac57e3fc9771438dff7c293fcc32882e012877f5fd2f866a1eb",
+    "tests/test_topology.py": "fbb6643f4b128553ba94e6d9f3aa5766c72fd1798e0d512829f048f6e9a23023",
+    "tests/test_triage.py": "d7eae6334c4fcc5e10452e24bb513497328c48085c92f3c60f8e36c17a0cdd39",
+    "tests/test_ui.py": "452327521a26428f6b68d75989dcf24484183ea0a68481608e43e6e47ef65d33",
+    "tests/test_ui_contract_adapter.py": "4314bcc5b3fc1da8ffb0cb8e87bcc38e3ff3c66177b049dc56c5c6eb198d69ae",
+    "tests/test_ui_export.py": "98be8ac6478de4c746d283a59279939e44c2acbe3c63849ec644c26510211fb9",
+    "tests/test_ui_freshness.py": "5b50a8c19297230e7b0beb39dbbd6ffe7a9127f006bdae2ed8a0556329a2f566",
+    "tests/test_ui_privacy.py": "7516ac5696047c4cdd2d191bda9f22167bfbc0fbc96491a3793a1be04f44e448",
+    "tests/test_ui_spawn.py": "2fa9e97bbe8e0002e3620c8c5de42a3e531d290ed5c89161dc8c752b0efa2ce4",
+    "tests/test_ui_supervision.py": "e00314c6c50f5791e04f2db5be027bae019ecaf392bfad10483828267780f9e5",
+    "tests/test_unreadable_and_fleet_failures.py": "3cba5ee202b3b2fa715c1b7abe3899d4721fa4648d21ae6f8957e6cd70722a51",
+    "tests/test_weaknesses.py": "2bd003fa8ab8d8b80fb7626f2a85e8eada13fb8f0c08bc466e502f9d9468b1eb",
+    "tests/test_web_api_hardening.py": "69d4e8aa164997c28dc9d4d9c1beb82971401c318b63b51c1da460484b1a41d3",
+    "tests/test_webhardening.py": "aecc602cb2b014a064e4e0eeb57b1ee9c50c51bc22aa44cdce804300873d7dcd",
+    "tests/test_whole_scan_ai_limits.py": "bdde5af82d1fc97a7c6e4cde57ac203dc80f6663f01c49fa1e5db0741efc43a5",
+    "tests/test_windows_release.py": "14dff1c68864c27d0b294bb9ab826555ae12cedf0e2ed27fe946ae0fc69c31d5",
+    "tests/test_workflow_rules.py": "d692b11d430ef637037f6d7453774ee71ada47aa293e1e674c713679d1b4f613",
+    "tests/test_workflow_scanner.py": "c4e7910a90128f37ae585602edb965d432a6c9c084725df31ba6d4341f0536b3",
+    "tests/ui_freshness.cjs": "b8f8dc361a44610010dff29606cb93079efa0b1a14b1bfc150af201b0e61de46",
+    "schemas/artifact-manifest.schema.json": "7410d1e64efe89356889b60278ab2a783e42b75b9629c4bbb0ef9a14c80dcaae",
+    "schemas/defensive-review.schema.json": "cf4ffa862cc403a26f17edad9f63b8644d2f2d97e68d2e0a55b861b830875f45",
+    "schemas/diagnostic-context.schema.json": "64647ebf9c3fa151c8fff59b74114f5805831b3793d35c345f32b50504b70cd3",
+    "schemas/review-context-pack.schema.json": "24968688ca1d3d0bc413189ad0abc88eb34969069f71347b1fc3e7df34faa10e",
+    "schemas/run-manifest.schema.json": "6deff6bf7fa18ab5777934de4d94e9ca5fe3d0f48652e3f8ba376472dc35c0b4",
+    "schemas/run-progress.schema.json": "5f9b0344468ea0debe94eb23258a77b6edf43456b5a7588db2e9907fa1178a65",
+    "schemas/run-request.schema.json": "2b640af5a9fcc9cc0496e909967302a9629b6e9abb81773d078132755dd2bd47",
+    "schemas/run-terminal.schema.json": "2b2c89ba8879f4996912dac79238ffbc275da06eec78e73520cb88abc687665b",
+    "fixtures/desktop-workflows/current.json": "377247986d6ae0bf87248de7487dbfe099d0c0606290909dc1233c57b05df7fd",
+    "fixtures/desktop-workflows/expected.json": "22d8ad5d2d65be782d78eccd0f42663df8c443160f800569ba852fc42da2291f",
+    "fixtures/desktop-workflows/partial-coverage.json": "a87c26c0fa89fcfa95a0fe5fe9a3a0c71409bb0c1f880c60b376e3da48a72ada",
+    "fixtures/desktop-workflows/previous.json": "ed7b3b30b545ec74bc8bf932dad5650234279c8a663bad07d8b63760fc1ef8e0",
+    "fixtures/desktop-workflows/sources/source-before.txt": "f3f5be654f503eb861eec48a02582dd893db64cbc3f12623a9e6e80ed00c4a2c",
+    "fixtures/desktop-workflows/sources/source-changed.txt": "cc5ef08d89425bff98a87650779e0c80245f4511a3f68776ff46d54f7ab30bac",
+    "fixtures/desktop-workflows/suppressed.json": "d52f59b72958a9a180811d0e1e062185ab8adeebb4fa57a7d238051b18ca1228",
+    "fixtures/desktop-workflows/suppressions.yaml": "9c95d411e09bd5700e140f9ef76d1b7c90cb577566dcf69789aff6705d44574e",
+    "fixtures/diagnostics/startup.json": "3c577274bd75b18f9df3bf0573d33d98e101d3845cd883928d273cf763780977",
+    "fixtures/run-contract/faults/bounded-percent.json": "0f8b5da56ee5a6f6cbf0df4272944b4d7c1e293297cbefd62848b94bb0c05165",
+    "fixtures/run-contract/faults/cancelled-ready.json": "7680f2091be8da4b25c7a6a54e92ee591193bb55aad599b191849c3838772566",
+    "fixtures/run-contract/faults/cancelled-valid.json": "166be7fed189fe28739aee1a3a1a89305db814335afca7fd6b38d937e01fe631",
+    "fixtures/run-contract/faults/cancelling-regression.json": "3cac98d9d16a00cc7ba1dbb97d4c36d6bfefb334f58d0c691ffa5290ea48c6d0",
+    "fixtures/run-contract/faults/done-stage-not-terminal.json": "af8b52e023d1ec6609a47f31305348824f66f2c10681205d3f5fc2cbaeb2dc67",
+    "fixtures/run-contract/faults/duplicate-reordered.json": "a96ddb438033686a124dc77876b816cdb104405340dd33fc8ac0abd8aeb406ad",
+    "fixtures/run-contract/faults/failed-policy.json": "dd082eaf80bdbf69a1e425c7022efa561a4706517da31434ecbb9052269b3231",
+    "fixtures/run-contract/faults/invalid-generation.json": "da82e21447f8b38254fe5a2a41f229bf10818ace539da36114052ae669f45e05",
+    "fixtures/run-contract/faults/invalid-kind.json": "77d4beeb22d927d0d087b7779734cdd8d0f479fad081488b57c253e28180dce1",
+    "fixtures/run-contract/faults/invalid-progress.json": "a8bebd685b0686e44e07605833bd5a3b2ff0b4d9e683ceb26247826e0e0802a8",
+    "fixtures/run-contract/faults/invalid-repository_id.json": "5b73250c86fec67e06f5d542531b131b5db7b5007e1540a17c41f8f8615e2e62",
+    "fixtures/run-contract/faults/invalid-revision.json": "7406c38252dc586f846ad49c5ba2f755365ddc4c7f1e04af4a6b6ceb9403669a",
+    "fixtures/run-contract/faults/invalid-run_id.json": "ef1dc362fd74397a0bbc065d5a1b7f1814f637009527ddd562dbce64e8a927dc",
+    "fixtures/run-contract/faults/invalid-schema_version.json": "75d5ec0460db280133a3048fd7b86519db75b9cc78bd962150c90ec6cb2bca87",
+    "fixtures/run-contract/faults/invalid-state.json": "528b00d13e43709b2fb2b2899b5a4126a7bd11e2a825656b7594a0109f1b2a84",
+    "fixtures/run-contract/faults/missing-artifact.json": "27d52f007bf0f31329c3a7c701fca1dc70e23271425aeee2cfccfd7436c0704c",
+    "fixtures/run-contract/faults/missing-fields.json": "594eb8702f3ac157eac60e05a6f24b93c817dffa025a32e57e0c758cbc27d15f",
+    "fixtures/run-contract/faults/policy-failed-completed.json": "58e24a9bc307d05214c2973a66148f34619d9b6225aa29aa83e3fd50c164d1e3",
+    "fixtures/run-contract/faults/running-queued.json": "dc898b59677e181388e4d57bff59444d891c81d621e113471b39407007c46108",
+    "fixtures/run-contract/faults/truncated.json": "491fd67fa4ac865734154f813057a7e4418eda7f983830638d03c0a4599ca9f6",
+    "fixtures/run-contract/faults/unbounded-no-percent.json": "166229d03e9ef5995aabca950b4878e5b961e25a262b975092b7ee8bb0755c36",
+    "fixtures/run-contract/faults/unknown-policy.json": "951e971d11183a606aa65511b396d5c5e5afc89727a25c56daf323c5de59dea1",
+    "fixtures/run-contract/faults/unknown-readiness.json": "9d8864c152344e4c2f467e8f5beea9e747e7b76ba3787b1f7f3dc890d55c68ea",
+    "fixtures/run-contract/faults/wrong-execution.json": "7cdfb143e0acae4196b950ac0aa0440597f5562a071e0c0334ce026256c3689e",
+    "fixtures/run-contract/faults/zero-total-no-percent.json": "d3b0e6d62ac8eca96cc1841e81440a0ff38b6ab23d7b5638fa3dc5046aac3da9",
+    "fixtures/run-contract/manifest-1.0.json": "aea2d6c227d8ef2c0b40de6e7528b824b20038cb1f9b20b446af16e47057b4d4",
+    "fixtures/run-contract/manifest-1.1.json": "77777810e918cec23f73b9eb29646fc5aec2e8138ffa51002f22be870a2b9e02",
+    "fixtures/run-contract/progress-1.0.json": "9c3b28bf83498e33baae56717045b6f22bcbd73632390fc2a5fbc8275decb786",
+    "fixtures/run-contract/progress-1.1.json": "4e52ab5f8297c0bde74cf919d15181af0a1d0f9596e206d6939b01e5b495d3eb",
+    "fixtures/run-contract/request-1.0.json": "dbe07c22c38a847820e24d141df07ff023a1a0125a7cff036b8d34fcec65ab51",
+    "fixtures/run-contract/request-1.1.json": "c645fd589e980b667148dc39435f3c0baeba06405cc1dc53905baa22ffca54f8",
+    "fixtures/run-contract/terminal-cancelled-1.0.json": "d93d715a3f677e28c41e07649828fc809ca194df30322ff953e62785e5731a39",
+    "fixtures/run-contract/terminal-cancelled-1.1.json": "47750a1d3f5063007168282f98712021a720575539c434ccf60c35cc5a8675ac",
+    "fixtures/run-contract/terminal-policy-failed-1.0.json": "21c672b969696a467cfe34124dfb73d394289d777cd891a163b68882113cc77a",
+    "fixtures/run-contract/terminal-policy-failed-1.1.json": "b487d3541bfdcfa1cd939429d740d45e2479e47d38cc96ca26f54596736b60df",
+    "pyproject.toml": "da60833ff11e6f9b84299fd7c5c6deb8a33fef5eae3964df693adc29a65830af"
+  },
+  "phase_seconds": {
+    "311": {
+      "regular": 516.6,
+      "limits": 19.23
+    },
+    "312": {
+      "regular": 533.34,
+      "limits": 19.11
+    },
+    "313": {
+      "regular": 486.17,
+      "limits": 18.22
+    }
+  },
+  "previous313negative": {
+    "path": "desktop/windows/verification/c15-corrective-py313-regular-negative-2026-10-15.json",
+    "sha256": "18189672ab093ff0356d8b62380fdc60f8b7071e10820debe446979179e9e4fe"
+  },
+  "limitations": [
+    "Previous 3.13 startup-readiness failure preserved; later pass establishes no causal diagnosis",
+    "Covers pre-helper source snapshot only, not subsequent ordinary atomic prewrite repair",
+    "Immutable seal and phase before/after inventories used; no demand that future live files equal historical snapshot",
+    "No new tests or source edits by evidence recorder",
+    "No frozen package, both-client adapter or full C15/M3 acceptance claim"
+  ]
+}

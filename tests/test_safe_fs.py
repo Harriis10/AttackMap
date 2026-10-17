@@ -71,7 +71,7 @@ def test_cli_reports_contain_no_outside_content(hostile: Path, tmp_path: Path) -
     out = tmp_path / "out"
     result = runner.invoke(app, ["analyze", str(hostile), "-o", str(out)])
     assert result.exit_code == 0, result.output
-    for artifact in out.iterdir():
+    for artifact in (path for path in out.rglob("*") if path.is_file()):
         assert OUTSIDE_SECRET[:12] not in artifact.read_text(encoding="utf-8"), artifact.name
     report = json.loads((out / "attackmap-report.json").read_text(encoding="utf-8"))
     assert "symlink not followed: linked.py" in report["scan"]["limitations"]
@@ -169,7 +169,7 @@ def test_cli_pr_comment_symlink_repro_is_refused(tmp_path: Path, monkeypatch: py
     assert victim.read_text(encoding="utf-8") == "ORIGINAL\n"
 
 
-def test_cli_report_symlink_is_refused(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cli_report_symlink_export_preserves_committed_result(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo = tmp_path / "repo"
     (repo / "reports").mkdir(parents=True)
     (repo / "app.py").write_text("x = 1\n", encoding="utf-8")
@@ -178,7 +178,11 @@ def test_cli_report_symlink_is_refused(tmp_path: Path, monkeypatch: pytest.Monke
     (repo / "reports" / "attackmap-report.json").symlink_to(victim)
     monkeypatch.chdir(repo)
     result = runner.invoke(app, ["analyze", "."])
-    assert result.exit_code == 2
+    assert result.exit_code == 0, result.output
+    assert "flat export failed" in result.output
+    from attackmap.artifact_publisher import current_generation
+    published = current_generation(repo / "reports")
+    assert published is not None and (published / "attackmap-report.json").is_file()
     assert victim.read_text(encoding="utf-8") == "ORIGINAL\n"
 
 
@@ -188,7 +192,9 @@ def test_limitations_are_unioned_across_analyzer_results() -> None:
     a = ScanResult(root=".", limitations=["symlink not followed: a.py"])
     b = ScanResult(root=".", limitations=["symlink not followed: a.py", "symlink not followed: b.py"])
     merged = merge_analyzer_results([a, b], root=".")
-    assert merged.limitations == ["symlink not followed: a.py", "symlink not followed: b.py"]
+    assert merged.limitations[:2] == ["symlink not followed: a.py", "symlink not followed: b.py"]
+    assert merged.scanned_files is None
+    assert any("coverage" in note for note in merged.limitations[2:])
 
 
 def test_ensure_output_dir_allows_system_symlinks_when_cwd_is_root(

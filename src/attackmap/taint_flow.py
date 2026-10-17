@@ -28,10 +28,11 @@ How it works:
   params). A URL whose literal prefix pins scheme and host
   (``f"https://api.example.com/{id}"``) is not SSRF.
 - **Flow-bound sanitizers.** A sanitizer counts only when the tainted value
-  passes through it on the way to the sink (``u = secure_filename(u)``), and a
-  guard only when it checks a value derived from the same source and dominates
-  the sink — an early exit before it (``if ip.is_private: abort(400)``) or an
-  ``if`` that encloses it. Nothing is file-granular any more.
+  passes through it on the way to the sink (``u = secure_filename(u)``).
+  Guards recognize equality to fixed string literals (and Python membership
+  in a literal string collection). The required truth value must dominate the
+  sink, which must consume that exact, unchanged local variable. This proves a
+  fixed choice of input, not that a configured destination is itself trusted.
 
 Documented limits (precision-first, heuristic — evidence, not proof):
 
@@ -43,10 +44,13 @@ Documented limits (precision-first, heuristic — evidence, not proof):
   Deeper wrappers, attribute stores, closures, and whole-program dispatch
   stay out of scope. Cross-file *reach* is still the import walk in
   ``taint.py``. Cross-repo taint is #196.
-- **Flow-insensitive within a function.** Assignments are replayed in source
-  order up to the sink; branches are not distinguished, loops are a single
-  pass, and a guard's polarity (``if ok`` vs ``if not ok``) is not checked —
-  an early-exit or enclosing ``if`` on a derived value counts as a guard.
+- **Flow-insensitive propagation.** Assignments are replayed in source order
+  up to the sink; branches are not distinguished and loops are a single pass.
+  Guard suppression separately checks polarity, lexical dominance and writes
+  since validation. Unknown predicates, named collections, regexes, prefix
+  checks, derived hosts/addresses, assertions and unproven exits stay uncertain
+  and cannot suppress a flow. Aliases and transformed sink arguments are not
+  considered equivalent to the guarded variable.
 - **Only simple names propagate.** Attribute stores (``self.x = …``,
   ``obj.prop = …``), aliasing through containers other than the listed
   mutators, closures, generators and ``global`` state are not tracked.
@@ -71,7 +75,6 @@ from .taint_sources import (
     ALL_SANITIZER_KINDS,
     CAST_SANITIZERS,
     CSHARP,
-    EARLY_EXIT,
     GO,
     JAVA,
     JS,
@@ -85,7 +88,6 @@ from .taint_sources import (
     PY_SCALAR_ANNOTATION,
     SANITIZERS,
     SOURCES,
-    guard_patterns,
     lang_for_suffix,
 )
 
@@ -236,7 +238,6 @@ _PY_ARG_KEYWORDS = frozenset(
         "path", "file", "filename", "source", "template", "location", "string", "expression", "filter",
     }
 )
-_PY_EXIT_CALLS = frozenset({"abort", "exit", "quit", "_exit", "fail", "deny"})
 _FLASK_PATH_PARAM_RE = re.compile(r"<(?:(\w+):)?(\w+)>")
 _BRACE_PATH_PARAM_RE = re.compile(r"\{(\w+)(?::[^}]*)?\}")
 _SAFE_CONVERTERS = frozenset({"int", "float", "uuid"})
@@ -543,26 +544,50 @@ class _PyFlow:
         if not body:
             return False
         last = body[-1]
-        if isinstance(last, (ast.Return, ast.Raise, ast.Continue, ast.Break)):
+        if isinstance(last, (ast.Return, ast.Raise)):
             return True
-        if isinstance(last, ast.Expr) and isinstance(last.value, ast.Call):
-            f = last.value.func
-            name = f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else ""
-            return name in _PY_EXIT_CALLS
+        if isinstance(last, ast.If):
+            return self._terminates(last.body) and self._terminates(last.orelse)
         return False
 
-    def _guard_tests(self, fn: ast.AST, line: int) -> list[ast.expr]:
-        tests: list[ast.expr] = []
+    def _guard_tests(self, fn: ast.AST, line: int) -> list[tuple[ast.expr, bool]]:
+        tests: list[tuple[ast.expr, bool]] = []
         for lst, i in self._stmt_path(fn.body, line):  # type: ignore[attr-defined]
             for prior in lst[:i]:
-                if isinstance(prior, ast.If) and self._terminates(prior.body):
-                    tests.append(prior.test)
-                elif isinstance(prior, ast.Assert):
-                    tests.append(prior.test)
+                if isinstance(prior, ast.If):
+                    if self._terminates(prior.body):
+                        tests.append((prior.test, False))
+                    elif self._terminates(prior.orelse):
+                        tests.append((prior.test, True))
             st = lst[i]
-            if isinstance(st, ast.If) and st.body and st.body[0].lineno <= line <= (st.body[-1].end_lineno or 0):
-                tests.append(st.test)
+            if isinstance(st, ast.If):
+                if st.body and st.body[0].lineno <= line <= (st.body[-1].end_lineno or 0):
+                    tests.append((st.test, True))
+                elif st.orelse and st.orelse[0].lineno <= line <= (st.orelse[-1].end_lineno or 0):
+                    tests.append((st.test, False))
         return tests
+
+    def _guarded_names(self, test: ast.AST, truth: bool) -> set[str]:
+        """Names constrained to explicit string literals on this branch."""
+        if isinstance(test, ast.UnaryOp) and isinstance(test.op, ast.Not):
+            return self._guarded_names(test.operand, not truth)
+        if isinstance(test, ast.BoolOp):
+            groups = [self._guarded_names(value, truth) for value in test.values]
+            all_required = isinstance(test.op, ast.And) == truth
+            return set.union(*groups) if all_required else set.intersection(*groups)
+        if not isinstance(test, ast.Compare) or len(test.ops) != 1:
+            return set()
+        left, right, op = test.left, test.comparators[0], test.ops[0]
+        if isinstance(op, (ast.Eq, ast.NotEq)) and (isinstance(op, ast.Eq) == truth):
+            if isinstance(right, ast.Name):
+                left, right = right, left
+            if isinstance(left, ast.Name) and isinstance(right, ast.Constant) and isinstance(right.value, str):
+                return {left.id}
+        if isinstance(op, (ast.In, ast.NotIn)) and (isinstance(op, ast.In) == truth):
+            if isinstance(left, ast.Name) and isinstance(right, (ast.Tuple, ast.List, ast.Set)):
+                if right.elts and all(isinstance(v, ast.Constant) and isinstance(v.value, str) for v in right.elts):
+                    return {left.id}
+        return set()
 
     def _rest_nodes(self, fn: ast.AST, line: int) -> tuple[int, list[ast.AST]] | None:
         """The value of the simple statement on ``line`` (an assignment's
@@ -719,9 +744,8 @@ class _PyFlow:
         for node in nodes:
             if _fixed_prefix(kind, self._leading_literal(node)):
                 continue
-            atoms += self._eval(node, env)
+            atoms += self._apply_guards(kind, fn, call_line, node, self._eval(node, env))
         atoms = _dedupe(atoms)
-        atoms = self._apply_guards(kind, fn, call_line, env, atoms)
         start = min([d.lineno for d in fn.decorator_list] + [fn.lineno])  # type: ignore[attr-defined]
         flow = _verdict(kind, atoms, call_line, snippet, (start, fn.end_lineno or start))  # type: ignore[attr-defined]
         if flow.tainted and any(
@@ -730,21 +754,42 @@ class _PyFlow:
             flow.one_hop = True
         return flow
 
-    def _apply_guards(self, kind: str, fn: ast.AST, line: int, env: dict, atoms: list[Atom]) -> list[Atom]:
-        live = {a.ident for a in atoms if a.sanitizer_for(kind) is None}
-        if not live:
+    def _apply_guards(self, kind: str, fn: ast.AST, line: int, value: ast.AST, atoms: list[Atom]) -> list[Atom]:
+        # Shared source provenance is not value identity: validating a hostname,
+        # a sibling alias, or an earlier binding does not validate this argument.
+        if not isinstance(value, ast.Name) or not any(a.sanitizer_for(kind) is None for a in atoms):
             return atoms
-        for test in self._guard_tests(fn, line):
-            text = self.seg(test, cap=400)
-            label = next((lbl for lbl, pat in guard_patterns(kind) if pat.search(text)), None)
-            if label is None:
+        nodes = list(ast.walk(fn))
+        if any(isinstance(n, (ast.Global, ast.Nonlocal)) and value.id in n.names for n in nodes):
+            return atoms
+
+        def rebinds(node: ast.AST) -> bool:
+            if isinstance(node, ast.Name):
+                return node.id == value.id and isinstance(node.ctx, (ast.Store, ast.Del))
+            if isinstance(node, (ast.ExceptHandler, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                return node.name == value.id
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                return any((alias.asname or alias.name.split(".")[0]) == value.id for alias in node.names)
+            if isinstance(node, (ast.MatchAs, ast.MatchStar)):
+                return node.name == value.id
+            if isinstance(node, ast.MatchMapping):
+                return node.rest == value.id
+            return False
+
+        sink_pos = (value.lineno, value.col_offset)
+        for test, truth in self._guard_tests(fn, line):
+            if (test.end_lineno or test.lineno, test.end_col_offset or 0) >= sink_pos:
                 continue
-            bound = {a.ident for a in self._eval(test, env)} & live
-            if bound:
-                atoms = [
-                    a.with_sanitizer((kind,), label, test.lineno, "guard") if a.ident in bound else a
-                    for a in atoms
-                ]
+            if value.id not in self._guarded_names(test, truth):
+                continue
+            guard_pos = (test.lineno, test.col_offset)
+            if any(
+                rebinds(n)
+                and guard_pos < (n.lineno, n.col_offset) < sink_pos
+                for n in nodes
+            ):
+                continue
+            atoms = [a.with_sanitizer((kind,), "literal allow-list check", test.lineno, "guard") for a in atoms]
         return atoms
 
 
@@ -1246,12 +1291,82 @@ class _TextFlow:
                 stop = min(stop, idx)
         return body[:stop]
 
-    def _guards(self, kind: str, k: int, hdr: tuple[int, int, int], sink: int, env: dict, atoms: list[Atom]) -> list[Atom]:
-        live = {a.ident for a in atoms if a.sanitizer_for(kind) is None}
-        if not live:
+    def _guarded_names(self, start: int, end: int, truth: bool, depth: int = 0) -> set[str]:
+        """A deliberately small boolean grammar; unsupported syntax proves nothing."""
+        if depth > _MAX_EVAL_DEPTH:
+            return set()
+        while start < end and self.m[start].isspace():
+            start += 1
+        while end > start and self.m[end - 1].isspace():
+            end -= 1
+        if start >= end:
+            return set()
+        if self.m[start] == "(" and self._match_paren(start, _MAX_RHS) == end - 1:
+            return self._guarded_names(start + 1, end - 1, truth, depth + 1)
+        for operator in ("||", "&&"):
+            nesting = 0
+            cuts: list[int] = []
+            for pos in range(start, end):
+                char = self.m[pos]
+                if char in "([{":
+                    nesting += 1
+                elif char in ")]}":
+                    nesting -= 1
+                elif nesting == 0 and self.m.startswith(operator, pos):
+                    cuts.append(pos)
+            if cuts:
+                bounds = [start] + [pos + 2 for pos in cuts]
+                groups = [self._guarded_names(a, b, truth, depth + 1) for a, b in zip(bounds, cuts + [end])]
+                all_required = (operator == "&&") == truth
+                return set.union(*groups) if all_required else set.intersection(*groups)
+        if self.m[start] == "!":
+            return self._guarded_names(start + 1, end, not truth, depth + 1)
+        # PHP/JavaScript loose equality can admit values other than the literal.
+        ops = r"===|!==" if self.lang in (JS, PHP) else r"==|!="
+        name = r"\$[A-Za-z_]\w*" if self.lang == PHP else r"[A-Za-z_$][\w$]*"
+        literal = r'''(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')'''
+        text = self.raw[start:end]
+        match = re.fullmatch(rf"\s*({name})\s*({ops})\s*({literal})\s*", text)
+        if match is None:
+            match = re.fullmatch(rf"\s*({literal})\s*({ops})\s*({name})\s*", text)
+            if match is None:
+                return set()
+            value, op, fixed = match[3], match[2], match[1]
+        else:
+            value, op, fixed = match[1], match[2], match[3]
+        if self.lang == PHP and fixed.startswith('"') and "$" in fixed:
+            return set()
+        return {value} if (not op.startswith("!")) == truth else set()
+
+    def _guard_block(self, start: int) -> tuple[int, int]:
+        while start < len(self.m) and self.m[start].isspace():
+            start += 1
+        if start in self.open_index:
+            return start, self.closes[self.open_index[start]]
+        return start, self._stmt_end(start, len(self.m))
+
+    def _terminates(self, block: tuple[int, int]) -> bool:
+        start, end = block
+        if start in self.open_index:
+            start += 1
+        body = self.m[start:end]
+        # A return buried in a nested conditional/callback is not an exit on
+        # every path. Exception handlers and finally blocks need a full CFG.
+        if re.search(r"[{}?]|\b(?:if|for|while|switch|try|catch|finally|function|func)\b|=>", body):
+            return False
+        exits = r"return\b|throw\b"
+        if self.lang == PHP:
+            exits += r"|(?:exit|die)\s*(?:;|\(|$)"
+        return re.search(rf"(?:^|;|\n)\s*(?:{exits})", body) is not None
+
+    def _guards(self, kind: str, k: int, hdr: tuple[int, int, int], sink: int, value: str, atoms: list[Atom]) -> list[Atom]:
+        if not re.fullmatch(_IDENT_RE[self.lang], value) or not any(a.sanitizer_for(kind) is None for a in atoms):
             return atoms
         body_lo = self._body(k)[0]
+        history, _base = self._function_state(k, hdr)
         for mt in _IF_RE.finditer(self.m, body_lo, sink):
+            if self._enclosing_fn(mt.start()) != (k, hdr) and k >= 0:
+                continue
             p = mt.end()
             while p < sink and self.m[p] in " \t\r\n":
                 p += 1
@@ -1277,27 +1392,49 @@ class _TextFlow:
                 after = close + 1
                 while after < len(self.m) and self.m[after] in " \t\r\n":
                     after += 1
-            if after < len(self.m) and self.m[after] == "{" and after in self.open_index:
-                bk = self.open_index[after]
-                blk = (self.opens[bk], self.closes[bk])
-            else:
-                blk = (after, self._stmt_end(after, len(self.m)))
-            if blk[1] < sink:
-                if not EARLY_EXIT.search(self.m, blk[0], blk[1] + 1):
+            blk = self._guard_block(after)
+            tail = blk[1] + 1
+            while tail < len(self.m) and self.m[tail].isspace():
+                tail += 1
+            otherwise = self._guard_block(tail + 4) if re.match(r"else\b", self.m[tail:]) else None
+            if blk[0] <= sink < blk[1]:
+                truth = True
+            elif otherwise and otherwise[0] <= sink < otherwise[1]:
+                truth = False
+            elif (otherwise or blk)[1] < sink:
+                if self._terminates(blk):
+                    truth = False
+                elif otherwise and self._terminates(otherwise):
+                    truth = True
+                else:
                     continue
                 encl = self._innermost(mt.start())
                 if encl >= 0 and not (self.opens[encl] < sink < self.closes[encl]):
                     continue
-            elif not (blk[0] < sink < blk[1]):
+            else:
                 continue
-            text = self.raw[cond[0] : cond[1]]
-            label = next((lbl for lbl, pat in guard_patterns(kind) if pat.search(text)), None)
-            if label is None:
+            if value not in self._guarded_names(*cond, truth):
                 continue
-            bound = {a.ident for a in self._eval(cond[0], cond[1], env)} & live
-            if bound:
-                gl = line_number(self.raw, mt.start())
-                atoms = [a.with_sanitizer((kind,), label, gl, "guard") if a.ident in bound else a for a in atoms]
+            if any(cond[0] <= off < sink and name == value for off, name, _atoms in history):
+                continue
+            # Increment/decrement are writes too, even though propagation does
+            # not otherwise model them. Do not carry a proof across them.
+            escaped = re.escape(value)
+            intervening = self.m[cond[1]:sink]
+            if re.search(
+                rf"(?:\+\+|--)\s*{escaped}\b|{escaped}\s*(?:\+\+|--|(?:\*\*|&&|\|\||\?\?|[+\-*/%&|^])=)",
+                intervening,
+            ):
+                continue
+            if re.search(rf"\b(?:let|var|const)\s+{escaped}\b", intervening):
+                continue
+            if any(
+                value in _IDENT_RE[self.lang].findall(header.group())
+                for header in re.finditer(r"\b(?:for|foreach|catch)\s*\([^)]*", intervening)
+            ):
+                continue
+            gl = line_number(self.raw, mt.start())
+            atoms = [a.with_sanitizer((kind,), "literal allow-list check", gl, "guard") for a in atoms]
         return atoms
 
     def _receiver(self, end: int) -> tuple[int, int]:
@@ -1372,8 +1509,8 @@ class _TextFlow:
         for s, e in regions:
             if _fixed_prefix(kind, self._leading_literal(s, e)):
                 continue
-            atoms += self._eval(s, e, env)
-        atoms = self._guards(kind, k, hdr, paren, env, _dedupe(atoms))
+            atoms += self._guards(kind, k, hdr, paren, self.raw[s:e].strip(), self._eval(s, e, env))
+        atoms = _dedupe(atoms)
         line = line_number(self.raw, paren)
         body_lo, body_hi = self._body(k)
         span = (line_number(self.raw, hdr[0]), line_number(self.raw, body_hi))

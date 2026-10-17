@@ -1,0 +1,177 @@
+{
+  "scan": {
+    "root": "synthetic-workflow-repository/žluťoučký",
+    "files_scanned": 4,
+    "scanned_files": [
+      "synthetic/žluťoučký/controller.ts",
+      "synthetic/resolved.ts",
+      "synthetic/suppressed.ts",
+      "synthetic/žluťoučký/segment-00-longlonglonglonglonglong/segment-01-longlonglonglonglonglong/segment-02-longlonglonglonglonglong/segment-03-longlonglonglonglonglong/segment-04-longlonglonglonglonglong/segment-05-longlonglonglonglonglong/segment-06-longlonglonglonglonglong/segment-07-longlonglonglonglonglong/controller.ts"
+    ],
+    "signals": [],
+    "limitations": [
+      "SYNTHETIC golden workflow data: no repository was scanned."
+    ],
+    "analyzer_errors": []
+  },
+  "findings": [
+    {
+      "title": "SYNTHETIC clearer title A",
+      "rule_id": "synthetic-workflow-review",
+      "entity_id": "fixture-entity-a",
+      "severity": "medium",
+      "confidence": "low",
+      "mitigation": "SYNTHETIC recommendation: review this fixture scenario; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC placeholder evidence; evidence basis and runtime reachability unknown.",
+        "SYNTHETIC analyzer A says auth required.",
+        "SYNTHETIC analyzer B says auth unknown."
+      ],
+      "evidence_basis": "unknown",
+      "locations": [
+        {
+          "file": "synthetic/žluťoučký/controller.ts",
+          "line": 2,
+          "fingerprint": "synthetic-instance-a"
+        }
+      ],
+      "tags": [
+        "synthetic-fixture",
+        "workflow-only"
+      ],
+      "fixture_key": "a",
+      "observed_controls": [],
+      "trust_chain": [],
+      "uncertainty": [
+        "SYNTHETIC scenario; no real system evidence."
+      ],
+      "id": "d056a38ac9396730",
+      "identity_scheme": "rule-entity/v2",
+      "fixture_conflicts": [
+        {
+          "field": "auth",
+          "values": [
+            "required",
+            "unknown"
+          ],
+          "origin": "synthetic"
+        }
+      ]
+    },
+    {
+      "title": "SYNTHETIC workflow finding D",
+      "rule_id": "synthetic-workflow-review",
+      "entity_id": "fixture-entity-d",
+      "severity": "medium",
+      "confidence": "low",
+      "mitigation": "SYNTHETIC recommendation: review this fixture scenario; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC placeholder evidence; evidence basis and runtime reachability unknown."
+      ],
+      "evidence_basis": "unknown",
+      "locations": [
+        {
+          "file": "synthetic/žluťoučký/segment-00-longlonglonglonglonglong/segment-01-longlonglonglonglonglong/segment-02-longlonglonglonglonglong/segment-03-longlonglonglonglonglong/segment-04-longlonglonglonglonglong/segment-05-longlonglonglonglonglong/segment-06-longlonglonglonglonglong/segment-07-longlonglonglonglonglong/controller.ts",
+          "line": 2,
+          "fingerprint": "synthetic-instance-d"
+        }
+      ],
+      "tags": [
+        "synthetic-fixture",
+        "workflow-only"
+      ],
+      "fixture_key": "d",
+      "observed_controls": [],
+      "trust_chain": [],
+      "uncertainty": [
+        "SYNTHETIC scenario; no real system evidence."
+      ],
+      "id": "ca1f3e4ee304a6cb",
+      "identity_scheme": "rule-entity/v2"
+    },
+    {
+      "title": "SYNTHETIC workflow finding E",
+      "rule_id": "synthetic-workflow-review",
+      "entity_id": "fixture-entity-e",
+      "severity": "medium",
+      "confidence": "low",
+      "mitigation": "SYNTHETIC recommendation: review this fixture scenario; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC placeholder evidence; evidence basis and runtime reachability unknown."
+      ],
+      "evidence_basis": "unknown",
+      "locations": [],
+      "tags": [
+        "synthetic-fixture",
+        "workflow-only"
+      ],
+      "fixture_key": "e",
+      "observed_controls": [],
+      "trust_chain": [],
+      "uncertainty": [
+        "SYNTHETIC scenario; no real system evidence.",
+        "Source location unavailable in this synthetic record."
+      ],
+      "id": "27099086462f591a",
+      "identity_scheme": "rule-entity/v2"
+    }
+  ],
+  "suppressed_findings": [
+    {
+      "title": "SYNTHETIC workflow finding C",
+      "rule_id": "synthetic-workflow-review",
+      "entity_id": "fixture-entity-c",
+      "severity": "medium",
+      "confidence": "low",
+      "mitigation": "SYNTHETIC recommendation: review this fixture scenario; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC placeholder evidence; evidence basis and runtime reachability unknown."
+      ],
+      "evidence_basis": "unknown",
+      "locations": [
+        {
+          "file": "synthetic/suppressed.ts",
+          "line": 2,
+          "fingerprint": "synthetic-instance-c"
+        }
+      ],
+      "tags": [
+        "synthetic-fixture",
+        "workflow-only"
+      ],
+      "fixture_key": "c",
+      "observed_controls": [],
+      "trust_chain": [],
+      "uncertainty": [
+        "SYNTHETIC scenario; no real system evidence."
+      ],
+      "id": "c1d0d53b77973434",
+      "identity_scheme": "rule-entity/v2",
+      "reason": "Synthetic accepted-risk exercise; tracked as FIXTURE-123.",
+      "suppressed_by": [
+        "id=c1d0d53b77973434"
+      ]
+    }
+  ],
+  "attack_surfaces": [],
+  "attack_paths": [],
+  "exploitability": [],
+  "fixture": {
+    "version": "desktop-workflows/v1",
+    "synthetic": true,
+    "run_id": "fixture-current",
+    "timestamp": "2026-01-01T00:00:00Z",
+    "coverage": {
+      "status": "complete",
+      "unsupported_files": [],
+      "truncated": false
+    },
+    "source_snapshot": {
+      "finding_id": "d056a38ac9396730",
+      "snapshot_file": "sources/source-before.txt",
+      "live_file": "sources/source-changed.txt",
+      "snapshot_sha256": "f3f5be654f503eb861eec48a02582dd893db64cbc3f12623a9e6e80ed00c4a2c",
+      "expected_action": "warn live source differs from snapshot"
+    }
+  }
+}

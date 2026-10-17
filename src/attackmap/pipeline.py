@@ -7,13 +7,17 @@ single-repo scan body so tests can call ``run_scan`` without Typer.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field
+from contextlib import contextmanager
+from dataclasses import dataclass, field, replace
+from datetime import datetime, timezone
 import json
 import time
 from pathlib import Path
 from typing import Any, Callable
 
-import typer
+from .application_errors import AnalysisConfigurationError, AnalysisExit, emit_text
+from .ai_budget import AiBudget, budget_scope, current_budget
+from .diagnostics import DiagnosticContext, DiagnosticStage, _analyzers, scan_diagnostic
 
 from . import __version__
 from .analyzer import summarize_architecture, summarize_attack_surface
@@ -69,11 +73,30 @@ TRIAGE_BANNER = (
 )
 
 
+@dataclass(frozen=True)
+class ScanAiLimits:
+    """One repository's scan: provider attempts, elapsed time and OUTPUT tokens.
+
+    Fleet requests currently reject AI features; this is not a fleet-wide ledger.
+    An already-active caller ledger is inherited, including its original deadline.
+    """
+    max_calls: int = 8
+    output_token_limit: int = 32000
+    timeout_seconds: int = 600
+
+    def __post_init__(self) -> None:
+        for name, maximum in (("max_calls", 64), ("output_token_limit", 256000), ("timeout_seconds", 86400)):
+            value = getattr(self, name)
+            if type(value) is not int or not 1 <= value <= maximum:
+                raise AnalysisConfigurationError(f"AI {name} must be an integer from 1 to {maximum}.")
+
+
 @dataclass
 class AnalyzeOptions:
     repo_path: Path
     output: Path
     output_format: str = "all"
+    atomic_output: bool = True
     analyzers: list | None = None
     recall: bool = False
     cve: bool = False
@@ -105,14 +128,19 @@ class AnalyzeOptions:
     hunt_budget: int = 0
     remediate: bool = False
     triage: bool = False
+    ai_limits: ScanAiLimits = field(default_factory=ScanAiLimits)
     run_id: str | None = None
-    echo: Callable[..., None] = field(default=typer.echo)
+    echo: Callable[..., None] = field(default=emit_text)
 
 
 @dataclass
 class StageTiming:
     name: str
     milliseconds: int
+
+
+def _engine_utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
 @dataclass
@@ -129,15 +157,59 @@ class RunState:
     llm_usage: dict[str, int] = field(default_factory=dict)
     exit_code: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
+    scan_started_at: str = field(default_factory=lambda: _engine_utc_now())
+    scan_finished_at: str | None = None
+    scan_outcome: str | None = None
+    diagnostic_stages: list[DiagnosticStage] = field(default_factory=list)
+    attempt_started: float = field(default_factory=time.perf_counter, repr=False)
+
+    def finish_scan(self, outcome: str) -> None:
+        if self.scan_finished_at is None:
+            self.scan_finished_at = _engine_utc_now()
+            self.scan_outcome = outcome
+
+    def scan_timing(self) -> dict[str, str | None]:
+        return {"schema_version": "1.0", "clock": "engine_utc",
+                "scope": "analysis_pipeline_before_publication",
+                "started_at": self.scan_started_at, "finished_at": self.scan_finished_at,
+                "outcome": self.scan_outcome}
 
 
-def _timed(state: RunState, name: str, fn: Callable[[], None]) -> None:
+@contextmanager
+def _diagnostic_phase(state: RunState, name: str):
     started = time.perf_counter()
+    outcome = "completed"
     try:
-        fn()
+        yield
+    except BaseException as exc:
+        outcome = "cancelled" if isinstance(exc, KeyboardInterrupt) else "failed"
+        raise
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
         state.timings.append(StageTiming(name=name, milliseconds=elapsed_ms))
+        state.diagnostic_stages.append(DiagnosticStage(stage_id=name, outcome=outcome,
+                                                       duration_milliseconds=elapsed_ms))
+
+
+def _timed(state: RunState, name: str, fn: Callable[[], None]) -> None:
+    with _diagnostic_phase(state, name):
+        fn()
+
+
+def _diagnostic_context(state: RunState, outcome: str) -> DiagnosticContext:
+    coverage, resources = scan_diagnostic(state.scan)
+    metadata = []
+    for analyzer in state.analyzers:
+        declared = get_analyzer_metadata(analyzer)
+        metadata.append({"name": declared.name, "version": declared.version,
+                         "version_status": "declared" if "version" in declared.model_fields_set else "unknown"})
+    context = DiagnosticContext(outcome=outcome,
+        policy_outcome=("failed" if state.exit_code else "passed") if outcome == "completed" else "not_evaluated",
+        stages=[*state.diagnostic_stages, DiagnosticStage(stage_id="analysis_pipeline", outcome=outcome,
+            duration_milliseconds=max(0, int((time.perf_counter() - state.attempt_started) * 1000)))],
+        analyzers=_analyzers(metadata, status="complete" if state.analyzers else "unknown"),
+        coverage=coverage, resource_events=resources)
+    return context
 
 
 def _write_text(path: Path, text: str) -> None:
@@ -145,8 +217,8 @@ def _write_text(path: Path, text: str) -> None:
     try:
         safe_write_text(ensure_output_dir(path.parent), path, text)
     except UnsafePathError as exc:
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(2) from exc
+        emit_text(f"Error: {exc}", err=True)
+        raise AnalysisExit(2) from exc
 
 
 def write_run_manifest(state: RunState, output: Path) -> None:
@@ -156,6 +228,8 @@ def write_run_manifest(state: RunState, output: Path) -> None:
     by_sev = Counter(f.severity for f in findings)
     payload = {
         "engine_version": __version__,
+        "diagnostic_context": _diagnostic_context(state, state.scan_outcome or "unknown").model_dump(mode="json"),
+        "scan_timing": state.scan_timing(),
         "analyzers": [
             {
                 "name": get_analyzer_metadata(a).name,
@@ -177,6 +251,10 @@ def write_run_manifest(state: RunState, output: Path) -> None:
         },
         "llm_usage": dict(state.llm_usage),
     }
+    if state.options.llm or state.options.hunt or state.options.remediate or state.options.triage:
+        ledger = current_budget()
+        if ledger is not None:
+            payload["ai_allowance"] = ledger.snapshot()
     _write_text(Path(output) / "run-manifest.json", json.dumps(payload, indent=2) + "\n")
 
 
@@ -206,23 +284,26 @@ def _echo_opt_in_hint(names: list[str], echo: Callable[..., None]) -> None:
         )
 
 
-def run_scan(options: AnalyzeOptions) -> RunState:
+def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunState:
     """Run one repository through recon, translation, reports, and optional LLM."""
-    state = RunState(options=options)
+    state = state if state is not None else RunState(options=options)
     echo = options.echo
     repo_path = options.repo_path
     output = Path(options.output)
 
-    if options.fail_on_new_high and options.baseline is None:
-        raise typer.BadParameter("--fail-on-new-high requires --baseline to be set.")
-    if options.fail_on_new_suppression and options.baseline is None:
-        raise typer.BadParameter("--fail-on-new-suppression requires --baseline to be set.")
-    if options.baseline is not None:
-        baseline_path = Path(options.baseline)
-        if not baseline_path.exists():
-            raise typer.BadParameter(f"Baseline report not found: {baseline_path}")
+    with _diagnostic_phase(state, "request_validation"):
+        if options.fail_on_new_high and options.baseline is None:
+            raise AnalysisConfigurationError("--fail-on-new-high requires --baseline to be set.")
+        if options.fail_on_new_suppression and options.baseline is None:
+            raise AnalysisConfigurationError("--fail-on-new-suppression requires --baseline to be set.")
+        if options.baseline is not None:
+            baseline_path = Path(options.baseline)
+            if not baseline_path.exists():
+                raise AnalysisConfigurationError(f"Baseline report not found: {baseline_path}")
 
-    llm_display = "Codex" if options.llm_provider == "openai" else "Claude"
+    llm_display = (
+        "OpenAI-compatible provider" if options.llm_backend == "api" else "Codex"
+    ) if options.llm_provider == "openai" else "Claude"
     if (
         options.llm_provider == "openai"
         and options.llm_speed == "fast"
@@ -328,7 +409,7 @@ def run_scan(options: AnalyzeOptions) -> RunState:
     else:
         explicit = Path(options.suppress_file) if options.suppress_file else None
         if explicit is not None and not explicit.exists():
-            raise typer.BadParameter(f"Suppress file not found: {explicit}")
+            raise AnalysisConfigurationError(f"Suppress file not found: {explicit}")
 
         def _suppress() -> None:
             nonlocal findings, suppressed_findings, suppression_governance
@@ -341,7 +422,7 @@ def run_scan(options: AnalyzeOptions) -> RunState:
                     allow_pr_suppressions=options.allow_pr_suppressions,
                 )
             except GitRefError as exc:
-                raise typer.BadParameter(str(exc)) from exc
+                raise AnalysisConfigurationError(str(exc)) from exc
             for warning in sup_warnings:
                 echo(f"Suppression warning: {warning}", err=True)
             outcome = apply_suppressions(findings, suppset)
@@ -370,7 +451,7 @@ def run_scan(options: AnalyzeOptions) -> RunState:
                     f"Error: {len(suppset.expired)} expired suppression(s) (--strict-suppressions).",
                     err=True,
                 )
-                raise typer.Exit(2)
+                raise AnalysisExit(2)
             if suppressed_findings:
                 echo("")
                 echo(f"Suppressed {len(suppressed_findings)} finding(s) (#144):")
@@ -394,6 +475,7 @@ def run_scan(options: AnalyzeOptions) -> RunState:
         analyzer_meta = [
             {
                 "name": metadata.name,
+                "version": metadata.version if "version" in getattr(metadata, "model_fields_set", set()) else "legacy_unknown",
                 "description": metadata.description,
                 "scope": metadata.scope,
                 "ecosystems": list(metadata.ecosystems),
@@ -417,7 +499,7 @@ def run_scan(options: AnalyzeOptions) -> RunState:
             )
         except UnsafePathError as exc:
             echo(f"Error: {exc}", err=True)
-            raise typer.Exit(2) from exc
+            raise AnalysisExit(2) from exc
         write_run_manifest(state, output)
         echo(render_console_summary(scan, findings, attack_paths))
         _warn_if_nothing_scanned(scan, echo)
@@ -429,62 +511,71 @@ def run_scan(options: AnalyzeOptions) -> RunState:
     diff_exit_code = 0
     diff = None
     if options.baseline is not None:
-        baseline_path = Path(options.baseline)
-        try:
-            baseline_snapshots = load_baseline(baseline_path)
-        except (OSError, ValueError) as exc:
-            raise typer.BadParameter(f"Failed to read baseline: {exc}") from exc
-        current_snapshots = [FindingSnapshot.from_finding(f) for f in findings]
-        diff = diff_findings(
-            baseline_snapshots,
-            current_snapshots,
-            suppressed=[FindingSnapshot.from_finding(s.finding) for s in suppressed_findings],
-        )
-        counts = diff.counts()
-        echo("")
-        echo(
-            f"Diff vs baseline: {counts['new']} new, "
-            f"{counts['new_instances']} new instance(s) of existing findings, "
-            f"{counts['persisted']} persisted, {counts['resolved']} resolved, "
-            f"{counts['newly_suppressed']} newly suppressed."
-        )
-        if diff.baseline_without_instances:
-            echo(
-                "Note: the baseline predates per-instance fingerprints (attackmap < 0.4.32); "
-                "new instances of existing findings can't be detected until it is regenerated.",
-                err=True,
+        with _diagnostic_phase(state, "baseline"):
+            baseline_path = Path(options.baseline)
+            try:
+                baseline_snapshots = load_baseline(baseline_path)
+            except (OSError, ValueError) as exc:
+                raise AnalysisConfigurationError(f"Failed to read baseline: {exc}") from exc
+            current_snapshots = [FindingSnapshot.from_finding(f) for f in findings]
+            from .comparison import coverage_from_report
+            diff = diff_findings(
+                baseline_snapshots,
+                current_snapshots,
+                suppressed=[FindingSnapshot.from_finding(s.finding) for s in suppressed_findings],
+                current_coverage=coverage_from_report({"scan": scan.model_dump(
+                    include={"scanned_files", "analyzer_errors", "limitations"}
+                )}),
             )
-        diff_path = Path(options.diff_output) if options.diff_output else output / "attackmap-diff.md"
-        _write_text(diff_path, render_diff_markdown(diff))
-        echo(f"Diff written to: {diff_path.resolve()}")
-        if options.fail_on_new_high and diff.has_new_high:
-            new_high_titles = [s.title for s in diff.new if s.severity == "high"] + [
-                f"{s.title} (new instance(s): {', '.join(labels[:5])})"
-                for s, labels in diff.new_instances
-                if s.severity == "high"
-            ]
-            echo("", err=True)
+            counts = diff.counts()
+            echo("")
             echo(
-                "New HIGH findings introduced (failing per --fail-on-new-high):",
-                err=True,
+                f"Diff vs baseline: {counts['new']} new, "
+                f"{counts['new_instances']} new instance(s) of existing findings, "
+                f"{counts['persisted']} persisted, {counts['resolved']} resolved, "
+                f"{counts['newly_suppressed']} newly suppressed, "
+                f"{counts['resolution_uncertain']} resolution uncertain."
             )
-            for t in new_high_titles:
-                echo(f"  - {t}", err=True)
-            diff_exit_code = 1
-        if options.fail_on_new_suppression and diff.newly_suppressed:
-            echo("", err=True)
-            echo(
-                "Findings newly suppressed by this change (failing per --fail-on-new-suppression):",
-                err=True,
-            )
-            for s_ in diff.newly_suppressed:
-                echo(f"  - [{s_.severity.upper()}] {s_.title}", err=True)
-            diff_exit_code = 1
+            for note in diff.coverage_notes:
+                echo(f"Note: {note}", err=True)
+            if diff.baseline_without_instances:
+                echo(
+                    "Note: the baseline predates per-instance fingerprints (attackmap < 0.4.32); "
+                    "new instances of existing findings can't be detected until it is regenerated.",
+                    err=True,
+                )
+            diff_path = Path(options.diff_output) if options.diff_output else output / "attackmap-diff.md"
+            _write_text(diff_path, render_diff_markdown(diff))
+            echo(f"Diff written to: {diff_path.resolve()}")
+            if options.fail_on_new_high and diff.has_new_high:
+                new_high_titles = [s.title for s in diff.new if s.severity == "high"] + [
+                    f"{s.title} (new instance(s): {', '.join(labels[:5])})"
+                    for s, labels in diff.new_instances
+                    if s.severity == "high"
+                ]
+                echo("", err=True)
+                echo(
+                    "New HIGH findings introduced (failing per --fail-on-new-high):",
+                    err=True,
+                )
+                for t in new_high_titles:
+                    echo(f"  - {t}", err=True)
+                diff_exit_code = 1
+            if options.fail_on_new_suppression and diff.newly_suppressed:
+                echo("", err=True)
+                echo(
+                    "Findings newly suppressed by this change (failing per --fail-on-new-suppression):",
+                    err=True,
+                )
+                for s_ in diff.newly_suppressed:
+                    echo(f"  - [{s_.severity.upper()}] {s_.title}", err=True)
+                diff_exit_code = 1
 
     if options.pr_comment is not None:
-        pr_path = Path(options.pr_comment)
-        _write_text(pr_path, render_pr_comment(findings, diff, suppressions=suppression_governance))
-        echo(f"PR comment written to: {pr_path.resolve()}")
+        with _diagnostic_phase(state, "pr_comment"):
+            pr_path = Path(options.pr_comment)
+            _write_text(pr_path, render_pr_comment(findings, diff, suppressions=suppression_governance))
+            echo(f"PR comment written to: {pr_path.resolve()}")
 
     def _add_usage(usage: dict[str, int] | None) -> None:
         if not usage:
@@ -494,265 +585,281 @@ def run_scan(options: AnalyzeOptions) -> RunState:
                 state.llm_usage[key] = state.llm_usage.get(key, 0) + value
 
     if options.llm:
-        try:
-            effort_value = options.llm_effort
-            echo("")
-            echo(
-                f"Generating narrative review via {llm_display} (backend={options.llm_backend}, may take a minute)..."
-            )
-            scan_progress.stage(
-                f"{llm_display} is writing the defensive review (backend={options.llm_backend})"
-            )
+        with _diagnostic_phase(state, "llm"):
             try:
-                result = generate_llm_review(
-                    scan,
-                    attack_surfaces,
-                    findings,
-                    attack_paths,
-                    model=options.llm_model,
-                    effort=effort_value,  # type: ignore[arg-type]
-                    backend=options.llm_backend,  # type: ignore[arg-type]
-                    speed=options.llm_speed,  # type: ignore[arg-type]
-                    provider=options.llm_provider,  # type: ignore[arg-type]
-                )
-            finally:
-                scan_progress.done()
-        except LlmReviewError as exc:
-            echo(f"LLM review skipped: {exc}", err=True)
-        else:
-            _add_usage(result.usage)
-            llm_md_path = output / "defensive-review-llm.md"
-            _write_text(llm_md_path, sanitize_llm_markdown(result.markdown) + "\n")
-            llm_meta_path = output / "defensive-review-llm.meta.json"
-            _write_text(
-                llm_meta_path,
-                json.dumps(
-                    {
-                        "backend": result.backend,
-                        "model": result.model,
-                        "stop_reason": result.stop_reason,
-                        "usage": result.usage,
-                    },
-                    indent=2,
-                )
-                + "\n",
-            )
-            echo(f"LLM review written to: {llm_md_path.resolve()} (backend={result.backend})")
-
-    if options.hunt:
-        hunt_effort_value = options.llm_effort
-        echo("")
-        lens_count = options.hunt_lenses
-        jury_votes = options.verify_votes
-        max_rounds = options.hunt_rounds
-        token_budget = options.hunt_budget if options.hunt_budget > 0 else None
-        use_jury = options.verify and (jury_votes > 1 or lens_count > 1 or max_rounds > 1)
-        lens_names = [name for name, _ in HUNT_LENSES][:lens_count] if lens_count > 1 else None
-
-        def _hunt_llm_call(mode: str, hypotheses=None, lens=None, avoid_titles=None, critic_hint=None):
-            return generate_llm_review(
-                scan,
-                attack_surfaces,
-                findings,
-                attack_paths,
-                model=options.llm_model,
-                effort=hunt_effort_value,  # type: ignore[arg-type]
-                backend=options.llm_backend,  # type: ignore[arg-type]
-                mode=mode,  # type: ignore[arg-type]
-                speed=options.llm_speed,  # type: ignore[arg-type]
-                provider=options.llm_provider,  # type: ignore[arg-type]
-                hypotheses=hypotheses,
-                lens=lens,
-                avoid_titles=avoid_titles,
-                critic_hint=critic_hint,
-            )
-
-        hunt_extra_meta: dict = {}
-        try:
-            if use_jury:
-                lens_note = f", {lens_count} lenses" if lens_names else ""
-                round_note = f", up to {max_rounds} rounds" if max_rounds > 1 else ""
+                effort_value = options.llm_effort
+                echo("")
                 echo(
-                    f"Hunting + adjudicating via {llm_display} "
-                    f"({jury_votes} independent skeptics{lens_note}{round_note}, backend={options.llm_backend}, may take a few minutes)..."
+                    f"Generating narrative review via {llm_display} (backend={options.llm_backend}, may take a minute)..."
                 )
                 scan_progress.stage(
-                    f"{llm_display} is hunting + majority-vote verifying "
-                    f"({jury_votes} skeptics{lens_note}{round_note}, backend={options.llm_backend})"
+                    f"{llm_display} is writing the defensive review (backend={options.llm_backend})"
                 )
                 try:
-                    jury = run_majority_verify(
-                        scan, attack_surfaces, findings, attack_paths,
-                        votes=jury_votes, llm_call=_hunt_llm_call, lenses=lens_names,
-                        max_rounds=max_rounds, token_budget=token_budget,
+                    result = generate_llm_review(
+                        scan,
+                        attack_surfaces,
+                        findings,
+                        attack_paths,
+                        model=options.llm_model,
+                        effort=effort_value,  # type: ignore[arg-type]
+                        backend=options.llm_backend,  # type: ignore[arg-type]
+                        speed=options.llm_speed,  # type: ignore[arg-type]
+                        provider=options.llm_provider,  # type: ignore[arg-type]
                     )
                 finally:
                     scan_progress.done()
-                hunt_markdown = jury.report
-                hunt_backend, hunt_model = jury.backend, jury.model
-                hunt_stop, hunt_usage = None, jury.usage
-                hunt_extra_meta = {
-                    "verify_votes": jury.votes,
-                    "lenses": lens_names or [],
-                    "rounds_run": jury.rounds,
-                    "hypothesis_count": jury.hypothesis_count,
-                    "consensus": {
-                        "confirmed": sum(1 for c in jury.consensus if c.verdict == "confirmed"),
-                        "needs_review": sum(1 for c in jury.consensus if c.verdict == "needs_review"),
-                        "refuted": sum(1 for c in jury.consensus if c.verdict == "refuted"),
-                    },
-                }
+            except LlmReviewError as exc:
+                echo(f"LLM review skipped: {exc}", err=True)
             else:
-                hunt_mode = "hunt_verify" if options.verify else "hunt"
+                _add_usage(result.usage)
+                llm_md_path = output / "defensive-review-llm.md"
+                _write_text(llm_md_path, sanitize_llm_markdown(result.markdown) + "\n")
+                llm_meta_path = output / "defensive-review-llm.meta.json"
+                _write_text(
+                    llm_meta_path,
+                    json.dumps(
+                        {
+                            "backend": result.backend,
+                            "model": result.model,
+                            "stop_reason": result.stop_reason,
+                            "usage": result.usage,
+                            "usage_status": getattr(result, "usage_status", "unknown"),
+                            "reference_validation": getattr(result, "reference_validation", None),
+                        },
+                        indent=2,
+                    )
+                    + "\n",
+                )
+                echo(f"LLM review written to: {llm_md_path.resolve()} (backend={result.backend})")
+
+    if options.hunt:
+        with _diagnostic_phase(state, "hunt"):
+            hunt_effort_value = options.llm_effort
+            echo("")
+            lens_count = options.hunt_lenses
+            jury_votes = options.verify_votes
+            max_rounds = options.hunt_rounds
+            token_budget = options.hunt_budget if options.hunt_budget > 0 else None
+            use_jury = options.verify and (jury_votes > 1 or lens_count > 1 or max_rounds > 1)
+            lens_names = [name for name, _ in HUNT_LENSES][:lens_count] if lens_count > 1 else None
+
+            def _hunt_llm_call(mode: str, hypotheses=None, lens=None, avoid_titles=None, critic_hint=None):
+                return generate_llm_review(
+                    scan,
+                    attack_surfaces,
+                    findings,
+                    attack_paths,
+                    model=options.llm_model,
+                    effort=hunt_effort_value,  # type: ignore[arg-type]
+                    backend=options.llm_backend,  # type: ignore[arg-type]
+                    mode=mode,  # type: ignore[arg-type]
+                    speed=options.llm_speed,  # type: ignore[arg-type]
+                    provider=options.llm_provider,  # type: ignore[arg-type]
+                    hypotheses=hypotheses,
+                    lens=lens,
+                    avoid_titles=avoid_titles,
+                    critic_hint=critic_hint,
+                )
+
+            hunt_extra_meta: dict = {}
+            try:
+                if use_jury:
+                    lens_note = f", {lens_count} lenses" if lens_names else ""
+                    round_note = f", up to {max_rounds} rounds" if max_rounds > 1 else ""
+                    echo(
+                        f"Hunting + adjudicating via {llm_display} "
+                        f"({jury_votes} independent skeptics{lens_note}{round_note}, backend={options.llm_backend}, may take a few minutes)..."
+                    )
+                    scan_progress.stage(
+                        f"{llm_display} is hunting + majority-vote verifying "
+                        f"({jury_votes} skeptics{lens_note}{round_note}, backend={options.llm_backend})"
+                    )
+                    try:
+                        jury = run_majority_verify(
+                            scan, attack_surfaces, findings, attack_paths,
+                            votes=jury_votes, llm_call=_hunt_llm_call, lenses=lens_names,
+                            max_rounds=max_rounds, token_budget=token_budget,
+                        )
+                    finally:
+                        scan_progress.done()
+                    hunt_markdown = jury.report
+                    hunt_backend, hunt_model = jury.backend, jury.model
+                    hunt_stop, hunt_usage = None, jury.usage
+                    hunt_extra_meta = {
+                        "allowance": getattr(jury, "allowance", {}),
+                        "citation_context": getattr(jury, "citation_context", {}),
+                        "verify_votes": jury.votes,
+                        "assessment_kind": jury.assessment_kind,
+                        "failed_passes": jury.failed_passes,
+                        "abstained_votes": sum(c.abstained for c in jury.consensus),
+                        "lenses": lens_names or [],
+                        "rounds_run": jury.rounds,
+                        "hypothesis_count": jury.hypothesis_count,
+                        "consensus": {
+                            "confirmed": sum(1 for c in jury.consensus if c.verdict == "confirmed"),
+                            "needs_review": sum(1 for c in jury.consensus if c.verdict == "needs_review"),
+                            "refuted": sum(1 for c in jury.consensus if c.verdict == "refuted"),
+                            "inconclusive": sum(1 for c in jury.consensus if c.verdict == "inconclusive"),
+                        },
+                    }
+                else:
+                    hunt_mode = "hunt_verify" if options.verify else "hunt"
+                    echo(
+                        f"Hunting for vulnerability hypotheses via {llm_display} "
+                        f"({'adjudicated against source, ' if options.verify else ''}backend={options.llm_backend}, may take a minute)..."
+                    )
+                    scan_progress.stage(
+                        f"{llm_display} is hunting exploit-chain hypotheses"
+                        f"{' + verifying against source' if options.verify else ''} (backend={options.llm_backend})"
+                    )
+                    try:
+                        hunt_result = _hunt_llm_call(hunt_mode)
+                    finally:
+                        scan_progress.done()
+                    hunt_markdown = hunt_result.markdown
+                    hunt_backend, hunt_model = hunt_result.backend, hunt_result.model
+                    hunt_stop, hunt_usage = hunt_result.stop_reason, hunt_result.usage
+                    hunt_extra_meta["usage_status"] = getattr(hunt_result, "usage_status", "unknown")
+            except LlmReviewError as exc:
+                echo(f"Vulnerability hunt skipped: {exc}", err=True)
+            else:
+                _add_usage(hunt_usage if isinstance(hunt_usage, dict) else None)
+                hunt_md_path = output / "vulnerability-hypotheses.md"
+                _write_text(hunt_md_path, HUNT_BANNER + sanitize_llm_markdown(hunt_markdown) + "\n")
+                hunt_meta_path = output / "vulnerability-hypotheses.meta.json"
+                _write_text(
+                    hunt_meta_path,
+                    json.dumps(
+                        {
+                            "backend": hunt_backend,
+                            "model": hunt_model,
+                            "stop_reason": hunt_stop,
+                            "usage": hunt_usage,
+                            **hunt_extra_meta,
+                        },
+                        indent=2,
+                    )
+                    + "\n",
+                )
                 echo(
-                    f"Hunting for vulnerability hypotheses via {llm_display} "
-                    f"({'adjudicated against source, ' if options.verify else ''}backend={options.llm_backend}, may take a minute)..."
+                    f"Vulnerability hypotheses written to: {hunt_md_path.resolve()} "
+                    f"(backend={hunt_backend})"
                 )
-                scan_progress.stage(
-                    f"{llm_display} is hunting exploit-chain hypotheses"
-                    f"{' + verifying against source' if options.verify else ''} (backend={options.llm_backend})"
-                )
-                try:
-                    hunt_result = _hunt_llm_call(hunt_mode)
-                finally:
-                    scan_progress.done()
-                hunt_markdown = hunt_result.markdown
-                hunt_backend, hunt_model = hunt_result.backend, hunt_result.model
-                hunt_stop, hunt_usage = hunt_result.stop_reason, hunt_result.usage
-        except LlmReviewError as exc:
-            echo(f"Vulnerability hunt skipped: {exc}", err=True)
-        else:
-            _add_usage(hunt_usage if isinstance(hunt_usage, dict) else None)
-            hunt_md_path = output / "vulnerability-hypotheses.md"
-            _write_text(hunt_md_path, HUNT_BANNER + sanitize_llm_markdown(hunt_markdown) + "\n")
-            hunt_meta_path = output / "vulnerability-hypotheses.meta.json"
-            _write_text(
-                hunt_meta_path,
-                json.dumps(
-                    {
-                        "backend": hunt_backend,
-                        "model": hunt_model,
-                        "stop_reason": hunt_stop,
-                        "usage": hunt_usage,
-                        **hunt_extra_meta,
-                    },
-                    indent=2,
-                )
-                + "\n",
-            )
-            echo(
-                f"Vulnerability hypotheses written to: {hunt_md_path.resolve()} "
-                f"(backend={hunt_backend})"
-            )
 
     if options.remediate:
-        try:
-            rem_effort_value = options.llm_effort
-            echo("")
-            echo(
-                f"Generating remediation suggestions via {llm_display} (backend={options.llm_backend}, may take a minute)..."
-            )
-            scan_progress.stage(
-                f"{llm_display} is drafting remediation suggestions (backend={options.llm_backend})"
-            )
+        with _diagnostic_phase(state, "remediate"):
             try:
-                rem_result = generate_llm_review(
-                    scan,
-                    attack_surfaces,
-                    findings,
-                    attack_paths,
-                    model=options.llm_model,
-                    effort=rem_effort_value,  # type: ignore[arg-type]
-                    backend=options.llm_backend,  # type: ignore[arg-type]
-                    mode="remediate",
-                    speed=options.llm_speed,  # type: ignore[arg-type]
-                    provider=options.llm_provider,  # type: ignore[arg-type]
+                rem_effort_value = options.llm_effort
+                echo("")
+                echo(
+                    f"Generating remediation suggestions via {llm_display} (backend={options.llm_backend}, may take a minute)..."
                 )
-            finally:
-                scan_progress.done()
-        except LlmReviewError as exc:
-            echo(f"Remediation skipped: {exc}", err=True)
-        else:
-            _add_usage(rem_result.usage)
-            rem_md_path = output / "remediation.md"
-            _write_text(rem_md_path, REMEDIATION_BANNER + sanitize_llm_markdown(rem_result.markdown) + "\n")
-            rem_meta_path = output / "remediation.meta.json"
+                scan_progress.stage(
+                    f"{llm_display} is drafting remediation suggestions (backend={options.llm_backend})"
+                )
+                try:
+                    rem_result = generate_llm_review(
+                        scan,
+                        attack_surfaces,
+                        findings,
+                        attack_paths,
+                        model=options.llm_model,
+                        effort=rem_effort_value,  # type: ignore[arg-type]
+                        backend=options.llm_backend,  # type: ignore[arg-type]
+                        mode="remediate",
+                        speed=options.llm_speed,  # type: ignore[arg-type]
+                        provider=options.llm_provider,  # type: ignore[arg-type]
+                    )
+                finally:
+                    scan_progress.done()
+            except LlmReviewError as exc:
+                echo(f"Remediation skipped: {exc}", err=True)
+            else:
+                _add_usage(rem_result.usage)
+                rem_md_path = output / "remediation.md"
+                _write_text(rem_md_path, REMEDIATION_BANNER + sanitize_llm_markdown(rem_result.markdown) + "\n")
+                rem_meta_path = output / "remediation.meta.json"
+                _write_text(
+                    rem_meta_path,
+                    json.dumps(
+                        {
+                            "backend": rem_result.backend,
+                            "model": rem_result.model,
+                            "stop_reason": rem_result.stop_reason,
+                            "usage": rem_result.usage,
+                            "usage_status": getattr(rem_result, "usage_status", "unknown"),
+                        },
+                        indent=2,
+                    )
+                    + "\n",
+                )
+                echo(
+                    f"Remediation suggestions written to: {rem_md_path.resolve()} "
+                    f"(backend={rem_result.backend})"
+                )
+
+    if options.triage:
+        with _diagnostic_phase(state, "triage"):
+            tri_effort_value = options.llm_effort
+            tri_md_path = output / "triage.md"
+            tri_meta_path = output / "triage.meta.json"
+            tri_backend = "deterministic"
+            tri_model: str | None = None
+            tri_stop: str | None = None
+            tri_usage: dict = {}
+            tri_usage_status = "unknown"
+            try:
+                echo("")
+                echo(
+                    f"Triaging findings via {llm_display} (backend={options.llm_backend})..."
+                )
+                scan_progress.stage(f"{llm_display} is triaging findings (backend={options.llm_backend})")
+                try:
+                    tri_result = generate_llm_review(
+                        scan,
+                        attack_surfaces,
+                        findings,
+                        attack_paths,
+                        model=options.llm_model,
+                        effort=tri_effort_value,  # type: ignore[arg-type]
+                        backend=options.llm_backend,  # type: ignore[arg-type]
+                        mode="triage",
+                        speed=options.llm_speed,  # type: ignore[arg-type]
+                        provider=options.llm_provider,  # type: ignore[arg-type]
+                    )
+                finally:
+                    scan_progress.done()
+                markdown = TRIAGE_BANNER + tri_result.markdown + "\n"
+                tri_backend = tri_result.backend
+                tri_model = tri_result.model
+                tri_stop = tri_result.stop_reason
+                tri_usage = tri_result.usage
+                tri_usage_status = getattr(tri_result, "usage_status", "unknown")
+                _add_usage(tri_usage)
+            except LlmReviewError as exc:
+                echo(f"Triage LLM unavailable ({exc}); using deterministic ordering.", err=True)
+                markdown = TRIAGE_BANNER + render_triage_fallback(scan, findings) + "\n"
+            _write_text(tri_md_path, sanitize_llm_markdown(markdown))
             _write_text(
-                rem_meta_path,
+                tri_meta_path,
                 json.dumps(
                     {
-                        "backend": rem_result.backend,
-                        "model": rem_result.model,
-                        "stop_reason": rem_result.stop_reason,
-                        "usage": rem_result.usage,
+                        "backend": tri_backend,
+                        "model": tri_model,
+                        "stop_reason": tri_stop,
+                        "usage": tri_usage,
+                        "usage_status": tri_usage_status,
                     },
                     indent=2,
                 )
                 + "\n",
             )
-            echo(
-                f"Remediation suggestions written to: {rem_md_path.resolve()} "
-                f"(backend={rem_result.backend})"
-            )
-
-    if options.triage:
-        tri_effort_value = options.llm_effort
-        tri_md_path = output / "triage.md"
-        tri_meta_path = output / "triage.meta.json"
-        tri_backend = "deterministic"
-        tri_model: str | None = None
-        tri_stop: str | None = None
-        tri_usage: dict = {}
-        try:
-            echo("")
-            echo(
-                f"Triaging findings via {llm_display} (backend={options.llm_backend})..."
-            )
-            scan_progress.stage(f"{llm_display} is triaging findings (backend={options.llm_backend})")
-            try:
-                tri_result = generate_llm_review(
-                    scan,
-                    attack_surfaces,
-                    findings,
-                    attack_paths,
-                    model=options.llm_model,
-                    effort=tri_effort_value,  # type: ignore[arg-type]
-                    backend=options.llm_backend,  # type: ignore[arg-type]
-                    mode="triage",
-                    speed=options.llm_speed,  # type: ignore[arg-type]
-                    provider=options.llm_provider,  # type: ignore[arg-type]
-                )
-            finally:
-                scan_progress.done()
-            markdown = TRIAGE_BANNER + tri_result.markdown + "\n"
-            tri_backend = tri_result.backend
-            tri_model = tri_result.model
-            tri_stop = tri_result.stop_reason
-            tri_usage = tri_result.usage
-            _add_usage(tri_usage)
-        except LlmReviewError as exc:
-            echo(f"Triage LLM unavailable ({exc}); using deterministic ordering.", err=True)
-            markdown = TRIAGE_BANNER + render_triage_fallback(scan, findings) + "\n"
-        _write_text(tri_md_path, sanitize_llm_markdown(markdown))
-        _write_text(
-            tri_meta_path,
-            json.dumps(
-                {
-                    "backend": tri_backend,
-                    "model": tri_model,
-                    "stop_reason": tri_stop,
-                    "usage": tri_usage,
-                },
-                indent=2,
-            )
-            + "\n",
-        )
-        echo(f"Triage shortlist written to: {tri_md_path.resolve()} (backend={tri_backend})")
-
-    if state.llm_usage:
-        write_run_manifest(state, output)
+            echo(f"Triage shortlist written to: {tri_md_path.resolve()} (backend={tri_backend})")
 
     state.exit_code = diff_exit_code
+    state.finish_scan("completed")
+    write_run_manifest(state, output)
 
     if scan_report is not None and options.output_format in {"all", "json"}:
         write_artifact_manifest(
@@ -763,8 +870,77 @@ def run_scan(options: AnalyzeOptions) -> RunState:
             repo_name=repo_path.name,
             analyzer_metadata=analyzer_meta,
             exit_code=state.exit_code,
-            status="succeeded" if state.exit_code == 0 else "failed",
+            status="succeeded" if state.exit_code == 0 else "policy_failed",
             report_data=scan_report,
+            output_format=options.output_format,
         )
 
+    return state
+
+
+def run_scan(options: AnalyzeOptions) -> RunState:
+    """Share one allowance across every AI feature without replacing caller limits."""
+    if not (options.llm or options.hunt or options.remediate or options.triage):
+        return _run_scan_published(options)
+    if not isinstance(options.ai_limits, ScanAiLimits):
+        raise AnalysisConfigurationError("AI limits must be a typed ScanAiLimits value.")
+    options.ai_limits.__post_init__()
+    if current_budget() is not None:
+        return _run_scan_published(options)
+    limits = options.ai_limits
+    with budget_scope(AiBudget(max_calls=limits.max_calls, max_seconds=limits.timeout_seconds,
+                               output_token_limit=limits.output_token_limit)):
+        return _run_scan_published(options)
+
+
+def _run_scan_published(options: AnalyzeOptions) -> RunState:
+    """Publish one validated generation; flat files are compatibility exports."""
+    if not options.atomic_output:
+        state = RunState(options=options)
+        try:
+            return _run_scan(options, state=state)
+        except BaseException as exc:
+            from .artifact_publisher import write_diagnostic
+            outcome = "cancelled" if isinstance(exc, KeyboardInterrupt) else "failed"
+            state.finish_scan(outcome)
+            try:
+                write_diagnostic(Path(options.output), options.run_id or make_run_id(), state=outcome,
+                                 scan_timing=state.scan_timing(), context=_diagnostic_context(state, outcome))
+            except (OSError, ValueError):
+                pass
+            raise
+    from .artifact_publisher import (
+        export_compatibility, generation_dir, prepare_output_root, publish_generation, write_diagnostic,
+    )
+    base = prepare_output_root(Path(options.output))
+    run_id = options.run_id or make_run_id()
+    folder = generation_dir(base, run_id)
+    staged = replace(options, output=folder, output_format="all", run_id=run_id,
+                     atomic_output=False)
+    state = RunState(options=staged)
+    try:
+        ensure_output_dir(folder, mark=True)
+        state = _run_scan(staged, state=state)
+        with _diagnostic_phase(state, "publication"):
+            publish_generation(base, run_id)
+    except BaseException as exc:
+        outcome = "cancelled" if isinstance(exc, KeyboardInterrupt) else "failed"
+        state.finish_scan(outcome)
+        try:
+            write_diagnostic(base, run_id, state=outcome, scan_timing=state.scan_timing(),
+                             context=_diagnostic_context(state, outcome))
+        except (OSError, ValueError):
+            pass
+        raise
+    # Publication is already committed. A failed convenience export must not
+    # turn the authoritative successful generation into a failed execution.
+    try:
+        export_compatibility(base, folder, output_format=options.output_format)
+    except (OSError, ValueError):
+        state.errors.append({"stage": "compatibility_export",
+                             "error": "Flat export failed; the published generation remains available."})
+        options.echo("Warning: flat export failed; the published generation remains available.", err=True)
+    from .retention import retain_after_publish
+    retain_after_publish(base, echo=options.echo)
+    state.options = options
     return state

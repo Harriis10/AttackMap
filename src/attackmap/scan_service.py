@@ -11,16 +11,18 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Callable
 
-import typer
+from .application_errors import AnalysisAborted, AnalysisConfigurationError, AnalysisExit, emit_text
 
 from .analyzers import MissingAnalyzersError, select_requested_analyzers
 from .anomalies import route_auth_signals
-from .contracts import link_contracts
+from .contracts import DeploymentAliases, link_contracts
 from .crossrepo import (
     find_cross_boundary_flows,
     find_cross_repo_anomalies,
@@ -35,7 +37,7 @@ from .fleet import (
     render_fleet_summary,
 )
 from .models import AttackPath, Finding, ScanResult
-from .pipeline import AnalyzeOptions, run_scan
+from .pipeline import AnalyzeOptions, ScanAiLimits, run_scan
 from .safe_fs import UnsafePathError, ensure_output_dir, safe_write_text
 
 
@@ -84,9 +86,15 @@ class ScanRequest:
     hunt_budget: int = 0
     remediate: bool = False
     triage: bool = False
-    echo: Callable[..., None] = field(default=typer.echo)
+    ai_limits: ScanAiLimits = field(default_factory=ScanAiLimits)
+    echo: Callable[..., None] = field(default=emit_text)
     cancel_check: Callable[[], bool] | None = None
     max_workers: int = 1
+    fleet_result: Path | None = None
+    atomic_output: bool = True
+    # Explicit deployment alias declarations for cross-repo link resolution
+    # (C28): positive host→repo mappings; never inferred by similarity.
+    deployment_aliases: DeploymentAliases | None = None
 
 
 @dataclass
@@ -134,6 +142,7 @@ def _analyze_options(
         repo_path=repo_path,
         output=output,
         output_format=request.output_format,
+        atomic_output=request.atomic_output,
         analyzers=analyzers,
         recall=request.recall,
         cve=request.cve,
@@ -165,6 +174,7 @@ def _analyze_options(
         hunt_budget=request.hunt_budget,
         remediate=request.remediate,
         triage=request.triage,
+        ai_limits=request.ai_limits,
         run_id=request.run_id,
         echo=request.echo,
     )
@@ -182,16 +192,40 @@ def _run_single_repo(request: ScanRequest, analyzers: list | None) -> RunSummary
     repo_path = request.repo_paths[0]
     try:
         state = run_scan(_analyze_options(request, repo_path, request.output, analyzers))
-    except typer.BadParameter as exc:
+    except AnalysisConfigurationError as exc:
+        if request.fleet_result is not None:
+            _write_artifact(request.fleet_result, json.dumps({
+                "error_kind": "configuration", "error": str(exc),
+            }))
         raise ScanRequestError(str(exc)) from exc
-    except typer.Exit as exc:
+    except AnalysisExit as exc:
         return RunSummary(exit_code=exc.exit_code if exc.exit_code is not None else 1)
-    except typer.Abort as exc:
+    except AnalysisAborted as exc:
         return RunSummary(exit_code=1, error=f"aborted: {exc}")
+    except UnsafePathError as exc:
+        raise ScanRequestError(str(exc)) from exc
     except Exception as exc:  # noqa: BLE001 — surface as failed scan
         return RunSummary(exit_code=1, error=f"{type(exc).__name__}: {exc}")
 
-    candidate = Path(request.output) / "attackmap-report.json"
+    if request.fleet_result is not None and state.exit_code == 0:
+        assert state.scan is not None
+        payload = {
+            "scan": state.scan.model_dump(mode="json"),
+            "findings": [f.model_dump(mode="json") for f in state.findings],
+            "attack_paths": [p.model_dump(mode="json") for p in state.paths],
+            "suppressed_count": len(state.suppressed),
+        }
+        _write_artifact(request.fleet_result, json.dumps(payload, ensure_ascii=False))
+
+    report_root = Path(request.output)
+    if request.atomic_output:
+        from .artifact_publisher import current_generation
+        published = current_generation(report_root)
+        if published is None:
+            return RunSummary(exit_code=state.exit_code, report_path=None,
+                              error="Published result is unavailable or failed integrity validation.")
+        report_root = published
+    candidate = report_root / "attackmap-report.json"
     report_path: Path | None = candidate if candidate.is_file() else None
     return RunSummary(
         exit_code=state.exit_code,
@@ -252,16 +286,21 @@ def _run_fleet_repo_argv(
     analyzer_names: list[str],
 ) -> list[str]:
     """Build the CLI argv for a per-repo subprocess worker."""
+    prefix = (
+        [sys.executable] if getattr(sys, "frozen", False)
+        else [sys.executable, "-m", "attackmap"]
+    )
     argv: list[str] = [
-        sys.executable,
-        "-m",
-        "attackmap",
+        *prefix,
         "analyze",
         str(repo_path),
         "--output",
         str(repo_out),
     ]
     argv.extend(["--format", request.output_format])
+    argv.extend(["--ai-max-calls", str(request.ai_limits.max_calls),
+                 "--ai-output-tokens", str(request.ai_limits.output_token_limit),
+                 "--ai-timeout-seconds", str(request.ai_limits.timeout_seconds)])
     if request.run_id is not None:
         argv.extend(["--run-id", request.run_id])
     for name in analyzer_names:
@@ -293,9 +332,8 @@ def _run_fleet_repo_argv(
     return argv
 
 
-def _load_repo_scan(repo_out: Path) -> tuple[ScanResult, list[Finding], list[AttackPath], int]:
+def _load_repo_scan(report_path: Path) -> tuple[ScanResult, list[Finding], list[AttackPath], int]:
     """Load a single repo's result from its worker-written JSON report."""
-    report_path = repo_out / "attackmap-report.json"
     if not report_path.is_file():
         raise FileNotFoundError(f"missing report: {report_path}")
     data = json.loads(report_path.read_text(encoding="utf-8"))
@@ -305,8 +343,40 @@ def _load_repo_scan(repo_out: Path) -> tuple[ScanResult, list[Finding], list[Att
     scan = ScanResult.model_validate(scan_data)
     findings = [Finding.model_validate(f) for f in data.get("findings", [])]
     attack_paths = [AttackPath.model_validate(p) for p in data.get("attack_paths", [])]
-    suppressed_count = len(data.get("suppressed_findings", []))
+    suppressed_count = data.get("suppressed_count", len(data.get("suppressed_findings", [])))
     return scan, findings, attack_paths, suppressed_count
+
+
+def _run_supervised_worker(
+    argv: list[str], cancel_check: Callable[[], bool] | None = None,
+) -> subprocess.CompletedProcess[str]:
+    """Wait for a bounded-output worker, including verified cancellation cleanup."""
+    from .execution import ProcessSupervisor
+
+    if cancel_check is not None and cancel_check():
+        return subprocess.CompletedProcess(argv, 130, "", "Worker cancelled before launch.")
+    supervisor = ProcessSupervisor()
+    result: list[subprocess.CompletedProcess[str]] = []
+
+    def complete(code: int, tail: str) -> None:
+        result.append(subprocess.CompletedProcess(
+            argv, 130 if supervisor.cancelled else code, "", tail,
+        ))
+
+    started = supervisor.start(argv, on_done=complete, timeout=600)
+    if not started and not supervisor.running:
+        return result[0] if result else subprocess.CompletedProcess(argv, 1, "", supervisor.stderr_tail)
+    try:
+        while not supervisor.wait(0.1):
+            if cancel_check is not None and cancel_check():
+                supervisor.request_cancel()
+    except BaseException:
+        supervisor.request_cancel()
+        # Do not let an interrupted caller abandon its owned process tree.
+        while not supervisor.wait(0.1):
+            pass
+        raise
+    return result[0]
 
 
 def _run_fleet_repo_worker(
@@ -319,25 +389,33 @@ def _run_fleet_repo_worker(
     """Run one repository in a subprocess and load its JSON report."""
     repo_out = output_root / repo_id
     argv = _run_fleet_repo_argv(request, repo_path, repo_out, analyzer_names)
-    completed = subprocess.run(
-        argv,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    if completed.returncode != 0:
-        stderr = completed.stderr.strip()[-500:] if completed.stderr else ""
-        raise _FleetRepoError(
-            repo_id,
-            str(repo_path),
-            f"subprocess exited {completed.returncode}{f' - {stderr}' if stderr else ''}",
-        )
-    try:
-        scan, findings, attack_paths, suppressed_count = _load_repo_scan(repo_out)
-    except Exception as exc:  # noqa: BLE001 — surface parse/load errors as a repo failure
-        raise _FleetRepoError(
-            repo_id, str(repo_path), f"failed to load report: {type(exc).__name__}: {exc}"
-        ) from exc
+    # Interchange lives outside report/source directories and is removed even
+    # when a child fails. Presentation format never controls this payload.
+    with tempfile.TemporaryDirectory(prefix="attackmap-fleet-") as worker_dir:
+        result_path = Path(worker_dir) / "result.json"
+        argv.extend(["--fleet-result", str(result_path)])
+        completed = _run_supervised_worker(argv, cancel_check=request.cancel_check)
+        if completed.returncode != 0:
+            # A usage error applies to the request; policy/analysis failures
+            # remain per-repository failures even when their exit code is 2.
+            if result_path.is_file():
+                try:
+                    failure = json.loads(result_path.read_text(encoding="utf-8"))
+                except (ValueError, OSError):
+                    failure = None
+                if isinstance(failure, dict) and failure.get("error_kind") == "configuration":
+                    raise ScanRequestError(f"{repo_id}: {failure.get('error', 'invalid request')}")
+            stderr = completed.stderr.strip()[-500:] if completed.stderr else ""
+            raise _FleetRepoError(
+                repo_id, str(repo_path),
+                f"subprocess exited {completed.returncode}{f' - {stderr}' if stderr else ''}",
+            )
+        try:
+            scan, findings, attack_paths, suppressed_count = _load_repo_scan(result_path)
+        except Exception as exc:  # noqa: BLE001 — surface parse/load errors as a repo failure
+            raise _FleetRepoError(
+                repo_id, str(repo_path), f"failed to load report: {type(exc).__name__}: {exc}"
+            ) from exc
 
     return FleetRepoResult(
         repo_id=repo_id,
@@ -358,11 +436,15 @@ def _run_fleet_serial(
 ) -> None:
     """Sequential per-repo scan used when max_workers == 1."""
     for repo_id, repo_path in zip(fleet_repo_ids(request.repo_paths), request.repo_paths):
+        if request.cancel_check is not None and request.cancel_check():
+            break
         request.echo("")
         request.echo(f"── {repo_id}  ({repo_path}) ──")
         try:
             repo_out = output_root / repo_id
             state = run_scan(_analyze_options(request, repo_path, repo_out, analyzers))
+            if state.exit_code != 0:
+                raise RuntimeError(f"scan exited with code {state.exit_code}")
             assert state.scan is not None
             fleet.results.append(
                 FleetRepoResult(
@@ -375,16 +457,8 @@ def _run_fleet_serial(
                     suppressed_count=len(state.suppressed),
                 )
             )
-        except typer.BadParameter as exc:
+        except AnalysisConfigurationError as exc:
             raise ScanRequestError(str(exc)) from exc
-        except typer.Exit as exc:
-            # Usage / policy errors (e.g. --strict-suppressions) should fail the
-            # whole fleet rather than be silently swallowed per repo.
-            raise ScanRequestError(
-                f"{repo_id}: scan exited with code {exc.exit_code}"
-            ) from exc
-        except typer.Abort as exc:
-            raise ScanRequestError(f"{repo_id}: aborted") from exc
         except Exception as exc:  # noqa: BLE001 — one bad repo must not sink the fleet (#217)
             message = f"{type(exc).__name__}: {exc}"
             request.echo(f"Error: {repo_id} failed and was skipped — {message}", err=True)
@@ -432,6 +506,8 @@ def _run_fleet_parallel(
                 result = future.result()
                 fleet.results.append(result)
                 request.echo(f"  done {repo_id}  ({repo_path})")
+            except ScanRequestError:
+                raise
             except _FleetRepoError as exc:
                 request.echo(
                     f"Error: {exc.repo_id} failed and was skipped - {exc.message}",
@@ -449,10 +525,15 @@ def _run_fleet_parallel(
                     {"repo_id": repo_id, "root": str(repo_path), "error": message}
                 )
 
+    # Completion order must not change normalized fleet output.
+    order = {repo_id: index for index, repo_id in enumerate(repo_ids)}
+    fleet.results.sort(key=lambda result: order[result.repo_id])
+    fleet.failed.sort(key=lambda failure: order[failure["repo_id"]])
+
 
 def _finalize_fleet(request: ScanRequest, fleet: FleetScan, output_root: Path) -> RunSummary:
     repo_scans = [(r.repo_id, r.scan) for r in fleet.results]
-    fleet.links = link_contracts(repo_scans)
+    fleet.links = link_contracts(repo_scans, aliases=request.deployment_aliases)
     fleet.cross_boundary = find_cross_boundary_flows(fleet.links, repo_scans)
     auth_by_repo = {r.repo_id: route_auth_signals(r.scan, r.root) for r in fleet.results}
     fleet.trust_gaps = find_trust_gaps(fleet.links, repo_scans, auth_by_repo)
@@ -493,7 +574,7 @@ def _finalize_fleet(request: ScanRequest, fleet: FleetScan, output_root: Path) -
     )
 
 
-def _run_fleet(request: ScanRequest, analyzers: list | None) -> RunSummary:
+def _run_fleet_generation(request: ScanRequest, analyzers: list | None) -> RunSummary:
     output_root = Path(request.output)
     incompatible = _fleet_incompatible_flags(request)
     if incompatible:
@@ -503,12 +584,91 @@ def _run_fleet(request: ScanRequest, analyzers: list | None) -> RunSummary:
         )
 
     fleet = FleetScan()
+    fleet_started = time.perf_counter()
+    # The parent may itself be staged by a desktop caller, but child results
+    # always need independently verified, manifest-bound generations.
+    child_request = replace(request, atomic_output=True)
     if _effective_max_workers(request) == 1:
-        _run_fleet_serial(request, analyzers, fleet, output_root)
+        _run_fleet_serial(child_request, analyzers, fleet, output_root)
     else:
-        _run_fleet_parallel(request, _analyzer_names(analyzers), fleet, output_root)
+        _run_fleet_parallel(child_request, _analyzer_names(analyzers), fleet, output_root)
+    fleet_duration = (time.perf_counter() - fleet_started) * 1000
 
-    return _finalize_fleet(request, fleet, output_root)
+    from .diagnostics import fleet_diagnostic
+    from .safe_fs import safe_write_text
+    cancelled = bool(request.cancel_check and request.cancel_check())
+    completed = {result.repo_id: result for result in fleet.results}
+    failed = {result["repo_id"] for result in fleet.failed}
+    context = fleet_diagnostic(
+        duration_milliseconds=round(fleet_duration),
+        outcome="cancelled" if cancelled else "failed" if failed else "completed",
+        requested_count=len(request.repo_paths),
+        children=[{"index": index,
+                   "outcome": "completed" if repo_id in completed else "failed" if repo_id in failed else "unknown",
+                   "scan": completed[repo_id].scan if repo_id in completed else None}
+                  for index, repo_id in enumerate(fleet_repo_ids(request.repo_paths))],
+    )
+    safe_write_text(output_root, output_root / "run-manifest.json", json.dumps({
+        "stages": [{"name": "fleet", "milliseconds": round(fleet_duration, 3)}],
+        "diagnostic_context": context.model_dump(mode="json"),
+    }) + "\n")
+
+    summary = _finalize_fleet(replace(request, output_format="all"), fleet, output_root)
+    summary.fleet_summary_path = output_root / (
+        "fleet-summary.json" if request.output_format == "json" else "fleet-summary.md")
+    if not summary.exit_code and not (request.cancel_check and request.cancel_check()):
+        from . import __version__
+        from .artifact_publisher import write_fleet_manifest
+        write_fleet_manifest(output_root, output_root.name, engine_version=__version__,
+                             repo_roots=[str(path.resolve()) for path in request.repo_paths])
+    return summary
+
+
+def _run_fleet(request: ScanRequest, analyzers: list | None) -> RunSummary:
+    if not request.atomic_output:
+        return _run_fleet_generation(request, analyzers)
+    from .artifact_manifest import make_run_id
+    from .artifact_publisher import (
+        diagnostic_context_from_generation, export_compatibility, generation_dir, publish_generation, write_diagnostic,
+    )
+    from .diagnostics import unknown_diagnostic
+    base = Path(request.output)
+    run_id = request.run_id or make_run_id()
+    stage = generation_dir(base, run_id)
+    ensure_output_dir(stage, mark=True)
+    staged = replace(request, output=stage, run_id=run_id, atomic_output=False)
+    def diagnostic(state: str) -> None:
+        context = diagnostic_context_from_generation(base, run_id, outcome=state)
+        write_diagnostic(base, run_id, state=state,
+                         context=context or unknown_diagnostic("fleet", outcome=state))
+    try:
+        summary = _run_fleet_generation(staged, analyzers)
+        cancelled = bool(request.cancel_check and request.cancel_check())
+        if summary.exit_code or cancelled:
+            diagnostic("cancelled" if cancelled else "failed")
+            if cancelled:
+                summary.exit_code = 130
+            return summary
+        publish_generation(base, run_id, cancelled=request.cancel_check)
+    except InterruptedError:
+        diagnostic("cancelled")
+        summary.exit_code = 130
+        return summary
+    except BaseException as exc:
+        try:
+            diagnostic("cancelled" if isinstance(exc, KeyboardInterrupt) else "failed")
+        except (OSError, ValueError):
+            pass
+        raise
+    try:
+        export_compatibility(base, stage, output_format=request.output_format)
+    except (OSError, ValueError):
+        request.echo("Warning: flat fleet export failed; the published generation remains available.", err=True)
+    from .retention import retain_after_publish
+    retain_after_publish(base, echo=request.echo)
+    summary.fleet_summary_path = stage / (
+        "fleet-summary.json" if request.output_format == "json" else "fleet-summary.md")
+    return summary
 
 
 def execute_scan_request(request: ScanRequest) -> RunSummary:
@@ -517,14 +677,32 @@ def execute_scan_request(request: ScanRequest) -> RunSummary:
     Raises ``ScanRequestError`` for configuration problems. Returns a
     ``RunSummary`` for normal termination (the exit code may be non-zero).
     """
+    validation_started = time.perf_counter()
     if not request.repo_paths:
+        validation_duration = round((time.perf_counter() - validation_started) * 1000)
+        if request.atomic_output:
+            from .artifact_manifest import make_run_id
+            from .artifact_publisher import write_diagnostic
+            from .diagnostics import startup_diagnostic
+            try:
+                write_diagnostic(request.output, request.run_id or make_run_id(), state="failed",
+                    error="Request configuration unavailable.",
+                    context=startup_diagnostic("request_validation",
+                        duration_milliseconds=validation_duration))
+            except (OSError, ValueError):
+                pass  # Diagnostic storage cannot mask the typed request error.
         raise ScanRequestError("At least one repository path is required.")
 
     try:
-        ensure_output_dir(request.output, mark=True)
+        if request.atomic_output:
+            from .artifact_publisher import prepare_output_root
+            prepare_output_root(request.output)
+        else:
+            ensure_output_dir(request.output, mark=True)
     except UnsafePathError as exc:
         raise ScanRequestError(str(exc)) from exc
 
+    selection_started = time.perf_counter()
     try:
         analyzers = request.analyzers
         if analyzers is None and request.modules:
@@ -533,6 +711,19 @@ def execute_scan_request(request: ScanRequest) -> RunSummary:
                 auto_install=request.install_missing,
             )
     except (MissingAnalyzersError, ValueError) as exc:
+        selection_duration = round((time.perf_counter() - selection_started) * 1000)
+        if request.atomic_output:
+            from .artifact_manifest import make_run_id
+            from .artifact_publisher import write_diagnostic
+            from .diagnostics import startup_diagnostic
+            try:
+                write_diagnostic(request.output, request.run_id or make_run_id(), state="failed",
+                                 error="Requested analyzer configuration unavailable.",
+                                 context=startup_diagnostic("select_analyzers",
+                                     duration_milliseconds=selection_duration,
+                                     requested_analyzers=request.modules))
+            except (OSError, ValueError):
+                pass  # Preserve the typed configuration failure if diagnostics cannot be written.
         raise ScanRequestError(str(exc)) from exc
 
     if len(request.repo_paths) == 1:

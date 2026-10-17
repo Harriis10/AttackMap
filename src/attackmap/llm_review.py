@@ -23,6 +23,7 @@ The CLI backend only requires the `claude` binary on PATH (no SDK install).
 from __future__ import annotations
 
 import json
+import ipaddress
 import os
 import re
 import shutil
@@ -30,9 +31,13 @@ import subprocess
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 from typing import Any, Literal
+from urllib.parse import urlsplit
+
+from .ai_budget import (AiBudget, AiBudgetExhausted, current_budget,
+                        current_reservation, reservation_scope)
 
 from .models import AttackPath, AttackSurface, Finding, ScanResult
 from .review_prompts import (
@@ -90,6 +95,146 @@ class LlmReviewResult:
     stop_reason: str | None
     usage: dict[str, int]
     backend: Literal["api", "cli"]
+    reference_validation: dict | None = None
+
+    @property
+    def usage_status(self) -> Literal["reported", "partial", "unknown"]:
+        if all(type(self.usage.get(key)) is int and self.usage[key] >= 0
+               for key in ("input_tokens", "output_tokens")):
+            return "reported"
+        return "partial" if self.usage else "unknown"
+
+
+
+def _validate_narrative_references(result: LlmReviewResult, rendered) -> LlmReviewResult:
+    """Check producer IDs in precisely the selected, sanitized prompt, not claims."""
+    import hashlib
+    from .citations import CitationContext, EvidenceReference, reference_tokens, validate_references
+
+    payload = json.loads(rendered.evidence_json)
+    prefixes = {"findings": "finding", "attack_surfaces": "surface", "attack_paths": "path",
+                "assets": "asset", "controls": "control", "notable_observations": "insight",
+                "detection_opportunities": "detect"}
+    records = {}
+    duplicates = set()
+    for collection, prefix in prefixes.items():
+        for entry in payload.get(collection, []):
+            identity = entry.get("id") if isinstance(entry, dict) else None
+            if not isinstance(identity, str) or not re.fullmatch(re.escape(prefix) + r":[A-Za-z0-9][A-Za-z0-9_.:+/-]*", identity):
+                continue
+            if identity in records:
+                duplicates.add(identity)
+            records[identity] = EvidenceReference(identity, hashlib.sha256(
+                json.dumps(entry, sort_keys=True, ensure_ascii=True).encode()).hexdigest())
+    context = CitationContext("", tuple(value for key, value in records.items() if key not in duplicates), ())
+    candidates = [token for token in reference_tokens(result.markdown)
+                  if token.lower().split(":", 1)[0] in {*prefixes.values(), "find"} and ":" in token]
+    # This status covers producer IDs only. File/line and snapshot support are
+    # separate questions and must not be implied by this check.
+    validated = validate_references(" ".join(candidates), context)
+    allowed = {record.evidence_id for record in context.records}
+    invalid = tuple(dict.fromkeys([*validated.invalid_references,
+                                  *(token for token in candidates if token not in allowed)]))
+    valid = tuple(token for token in candidates if token in allowed)
+    status = "invalid" if invalid else "valid" if valid else "missing"
+    source_tokens = [token for token in reference_tokens(result.markdown)
+                     if token not in candidates and not token.lower().startswith(("http://", "https://"))]
+    source_check = validate_references(" ".join(source_tokens), context)
+    unresolved_sources = list(source_check.invalid_references)
+    metadata = {"reference_validity": status, "scope": "selected_prompt_producer_evidence_ids",
+                "claim_support": "not_assessed",
+                "source_location_validation": "unvalidated" if unresolved_sources else "not_assessed",
+                "source_reference_validity": "unresolved" if unresolved_sources else "missing",
+                "source_references": unresolved_sources,
+                "unresolved_source_references": unresolved_sources,
+                "source_reference_scope": "No captured snapshot spans supplied by the selected narrative prompt; live files are not consulted.",
+                "context_sha256": hashlib.sha256(rendered.evidence_json.encode()).hexdigest(),
+                "valid_references": list(dict.fromkeys(valid)), "invalid_references": list(invalid),
+                "allowed_reference_count": len(allowed)}
+    notice = "> Evidence reference check: " + status + ". Claim support and source-location validity are not assessed."
+    if invalid:
+        notice += " Unresolved evidence IDs are present; inspect reference_validation metadata. IDs have not been corrected."
+    if unresolved_sources:
+        notice += " Source file/line references are unresolved: no selected snapshot spans establish their validity."
+    return replace(result, markdown=notice + "\n\n" + result.markdown, reference_validation=metadata)
+
+
+def _provider_call(call, *, max_tokens: int, timeout: float,
+                   budget: AiBudget | None, cli: bool = False) -> LlmReviewResult:
+    if current_budget() is not None and budget is not None and budget is not current_budget():
+        raise LlmReviewError("Cannot replace the active shared AI allowance")
+    ledger = budget or current_budget() or AiBudget(max_calls=1, max_seconds=timeout)
+    if cli and ledger.output_token_limit is not None:
+        raise LlmReviewError("A strict output-token allowance requires the API backend; CLI output limits are unverified.")
+    inherited = current_reservation()
+    owns = inherited is None or inherited.ledger is not ledger
+    reservation = None
+    result = None
+    try:
+        reservation = (ledger.reserve(max_output_tokens=max_tokens, timeout_seconds=timeout)
+                       if owns else inherited)
+        reservation.claim_dispatch()
+        with reservation_scope(reservation):
+            result = call(min(max_tokens, reservation.output_tokens))
+        return result
+    except AiBudgetExhausted as exc:
+        raise LlmReviewError(str(exc)) from exc
+    finally:
+        if owns and reservation is not None:
+            reservation.finish(getattr(result, "usage", None))
+
+
+def _provider_timeout(default: float) -> float:
+    reservation = current_reservation()
+    if reservation is None:
+        return default
+    reservation.check_dispatch()
+    return min(default, reservation.timeout_seconds, reservation.ledger.remaining_seconds)
+
+
+def _controlled_client(client):
+    reservation = current_reservation()
+    if reservation is not None and hasattr(client, "with_options"):
+        return client.with_options(max_retries=0, timeout=_provider_timeout(OPENAI_API_TIMEOUT_SECONDS))
+    return client
+
+
+def _literal_loopback_url(value: str | None) -> bool:
+    if not value:
+        return False
+    try:
+        parsed = urlsplit(value)
+        if parsed.scheme in {"http", "https"} and parsed.hostname == "localhost":
+            return True
+        return (parsed.scheme in {"http", "https"} and parsed.hostname is not None
+                and ipaddress.ip_address(parsed.hostname).is_loopback)
+    except ValueError:
+        return False
+
+
+def _normalize_local_endpoint(value: str | None) -> str | None:
+    """Pin the explicitly local hostname to a numeric address without DNS."""
+    if not _literal_loopback_url(value):
+        return value
+    parsed = urlsplit(value)
+    if parsed.username is not None or parsed.password is not None:
+        raise LlmReviewError("Local endpoint URLs cannot contain embedded credentials")
+    if parsed.hostname == "localhost":
+        authority = "127.0.0.1" + (f":{parsed.port}" if parsed.port is not None else "")
+        return parsed._replace(netloc=authority).geturl()
+    return value
+
+
+def _loopback_transport(sdk, base_url: str | None) -> dict:
+    if not _literal_loopback_url(base_url):
+        return {}
+    parsed = urlsplit(base_url)
+    if parsed.username or parsed.password:
+        raise LlmReviewError("Local endpoint URLs cannot contain embedded credentials")
+    factory = getattr(sdk, "DefaultHttpxClient", None)
+    if factory is None:
+        raise LlmReviewError("The SDK cannot isolate the local endpoint from proxy settings; upgrade the SDK.")
+    return {"http_client": factory(trust_env=False, follow_redirects=False)}
 
 
 # ---------- Auth + SDK backend ----------
@@ -109,12 +254,16 @@ def _resolve_sdk_client(api_key: str | None, client: Any | None) -> tuple[Any, s
         ) from exc
 
     resolved_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    base_url = _normalize_local_endpoint(os.environ.get("ANTHROPIC_BASE_URL"))
+    if _literal_loopback_url(base_url):
+        return anthropic.Anthropic(api_key="attackmap-local", base_url=base_url,
+            max_retries=0, **_loopback_transport(anthropic, base_url)), "local"
     if resolved_key:
-        return anthropic.Anthropic(api_key=resolved_key), "api_key"
+        return anthropic.Anthropic(api_key=resolved_key, max_retries=0), "api_key"
 
     auth_token = os.environ.get("ANTHROPIC_AUTH_TOKEN")
     if auth_token:
-        return anthropic.Anthropic(auth_token=auth_token), "auth_token"
+        return anthropic.Anthropic(auth_token=auth_token, max_retries=0), "auth_token"
 
     raise LlmReviewError(
         "No API credentials found. Set ANTHROPIC_API_KEY (per-token API billing) or "
@@ -142,7 +291,7 @@ def _usage_dict(usage: Any) -> dict[str, int]:
         "cache_read_input_tokens",
     ):
         value = getattr(usage, field, None)
-        if isinstance(value, int):
+        if type(value) is int and value >= 0:
             out[field] = value
     return out
 
@@ -159,10 +308,12 @@ def _run_via_sdk(
     speed: str = "standard",
 ) -> LlmReviewResult:
     sdk_client, _ = _resolve_sdk_client(api_key, client)
+    sdk_client = _controlled_client(sdk_client)
 
     request_kwargs: dict[str, Any] = {
         "model": model,
         "max_tokens": max_tokens,
+        "timeout": _provider_timeout(CLAUDE_CLI_TIMEOUT_SECONDS),
         "system": [
             {"type": "text", "text": rendered_system, "cache_control": {"type": "ephemeral"}}
         ],
@@ -356,7 +507,7 @@ def _run_via_claude_cli(
                     text=True,
                     capture_output=True,
                     check=False,
-                    timeout=CLAUDE_CLI_TIMEOUT_SECONDS,
+                    timeout=_provider_timeout(CLAUDE_CLI_TIMEOUT_SECONDS),
                     cwd=cwd,
                     env=scrub_cli_env(dict(os.environ), "claude"),
                 )
@@ -425,7 +576,7 @@ def _run_via_claude_cli(
         "cache_read_input_tokens",
     ):
         value = usage_payload.get(field)
-        if isinstance(value, int):
+        if type(value) is int and value >= 0:
             usage[field] = value
 
     cli_model = model
@@ -458,16 +609,18 @@ def _resolve_openai_client(api_key: str | None, client: Any | None) -> Any:
             "to use the OpenAI API backend, or install the `codex` CLI for the CLI backend."
         ) from exc
 
-    resolved_key = api_key or os.environ.get("OPENAI_API_KEY")
+    base_url = _normalize_local_endpoint(os.environ.get("OPENAI_BASE_URL"))
+    local = _literal_loopback_url(base_url)
+    resolved_key = "attackmap-local" if local else api_key or os.environ.get("OPENAI_API_KEY")
     if not resolved_key:
         raise LlmReviewError(
             "No OpenAI API credentials found. Set OPENAI_API_KEY, or install the `codex` "
             "CLI and run `codex login` to use --llm-backend cli."
         )
-    kwargs: dict[str, Any] = {"api_key": resolved_key, "timeout": OPENAI_API_TIMEOUT_SECONDS}
-    base_url = os.environ.get("OPENAI_BASE_URL")
+    kwargs: dict[str, Any] = {"api_key": resolved_key, "timeout": OPENAI_API_TIMEOUT_SECONDS, "max_retries": 0}
     if base_url:
         kwargs["base_url"] = base_url
+    kwargs.update(_loopback_transport(openai, base_url))
     return openai.OpenAI(**kwargs)
 
 
@@ -479,7 +632,11 @@ def _openai_output_text(response: Any) -> str:
     # shapes where the `output_text` convenience isn't populated.
     parts: list[str] = []
     for item in getattr(response, "output", None) or []:
+        if getattr(item, "type", None) != "message":
+            continue
         for block in getattr(item, "content", None) or []:
+            if getattr(block, "type", None) != "output_text":
+                continue
             value = getattr(block, "text", None)
             if isinstance(value, str) and value:
                 parts.append(value)
@@ -490,7 +647,7 @@ def _openai_usage(usage: Any) -> dict[str, int]:
     out: dict[str, int] = {}
     for field in ("input_tokens", "output_tokens"):
         value = getattr(usage, field, None)
-        if isinstance(value, int):
+        if type(value) is int and value >= 0:
             out[field] = value
     return out
 
@@ -505,7 +662,7 @@ def _run_via_openai_sdk(
     api_key: str | None,
     client: Any | None,
 ) -> LlmReviewResult:
-    oi = _resolve_openai_client(api_key, client)
+    oi = _controlled_client(_resolve_openai_client(api_key, client))
     reasoning_effort = OPENAI_EFFORT_MAP.get(effort, "high")
 
     try:
@@ -515,6 +672,7 @@ def _run_via_openai_sdk(
             input=rendered_user,
             reasoning={"effort": reasoning_effort},
             max_output_tokens=max_tokens,
+            timeout=_provider_timeout(OPENAI_API_TIMEOUT_SECONDS),
         )
     except LlmReviewError:
         raise
@@ -526,11 +684,17 @@ def _run_via_openai_sdk(
         raise LlmReviewError("OpenAI returned no text content for the review.")
 
     status = getattr(response, "status", None)
+    usage = _openai_usage(getattr(response, "usage", None))
+    if '"scope": "partial selected evidence review"' in rendered_user:
+        notice = "> Partial selected-evidence review. Omitted evidence and controls are unknown, not absent. Provider completion does not establish review completeness."
+        if usage.get("output_tokens", 0) >= max_tokens * 0.95:
+            notice += " Output allowance nearly exhausted; this review may be truncated."
+        markdown = notice + "\n\n" + markdown
     return LlmReviewResult(
         markdown=markdown,
         model=str(getattr(response, "model", None) or model),
         stop_reason=status if isinstance(status, str) else None,
-        usage=_openai_usage(getattr(response, "usage", None)),
+        usage=usage,
         backend="api",
     )
 
@@ -606,7 +770,7 @@ def _run_via_codex_cli(
                     text=True,
                     capture_output=True,
                     check=False,
-                    timeout=CODEX_CLI_TIMEOUT_SECONDS,
+                    timeout=_provider_timeout(CODEX_CLI_TIMEOUT_SECONDS),
                     cwd=cwd,
                     env=scrub_cli_env(dict(os.environ), "openai"),
                 )
@@ -665,6 +829,8 @@ def _resolve_openai_backend(
     # auto
     if client is not None:
         return "api"
+    if _literal_loopback_url(os.environ.get("OPENAI_BASE_URL")):
+        return "api"  # Never fall back from an explicit local endpoint to a cloud CLI.
     has_key = bool(api_key or os.environ.get("OPENAI_API_KEY"))
     # Prefer the API backend only when the openai SDK is importable; otherwise
     # fall back to the `codex` CLI (needs no SDK) so a key set against an
@@ -697,6 +863,8 @@ def _resolve_backend(
         return "cli"
     # auto
     if client is not None:
+        return "api"
+    if _literal_loopback_url(os.environ.get("ANTHROPIC_BASE_URL")):
         return "api"
     has_key = bool(
         api_key
@@ -744,6 +912,7 @@ def generate_llm_review(
     lens: str | None = None,
     avoid_titles: list[str] | None = None,
     critic_hint: str | None = None,
+    budget: AiBudget | None = None,
 ) -> LlmReviewResult:
     """Produce a narrative defensive review — or, with ``mode="hunt"``, ranked
     vulnerability hypotheses (#80) — by calling an LLM.
@@ -782,7 +951,17 @@ def generate_llm_review(
             "remediate": render_remediation_prompts,
             "triage": render_triage_prompts,
         }.get(mode, render_review_prompts)
-        rendered = render(scan, attack_surfaces, findings, attack_paths)
+        endpoint = (str(getattr(openai_client, "base_url", "") or os.environ.get("OPENAI_BASE_URL", ""))
+                    if provider == "openai" else str(getattr(client, "base_url", "") or os.environ.get("ANTHROPIC_BASE_URL", "")))
+        if mode == "review" and backend != "cli" and _literal_loopback_url(endpoint):
+            rendered = render_review_prompts(scan, attack_surfaces, findings, attack_paths,
+                                             max_evidence_chars=14000)
+        else:
+            rendered = render(scan, attack_surfaces, findings, attack_paths)
+
+    def review_call(*args, **kwargs):
+        result = _provider_call(*args, **kwargs)
+        return _validate_narrative_references(result, rendered) if mode == "review" else result
 
     if provider == "openai":
         resolved_model = (
@@ -795,22 +974,22 @@ def generate_llm_review(
                 backend, api_key=api_key, client=openai_client, codex_runner=codex_runner
             )
         if chosen == "api":
-            return _run_via_openai_sdk(
+            return review_call(lambda limit: _run_via_openai_sdk(
                 rendered.system,
                 rendered.user,
                 model=resolved_model,
                 effort=resolved_effort,
-                max_tokens=max_tokens,
+                max_tokens=limit,
                 api_key=api_key,
                 client=openai_client,
-            )
-        return _run_via_codex_cli(
+            ), max_tokens=max_tokens, timeout=OPENAI_API_TIMEOUT_SECONDS, budget=budget)
+        return review_call(lambda limit: _run_via_codex_cli(
             rendered.system,
             rendered.user,
             model=resolved_model,
             effort=resolved_effort,
             runner=codex_runner,
-        )
+        ), max_tokens=max_tokens, timeout=CODEX_CLI_TIMEOUT_SECONDS, budget=budget, cli=True)
 
     resolved_model = model or os.environ.get("ATTACKMAP_LLM_MODEL") or DEFAULT_MODEL
     if backend == "cli" and cli_runner is not None:
@@ -819,22 +998,22 @@ def generate_llm_review(
         chosen_backend = _resolve_backend(backend, api_key=api_key, client=client)
 
     if chosen_backend == "api":
-        return _run_via_sdk(
+        return review_call(lambda limit: _run_via_sdk(
             rendered.system,
             rendered.user,
             model=resolved_model,
             effort=resolved_effort,
-            max_tokens=max_tokens,
+            max_tokens=limit,
             api_key=api_key,
             client=client,
             speed=speed,
-        )
-    return _run_via_claude_cli(
+        ), max_tokens=max_tokens, timeout=CLAUDE_CLI_TIMEOUT_SECONDS, budget=budget)
+    return review_call(lambda limit: _run_via_claude_cli(
         rendered.system,
         rendered.user,
         model=resolved_model,
         runner=cli_runner,
-    )
+    ), max_tokens=max_tokens, timeout=CLAUDE_CLI_TIMEOUT_SECONDS, budget=budget, cli=True)
 
 
 __all__ = [

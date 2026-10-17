@@ -52,6 +52,27 @@ def test_make_run_id_is_unique_and_well_formed() -> None:
     assert len(first) > 16
 
 
+def test_make_run_id_is_unique_with_frozen_coarse_clock(monkeypatch) -> None:
+    from datetime import datetime, timezone
+    from uuid import UUID
+    import attackmap.artifact_manifest as manifest
+
+    class FrozenClock:
+        @staticmethod
+        def now(zone):
+            assert zone is timezone.utc
+            return datetime(2026, 10, 15, 12, 0, 0, tzinfo=timezone.utc)
+
+    monkeypatch.setattr(manifest, "datetime", FrozenClock)
+    identifiers = [make_run_id() for _ in range(1000)]
+    assert len(set(identifiers)) == len(identifiers)
+    for identifier in identifiers:
+        timestamp, suffix = identifier.split("-")
+        assert timestamp == "20261015T120000"
+        assert len(suffix) == 32
+        assert UUID(hex=suffix).version == 4
+
+
 def test_write_manifest_creates_section_files(tmp_path: Path) -> None:
     report_data = {
         "scan": {"root": str(tmp_path), "languages": ["python"]},

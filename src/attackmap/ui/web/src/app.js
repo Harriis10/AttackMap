@@ -2,7 +2,11 @@ let currentView = "overview";
 let openRow = -1;
 let selectedFinding = 0;
 let reportCache = null;
-let lastHasReport = false;
+let renderedReport = null;
+let renderedView = null;
+let refreshPromise = null;
+let refreshRequested = false;
+let refreshRevision = 0;
 let progressStarted = 0;
 
 function escapeHtml(s) {
@@ -13,7 +17,8 @@ function renderExploitability(rows, report) {
   if (!rows || !rows.length) {
     const chains = (report && report.dataFlows) || [];
     return `<div class="empty-state">
-      <h3>No route→sink exploitability paths</h3>
+      <h3>No static route→sink paths to rank</h3>
+      <p>Heuristic static analysis; runtime reachability and exploitability are not verified.</p>
       <p>The exploitability ranking is built from taint chains (source → variable → sink)
       traced inside request handlers. This scan traced <strong>${chains.length}</strong> such chains,
       so there is nothing to rank.</p>
@@ -23,7 +28,7 @@ function renderExploitability(rows, report) {
       defensive review still apply — this tab only ranks route→sink flows.</p>
     </div>`;
   }
-  return `<div class="exploit-list">${rows.map((row, i) => `
+  return `<p class="muted">Heuristic static analysis; runtime reachability and exploitability are not verified.</p><div class="exploit-list">${rows.map((row, i) => `
     <div class="exploit-row${openRow === i ? " open" : ""}" data-i="${i}">
       <div class="score">${escapeHtml(row.score)}</div>
       <div class="path">${escapeHtml(row.method)} ${escapeHtml(row.route)} → ${escapeHtml(row.sinkKind)}</div>
@@ -47,8 +52,8 @@ function renderOverview(r) {
     <div class="card"><div class="muted">Medium</div><div class="n">${sev.medium || 0}</div></div>
     <div class="card"><div class="muted">Low</div><div class="n">${sev.low || 0}</div></div>
   </div>
-  ${top ? `<div class="card" style="margin:0 16px 16px"><div class="muted">Most exploitable now</div>
-    <div>${escapeHtml(top.method || "")} ${escapeHtml(top.route || top.subject)} · score ${escapeHtml(top.score)}</div></div>` : ""}
+  ${top ? `<div class="card" style="margin:0 16px 16px"><div class="muted">Highest static route-to-sink risk score</div>
+    <div>${escapeHtml(top.method || "")} ${escapeHtml(top.route || top.subject)} · score ${escapeHtml(top.score)}</div><div class="muted">Heuristic static analysis; runtime reachability and exploitability are not verified.</div></div>` : ""}
   ${renderMarkdown((r.diagrams && r.diagrams.architecture) || "")}`;
 }
 
@@ -165,15 +170,15 @@ function renderFleet(fleet) {
 
 function renderSettings(state) {
   return `<div class="settings">
-    <p>API keys are stored with Windows DPAPI and injected only into the scan child process.</p>
+    <p>AI and CVE checks are off on first launch. AI sends repository metadata, findings and evidence to the selected provider; verification and remediation may include source excerpts. Secret masking is best effort. Providers control retention.</p><p>CVE checks send dependency ecosystems, package names and versions to OSV (api.osv.dev), including private package names. Custom AI endpoints can be remote.</p><p>API keys are stored with Windows DPAPI and injected only into the selected scan child process.</p>
     <label>Anthropic API key ${state.hasAnthropicKey ? "(saved)" : ""}</label>
     <input type="password" id="anth-key" placeholder="sk-ant-…" />
     <label>OpenAI API key ${state.hasOpenAIKey ? "(saved)" : ""}</label>
     <input type="password" id="oai-key" placeholder="sk-…" />
     <p>LM Studio (OpenAI-compatible local endpoint): keep the provider set to
     <strong>LM Studio (local)</strong> in the toolbar and use Base URL
-    <code>http://localhost:1234/v1</code>. LM Studio accepts any non-empty API key;
-    if your server requires one, save it as the OpenAI key above.</p>
+    <code>http://127.0.0.1:1234/v1</code>. LM Studio accepts any non-empty API key;
+    stored production keys are not forwarded to loopback endpoints.</p>
     <p><button type="button" class="run" id="save-keys" style="margin-left:0">Save keys</button></p>
   </div>`;
 }
@@ -191,7 +196,7 @@ function renderMain(state, report) {
     const items = (state.recents || []).map((r) => `<div class="list-row recent" data-path="${escapeHtml(r.path)}"><div>${escapeHtml(r.name)}<div class="muted">${escapeHtml(r.path)}</div></div></div>`).join("");
     return items || `<div class="empty">No recent scans.</div>`;
   }
-  if (!report) return `<div class="empty">Pick a repository and run a scan.</div>`;
+  if (!report) return `<div class="empty">${state.hasReport ? "Loading current report…" : "Pick a repository and run a scan."}</div>`;
   if (currentView === "overview") return renderOverview(report);
   if (currentView === "findings") return renderFindings(report);
   if (currentView === "exploitability") return renderExploitability(report.exploitability, report);
@@ -209,7 +214,7 @@ function renderMain(state, report) {
     if (report.aiReviewRequested) {
       return `<div class="empty">AI Review was requested but produced no output. Check the *.meta.json files in the report folder for backend details.</div>`;
     }
-    return `<div class="empty">AI Review is generated only when an LLM mode (review / hunt / remediate / triage) is enabled for a scan. Heuristic-only runs never send code off this machine.</div>`;
+    return `<div class="empty">Enable an AI mode to generate a review. Optional AI and CVE features have separate network and data disclosures in Settings.</div>`;
   }
   if (currentView === "diff") return renderMarkdown(report.diffMd || "No baseline diff. Re-run the same repo to compare.");
   if (currentView === "fleet") return renderFleet(report.fleet);
@@ -242,11 +247,11 @@ function paintStatus(state) {
   if (state.status === "running") {
     status.textContent = `Scanning… ${p.current || p.label || ""}`;
     run.textContent = "Cancel";
-    barWrap.hidden = false;
     const total = Number(p.total) || 0;
     const done = Number(p.done) || 0;
     if (p.event === "begin") progressStarted = Date.now();
-    const pct = total ? Math.min(100, Math.round((done / total) * 100)) : (p.event === "stage" ? 100 : 8);
+    barWrap.hidden = !total;
+    const pct = total ? Math.min(100, Math.round((done / total) * 100)) : 0;
     bar.style.width = pct + "%";
     if (total && done > 0 && progressStarted) {
       const elapsed = (Date.now() - progressStarted) / 1000;
@@ -272,6 +277,7 @@ function paintStatus(state) {
     delta.innerHTML = `<span class="new">+${state.newCount} new</span> · <span class="resolved">${state.resolvedCount} resolved</span>`;
   } else delta.textContent = "";
   watching.hidden = !state.watch;
+  watching.textContent = state.watchNotice ? `Watching — ${state.watchNotice}` : "Watching";
   reveal.hidden = !state.output;
   const label = document.getElementById("repo-label");
   if (document.activeElement !== label) {
@@ -290,37 +296,163 @@ function showMissing(state) {
   return `<div class="banner">Recommended analyzers are not installed: ${escapeHtml(names)}. Install them, then re-run — a heuristic-only pass may miss language-specific sinks.</div>`;
 }
 
-async function loadReportIfNeeded(state) {
-  if (state.status === "running" || !state.hasReport) {
+async function loadReportIfNeeded(state, isCurrent = () => true) {
+  if (!["idle", "done"].includes(state.status) || !state.hasReport
+      || !state.reportGeneration || state.reportRepositoryKey !== state.repositoryKey) {
     reportCache = null;
-    lastHasReport = false;
     return null;
   }
-  if (reportCache && lastHasReport) return reportCache;
+  if (reportCache && reportCache.generationId === state.reportGeneration
+      && reportCache.repositoryKey === state.repositoryKey) return reportCache;
+  reportCache = null;
+  selectedFinding = 0;
+  openRow = -1;
   try {
-    reportCache = await getReport();
-    lastHasReport = true;
+    const report = await getReport(state);
+    if (!isCurrent()) return null;
+    // Watch scans and native folder selection can change the server without
+    // a local refresh/post. Revalidate after the report body has arrived so
+    // an old response cannot become the current view.
+    const latest = await getFreshState();
+    if (!isCurrent()) return null;
+    if (!["idle", "done"].includes(latest.status) || !latest.hasReport
+        || latest.reportGeneration !== state.reportGeneration
+        || latest.repositoryKey !== state.repositoryKey
+        || latest.reportRepositoryKey !== state.repositoryKey) {
+      refreshRequested = true;
+      return null;
+    }
+    if (report.generationId === state.reportGeneration && report.repositoryKey === state.repositoryKey) {
+      reportCache = report;
+    }
   } catch {
-    reportCache = null;
+    // The generation may have changed between the state and report requests.
+    if (isCurrent()) reportCache = null;
   }
   return reportCache;
 }
 
-async function refresh() {
+const VIEW_TITLES = {
+  overview: "Overview",
+  findings: "Findings",
+  exploitability: "Exploitability",
+  paths: "Attack paths",
+  surface: "Attack surface",
+  diagrams: "Diagrams",
+  review: "Review",
+  "ai-review": "AI Review",
+  diff: "Diff",
+  fleet: "Fleet",
+  deps: "Dependencies",
+  secrets: "Secrets",
+  ci: "CI workflows",
+  flows: "Data flows",
+  analyzers: "Analyzers",
+  recents: "Recent scans",
+};
+
+function canExport(state) {
+  return ["idle", "done"].includes(state.status) && currentView !== "settings" && !!reportCache;
+}
+
+function paintViewbar(state) {
+  const bar = document.getElementById("viewbar");
+  const title = document.getElementById("view-title");
+  const mdBtn = document.getElementById("export-md");
+  const pdfBtn = document.getElementById("export-pdf");
+  title.textContent = VIEW_TITLES[currentView] || "";
+  const ok = canExport(state);
+  mdBtn.disabled = !ok;
+  pdfBtn.disabled = !ok;
+  bar.hidden = false;
+}
+
+function refresh() {
+  refreshRequested = true;
+  refreshRevision += 1;
+  if (!refreshPromise) {
+    refreshPromise = refreshPending().finally(() => { refreshPromise = null; });
+  }
+  return refreshPromise;
+}
+
+function paintMain(state, report) {
+  paintViewbar(state);
+  const focused = document.activeElement && document.activeElement.id;
+  if (currentView === "settings" && ["anth-key", "oai-key"].includes(focused)) return;
+  if (focused === "suppress-reason" && report && renderedReport === report && renderedView === currentView) return;
+  document.getElementById("view").innerHTML = showMissing(state) + renderMain(state, report);
+  renderedReport = report;
+  renderedView = currentView;
+}
+
+async function refreshPending() {
+  let state = null;
+  while (refreshRequested) {
+    refreshRequested = false;
+    const revision = refreshRevision;
+    const epoch = stateEpoch;
+    const isCurrent = () => revision === refreshRevision && epoch === stateEpoch;
+    try {
+      state = await getState();
+      if (!isCurrent()) { refreshRequested = true; continue; }
+      paintStatus(state);
+      const pendingReport = loadReportIfNeeded(state, isCurrent);
+      // Clear the old view while the new generation is still in flight.
+      if (!reportCache) paintMain(state, null);
+      const report = await pendingReport;
+      if (!isCurrent()) { refreshRequested = true; continue; }
+      paintMain(state, report);
+    } catch (err) {
+      if (!isCurrent()) { refreshRequested = true; continue; }
+      reportCache = null;
+      document.getElementById("view").innerHTML = `<div class="failed">${escapeHtml(err.message || String(err))}</div>`;
+      document.getElementById("export-md").disabled = true;
+      document.getElementById("export-pdf").disabled = true;
+      state = null;
+    }
+  }
+  return state;
+}
+
+function suggestedExportName(suffix) {
+  const repo = (reportCache && reportCache.repoName) || "report";
+  const safe = String(repo).replace(/[^a-zA-Z0-9-_]+/g, "-").replace(/^-+|-+$/g, "").toLowerCase() || "report";
+  return `attackmap-${safe}-${currentView}${suffix}`;
+}
+
+async function pickSavePath(suggestedName, extension) {
   try {
-    const state = await getState();
-    paintStatus(state);
-    const typing = document.activeElement && ["anth-key", "oai-key", "suppress-reason", "repo-label"].includes(document.activeElement.id);
-    if (typing && currentView === "settings") return state;
-    const report = state.status === "running" && currentView !== "settings" && currentView !== "recents"
-      ? null
-      : await loadReportIfNeeded(state);
-    if (typing) return state;
-    document.getElementById("main").innerHTML = showMissing(state) + renderMain(state, report);
-    return state;
-  } catch (err) {
-    document.getElementById("main").innerHTML = `<div class="failed">${escapeHtml(err.message || String(err))}</div>`;
-    return null;
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.pick_save) {
+      const chosen = await window.pywebview.api.pick_save(suggestedName, extension);
+      if (chosen) return chosen;
+    }
+  } catch {}
+  const res = await post("/api/pick-save", { suggestedName });
+  return res.path || "";
+}
+
+async function doExport(suffix) {
+  const path = await pickSavePath(suggestedExportName(suffix), suffix);
+  if (!path) return;
+  const result = await post("/api/export", { view: currentView, path });
+  if (!result.ok) {
+    alert(result.error || "Export failed.");
+    return;
+  }
+  if (suffix.toLowerCase() === ".pdf") {
+    // Optionally open a preview/print dialog after the PDF has been written.
+    try {
+      const state = await getState();
+      const md = await (await fetch(`/api/export-source?view=${encodeURIComponent(currentView)}`, {
+        headers: { "X-AttackMap-Token": state.token },
+      })).text();
+      window.openPdfFromMarkdown(md);
+    } catch {
+      // Preview is optional; the PDF file is already saved.
+    }
+  } else {
+    alert(`Saved to ${result.path}`);
   }
 }
 
@@ -383,7 +515,7 @@ document.getElementById("main").addEventListener("click", async (ev) => {
     const f = reportCache.findings[selectedFinding];
     if (!reason || !f) return;
     await post("/api/suppress", { id: f.id, reason });
-    lastHasReport = false;
+    reportCache = null;
     await refresh();
     return;
   }
@@ -418,7 +550,7 @@ document.getElementById("run").addEventListener("click", async () => {
       provider: isLmStudio ? "openai" : providerSel,
       model: document.getElementById("model").value.trim() || null,
       baseUrl: isLmStudio
-        ? (document.getElementById("base-url").value.trim() || "http://localhost:1234/v1")
+        ? (document.getElementById("base-url").value.trim() || "http://127.0.0.1:1234/v1")
         : "",
       modules: document.getElementById("analyzers").value,
     });
@@ -434,6 +566,35 @@ document.getElementById("settings-btn").addEventListener("click", () => {
   refresh();
 });
 document.getElementById("reveal").addEventListener("click", () => post("/api/reveal", {}));
+document.getElementById("export-md").addEventListener("click", () => doExport(".md"));
+document.getElementById("export-pdf").addEventListener("click", () => doExport(".pdf"));
+window.openPdfFromMarkdown = function(md) {
+  const w = window.open("about:blank", "_blank");
+  if (!w) return;
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AttackMap – Export</title>
+<link rel="stylesheet" href="/src/app.css">
+<link rel="stylesheet" href="/src/exploitability.css">
+<style>
+@media print {
+  body { background: #fff; color: #111; }
+  .md code { background: #eee; color: #111; }
+}
+</style>
+</head>
+<body>
+${renderMarkdown(md)}
+<script>window.print();<\/script>
+</body>
+</html>`;
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+};
 document.getElementById("watch").addEventListener("change", (ev) => {
   post("/api/watch", { enabled: ev.target.checked }).then(() => refresh());
 });
@@ -447,8 +608,10 @@ document.getElementById("llm-menu").addEventListener("change", (ev) => {
   post("/api/config", { llmMode: ev.target.value, provider: document.getElementById("provider").value });
 });
 
-refresh().finally(() => {
+async function pollState() {
+  await refresh();
   const boot = document.getElementById("boot");
   if (boot) boot.remove();
-});
-setInterval(refresh, 800);
+  setTimeout(pollState, 800);
+}
+pollState();

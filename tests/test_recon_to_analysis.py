@@ -1,4 +1,4 @@
-from attackmap.models import AttackSurface, AuthHint, DatabaseHint, ExternalCall, Route, ScanResult, ServiceHint
+from attackmap.models import AttackSurface, AuthHint, DatabaseHint, ExternalCall, Route, ScanResult, ServiceHint, TaintChain
 from attackmap.recon_to_analysis import to_attack_paths, to_attack_surface, to_findings, translate_recon
 
 
@@ -8,6 +8,7 @@ def test_translate_recon_produces_surface_findings_and_paths() -> None:
         routes=[Route(path="/webhook/stripe", method="POST", file="api/webhooks.py")],
         external_calls=[ExternalCall(target="https://api.stripe.com/v1/events", file="api/webhooks.py")],
         databases=[DatabaseHint(kind="postgresql", file="db/client.py")],
+        taint_chains=[TaintChain(route_path="/webhook/stripe", route_method="POST", route_file="api/webhooks.py", sink_kind="ssrf", sink_file="api/webhooks.py", hops=0)],
         files_scanned=3,
         languages=["python"],
     )

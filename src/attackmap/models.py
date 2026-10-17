@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal, get_args
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from .redact import redact_list, redact_text
 
@@ -563,7 +563,39 @@ SignalKind = Literal[
 ]
 
 
-class Signal(_RedactedEvidence):
+SourceRole = Literal["production", "test", "fixture", "mock", "example", "generated", "unknown"]
+
+
+class SignalClassification(BaseModel):
+    classification_version: Literal["1.0"] | None = None
+    source_role: SourceRole = "unknown"
+    evidence_kind: Literal["static_extraction", "unknown"] = "unknown"
+    classification_basis: Literal["unknown", "path_convention", "detector_owned", "artifact_manifest"] = "unknown"
+
+    @model_validator(mode="after")
+    def _require_positive_production_ownership(self):
+        if self.source_role == "production" and self.classification_basis != "detector_owned":
+            self.source_role = "unknown"
+        return self
+
+
+class SignalOrigin(SignalClassification):
+    analyzer: str | None = None
+    analyzer_version: str | None = None
+    metadata_status: Literal["known", "legacy_unknown"] = "legacy_unknown"
+    file: str | None = None
+    line: int | None = None
+    location_reason: str | None = None
+    evidence_text: str | None = None
+    properties: dict[str, str] = Field(default_factory=dict)
+
+
+class SignalConflict(BaseModel):
+    field: str
+    values: list[str] = Field(default_factory=list)
+
+
+class Signal(_RedactedEvidence, SignalClassification):
     """Unified view of a single static-analysis signal.
 
     Synthesized from the typed hint lists on `ScanResult` via `all_signals()`.
@@ -580,6 +612,9 @@ class Signal(_RedactedEvidence):
     confidence: float = 0.7
     evidence_text: str | None = None
     properties: dict[str, str] = Field(default_factory=dict)
+    observation_id: str | None = None
+    origins: list[SignalOrigin] = Field(default_factory=list)
+    conflicts: list[SignalConflict] = Field(default_factory=list)
 
     def location(self) -> str:
         """Stable `file:line` reference if line known, else just file."""
@@ -594,10 +629,22 @@ class AttackSurface(BaseModel):
     exposure: Literal["public", "internal", "unknown"] = "public"
     risk: Literal["low", "medium", "high"]
     auth_signals: list[str] = Field(default_factory=list)
+    # Nearby hints are candidates; only an analyzer-resolved route declaration
+    # establishes an auth requirement. Unknown does not mean unauthenticated.
+    auth: RouteAuth = "unknown"
     data_store_interaction: bool = False
     outbound_integration: bool = False
+    relationship_basis: Literal["unknown", "inferred_route_chain"] = "unknown"
+    context_signals: list[str] = Field(default_factory=list)
     rationale: list[str] = Field(default_factory=list)
     line: int | None = None
+
+    @computed_field
+    @property
+    def evidence_class(self) -> str:
+        from .evidence import surface_evidence_class
+
+        return surface_evidence_class(self)
 
     def location(self) -> str:
         return f"{self.file}:{self.line}" if self.line is not None else self.file
@@ -687,6 +734,9 @@ class Finding(_RedactedEvidence):
     # Titles are prose and may be reworded; this never changes. `None` for
     # findings from callers that don't set one (falls back to the title slug).
     rule_id: str | None = None
+    # Stable detector-owned entity key for rules emitting multiple findings.
+    # Aggregate rules leave this unset; never derive it from display prose.
+    entity_id: str | None = None
     evidence: list[str] = Field(default_factory=list)
     # Every location the finding covers — not capped like `evidence` (#214).
     locations: list[FindingLocation] = Field(default_factory=list)
@@ -858,8 +908,43 @@ class AnalyzerError(BaseModel):
     message: str = ""
 
 
+ResourceLimitScope = Literal["repo_index.file_bytes", "repo_index.index_bytes", "config_scanner.file_bytes"]
+
+
+class ResourceLimitEvent(BaseModel):
+    """An observed byte-limit branch, never a claim about uninstrumented limits."""
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    schema_version: Literal["1.0"] = "1.0"
+    event_id: str = Field(pattern=r"^[0-9a-f]{64}$")
+    category: Literal["file_bytes", "index_bytes"]
+    producer: Literal["repo_index", "config_scanner"]
+    limit: int = Field(gt=0, strict=True)
+    unit: Literal["bytes"] = "bytes"
+    action: Literal["skipped_file", "skipped_remaining_files"] = "skipped_file"
+    observed_bytes: int | None = Field(default=None, ge=0, strict=True)
+
+    @classmethod
+    def skipped_file(cls, *, producer: str, category: str, relative: str,
+                     limit: int, observed_bytes: int | None = None) -> ResourceLimitEvent:
+        import hashlib
+        import json
+        identity = ["resource-limit/1.0", producer, category, relative.replace("\\", "/"), limit, observed_bytes]
+        event_id = hashlib.sha256(json.dumps(identity, ensure_ascii=True, separators=(",", ":")).encode()).hexdigest()
+        return cls(event_id=event_id, producer=producer, category=category,
+                   limit=limit, observed_bytes=observed_bytes)
+
+
 class ScanResult(BaseModel):
     root: str
+    signals: list[Signal] = Field(default_factory=list)
+    # None means the analyzer did not enumerate coverage; hint locations are
+    # never substituted for the set of files actually scanned.
+    scanned_files: list[str] | None = None
+    resource_limit_events: list[ResourceLimitEvent] = Field(default_factory=list)
+    # Completeness applies ONLY to listed producer/category scopes, never all
+    # resource limits, analyzer coverage, timeouts or provider allowances.
+    resource_limit_scopes: list[ResourceLimitScope] = Field(default_factory=list)
+    resource_limit_reporting: Literal["complete", "partial", "unknown"] = "unknown"
     languages: list[str] = Field(default_factory=list)
     routes: list[Route] = Field(default_factory=list)
     external_calls: list[ExternalCall] = Field(default_factory=list)
@@ -896,9 +981,9 @@ class ScanResult(BaseModel):
     def all_signals(self) -> list[Signal]:
         """Synthesize the unified Signal stream from typed hint lists.
 
-        Cheap O(n) view — does not mutate `self`. Order: routes, external calls,
-        databases, then the hint families (auth, service, edge, entrypoint,
-        protocol, framework, secret) in that order.
+        Does not mutate `self`. Preserved normalized observations take
+        precedence over their lossy typed representatives; output uses stable
+        canonical ordering and retains corroborating origins and conflicts.
         """
         signals: list[Signal] = []
         for r in self.routes:
@@ -908,7 +993,7 @@ class ScanResult(BaseModel):
                     label=f"{r.method} {r.path}",
                     file=r.file,
                     line=r.line,
-                    properties={"method": r.method, "path": r.path},
+                    properties={"method": r.method, "path": r.path, "auth": r.auth},
                 )
             )
         for ext in self.external_calls:
@@ -919,6 +1004,7 @@ class ScanResult(BaseModel):
                     file=ext.file,
                     line=ext.line,
                     evidence_text=ext.evidence_text,
+                    properties={"method": ext.method or "unknown"},
                 )
             )
         for db in self.databases:
@@ -996,4 +1082,5 @@ class ScanResult(BaseModel):
                     },
                 )
             )
-        return signals
+        from .signal_provenance import normalized_view
+        return normalized_view(self, signals)

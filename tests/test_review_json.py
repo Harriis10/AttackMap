@@ -87,6 +87,6 @@ def test_defensive_review_json_distinguishes_observed_vs_inferred_classes() -> N
     payload = build_defensive_review_json(scan, surfaces, [], [])
     counts = payload["attack_surface"]["evidence_class_counts"]
 
-    assert counts["observed_runtime_public"] == 1
+    assert counts["static_observed"] == 1
     assert counts["inferred_protocol"] == 1
     assert counts["low_quality"] == 1

@@ -110,14 +110,21 @@ def test_parse_verdicts_without_marker_still_requires_line_start() -> None:
     assert set(out) == {"H2"}
 
 
-def test_enforce_citations_downgrades_uncited_votes() -> None:
+def test_enforce_citations_downgrades_uncited_votes(tmp_path: Path) -> None:
+    from attackmap.citations import capture_source_spans, context_from_payload
+    path = tmp_path / "src" / "app.py"
+    path.parent.mkdir()
+    path.write_text("guard\n" * 9)
+    spans = capture_source_spans(tmp_path, [("src/app.py", 9)], redact_line=lambda line: line)
+    context = context_from_payload({"taint_chains": [{"id": "taint:1", "sink": "src/app.py:9"}]},
+                                   spans, repository_root=str(tmp_path))
     hyps = [Hypothesis(id="H1", title="t", evidence="taint:1")]
     keys = ["src/app.py:9"]
     assert enforce_citations({"H1": ("refuted", "harmless")}, hyps, keys)["H1"][0] == "needs_review"
-    assert enforce_citations({"H1": ("refuted", "see src/app.py:9")}, hyps, keys)["H1"][0] == "refuted"
-    assert enforce_citations({"H1": ("confirmed", "app.py shows exec")}, hyps, keys)["H1"][0] == "confirmed"
-    assert enforce_citations({"H1": ("confirmed", "per taint:1")}, hyps, keys)["H1"][0] == "confirmed"
-    assert enforce_citations({"H1": ("refuted", "x")}, hyps, [])["H1"][0] == "refuted"
+    assert enforce_citations({"H1": ("refuted", "see src/app.py:9")}, hyps, keys, citation_context=context)["H1"][0] == "refuted"
+    assert enforce_citations({"H1": ("confirmed", "app.py shows exec")}, hyps, keys, citation_context=context)["H1"][0] == "needs_review"
+    assert enforce_citations({"H1": ("confirmed", "per taint:1")}, hyps, keys, citation_context=context)["H1"][0] == "confirmed"
+    assert enforce_citations({"H1": ("refuted", "x")}, hyps, [])["H1"][0] == "needs_review"
 
 
 def _result(markdown: str) -> LlmReviewResult:

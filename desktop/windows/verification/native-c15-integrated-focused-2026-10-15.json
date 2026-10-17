@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "scope": "One sealed-source integrated C15 focused suite on Windows Python3.13 with15pinnedofficialanalyzers; not fullrelease/matrix/native/frozen/package acceptance",
+  "result": {
+    "original_session": 68939,
+    "exit_code": 0,
+    "passed": 272,
+    "skipped": 0,
+    "seconds": 89.02,
+    "seconds_source": "pytest terminal summary; JUnit timing retained separately"
+  },
+  "test_files": [
+    "tests/test_diagnostic_adapters.py",
+    "tests/test_desktop_options.py",
+    "tests/test_desktop_publication.py",
+    "tests/test_fleet_publication.py",
+    "tests/test_application_boundary.py",
+    "tests/test_supply_chain.py",
+    "tests/test_diagnostic_context.py",
+    "tests/test_artifact_publisher.py",
+    "tests/test_pipeline.py",
+    "tests/test_pipeline_publication.py",
+    "tests/test_whole_scan_ai_limits.py",
+    "tests/test_resource_limit_events.py",
+    "tests/test_index.py",
+    "tests/test_scanned_coverage.py",
+    "tests/test_merge.py",
+    "tests/test_merge_signal_provenance.py",
+    "tests/test_config_scanner.py",
+    "tests/test_analyzers.py",
+    "tests/test_scan_limits.py"
+  ],
+  "environment": {
+    "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+    "executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py313\\venv\\Scripts\\python.exe",
+    "imports": {
+      "attackmap": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\__init__.py",
+      "attackmap.diagnostics": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\diagnostics.py",
+      "attackmap.artifact_publisher": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\artifact_publisher.py"
+    },
+    "official_analyzer_count": 15,
+    "versions": {
+      "attackmap": "1.5.1",
+      "annotated-doc": "0.0.5",
+      "annotated-types": "0.8.0",
+      "anthropic": "1.14.0",
+      "anyio": "4.15.1",
+      "attackmap-analyzer-atproto": "0.1.0",
+      "attackmap-analyzer-c": "0.1.0",
+      "attackmap-analyzer-cpp": "0.1.0",
+      "attackmap-analyzer-dotnet": "0.1.0",
+      "attackmap-analyzer-go": "0.1.0",
+      "attackmap-analyzer-iac": "0.1.0",
+      "attackmap-analyzer-java-spring": "0.1.0",
+      "attackmap-analyzer-node-service": "0.2.0",
+      "attackmap-analyzer-omeka-s": "0.1.0",
+      "attackmap-analyzer-php-laminas": "0.1.0",
+      "attackmap-analyzer-php-web": "0.1.0",
+      "attackmap-analyzer-python": "0.1.0",
+      "attackmap-analyzer-rust": "0.1.0",
+      "attackmap-analyzer-swift": "0.1.0",
+      "attackmap-analyzer-terraform": "0.1.0",
+      "attrs": "26.1.0",
+      "build": "1.6.1",
+      "colorama": "0.4.6",
+      "docstring_parser": "0.18.0",
+      "h11": "0.16.0",
+      "httpcore2": "2.13.1",
+      "httpx2": "2.13.1",
+      "idna": "3.20",
+      "iniconfig": "2.3.1",
+      "jiter": "0.17.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "markdown-it-py": "4.2.0",
+      "mdurl": "0.1.2",
+      "networkx": "3.6.1",
+      "openai": "3.31.0",
+      "opentelemetry-api": "1.45.1",
+      "packaging": "26.3",
+      "pip": "24.0",
+      "pluggy": "1.7.0",
+      "pydantic": "2.14.1",
+      "pydantic_core": "2.50.1",
+      "Pygments": "2.21.0",
+      "pyproject_hooks": "1.3.3",
+      "pytest": "9.1.1",
+      "PyYAML": "6.0.3",
+      "referencing": "0.37.0",
+      "rich": "15.0.0",
+      "rpds-py": "2026.9.1",
+      "setuptools": "65.5.0",
+      "shellingham": "1.5.4",
+      "sniffio": "1.3.1",
+      "truststore": "0.10.5",
+      "typer": "0.27.3",
+      "typing_extensions": "4.16.0",
+      "typing-inspection": "0.4.4"
+    }
+  },
+  "source_test_schema_fixture_inventory_count": 475,
+  "pre_post_inventory_identical": true,
+  "terminal": {
+    "exit_code": 0,
+    "finished_utc": "2026-10-15T16:29:19.447213+00:00",
+    "source_test_changes": [],
+    "unchanged": true
+  },
+  "evidence": [
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/pytest.log",
+      "sha256": "fbde1a954600b7a645e935efb67218eed13525297acdf1699dcfc50a48b00d90",
+      "bytes": 1013
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/results.xml",
+      "sha256": "ae4895c9f21fc895b912dffb4808ceb9f612126f0b60428e8bc24690dfa6d5eb",
+      "bytes": 35031
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/environment.json",
+      "sha256": "e822433c08372cf9cd1db612fc9214be17455ad47fab00fe7a64029e1aa8db55",
+      "bytes": 2387
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/run.json",
+      "sha256": "4ec6b76901ef0909b81787f82618536aa9c8bf84cee8ea679e07abe1b8fb45cf",
+      "bytes": 1005
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/test-files.json",
+      "sha256": "e4d5038bfecafd99e080739fa7ecc9faea17fc7b6d1bd5c0cb568331c43210aa",
+      "bytes": 694
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/pre-source-test-hashes.json",
+      "sha256": "0a5a2b6e2cab1b39ffe57eb59688179de9dc5e9c494b41d66c0e4943060ed41a",
+      "bytes": 53516
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/post-source-test-hashes.json",
+      "sha256": "0a5a2b6e2cab1b39ffe57eb59688179de9dc5e9c494b41d66c0e4943060ed41a",
+      "bytes": 53516
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/exit-code.json",
+      "sha256": "3cd90e90a4ef59e6105f6e4f39e950e8fc80e610450221f663bd6c17ffad20c2",
+      "bytes": 131
+    },
+    {
+      "path": ".pytest_cache/m3-c15-integrated-focused-e172dbb032b84011b13f47b5232d80e8/run-focused.py",
+      "sha256": "6962b67f396e99dcf7da360ae04bfee54e43f37ae02df866f3b2fe1cafd8056e",
+      "bytes": 2735
+    }
+  ],
+  "limitations": [
+    "Exact dirty workspace snapshot and dependencies recorded, not clean Git checkout or other Python/OS acceptance.",
+    "Later source changes require separate validation; this result stays bound to the saved inventories.",
+    "Shared audit subsequently identified early semantic CLI validation gaps (invalid repository, diff output without baseline, incompatible fleet flags) outside this focused acceptance claim; do not treat this result as proof those gaps are fixed.",
+    "No production edits, freeze, package, user-preview or live AI actions by this run."
+  ]
+}

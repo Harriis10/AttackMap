@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "scope": "One dependency/plugin tuple, four focused current-source test files; not a broad supported-version matrix.",
+  "matrix_directory": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-plugin-matrix-181b3898dcfa4f959964bb0b6cd18d03",
+  "environment": {
+    "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+    "executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-engine\\venv\\Scripts\\python.exe",
+    "loaded_attackmap_source": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\__init__.py",
+    "versions": {
+      "attackmap": "1.5.1",
+      "altgraph": "0.17.5",
+      "annotated-doc": "0.0.5",
+      "annotated-types": "0.8.0",
+      "anthropic": "1.14.0",
+      "anyio": "4.15.1",
+      "attackmap-analyzer-atproto": "0.1.0",
+      "attackmap-analyzer-c": "0.1.0",
+      "attackmap-analyzer-cpp": "0.1.0",
+      "attackmap-analyzer-dotnet": "0.1.0",
+      "attackmap-analyzer-go": "0.1.0",
+      "attackmap-analyzer-iac": "0.1.0",
+      "attackmap-analyzer-java-spring": "0.1.0",
+      "attackmap-analyzer-node-service": "0.2.0",
+      "attackmap-analyzer-omeka-s": "0.1.0",
+      "attackmap-analyzer-php-laminas": "0.1.0",
+      "attackmap-analyzer-php-web": "0.1.0",
+      "attackmap-analyzer-python": "0.1.0",
+      "attackmap-analyzer-rust": "0.1.0",
+      "attackmap-analyzer-swift": "0.1.0",
+      "attackmap-analyzer-terraform": "0.1.0",
+      "bottle": "0.13.4",
+      "cffi": "2.1.1",
+      "clr_loader": "0.3.1",
+      "colorama": "0.4.6",
+      "docstring_parser": "0.18.0",
+      "h11": "0.16.0",
+      "httpcore2": "2.13.1",
+      "httpx2": "2.13.1",
+      "idna": "3.20",
+      "iniconfig": "2.3.1",
+      "jiter": "0.17.0",
+      "markdown-it-py": "4.2.0",
+      "mdurl": "0.1.2",
+      "networkx": "3.7",
+      "openai": "3.31.0",
+      "opentelemetry-api": "1.45.1",
+      "packaging": "26.3",
+      "pefile": "2024.8.26",
+      "pip": "26.2.1",
+      "pluggy": "1.7.0",
+      "proxy_tools": "0.1.0",
+      "pycparser": "3.11",
+      "pydantic": "2.14.1",
+      "pydantic_core": "2.50.1",
+      "Pygments": "2.21.0",
+      "pyinstaller": "6.22.3",
+      "pyinstaller-hooks-contrib": "2026.8",
+      "pytest": "9.1.1",
+      "pythonnet": "3.2.1",
+      "pywebview": "6.2.1",
+      "pywin32-ctypes": "0.2.3",
+      "PyYAML": "6.0.3",
+      "rich": "15.0.0",
+      "setuptools": "84.0.0",
+      "shellingham": "1.5.4",
+      "sniffio": "1.3.1",
+      "truststore": "0.10.5",
+      "typer": "0.27.3",
+      "typing_extensions": "4.16.0",
+      "typing-inspection": "0.4.4"
+    },
+    "scope": "Four selected core/plugin compatibility test files only; not a broad supported-version matrix.",
+    "started_utc": "2026-10-15T13:14:41.914252+00:00"
+  },
+  "results": {
+    "tests": 54,
+    "passed": 54,
+    "failures": 0,
+    "errors": 0,
+    "skips": []
+  },
+  "slowest_cases": [
+    {
+      "name": "tests.test_analyzers::test_analyze_repository_respects_optional_detect",
+      "seconds": 124.476
+    },
+    {
+      "name": "tests.test_analyzers::test_analyze_repository_merges_and_deduplicates_multiple_analyzer_results",
+      "seconds": 119.264
+    },
+    {
+      "name": "tests.test_analyzers::test_discover_installed_analyzers_includes_php_web_when_installed",
+      "seconds": 0.175
+    },
+    {
+      "name": "tests.test_analyzers::test_analyze_repository_uses_installed_php_web_analyzer_for_php_routes",
+      "seconds": 0.092
+    },
+    {
+      "name": "tests.test_analyzers::test_registered_analyzers_merge_specialized_and_fallback_results",
+      "seconds": 0.082
+    }
+  ],
+  "limitations": [
+    "No full-suite repeat, native UI or live AI/provider call acceptance.",
+    "SDK packages are installed but this subset does not exercise live SDK transport.",
+    "Tests containing analyze_repository(\".\") inspect the development checkout; timing is not a plugin performance benchmark.",
+    "Build environment dependency edits began only after PyInstaller completed and released its read slot."
+  ],
+  "analyzer_distribution_provenance": [
+    {
+      "name": "attackmap-analyzer-atproto",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-atproto.git",
+        "vcs_info": {
+          "commit_id": "d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+          "requested_revision": "d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-c",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-c.git",
+        "vcs_info": {
+          "commit_id": "1c2789ef62e57b713789f483b9409a5c64644795",
+          "requested_revision": "1c2789ef62e57b713789f483b9409a5c64644795",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-cpp",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-cpp.git",
+        "vcs_info": {
+          "commit_id": "61fa5325696620665bf9ceab10ec7bed378888ec",
+          "requested_revision": "61fa5325696620665bf9ceab10ec7bed378888ec",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-dotnet",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-dotnet.git",
+        "vcs_info": {
+          "commit_id": "a1f00d05bc915940ed684f438c678e696f3de53d",
+          "requested_revision": "a1f00d05bc915940ed684f438c678e696f3de53d",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-go",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-go.git",
+        "vcs_info": {
+          "commit_id": "e92fc3de5c34485c4ea06032052ad0f6c21fd133",
+          "requested_revision": "e92fc3de5c34485c4ea06032052ad0f6c21fd133",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-iac",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-iac.git",
+        "vcs_info": {
+          "commit_id": "002efc484fc26ead1243aa34b610ccb2230147b0",
+          "requested_revision": "002efc484fc26ead1243aa34b610ccb2230147b0",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-java-spring",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-java-spring.git",
+        "vcs_info": {
+          "commit_id": "98dec01669ca90216cea4559495ee310224fd8f3",
+          "requested_revision": "98dec01669ca90216cea4559495ee310224fd8f3",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-node-service",
+      "version": "0.2.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-node-service.git",
+        "vcs_info": {
+          "commit_id": "8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+          "requested_revision": "8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-omeka-s",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attack-map-analyzer-omeka-s.git",
+        "vcs_info": {
+          "commit_id": "6b9e478689a825dbcba655de4ff0bf63a3a3c544",
+          "requested_revision": "6b9e478689a825dbcba655de4ff0bf63a3a3c544",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-php-laminas",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-php-laminas.git",
+        "vcs_info": {
+          "commit_id": "7eac668b6f64a1d3fc3fa731317cb253a98915ce",
+          "requested_revision": "7eac668b6f64a1d3fc3fa731317cb253a98915ce",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-php-web",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-php-web.git",
+        "vcs_info": {
+          "commit_id": "69143bd994ec9111cffc2f78d4020bad611e68c7",
+          "requested_revision": "69143bd994ec9111cffc2f78d4020bad611e68c7",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-python",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-python.git",
+        "vcs_info": {
+          "commit_id": "1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+          "requested_revision": "1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-rust",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-rust.git",
+        "vcs_info": {
+          "commit_id": "c2e02d2855e6102153140f2644504b1cc0a95fb8",
+          "requested_revision": "c2e02d2855e6102153140f2644504b1cc0a95fb8",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-swift",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-swift.git",
+        "vcs_info": {
+          "commit_id": "bae13e58a49f46c15992197517cf9c036a75d83c",
+          "requested_revision": "bae13e58a49f46c15992197517cf9c036a75d83c",
+          "vcs": "git"
+        }
+      }
+    },
+    {
+      "name": "attackmap-analyzer-terraform",
+      "version": "0.1.0",
+      "direct_url": {
+        "url": "https://github.com/mlaify/attackmap-analyzer-terraform.git",
+        "vcs_info": {
+          "commit_id": "736f2c22051ffca537785edebf941a2d5ddb2487",
+          "requested_revision": "736f2c22051ffca537785edebf941a2d5ddb2487",
+          "vcs": "git"
+        }
+      }
+    }
+  ]
+}

@@ -197,7 +197,8 @@ def test_ranking_more_matched_signals_ranks_higher(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_cli_suggest_prints_pip_lines_for_python_repo(tmp_path: Path) -> None:
+def test_cli_suggest_prints_pip_lines_for_python_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("attackmap.suggest._installed_analyzer_names", lambda: set())
     (tmp_path / "pyproject.toml").write_text("[project]\nname='x'\n", encoding="utf-8")
     (tmp_path / "app.py").write_text("print(1)\n", encoding="utf-8")
     result = runner.invoke(app, ["suggest", str(tmp_path)])
@@ -222,6 +223,7 @@ def test_cli_suggest_nonexistent_path_exits_1(tmp_path: Path) -> None:
 
 
 def test_cli_suggest_install_requires_confirmation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("attackmap.suggest._installed_analyzer_names", lambda: set())
     (tmp_path / "pyproject.toml").write_text("[project]\nname='x'\n", encoding="utf-8")
 
     called: list[str] = []

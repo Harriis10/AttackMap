@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T14:33:24.293403+00:00",
+  "status": "not_verified_identity_not_proven",
+  "scope": "One authorized invocation of frozen two-worker fleet fault-containment harness; no worker termination occurred. This is not evidence that worker-death containment passed or failed.",
+  "engine": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+    "sha256": "ebafb3277271d6a87703e07e0c4b4b5d21d3d296a0f200990223a439be280013"
+  },
+  "parent_pid": 76136,
+  "result": {
+    "status": "identity_not_proven_no_kill",
+    "parent_exit": 0,
+    "reason": "Parent identity unavailable; no kill issued"
+  },
+  "attempts": 1,
+  "termination_issued": false,
+  "automatic_rerun": false,
+  "limitations": [
+    "Parent was absent from the CIM snapshot or its executable identity was unavailable/mismatched; the retained result does not distinguish these causes.",
+    "Parent completed with exit code 0. No failure-path assertions were exercised.",
+    "No timing benchmark or platform acceptance is claimed."
+  ],
+  "remaining": "A separately authorized follow-up must establish exact live parent and worker identity before injecting one owned worker death.",
+  "evidence": [
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-de87f39370894f399d0ffa9e21f2fa9d\\owned-request.json",
+      "sha256": "e439f238db43dd6c3d5c976ef458f7a61524865782b2fbbeb2b711f31cae21e2",
+      "bytes": 1589
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-de87f39370894f399d0ffa9e21f2fa9d\\parent.json",
+      "sha256": "3d4533fb877df565e329974f160d64fcffceaf81b6105a0ac03e3423c60b003e",
+      "bytes": 829
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-de87f39370894f399d0ffa9e21f2fa9d\\parent.stdout.log",
+      "sha256": "8c43f249c8be23978d774147d756105c03942d3e1eac3e14e27b1f7ea13bb806",
+      "bytes": 720
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-de87f39370894f399d0ffa9e21f2fa9d\\parent.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-de87f39370894f399d0ffa9e21f2fa9d\\result.json",
+      "sha256": "85abe4cc4893145c6274bd55443721b0f30529a7ebd84c908b6ed0fa899b4300",
+      "bytes": 128
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\controlled_failure_probe.py",
+      "sha256": "121f55bb8a52de7daf99b45fd5cb5ad9f287d61b00f96c5676581354aecb13c5",
+      "bytes": 10298
+    }
+  ]
+}

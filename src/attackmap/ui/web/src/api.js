@@ -16,18 +16,46 @@ async function api(path, opts) {
   return res.text();
 }
 
+let stateRequest = null;
+let stateEpoch = 0;
+
 function getState() {
-  return api("/api/state");
+  if (!stateRequest) {
+    const epoch = stateEpoch;
+    stateRequest = api("/api/state")
+      .then((state) => ({ state, epoch }))
+      .finally(() => { stateRequest = null; });
+  }
+  return stateRequest.then(({ state, epoch }) => epoch === stateEpoch ? state : getState());
 }
 
-function getReport() {
-  return api("/api/report");
+async function getFreshState() {
+  // A command handler may already be reading a snapshot captured before the
+  // report response arrived. Drain that read before starting the validation
+  // read, while keeping the state stream serialized.
+  if (stateRequest) {
+    try { await stateRequest; } catch { /* retry with a fresh request below */ }
+  }
+  return getState();
 }
 
-function post(path, body) {
-  return api(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-AttackMap-Token": TOKEN },
-    body: JSON.stringify(body || {}),
+function getReport(state) {
+  const query = new URLSearchParams({
+    repositoryKey: state.repositoryKey,
+    generationId: state.reportGeneration,
   });
+  return api(`/api/report?${query}`);
+}
+
+async function post(path, body) {
+  stateEpoch += 1;
+  try {
+    return await api(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-AttackMap-Token": TOKEN },
+      body: JSON.stringify(body || {}),
+    });
+  } finally {
+    stateEpoch += 1;
+  }
 }

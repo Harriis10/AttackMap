@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "package_id": "dev-20261015190038-5667bbbf",
+  "archive_sha256": "66b93d333e5f0342a1b1fc173e52a7d31986f9a469a44d9409ef2ab78be5003f",
+  "native_dll_sha256": "65d3b7d4248696a741cc67b04d1b59023b9cedbb7c858cf2dfb4c5860e6fe690",
+  "engine_sha256": "81a304b93e1b4f5ff3c762510c362b5f230749f46a522ff0156fef1c8916e870",
+  "frozen_build_exit_code": 0,
+  "frozen_core_module_count": 104,
+  "snapshot_inputs_unchanged": true,
+  "live_source_differences_at_verification": [],
+  "frozen_worker_exit_code": 0,
+  "frozen_action_exit_code": 0,
+  "manifest_payload_count": 809,
+  "source_proof": "desktop/windows/verification/c14-narrative-wrapper-corrected-regression-2026-10-15.json",
+  "native_proof": ".pytest_cache/m3-beta-native-probe-c43701f9de3f488caaee8ef377512394/publish-proof.json",
+  "installed_workflow": {
+    "status": "passed scoped installed broker/API workflow",
+    "proof": "desktop/windows/verification/installed-beta-lmstudio-reference-validation-2026-10-15.json",
+    "run_id": "da6b4d5767534bcd859d83b68fab8a7c",
+    "exit_code": 0,
+    "seconds": 215.83287169999676,
+    "manual_ui_acceptance": false
+  },
+  "scope": "Accepted unsigned Windows M3 functional beta under user-scoped decision. Existing verification outcomes unchanged; remaining participant/manual UX/accessibility validation deferred to M4, not passed.",
+  "independent_review": {
+    "reviewer": "GPT-6 Astra subagent /root/astra_supervisor",
+    "scope": "Reviewed current source/test changes, matching ZIP/native/engine identities, actual installed terminal, generation/current pointer and manifest-bound report/AI Markdown/metadata. No manual UI or semantic model-claim pass asserted.",
+    "outcome": "pass for delivered preview scope"
+  },
+  "user_desktop_launch": {
+    "executable": "desktop/windows/artifacts/development-packages/dev-20261015190038-5667bbbf/app/AttackMap.NativeSpike.exe",
+    "window_id": 1838738,
+    "title": "AttackMap",
+    "scope": "Launched via sky; actual returned window observed, not complete interactive acceptance"
+  },
+  "acceptance": {
+    "date": "2026-10-15",
+    "authority": "Explicit user instruction",
+    "status": "Windows M3 functional beta accepted with limitations",
+    "deferred_to_m4": [
+      {
+        "criterion": "C19",
+        "scope": "Windows participant study",
+        "status": "deferred_unverified",
+        "destination": "M4"
+      },
+      {
+        "criterion": "C21/C25",
+        "scope": "Remaining Windows manual workflows, UX, visual states/scaling",
+        "status": "deferred_unverified",
+        "destination": "M4"
+      },
+      {
+        "criterion": "C24",
+        "scope": "Remaining Windows manual accessibility including Narrator",
+        "status": "deferred_unverified",
+        "destination": "M4"
+      }
+    ],
+    "performance": "Windows C26 removed",
+    "manual_validation_passed": false,
+    "global_cross_platform_m3_accepted": false
+  },
+  "evidence_retention": {
+    "cleanup_date": "2026-10-16",
+    "relocation_manifest": "desktop/windows/verification/retained-m3/relocation-manifest.json",
+    "native_proof_retained": "desktop/windows/verification/retained-m3/native/publish-proof.json",
+    "historical_paths": "Old cache/install paths in original evidence are historical; final evidence retained as exact-byte copies, old build copies removed."
+  }
+}

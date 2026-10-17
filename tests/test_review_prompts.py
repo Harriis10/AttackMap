@@ -88,9 +88,31 @@ def test_rendered_user_prompt_includes_evidence_pack() -> None:
     assert unfenced == user_prompt
 
     payload = json.loads(rendered.evidence_json)
-    assert payload["evidence_counts"]["observed_runtime_public"] == 1
+    assert payload["evidence_counts"]["static_observed"] == 1
     assert payload["evidence_counts"]["inferred_protocol"] == 1
     assert payload["evidence_counts"]["low_quality"] == 1
     assert any(item["id"].startswith("surface:") for item in payload["attack_surfaces"])
     assert any(item["id"].startswith("finding:") for item in payload["findings"])
     assert any(item["id"].startswith("path:") for item in payload["attack_paths"])
+
+
+def test_review_distinguishes_static_signals_from_runtime_exploitation():
+    scan = ScanResult(root='.', files_scanned=1)
+    finding = Finding(title='Potential unsafe evaluation', severity='high',
+        evidence=['A request-derived value is passed to eval in handler.ts'],
+        mitigation='Validate input and use a safer parser.', confidence='medium')
+    ordinary = render_review_prompts(scan, [], [finding], [])
+    bounded = render_review_prompts(scan, [], [finding], [], max_evidence_chars=14000)
+    for rendered in (ordinary, bounded):
+        assert 'SOURCE OBSERVATION' in rendered.system
+        assert 'STATIC INFERENCE' in rendered.system
+        assert 'RUNTIME UNVERIFIED' in rendered.system
+        assert 'not proof that authentication is absent globally' in rendered.system
+        assert 'not demonstrated RCE' in rendered.system
+        assert 'A citation establishes a reference, not claim support' in rendered.system
+        assert 'Cite only exact IDs present' in rendered.system
+        assert 'never use a blanket OBSERVED label' in rendered.user
+    before = json.loads(ordinary.evidence_json)['findings'][0]
+    after = json.loads(bounded.evidence_json)['findings'][0]
+    assert after == before  # Prompt strengthening does not rewrite observed evidence or IDs.
+    assert len(bounded.evidence_json) <= 14000

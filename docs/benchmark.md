@@ -76,3 +76,61 @@ their known-clean twins (basename-reduced path, fixed-host URL).
 
 "Before" is v0.5.0 scored against the same (extended) corpus. The full run
 history lives in [`evals/benchmark/HISTORY.md`](../evals/benchmark/HISTORY.md).
+
+## M0 scoped-evidence check (2026-10-15, source 1.5.1 working tree)
+
+The AM003 integration removes repository-wide datastore/outbound hints from
+route facts. On the existing four-repository, 13-label corpus, the measured
+results are:
+
+| Detector class | Precision | Recall | Matched labels |
+| --- | --- | --- | --- |
+| `injection` | 100% | 100% | 5/5 |
+| `bola` | 100% | 50% | 1/2 |
+| `unauth_state_change` | 100% | 40% | 2/5 |
+| `webhook_exposure` | Not defined (no predictions) | 0% | 0/1 |
+
+The webhook recall drop from 100% to 0% is an explicit limitation. The billing
+fixture performs fixed-target, parameterized operations that the current taint
+chains do not link to its webhook. The previous finding borrowed repository
+context as route reachability. Restoring coverage requires evidence of the
+handler's actual operations (AM012/AM013 and AM038), without restoring global
+hint propagation. The original labels and fixtures remain unchanged. These
+small-corpus results do not establish general detector quality or pass C27.
+
+Reproduce with `python -m attackmap bench --output reports/m0-benchmark`.
+
+## AM037 — versioned evaluation corpus (`attackmap evaluate`, C27)
+
+`src/attackmap/evaluation.py` adds the C27 evaluation infrastructure on top of
+`bench`: a **versioned corpus manifest** (schema + corpus version, frozen split
+seed) whose cases carry an explicit expectation — `positive`, `negative`
+(a near-twin that is genuinely not vulnerable), or `clean` (a whole repository
+expected to produce no scored-family findings) — each with a one-line rationale
+justified from the fixture source; a **repository-level split** with a seeded,
+deterministic ≥20% holdout recorded per side; per-family
+**TP/FP/FN, precision, recall, Wilson 95% intervals, sample counts, and an
+`experimental` flag** below 30 positive and 30 negative labeled cases; and a
+report (JSON + markdown) that always lists every advertised family.
+
+The **matching unit** is the labeled expectation: a case matches when a
+same-family finding cites its repository-relative file with exact route +
+method (line-window fallback when the finding cites no route) — the same
+semantics `bench` uses, with findings deduplicated by stable `finding_id`
+first. This is stricter than bench's finding-level precision: a grouped
+finding that over-cites a labeled-clean twin counts as an FP here.
+
+The shipped seed corpus (`fixtures/evaluation/corpus.json`, v0.1.0) holds
+**28 expectations over 10 repositories: 17 positive, 9 negative, 2 clean** —
+far below the C27 targets (30 repos, 300 positive, 300 negative, 10 clean);
+every family, including the unpopulated `crypto` family, is reported as
+experimental with the gap stated. Seed run highlights (deterministic,
+offline): injection 6/6 positives matched with no negative violated; both
+clean repos are currently violated (a Flask session-gate write is flagged
+unauthenticated, and a fixed-host `axios.post` is flagged SSRF) — honest
+false-positive signal the small bench corpus cannot express.
+
+```bash
+attackmap evaluate                                # print the report
+attackmap evaluate --corpus fixtures/evaluation/corpus.json --output reports/eval
+```

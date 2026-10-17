@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T16:36:17.060228+00:00",
+  "scope": "Independent narrow read-only review of stable earlyvalidation patch. Source counterexample only; no filesystem fault execution or test campaign.",
+  "finding": {
+    "status": "correction_requested",
+    "title": "Preliminary diagnostic directory marker write precedes strict junction validation",
+    "locations": [
+      {
+        "path": "src/attackmap/cli.py",
+        "lines": [
+          83,
+          525,
+          526
+        ]
+      },
+      {
+        "path": "src/attackmap/scan_service.py",
+        "symbol": "execute_scan_request emptyrepo branch"
+      },
+      {
+        "path": "src/attackmap/safe_fs.py",
+        "lines": [
+          217,
+          224,
+          245,
+          250
+        ]
+      },
+      {
+        "path": "src/attackmap/artifact_publisher.py",
+        "lines": [
+          311,
+          312
+        ]
+      }
+    ],
+    "counterexample": "A Windows junction in an output ancestor redirects root/junction/newreports outside intended path. ensure_output_dir(mark=True) can mkdir/write marker because safe_fs only checks is_symlink; strict write_diagnostic _safe detects junction afterward, too late to prevent preliminary side effect.",
+    "minimal_correction": "Remove preliminary ensure_output_dir/mark writes from startup diagnostic adapters. Pass the original Path output to write_diagnostic, whose strict _safe validates run component and every existing ancestor before its own safe directory creation. Preserve typed original errors if diagnostic storage fails."
+  },
+  "other_source_review_results": {
+    "one_diagnostic": "Semantic catch excludes realfleet/module execution; no outer duplication of laterdiagnostics.",
+    "original_errors": "BadParameter bare reraised; service typedemptyrequest error preserved after best-effort storage.",
+    "direct_generation": "Newwrites guarded off; no newdirectwrites.",
+    "durations": "Captured before diagnostic IO.",
+    "trust_environment": "ctx.call_on_close retains/restores prior value; invalidrepo fails before modification.",
+    "current_pointer": "No publication/currentpointer mutation in addedpaths."
+  },
+  "source_hashes": {
+    "src/attackmap/cli.py": "a44dbd41c50de8ffe0491a91dae5ab5cca31a49411a3d535baf80a1bfe5c6e7a",
+    "src/attackmap/scan_service.py": "5959151212964672d007c3ecb3f4dc75be11b813144f6085248f1c15c7a153da",
+    "src/attackmap/safe_fs.py": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+    "src/attackmap/artifact_publisher.py": "88cd8317f8dd1a567b72066019d618112919dd54017920a22f410f967fdd99ee",
+    "tests/test_diagnostic_adapters.py": "56ee68ac5eef2bde3a1b403578046e1602df0379332e2ea7dec9eaecefb3cb47"
+  },
+  "pending": "Atomic owner implementing correction and targeted checks; subsequent corrected review required before newseal.",
+  "limits": [
+    "No runtime reproduction claimed.",
+    "Not a broad C15 or platform acceptance review.",
+    "QA matrix roots/seals unchanged."
+  ]
+}

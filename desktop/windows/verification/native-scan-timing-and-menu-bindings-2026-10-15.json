@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "native_dll_sha256": "a7201cb2ecddd9eaeabd3481566e7237ce2c4298883c383a5a38fe2f92f5dce9",
+  "qa_output": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-timing-bound-menu-qa-27c7c2534ace4c01a943e1d7175e2920",
+  "pure_tests": {
+    "passed": 29,
+    "exit_code": 0,
+    "log": ".pytest_cache/m3-scan-timing-tests-corrected.log"
+  },
+  "build": {
+    "session": 4460,
+    "exit_code": 0
+  },
+  "menu_process": {
+    "exit_code": 0,
+    "pid": 86184,
+    "output": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-timing-bound-menu-qa-27c7c2534ace4c01a943e1d7175e2920",
+    "result_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-menu-bindings-corrected-0e74ce46dfd44176aac2a67d31b3e48b.json"
+  },
+  "menu_result": {
+    "passed": true,
+    "menus": [
+      {
+        "title": "File",
+        "items": [
+          {
+            "text": "Choose repository",
+            "shortcut": "Ctrl+Shift+O"
+          },
+          {
+            "text": "Open report",
+            "shortcut": "Ctrl+O"
+          },
+          {
+            "text": "Export displayed JSON",
+            "shortcut": "Ctrl+E"
+          },
+          {
+            "text": "Export displayed review Markdown",
+            "shortcut": ""
+          }
+        ]
+      },
+      {
+        "title": "Scan",
+        "items": [
+          {
+            "text": "Start scan",
+            "shortcut": "F5"
+          },
+          {
+            "text": "Cancel",
+            "shortcut": "Esc"
+          }
+        ]
+      },
+      {
+        "title": "View",
+        "items": [
+          {
+            "text": "Settings",
+            "shortcut": "Ctrl+,"
+          },
+          {
+            "text": "History",
+            "shortcut": "Ctrl+H"
+          }
+        ]
+      }
+    ],
+    "settingsSelected": true,
+    "historySelected": true,
+    "scanGuard": true,
+    "cancelGuard": true,
+    "initialEnabledStates": true,
+    "toggledEnabledStates": true,
+    "restoredEnabledStates": true,
+    "personalSettingsRead": false,
+    "limitations": "Metadata, loaded command enabled-state bindings and direct existing handler routing only; no popup, picker, Explorer, clipboard or manual keyboard acceptance."
+  },
+  "legacy_process": {
+    "exit_code": 0,
+    "pid": 82988,
+    "output": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-timing-bound-menu-qa-27c7c2534ace4c01a943e1d7175e2920"
+  },
+  "legacy_result": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "findingViewport": {
+      "width": 1055,
+      "height": 351,
+      "listHeight": 297,
+      "inspectorWidth": 519,
+      "stacked": false
+    },
+    "reviewVisible": true,
+    "sourceLocations": [
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 634,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      },
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 635,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      }
+    ],
+    "legacyIntegrity": "unverified",
+    "runSummary": "Selected repository: none\nRun state: Idle\nDisplayed report: Legacy import; run identity unavailable\nReport repository: C:\\tmp\\juice-shop\nScan timestamp unavailable; opened (client UTC): 2026-10-15T15:24:30.4800994Z; Engine scan timing unavailable (missing, unsupported or unverifiable).",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "source_and_log_hashes": {
+    "desktop/windows/AttackMap.NativeSpike/ScanTiming.cs": "aec6fc123ddf6029c59a196d0a78bab4c946eb21177117ac0bea121ba77b87be",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml": "eea54ec0612eb7c3b09610a0dc6992619abb81a9edf11c54fa7c23bd074e4165",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs": "4bf0c99c6dc9dedd092f2be46de13a81787268d72427960a29b75d49f9e07ada",
+    "desktop/windows/ScanTiming.Tests/Program.cs": "46fc675dc45e97b9a4253738dc9ea66ac045be4619b6346efc0cf567152cda5d",
+    "desktop/windows/ScanTiming.Tests/ScanTiming.Tests.csproj": "8eb1dc49123ffb8231788962db39249f73f37ee8d694d493c5ace11e809ccff8",
+    ".pytest_cache/m3-scan-timing-tests-corrected.log": "437e9dd12e91932469cc2cefc2a2b9db9db8aa4831085ea3f01986d350fb8e34",
+    ".pytest_cache/m3-native-timing-bound-menu-qa-build.log": "19a81f02efb9b23d892c32df9d50f911632e3618d2cd6826959e5a49d018a93b"
+  },
+  "preserved_negative_attempts": {
+    "timing_test": {
+      "session": 58984,
+      "exit_code": 1,
+      "forced_owned_child_cleanup": true,
+      "reason": "Known unhandled InvalidDataException after tamper case; original log retained; corrected catch explicitly includes InvalidDataException.",
+      "log": ".pytest_cache/m3-scan-timing-tests.log",
+      "owned_process": ".pytest_cache/m3-scan-timing-failed-owned-process.json"
+    },
+    "menu_binding": {
+      "process_record": ".pytest_cache/m3-native-menu-bindings-process.json",
+      "result": "Initial ElementName binding failed all three actual enabled-state checks; compiled x:Bind correction now passes."
+    }
+  },
+  "limitations": [
+    "Selected generation timing reader and pure filesystem/hash cases verified, but current real engine canonical timestamp fixture has not yet passed through MainWindow.",
+    "Legacy actual native import unknown fallback verified; no new repository scan.",
+    "Menu checks cover metadata, actual enabled-state binding and safe direct handler routing, not manual popup/keyboard/Narrator or OS-picker/Explorer/clipboard error injection.",
+    "User preview and immutable candidate package untouched; new QA source is not claimed present in that candidate."
+  ]
+}

@@ -87,6 +87,7 @@ from .srcpaths import evidence_locations
 from .gitref import added_lines, show_file, validate_ref
 from .safe_fs import contained_file, read_repo_text
 from .diff import finding_id
+from .finding_identity import legacy_finding_id
 from .models import Finding, finding_rule_id, title_slug
 
 __all__ = [
@@ -259,7 +260,7 @@ class SuppressionOutcome:
 class SuppressionSet:
     """Resolves whether a finding is suppressed and by which selector(s)."""
 
-    def __init__(self, suppressions: list[Suppression]) -> None:
+    def __init__(self, suppressions: list[Suppression], *, id_aliases: dict[str, str] | None = None) -> None:
         self._all = list(suppressions)
         # Governance (#238), filled by collect_suppressions.
         self.pending: list[Suppression] = []
@@ -269,6 +270,9 @@ class SuppressionSet:
         # Legacy title-slug selectors that matched, keyed by selector →
         # the stable rule id to use instead (#223).
         self.legacy_selectors: dict[str, str] = {}
+        self.id_aliases = dict(id_aliases or {})
+        self.legacy_ids: dict[str, str] = {}
+        self.ambiguous_legacy_ids: set[str] = set()
         self._by_id: dict[str, list[Suppression]] = {}
         self._rule_only: list[Suppression] = []  # rule set, no path → whole-rule
         self._path: list[Suppression] = []  # path set (optional rule scope)
@@ -309,9 +313,18 @@ class SuppressionSet:
         return False
 
     def _match(self, finding: Finding) -> list[Suppression]:
-        fid = finding_id(finding.title)
+        fid = finding_id(finding)
 
         exact = self._by_id.get(fid, [])
+        for old, target in self.id_aliases.items():
+            if target == fid and old in self._by_id:
+                exact = [*exact, *self._by_id[old]]
+                self.legacy_ids[old] = fid
+        old = legacy_finding_id(finding.title)
+        if (old != fid and old in self._by_id and old not in self.id_aliases
+                and old not in self.ambiguous_legacy_ids):
+            exact = [*exact, *self._by_id[old]]
+            self.legacy_ids[old] = fid
         if exact:
             return list(exact)
 
@@ -356,6 +369,10 @@ def apply_suppressions(
 ) -> SuppressionOutcome:
     active: list[Finding] = []
     suppressed: list[SuppressedFinding] = []
+    legacy_targets: dict[str, set[str]] = {}
+    for finding in findings:
+        legacy_targets.setdefault(legacy_finding_id(finding.title), set()).add(finding_id(finding))
+    suppset.ambiguous_legacy_ids.update(old for old, targets in legacy_targets.items() if len(targets) > 1)
     for finding in findings:
         matched = suppset.match(finding)
         if not matched:
@@ -371,7 +388,7 @@ def apply_suppressions(
             suppressed.append(
                 SuppressedFinding(
                     finding=finding,
-                    id=finding_id(finding.title),
+                    id=finding_id(finding),
                     rule=finding_rule_id(finding),
                     reason="; ".join(dict.fromkeys(m.reason for m in matched if m.reason)),
                     matched=matched,
@@ -380,6 +397,10 @@ def apply_suppressions(
         else:
             active.append(finding)
     notices: list[str] = []
+    for old in sorted(suppset.ambiguous_legacy_ids & suppset._by_id.keys()):
+        notices.append(f"Legacy id '{old}' matches multiple rules; review and replace it with an explicit stable id.")
+    for old, stable in sorted(suppset.legacy_ids.items()):
+        notices.append(f"id '{old}' is a legacy title-based reference; replace it with stable id '{stable}'.")
     for selector, stable in sorted(suppset.legacy_selectors.items()):
         notices.append(
             f"rule '{selector}' is a legacy title-based selector; use the stable rule id "

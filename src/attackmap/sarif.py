@@ -260,8 +260,11 @@ def _build_result(finding: Finding, *, suppression_reason: str | None = None) ->
 
     instances = _instances(finding)
     if not instances:
-        # Repo-level finding (no citable file): identity is the rule + title.
-        return [result(None, _stable_hash(rule_id, finding.title))]
+        # Repository-level aggregates use the explicit rule, never its prose.
+        # Rule-less legacy output retains its historical title-based identity.
+        from .finding_identity import finding_id
+        scope = finding_id(finding) if finding.rule_id else finding.title
+        return [result(None, _stable_hash(rule_id, scope))]
     results = [
         result(_sarif_location(file, line), _stable_hash(rule_id, fp or f"{file}:{line}"))
         for file, line, fp in instances

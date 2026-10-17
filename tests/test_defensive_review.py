@@ -189,6 +189,7 @@ def test_defensive_review_classifies_entrypoints_and_downweights_test_sources() 
             mitigation="Harden admin auth.",
             confidence="high",
             evidence=["route POST /admin in services/api/src/admin.ts"],
+            locations=[{"file": "services/api/src/admin.ts"}],
         ),
         Finding(
             title="Test-only weakness",
@@ -196,19 +197,20 @@ def test_defensive_review_classifies_entrypoints_and_downweights_test_sources() 
             mitigation="Fix test fixture.",
             confidence="high",
             evidence=["route GET /debug/test-route in tests/api/debug.test.ts"],
+            locations=[{"file": "tests/api/debug.test.ts"}],
         ),
     ]
     attack_paths = [AttackPath(name="Admin path", steps=["Entry: /admin"], impact="Privileged effect")]
 
     review = render_defensive_review(scan, surfaces, findings, attack_paths)
 
-    assert "- Observed runtime/public surfaces: 1" in review
-    assert "- Protocol/lexicon-derived surfaces (inferred): 1" in review
-    assert "- Internal-only surfaces: 1" in review
-    assert "- Test/example/mocked surfaces (down-weighted): 1" in review
+    assert "- Static source surfaces (static_observed): 2" in review
+    assert "- Protocol/lexicon-derived surfaces (inferred_protocol): 1" in review
+    assert "- Internal exposure candidates (static inference): 1" in review
+    assert "- Test/example/mocked surfaces (low_quality): 1" in review
     assert review.index("Runtime admin weakness") < review.index("Test-only weakness")
-    assert "Provenance: observed_runtime=100%, protocol_derived=0%, low_quality=0%" in review
-    assert "Provenance: observed_runtime=0%, protocol_derived=0%, low_quality=100%" in review
+    assert "Provenance: static_observed=100%, inferred_protocol=0%, low_quality=0%" in review
+    assert "Provenance: heuristic_static; source quality=low_quality; surface/path association=unknown" in review
 
 
 def test_recommendations_prefer_observed_evidence_over_low_quality_only_sources() -> None:
@@ -244,6 +246,7 @@ def test_recommendations_prefer_observed_evidence_over_low_quality_only_sources(
             mitigation="Enforce admin policy checks.",
             confidence="high",
             evidence=["route POST /admin in services/api/src/admin.ts"],
+            locations=[{"file": "services/api/src/admin.ts"}],
         ),
         Finding(
             title="Fixture-only issue",
@@ -251,16 +254,17 @@ def test_recommendations_prefer_observed_evidence_over_low_quality_only_sources(
             mitigation="Fix fixture route handling.",
             confidence="high",
             evidence=["route GET /debug/test-route in tests/api/debug.test.ts"],
+            locations=[{"file": "tests/api/debug.test.ts"}],
         ),
     ]
     attack_paths = [AttackPath(name="Admin path", steps=["Entry: /admin"], impact="Privileged effect")]
 
     review = render_defensive_review(scan, surfaces, findings, attack_paths)
 
-    assert "[observed] Enforce admin policy checks." in review
-    assert "[low-quality-evidence] Fix fixture route handling." in review
-    assert review.index("[observed] Enforce admin policy checks.") < review.index(
-        "[low-quality-evidence] Fix fixture route handling."
+    assert "[heuristic_static] Enforce admin policy checks." in review
+    assert "[heuristic_static] Fix fixture route handling." in review
+    assert review.index("[heuristic_static] Enforce admin policy checks.") < review.index(
+        "[heuristic_static] Fix fixture route handling."
     )
 
 
@@ -314,7 +318,7 @@ def test_hotspots_prefer_observed_runtime_over_protocol_only_surfaces() -> None:
     assert observed_idx < inferred_idx
 
 
-def test_recommendations_downrank_weakly_linked_findings_without_surface_evidence() -> None:
+def test_recommendations_do_not_upgrade_findings_from_prose_surface_linkage() -> None:
     scan = ScanResult(
         root=".",
         languages=["python"],
@@ -353,8 +357,8 @@ def test_recommendations_downrank_weakly_linked_findings_without_surface_evidenc
 
     review = render_defensive_review(scan, surfaces, findings, attack_paths)
 
-    assert "[observed] Enforce per-action admin authorization checks." in review
-    assert "[inferred-weak] Apply broad hardening pass." in review
-    assert review.index("[observed] Enforce per-action admin authorization checks.") < review.index(
-        "[inferred-weak] Apply broad hardening pass."
+    assert "[heuristic_static] Enforce per-action admin authorization checks." in review
+    assert "[heuristic_static] Apply broad hardening pass." in review
+    assert review.index("[heuristic_static] Enforce per-action admin authorization checks.") > review.index(
+        "[heuristic_static] Apply broad hardening pass."
     )

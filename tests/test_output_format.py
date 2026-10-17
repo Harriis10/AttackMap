@@ -114,11 +114,19 @@ def _repo(root: Path, name: str) -> Path:
     return d
 
 
+def _flat_generation_exports(out: Path) -> set[str]:
+    from attackmap.artifact_publisher import current_generation
+    generation = current_generation(out)
+    assert generation is not None
+    assert {p.name for p in out.iterdir() if p.is_dir()} == {generation.name}
+    return {p.name for p in out.iterdir() if p.is_file()} - {"current-generation.json"}
+
+
 def test_cli_format_json_writes_only_machine_readable(tmp_path: Path) -> None:
     out = tmp_path / "out"
     result = runner.invoke(app, ["analyze", str(_repo(tmp_path, "solo")), "-o", str(out), "--format", "json"])
     assert result.exit_code == 0, result.output
-    assert {p.name for p in out.iterdir()} == CLI_JSON_ARTIFACTS | {MANIFEST}
+    assert _flat_generation_exports(out) == CLI_JSON_ARTIFACTS | {MANIFEST}
 
 
 def test_cli_format_markdown_writes_only_human_readable(tmp_path: Path) -> None:
@@ -127,7 +135,7 @@ def test_cli_format_markdown_writes_only_human_readable(tmp_path: Path) -> None:
         app, ["analyze", str(_repo(tmp_path, "solo")), "-o", str(out), "--format", "markdown"]
     )
     assert result.exit_code == 0, result.output
-    assert {p.name for p in out.iterdir()} == MARKDOWN_ARTIFACTS | {MANIFEST}
+    assert _flat_generation_exports(out) == MARKDOWN_ARTIFACTS | {MANIFEST, "artifact-manifest.json"}
 
 
 def test_cli_rejects_unknown_format(tmp_path: Path) -> None:
@@ -144,7 +152,13 @@ def test_fleet_format_json_skips_markdown_summaries(tmp_path: Path) -> None:
     assert (out / "fleet-summary.json").exists()
     assert not (out / "fleet-summary.md").exists()
     assert not (out / "fleet-graph.md").exists()
-    assert {p.name for p in (out / "svca").iterdir()} == CLI_JSON_ARTIFACTS | {MANIFEST}
+    from attackmap.artifact_publisher import current_generation
+    parent = current_generation(out)
+    assert parent is not None
+    child = current_generation(parent / "svca")
+    assert child is not None
+    assert (child / "attackmap-report.json").is_file()
+    assert {p.name for p in (out / "svca").iterdir() if p.is_file()} == (CLI_JSON_ARTIFACTS | {MANIFEST}) - {".attackmap-output"}
 
 
 def test_fleet_format_markdown_skips_json_summary(tmp_path: Path) -> None:

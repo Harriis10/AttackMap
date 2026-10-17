@@ -132,7 +132,7 @@ def test_summary_lists_cross_repo_links() -> None:
     )
     md = render_fleet_summary(fleet)
     assert "Cross-repo links" in md
-    assert "1 client→server contract link(s)" in md
+    assert "1 observed client→server contract link(s)" in md
     assert "`client`" in md and "`server`" in md
     assert "/api/orders/<id>" in md and "c.py:3" in md
 
@@ -256,7 +256,7 @@ def test_multi_repo_cross_boundary_flow_end_to_end(tmp_path: Path) -> None:
         '    return requests.get("http://order-svc/api/orders/" + oid)\n',
         encoding="utf-8",
     )
-    server = tmp_path / "server"
+    server = tmp_path / "order-svc"  # the call's host must identify this repo (C28)
     server.mkdir()
     (server / "api.py").write_text(
         "from flask import Flask\napp = Flask(__name__)\n\n\n"
@@ -272,7 +272,7 @@ def test_multi_repo_cross_boundary_flow_end_to_end(tmp_path: Path) -> None:
     assert len(flows) == 1
     f = flows[0]
     assert f["basis"] == "taint" and f["detail"] == "sql_execute"
-    assert f["client_repo"] == "client" and f["server_repo"] == "server"
+    assert f["client_repo"] == "client" and f["server_repo"] == "order-svc"
     assert f["speculative"] is True
     # cites both sides
     assert f["client_location"].startswith("app.py")
@@ -299,7 +299,7 @@ def test_multi_repo_trust_gap_end_to_end(tmp_path: Path) -> None:
         '    return requests.post("http://order-svc/api/orders/" + oid)\n',
         encoding="utf-8",
     )
-    server = tmp_path / "server"
+    server = tmp_path / "order-svc"  # the call's host must identify this repo (C28)
     server.mkdir()
     (server / "api.py").write_text(
         "from flask import Flask\napp = Flask(__name__)\n\n\n"
@@ -313,7 +313,7 @@ def test_multi_repo_trust_gap_end_to_end(tmp_path: Path) -> None:
     data = json.loads((out / "fleet-summary.json").read_text())
     gaps = data["trust_gaps"]
     assert len(gaps) == 1
-    assert gaps[0]["client_repo"] == "client" and gaps[0]["server_repo"] == "server"
+    assert gaps[0]["client_repo"] == "client" and gaps[0]["server_repo"] == "order-svc"
     assert gaps[0]["method"] == "POST"
     assert gaps[0]["speculative"] is True
     assert "Trust-assumption gaps" in (out / "fleet-summary.md").read_text()

@@ -1,0 +1,446 @@
+{
+  "exit_code": 0,
+  "seconds": 215.83287169999676,
+  "protocol_errors": [],
+  "revisions_strictly_increasing": true,
+  "terminal_events": [
+    {
+      "schema_version": "1.1",
+      "run_id": "da6b4d5767534bcd859d83b68fab8a7c",
+      "repository_id": "C:\\tmp\\juice-shop",
+      "generation": 1,
+      "revision": 108,
+      "kind": "terminal",
+      "state": "completed",
+      "execution_outcome": "succeeded",
+      "policy_outcome": "not_evaluated",
+      "artifact_readiness": "ready",
+      "error": null,
+      "limitations": [],
+      "artifact_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\installed-bundled-ai-beta-e3636c6d055f4d46ae12f2d32e24b351\\output\\da6b4d5767534bcd859d83b68fab8a7c\\attackmap-report.json"
+    }
+  ],
+  "generation_validation": {
+    "status": "validated by current core API",
+    "manifest": {
+      "schema_version": "1.0.0",
+      "artifact_type": "attackmap_artifact_manifest",
+      "generation_id": "da6b4d5767534bcd859d83b68fab8a7c",
+      "engine_version": "1.5.1",
+      "created_at": "2026-10-15T19:08:00Z",
+      "exit_state": {
+        "exit_code": 0,
+        "status": "succeeded"
+      },
+      "run_identity": {
+        "repo_root": "C:\\tmp\\juice-shop",
+        "repo_name": "juice-shop",
+        "analyzers": [
+          {
+            "name": "python",
+            "version": "0.1.0",
+            "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+            "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+            "ecosystems": [
+              "python",
+              "django",
+              "starlette",
+              "aiohttp",
+              "sanic",
+              "litestar"
+            ]
+          },
+          {
+            "name": "javascript-web",
+            "version": "0.2.0",
+            "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+            "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+            "ecosystems": [
+              "javascript",
+              "typescript",
+              "express",
+              "fastify",
+              "koa",
+              "node"
+            ]
+          },
+          {
+            "name": "python-web",
+            "version": "0.1.0",
+            "description": "Built-in analyzer for Python web frameworks and related security signals.",
+            "scope": "Python source files handled by the current scanner-backed web heuristics.",
+            "ecosystems": [
+              "python",
+              "fastapi",
+              "flask"
+            ]
+          },
+          {
+            "name": "terraform",
+            "version": "0.1.0",
+            "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+            "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+            "ecosystems": [
+              "hcl",
+              "terraform",
+              "iac",
+              "aws",
+              "azure",
+              "gcp"
+            ]
+          },
+          {
+            "name": "config",
+            "version": "0.1.0",
+            "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+            "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+            "ecosystems": [
+              "yaml",
+              "toml",
+              "json",
+              "ini",
+              "env"
+            ]
+          },
+          {
+            "name": "iac",
+            "version": "0.1.0",
+            "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+            "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS §2 documented for bluesky-social/pds.",
+            "ecosystems": [
+              "docker",
+              "docker-compose",
+              "github-actions",
+              "env-template",
+              "shell-installer"
+            ]
+          },
+          {
+            "name": "default",
+            "version": "0.1.0",
+            "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+            "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+            "ecosystems": []
+          }
+        ]
+      },
+      "sections": [
+        {
+          "name": "scan",
+          "path": "scan.json",
+          "format": "json",
+          "role": "structured-scan-result",
+          "checksum": "c8b0e34b6ca2a71e237d30767dc25e9ab03c42e1f82d8dd58e50d8ad385faab4",
+          "size_bytes": 4018553
+        },
+        {
+          "name": "findings",
+          "path": "findings.json",
+          "format": "json",
+          "role": "findings-array",
+          "checksum": "e83c54b3116a9c94570476d0feda95f78d271b9f53a2913bc3b361227a1c4947",
+          "size_bytes": 483993
+        },
+        {
+          "name": "attack_paths",
+          "path": "attack_paths.json",
+          "format": "json",
+          "role": "attack-paths-array",
+          "checksum": "c10f4f84dc3445dfd36d9cd6f728aada3d90c7bf6508368e78cbd287940e6c04",
+          "size_bytes": 737
+        },
+        {
+          "name": "attack_surfaces",
+          "path": "attack_surfaces.json",
+          "format": "json",
+          "role": "attack-surfaces-array",
+          "checksum": "bdd68bc837286294ef25cac91d4cedcab734860570a9d7cccd9259d0426e2fe0",
+          "size_bytes": 248156
+        },
+        {
+          "name": "exploitability",
+          "path": "exploitability.json",
+          "format": "json",
+          "role": "exploitability-array",
+          "checksum": "e8ba4469445228be11b17e9991607d875b48814f7df0cac441f32c272f9dbe33",
+          "size_bytes": 44104
+        },
+        {
+          "name": "suppressed_findings",
+          "path": "suppressed_findings.json",
+          "format": "json",
+          "role": "suppressed-findings-array",
+          "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "size_bytes": 3
+        },
+        {
+          "name": "defensive_review",
+          "path": "defensive-review.json",
+          "format": "json",
+          "role": "defensive-review-structured",
+          "checksum": "ad48d6ff32282bcbeb9c6ba3d8045a5e1e3668cc604289c752b471f27b5a7566",
+          "size_bytes": 5241962
+        },
+        {
+          "name": "review_context_pack",
+          "path": "review-context-pack.json",
+          "format": "json",
+          "role": "review-context-pack",
+          "checksum": "361f02391934c5463e5c3157049f6be1877da1e4c88e4b0ea249ce965ab15b44",
+          "size_bytes": 5502218
+        }
+      ],
+      "compatibility_exports": [
+        {
+          "name": "legacy_report",
+          "path": "attackmap-report.json",
+          "format": "json",
+          "role": "monolithic-legacy-report",
+          "checksum": "185781a519e383603052679b16f8b559f47f08005de12453ab92268708cc3ffd",
+          "size_bytes": 16353187
+        },
+        {
+          "name": "run-manifest.json",
+          "path": "run-manifest.json",
+          "format": "json",
+          "role": "compatibility-export",
+          "checksum": "36f9d7891a1a532cf788441033bb7f917e66bdf63d9638189f96b4d84f261cf6",
+          "size_bytes": 5708
+        },
+        {
+          "name": "attackmap-report.sarif",
+          "path": "attackmap-report.sarif",
+          "format": "sarif",
+          "role": "compatibility-export",
+          "checksum": "54b5c70d70c4832088d2eed880eaa2e8bf112969d9ff7f5a18f41c956d522a68",
+          "size_bytes": 1708211
+        },
+        {
+          "name": "defensive-review-llm.md",
+          "path": "defensive-review-llm.md",
+          "format": "md",
+          "role": "compatibility-export",
+          "checksum": "7756d8b374da9d75910292f1faefae594ab3327b879b0bdc9bf5392d210d57cd",
+          "size_bytes": 7689
+        },
+        {
+          "name": "defensive-review-llm.meta.json",
+          "path": "defensive-review-llm.meta.json",
+          "format": "json",
+          "role": "compatibility-export",
+          "checksum": "5a93320537f9fabba05c673907581f1b7f002ec2f09b094158240cd72298c66d",
+          "size_bytes": 1650
+        },
+        {
+          "name": "architecture.md",
+          "path": "architecture.md",
+          "format": "md",
+          "role": "compatibility-export",
+          "checksum": "546ee30820fd064863d8d726d635602298a36fad87af868aa6ab7ebdd78fea02",
+          "size_bytes": 19201
+        },
+        {
+          "name": "attack-surface.md",
+          "path": "attack-surface.md",
+          "format": "md",
+          "role": "compatibility-export",
+          "checksum": "5ea5c5f3d555df1e6cab20192273ac3ff74231d7064da6e56704799cf79b7f5c",
+          "size_bytes": 7606
+        },
+        {
+          "name": "defensive-review.md",
+          "path": "defensive-review.md",
+          "format": "md",
+          "role": "compatibility-export",
+          "checksum": "99767f71e640efa588d9de5d7f3ca3edb226cdd199211eff87f5462598d63d3e",
+          "size_bytes": 17352
+        },
+        {
+          "name": "attackmap-exploitability.md",
+          "path": "attackmap-exploitability.md",
+          "format": "md",
+          "role": "compatibility-export",
+          "checksum": "23c3bc4999099cec68e15f4ec8b2232903161d80a5460e413d5e37cd2c4279da",
+          "size_bytes": 24548
+        },
+        {
+          "name": "attackmap-paths.md",
+          "path": "attackmap-paths.md",
+          "format": "md",
+          "role": "compatibility-export",
+          "checksum": "6dc926b2fa8760d25f11ddccdfc645d0a42d512e5c9844867b251479c2f06f97",
+          "size_bytes": 875
+        },
+        {
+          "name": "attackmap-topology.md",
+          "path": "attackmap-topology.md",
+          "format": "md",
+          "role": "compatibility-export",
+          "checksum": "7b85b3b2402a48fb55474bae8a0ed2df987646e07a117f70d54a25a9387bbe67",
+          "size_bytes": 337
+        },
+        {
+          "name": "attackmap-paths.dot",
+          "path": "attackmap-paths.dot",
+          "format": "dot",
+          "role": "compatibility-export",
+          "checksum": "a44d41cee8c8e57723c7ca3b43cc6f75fdaea1043e2c3ba54fb89a9b5dd35d6d",
+          "size_bytes": 1006
+        },
+        {
+          "name": "attackmap-topology.dot",
+          "path": "attackmap-topology.dot",
+          "format": "dot",
+          "role": "compatibility-export",
+          "checksum": "c75db8f35774ffe3206990a4ca12b01325579c991db763241cdca9ba47bc0d76",
+          "size_bytes": 293
+        }
+      ],
+      "publication": {
+        "immutable": true
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "path": "current-generation.json",
+      "sha256": "948364caf2f718b2f941299285a5daffa84a4e8e06690eff178c8008d3ef8917",
+      "bytes": 138
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\.attackmap-output",
+      "sha256": "dd5681dafc3c23c35b9b232ee39cc2fc8f6220390e8df423f67ed9da662c9ac5",
+      "bytes": 84
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\architecture.md",
+      "sha256": "546ee30820fd064863d8d726d635602298a36fad87af868aa6ab7ebdd78fea02",
+      "bytes": 19201
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\artifact-manifest.json",
+      "sha256": "b93191854c86d3bf7d8fad7d484f981605ee7b7a18890fec4337016ddd161dcf",
+      "bytes": 9339
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attack-surface.md",
+      "sha256": "5ea5c5f3d555df1e6cab20192273ac3ff74231d7064da6e56704799cf79b7f5c",
+      "bytes": 7606
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attackmap-exploitability.md",
+      "sha256": "23c3bc4999099cec68e15f4ec8b2232903161d80a5460e413d5e37cd2c4279da",
+      "bytes": 24548
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attackmap-paths.dot",
+      "sha256": "a44d41cee8c8e57723c7ca3b43cc6f75fdaea1043e2c3ba54fb89a9b5dd35d6d",
+      "bytes": 1006
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attackmap-paths.md",
+      "sha256": "6dc926b2fa8760d25f11ddccdfc645d0a42d512e5c9844867b251479c2f06f97",
+      "bytes": 875
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attackmap-report.json",
+      "sha256": "185781a519e383603052679b16f8b559f47f08005de12453ab92268708cc3ffd",
+      "bytes": 16353187
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attackmap-report.sarif",
+      "sha256": "54b5c70d70c4832088d2eed880eaa2e8bf112969d9ff7f5a18f41c956d522a68",
+      "bytes": 1708211
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attackmap-topology.dot",
+      "sha256": "c75db8f35774ffe3206990a4ca12b01325579c991db763241cdca9ba47bc0d76",
+      "bytes": 293
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attackmap-topology.md",
+      "sha256": "7b85b3b2402a48fb55474bae8a0ed2df987646e07a117f70d54a25a9387bbe67",
+      "bytes": 337
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attack_paths.json",
+      "sha256": "c10f4f84dc3445dfd36d9cd6f728aada3d90c7bf6508368e78cbd287940e6c04",
+      "bytes": 737
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\attack_surfaces.json",
+      "sha256": "bdd68bc837286294ef25cac91d4cedcab734860570a9d7cccd9259d0426e2fe0",
+      "bytes": 248156
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\defensive-review-llm.md",
+      "sha256": "7756d8b374da9d75910292f1faefae594ab3327b879b0bdc9bf5392d210d57cd",
+      "bytes": 7689
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\defensive-review-llm.meta.json",
+      "sha256": "5a93320537f9fabba05c673907581f1b7f002ec2f09b094158240cd72298c66d",
+      "bytes": 1650
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\defensive-review.json",
+      "sha256": "ad48d6ff32282bcbeb9c6ba3d8045a5e1e3668cc604289c752b471f27b5a7566",
+      "bytes": 5241962
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\defensive-review.md",
+      "sha256": "99767f71e640efa588d9de5d7f3ca3edb226cdd199211eff87f5462598d63d3e",
+      "bytes": 17352
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\desktop-request.json",
+      "sha256": "5550c3574a9b98373ab37a0f51dbcaf09ea04d9946dd66fde8b559f2960c9af8",
+      "bytes": 690
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\exploitability.json",
+      "sha256": "e8ba4469445228be11b17e9991607d875b48814f7df0cac441f32c272f9dbe33",
+      "bytes": 44104
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\findings.json",
+      "sha256": "e83c54b3116a9c94570476d0feda95f78d271b9f53a2913bc3b361227a1c4947",
+      "bytes": 483993
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\review-context-pack.json",
+      "sha256": "361f02391934c5463e5c3157049f6be1877da1e4c88e4b0ea249ce965ab15b44",
+      "bytes": 5502218
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\run-manifest.json",
+      "sha256": "36f9d7891a1a532cf788441033bb7f917e66bdf63d9638189f96b4d84f261cf6",
+      "bytes": 5708
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\scan.json",
+      "sha256": "c8b0e34b6ca2a71e237d30767dc25e9ab03c42e1f82d8dd58e50d8ad385faab4",
+      "bytes": 4018553
+    },
+    {
+      "path": "da6b4d5767534bcd859d83b68fab8a7c\\suppressed_findings.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  ],
+  "ai_final_reports": [
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\installed-bundled-ai-beta-e3636c6d055f4d46ae12f2d32e24b351\\output\\da6b4d5767534bcd859d83b68fab8a7c\\defensive-review-llm.md",
+      "sha256": "7756d8b374da9d75910292f1faefae594ab3327b879b0bdc9bf5392d210d57cd",
+      "characters": 7681
+    }
+  ],
+  "server_log": {
+    "status": "unavailable; no server log path supplied; no HTTP capture inferred"
+  },
+  "limitations": [
+    "Real bundled broker workflow, not native button interaction",
+    "No direct HTTP interception or exclusive server attribution unless actual supplied logs prove it",
+    "AI report presence is not semantic correctness or runtime vulnerability confirmation"
+  ]
+}
