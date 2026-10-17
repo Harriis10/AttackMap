@@ -124,9 +124,11 @@ Once the inventory exists, create the design foundation and workflow prototypes 
 
 
 
-- [ ] **AM006 Repair fleet worker interchange** — High; suggested owner: execution and packaging; dependencies: none.
+- [ ] **AM006 IN PROGRESS Repair fleet worker interchange** — High; suggested owner: execution and packaging; dependencies: none.
 
   Separate worker JSON interchange from presentation output, use a frozen-aware launch strategy, and preserve per-repository failures without discarding successful siblings.
+
+  2026-10-17 packaged Unicode matrix delivered: installed package `dev-20261017193157-2f19d5a3` frozen engine ran a two-repository fleet (space + Czech-diacritic paths) in serial and two-worker execution for json/markdown/all — five completed runs produce one identical normalized-findings digest. One first-launch anomaly recorded (three initial launches exited 1 with no output; warm reruns green; suspect AV first-run scan — see delivery log). C06's clean-machine leg remains part of C29.
 
   **Done when:** [C06 Fleet formats](roadmap-2026-2028.md#c06-fleet-formats) passes in source and packaged execution.
 
@@ -703,6 +705,8 @@ Reviewer:
 | 2026-10-17 | AM012/AM013 | C11 conflict matrix + C12 ranking-factor exposure | 5 conflict fixtures × permutation/immutability/coverage proofs (21 tests); additive per-finding score decomposition (severity band, confidence multiplier, exploitability factors summing to raw score, source-quality filter, `not_applied` factors, unresolved assumptions) in finding contexts + report JSON; direction tests for confidence/source quality (8 tests). No score policy changed. | models.py reference field for finding→score link; trust-boundary crossing not yet fused |
 
 | 2026-10-17 | Integration | Five-agent batch integrated and verified | Root reviewed all diffs (fleet.py rendering-only edits accepted; crossrepo proxy gates inspected), wired the missing `pipeline.py` baseline-alias pass-through with 2 end-to-end CLI tests, appended the claim-support semantics section to docs/ai-citations.md. Combined focused pass 572 passed; full regression **3,510 passed / 6 explained skips in 426.13 s** (exit 0, basetemp outside checkout; log `.pytest_cache/m5-batch-full.log`); fresh Juice Shop scan 862 files → 18 findings / 266 routes, zero analyzer errors, report carries the new ranking decomposition and claim-support fields; live LM Studio claim-support call completed (above). | Package rebuild deferred — engine changes will need a new dev package identity before installed-engine re-verification |
+
+| 2026-10-17 | AM041/AM006 | Development package dev-20261017193157-2f19d5a3 with the integrated engine delivered and installed-verified | Full re-freeze from `617f4bd` (124-file snapshot inventory; 107 core modules, 276 payload files, 19 analyzers; worker scan + compare + diagnostics actions verified through the frozen exe). Package ZIP SHA256 871ee933…3df8; installed as current. Installed verification: Juice Shop scan exit 0 (18 findings, zero analyzer errors, decomposition + claim_support fields present); diagnostics CLI redacted; menu/retention/history/scan smokes all exit 0 (backslash paths); **C06 packaged Unicode/space-path fleet matrix**: serial + 2-worker × json/markdown/all on Czech-diacritic + space paths → 5 warm runs with one identical normalized digest; **C28 flags on frozen engine** produce observed_via_proxy / service_ports / scheme_mismatch / hosts resolutions. Evidence: `.pytest_cache/package-verification/installed-package-verification-2026-10-17.json`. | Two recorded anomalies: first-launch exit 1 with no output (suspect AV first-run scan; not reproduced warm — clean-machine first-launch check belongs to C29), and analyzer pin drift dev-.venv vs freeze venv (270 vs 266 routes incl. EXPOSE surfacing; findings identical 18=18). C06 clean-machine leg stays open |
 
 
 
