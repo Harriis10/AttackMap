@@ -15,6 +15,13 @@ from .srcpaths import is_skipped_dir, line_number
 
 _NOISY_SYMLINK_PARTS = {"node_modules", ".git", ".venv", "venv", "dist", "build", "__pycache__"}
 
+# Default accepted-file-count ceiling (C35 engineering target). Same
+# acceptance semantics as the byte budget: overflowing files are skipped,
+# the scope becomes partial — never a silent drop. ``ATTACKMAP_INDEX_FILE_LIMIT``
+# overrides the default; 0 disables the count cap.
+DEFAULT_INDEX_FILE_LIMIT = 100_000
+_INDEX_FILE_LIMIT_ENV = "ATTACKMAP_INDEX_FILE_LIMIT"
+
 # Content basis for snapshot identity: the indexed text, i.e. the utf-8-decoded
 # file as the passes saw it (C33/AM047). Verification re-reads with the same
 # basis, so a drift verdict never depends on newline or encoding normalization.
@@ -302,6 +309,7 @@ class RepoIndex:
         root: str | Path,
         *,
         max_bytes: int | None = None,
+        max_files: int | None = None,
     ) -> RepoIndex:
         root_path = Path(root).resolve()
         limitations: list[str] = []
@@ -312,8 +320,18 @@ class RepoIndex:
         # Captured once so the snapshot's config identity describes the limits
         # that actually decided which files were accepted.
         file_limit = max_file_bytes()
+        try:
+            env_file_limit = int(os.environ.get(_INDEX_FILE_LIMIT_ENV, "") or DEFAULT_INDEX_FILE_LIMIT)
+        except ValueError:
+            env_file_limit = DEFAULT_INDEX_FILE_LIMIT
+        if max_files is not None:
+            file_count_limit = max_files  # 0 explicitly disables the cap
+        else:
+            file_count_limit = env_file_limit if env_file_limit > 0 else 0
         used_bytes = 0
         budget_exceeded = False
+        count_exceeded = False
+        skipped_over_count = 0
 
         def _record_symlink(path: Path) -> None:
             rel = path.relative_to(root_path)
@@ -355,6 +373,20 @@ class RepoIndex:
                     continue
                 used_bytes += size
 
+            # Accepted-count cap (C35): same semantics as the byte budget —
+            # files beyond the cap are skipped with one aggregate limitation
+            # line (never itemized) and one structured event emitted after
+            # the walk knows the skipped total.
+            if file_count_limit > 0 and len(files) >= file_count_limit:
+                if not count_exceeded:
+                    limitations.append(
+                        f"file count limit exceeded ({file_count_limit} files); "
+                        "remaining files skipped"
+                    )
+                    count_exceeded = True
+                skipped_over_count += 1
+                continue
+
             try:
                 text = path.read_text(encoding="utf-8")
             except UnicodeDecodeError:
@@ -379,10 +411,32 @@ class RepoIndex:
                 )
             )
         snapshot = ScanSnapshot.from_indexed(
-            files, {"max_file_bytes": file_limit, "index_byte_budget": budget}
+            files,
+            {
+                "max_file_bytes": file_limit,
+                "index_byte_budget": budget,
+                "index_file_limit": file_count_limit,
+            },
         )
+        scopes = ["repo_index.file_bytes", "repo_index.index_bytes"]
+        if count_exceeded:
+            identity = ["resource-limit/1.0", "repo_index", "index_files",
+                        "aggregate", file_count_limit, None]
+            event_id = hashlib.sha256(
+                json.dumps(identity, ensure_ascii=True, separators=(",", ":")).encode()
+            ).hexdigest()
+            resource_events.append(ResourceLimitEvent(
+                event_id=event_id,
+                category="index_files",
+                producer="repo_index",
+                limit=file_count_limit,
+                unit="files",
+                action="skipped_remaining_files",
+                observed_files=skipped_over_count or None,
+            ))
+            scopes.append("repo_index.index_files")
         return cls(root=root_path, files=tuple(files), limitations=tuple(limitations),
                    resource_limit_events=tuple(resource_events),
-                   resource_limit_scopes=("repo_index.file_bytes", "repo_index.index_bytes"),
+                   resource_limit_scopes=tuple(scopes),
                    resource_limit_reporting="complete",
                    snapshot=snapshot)

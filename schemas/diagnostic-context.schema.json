@@ -390,7 +390,7 @@
     },
     "ResourceLimitEvent": {
       "additionalProperties": false,
-      "description": "An observed byte-limit branch, never a claim about uninstrumented limits.",
+      "description": "An observed byte- or file-limit branch, never a claim about uninstrumented limits.",
       "properties": {
         "schema_version": {
           "const": "1.0",
@@ -406,7 +406,8 @@
         "category": {
           "enum": [
             "file_bytes",
-            "index_bytes"
+            "index_bytes",
+            "index_files"
           ],
           "title": "Category",
           "type": "string"
@@ -425,8 +426,11 @@
           "type": "integer"
         },
         "unit": {
-          "const": "bytes",
           "default": "bytes",
+          "enum": [
+            "bytes",
+            "files"
+          ],
           "title": "Unit",
           "type": "string"
         },
@@ -451,6 +455,19 @@
           ],
           "default": null,
           "title": "Observed Bytes"
+        },
+        "observed_files": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Files"
         }
       },
       "required": [

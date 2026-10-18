@@ -212,3 +212,44 @@ def test_mutation_warnings_detect_new_file(tmp_path: Path) -> None:
     (tmp_path / "late.js").write_text("const l = 1\n", encoding="utf-8")
     warnings = index.mutation_warnings()
     assert any("new file: late.js" in w for w in warnings)
+
+
+def test_file_count_limit_skips_remaining_files(tmp_path: Path) -> None:
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "b.py").write_text("y = 2\n", encoding="utf-8")
+    (tmp_path / "c.py").write_text("z = 3\n", encoding="utf-8")
+    index = RepoIndex.build(tmp_path, max_files=2)
+    rels = {f.rel for f in index.files}
+    assert len(rels) == 2
+    assert any("file count limit exceeded (2 files)" in note for note in index.limitations)
+    # Not itemized to death: one aggregate line, no per-overflow entries.
+    count_notes = [n for n in index.limitations if "file count limit" in n]
+    assert len(count_notes) == 1
+    assert not any("c.py" in n for n in index.limitations)
+
+
+def test_file_count_limit_zero_disables_cap(tmp_path: Path) -> None:
+    for name in ("a.py", "b.py", "c.py"):
+        (tmp_path / name).write_text("x\n", encoding="utf-8")
+    index = RepoIndex.build(tmp_path, max_files=0)
+    assert len(index.files) == 3
+
+
+def test_file_count_limit_env_override(tmp_path: Path, monkeypatch) -> None:
+    for name in ("a.py", "b.py"):
+        (tmp_path / name).write_text("x\n", encoding="utf-8")
+    monkeypatch.setenv("ATTACKMAP_INDEX_FILE_LIMIT", "1")
+    index = RepoIndex.build(tmp_path)
+    assert len(index.files) == 1
+    assert any("file count limit exceeded" in note for note in index.limitations)
+
+
+def test_index_file_limit_default_matches_c35_target(tmp_path: Path) -> None:
+    from attackmap.index import DEFAULT_INDEX_FILE_LIMIT
+    (tmp_path / "a.py").write_text("x\n", encoding="utf-8")
+    index = RepoIndex.build(tmp_path)
+    assert DEFAULT_INDEX_FILE_LIMIT == 100_000
+    config = dict(index.snapshot.index_config)  # type: ignore[union-attr]
+    assert config["index_file_limit"] == DEFAULT_INDEX_FILE_LIMIT
+    capped = RepoIndex.build(tmp_path, max_files=1)
+    assert dict(capped.snapshot.index_config)["index_file_limit"] == 1  # type: ignore[union-attr]

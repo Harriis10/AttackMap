@@ -392,6 +392,8 @@ def analyze(
         help="Whole-scan OUTPUT-token allowance; API backend required. Does not cap input tokens, hidden reasoning or billing."),
     ai_timeout_seconds: int = typer.Option(600, "--ai-timeout-seconds", min=1, max=86400,
         help="Whole-scan elapsed AI allowance in seconds; no provider attempt begins after its deadline."),
+    time_budget_seconds: int | None = typer.Option(None, "--time-budget-seconds", min=1, max=604800,
+        help="Elapsed ceiling in seconds for the deterministic pipeline (no AI). Default 600 (10 minutes); env override ATTACKMAP_TIME_BUDGET_SECONDS. On breach the run ends COMPLETED with explicit partial coverage — skipped stages are named in run-manifest.json. Use a large value rather than expecting 'unlimited'."),
     remediate: bool = typer.Option(
         False,
         "--remediate",
@@ -534,6 +536,12 @@ def analyze(
     ),
 ) -> None:
     validation_started = time.perf_counter()
+    # The pipeline resolves ATTACKMAP_TIME_BUDGET_SECONDS as its documented
+    # override (C35); publishing an explicit flag here also propagates the
+    # ceiling to any fleet worker subprocesses, which inherit this environment.
+    # An unset flag leaves the environment untouched (env var → 600s default).
+    if time_budget_seconds is not None:
+        os.environ["ATTACKMAP_TIME_BUDGET_SECONDS"] = str(time_budget_seconds)
     fleet_incompatible = {
         "--baseline": baseline is not None,
         "--diff-output": diff_output is not None,

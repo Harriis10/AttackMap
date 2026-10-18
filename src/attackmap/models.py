@@ -908,20 +908,21 @@ class AnalyzerError(BaseModel):
     message: str = ""
 
 
-ResourceLimitScope = Literal["repo_index.file_bytes", "repo_index.index_bytes", "config_scanner.file_bytes"]
+ResourceLimitScope = Literal["repo_index.file_bytes", "repo_index.index_bytes", "repo_index.index_files", "config_scanner.file_bytes"]
 
 
 class ResourceLimitEvent(BaseModel):
-    """An observed byte-limit branch, never a claim about uninstrumented limits."""
+    """An observed byte- or file-limit branch, never a claim about uninstrumented limits."""
     model_config = ConfigDict(frozen=True, extra="forbid")
     schema_version: Literal["1.0"] = "1.0"
     event_id: str = Field(pattern=r"^[0-9a-f]{64}$")
-    category: Literal["file_bytes", "index_bytes"]
+    category: Literal["file_bytes", "index_bytes", "index_files"]
     producer: Literal["repo_index", "config_scanner"]
     limit: int = Field(gt=0, strict=True)
-    unit: Literal["bytes"] = "bytes"
+    unit: Literal["bytes", "files"] = "bytes"
     action: Literal["skipped_file", "skipped_remaining_files"] = "skipped_file"
     observed_bytes: int | None = Field(default=None, ge=0, strict=True)
+    observed_files: int | None = Field(default=None, ge=0, strict=True)
 
     @classmethod
     def skipped_file(cls, *, producer: str, category: str, relative: str,

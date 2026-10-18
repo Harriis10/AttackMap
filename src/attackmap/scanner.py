@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .index import RepoIndex
+    from .index import IndexedFile, RepoIndex
     from .progress import ScanProgress
 
 from .srcpaths import JS_TS_SUFFIXES, in_skipped_dir, is_skipped_dir, line_number
@@ -743,9 +743,18 @@ def scan_files(
     suffixes: set[str] | None = None,
     progress: "ScanProgress | None" = None,
     index: "RepoIndex | None" = None,
+    incremental: bool = False,
+    cache_dir: str | Path | None = None,
 ) -> ScanResult:
     """The per-file pass: routes, calls, hints, secrets and per-file weakness
-    detectors for files with ``suffixes``. No whole-repo passes (#219)."""
+    detectors for files with ``suffixes``. No whole-repo passes (#219).
+
+    ``incremental=True`` (default off, engine-level opt-in for C34/AM048)
+    reuses cached per-file results for files whose content, suffix, engine,
+    pass configuration and source-role policy are unchanged. The cache lives
+    under ``cache_dir`` (or a temp-derived location outside the scanned repo)
+    and is an optimization only: any doubt means full recompute of the file.
+    """
     from .index import RepoIndex
 
     root_path = Path(root).resolve()
@@ -768,6 +777,8 @@ def scan_files(
     if progress is not None:
         progress.begin(len(indexed))
 
+    cache = _open_incremental_cache(root_path, cache_dir) if incremental else None
+
     csrf_protected = False
     for item in indexed:
         if progress is not None:
@@ -779,62 +790,19 @@ def scan_files(
         if language not in result.languages:
             result.languages.append(language)
 
-        content = item.text
-        relative = item.rel
-        # Routes declared in test/spec or vendored files aren't real attack
-        # surface — Laravel/Go/pytest test helpers call `.get('/x')` heavily
-        # (#113). Skip them by default (ATTACKMAP_INCLUDE_TESTS / _VENDORED opt in).
-        if not is_test_file(relative) and not is_vendored_file(relative):
-            file_routes = extract_routes(content, relative, item.suffix)
-            result.routes.extend(file_routes)
+        signals, file_csrf = _cached_file_signals(item, cache, suffixes)
+        result.routes.extend(signals["routes"])
+        result.external_calls.extend(signals["external_calls"])
+        result.databases.extend(signals["databases"])
+        result.auth_hints.extend(signals["auth_hints"])
+        result.secret_hints.extend(signals["secret_hints"])
+        result.crypto_weaknesses.extend(signals["crypto_weaknesses"])
+        result.web_hardening_issues.extend(signals["web_hardening_issues"])
+        result.code_weaknesses.extend(signals["code_weaknesses"])
+        csrf_protected = csrf_protected or file_csrf
 
-        for pattern in EXTERNAL_CALL_PATTERNS:
-            for match in pattern.finditer(content):
-                target, method = _external_call_fields(match)
-                result.external_calls.append(
-                    ExternalCall(
-                        target=target,
-                        method=method,
-                        file=relative,
-                        line=_line_of(content, match.start()),
-                        evidence_text=_line_snippet(content, match.start()),
-                    )
-                )
-
-        lowered = content.lower()
-        _append_unique_database_hints(result, relative, content, lowered)
-        _append_unique_auth_hints(result, relative, content, lowered)
-
-        for pattern in SECRET_PATTERNS:
-            for match in pattern.finditer(content):
-                result.secret_hints.append(
-                    SecretHint(
-                        name=match.groups()[0],
-                        file=relative,
-                        line=_line_of(content, match.start()),
-                        evidence_text=_line_snippet(content, match.start()),
-                        kind="env_reference",
-                    )
-                )
-
-        # The keyword-proximity and URL-credential rules (#252) are skipped in
-        # test/vendored code, where fake credential fixtures are the norm.
-        first_party = not is_test_file(relative) and not is_vendored_file(relative)
-        _append_hardcoded_secret_hints(result, relative, content, generic=first_party, urls=first_party)
-
-        # The weakness passes below are noise in test scaffolding (#67) and in
-        # vendored/minified third-party code (#95) — a bug in a dependency the
-        # project doesn't maintain isn't this repo's finding. Skip both by
-        # default (ATTACKMAP_INCLUDE_TESTS / ATTACKMAP_INCLUDE_VENDORED opt in).
-        if not is_test_file(relative) and not is_vendored_file(relative):
-            # Insecure crypto / weak randomness (#70). Content is already
-            # read, so this rides the per-file pass rather than re-walking.
-            result.crypto_weaknesses.extend(find_crypto_weaknesses(content, relative))
-            # Web-hardening gaps (#71): CORS, CSRF, cookies, CSP, debug.
-            result.web_hardening_issues.extend(find_web_hardening_issues(content, relative))
-            csrf_protected = csrf_protected or has_csrf_protection(content)
-            # Novel vuln classes (#77): proto pollution, mass assignment, JWT, XXE.
-            result.code_weaknesses.extend(find_code_weaknesses(content, relative))
+    if cache is not None:
+        cache.save()
 
     if csrf_protected:
         # A CSRF defence anywhere in the repo (#244) — session config and CSRF
@@ -846,6 +814,135 @@ def scan_files(
     result.scanned_files = sorted(set(result.scanned_files))
     result.files_scanned = len(result.scanned_files)
     return result
+
+
+def _open_incremental_cache(root_path: Path, cache_dir: str | Path | None):
+    """The per-file result cache, or None when caching cannot be used safely."""
+    from .incremental import PerFileCache, default_cache_dir
+
+    if cache_dir is not None:
+        location = Path(cache_dir) / "per-file-cache.json"
+    else:
+        derived = default_cache_dir(root_path)
+        if derived is None:
+            return None  # derived location would land inside the repo: skip
+        location = derived / "per-file-cache.json"
+    try:
+        return PerFileCache.open(location)
+    except Exception:
+        return None  # optimization only: never fail the scan over the cache
+
+
+def _cached_file_signals(item: "IndexedFile", cache, suffixes: set[str] | None):
+    """One file's per-file signals — from the cache when provably fresh,
+    else freshly computed (and cached for the next run)."""
+    from .incremental import FileCacheKey, dump_payload, load_payload
+
+    if cache is not None:
+        from .index import content_sha256
+
+        content_sha = item.sha256 or content_sha256(item.text)
+        key = FileCacheKey(
+            rel=item.rel,
+            suffix=item.suffix,
+            content_sha256=content_sha,
+            pass_suffixes=frozenset(suffixes) if suffixes is not None else None,
+            engine=cache.engine,
+            policy=cache.policy,
+        )
+        payload = cache.get(key)
+        if payload is not None:
+            rebuilt = load_payload(payload)
+            if rebuilt is not None:
+                return rebuilt
+        signals, csrf_protected = _analyze_indexed_file(item)
+        cache.put(key, dump_payload(signals, csrf_protected))
+        return signals, csrf_protected
+    return _analyze_indexed_file(item)
+
+
+def _analyze_indexed_file(item: "IndexedFile") -> tuple[dict[str, list], bool]:
+    """Per-file extraction isolated from the accumulating result.
+
+    Output depends only on ``(item.text, item.rel, item.suffix)`` and the
+    env-driven source-role policy — no cross-file state is read — which is
+    exactly the property the incremental cache (C34/AM048) relies on: the
+    helpers below dedupe within this file only, because every hint key
+    embeds the file path.
+    """
+    content = item.text
+    relative = item.rel
+    stub = ScanResult(root="", scanned_files=[])
+
+    # Routes declared in test/spec or vendored files aren't real attack
+    # surface — Laravel/Go/pytest test helpers call `.get('/x')` heavily
+    # (#113). Skip them by default (ATTACKMAP_INCLUDE_TESTS / _VENDORED opt in).
+    first_party = not is_test_file(relative) and not is_vendored_file(relative)
+    if first_party:
+        stub.routes.extend(extract_routes(content, relative, item.suffix))
+
+    for pattern in EXTERNAL_CALL_PATTERNS:
+        for match in pattern.finditer(content):
+            target, method = _external_call_fields(match)
+            stub.external_calls.append(
+                ExternalCall(
+                    target=target,
+                    method=method,
+                    file=relative,
+                    line=_line_of(content, match.start()),
+                    evidence_text=_line_snippet(content, match.start()),
+                )
+            )
+
+    lowered = content.lower()
+    _append_unique_database_hints(stub, relative, content, lowered)
+    _append_unique_auth_hints(stub, relative, content, lowered)
+
+    for pattern in SECRET_PATTERNS:
+        for match in pattern.finditer(content):
+            stub.secret_hints.append(
+                SecretHint(
+                    name=match.groups()[0],
+                    file=relative,
+                    line=_line_of(content, match.start()),
+                    evidence_text=_line_snippet(content, match.start()),
+                    kind="env_reference",
+                )
+            )
+
+    # The keyword-proximity and URL-credential rules (#252) are skipped in
+    # test/vendored code, where fake credential fixtures are the norm.
+    _append_hardcoded_secret_hints(stub, relative, content, generic=first_party, urls=first_party)
+
+    csrf_protected = False
+    # The weakness passes below are noise in test scaffolding (#67) and in
+    # vendored/minified third-party code (#95) — a bug in a dependency the
+    # project doesn't maintain isn't this repo's finding. Skip both by
+    # default (ATTACKMAP_INCLUDE_TESTS / ATTACKMAP_INCLUDE_VENDORED opt in).
+    if first_party:
+        # Insecure crypto / weak randomness (#70). Content is already
+        # read, so this rides the per-file pass rather than re-walking.
+        stub.crypto_weaknesses.extend(find_crypto_weaknesses(content, relative))
+        # Web-hardening gaps (#71): CORS, CSRF, cookies, CSP, debug.
+        stub.web_hardening_issues.extend(find_web_hardening_issues(content, relative))
+        csrf_protected = has_csrf_protection(content)
+        # Novel vuln classes (#77): proto pollution, mass assignment, JWT, XXE.
+        stub.code_weaknesses.extend(find_code_weaknesses(content, relative))
+
+    signals = {
+        family: list(getattr(stub, family))
+        for family in (
+            "routes",
+            "external_calls",
+            "databases",
+            "auth_hints",
+            "secret_hints",
+            "crypto_weaknesses",
+            "web_hardening_issues",
+            "code_weaknesses",
+        )
+    }
+    return signals, csrf_protected
 
 
 def run_repo_passes(

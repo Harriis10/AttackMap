@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any, Callable
@@ -40,7 +41,7 @@ from .gitref import GitRefError
 from .hunt_harness import run_majority_verify
 from .llm_review import LlmReviewError, generate_llm_review
 from .md import sanitize_llm_markdown
-from .models import AttackPath, AttackSurface, Finding, ScanResult
+from .models import AnalyzerError, AttackPath, AttackSurface, Finding, ScanResult
 from .progress import create_progress
 from .recon_to_analysis import translate_recon
 from .report import render_console_summary, render_pr_comment, write_reports
@@ -92,6 +93,58 @@ class ScanAiLimits:
                 raise AnalysisConfigurationError(f"AI {name} must be an integer from 1 to {maximum}.")
 
 
+# C35 resource ceilings: the deterministic pipeline (no AI features) is bounded
+# by an elapsed-time budget so a huge repository ends as an explicit PARTIAL
+# analysis instead of an unbounded run.
+DEFAULT_TIME_BUDGET_SECONDS = 600
+TIME_BUDGET_ENV = "ATTACKMAP_TIME_BUDGET_SECONDS"
+
+
+def resolve_time_budget_seconds(explicit: int | None = None) -> int:
+    """Deterministic elapsed ceiling: explicit value → env override → 600s."""
+    raw: object = explicit if explicit is not None else os.environ.get(TIME_BUDGET_ENV)
+    if raw is None or str(raw).strip() == "":
+        return DEFAULT_TIME_BUDGET_SECONDS
+    try:
+        value = int(str(raw).strip())
+    except ValueError:
+        raise AnalysisConfigurationError(
+            f"{TIME_BUDGET_ENV} / time budget must be a positive integer, got {raw!r}."
+        ) from None
+    if value < 1:
+        raise AnalysisConfigurationError(
+            f"{TIME_BUDGET_ENV} / time budget must be >= 1 second; got {value}."
+        )
+    return value
+
+
+@dataclass
+class TimeBudget:
+    """Between-stage wall-clock ceiling for one deterministic run (C35).
+
+    A breach never aborts mid-stage: the in-flight stage runs to completion,
+    then later optional stages are skipped so the run always publishes. The
+    check is a single ``perf_counter`` read — no threads, no sleeps.
+    """
+
+    seconds: int
+    exceeded_stage: str | None = None
+    _deadline: float = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        self._deadline = time.perf_counter() + self.seconds
+
+    @property
+    def exceeded(self) -> bool:
+        return self.exceeded_stage is not None
+
+    def check(self, skipped_stage: str) -> bool:
+        """Record the first breach (naming the stage being skipped); idempotent."""
+        if self.exceeded_stage is None and time.perf_counter() >= self._deadline:
+            self.exceeded_stage = skipped_stage
+        return self.exceeded_stage is not None
+
+
 @dataclass
 class AnalyzeOptions:
     repo_path: Path
@@ -131,6 +184,7 @@ class AnalyzeOptions:
     remediate: bool = False
     triage: bool = False
     ai_limits: ScanAiLimits = field(default_factory=ScanAiLimits)
+    time_budget_seconds: int | None = None
     run_id: str | None = None
     echo: Callable[..., None] = field(default=emit_text)
 
@@ -163,6 +217,7 @@ class RunState:
     scan_finished_at: str | None = None
     scan_outcome: str | None = None
     diagnostic_stages: list[DiagnosticStage] = field(default_factory=list)
+    time_budget: TimeBudget | None = None
     attempt_started: float = field(default_factory=time.perf_counter, repr=False)
 
     def finish_scan(self, outcome: str) -> None:
@@ -257,6 +312,13 @@ def write_run_manifest(state: RunState, output: Path) -> None:
         ledger = current_budget()
         if ledger is not None:
             payload["ai_allowance"] = ledger.snapshot()
+    if state.time_budget is not None:
+        payload["time_budget"] = {
+            "seconds": state.time_budget.seconds,
+            "exceeded": state.time_budget.exceeded,
+            **({"exceeded_before": state.time_budget.exceeded_stage}
+               if state.time_budget.exceeded_stage is not None else {}),
+        }
     _write_text(Path(output) / "run-manifest.json", json.dumps(payload, indent=2) + "\n")
 
 
@@ -327,17 +389,51 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
     _echo_opt_in_hint(opt_in_matches, echo)
     scan_progress = create_progress(options.progress_format, no_progress=options.no_progress)
 
-    def _scan() -> None:
-        state.scan = analyze_repository(
-            repo_path,
-            analyzers=state.analyzers,
-            progress=scan_progress,
-            recall=options.recall,
-            strict=options.strict_analyzers,
-            isolated_analyzers=options.isolated_analyzers,
-        )
+    # C35 elapsed-time budget: one cheap perf_counter read per stage boundary.
+    # A breach skips later optional stages and still publishes, so the run ends
+    # as a COMPLETED analysis whose scan carries explicit partial coverage.
+    budget = TimeBudget(resolve_time_budget_seconds(options.time_budget_seconds))
+    state.time_budget = budget
 
-    _timed(state, "scan_and_merge", _scan)
+    def _deadline_hit(skipped_stage: str) -> bool:
+        if not budget.check(skipped_stage):
+            return False
+        if state.scan is None:
+            state.scan = ScanResult(root=str(repo_path))
+        scan_now = state.scan
+        note = (
+            f"elapsed-time budget of {budget.seconds}s expired before {skipped_stage}; "
+            "the remaining optional stages were skipped — ANALYSIS IS PARTIAL, not "
+            "complete. Raise the ceiling with --time-budget-seconds or "
+            f"{TIME_BUDGET_ENV}."
+        )
+        if note not in scan_now.limitations:
+            scan_now.limitations.append(note)
+        record = AnalyzerError(
+            analyzer="pipeline",
+            error_type="time_budget_exceeded",
+            message=(
+                f"deterministic run deadline ({budget.seconds}s) reached; "
+                f"{skipped_stage} and later optional stages skipped"
+            ),
+        )
+        if record not in scan_now.analyzer_errors:
+            scan_now.analyzer_errors.append(record)
+        echo(f"Warning: {note}", err=True)
+        return True
+
+    if not _deadline_hit("scan_and_merge"):
+        def _scan() -> None:
+            state.scan = analyze_repository(
+                repo_path,
+                analyzers=state.analyzers,
+                progress=scan_progress,
+                recall=options.recall,
+                strict=options.strict_analyzers,
+                isolated_analyzers=options.isolated_analyzers,
+            )
+
+        _timed(state, "scan_and_merge", _scan)
     scan = state.scan
     assert scan is not None
 
@@ -347,7 +443,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
             f"Recall mode: widened taint discovery, {speculative} speculative "
             "chain(s) surfaced (marked low-confidence; adjudicate with --hunt --verify)."
         )
-    if options.secrets_history:
+    if options.secrets_history and not _deadline_hit("secrets_history"):
         from .secrets_history import scan_secret_history
 
         echo(f"Scanning the last {options.secrets_history} commit(s) for secrets in git history…")
@@ -363,7 +459,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
 
         _timed(state, "secrets_history", _history)
 
-    if options.cve and scan.dependencies:
+    if options.cve and scan.dependencies and not _deadline_hit("cve"):
         echo(f"Checking {len(scan.dependencies)} dependencies against OSV.dev…")
 
         def _cve() -> None:
@@ -406,8 +502,10 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
 
     suppressed_findings: list = []
     suppression_governance: dict | None = None
-    if options.no_suppress:
-        if options.suppress_file is not None:
+    # Unconditional boundary check: even a minimal run (no optional stages
+    # below) must notice a budget that expired during the scan stage.
+    if options.no_suppress or _deadline_hit("suppress"):
+        if options.suppress_file is not None and options.no_suppress:
             echo("Note: --suppress-file is ignored because --no-suppress is set.", err=True)
     else:
         explicit = Path(options.suppress_file) if options.suppress_file else None
@@ -532,7 +630,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
 
     diff_exit_code = 0
     diff = None
-    if options.baseline is not None:
+    if options.baseline is not None and not _deadline_hit("baseline"):
         with _diagnostic_phase(state, "baseline"):
             baseline_path = Path(options.baseline)
             try:
@@ -593,7 +691,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                     echo(f"  - [{s_.severity.upper()}] {s_.title}", err=True)
                 diff_exit_code = 1
 
-    if options.pr_comment is not None:
+    if options.pr_comment is not None and not _deadline_hit("pr_comment"):
         with _diagnostic_phase(state, "pr_comment"):
             pr_path = Path(options.pr_comment)
             _write_text(pr_path, render_pr_comment(findings, diff, suppressions=suppression_governance))
@@ -606,7 +704,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
             if isinstance(value, int):
                 state.llm_usage[key] = state.llm_usage.get(key, 0) + value
 
-    if options.llm:
+    if options.llm and not _deadline_hit("llm"):
         with _diagnostic_phase(state, "llm"):
             try:
                 effort_value = options.llm_effort
@@ -655,7 +753,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                 )
                 echo(f"LLM review written to: {llm_md_path.resolve()} (backend={result.backend})")
 
-    if options.hunt:
+    if options.hunt and not _deadline_hit("hunt"):
         with _diagnostic_phase(state, "hunt"):
             hunt_effort_value = options.llm_effort
             echo("")
@@ -769,7 +867,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                     f"(backend={hunt_backend})"
                 )
 
-    if options.remediate:
+    if options.remediate and not _deadline_hit("remediate"):
         with _diagnostic_phase(state, "remediate"):
             try:
                 rem_effort_value = options.llm_effort
@@ -821,7 +919,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                     f"(backend={rem_result.backend})"
                 )
 
-    if options.triage:
+    if options.triage and not _deadline_hit("triage"):
         with _diagnostic_phase(state, "triage"):
             tri_effort_value = options.llm_effort
             tri_md_path = output / "triage.md"
