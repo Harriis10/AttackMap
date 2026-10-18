@@ -934,6 +934,23 @@ class ResourceLimitEvent(BaseModel):
                    limit=limit, observed_bytes=observed_bytes)
 
 
+class ScanSnapshotIdentity(BaseModel):
+    """Content identity of the one file snapshot a run analyzed (C33/AM047).
+
+    Built by the repo index at index time; deterministic passes read the
+    indexed text, so their evidence references this snapshot. ``files`` maps
+    repo-relative posix paths to sha256 of the indexed utf-8 text (the same
+    basis verification re-reads with). ``index_config`` records the limits
+    that decided file acceptance, and ``config_identity`` hashes them.
+    """
+
+    snapshot_id: str
+    files: dict[str, str] = Field(default_factory=dict)
+    total_size: int = 0
+    index_config: dict[str, int] = Field(default_factory=dict)
+    config_identity: str = ""
+
+
 class ScanResult(BaseModel):
     root: str
     signals: list[Signal] = Field(default_factory=list)
@@ -973,6 +990,11 @@ class ScanResult(BaseModel):
     # Analyzers that failed and were skipped (#220).
     analyzer_errors: list[AnalyzerError] = Field(default_factory=list)
     files_scanned: int = 0
+    # Content identity of the analyzed file snapshot (C33/AM047): set by the
+    # index; the artifact manifest verifies the working tree against it at
+    # publication and marks drifted runs incomplete instead of publishing
+    # silently mixed revisions.
+    scan_snapshot: ScanSnapshotIdentity | None = None
 
     @property
     def root_path(self) -> Path:

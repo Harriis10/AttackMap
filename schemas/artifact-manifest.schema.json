@@ -26,7 +26,12 @@
       "required": ["exit_code", "status"],
       "properties": {
         "exit_code": { "type": "integer" },
-        "status": { "type": "string" }
+        "status": { "type": "string" },
+        "snapshot_state": {
+          "type": "string",
+          "enum": ["incomplete"],
+          "description": "Present only when publication-time snapshot verification found drift; the run is marked incomplete with a limitation listing affected paths (C33)."
+        }
       }
     },
     "run_identity": {
@@ -38,6 +43,19 @@
         "analyzers": {
           "type": "array",
           "items": { "type": "object" }
+        },
+        "snapshot": {
+          "type": "object",
+          "description": "Content-identified scan snapshot identity and publication-time verification (C33/AM047). Absent on pre-snapshot manifests.",
+          "properties": {
+            "snapshot_id": { "type": "string" },
+            "file_count": { "type": "integer" },
+            "total_size": { "type": "integer" },
+            "config_identity": { "type": "string" },
+            "index_config": { "type": "object" },
+            "analyzer_identity": { "type": "string" },
+            "verification": { "type": "object" }
+          }
         }
       }
     },

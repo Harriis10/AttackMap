@@ -72,6 +72,22 @@ def test_strict_reraises(tmp_path: Path) -> None:
         analyze_repository(_repo(tmp_path), analyzers=[_Bad("broken", RuntimeError("plugin bug"))], strict=True)
 
 
+def test_isolated_flag_keeps_builtins_in_process(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """AM050: the isolated host targets third-party analyzers; built-in
+    core analyzers never spawn subprocesses, even with the flag on."""
+    def _no_host(analyzer, root, limits=None):  # pragma: no cover - fail loud
+        raise AssertionError("built-in analyzers must not be sent to the isolated host")
+
+    monkeypatch.setattr(analyzers_mod, "run_isolated_analyzer", _no_host)
+    scan = analyze_repository(
+        _repo(tmp_path),
+        analyzers=[BuiltinPythonWebAnalyzer()],
+        isolated_analyzers=True,
+    )
+    assert [r.path for r in scan.routes] == ["/ok"]
+    assert scan.analyzer_errors == []
+
+
 def test_cli_reports_and_strict_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo = _repo(tmp_path)
     monkeypatch.setattr(

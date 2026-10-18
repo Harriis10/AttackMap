@@ -126,3 +126,89 @@ def test_indexed_file_defaults_for_optional_fields() -> None:
     f = IndexedFile(rel="a.py", suffix=".py", text="x", line_starts=(), path=Path("a.py"))
     assert f.mtime_ns == 0
     assert f.size == 0
+    assert f.sha256 == ""
+
+
+def test_index_builds_content_identified_snapshot(tmp_path: Path) -> None:
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "b.js").write_text("const x = 1\n", encoding="utf-8")
+    index = RepoIndex.build(tmp_path)
+    assert index.snapshot is not None
+    import hashlib
+    assert index.snapshot.files == (
+        ("a.py", hashlib.sha256(b"x = 1\n").hexdigest()),
+        ("b.js", hashlib.sha256(b"const x = 1\n").hexdigest()),
+    )
+    assert index.snapshot.snapshot_id
+    # The identity round-trips through the serialized model form.
+    identity = index.snapshot.identity()
+    assert identity.snapshot_id == index.snapshot.snapshot_id
+    assert identity.files == dict(index.snapshot.files)
+    assert identity.config_identity == index.snapshot.config_identity
+
+
+def test_snapshot_identity_changes_on_content_add_delete(tmp_path: Path) -> None:
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    first = RepoIndex.build(tmp_path).snapshot
+
+    (tmp_path / "a.py").write_text("x = 2\n", encoding="utf-8")  # changed
+    changed = RepoIndex.build(tmp_path).snapshot
+    assert changed.snapshot_id != first.snapshot_id
+
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "new.ts").write_text("const y = 2\n", encoding="utf-8")  # added
+    grown = RepoIndex.build(tmp_path).snapshot
+    assert grown.snapshot_id != first.snapshot_id
+    assert grown.snapshot_id != changed.snapshot_id
+
+    (tmp_path / "new.ts").unlink()  # deleted -> back to the original identity
+    restored = RepoIndex.build(tmp_path).snapshot
+    assert restored.snapshot_id == first.snapshot_id
+
+
+def test_snapshot_verify_detects_changed_deleted_added(tmp_path: Path) -> None:
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "b.py").write_text("y = 2\n", encoding="utf-8")
+    index = RepoIndex.build(tmp_path)
+    snapshot = index.snapshot
+
+    assert snapshot.verify(tmp_path).state == "verified"
+
+    (tmp_path / "a.py").write_text("x = 1\nz = 3\n", encoding="utf-8")
+    (tmp_path / "b.py").unlink()
+    (tmp_path / "c.js").write_text("const c\n", encoding="utf-8")
+    verification = snapshot.verify(tmp_path)
+    assert verification.state == "drifted"
+    assert verification.changed == ("a.py",)
+    assert verification.deleted == ("b.py",)
+    assert verification.added == ("c.js",)
+    limitation = verification.limitation()
+    assert limitation is not None
+    assert "a.py" in limitation and "b.py" in limitation and "c.js" in limitation
+
+
+def test_snapshot_verify_excludes_output_directory(tmp_path: Path) -> None:
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    snapshot = RepoIndex.build(tmp_path).snapshot
+    out = tmp_path / "reports"
+    out.mkdir()
+    (out / "artifact-manifest.json").write_text("{}\n", encoding="utf-8")
+    verification = snapshot.verify(tmp_path, exclude=(out,))
+    assert verification.state == "verified"
+
+
+def test_mutation_warning_requires_content_change_not_stat_drift(tmp_path: Path) -> None:
+    path = tmp_path / "a.py"
+    path.write_text("x = 1\n", encoding="utf-8")
+    index = RepoIndex.build(tmp_path)
+    # Same content rewritten: stat drifts, the analyzed text does not (C33).
+    path.write_text("x = 1\n", encoding="utf-8")
+    assert index.mutation_warnings() == ()
+
+
+def test_mutation_warnings_detect_new_file(tmp_path: Path) -> None:
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    index = RepoIndex.build(tmp_path)
+    (tmp_path / "late.js").write_text("const l = 1\n", encoding="utf-8")
+    warnings = index.mutation_warnings()
+    assert any("new file: late.js" in w for w in warnings)

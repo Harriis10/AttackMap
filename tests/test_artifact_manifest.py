@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -212,3 +213,80 @@ def test_manifest_records_failed_exit_state(tmp_path: Path) -> None:
     manifest = json.loads((tmp_path / "artifact-manifest.json").read_text(encoding="utf-8"))
     assert manifest["exit_state"]["exit_code"] == 1
     assert manifest["exit_state"]["status"] == "failed"
+
+
+def _snapshot_report_data(repo: Path, snapshot_files: dict[str, str],
+                          snapshot_id: str = "snap-1") -> dict:
+    return {
+        "scan": {"root": str(repo), "scan_snapshot": {
+            "snapshot_id": snapshot_id, "files": snapshot_files,
+            "total_size": 8, "index_config": {"max_file_bytes": 2000000,
+                                              "index_byte_budget": 0},
+            "config_identity": "cfg",
+        }},
+        "findings": [], "attack_paths": [], "attack_surfaces": [],
+        "exploitability": [], "suppressed_findings": [],
+    }
+
+
+def test_manifest_records_verified_snapshot_identity(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "a.py").write_text("x = 1\n", encoding="utf-8")
+    snapshot_files = {"a.py": hashlib.sha256(b"x = 1\n").hexdigest()}
+    report_data = _snapshot_report_data(repo, snapshot_files)
+    write_artifact_manifest(
+        output_dir=tmp_path / "out", run_id="r", engine_version="0.5.1",
+        repo_root=str(repo), repo_name="repo",
+        analyzer_metadata=[{"name": "python-web", "version": "0.1.0"}],
+        exit_code=0, status="succeeded",
+        report_data=report_data,
+    )
+    manifest = json.loads((tmp_path / "out" / "artifact-manifest.json").read_text(encoding="utf-8"))
+    assert manifest["run_identity"]["analyzer_identity"]
+    snapshot = manifest["run_identity"]["snapshot"]
+    assert snapshot["verification"]["state"] == "verified"
+    # Config identity is derived from the captured index config, not trusted
+    # from the report channel: it is recomputed on rehydration.
+    from attackmap.index import ScanSnapshot
+    expected = ScanSnapshot.from_identity(report_data["scan"]["scan_snapshot"])
+    assert snapshot["config_identity"] == expected.config_identity
+    assert "snapshot_state" not in manifest["exit_state"]
+
+
+def test_manifest_marks_drifted_snapshot_incomplete(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "a.py").write_text("x = 1\n", encoding="utf-8")
+    snapshot_files = {"a.py": hashlib.sha256(b"x = 1\n").hexdigest()}
+    # Mid-publication drift: the file changed after the scan captured it.
+    (repo / "a.py").write_text("x = 1\nATTACK = True\n", encoding="utf-8")
+    write_artifact_manifest(
+        output_dir=tmp_path / "out", run_id="r", engine_version="0.5.1",
+        repo_root=str(repo), repo_name="repo", analyzer_metadata=[],
+        exit_code=0, status="succeeded",
+        report_data=_snapshot_report_data(repo, snapshot_files),
+    )
+    manifest = json.loads((tmp_path / "out" / "artifact-manifest.json").read_text(encoding="utf-8"))
+    snapshot = manifest["run_identity"]["snapshot"]
+    assert snapshot["verification"]["state"] == "drifted"
+    assert snapshot["verification"]["changed"] == ["a.py"]
+    assert snapshot["incomplete"] is True
+    assert "a.py" in snapshot["limitation"]
+    assert manifest["exit_state"]["snapshot_state"] == "incomplete"
+    # The engine-owned status string is preserved.
+    assert manifest["exit_state"]["status"] == "succeeded"
+
+
+def test_manifest_without_snapshot_identity_has_no_snapshot_block(tmp_path: Path) -> None:
+    """Back-compat: reports without a snapshot carry no verification block."""
+    write_artifact_manifest(
+        output_dir=tmp_path, run_id="r", engine_version="0.5.1",
+        repo_root=str(tmp_path), repo_name="repo", analyzer_metadata=[],
+        exit_code=0, status="succeeded",
+        report_data={"scan": {"root": str(tmp_path)}, "findings": [], "attack_paths": [],
+                     "attack_surfaces": [], "exploitability": [], "suppressed_findings": []},
+    )
+    manifest = json.loads((tmp_path / "artifact-manifest.json").read_text(encoding="utf-8"))
+    assert "snapshot" not in manifest["run_identity"]
+    assert manifest["run_identity"]["analyzer_identity"] == hashlib.sha256(b"[]").hexdigest()

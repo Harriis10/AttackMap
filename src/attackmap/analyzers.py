@@ -25,6 +25,7 @@ from .srcpaths import JS_TS_SUFFIXES, SKIP_DIRS, in_skipped_dir, is_skipped_dir
 from .plugins_lock import OFFICIAL_PLUGINS
 from .safe_fs import walk_repo
 from .merge import MERGE_SCHEMA, initial_seen, merge_into
+from .analyzer_host import AnalyzerHostError, HostLimits, run_isolated_analyzer
 
 from .sdk.contracts import (
     AnalyzerMetadata,
@@ -400,6 +401,12 @@ def _load_discovered_analyzer(analyzer_entry_point: object) -> Analyzer | None:
     except Exception:
         # Some analyzers may expose read-only metadata attributes; normalization is still validated.
         pass
+    # Remember how this analyzer was discovered so the optional isolated
+    # host (analyzer_host) can reload it in a subprocess the same way.
+    try:
+        setattr(analyzer, "_attackmap_entry_point_name", getattr(analyzer_entry_point, "name", None))
+    except Exception:
+        pass
 
     if not _is_valid_analyzer(analyzer):
         logger.warning("Skipping entry point '%s': loaded object is not a valid analyzer.", entry_name)
@@ -627,6 +634,8 @@ def analyze_repository(
     progress: "ScanProgress | None" = None,
     recall: bool = False,
     strict: bool = False,
+    isolated_analyzers: bool = False,
+    isolated_limits: "HostLimits | None" = None,
 ) -> AnalyzerResult:
     """Run every active analyzer and merge their results.
 
@@ -634,6 +643,12 @@ def analyze_repository(
     result) no longer aborts the scan (#220): it is logged, recorded under
     ``analyzer_errors`` and skipped. ``strict=True`` re-raises instead, for
     plugin development and CI that wants fail-fast.
+
+    ``isolated_analyzers=True`` (opt-in, default off) runs every NON-builtin
+    analyzer inside the supervised subprocess host (``analyzer_host``) with
+    time/output/memory limits; a breach yields a named partial-coverage
+    ``analyzer_errors`` entry instead of aborting the scan. Built-in core
+    analyzers always run in-process.
     """
     from .index import RepoIndex
 
@@ -642,9 +657,31 @@ def analyze_repository(
     index = RepoIndex.build(repo_root)
     results: list[AnalyzerResult] = []
     errors: list[AnalyzerError] = []
+    host_limitations: list[str] = []
     for analyzer in active_analyzers:
         try:
-            result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index), repo_root).model_copy(deep=True)
+            if isolated_analyzers and not _is_builtin_analyzer(analyzer):
+                outcome = run_isolated_analyzer(analyzer, repo_root, limits=isolated_limits)
+                if outcome.error_type is not None:
+                    if strict:
+                        raise AnalyzerHostError(
+                            f"isolated analyzer '{analyzer.name}': {outcome.error_type}: {outcome.message}"
+                        )
+                    errors.append(AnalyzerError(
+                        analyzer=analyzer.name,
+                        error_type=outcome.error_type,
+                        message=(outcome.message or "")[:_ANALYZER_ERROR_MAX_CHARS],
+                    ))
+                    if outcome.limitation:
+                        host_limitations.append(outcome.limitation)
+                    logger.warning("Analyzer '%s' terminated by isolated host (%s); continuing.",
+                                   _log_identity(analyzer.name), outcome.error_type)
+                    if progress is not None:
+                        progress.stage(f"Analyzer {_log_identity(analyzer.name)} isolated-host {outcome.error_type}; continuing")
+                    continue
+                result = outcome.result
+            else:
+                result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index), repo_root).model_copy(deep=True)
         except Exception as exc:
             if strict:
                 raise
@@ -673,7 +710,9 @@ def analyze_repository(
             if note not in merged.limitations:
                 merged.limitations.append(note)
 
-    _append_notes(list(index.limitations))
+    _append_notes(list(index.limitations))
+    # Named partial-coverage notes from the optional isolated analyzer host (AM050).
+    _append_notes(host_limitations)
     _merge_resource_limits(merged, [merged, AnalyzerResult(
         root=str(repo_root), resource_limit_events=list(index.resource_limit_events),
         resource_limit_scopes=list(index.resource_limit_scopes),
@@ -688,6 +727,19 @@ def analyze_repository(
 
 
 _ANALYZER_ERROR_MAX_CHARS = 500
+
+_BUILTIN_ANALYZER_TYPES = (
+    DefaultAnalyzer,
+    BuiltinPythonWebAnalyzer,
+    BuiltinJavaScriptWebAnalyzer,
+    BuiltinConfigAnalyzer,
+)
+
+
+def _is_builtin_analyzer(analyzer: Analyzer) -> bool:
+    """Built-in core analyzers always run in-process; the optional isolated
+    host (``--isolated-analyzers``) targets third-party plugin code."""
+    return isinstance(analyzer, _BUILTIN_ANALYZER_TYPES)
 
 
 class AnalyzerResultError(TypeError):

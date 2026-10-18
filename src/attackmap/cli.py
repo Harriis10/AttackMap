@@ -442,6 +442,11 @@ def analyze(
         "--strict-analyzers",
         help="Fail fast if any analyzer raises or returns an invalid result, instead of skipping it and listing it under analyzer_errors (for plugin development and CI).",
     ),
+    isolated_analyzers: bool = typer.Option(
+        False,
+        "--isolated-analyzers",
+        help="Run plugin analyzers in isolated worker processes with time/output/memory limits; a crashing or hanging analyzer becomes a named partial-coverage result instead of killing the scan. Built-in analyzers always run in-process. Fault containment, not a security sandbox.",
+    ),
     fail_on_new_suppression: bool = typer.Option(
         False,
         "--fail-on-new-suppression",
@@ -621,6 +626,7 @@ def analyze(
             install_missing=install_missing,
             suppress_from_ref=suppress_from_ref,
             strict_analyzers=strict_analyzers,
+            isolated_analyzers=isolated_analyzers,
             allow_pr_suppressions=allow_pr_suppressions,
             strict_suppressions=strict_suppressions,
             run_id=run_id,

@@ -107,6 +107,7 @@ class AnalyzeOptions:
     allow_pr_suppressions: bool = False
     strict_suppressions: bool = False
     strict_analyzers: bool = False
+    isolated_analyzers: bool = False
     progress_format: str = "auto"
     no_progress: bool = False
     secrets_history: int = 0
@@ -333,6 +334,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
             progress=scan_progress,
             recall=options.recall,
             strict=options.strict_analyzers,
+            isolated_analyzers=options.isolated_analyzers,
         )
 
     _timed(state, "scan_and_merge", _scan)

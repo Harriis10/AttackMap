@@ -1,0 +1,85 @@
+# Client contract fixtures — AM051 / roadmap C37 ("Contract changes run both
+# client fixture suites in CI before release").
+#
+# Repo-local scope, stated honestly:
+# - "Both client fixture suites" here means (1) the shared run-contract golden
+#   corpus in fixtures/run-contract/ exercised by tests/test_run_contract.py,
+#   and (2) the desktop/client fixture suites: tests/test_ui_contract_adapter.py,
+#   tests/test_desktop_workflow_fixtures.py and tests/test_desktop_reference.py.
+# - The main CI matrix (ci.yml) already runs the FULL test suite, which
+#   includes these files, on every push/PR to main across
+#   Windows/Linux/macOS x Python 3.11-3.13. This workflow is the explicit,
+#   named, fast gate that fires on contract-relevant paths so a contract
+#   change cannot merge without those suites being named in the check run.
+# - The separate macOS repository (mlaify/AttackMap-mac) has its own native
+#   client suite that CANNOT be executed from this repository's CI; its runs
+#   must be linked from that repo. This is a documented gap, not coverage.
+
+name: Client contract fixtures
+
+on:
+  push:
+    branches: [main]
+    paths: &contract_paths
+      - "fixtures/run-contract/**"
+      - "fixtures/desktop-workflows/**"
+      - "tests/test_run_contract.py"
+      - "tests/test_ui_contract_adapter.py"
+      - "tests/test_desktop_workflow_fixtures.py"
+      - "tests/test_desktop_reference.py"
+      - "src/attackmap/run_contract.py"
+      - "src/attackmap/contracts.py"
+      - "src/attackmap/ui/contract_adapter.py"
+      - "schemas/run-*.schema.json"
+      - "docs/run-contract.md"
+      - "tools/generate_desktop_reference.py"
+      - "scripts/verify_setup.py"
+      - ".github/workflows/client-contract-fixtures.yml"
+  pull_request:
+    branches: [main]
+    paths: *contract_paths
+
+jobs:
+  client-fixture-suites:
+    name: run-contract + desktop client fixture suites
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package with dev extra
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run both client fixture suites
+        run: |
+          python -m pytest \
+            tests/test_run_contract.py \
+            tests/test_ui_contract_adapter.py \
+            tests/test_desktop_workflow_fixtures.py \
+            tests/test_desktop_reference.py \
+            -q --tb=short
+
+      # Contributor setup path from a clean environment (scripts/verify_setup.py,
+      # roadmap C37): fresh venv, editable install, focused-suite subset, JSON
+      # timing record. The stage timings in the job log double as machine-
+      # measured install-time evidence for the C37 setup budget.
+      - name: Verify contributor setup flow (fresh venv)
+        run: |
+          python scripts/verify_setup.py --fresh
+
+      - name: Upload setup timing record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-verification-record
+          path: .pytest_cache/setup-verification/
+          retention-days: 14
+          if-no-files-found: ignore

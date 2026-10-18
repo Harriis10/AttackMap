@@ -63,6 +63,7 @@ class ScanRequest:
     allow_pr_suppressions: bool = False
     strict_suppressions: bool = False
     strict_analyzers: bool = False
+    isolated_analyzers: bool = False
     progress_format: str = "auto"
     no_progress: bool = False
     secrets_history: int = 0
@@ -152,6 +153,7 @@ def _analyze_options(
         allow_pr_suppressions=request.allow_pr_suppressions,
         strict_suppressions=request.strict_suppressions,
         strict_analyzers=request.strict_analyzers,
+        isolated_analyzers=request.isolated_analyzers,
         progress_format=request.progress_format,
         no_progress=request.no_progress,
         secrets_history=request.secrets_history,

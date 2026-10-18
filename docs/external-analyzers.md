@@ -271,6 +271,100 @@ reachability, the intra-procedural flow, sanitizers and severity.
 - **No global state.** Multiple analyzers run in one process; instances are
   reused across calls.
 
+## The extraction protocol (version 1.0)
+
+The analyzer I/O contract is versioned in code:
+[`attackmap.analyzer_contracts.EXTRACTION_PROTOCOL_VERSION`](../src/attackmap/analyzer_contracts.py)
+(currently `"1.0"`, with a machine-readable summary via
+`describe_extraction_protocol()` and a live compatibility check via
+`check_extraction_compatibility(analyzer)`).
+
+| | Contract |
+|---|---|
+| **Input** | `analyze(root)` — the absolute repository root path. Read-only expectation. Core may additionally forward optional `progress` / `recall` / `index` keyword arguments to analyzers whose signature accepts them; plugins written against plain `analyze(root)` are called unchanged. |
+| **Output** | An `AnalyzerResult` (`attackmap.sdk.ScanResult`), or a `dict` coercible to one. Core validates, stamps provenance and merges per `merge.MERGE_SCHEMA`. |
+| **Metadata** | A static `AnalyzerMetadata` attribute (the schema in `analyzer_contracts.py`). |
+| **Failure** | Raising or returning an invalid value records an `analyzer_errors` entry and the scan continues (#220). In the optional isolated host (below) a crash, timeout, output-size or memory breach yields a *named* partial-coverage `analyzer_errors` entry plus a `limitations` note. |
+
+Protocol 1.0 formalizes the contract every current official analyzer already
+satisfies — it is purely additive. `tests/test_analyzer_host.py` runs the
+compatibility check over all registered analyzers (built-ins and any
+installed plugins). A breaking change to input or output shape bumps the
+major version and gets a deprecation window like any SDK change.
+
+## Isolated analyzer host (optional, opt-in)
+
+By default analyzers run **in-process**: one analyzer raising or returning
+garbage is already skipped with an `analyzer_errors` entry (#220) — but a
+hang, a memory leak or a native crash can still take the process down.
+
+`analyze_repository(..., isolated_analyzers=True)` (API-level opt-in; a
+`--isolated-analyzers` CLI flag is the intended front-end for it) runs every
+**non-builtin** analyzer inside a supervised subprocess instead:
+
+- The worker is spawned via the same machinery as the desktop scan workers
+  (`attackmap.execution`: Windows Job Objects with kill-on-close and
+  verified process-tree termination; POSIX process groups).
+- Each analyzer's result travels through a size-capped file, never through
+  shared memory, so one analyzer cannot corrupt another's output namespace:
+  results are collected per-analyzer and merged by core's merge rules.
+- Built-in core analyzers always stay in-process.
+- Limits (`attackmap.analyzer_host.HostLimits`): time (default 300 s),
+  stdout/stderr bytes (default 8 MB), result payload bytes (default 64 MB),
+  and — on Windows only — a job-wide commit cap (default 1 GiB).
+- On breach the worker is force-terminated and the scan records a **named
+  partial-coverage result**: `analyzer_errors.error_type` is one of
+  `AnalyzerHostTimeout`, `AnalyzerHostOutputLimit`,
+  `AnalyzerHostMemoryLimit`, `AnalyzerHostCrash`,
+  `AnalyzerHostInvalidOutput`, `AnalyzerHostLaunchFailed`,
+  `AnalyzerHostStuck`, plus a `limitations` note saying the analyzer's
+  signals are missing — a clean report is never mistaken for full coverage.
+  Sibling analyzers are unaffected. `strict=True` re-raises instead.
+
+### What the host actually enforces — and what it does not
+
+**This is fault containment, not a security sandbox.** Subprocess
+separation alone must not be marketed as a sandbox. Specifically:
+
+| Limit | Enforced how | Platform |
+|---|---|---|
+| Time | Supervisor timeout → graceful signal, then verified process-tree kill (Job Object terminate / `killpg`) | Windows, POSIX |
+| Process-tree escape | Job Object `KILL_ON_JOB_CLOSE` + suspended-start containment | Windows; POSIX uses session/process groups |
+| stdout/stderr size | Worker interposes on file descriptors 1/2 and counts every byte (including raw `os.write` and inherited child processes); over the cap the worker exits immediately. The parent additionally retains only a bounded 50-line tail, so core memory is safe even if the counter is bypassed. | All (in-worker interposition) |
+| Result payload size | Worker refuses to write past the cap; parent re-checks the file size before parsing | All |
+| Memory | Job-wide commit limit (`JOB_OBJECT_LIMIT_JOB_MEMORY`) applied to the supervisor's job object; failure surfaces as `MemoryError` or a native allocation failure, classified from the job's observed peak commit | **Windows only** |
+
+**Not restricted:** network access (a worker can open sockets exactly like
+core), filesystem access (a worker can read and write anything the invoking
+user can — the test fixture `evil_escape.py` proves a write outside the
+working directory succeeds and documents it), and any other OS capability.
+The memory cap is applied immediately after the worker resumes, so a small
+race window exists while the interpreter boots. A deliberately evasive
+analyzer can also re-dup its own descriptors to bypass the stream counter
+(core stays memory-safe via bounded retention, but the stream cap itself is
+cooperative interposition, not kernel enforcement). Attributed provenance is
+not authenticated either: an analyzer can pre-stamp another analyzer's name
+into `source_analyzer`; core's merge keeps results per-analyzer and dedups
+first-seen-wins, but it does not — and cannot — verify authorship.
+
+## Trusted-analyzer policy (explicit)
+
+- `attackmap`'s plugin lock (`src/attackmap/plugins_lock.py`, generated by
+  `scripts/update_plugin_lock.py`) records, per official analyzer: the repo,
+  the package name, the version, **the pinned git commit SHA**, and its
+  entry points. Auto-install (`--install-missing`) only ever installs these
+  packages at these immutable commits.
+- **A lockfile entry is pinning, not authenticity and not a sandbox.** It
+  pins *which commit* pip fetches over TLS; it does not cryptographically
+  verify the artifact you actually have installed, and it says nothing
+  about what the analyzer does at runtime. Review the code you install.
+- Default policy when scanning: any installed distribution may register an
+  analyzer and it will run (with a warning naming the distribution if it is
+  not an official plugin). Setting `ATTACKMAP_TRUSTED_ANALYZERS_ONLY=1`
+  (the GitHub Action's default, also `--trusted-analyzers-only`) loads only
+  lock-pinned official plugins. Installing a third-party analyzer is an
+  explicit trust decision made by whoever ran `pip install`.
+
 ## Publishing
 
 Analyzers are installed straight from their git repos, so publishing is just

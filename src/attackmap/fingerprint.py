@@ -20,9 +20,13 @@ from __future__ import annotations
 import hashlib
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .models import Finding, finding_rule_id
 from .safe_fs import contained_file, is_oversized
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 _STRING = re.compile(r"""(?:[rbuf]{0,2})("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)""", re.IGNORECASE)
 _NUMBER = re.compile(r"\b\d+(?:\.\d+)?\b")
@@ -42,8 +46,17 @@ def _digest(*parts: str) -> str:
     return hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()[:16]
 
 
-def assign_fingerprints(findings: list[Finding], root: str | Path) -> None:
-    """Set ``fingerprint`` on every location of every finding (in place)."""
+def assign_fingerprints(
+    findings: list[Finding], root: str | Path, index: "RepoIndex | None" = None
+) -> None:
+    """Set ``fingerprint`` on every location of every finding (in place).
+
+    With *index* (the run's :class:`~attackmap.index.RepoIndex`), source lines
+    come from the captured snapshot text, so fingerprints reference the same
+    revision the deterministic pass analyzed instead of the live file
+    (C33/AM047). Without it, lines are read from disk as before — publication
+    verification then covers any drift.
+    """
     root_path = Path(root)
     line_cache: dict[str, list[str] | None] = {}
 
@@ -51,15 +64,19 @@ def assign_fingerprints(findings: list[Finding], root: str | Path) -> None:
         if line is None:
             return ""
         if rel not in line_cache:
-            path = contained_file(root_path, rel)
-            try:
-                line_cache[rel] = (
-                    path.read_text(encoding="utf-8", errors="replace").splitlines()
-                    if path is not None and not is_oversized(path)
-                    else None
-                )
-            except OSError:
-                line_cache[rel] = None
+            if index is not None:
+                item = index.get(rel)
+                line_cache[rel] = item.text.splitlines() if item is not None else None
+            else:
+                path = contained_file(root_path, rel)
+                try:
+                    line_cache[rel] = (
+                        path.read_text(encoding="utf-8", errors="replace").splitlines()
+                        if path is not None and not is_oversized(path)
+                        else None
+                    )
+                except OSError:
+                    line_cache[rel] = None
         lines = line_cache[rel]
         if not lines or not 1 <= line <= len(lines):
             return f"#line-unavailable:{line}"

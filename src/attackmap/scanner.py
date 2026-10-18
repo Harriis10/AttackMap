@@ -753,6 +753,8 @@ def scan_files(
     if index is None:
         index = RepoIndex.build(root_path)
         result.limitations.extend(index.limitations)
+        if index.snapshot is not None:
+            result.scan_snapshot = index.snapshot.identity()
     result.resource_limit_events = list(index.resource_limit_events)
     result.resource_limit_scopes = list(index.resource_limit_scopes)
     result.resource_limit_reporting = index.resource_limit_reporting
@@ -891,6 +893,11 @@ def run_repo_passes(
     # Runs last so the full route list is assembled into cohorts. It drives its
     # own determinate per-cohort progress (the slow tail on big route surfaces).
     result.anomalies = result.anomalies + find_anomalies(result, root_path, progress=progress)
+    # Pin the run to the content snapshot its per-file pass read (C33/AM047):
+    # merged results are stamped here because per-analyzer stamps would not
+    # survive merge_analyzer_results.
+    if index is not None and index.snapshot is not None:
+        result.scan_snapshot = index.snapshot.identity()
     return result
 
 

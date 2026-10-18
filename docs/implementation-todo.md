@@ -62,7 +62,7 @@ Priority meanings: **High** blocks a reliable baseline, the native redesign, or 
 
 | M4 Quality and release | AM037 to AM046 plus deferred Windows validation | Planned; manual beta validation carried forward | C19 study; C21/C25 manual UX; C24 accessibility remain open | Pending | C27 to C32 plus carried-forward Windows checks |
 
-| M5 Local scale | AM047 to AM051 | Not started | Pending | Pending | C33 to C37 |
+| M5 Local scale | AM047 to AM051 | Wave 1 integrated: snapshot identity + publication gate (C33), analyzer protocol + isolated host (C36), setup verifier + contract CI + flaky scaffold (C37); C34/C35 in wave 2 | Wave-1 focused suites green on Windows; full regression per delivery log | Pending (engine-side only so far) | C33 to C37 |
 
 | M6 Expansion | AM052 to AM054 | Future or conditional | Not assessed | Not assessed | C38 to C40 |
 
@@ -504,9 +504,11 @@ M3 tasks may be developed against fixtures early, but the beta milestone cannot 
 
 
 
-- [ ] **AM047 Make analysis use one consistent snapshot** — Medium; suggested owner: indexing and evidence; dependencies: AM011, AM012, AM016, AM018, AM046.
+- [ ] **AM047 IN PROGRESS Make analysis use one consistent snapshot** — Medium; suggested owner: indexing and evidence; dependencies: AM011, AM012, AM016, AM018, AM046.
 
   Route deterministic passes, fingerprints, and excerpts through captured content identities; handle additions, deletion, and mutation explicitly. Keep path and filesystem safety protections.
+
+  2026-10-18 first slice delivered: content-identified `ScanSnapshot` in `index.py` (per-file sha256 on the index text basis, snapshot id over the sorted path→hash set, config identity over index acceptance limits), additive `ScanResult.scan_snapshot` carrying identity into `scan.json` and `run_identity.snapshot` in the manifest (schema keys declared), publication gate re-verifying the working tree and marking drifted runs `snapshot_state:"incomplete"` with a limitation listing changed/deleted/new paths (bounded mark-incomplete policy, no retry loop), content-confirmed `mutation_warnings()` with new-file detection, snapshot-pinned fingerprint source lines (optional index param), AI-excerpt spans recorded under their capture snapshot id. Mutation tests at all four roadmap phases (indexing, detection, report writing, excerpt extraction); real CLI run verified manifest↔scan.json identity match. Open: whole-repo passes (sbom/supply-chain/workflows/authz/anomalies/go.mod) still read live files and rely on verify-and-mark-incomplete; `recon_to_analysis.py` not yet passing the index to fingerprints (threading through `analyze_repository` return is the follow-up); byte-budget effects not replayed for new-file detection.
 
   **Done when:** [C33 Consistent snapshots](roadmap-2026-2028.md#c33-consistent-snapshots) passes mutation tests across the entire pipeline.
 
@@ -528,17 +530,21 @@ M3 tasks may be developed against fixtures early, but the beta milestone cannot 
 
 
 
-- [ ] **AM050 Introduce optional isolated analyzer execution** — Medium; suggested owner: plugin SDK and platform security; dependencies: AM009, AM010, AM012, AM049.
+- [ ] **AM050 IN PROGRESS Introduce optional isolated analyzer execution** — Medium; suggested owner: plugin SDK and platform security; dependencies: AM009, AM010, AM012, AM049.
 
   Define the extraction protocol and host, enforce actual supported limits, test hostile/crashing workers, and document the difference between process isolation and a security sandbox.
+
+  2026-10-18 first slice delivered: extraction protocol v1.0 (`analyzer_contracts.EXTRACTION_PROTOCOL_VERSION` + machine-readable contract description + compatibility check; all registered analyzers pass) and optional isolated host `src/attackmap/analyzer_host.py` reusing `execution/` supervision — time, stream/output-size, result-size limits plus a Windows Job Object memory cap; named partial-coverage outcomes (`AnalyzerHostTimeout/OutputLimit/MemoryLimit/Crash/InvalidOutput/LaunchFailed/Stuck`) that never touch sibling results. Eight malicious fixtures (crash, forced-kill hang, 10 MB stdout flood, malformed output, 1.5 GB memory hog, out-of-workdir write, namespace forgery) each yield the named result with siblings intact; forged provenance dropped by core-owned merge. Opt-in `--isolated-analyzers` CLI flag wired through ScanRequest/AnalyzeOptions (built-ins always in-process). Docs state explicitly: lockfile pinning is not authenticity and the host is fault containment, not a sandbox — no network/filesystem restriction (the escape test proves the outside-write succeeds). Open: memory cap Windows-only; stream cap is cooperative interposition; provenance not authenticated.
 
   **Done when:** [C36 Analyzer boundary](roadmap-2026-2028.md#c36-analyzer-boundary) passes current-analyzer compatibility and controlled failure tests.
 
 
 
-- [ ] **AM051 Improve contributor setup and cross-client contract CI** — Medium; suggested owner: developer experience; dependencies: AM017, AM025, AM046.
+- [ ] **AM051 IN PROGRESS Improve contributor setup and cross-client contract CI** — Medium; suggested owner: developer experience; dependencies: AM017, AM025, AM046.
 
   Document reproducible core and desktop setup, automate contract-consumer checks, run onboarding trials, and track delivery friction without introducing unnecessary infrastructure.
+
+  2026-10-18 machine slice delivered: `scripts/verify_setup.py` one-command setup verifier with per-stage JSON timing (measured stages 4.63 s / 81 tests on this host; fresh temp venv 14.57 s; install stage honestly recorded as skipped locally — deferred to the CI clean-runner log), `tools/flaky_tracker.py` stdlib-only per-test flakiness scaffold (two real runs aggregated), path-filtered `client-contract-fixtures.yml` CI gate over the run-contract + desktop/client fixture suites (YAML validated; remote runs pending push), CONTRIBUTING.md measured-setup + desktop-recipe pointers, and `docs/delivery-efficiency.md` as the C37 evidence page with recording templates for the human parts. Open by design: three-contributor onboarding trials (template provided, zero recorded), the eight-week flaky/lead-time window, the separate macOS repo's CI link, and the first real CI run after push.
 
   **Done when:** [C37 Delivery efficiency](roadmap-2026-2028.md#c37-delivery-efficiency) passes the timing trials and eight-week tracking requirement.
 

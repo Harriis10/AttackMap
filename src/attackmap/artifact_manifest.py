@@ -107,6 +107,90 @@ def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _analyzer_identity(analyzer_metadata: list[dict[str, Any]]) -> str:
+    """Content identity of the analyzer set + versions one run used (C33/AM047).
+
+    Name/version only: cosmetic metadata changes must not fork run identity.
+    """
+    entries = sorted(
+        ({"name": str(item.get("name", "")), "version": str(item.get("version", ""))}
+         for item in analyzer_metadata),
+        key=lambda entry: (entry["name"], entry["version"]),
+    )
+    payload = json.dumps(entries, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _captured_sources(out: Path, snapshot_id: str) -> list[dict[str, str]]:
+    """AI-excerpt source spans this run captured, recorded under one snapshot id.
+
+    Spans are content-addressed and immutable (they never re-read the live
+    file); recording the snapshot id they were captured under ties every AI
+    excerpt in the published run to one analyzed revision (C33/AM047).
+    """
+    sources: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for filename in ("vulnerability-hypotheses.meta.json", "defensive-review-llm.meta.json"):
+        data = _artifact_json(out / filename, min(max_file_bytes(), 2_000_000))
+        context = data.get("citation_context") if isinstance(data, dict) else None
+        entries = context.get("sources") if isinstance(context, dict) else None
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            path, sha = entry.get("path"), entry.get("source_sha256")
+            if not isinstance(path, str) or not isinstance(sha, str) or (path, sha) in seen:
+                continue
+            seen.add((path, sha))
+            sources.append({"path": path, "source_sha256": sha,
+                            "captured_under_snapshot_id": snapshot_id})
+    return sources
+
+
+def _snapshot_publication_block(
+    report_data: dict[str, Any], repo_root: str, out: Path
+) -> dict[str, Any] | None:
+    """Verify the analyzed snapshot against the working tree at publication.
+
+    The scan section carries the index-time snapshot identity (C33/AM047);
+    this is the publication gate. Any file that changed, disappeared or
+    appeared since the index marks the run incomplete — with an explicit
+    limitation listing the paths — instead of silently publishing evidence
+    from two revisions. Files under the output directory are excluded: the
+    run writes its own reports there. Bounded policy: no retry loop; the
+    operator re-runs for a consistent report.
+    """
+    scan_section = report_data.get("scan")
+    raw = scan_section.get("scan_snapshot") if isinstance(scan_section, dict) else None
+    if not isinstance(raw, dict) or not isinstance(raw.get("files"), dict):
+        return None
+    from .index import ScanSnapshot
+
+    snapshot = ScanSnapshot.from_identity(raw)
+    verification = snapshot.verify(repo_root, exclude=(out,))
+    block: dict[str, Any] = {
+        "snapshot_id": snapshot.snapshot_id,
+        "file_count": len(snapshot.files),
+        "total_size": snapshot.total_size,
+        "config_identity": snapshot.config_identity,
+        "index_config": dict(snapshot.index_config),
+        "verification": {
+            **verification.to_dict(),
+            "basis": "sha256 of utf-8 text under index acceptance rules",
+            "excluded_paths": [str(out)],
+        },
+    }
+    limitation = verification.limitation()
+    if limitation is not None:
+        block["incomplete"] = True
+        block["limitation"] = limitation
+    captured = _captured_sources(out, snapshot.snapshot_id)
+    if captured:
+        block["sources_captured"] = captured
+    return block
+
+
 def _iso_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -210,18 +294,29 @@ def write_artifact_manifest(
         if section is not None:
             compatibility_exports.append(section)
 
+    snapshot_block = _snapshot_publication_block(report_data, repo_root, out)
+    exit_state: dict[str, Any] = {"exit_code": exit_code, "status": status}
+    run_identity: dict[str, Any] = {
+        "repo_root": repo_root,
+        "repo_name": repo_name,
+        "analyzers": list(analyzer_metadata),
+        "analyzer_identity": _analyzer_identity(analyzer_metadata),
+    }
+    if snapshot_block is not None:
+        run_identity["snapshot"] = snapshot_block
+        if snapshot_block.get("incomplete"):
+            # Additive marker (the status string stays engine-owned): a
+            # drifted snapshot never publishes as a complete run (C33/AM047).
+            exit_state["snapshot_state"] = "incomplete"
+
     manifest = ArtifactManifest(
         schema_version=SCHEMA_VERSION,
         artifact_type=ARTIFACT_TYPE,
         generation_id=run_id,
         engine_version=engine_version,
         created_at=_iso_now(),
-        exit_state={"exit_code": exit_code, "status": status},
-        run_identity={
-            "repo_root": repo_root,
-            "repo_name": repo_name,
-            "analyzers": list(analyzer_metadata),
-        },
+        exit_state=exit_state,
+        run_identity=run_identity,
         sections=sections,
         compatibility_exports=compatibility_exports,
     )
