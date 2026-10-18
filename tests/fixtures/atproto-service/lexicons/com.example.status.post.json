@@ -1,0 +1,29 @@
+{
+  "lexicon": 1,
+  "id": "com.example.status.post",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "input": {
+        "schema": {
+          "type": "object",
+          "required": ["statusText"],
+          "properties": {
+            "statusText": { "type": "string", "maxLength": 300 },
+            "createdAt": { "type": "string", "format": "date-time" }
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "required": ["uri", "cid"],
+          "properties": {
+            "uri": { "type": "string", "format": "at-uri" },
+            "cid": { "type": "string", "format": "cid-string" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "lexicon": 1,
+  "id": "com.example.status.list",
+  "defs": {
+    "main": {
+      "type": "query",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "actor": { "type": "string", "format": "at-identifier" },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 },
+          "cursor": { "type": "string" }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "required": ["statuses"],
+          "properties": {
+            "cursor": { "type": "string" },
+            "statuses": {
+              "type": "array",
+              "items": { "type": "ref", "ref": "#status" }
+            }
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "required": ["uri", "cid", "statusText"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "cid": { "type": "string", "format": "cid-string" },
+        "statusText": { "type": "string" }
+      }
+    }
+  }
+}

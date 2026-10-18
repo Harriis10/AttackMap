@@ -43,23 +43,28 @@ def test_get_registered_analyzers_exposes_builtin_web_analyzers(monkeypatch) -> 
     monkeypatch.setattr("attackmap.analyzers.discover_installed_analyzers", lambda: [])
     analyzers = get_registered_analyzers()
 
-    assert len(analyzers) == 4
+    assert len(analyzers) == 9
     assert isinstance(analyzers[0], BuiltinPythonWebAnalyzer)
     assert isinstance(analyzers[1], BuiltinJavaScriptWebAnalyzer)
-    # Config analyzer joined the built-in set with #43. See BuiltinConfigAnalyzer.
-    assert analyzers[2].name == "config"
-    assert isinstance(analyzers[3], DefaultAnalyzer)
+    # Config analyzer joined the built-in set with #43; the AM052 lanes
+    # (php-web / php-laminas / omeka-s / node-atproto / python-service)
+    # slot in around it. See get_builtin_repository_analyzers.
+    assert analyzers[2].name == "php-web"
+    assert analyzers[3].name == "config"
+    assert isinstance(analyzers[-1], DefaultAnalyzer)
     assert [analyzer.name for analyzer in analyzers] == [
-        "python-web", "javascript-web", "config", "default",
+        "python-web", "javascript-web", "php-web", "config",
+        "php-laminas", "omeka-s", "node-atproto", "python-service", "default",
     ]
 
 
 def test_get_builtin_repository_analyzers_contains_builtin_defaults() -> None:
     analyzers = get_builtin_repository_analyzers()
 
-    assert len(analyzers) == 4
+    assert len(analyzers) == 9
     assert [analyzer.name for analyzer in analyzers] == [
-        "python-web", "javascript-web", "config", "default",
+        "python-web", "javascript-web", "php-web", "config",
+        "php-laminas", "omeka-s", "node-atproto", "python-service", "default",
     ]
 
 
@@ -221,7 +226,8 @@ def test_get_registered_analyzers_skips_duplicate_names(monkeypatch) -> None:
     analyzers = get_registered_analyzers()
 
     assert [analyzer.name for analyzer in analyzers] == [
-        "python-web", "javascript-web", "config", "default",
+        "python-web", "javascript-web", "php-web", "config",
+        "php-laminas", "omeka-s", "node-atproto", "python-service", "default",
     ]
 
 

@@ -1,0 +1,17 @@
+{
+  "name": "example-pds-gateway",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Synthetic ATProto PDS gateway fixture (example.com hosts only).",
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@atproto/xrpc-server": "^0.6.0",
+    "@atproto/identity": "^0.4.0",
+    "@atproto/crypto": "^0.4.0",
+    "axios": "^1.6.0",
+    "express": "^4.19.0"
+  }
+}

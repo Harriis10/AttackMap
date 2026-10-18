@@ -1,0 +1,26 @@
+{
+  "lexicon": 1,
+  "id": "com.example.moderation.report",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "input": {
+        "schema": {
+          "type": "object",
+          "required": ["subjectUri", "reasonType"],
+          "properties": {
+            "subjectUri": { "type": "string", "format": "at-uri" },
+            "reasonType": {
+              "type": "string",
+              "knownValues": [
+                "com.example.moderation.defs#spam",
+                "com.example.moderation.defs#ruleViolation"
+              ]
+            },
+            "reasonText": { "type": "string", "maxLength": 2000 }
+          }
+        }
+      }
+    }
+  }
+}

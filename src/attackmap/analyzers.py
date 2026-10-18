@@ -26,6 +26,7 @@ from .plugins_lock import OFFICIAL_PLUGINS
 from .safe_fs import walk_repo
 from .merge import MERGE_SCHEMA, initial_seen, merge_into
 from .analyzer_host import AnalyzerHostError, HostLimits, run_isolated_analyzer
+from .ecosystem_php import OmekaSAnalyzer, PhpLaminasAnalyzer, PhpWebAnalyzer
 
 from .sdk.contracts import (
     AnalyzerMetadata,
@@ -112,14 +113,15 @@ Analyzer = AnalyzerProtocol
 
 class DefaultAnalyzer:
     """Catch-all for code file suffixes not claimed by a specialized
-    built-in analyzer. Currently a no-op since python-web + javascript-web
-    together cover every entry in CODE_EXTENSIONS — kept so future
-    additions (e.g. `.go`, `.rs`) get picked up automatically until a
-    dedicated built-in ships."""
+    built-in analyzer. Currently a no-op for scanning purposes since
+    python-web + javascript-web + php-web together cover every entry in
+    CODE_EXTENSIONS — kept so future additions (e.g. `.go`, `.rs`) get
+    picked up automatically until a dedicated built-in ships."""
 
     # Suffixes owned by specialized built-in analyzers. Kept in sync
-    # with BuiltinPythonWebAnalyzer + BuiltinJavaScriptWebAnalyzer.
-    _CLAIMED_SUFFIXES = {".py"} | JS_TS_SUFFIXES
+    # with BuiltinPythonWebAnalyzer + BuiltinJavaScriptWebAnalyzer +
+    # the PHP lane (PhpWebAnalyzer in ecosystem_php).
+    _CLAIMED_SUFFIXES = {".py", ".php"} | JS_TS_SUFFIXES
 
     metadata = AnalyzerMetadata(
         name="default",
@@ -306,11 +308,99 @@ class BuiltinConfigAnalyzer:
         return scan_config_repo(root, index=index)
 
 
+class BuiltinNodeAtprotoAnalyzer:
+    """Thin ATProto / Node-service overlay (AM052 / C38).
+
+    Extraction-only enrichment on top of ``javascript-web``: XRPC lexicon
+    surface, handler wiring and auth resolution, identity / signing
+    hotspots, and service boundaries. All logic lives in
+    ``ecosystem_node_atproto`` (this class only delegates, mirroring
+    BuiltinConfigAnalyzer). ``detect()`` is conservative so the overlay
+    stays silent on non-ATProto repositories. See
+    docs/ecosystem/node-atproto-capabilities.md for the capability matrix
+    and explicit unsupported cases.
+    """
+
+    metadata = AnalyzerMetadata(
+        name="node-atproto",
+        display_name="Node / ATProto Overlay Analyzer",
+        version="0.1.0",
+        description=(
+            "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and "
+            "signing hotspots, service boundaries, and cross-file route wiring."
+        ),
+        scope=(
+            "Repositories that look like ATProto services (lexicons, @atproto dependencies, "
+            "did:/NSID markers). Enriches javascript-web; extraction only, never scores."
+        ),
+        targets=["atproto", "xrpc", "node-service"],
+        languages=["javascript", "typescript"],
+        priority=150,
+        experimental=True,
+        enabled_by_default=True,
+    )
+
+    @property
+    def name(self) -> str:
+        return self.metadata.name
+
+    def detect(self, root: str | Path) -> bool:
+        from .ecosystem_node_atproto import looks_like_atproto_repo
+        return looks_like_atproto_repo(root)
+
+    def analyze(self, root: str | Path, index=None) -> AnalyzerResult:
+        from .ecosystem_node_atproto import scan_node_atproto
+        return scan_node_atproto(root, index=index)
+
+
+class BuiltinPythonServiceAnalyzer:
+    """Built-in framework-enrichment overlay for Python web services
+    (AM052 / C38): the cross-file, framework-semantic signals the
+    per-file python-web pass structurally cannot see — router/blueprint/
+    URLconf wiring, definition-site-validated auth decorators, ORM query
+    scoping, Celery/service boundaries, settings secret flows.
+
+    Extraction lives in ``ecosystem_python`` following the
+    ``config_scanner.scan_config_repo`` delegation pattern; scoring and
+    findings stay in core. See docs/ecosystem/python-web-capabilities.md.
+    """
+
+    metadata = AnalyzerMetadata(
+        name="python-service",
+        display_name="Python Services Ecosystem Analyzer",
+        version="0.1.0",
+        description="Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+        scope="Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+        targets=["fastapi", "flask", "django", "celery"],
+        languages=["python"],
+        priority=50,
+        experimental=True,
+        enabled_by_default=True,
+    )
+
+    @property
+    def name(self) -> str:
+        return self.metadata.name
+
+    def detect(self, root: str | Path) -> bool:
+        from .ecosystem_python import detect_python_service_repo
+        return detect_python_service_repo(root)
+
+    def analyze(self, root: str | Path, index=None) -> AnalyzerResult:
+        from .ecosystem_python import scan_python_services
+        return scan_python_services(root, index=index)
+
+
 def get_builtin_repository_analyzers() -> list[Analyzer]:
     return [
         BuiltinPythonWebAnalyzer(),
         BuiltinJavaScriptWebAnalyzer(),
+        PhpWebAnalyzer(),
         BuiltinConfigAnalyzer(),
+        PhpLaminasAnalyzer(),
+        OmekaSAnalyzer(),
+        BuiltinNodeAtprotoAnalyzer(),
+        BuiltinPythonServiceAnalyzer(),
         DefaultAnalyzer(),
     ]
 
@@ -733,6 +823,11 @@ _BUILTIN_ANALYZER_TYPES = (
     BuiltinPythonWebAnalyzer,
     BuiltinJavaScriptWebAnalyzer,
     BuiltinConfigAnalyzer,
+    PhpWebAnalyzer,
+    PhpLaminasAnalyzer,
+    OmekaSAnalyzer,
+    BuiltinNodeAtprotoAnalyzer,
+    BuiltinPythonServiceAnalyzer,
 )
 
 

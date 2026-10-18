@@ -457,12 +457,12 @@ def test_markdown_lists_sample_counts_and_experimental_status(tmp_path):
 
 def test_shipped_seed_corpus_manifest_is_valid():
     corpus = load_corpus(SEED_MANIFEST)
-    assert (len(corpus.cases), len(corpus.repositories)) == (28, 10)
+    assert (len(corpus.cases), len(corpus.repositories)) == (46, 13)
     counts = {"positive": 0, "negative": 0, "clean": 0}
     for c in corpus.cases:
         counts[c.expectation] += 1
         assert c.rationale.strip()
-    assert counts == {"positive": 17, "negative": 9, "clean": 2}
+    assert counts == {"positive": 25, "negative": 19, "clean": 2}
     for c in corpus.cases:
         if c.expectation != "clean":
             assert c.family in SCORED_CATEGORIES
@@ -476,9 +476,9 @@ def test_shipped_seed_corpus_runs_end_to_end():
         [r.error for r in report.results if r.error]
     payload = report_json(report)
     # honest gap reporting: far below every C27 target, never silently met
-    assert payload["c27_gap"]["repositories_short"] == 20
-    assert payload["c27_gap"]["positive_cases_short"] == 283
-    assert payload["c27_gap"]["negative_cases_short"] == 291
+    assert payload["c27_gap"]["repositories_short"] == 17
+    assert payload["c27_gap"]["positive_cases_short"] == 275
+    assert payload["c27_gap"]["negative_cases_short"] == 281
     assert payload["c27_gap"]["clean_repositories_short"] == 8
     # every family visible and experimental on both sides of the split
     for side in ("tuning", "holdout"):
@@ -488,6 +488,6 @@ def test_shipped_seed_corpus_runs_end_to_end():
     md = render_markdown(report)
     for family in FAMILIES:
         assert f"`{family}`" in md
-    # frozen split: 3 holdout repositories, recorded by name
-    assert len(payload["split"]["holdout_repos"]) == 3
-    assert len(payload["split"]["tuning_repos"]) == 7
+    # frozen split: 4 holdout repositories, recorded by name
+    assert len(payload["split"]["holdout_repos"]) == 4
+    assert len(payload["split"]["tuning_repos"]) == 9
