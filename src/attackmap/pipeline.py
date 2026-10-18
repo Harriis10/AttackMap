@@ -39,6 +39,7 @@ from .diff import (
 from .finding_identity import legacy_id_aliases
 from .gitref import GitRefError
 from .hunt_harness import run_majority_verify
+from .index import active_index_for, clear_pinned_index
 from .llm_review import LlmReviewError, generate_llm_review
 from .md import sanitize_llm_markdown
 from .models import AnalyzerError, AttackPath, AttackSurface, Finding, ScanResult
@@ -437,6 +438,11 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
     scan = state.scan
     assert scan is not None
 
+    # The index analyze_repository captured for this run (C33/AM047): threaded
+    # into translation so fingerprints hash the analyzed revision, not the live
+    # tree. None when no index was pinned in this thread (stubbed scans).
+    run_index = active_index_for(repo_path)
+
     if options.recall:
         speculative = sum(1 for c in scan.taint_chains if c.speculative)
         echo(
@@ -488,7 +494,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
         _timed(state, "cve", _cve)
 
     def _translate() -> None:
-        analysis = translate_recon(scan)
+        analysis = translate_recon(scan, index=run_index)
         state.surfaces = analysis.attack_surfaces
         state.findings = analysis.findings
         state.paths = analysis.attack_paths
@@ -980,6 +986,11 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
     state.exit_code = diff_exit_code
     state.finish_scan("completed")
     write_run_manifest(state, output)
+
+    # The run is over: drop this thread's snapshot pin so later operations on
+    # the same repo (report regeneration, a follow-up scan) don't read a stale
+    # captured revision (C33/AM047). The next scan re-pins on its own build.
+    clear_pinned_index()
 
     if scan_report is not None and options.output_format in {"all", "json"}:
         write_artifact_manifest(

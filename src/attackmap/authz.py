@@ -32,11 +32,16 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from .safe_fs import contained_file, is_unsafe_link
+from .index import PassSources
+from .safe_fs import is_unsafe_link
 from .models import BolaCandidate, Route, ScanResult
 from .route_auth_fusion import resolve_route_control
 from .srcpaths import JS_TS_SUFFIXES, is_test_file, is_vendored_file
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 # Path parameter forms across frameworks:
 #   {id} {user_id} {int:id}        Flask / FastAPI / Starlette
@@ -133,14 +138,22 @@ _DEFER_SUFFIXES = JS_TS_SUFFIXES | {".py"}
 _MAX_FILE_BYTES = 1_000_000  # skip absurdly large files
 
 
-def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[BolaCandidate]:
+def analyze_authz(
+    scan: ScanResult, root: str | Path | None = None, index: "RepoIndex | None" = None
+) -> list[BolaCandidate]:
     """Return BOLA/IDOR candidates for routes in ``scan``.
 
     Only genuine candidates are returned: routes with an ID param that
     reach a datastore AND lack an ownership check. Routes that HAVE an
     ownership check, or don't reach a datastore, are dropped.
+
+    Handler and GraphQL file *content* resolves through the run's captured
+    index when one is given or pinned for this root (C33/AM047), so a mid-run
+    edit cannot flip an ownership-check verdict; the size gates use the
+    captured sizes. File enumeration stays the pass's own walk.
     """
     root_path = Path(root or scan.root).resolve()
+    sources = PassSources.for_root(root_path, index)
 
     # DB reachability sources.
     db_files = {_norm(db.file) for db in scan.databases}
@@ -164,7 +177,7 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
     candidates: list[BolaCandidate] = []
 
     for route in scan.routes:
-        content = _read_file_content(route.file, root_path, content_cache)
+        content = _read_file_content(route.file, root_path, content_cache, sources)
 
         # Path-encoded surfaces (RPC method, path template param) first; then
         # fall back to an id-shaped query-parameter access in the handler body.
@@ -233,7 +246,7 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
         )
 
     # GraphQL fields aren't modeled as routes — scan the repo's SDL directly.
-    candidates.extend(_graphql_bola_candidates(root_path, seen))
+    candidates.extend(_graphql_bola_candidates(root_path, seen, sources))
 
     candidates.sort(
         key=lambda c: (c.route_method not in _WRITE_METHODS, c.route_file, c.route_path)
@@ -300,16 +313,12 @@ def _query_param_in_handler(content: str) -> str | None:
     return None
 
 
-def _read_file_content(rel_file: str, root: Path, cache: dict[str, str | None]) -> str | None:
+def _read_file_content(
+    rel_file: str, root: Path, cache: dict[str, str | None], sources: PassSources
+) -> str | None:
     if rel_file in cache:
         return cache[rel_file]
-    content: str | None = None
-    try:
-        path = contained_file(root, rel_file)
-        if path is not None and path.stat().st_size <= _MAX_FILE_BYTES:
-            content = path.read_text(encoding="utf-8", errors="ignore")
-    except (OSError, ValueError):
-        content = None
+    content = sources.gated_text(rel_file, max_bytes=_MAX_FILE_BYTES, errors="ignore")
     cache[rel_file] = content
     return content
 
@@ -404,12 +413,12 @@ _GRAPHQL_SCHEMA_ROOT_RE = re.compile(r"\b(query|mutation)\s*:\s*(\w+)", re.IGNOR
 _GRAPHQL_SDL_MARKER_RE = re.compile(r"type\s+(?:Query|Mutation)\b|schema\s*\{")
 
 
-def _graphql_bola_candidates(root: Path, seen: set) -> list[BolaCandidate]:
+def _graphql_bola_candidates(root: Path, seen: set, sources: PassSources) -> list[BolaCandidate]:
     """Scan the repo's GraphQL SDL for id-bearing Query/Mutation fields that
     lack an authorization check (#139). GraphQL fields aren't routes, so
     they're modeled here as ``graphql_field`` surfaces. Authorization can be an
     SDL directive on the field OR an ownership check in the resolver code."""
-    files = list(_iter_graphql_files(root))
+    files = list(_iter_graphql_files(root, sources))
     # Resolver-side auth: files carrying an ownership marker (`current_user`,
     # `authorize`, …). A field defined as a resolver in such a file is treated
     # as authorized even without an SDL directive.
@@ -498,11 +507,13 @@ def _graphql_id_arg(args: str) -> str | None:
     return None
 
 
-def _iter_graphql_files(root: Path):
+def _iter_graphql_files(root: Path, sources: PassSources):
     """Yield ``(rel_path, text)`` for files relevant to GraphQL authz: `.graphql`
     / `.gql` files, and code files that either contain SDL (`type Query`, a
     `schema {…}`) or an ownership marker (candidate resolver). Test/fixture and
-    vendored files are excluded per the repo's source-quality policy (#139)."""
+    vendored files are excluded per the repo's source-quality policy (#139).
+    Content (and the size gate) resolve through the pinned snapshot when one
+    applies (C33/AM047)."""
     count = 0
 
     def walk(directory: Path, depth: int):
@@ -527,10 +538,10 @@ def _iter_graphql_files(root: Path):
             if is_test_file(rel) or is_vendored_file(rel):
                 continue
             try:
-                if entry.stat().st_size > _MAX_FILE_BYTES:
-                    continue
-                text = entry.read_text(encoding="utf-8", errors="ignore")
+                text = sources.gated_text(rel, max_bytes=_MAX_FILE_BYTES, errors="ignore")
             except (OSError, ValueError):
+                text = None
+            if text is None:
                 continue
             count += 1
             if suffix in _GRAPHQL_CODE_EXTS and not (

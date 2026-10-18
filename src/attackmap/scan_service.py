@@ -64,6 +64,8 @@ class ScanRequest:
     strict_suppressions: bool = False
     strict_analyzers: bool = False
     isolated_analyzers: bool = False
+    # C34/AM048: activate the per-file incremental cache (default off).
+    incremental: bool = False
     progress_format: str = "auto"
     no_progress: bool = False
     secrets_history: int = 0
@@ -139,6 +141,14 @@ def _analyze_options(
     output: Path,
     analyzers: list | None,
 ) -> AnalyzeOptions:
+    # C34/AM048: the explicit AnalyzeOptions.incremental field arrives with the
+    # pending pipeline.py patch; pass the kwarg only once the field exists so
+    # this module works unchanged before and after that patch. The cache
+    # itself is activated through ATTACKMAP_INCREMENTAL (set by --incremental),
+    # which scan_files reads, so behavior does not depend on this kwarg.
+    extra: dict[str, Any] = {}
+    if "incremental" in getattr(AnalyzeOptions, "__dataclass_fields__", {}):
+        extra["incremental"] = request.incremental
     return AnalyzeOptions(
         repo_path=repo_path,
         output=output,
@@ -179,6 +189,7 @@ def _analyze_options(
         ai_limits=request.ai_limits,
         run_id=request.run_id,
         echo=request.echo,
+        **extra,
     )
 
 
@@ -327,6 +338,10 @@ def _run_fleet_repo_argv(
         argv.append("--strict-suppressions")
     if request.strict_analyzers:
         argv.append("--strict-analyzers")
+    if request.incremental:
+        # The worker re-parses the flag and sets ATTACKMAP_INCREMENTAL itself,
+        # so the subprocess scan activates the per-file cache (C34/AM048).
+        argv.append("--incremental")
     if request.no_progress:
         argv.append("--no-progress")
     elif request.progress_format != "auto":

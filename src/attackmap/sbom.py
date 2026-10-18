@@ -24,10 +24,15 @@ import json
 import re
 import tomllib
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+from .index import PassSources
 from .safe_fs import is_unsafe_link
 from .lockfiles import parse_lockfiles
 from .models import DependencyHint
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 _MAX_DEPTH = 3
 _SKIP_DIRS = {
@@ -43,28 +48,38 @@ _SKIP_DIRS = {
 }
 
 
-def analyze_sbom(root: str | Path) -> list[DependencyHint]:
+def analyze_sbom(root: str | Path, index: "RepoIndex | None" = None) -> list[DependencyHint]:
     """Walk ``root`` and return a deduped list of DependencyHint records.
 
     Manifests contribute direct deps with verbatim version ranges. Lockfiles
     (#143) contribute exact resolved versions and the transitive tree; where a
     lockfile supersedes a range-only manifest (npm/pypi/cargo/composer) the manifest
     hints for that ecosystem are dropped in favour of the exact resolution.
+
+    Manifest and lockfile *content* resolves through the run's captured index
+    when one is given or pinned for this root (C33/AM047), so a mid-run edit
+    cannot change the SBOM; the walk itself still enumerates the live tree.
     """
     root_path = Path(root).resolve()
     if not root_path.exists() or not root_path.is_dir():
         return []
+    sources = PassSources.for_root(root_path, index)
 
     manifest_hints: list[DependencyHint] = []
     for manifest in _iter_manifests(root_path):
         rel = str(manifest.relative_to(root_path)).replace("\\", "/")
         try:
-            manifest_hints.extend(_parse_manifest(manifest, rel))
+            text = sources.text(manifest)
+            if text is None:
+                # Not part of the captured snapshot (added mid-run or rejected
+                # by the index acceptance policy) — outside this run's basis.
+                continue
+            manifest_hints.extend(_parse_manifest(manifest.name, text, rel))
         except (OSError, UnicodeDecodeError, ValueError, tomllib.TOMLDecodeError, json.JSONDecodeError):
             # A malformed manifest shouldn't sink the whole scan; skip it.
             continue
 
-    lock_hints, superseded = parse_lockfiles(root_path)
+    lock_hints, superseded = parse_lockfiles(root_path, index=sources.index)
 
     # Drop a range-only manifest hint only when a lockfile of the same
     # ecosystem sits in the *same directory* — so a monorepo's lockfile in
@@ -112,20 +127,19 @@ def _iter_manifests(root: Path):
     yield from walk(root, 1)
 
 
-def _parse_manifest(path: Path, rel: str) -> list[DependencyHint]:
-    name = path.name
+def _parse_manifest(name: str, text: str, rel: str) -> list[DependencyHint]:
     if name == "pyproject.toml":
-        return _parse_pyproject(path, rel)
+        return _parse_pyproject(text, rel)
     if name == "requirements.txt":
-        return _parse_requirements(path, rel)
+        return _parse_requirements(text, rel)
     if name == "package.json":
-        return _parse_package_json(path, rel)
+        return _parse_package_json(text, rel)
     if name == "go.mod":
-        return _parse_go_mod(path, rel)
+        return _parse_go_mod(text, rel)
     if name == "Cargo.toml":
-        return _parse_cargo_toml(path, rel)
+        return _parse_cargo_toml(text, rel)
     if name == "composer.json":
-        return _parse_composer_json(path, rel)
+        return _parse_composer_json(text, rel)
     return []
 
 
@@ -135,8 +149,8 @@ def _parse_manifest(path: Path, rel: str) -> list[DependencyHint]:
 _REQUIREMENT_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
 
 
-def _parse_pyproject(path: Path, rel: str) -> list[DependencyHint]:
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
+def _parse_pyproject(text: str, rel: str) -> list[DependencyHint]:
+    data = tomllib.loads(text)
     project = data.get("project") or {}
     hints: list[DependencyHint] = []
     for spec in project.get("dependencies") or []:
@@ -221,9 +235,9 @@ def _stringify_poetry_version(value: object) -> str:
     return "*"
 
 
-def _parse_requirements(path: Path, rel: str) -> list[DependencyHint]:
+def _parse_requirements(text: str, rel: str) -> list[DependencyHint]:
     hints: list[DependencyHint] = []
-    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+    for lineno, raw in enumerate(text.splitlines(), start=1):
         line = raw.split("#", 1)[0].strip()
         if not line:
             continue
@@ -253,8 +267,8 @@ def _parse_requirements(path: Path, rel: str) -> list[DependencyHint]:
 # ---------- Node -----------------------------------------------------------
 
 
-def _parse_package_json(path: Path, rel: str) -> list[DependencyHint]:
-    data = json.loads(path.read_text(encoding="utf-8"))
+def _parse_package_json(text: str, rel: str) -> list[DependencyHint]:
+    data = json.loads(text)
     hints: list[DependencyHint] = []
     for section, is_dev in (("dependencies", False), ("devDependencies", True), ("peerDependencies", False), ("optionalDependencies", False)):
         section_data = data.get(section) or {}
@@ -282,9 +296,8 @@ _GO_REQUIRE_LINE_RE = re.compile(
 )
 
 
-def _parse_go_mod(path: Path, rel: str) -> list[DependencyHint]:
+def _parse_go_mod(text: str, rel: str) -> list[DependencyHint]:
     """Parse `require` directives in go.mod (both single-line and block form)."""
-    text = path.read_text(encoding="utf-8")
     hints: list[DependencyHint] = []
     in_block = False
     for lineno, raw in enumerate(text.splitlines(), start=1):
@@ -343,8 +356,8 @@ def _parse_go_mod(path: Path, rel: str) -> list[DependencyHint]:
 # ---------- Rust -----------------------------------------------------------
 
 
-def _parse_cargo_toml(path: Path, rel: str) -> list[DependencyHint]:
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
+def _parse_cargo_toml(text: str, rel: str) -> list[DependencyHint]:
+    data = tomllib.loads(text)
     hints: list[DependencyHint] = []
     for section, is_dev in (
         ("dependencies", False),
@@ -377,8 +390,8 @@ def _parse_cargo_toml(path: Path, rel: str) -> list[DependencyHint]:
 # ---------- PHP ------------------------------------------------------------
 
 
-def _parse_composer_json(path: Path, rel: str) -> list[DependencyHint]:
-    data = json.loads(path.read_text(encoding="utf-8"))
+def _parse_composer_json(text: str, rel: str) -> list[DependencyHint]:
+    data = json.loads(text)
     hints: list[DependencyHint] = []
     for section, is_dev in (("require", False), ("require-dev", True)):
         section_data = data.get(section) or {}

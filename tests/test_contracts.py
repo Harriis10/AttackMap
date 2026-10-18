@@ -513,6 +513,47 @@ def test_scheme_check_requires_both_sides_declared() -> None:
     assert declared_client_only[0].resolution == "observed"
 
 
+def test_scheme_mismatch_candidate_names_contradicting_declaration() -> None:
+    # The candidate cites the protocol declaration its scheme contradicted —
+    # with the declaring file when the declaration was extracted from one — so
+    # an inspector sees exactly which config kept the link a candidate.
+    aliases = DeploymentAliases(
+        service_protocols={"b": "https"},
+        source_files={"service_protocols:b:https": "b/k8s/service.yaml"},
+    )
+    fleet = [("a", _client("a", "http://b/users/5")), ("b", _server("b", "/users/{id}"))]
+    mismatch = link_contracts(fleet, aliases=aliases)
+    assert mismatch[0].resolution == "candidate"
+    assert mismatch[0].resolution_reason == "scheme_mismatch"
+    assert mismatch[0].alias_provenance == "service_protocols:b:https (b/k8s/service.yaml)"
+    # The agreeing scheme still resolves observed, by identity (no provenance).
+    agreeing = link_contracts(
+        [("a", _client("a", "https://b/users/5")), ("b", _server("b", "/users/{id}"))],
+        aliases=aliases,
+    )
+    assert agreeing[0].resolution == "observed"
+    assert agreeing[0].alias_provenance is None
+
+
+def test_scheme_mismatch_without_citable_declaration_keeps_provenance_none() -> None:
+    # Identities that disagree with each other (fleet id and directory name
+    # declared with different schemes) still mismatch a scheme in neither
+    # camp, but no single declaration vouches — provenance stays None rather
+    # than guessing one.
+    links = link_contracts(
+        [
+            ("a", _client("a", "ftp://b/users/5")),
+            ("b", _scan("C:/repos/alt-name", routes=[Route(path="/users/{id}", method="GET", file="s.py", line=1)])),
+        ],
+        aliases=DeploymentAliases(
+            service_protocols={"b": "https", "alt-name": "http"},
+        ),
+    )
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "scheme_mismatch"
+    assert links[0].alias_provenance is None
+
+
 # ---------------------------------------------------------------------------
 # declared proxies (C28)
 # ---------------------------------------------------------------------------

@@ -458,9 +458,10 @@ def test_conflicting_same_kind_port_declarations_dropped(tmp_path: Path) -> None
 
 def test_deployment_seam_fixture_extraction(tmp_path: Path) -> None:
     # The checked-in three-service fixture is the config-only counterpart of
-    # the CLI-flag service-seam fixture: k8s + compose + nginx declare every
-    # seam, and the negative controls (multi-backend upstream, malformed YAML,
-    # multi-port compose service) stay notes, never declarations.
+    # the CLI-flag service-seam fixture: k8s + compose + nginx + an Ingress
+    # declare every seam and protocol, and the negative controls (multi-backend
+    # upstream, malformed YAML, multi-port compose service) stay notes, never
+    # declarations.
     fleet = Path(__file__).parent / "fixtures" / "deployment-seam-fleet"
     aliases, notes = extract_deployment_aliases(
         [fleet / "web-app", fleet / "auth-api", fleet / "feed-generator"]
@@ -471,9 +472,210 @@ def test_deployment_seam_fixture_extraction(tmp_path: Path) -> None:
     assert aliases.source_files["service_ports:feed-generator:9000"] == (
         "feed-generator/docker-compose.yml"
     )
-    assert aliases.proxies == {"edge.internal": "auth-api"}
+    assert aliases.proxies == {
+        "edge.internal": "auth-api",
+        "feed-edge.internal": "feed-generator",
+        "auth.ingress.cluster.local": "auth-api",
+    }
     assert aliases.source_files["proxies:edge.internal"] == "auth-api/deploy/nginx/edge.conf"
-    assert aliases.service_protocols == {}
+    assert aliases.source_files["proxies:auth.ingress.cluster.local"] == (
+        "auth-api/k8s/ingress.yaml"
+    )
+    # Protocols: the Service's appProtocol declares auth-api's https (the
+    # proxy_pass and Ingress annotation agree and dedupe under it); nginx's
+    # proxy_pass scheme is feed-generator's only declaration.
+    assert aliases.service_protocols == {"auth-api": "https", "feed-generator": "https"}
+    assert aliases.source_files["service_protocols:auth-api:https"] == "auth-api/k8s/service.yaml"
+    assert aliases.source_files["service_protocols:feed-generator:https"] == (
+        "auth-api/deploy/nginx/edge.conf"
+    )
     assert any("multi_backend" in n for n in notes)
     assert any("broken-service.yaml" in n and "malformed" in n for n in notes)
     assert any("worker" in n for n in notes)
+
+
+def test_k8s_service_appprotocol_declares_scheme_with_file_provenance(tmp_path: Path) -> None:
+    repo = tmp_path / "auth-api"
+    repo.mkdir()
+    (repo / "service.yaml").write_text(
+        _service_yaml("auth-api", 8443, port_name="https").replace(
+            "      port: 8443\n", "      port: 8443\n      appProtocol: https\n"
+        ),
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_ports == {"auth-api": 8443}
+    assert aliases.service_protocols == {"auth-api": "https"}
+    assert aliases.source_files["service_protocols:auth-api:https"] == "auth-api/service.yaml"
+    assert notes == []
+
+
+def test_k8s_service_appprotocol_unmodeled_protocol_noted_not_guessed(tmp_path: Path) -> None:
+    repo = tmp_path / "orders"
+    repo.mkdir()
+    (repo / "service.yaml").write_text(
+        _service_yaml("orders", 50051).replace(
+            "      port: 50051\n", "      port: 50051\n      appProtocol: grpc\n"
+        ),
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_ports == {"orders": 50051}  # the port still declares
+    assert aliases.service_protocols == {}  # grpc is not modeled — never guessed
+    assert any("appProtocol" in n and "grpc" in n for n in notes)
+
+
+def test_nginx_proxy_pass_scheme_declares_backend_protocol(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "edge.conf").write_text(
+        "upstream auth_backend {\n    server auth-api:8443;\n}\n"
+        "server {\n    listen 80;\n    server_name edge.internal;\n"
+        "    location / {\n        proxy_pass https://auth_backend;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {"edge.internal": "auth-api"}
+    assert aliases.service_protocols == {"auth-api": "https"}
+    assert aliases.source_files["service_protocols:auth-api:https"] == "edge/edge.conf"
+    assert notes == []
+
+
+def test_nginx_proxy_pass_scheme_survives_missing_server_name(tmp_path: Path) -> None:
+    # The protocol the edge dials the backend with does not depend on naming
+    # the proxy host: the scheme is declared, the proxy is not.
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "edge.conf").write_text(
+        "upstream auth_backend {\n    server auth-api:8443;\n}\n"
+        "server {\n    listen 80;\n    location / {\n        proxy_pass https://auth_backend;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {}
+    assert aliases.service_protocols == {"auth-api": "https"}
+    assert any("no concrete server_name" in n for n in notes)
+
+
+def test_nginx_proxy_pass_unmodeled_scheme_noted_not_guessed(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "edge.conf").write_text(
+        "upstream grpc_backend {\n    server orders:50051;\n}\n"
+        "server {\n    listen 80;\n    server_name grpc.internal;\n"
+        "    location / {\n        proxy_pass grpc://grpc_backend;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {"grpc.internal": "orders"}  # the proxy still declares
+    assert aliases.service_protocols == {}
+    assert any("proxy_pass grpc://" in n for n in notes)
+
+
+def test_conflicting_proxy_pass_schemes_drop_the_protocol(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "edge.conf").write_text(
+        "upstream auth_backend {\n    server auth-api:8443;\n}\n"
+        "server {\n    server_name a.internal;\n    location / {\n        proxy_pass http://auth_backend;\n    }\n}\n"
+        "server {\n    server_name b.internal;\n    location / {\n        proxy_pass https://auth_backend;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_protocols == {}  # same rank, different scheme: ambiguous
+    assert any("conflicting" in n and "schemes" in n for n in notes)
+
+
+def test_service_appprotocol_outranks_conflicting_proxy_pass(tmp_path: Path) -> None:
+    repo = tmp_path / "auth-api"
+    repo.mkdir()
+    # walk order (alphabetical) reads the nginx file first, so the higher-
+    # precedence appProtocol arrives second and the override is noted.
+    (repo / "edge.conf").write_text(
+        "upstream auth_backend {\n    server auth-api:8443;\n}\n"
+        "server {\n    server_name edge.internal;\n"
+        "    location / {\n        proxy_pass http://auth_backend;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    (repo / "service.yaml").write_text(
+        _service_yaml("auth-api", 8443).replace(
+            "      port: 8443\n", "      port: 8443\n      appProtocol: https\n"
+        ),
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.service_protocols == {"auth-api": "https"}
+    assert aliases.source_files["service_protocols:auth-api:https"] == "auth-api/service.yaml"
+    assert any("overrides" in n for n in notes)
+
+
+def test_k8s_ingress_declares_proxy_and_backend_protocol(tmp_path: Path) -> None:
+    repo = tmp_path / "auth-api"
+    repo.mkdir()
+    (repo / "ingress.yaml").write_text(
+        "apiVersion: networking.k8s.io/v1\nkind: Ingress\n"
+        "metadata:\n  name: auth-ingress\n"
+        "  annotations:\n    nginx.ingress.kubernetes.io/backend-protocol: \"HTTPS\"\n"
+        "spec:\n  rules:\n    - host: auth.ingress.cluster.local\n      http:\n        paths:\n"
+        "          - path: /\n            pathType: Prefix\n            backend:\n"
+        "              service:\n                name: auth-api\n                port:\n                  number: 8443\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {"auth.ingress.cluster.local": "auth-api"}
+    assert aliases.source_files["proxies:auth.ingress.cluster.local"] == "auth-api/ingress.yaml"
+    assert aliases.service_protocols == {"auth-api": "https"}
+    assert aliases.source_files["service_protocols:auth-api:https"] == "auth-api/ingress.yaml"
+    assert notes == []
+
+
+def test_k8s_ingress_multi_backend_host_skipped_with_note(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "ingress.yaml").write_text(
+        "apiVersion: networking.k8s.io/v1\nkind: Ingress\n"
+        "metadata:\n  name: split-ingress\n"
+        "spec:\n  rules:\n    - host: split.internal\n      http:\n        paths:\n"
+        "          - path: /users\n            backend:\n              service:\n                name: auth-api\n"
+        "          - path: /feeds\n            backend:\n              service:\n                name: feed-generator\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {}
+    assert aliases.service_protocols == {}
+    assert any("split.internal" in n and "multi-backend" in n for n in notes)
+
+
+def test_k8s_ingress_hostless_rule_and_unmodeled_annotation_skipped(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "ingress.yaml").write_text(
+        "apiVersion: networking.k8s.io/v1\nkind: Ingress\n"
+        "metadata:\n  name: catchall\n"
+        "  annotations:\n    nginx.ingress.kubernetes.io/backend-protocol: \"GRPC\"\n"
+        "spec:\n  rules:\n    - http:\n        paths:\n"
+        "          - path: /\n            backend:\n              service:\n                name: orders\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {}  # hostless catch-all: no identity to declare
+    assert aliases.service_protocols == {}  # grpc not modeled
+    assert any("hostless" in n for n in notes)
+    assert any("backend-protocol" in n and "GRPC" in n for n in notes)
+
+
+def test_k8s_ingress_backend_protocol_mapping_form_skipped(tmp_path: Path) -> None:
+    repo = tmp_path / "edge"
+    repo.mkdir()
+    (repo / "ingress.yaml").write_text(
+        "apiVersion: networking.k8s.io/v1\nkind: Ingress\n"
+        "metadata:\n  name: mapped\n"
+        "  annotations:\n    nginx.ingress.kubernetes.io/backend-protocol: \"auth-api:HTTPS,orders:GRPC\"\n"
+        "spec:\n  rules:\n    - host: mapped.internal\n      http:\n        paths:\n"
+        "          - path: /\n            backend:\n              service:\n                name: auth-api\n",
+        encoding="utf-8",
+    )
+    aliases, notes = extract_deployment_aliases([repo])
+    assert aliases.proxies == {"mapped.internal": "auth-api"}  # routing still declares
+    assert aliases.service_protocols == {}  # the per-service mapping form is not modeled
+    assert any("mapping form" in n for n in notes)

@@ -410,3 +410,77 @@ def test_index_file_limit_default_is_c35_target() -> None:
     from attackmap.index import DEFAULT_INDEX_FILE_LIMIT
     assert DEFAULT_INDEX_FILE_LIMIT == 100_000
     assert CACHE_SCHEMA == "attackmap-incremental/1.0"
+
+
+# --- eviction bound (C34/AM048 remainder) ---------------------------------------
+
+def _key(cache: PerFileCache, rel: str, content: str) -> FileCacheKey:
+    import hashlib
+
+    return FileCacheKey(
+        rel=rel, suffix=".py",
+        content_sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
+        pass_suffixes=None, engine=cache.engine, policy=cache.policy,
+    )
+
+
+def _empty_payload() -> dict:
+    from attackmap.incremental import dump_payload
+
+    return dump_payload({}, False)
+
+
+def test_eviction_respects_bound_and_drops_oldest_first(tmp_path: Path) -> None:
+    cache = PerFileCache.open(tmp_path / "cache.json", max_entries=3)
+    keys = [_key(cache, f"f{i}.py", f"content-{i}") for i in range(5)]
+    for key in keys:
+        cache.put(key, _empty_payload())
+    assert cache.entry_count == 3
+    # Oldest-inserted entries were evicted; the newest survive and replay.
+    assert cache.get(keys[0]) is None
+    assert cache.get(keys[1]) is None
+    for key in keys[2:]:
+        assert cache.get(key) is not None
+    # The bound and eviction order survive save/reopen.
+    cache.save()
+    reopened = PerFileCache.open(tmp_path / "cache.json", max_entries=3)
+    assert reopened.entry_count == 3
+    assert reopened.get(keys[1]) is None
+    assert reopened.get(keys[4]) is not None
+
+
+def test_reopen_trims_a_file_written_under_a_larger_bound(tmp_path: Path) -> None:
+    cache = PerFileCache.open(tmp_path / "cache.json", max_entries=10)
+    for i in range(6):
+        cache.put(_key(cache, f"f{i}.py", f"content-{i}"), _empty_payload())
+    cache.save()
+    trimmed = PerFileCache.open(tmp_path / "cache.json", max_entries=2)
+    assert trimmed.entry_count == 2
+    assert trimmed._dirty  # reopening itself restores the bound on save
+
+
+def test_default_bound_is_the_documented_constant(tmp_path: Path) -> None:
+    from attackmap.incremental import MAX_CACHE_ENTRIES
+
+    assert PerFileCache.open(tmp_path / "cache.json").max_entries == MAX_CACHE_ENTRIES
+    assert MAX_CACHE_ENTRIES == 50_000
+
+
+def test_env_activation_flag_activates_cache(monkeypatch, tmp_path: Path) -> None:
+    """ATTACKMAP_INCREMENTAL=1 (set by the CLI --incremental flag) activates
+    the cache exactly like incremental=True, and stays off by default."""
+    from attackmap.incremental import enabled_by_env
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _seed_repo(repo)
+
+    assert enabled_by_env() is False
+    full = scan_files(repo)
+
+    monkeypatch.setenv("ATTACKMAP_INCREMENTAL", "1")
+    assert enabled_by_env() is True
+    via_env = scan_files(repo)
+    assert _normalized(full) == _normalized(via_env)
+    cache_dir = default_cache_dir(repo)
+    assert cache_dir is not None and (cache_dir / "per-file-cache.json").exists()

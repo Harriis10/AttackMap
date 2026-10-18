@@ -38,11 +38,16 @@ import json
 import re
 import tomllib
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+from .index import PassSources
 from .models import DependencyHint, SupplyChainIssue
 from .popular_packages import BY_ECOSYSTEM
-from .safe_fs import is_oversized, is_unsafe_link, walk_repo
+from .safe_fs import is_unsafe_link, walk_repo
 from .srcpaths import is_test_file
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 _MAX_DEPTH = 4
 _SKIP_DIRS = {".git", "node_modules", "__pycache__", "dist", "build", ".venv", "venv", "target", "vendor"}
@@ -102,10 +107,12 @@ class _Collector:
         ))
 
 
-def _iter_files(root: Path):
+def _iter_files(root: Path, sources: PassSources):
     for path in walk_repo(root, prune=lambda name: name in _SKIP_DIRS):
         rel = path.relative_to(root)
-        if len(rel.parts) > _MAX_DEPTH or is_unsafe_link(root, path) or is_oversized(path):
+        # The size gate uses the captured size when the file is part of the
+        # snapshot (C33/AM047); the walk itself still enumerates the live tree.
+        if len(rel.parts) > _MAX_DEPTH or is_unsafe_link(root, path) or sources.oversized(path):
             continue
         # Test fixtures declare deliberately loose or fake manifests; like the
         # other heuristic passes, skip them (ATTACKMAP_INCLUDE_TESTS opts in).
@@ -114,11 +121,10 @@ def _iter_files(root: Path):
         yield path, rel.as_posix()
 
 
-def _read(path: Path) -> str | None:
-    try:
-        return path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
+def _read(path: Path, sources: PassSources) -> str | None:
+    """Snapshot-pinned text for one enumerated file (None: unreadable, or not
+    part of the captured snapshot — the pass skips it)."""
+    return sources.text(path, errors="replace")
 
 
 def _has_lock(root: Path, directory: Path, names: tuple[str, ...]) -> bool:
@@ -133,14 +139,17 @@ def _has_lock(root: Path, directory: Path, names: tuple[str, ...]) -> bool:
         current = current.parent
 
 
-def _load_internal_prefixes(root: Path) -> list[str]:
+def _load_internal_prefixes(root: Path, sources: PassSources) -> list[str]:
     config = root / ".attackmap.yaml"
-    if not config.is_file() or is_unsafe_link(root, config) or is_oversized(config):
+    if is_unsafe_link(root, config) or sources.oversized(config):
         return []
     try:
         import yaml  # type: ignore[import-untyped]
 
-        data = yaml.safe_load(config.read_text(encoding="utf-8"))
+        text = sources.text(config)
+        if text is None:
+            return []
+        data = yaml.safe_load(text)
     except Exception:  # noqa: BLE001 — a bad config must not sink the scan
         return []
     prefixes = data.get("internal_prefixes") if isinstance(data, dict) else None
@@ -152,47 +161,59 @@ def _load_internal_prefixes(root: Path) -> list[str]:
 # --- Public entrypoint -----------------------------------------------------
 
 
-def scan_supply_chain(root: str | Path, dependencies: list[DependencyHint] | None = None) -> list[SupplyChainIssue]:
+def scan_supply_chain(
+    root: str | Path,
+    dependencies: list[DependencyHint] | None = None,
+    index: "RepoIndex | None" = None,
+) -> list[SupplyChainIssue]:
     """Offline supply-chain risk pass. ``dependencies`` are the SBOM hints
-    (``analyze_sbom``); when omitted they are computed."""
+    (``analyze_sbom``); when omitted they are computed.
+
+    File *content* resolves through the run's captured index when one is given
+    or pinned for this root (C33/AM047), so a mid-run edit cannot change this
+    pass's input. Lockfile-presence checks (``_has_lock``) and go.mod
+    ``replace``-target path resolution remain live metadata: they ask about the
+    tree's structure, not a file's bytes.
+    """
     root_path = Path(root).resolve()
     if not root_path.is_dir():
         return []
+    sources = PassSources.for_root(root_path, index)
     if dependencies is None:
         from .sbom import analyze_sbom
 
-        dependencies = analyze_sbom(root_path)
+        dependencies = analyze_sbom(root_path, index=sources.index)
     out = _Collector(root_path)
     ctx = _RegistryContext()
 
-    for path, rel in _iter_files(root_path):
+    for path, rel in _iter_files(root_path, sources):
         name = path.name
         if name == ".npmrc":
-            _scan_npmrc(path, rel, out, ctx)
+            _scan_npmrc(path, rel, out, ctx, sources)
         elif name in {".yarnrc", ".yarnrc.yml"}:
-            _scan_yarnrc(path, rel, out)
+            _scan_yarnrc(path, rel, out, sources)
         elif name in {"pip.conf", "pip.ini"}:
-            _scan_pip_conf(path, rel, out, ctx)
+            _scan_pip_conf(path, rel, out, ctx, sources)
         elif name.endswith(".txt") and ("requirements" in name or name == "constraints.txt"):
-            _scan_requirements(path, rel, out, ctx)
+            _scan_requirements(path, rel, out, ctx, sources)
         elif name == "pyproject.toml":
-            _scan_pyproject(path, rel, out, ctx)
+            _scan_pyproject(path, rel, out, ctx, sources)
         elif name == "package.json":
-            _scan_package_json(root_path, path, rel, out, ctx)
+            _scan_package_json(root_path, path, rel, out, ctx, sources)
         elif name == "package-lock.json":
-            _scan_package_lock(path, rel, out)
+            _scan_package_lock(path, rel, out, sources)
         elif name == "go.mod":
-            _scan_go_mod(root_path, path, rel, out)
+            _scan_go_mod(root_path, path, rel, out, sources)
         elif name == "Cargo.toml":
-            _scan_cargo_toml(root_path, path, rel, out)
+            _scan_cargo_toml(root_path, path, rel, out, sources)
         elif name == "composer.json":
-            _scan_unlocked_json(root_path, path, rel, out, ("require", "require-dev"), ("composer.lock",), "composer")
+            _scan_unlocked_json(root_path, path, rel, out, ("require", "require-dev"), ("composer.lock",), "composer", sources)
         elif name == "Pipfile":
             if not (path.parent / "Pipfile.lock").is_file():
                 out.add("unlocked_manifest", rel, "low", "Pipfile without Pipfile.lock — installs resolve to whatever is newest", ecosystem="pypi")
 
     production = [d for d in dependencies if not is_test_file(d.file)]
-    _check_confusion(production, _load_internal_prefixes(root_path), ctx, out)
+    _check_confusion(production, _load_internal_prefixes(root_path, sources), ctx, out)
     _check_typosquats(production, out)
     return out.issues
 
@@ -217,8 +238,8 @@ def _check_registry_url(url: str, rel: str, line: int | None, out: _Collector, e
                 ecosystem=eco, line=line)
 
 
-def _scan_npmrc(path: Path, rel: str, out: _Collector, ctx: _RegistryContext) -> None:
-    text = _read(path)
+def _scan_npmrc(path: Path, rel: str, out: _Collector, ctx: _RegistryContext, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     for lineno, raw in enumerate(text.splitlines(), start=1):
@@ -239,8 +260,8 @@ def _scan_npmrc(path: Path, rel: str, out: _Collector, ctx: _RegistryContext) ->
                     ecosystem="npm", line=lineno)
 
 
-def _scan_yarnrc(path: Path, rel: str, out: _Collector) -> None:
-    text = _read(path)
+def _scan_yarnrc(path: Path, rel: str, out: _Collector, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     for lineno, raw in enumerate(text.splitlines(), start=1):
@@ -254,8 +275,8 @@ def _scan_yarnrc(path: Path, rel: str, out: _Collector) -> None:
                     ecosystem="npm", line=lineno)
 
 
-def _scan_pip_conf(path: Path, rel: str, out: _Collector, ctx: _RegistryContext) -> None:
-    text = _read(path)
+def _scan_pip_conf(path: Path, rel: str, out: _Collector, ctx: _RegistryContext, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     parser = configparser.ConfigParser(interpolation=None, strict=False)
@@ -309,8 +330,8 @@ def _check_py_url(name: str | None, url: str, line_text: str, rel: str, lineno: 
                     package=name, ecosystem="pypi", line=lineno)
 
 
-def _scan_requirements(path: Path, rel: str, out: _Collector, ctx: _RegistryContext) -> None:
-    text = _read(path)
+def _scan_requirements(path: Path, rel: str, out: _Collector, ctx: _RegistryContext, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     for lineno, raw in enumerate(text.splitlines(), start=1):
@@ -342,8 +363,8 @@ def _scan_requirements(path: Path, rel: str, out: _Collector, ctx: _RegistryCont
             _check_py_url(None, head, line, rel, lineno, out, locked=False)
 
 
-def _scan_pyproject(path: Path, rel: str, out: _Collector, ctx: _RegistryContext) -> None:
-    text = _read(path)
+def _scan_pyproject(path: Path, rel: str, out: _Collector, ctx: _RegistryContext, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     try:
@@ -426,8 +447,8 @@ def _npm_mutable(spec: str) -> str | None:
     return None
 
 
-def _scan_package_json(root: Path, path: Path, rel: str, out: _Collector, ctx: _RegistryContext) -> None:
-    text = _read(path)
+def _scan_package_json(root: Path, path: Path, rel: str, out: _Collector, ctx: _RegistryContext, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     try:
@@ -481,8 +502,8 @@ def _pipes_remote_to_shell(cmd: str) -> bool:
     return False
 
 
-def _scan_package_lock(path: Path, rel: str, out: _Collector) -> None:
-    text = _read(path)
+def _scan_package_lock(path: Path, rel: str, out: _Collector, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     try:
@@ -529,8 +550,8 @@ def _scan_package_lock(path: Path, rel: str, out: _Collector) -> None:
 # --- Go / Cargo / Composer -------------------------------------------------
 
 
-def _scan_go_mod(root: Path, path: Path, rel: str, out: _Collector) -> None:
-    text = _read(path)
+def _scan_go_mod(root: Path, path: Path, rel: str, out: _Collector, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     in_block = False
@@ -561,8 +582,8 @@ def _scan_go_mod(root: Path, path: Path, rel: str, out: _Collector) -> None:
                     package=source, ecosystem="go", line=lineno)
 
 
-def _scan_cargo_toml(root: Path, path: Path, rel: str, out: _Collector) -> None:
-    text = _read(path)
+def _scan_cargo_toml(root: Path, path: Path, rel: str, out: _Collector, sources: PassSources) -> None:
+    text = _read(path, sources)
     if text is None:
         return
     try:
@@ -586,8 +607,8 @@ def _scan_cargo_toml(root: Path, path: Path, rel: str, out: _Collector) -> None:
 
 
 def _scan_unlocked_json(root: Path, path: Path, rel: str, out: _Collector, sections: tuple[str, ...],
-                        locks: tuple[str, ...], eco: str) -> None:
-    text = _read(path)
+                        locks: tuple[str, ...], eco: str, sources: PassSources) -> None:
+    text = _read(path, sources)
     try:
         data = json.loads(text) if text else None
     except ValueError:

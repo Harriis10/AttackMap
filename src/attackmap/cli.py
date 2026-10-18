@@ -20,6 +20,7 @@ from .analyzers import (
     select_requested_analyzers,
 )
 from .progress import PROGRESS_PROTOCOL_VERSION
+from .incremental import INCREMENTAL_ENV
 from .scan_service import ScanRequest, ScanRequestError, execute_scan_request
 # Preserve the CLI's banner imports after orchestration moved to the pipeline.
 from .pipeline import (
@@ -449,6 +450,11 @@ def analyze(
         "--isolated-analyzers",
         help="Run plugin analyzers in isolated worker processes with time/output/memory limits; a crashing or hanging analyzer becomes a named partial-coverage result instead of killing the scan. Built-in analyzers always run in-process. Fault containment, not a security sandbox.",
     ),
+    incremental: bool = typer.Option(
+        False,
+        "--incremental",
+        help="Reuse cached per-file analysis results for unchanged files (default off). Internal accelerator only — reports and artifacts remain the published contract and are byte-identical to a full run. The cache lives under the system temp dir (attackmap-incremental/<repo-digest>/), outside the repository and report outputs, and is bounded (oldest entries evicted first). An entry is reused only when file content, engine code identity, the analyzer pass set and the source-role policy (ATTACKMAP_INCLUDE_TESTS/_VENDORED) are all unchanged; anything else means a safe full recompute. Low-level env form: ATTACKMAP_INCREMENTAL=1.",
+    ),
     fail_on_new_suppression: bool = typer.Option(
         False,
         "--fail-on-new-suppression",
@@ -542,6 +548,23 @@ def analyze(
     # An unset flag leaves the environment untouched (env var → 600s default).
     if time_budget_seconds is not None:
         os.environ["ATTACKMAP_TIME_BUDGET_SECONDS"] = str(time_budget_seconds)
+    # C34/AM048: --incremental (default off) activates the per-file cache via
+    # the documented env knob — the same propagation contract as the budget
+    # above, so in-process runs and fleet worker subprocesses both see it.
+    # The flag is restored on context close so repeated in-process invocations
+    # (tests, GUI front-ends) don't leak activation into later scans; an
+    # operator-set ATTACKMAP_INCREMENTAL=1 without the flag stays honored.
+    if incremental and os.environ.get(INCREMENTAL_ENV) != "1":
+        previous_incremental = os.environ.get(INCREMENTAL_ENV)
+
+        def _restore_incremental_env() -> None:
+            if previous_incremental is None:
+                os.environ.pop(INCREMENTAL_ENV, None)
+            else:
+                os.environ[INCREMENTAL_ENV] = previous_incremental
+
+        os.environ[INCREMENTAL_ENV] = "1"
+        ctx.call_on_close(_restore_incremental_env)
     fleet_incompatible = {
         "--baseline": baseline is not None,
         "--diff-output": diff_output is not None,
@@ -635,6 +658,7 @@ def analyze(
             suppress_from_ref=suppress_from_ref,
             strict_analyzers=strict_analyzers,
             isolated_analyzers=isolated_analyzers,
+            incremental=incremental,
             allow_pr_suppressions=allow_pr_suppressions,
             strict_suppressions=strict_suppressions,
             run_id=run_id,
@@ -664,6 +688,8 @@ def analyze(
         allow_pr_suppressions=allow_pr_suppressions,
         strict_suppressions=strict_suppressions,
         strict_analyzers=strict_analyzers,
+        isolated_analyzers=isolated_analyzers,
+        incremental=incremental,
         progress_format=progress_format,
         no_progress=no_progress,
         secrets_history=secrets_history,

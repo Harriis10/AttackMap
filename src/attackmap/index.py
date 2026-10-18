@@ -6,10 +6,11 @@ import hashlib
 import json
 import os
 from collections.abc import Iterator
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .safe_fs import max_file_bytes, walk_repo
+from .safe_fs import contained_file, is_oversized, max_file_bytes, walk_repo
 from .models import ResourceLimitEvent, ScanSnapshotIdentity
 from .srcpaths import is_skipped_dir, line_number
 
@@ -26,6 +27,34 @@ _INDEX_FILE_LIMIT_ENV = "ATTACKMAP_INDEX_FILE_LIMIT"
 # file as the passes saw it (C33/AM047). Verification re-reads with the same
 # basis, so a drift verdict never depends on newline or encoding normalization.
 _SNAPSHOT_SCHEMA = "attackmap-snapshot/1.0"
+
+# C33/AM047: the index this thread's whole-repo passes resolve content through.
+# ``RepoIndex.build`` pins itself so passes invoked later for the same root
+# (SBOM, supply-chain, workflows, authz, anomalies, fingerprints) read the
+# captured revision even where their call sites thread no index explicitly.
+# Lookups are root-gated and per-thread; a newer build for the same root wins.
+_PINNED: "ContextVar[RepoIndex | None]" = ContextVar("attackmap_pinned_index", default=None)
+
+
+def pinned_repo_index() -> "RepoIndex | None":
+    """The index pinned for this thread by the latest :meth:`RepoIndex.build`."""
+    return _PINNED.get()
+
+
+def active_index_for(root: str | Path) -> "RepoIndex | None":
+    """The pinned index for exactly ``root`` (another repo's pin never applies)."""
+    index = _PINNED.get()
+    if index is None:
+        return None
+    try:
+        return index if index.root == Path(root).resolve() else None
+    except OSError:
+        return None
+
+
+def clear_pinned_index() -> None:
+    """Drop this thread's pin (the pipeline resets it once a run completes)."""
+    _PINNED.set(None)
 
 
 def content_sha256(text: str) -> str:
@@ -153,11 +182,13 @@ class ScanSnapshot:
 
         Every snapshot file is re-hashed on the index basis (full content, no
         mtime shortcut — stat timestamps only gate the cheaper mid-scan
-        ``RepoIndex.mutation_warnings``), and the tree is re-walked with the
-        index acceptance rules to find files that appeared after the index was
-        built. Paths under *exclude* (the run's own output directory) are not
-        drift. Aggregate byte-budget effects are not replayed: a new file is
-        reported even if the budget would later have skipped it.
+        ``RepoIndex.mutation_warnings``), and the tree is re-walked to find
+        files that appeared after the index was built. New-file detection
+        replays the acceptance limits recorded in ``index_config`` (per-file
+        cap, aggregate byte budget, file-count cap) in the build's walk order,
+        so a new file the policy would have skipped is not drift: the analyzed
+        snapshot is complete without it. Paths under *exclude* (the run's own
+        output directory) are not drift.
         """
         root_path = Path(root)
         excluded: list[Path] = []
@@ -186,23 +217,18 @@ class ScanSnapshot:
             checked += 1
             if content_sha256(text) != expected:
                 changed.append(rel)
-        limit = max_file_bytes()
-        for path in walk_repo(root_path, prune=is_skipped_dir):
+        # Charge each snapshot file its (live) size — the build's charge is not
+        # recoverable from the hashes; a file whose size also changed is
+        # already reported under ``changed``.
+        known_sizes: dict[str, int] = {}
+        for rel in known:
             try:
-                rel = path.relative_to(root_path).as_posix()
-            except ValueError:
-                continue
-            if rel in known:
-                continue
-            if any(_is_under(path, base) for base in excluded):
-                continue
-            try:
-                if path.stat().st_size > limit:
-                    continue
-                path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                continue
-            added.append(rel)
+                known_sizes[rel] = (root_path / rel).stat().st_size
+            except OSError:
+                continue  # gone: reported above, occupies no budget now
+        added = list(
+            _replay_added_files(root_path, known_sizes, dict(self.index_config), exclude=excluded)
+        )
         state = "drifted" if (changed or deleted or added) else "verified"
         return SnapshotVerification(state, checked, tuple(sorted(changed)),
                                     tuple(sorted(deleted)), tuple(sorted(added)))
@@ -213,6 +239,58 @@ def _is_under(path: Path, base: Path) -> bool:
         return path.resolve().is_relative_to(base)
     except (OSError, RuntimeError):
         return False
+
+
+def _replay_added_files(
+    root: Path,
+    known_sizes: dict[str, int],
+    config: dict[str, int],
+    *,
+    exclude: tuple[Path, ...] = (),
+) -> tuple[str, ...]:
+    """New files the index acceptance policy would have captured (C33/AM047).
+
+    Replays :meth:`RepoIndex.build`'s gates — per-file byte cap, aggregate byte
+    budget, accepted-file count cap, utf-8 decode — in the build's walk order.
+    Snapshot files (``known_sizes``) are charged their size and count first,
+    exactly as the build accepted them, so a candidate the budget or count cap
+    would have skipped is not reported: that file was never part of any
+    analyzable snapshot under these limits.
+    """
+    file_limit = int(config.get("max_file_bytes") or 0) or max_file_bytes()
+    budget = int(config.get("index_byte_budget") or 0)
+    count_limit = int(config.get("index_file_limit") or 0)
+    used = 0
+    accepted = 0
+    added: list[str] = []
+    for path in walk_repo(root, prune=is_skipped_dir):
+        try:
+            rel = path.relative_to(root).as_posix()
+            size = path.stat().st_size
+        except (ValueError, OSError):
+            continue
+        if any(_is_under(path, base) for base in exclude):
+            continue
+        if rel in known_sizes:
+            used += known_sizes[rel]
+            accepted += 1
+            continue
+        # The build's gate order: per-file cap, budget charge, count cap, decode.
+        if size > file_limit:
+            continue
+        if budget > 0:
+            if used + size > budget:
+                continue
+            used += size
+        if count_limit > 0 and accepted >= count_limit:
+            continue
+        try:
+            path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        added.append(rel)
+        accepted += 1
+    return tuple(sorted(added))
 
 
 @dataclass(frozen=True)
@@ -258,7 +336,9 @@ class RepoIndex:
         Cheap stat gate first (this runs mid-scan); any stat drift is confirmed
         against the snapshot's content hash, so a touch or in-place rewrite of
         identical text is not reported. New accepted files are detected too —
-        they were never part of the analyzed snapshot (C33/AM047).
+        they were never part of the analyzed snapshot (C33/AM047) — replaying
+        the build's acceptance limits, so a file the byte budget or count cap
+        would have skipped is not a mutation warning.
         """
         warnings: list[str] = []
         for item in self.files:
@@ -283,25 +363,12 @@ class RepoIndex:
         return tuple(warnings)
 
     def _new_files(self) -> tuple[str, ...]:
-        """Accepted files present now that the index never captured."""
-        known = {f.rel for f in self.files}
-        added: list[str] = []
-        limit = max_file_bytes()
-        for path in walk_repo(self.root, prune=is_skipped_dir):
-            try:
-                rel = path.relative_to(self.root).as_posix()
-            except ValueError:
-                continue
-            if rel in known:
-                continue
-            try:
-                if path.stat().st_size > limit:
-                    continue
-                path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                continue
-            added.append(rel)
-        return tuple(sorted(added))
+        """Accepted files present now that the index never captured, judged
+        under the acceptance limits recorded at build time (budget-faithful:
+        a file the byte budget or count cap would have skipped is not new
+        drift — no snapshot under those limits could have contained it)."""
+        config = dict(self.snapshot.index_config) if self.snapshot is not None else {}
+        return _replay_added_files(self.root, {f.rel: f.size for f in self.files}, config)
 
     @classmethod
     def build(
@@ -435,8 +502,100 @@ class RepoIndex:
                 observed_files=skipped_over_count or None,
             ))
             scopes.append("repo_index.index_files")
-        return cls(root=root_path, files=tuple(files), limitations=tuple(limitations),
-                   resource_limit_events=tuple(resource_events),
-                   resource_limit_scopes=tuple(scopes),
-                   resource_limit_reporting="complete",
-                   snapshot=snapshot)
+        repo_index = cls(root=root_path, files=tuple(files), limitations=tuple(limitations),
+                         resource_limit_events=tuple(resource_events),
+                         resource_limit_scopes=tuple(scopes),
+                         resource_limit_reporting="complete",
+                         snapshot=snapshot)
+        # C33/AM047: this thread's whole-repo passes resolve content for this
+        # root through the freshest captured snapshot (lookups are root-gated).
+        _PINNED.set(repo_index)
+        return repo_index
+
+
+@dataclass(frozen=True)
+class PassSources:
+    """Snapshot-pinned content view for one whole-repo pass (C33/AM047).
+
+    A pass keeps its own file enumeration — its depth caps and skip sets are
+    part of its output contract — but resolves *content* through the captured
+    index, so a mid-run edit cannot change the pass's input. A file the index
+    never captured reads as missing (``None``): it is outside the analyzed
+    snapshot (added mid-run, or rejected by the index acceptance policy), so
+    the pass skips it exactly as it skips an unreadable file today. With no
+    index pinned every call falls back to the live read it always did.
+    """
+
+    root: Path
+    index: "RepoIndex | None"
+
+    @classmethod
+    def for_root(cls, root: str | Path, index: "RepoIndex | None" = None) -> "PassSources":
+        """Explicit index when it matches ``root``, else the ambient pin for it."""
+        root_path = Path(root).resolve()
+        resolved = index if index is not None and Path(index.root) == root_path else None
+        if resolved is None:
+            resolved = active_index_for(root_path)
+        return cls(root=root_path, index=resolved)
+
+    @property
+    def pinned(self) -> bool:
+        return self.index is not None
+
+    def text(self, path: Path, *, errors: str = "strict") -> str | None:
+        """Text for an enumerated absolute path: captured when the file is in
+        the snapshot, else the live read (``None`` on OSError / not captured)."""
+        if self.index is None:
+            try:
+                return path.read_text(encoding="utf-8", errors=errors)
+            except OSError:
+                return None
+        try:
+            rel = path.relative_to(self.root).as_posix()
+        except ValueError:
+            return None
+        item = self.index.get(rel)
+        return None if item is None else item.text
+
+    def gated_text(self, rel: str, *, max_bytes: int, errors: str = "ignore") -> str | None:
+        """Size-gated text for a repo-relative path. The size gate uses the
+        *captured* size when pinned (IndexedFile.size) and the live stat
+        otherwise — metadata stays faithful to whichever basis supplies the
+        content."""
+        if self.index is not None:
+            item = self.index.get(rel)
+            if item is None or item.size > max_bytes:
+                return None
+            return item.text
+        path = contained_file(self.root, rel)
+        if path is None:
+            return None
+        try:
+            if path.stat().st_size > max_bytes:
+                return None
+            return path.read_text(encoding="utf-8", errors=errors)
+        except OSError:
+            return None
+
+    def exists(self, rel: str) -> bool:
+        """Existence on the pass's input basis. A captured file exists; for a
+        file outside the snapshot this stays a *live* existence check —
+        lockfile-presence questions are structural metadata, not content."""
+        if self.index is not None and self.index.get(rel) is not None:
+            return True
+        try:
+            return (self.root / rel).is_file()
+        except OSError:
+            return False
+
+    def oversized(self, path: Path) -> bool:
+        """Per-file byte-cap gate: the captured size when the file is part of
+        the snapshot, the live size otherwise."""
+        if self.index is not None:
+            try:
+                item = self.index.get(path.relative_to(self.root).as_posix())
+            except ValueError:
+                return True
+            if item is not None:
+                return item.size > max_file_bytes()
+        return is_oversized(path)

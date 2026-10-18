@@ -1,10 +1,11 @@
 """C33 / AM047: every pass, fingerprint and AI excerpt references ONE snapshot.
 
-Mutation tests at the four roadmap phases — indexing, detection, report
-writing, excerpt extraction. Each simulates a mid-scan file change by direct
-two-phase invocation (build index, mutate, continue) so the tests stay
-deterministic and fast. Policy under drift: the run is marked incomplete with
-an explicit limitation; nothing retries in a loop.
+Mutation tests at the roadmap phases — indexing, detection, whole-repo
+passes, report writing, excerpt extraction, budget-faithful drift detection.
+Each simulates a mid-scan file change by direct two-phase invocation (build
+index, mutate, continue) so the tests stay deterministic and fast. Policy
+under drift: the run is marked incomplete with an explicit limitation;
+nothing retries in a loop.
 """
 
 from __future__ import annotations
@@ -15,21 +16,35 @@ import shutil
 from pathlib import Path
 
 from attackmap.analyzers import BuiltinPythonWebAnalyzer, analyze_repository
+from attackmap.anomalies import find_anomalies
 from attackmap.artifact_manifest import write_artifact_manifest
+from attackmap.authz import analyze_authz
 from attackmap.citations import capture_source_spans, context_from_payload, validate_references
 from attackmap.fingerprint import assign_fingerprints
-from attackmap.index import RepoIndex, content_sha256
+from attackmap.index import RepoIndex, clear_pinned_index, content_sha256
 from attackmap.models import Finding, FindingLocation, ScanResult
+from attackmap.recon_to_analysis import translate_recon
+from attackmap.sbom import analyze_sbom
 from attackmap.scanner import scan_files
+from attackmap.supply_chain import scan_supply_chain
+from attackmap.workflow_scanner import scan_workflows
 
 FIXTURE = Path(__file__).parent / "fixtures" / "snapshot-shop"
 _ORIGINAL_APP = (FIXTURE / "app.py").read_text(encoding="utf-8")
 _MUTATED_APP = _ORIGINAL_APP.replace("list_orders", "list_admin_orders")
 
+DEPS_FIXTURE = Path(__file__).parent / "fixtures" / "snapshot-deps"
+
 
 def _repo(tmp_path: Path) -> Path:
     repo = tmp_path / "shop"
     shutil.copytree(FIXTURE, repo)
+    return repo
+
+
+def _deps_repo(tmp_path: Path) -> Path:
+    repo = tmp_path / "deps"
+    shutil.copytree(DEPS_FIXTURE, repo)
     return repo
 
 
@@ -258,3 +273,280 @@ def test_content_sha256_is_the_index_basis(tmp_path: Path) -> None:
     assert item.sha256 == content_sha256(item.text)
     assert dict(index.snapshot.files) == {"app.py": item.sha256,
                                           "config.yaml": index.get("config.yaml").sha256}  # type: ignore[union-attr]
+
+
+# --- Phase 5: whole-repo passes read the snapshot, not the live tree --------
+#
+# SBOM (+ go.mod), supply-chain, CI workflows, authz and anomalies each
+# re-read files from the repo tree. They now resolve content through the
+# captured index: mutate a file after the build and the pass still analyzes
+# the captured revision; a file added after the build is outside the snapshot
+# entirely. Without a pin (direct calls, no ambient index) every pass reads
+# the live tree exactly as before.
+
+
+def test_whole_repo_sbom_reads_captured_manifests_after_mutation(tmp_path: Path) -> None:
+    repo = _deps_repo(tmp_path)
+    index = RepoIndex.build(repo)
+
+    (repo / "go.mod").write_text(
+        (DEPS_FIXTURE / "go.mod").read_text(encoding="utf-8")
+        + "require github.com/evil/fork v0.0.1\n",
+        encoding="utf-8",
+    )
+    package = json.loads((repo / "package.json").read_text(encoding="utf-8"))
+    package["dependencies"]["lodash"] = "^4.17.21"
+    (repo / "package.json").write_text(json.dumps(package), encoding="utf-8")
+
+    pinned = analyze_sbom(repo, index=index)
+    pinned_names = {h.name for h in pinned}
+    assert "github.com/gorilla/mux" in pinned_names
+    assert "github.com/evil/fork" not in pinned_names
+    assert "lodash" not in pinned_names
+
+    clear_pinned_index()
+    live = {h.name for h in analyze_sbom(repo)}
+    assert "github.com/evil/fork" in live and "lodash" in live
+
+    verification = index.snapshot.verify(repo)
+    assert verification.state == "drifted"
+    assert verification.changed == ("go.mod", "package.json")
+
+
+def test_whole_repo_sbom_skips_manifest_added_after_index(tmp_path: Path) -> None:
+    repo = _deps_repo(tmp_path)
+    index = RepoIndex.build(repo)
+    (repo / "pyproject.toml").write_text(
+        '[project]\nname = "shop"\ndependencies = ["left-pad==1.3.0"]\n', encoding="utf-8"
+    )
+
+    pinned_names = {h.name for h in analyze_sbom(repo, index=index)}
+    assert "left-pad" not in pinned_names  # outside the captured snapshot
+
+    clear_pinned_index()
+    assert "left-pad" in {h.name for h in analyze_sbom(repo)}
+
+    assert any("new file: pyproject.toml" in w for w in index.mutation_warnings())
+    assert index.snapshot.verify(repo).added == ("pyproject.toml",)
+
+
+def test_whole_repo_supply_chain_reads_captured_configs_after_mutation(tmp_path: Path) -> None:
+    repo = _deps_repo(tmp_path)
+    index = RepoIndex.build(repo)
+
+    # Strip the risky bits: the pip extra index and the go.mod replace fork.
+    (repo / "requirements.txt").write_text("requests==2.31.0\n", encoding="utf-8")
+    (repo / "go.mod").write_text(
+        (DEPS_FIXTURE / "go.mod").read_text(encoding="utf-8").split("replace", 1)[0],
+        encoding="utf-8",
+    )
+
+    pinned_kinds = {i.kind for i in scan_supply_chain(repo, index=index)}
+    assert "dependency_confusion" in pinned_kinds  # from the captured --extra-index-url
+    assert "mutable_vcs_dependency" in pinned_kinds  # from the captured replace
+
+    clear_pinned_index()
+    live_kinds = {i.kind for i in scan_supply_chain(repo)}
+    assert "dependency_confusion" not in live_kinds
+    assert "mutable_vcs_dependency" not in live_kinds
+
+
+def test_whole_repo_workflow_scan_reads_captured_workflows_after_mutation(tmp_path: Path) -> None:
+    repo = _deps_repo(tmp_path)
+    index = RepoIndex.build(repo)
+
+    mutated = (DEPS_FIXTURE / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    mutated = mutated.replace(
+        "actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3", "actions/checkout@v4"
+    )
+    (repo / ".github" / "workflows" / "ci.yml").write_text(mutated, encoding="utf-8")
+    (repo / ".github" / "workflows" / "nightly.yml").write_text(
+        "on: [schedule]\njobs:\n  n:\n    runs-on: ubuntu-latest\n"
+        "    steps:\n      - uses: actions/checkout@main\n",
+        encoding="utf-8",
+    )
+
+    assert scan_workflows(repo, index=index) == []  # captured revision is clean
+
+    clear_pinned_index()
+    live = scan_workflows(repo)
+    # nightly.yml has no permissions block, so it also draws the low-severity
+    # default-token note; ci.yml only swaps the pinned SHA for a tag.
+    assert {i.kind for i in live} == {"unpinned_action", "default_token_permissions"}
+    assert {i.file for i in live} == {".github/workflows/ci.yml", ".github/workflows/nightly.yml"}
+
+    assert index.snapshot.verify(repo).state == "drifted"
+
+
+def test_whole_repo_authz_reads_captured_handlers_after_mutation(tmp_path: Path) -> None:
+    repo = _deps_repo(tmp_path)
+    index = RepoIndex.build(repo)
+    scan = scan_files(repo, index=index)
+
+    before = analyze_authz(scan, repo, index=index)
+    assert [(c.route_path, c.route_method) for c in before] == [
+        ("/api/orders/<int:order_id>", "GET")
+    ]
+
+    # A mid-run ownership check appears in the odd handler: the live tree is
+    # now clean, the captured snapshot still has the BOLA candidate.
+    guarded = (repo / "handlers.py").read_text(encoding="utf-8").replace(
+        "def get_order(order_id):\n",
+        "def get_order(order_id):\n"
+        "    current_user = request.headers.get('authorization')\n",
+    )
+    (repo / "handlers.py").write_text(guarded, encoding="utf-8")
+
+    pinned = analyze_authz(scan, repo, index=index)
+    assert [(c.route_path, c.route_method) for c in pinned] == [
+        ("/api/orders/<int:order_id>", "GET")
+    ]
+
+    clear_pinned_index()
+    assert analyze_authz(scan, repo) == []
+    assert index.snapshot.verify(repo).changed == ("handlers.py",)
+
+
+def test_whole_repo_anomaly_pass_reads_captured_handlers_after_mutation(tmp_path: Path) -> None:
+    repo = _deps_repo(tmp_path)
+    index = RepoIndex.build(repo)
+    scan = scan_files(repo, index=index)
+    flagged = "/api/orders/<int:order_id>"
+
+    def outliers(result_scan) -> list[str]:
+        return [
+            a.route_path
+            for a in find_anomalies(result_scan, repo, index=index)
+            if a.kind == "auth_outlier"
+        ]
+
+    assert outliers(scan) == [flagged]
+
+    guarded = (repo / "handlers.py").read_text(encoding="utf-8").replace(
+        "def get_order(order_id):\n",
+        "def get_order(order_id):\n"
+        "    current_user = request.headers.get('authorization')\n",
+    )
+    (repo / "handlers.py").write_text(guarded, encoding="utf-8")
+
+    assert outliers(scan) == [flagged]  # peer comparison still uses captured lines
+
+    clear_pinned_index()
+    assert [
+        a.route_path for a in find_anomalies(scan, repo) if a.kind == "auth_outlier"
+    ] == []
+
+
+def test_ambient_pin_covers_passes_called_without_index(tmp_path: Path) -> None:
+    """run_repo_passes calls the passes with the repo root only; the pin that
+    ``RepoIndex.build`` leaves for this thread must reach them there too."""
+    repo = _deps_repo(tmp_path)
+    RepoIndex.build(repo)  # pins the ambient index, as analyze_repository does
+
+    (repo / "go.mod").write_text(
+        (DEPS_FIXTURE / "go.mod").read_text(encoding="utf-8")
+        + "require github.com/evil/fork v0.0.1\n",
+        encoding="utf-8",
+    )
+    mutated = (DEPS_FIXTURE / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    (repo / ".github" / "workflows" / "ci.yml").write_text(
+        mutated.replace(
+            "actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3", "actions/checkout@v4"
+        ),
+        encoding="utf-8",
+    )
+
+    # No explicit index anywhere — exactly how scanner.run_repo_passes calls.
+    assert "github.com/evil/fork" not in {h.name for h in analyze_sbom(repo)}
+    assert scan_workflows(repo) == []
+
+    clear_pinned_index()
+    assert "github.com/evil/fork" in {h.name for h in analyze_sbom(repo)}
+    assert [i.kind for i in scan_workflows(repo)] == ["unpinned_action"]
+
+
+# --- Phase 6: translation fingerprints reference the analyzed revision ------
+
+
+def test_translate_recon_threads_index_into_fingerprints(tmp_path: Path, monkeypatch) -> None:
+    repo = _repo(tmp_path)
+    index = RepoIndex.build(repo)
+    scan = scan_files(repo, index=index)
+
+    seen: list[object] = []
+
+    def fake_assign(findings, root, index=None):  # noqa: ANN001
+        seen.append(index)
+
+    monkeypatch.setattr("attackmap.recon_to_analysis.assign_fingerprints", fake_assign)
+    translate_recon(scan, index=index)
+    assert seen[-1] is index
+    translate_recon(scan)
+    assert seen[-1] is None
+
+
+def test_pipeline_passes_captured_index_to_fingerprints(tmp_path: Path, monkeypatch) -> None:
+    from attackmap.pipeline import AnalyzeOptions, run_scan
+    from attackmap.index import pinned_repo_index
+
+    repo = _deps_repo(tmp_path)
+    out = tmp_path / "reports"
+    seen: list[object] = []
+
+    def fake_assign(findings, root, index=None):  # noqa: ANN001
+        seen.append(index)
+
+    monkeypatch.setattr("attackmap.recon_to_analysis.assign_fingerprints", fake_assign)
+    run_scan(AnalyzeOptions(repo_path=repo, output=out, atomic_output=False,
+                            output_format="all", no_progress=True,
+                            echo=lambda *a, **k: None))
+    assert seen and seen[0] is not None
+    assert Path(seen[0].root).resolve() == repo.resolve()  # type: ignore[attr-defined]
+    # The run is over: the thread's pin is released, not left stale.
+    assert pinned_repo_index() is None
+
+
+# --- Phase 7: budget-faithful new-file detection -----------------------------
+#
+# When the index accepted files under a byte budget or count cap, a file that
+# appears later is only drift if the recorded acceptance limits would have
+# captured it. The replay walks in the build's order and charges the known
+# files first.
+
+
+def test_new_file_detection_replays_byte_budget(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    total = RepoIndex.build(repo).total_bytes
+    index = RepoIndex.build(repo, max_bytes=total + 16)  # 16 bytes of headroom
+
+    # The candidates live in zz/ so the walk charges every known file first —
+    # under the real acceptance order the budget question is unambiguous.
+    (repo / "zz").mkdir()
+    (repo / "zz" / "big.py").write_text("#" * 64 + "\n", encoding="utf-8")  # would not fit
+    (repo / "zz" / "tiny.py").write_text("y = 2\n", encoding="utf-8")  # fits the headroom
+
+    verification = index.snapshot.verify(repo)
+    assert verification.added == ("zz/tiny.py",)
+    assert verification.state == "drifted"
+
+    warnings = index.mutation_warnings()
+    assert any("new file: zz/tiny.py" in w for w in warnings)
+    assert not any("big.py" in w for w in warnings)
+
+
+def test_new_file_detection_replays_file_count_cap(tmp_path: Path) -> None:
+    repo = tmp_path / "cap"
+    repo.mkdir()
+    (repo / "a.py").write_text("a = 1\n", encoding="utf-8")
+    (repo / "b.py").write_text("b = 2\n", encoding="utf-8")
+
+    capped = RepoIndex.build(repo, max_files=2)
+    (repo / "c.py").write_text("c = 3\n", encoding="utf-8")
+    assert capped.snapshot.verify(repo).state == "verified"  # cap would skip c.py
+    assert not any("c.py" in w for w in capped.mutation_warnings())
+
+    with_headroom = RepoIndex.build(repo, max_files=4)  # c.py is now captured
+    (repo / "d.py").write_text("d = 4\n", encoding="utf-8")
+    verification = with_headroom.snapshot.verify(repo)
+    assert verification.added == ("d.py",)  # d.py would have been accepted
+    assert verification.state == "drifted"

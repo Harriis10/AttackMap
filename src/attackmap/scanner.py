@@ -749,11 +749,13 @@ def scan_files(
     """The per-file pass: routes, calls, hints, secrets and per-file weakness
     detectors for files with ``suffixes``. No whole-repo passes (#219).
 
-    ``incremental=True`` (default off, engine-level opt-in for C34/AM048)
-    reuses cached per-file results for files whose content, suffix, engine,
-    pass configuration and source-role policy are unchanged. The cache lives
-    under ``cache_dir`` (or a temp-derived location outside the scanned repo)
-    and is an optimization only: any doubt means full recompute of the file.
+    ``incremental=True`` (default off, C34/AM048) reuses cached per-file
+    results for files whose content, suffix, engine, pass configuration and
+    source-role policy are unchanged; the same activation is requested by
+    ``ATTACKMAP_INCREMENTAL=1`` (what the CLI ``--incremental`` flag sets, so
+    fleet worker subprocesses inherit it). The cache lives under
+    ``cache_dir`` (or a temp-derived location outside the scanned repo) and
+    is an optimization only: any doubt means full recompute of the file.
     """
     from .index import RepoIndex
 
@@ -777,7 +779,13 @@ def scan_files(
     if progress is not None:
         progress.begin(len(indexed))
 
-    cache = _open_incremental_cache(root_path, cache_dir) if incremental else None
+    from .incremental import enabled_by_env
+
+    cache = (
+        _open_incremental_cache(root_path, cache_dir)
+        if incremental or enabled_by_env()
+        else None
+    )
 
     csrf_protected = False
     for item in indexed:

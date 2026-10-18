@@ -3,11 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 import re
+from typing import TYPE_CHECKING
 
 from .fingerprint import assign_fingerprints
 from .analyzer import identify_attack_surfaces
 from .models import AttackPath, AttackSurface, Finding, ScanResult
 from .threat_model import generate_attack_paths, generate_findings
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 
 @dataclass(frozen=True)
@@ -110,15 +114,24 @@ def to_attack_surface(scan: ScanResult) -> list[AttackSurface]:
     return identify_attack_surfaces(_auth_filtered_scan(scan))
 
 
-def to_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | None = None) -> list[Finding]:
-    """Translate recon signals (and optional surfaces) into conservative findings."""
+def to_findings(
+    scan: ScanResult,
+    attack_surfaces: list[AttackSurface] | None = None,
+    index: "RepoIndex | None" = None,
+) -> list[Finding]:
+    """Translate recon signals (and optional surfaces) into conservative findings.
+
+    ``index`` (the run's :class:`~attackmap.index.RepoIndex`) pins fingerprint
+    source lines to the captured snapshot (C33/AM047): fingerprints reference
+    the revision the deterministic pass analyzed, not the live tree.
+    """
     auth_filtered_scan = _auth_filtered_scan(scan)
     if attack_surfaces is not None:
         findings = generate_findings(auth_filtered_scan, attack_surfaces)
     else:
         findings = generate_findings(auth_filtered_scan)
     # Per-instance identity for baseline diffs (#222).
-    assign_fingerprints(findings, scan.root)
+    assign_fingerprints(findings, scan.root, index=index)
     return findings
 
 
@@ -132,15 +145,17 @@ def to_attack_paths(scan: ScanResult, attack_surfaces: list[AttackSurface] | Non
     return generate_attack_paths(scan, attack_surfaces=attack_surfaces)
 
 
-def translate_recon(scan: ScanResult) -> AnalysisOutputs:
+def translate_recon(scan: ScanResult, index: "RepoIndex | None" = None) -> AnalysisOutputs:
     """
     Formal translation stage from ScanResult to higher-level analysis artifacts.
 
     This remains deterministic and explainable by relying only on existing
-    signal-driven heuristics from analyzer/threat_model modules.
+    signal-driven heuristics from analyzer/threat_model modules. ``index``
+    threads the run's captured RepoIndex into fingerprint source extraction
+    (C33/AM047); without it fingerprints read the live tree as before.
     """
     attack_surfaces = to_attack_surface(scan)
-    findings = to_findings(scan, attack_surfaces)
+    findings = to_findings(scan, attack_surfaces, index=index)
     attack_paths = to_attack_paths(scan, attack_surfaces)
     return AnalysisOutputs(
         attack_surfaces=attack_surfaces,

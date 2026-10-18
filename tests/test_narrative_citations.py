@@ -55,7 +55,7 @@ def test_generate_wrapper_persists_selected_reference_warning_and_original_prose
         for title in ('First static signal', 'Second static signal')]
     monkeypatch.setattr(pipeline, 'resolve_run_analyzers', lambda *_a, **_k: [])
     monkeypatch.setattr(pipeline, 'analyze_repository', lambda *_a, **_k: ScanResult(root=str(repo)))
-    monkeypatch.setattr(pipeline, 'translate_recon', lambda *_: SimpleNamespace(
+    monkeypatch.setattr(pipeline, 'translate_recon', lambda *_a, **_k: SimpleNamespace(
         attack_surfaces=[], findings=findings, attack_paths=[]))
     original = 'Target routes (`find:2`) lack auth authorization signal at handler level. Reference finding:2 at routes/handler.ts:42; runtime enforcement is unverified.'
     calls = []

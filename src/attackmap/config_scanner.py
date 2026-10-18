@@ -14,8 +14,8 @@ want structural analysis can extend on top; this layer stays regex-only.
 
 The one structural exception is deployment-seam extraction (C28):
 `extract_deployment_aliases` reads k8s / docker-compose / nginx configs
-with a real YAML parse and brace-matched nginx blocks, because port and
-upstream declarations must be exact — a regex guess would either miss
+with a real YAML parse and brace-matched nginx blocks, because port, scheme,
+and upstream declarations must be exact — a regex guess would either miss
 or invent seams. Malformed or ambiguous configs are skipped with an
 explicit note, never guessed.
 """
@@ -419,15 +419,21 @@ def _extract_secret_kvs(content: str, relative: str, result: ScanResult) -> None
 # DeploymentAliases used to be CLI-only. Real deployment configs already state
 # much of the surface: k8s Services/Deployments and compose files declare
 # listen ports; nginx upstream blocks declare which host fronts which single
-# backend. extract_deployment_aliases converts those files into declarations
-# carrying per-declaration file provenance (DeploymentAliases.source_files), so
-# a fleet run without CLI flags still resolves declared seams. Deliberately
-# conservative: only what a config positively states is extracted — schemes are
-# never inferred (a port *named* "https" declares nothing), a Service's port
-# wins over a same-named Deployment's containerPort (the Service port is the
-# seam callers dial), ambiguous declarations (multi-port services, multi-server
-# upstreams, same-kind conflicts) are recorded and skipped, and malformed files
-# are skipped with an explicit note instead of guessed.
+# backend; a k8s Service port's `appProtocol`, an nginx `proxy_pass` scheme,
+# and an Ingress `backend-protocol` annotation declare the protocol a backend
+# serves; a k8s Ingress rule host fronting exactly one backend service
+# declares a proxy. extract_deployment_aliases converts those files into
+# declarations carrying per-declaration file provenance
+# (DeploymentAliases.source_files), so a fleet run without CLI flags still
+# resolves declared seams. A Service's port and appProtocol win over a
+# same-named Deployment's containerPort (the Service is the seam callers
+# dial). Deliberately conservative: only what a config
+# positively states is extracted — a port *named* "https" declares nothing,
+# an Ingress TLS block describes the client→ingress leg (which no consumer
+# models) and is never extracted, ambiguous declarations (multi-port
+# services, multi-server upstreams, multi-backend ingress hosts, same-kind
+# conflicts) are recorded and skipped, and malformed files are skipped with
+# an explicit note instead of guessed.
 
 _COMPOSE_FILENAMES = frozenset({
     "docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml",
@@ -436,7 +442,12 @@ _COMPOSE_FILENAMES = frozenset({
 # a k8s Service is the dial seam, compose declares the container port, and a
 # Deployment's containerPort only fills a name nothing better declared.
 _RANK_SERVICE, _RANK_COMPOSE, _RANK_DEPLOYMENT = 2, 1, 0
+# Parallel ranks for protocol declarations: the Service's own `appProtocol`
+# outranks the leg an edge declares it dials (`proxy_pass` scheme), which
+# outranks a controller annotation on an Ingress.
+_RANK_APP_PROTOCOL, _RANK_PROXY_PASS, _RANK_INGRESS_ANNOTATION = 2, 1, 0
 _HOST_TOKEN = re.compile(r"^[a-zA-Z0-9._-]+$")
+_MODELED_SCHEMES = frozenset({"http", "https"})
 
 
 def _deployment_config_kind(path: Path) -> str | None:
@@ -500,13 +511,98 @@ def _declare_port(
         declared[name] = (port, provenance, rank)
 
 
+def _declare_protocol(
+    declared: dict[str, tuple[str, str, int]],
+    dropped: set[str],
+    name: str,
+    scheme: str,
+    provenance: str,
+    rank: int,
+    kind_label: str,
+    notes: list[str],
+) -> None:
+    """Record a service_protocols declaration under the same conflict rules as
+    ``_declare_port``: a higher-precedence source overrides, an equal one with
+    a *different* scheme makes the identity ambiguous (dropped, noted), and
+    equal schemes dedupe."""
+    if name in dropped:
+        return
+    existing = declared.get(name)
+    if existing is None:
+        declared[name] = (scheme, provenance, rank)
+        return
+    e_scheme, e_prov, e_rank = existing
+    if e_scheme == scheme:
+        if rank > e_rank:
+            declared[name] = (scheme, provenance, rank)
+        return
+    if rank == e_rank:
+        del declared[name]
+        dropped.add(name)
+        notes.append(
+            f"dropped service protocol for {name!r}: conflicting {kind_label} schemes "
+            f"{e_scheme} ({e_prov}) and {scheme} ({provenance})"
+        )
+    elif rank > e_rank:
+        notes.append(
+            f"service protocol for {name!r}: {kind_label} {scheme} ({provenance}) "
+            f"overrides {e_scheme} ({e_prov})"
+        )
+        declared[name] = (scheme, provenance, rank)
+
+
+def _declare_proxy(
+    host: str,
+    backend: str,
+    provenance: str,
+    proxies: dict[str, str],
+    proxy_sources: dict[str, str],
+    dropped: set[str],
+    notes: list[str],
+) -> None:
+    """Record a proxies declaration (host fronts exactly one backend). A host
+    fronting different backends across declarations is ambiguous — dropped
+    with a note, never guessed."""
+    if host in dropped:
+        return
+    if host in proxies and proxies[host] != backend:
+        prior = proxies.pop(host)
+        proxy_sources.pop(host, None)
+        dropped.add(host)
+        notes.append(
+            f"dropped proxy {host!r}: fronting multiple backends across configs "
+            f"({prior}, {backend})"
+        )
+        return
+    proxies[host] = backend
+    proxy_sources[host] = provenance
+
+
+def _port_app_protocol(entry: dict, kind: str, name: str, provenance: str, notes: list[str]) -> str | None:
+    """The declared ``appProtocol`` of a port entry, when it names a modeled
+    scheme. A port *named* "https" is metadata and declares nothing; only the
+    explicit appProtocol field does. Unmodeled protocols (grpc, tcp, …) are
+    noted and skipped — never silently guessed as http/https."""
+    raw = entry.get("appProtocol")
+    if raw is None:
+        return None
+    value = str(raw).strip().lower()
+    if value in _MODELED_SCHEMES:
+        return value
+    notes.append(
+        f"skipped appProtocol {raw!r} on {kind} {name} in {provenance}: "
+        "only http/https are modeled"
+    )
+    return None
+
+
 def _k8s_manifest_port(
     doc: dict, provenance: str, notes: list[str]
-) -> tuple[str, int, int, str] | None:
-    """(name, port, rank, kind) for a Service/Deployment declaring exactly one
-    listen port, else None — with an explicit note whenever something
-    ambiguous or unparsable was skipped. Schemes are never inferred: a port
-    named "https" declares nothing."""
+) -> tuple[str, int, int, str, str | None] | None:
+    """(name, port, rank, kind, appProtocol) for a Service/Deployment declaring
+    exactly one listen port, else None — with an explicit note whenever
+    something ambiguous or unparsable was skipped. Schemes come only from an
+    explicit ``appProtocol``; a port *named* "https" declares nothing."""
     kind = str(doc.get("kind", "")).strip()
     if kind not in {"Deployment", "Service"}:
         return None
@@ -520,6 +616,7 @@ def _k8s_manifest_port(
         if not isinstance(entries, list) or not entries:
             notes.append(f"skipped {provenance}: Service {name} declares no ports")
             return None
+        protocols: list[str | None] = []
         for entry in entries:
             if not isinstance(entry, dict):
                 notes.append(f"skipped port entry {entry!r} in {provenance}: not a mapping")
@@ -529,6 +626,7 @@ def _k8s_manifest_port(
                 notes.append(f"skipped port entry {entry!r} in {provenance}: no numeric port")
                 continue
             ports.append(port)
+            protocols.append(_port_app_protocol(entry, kind, name, provenance, notes))
             target = _int_or_none(entry.get("targetPort"))
             if target is not None and target != port:
                 notes.append(
@@ -543,7 +641,10 @@ def _k8s_manifest_port(
                 "which one serves the seam is ambiguous"
             )
             return None
-        return (name, ports[0], _RANK_SERVICE, "Service")
+        # The single port's appProtocol is the service's own protocol
+        # declaration; None when the port entry carries none.
+        protocol = protocols[0] if protocols and len(protocols) == 1 else None
+        return (name, ports[0], _RANK_SERVICE, "Service", protocol)
     # Deployment: the containerPort the pod listens on.
     containers = ((doc.get("spec") or {}).get("template") or {}).get("spec", {}).get("containers") or []
     if not isinstance(containers, list):
@@ -564,7 +665,92 @@ def _k8s_manifest_port(
                 "containerPorts; which one serves the seam is ambiguous"
             )
         return None
-    return (name, ports[0], _RANK_DEPLOYMENT, "Deployment")
+    return (name, ports[0], _RANK_DEPLOYMENT, "Deployment", None)
+
+
+def _k8s_ingress_declarations(
+    doc: dict,
+    provenance: str,
+    proxies: dict[str, str],
+    proxy_sources: dict[str, str],
+    dropped_proxies: set[str],
+    protocols: dict[str, tuple[str, str, int]],
+    dropped_protocols: set[str],
+    notes: list[str],
+) -> None:
+    """kind: Ingress → proxy and protocol declarations (C28). A rule host that
+    routes to exactly one backend service declares that host a proxy for the
+    service; the nginx ingress ``backend-protocol`` annotation declares the
+    protocol the controller uses toward every backend of the ingress. Hosts
+    routing to several backends (path-split routing) are multi-backend —
+    noted and skipped. ``spec.tls`` describes the client→ingress leg, which
+    no consumer models, and is never extracted."""
+    name = str((doc.get("metadata") or {}).get("name") or "").strip().lower() or "ingress"
+    rules = (doc.get("spec") or {}).get("rules") or []
+    by_host: dict[str, set[str]] = {}
+    hostless = False
+    for rule in rules if isinstance(rules, list) else []:
+        if not isinstance(rule, dict):
+            continue
+        paths = ((rule.get("http") or {}).get("paths")) or []
+        backends: set[str] = set()
+        for p in paths if isinstance(paths, list) else []:
+            if not isinstance(p, dict):
+                continue
+            service = (p.get("backend") or {}).get("service")
+            svc_name = (
+                str(service.get("name") or "").strip().lower()
+                if isinstance(service, dict) else ""
+            )
+            if svc_name and _HOST_TOKEN.match(svc_name):
+                backends.add(svc_name)
+        if not backends:
+            continue
+        host = str(rule.get("host") or "").strip().lower().rstrip(".")
+        if host and _HOST_TOKEN.match(host):
+            by_host.setdefault(host, set()).update(backends)
+        else:
+            hostless = True  # a catch-all rule has no identity to declare
+    for host in sorted(by_host):
+        backends = by_host[host]
+        if len(backends) != 1:
+            notes.append(
+                f"skipped host {host!r} in Ingress {name!r} ({provenance}): routes to "
+                f"{len(backends)} backend services; multi-backend routing is not modeled"
+            )
+            continue
+        _declare_proxy(
+            host, next(iter(backends)), provenance, proxies, proxy_sources, dropped_proxies, notes
+        )
+    if hostless:
+        notes.append(
+            f"skipped hostless rule(s) in Ingress {name!r} ({provenance}): "
+            "no concrete host to declare"
+        )
+    annotations = (doc.get("metadata") or {}).get("annotations")
+    raw = annotations.get("nginx.ingress.kubernetes.io/backend-protocol") if isinstance(annotations, dict) else None
+    if raw is None:
+        return
+    value = str(raw).strip()
+    if ":" in value:
+        notes.append(
+            f"skipped backend-protocol {value!r} on Ingress {name!r} ({provenance}): "
+            "the per-service mapping form is not modeled"
+        )
+        return
+    scheme = value.lower()
+    declared_backends = set().union(*by_host.values()) if by_host else set()
+    if scheme not in _MODELED_SCHEMES:
+        notes.append(
+            f"skipped backend-protocol {value!r} on Ingress {name!r} ({provenance}): "
+            "only http/https are modeled"
+        )
+        return
+    for backend in sorted(declared_backends):
+        _declare_protocol(
+            protocols, dropped_protocols, backend, scheme, provenance,
+            _RANK_INGRESS_ANNOTATION, "Ingress annotation", notes,
+        )
 
 
 def _compose_container_port(mapping: object) -> int | None:
@@ -649,13 +835,17 @@ def _extract_nginx_proxies(
     proxies: dict[str, str],
     proxy_sources: dict[str, str],
     dropped: set[str],
+    protocols: dict[str, tuple[str, str, int]],
+    dropped_protocols: set[str],
     notes: list[str],
 ) -> None:
-    """nginx upstream-backed server blocks → proxies (C28). The proxy host is
-    the ``server_name``; the backend is the single ``server`` host of the
-    upstream it ``proxy_pass``es to. Multi-server upstreams route to more than
-    one backend — unmodeled (recorded and skipped, never guessed), as are
-    proxy_pass targets that are not a defined single-backend upstream."""
+    """nginx upstream-backed server blocks → proxies and backend protocols
+    (C28). The proxy host is the ``server_name``; the backend is the single
+    ``server`` host of the upstream it ``proxy_pass``es to. Multi-server
+    upstreams route to more than one backend — unmodeled (recorded and
+    skipped, never guessed), as are proxy_pass targets that are not a defined
+    single-backend upstream. A ``proxy_pass`` scheme (``http``/``https``)
+    declares the protocol that edge dials the backend with."""
     upstreams: dict[str, str] = {}
     blank = list(text)
     for header, body, start, end in _nginx_blocks(text, "upstream"):
@@ -678,19 +868,36 @@ def _extract_nginx_proxies(
             )
 
     for _header, body, _s, _e in _nginx_blocks("".join(blank), "server"):
+        # The proxy_pass scheme declares the leg into the backend — recorded
+        # even when the block has no usable server_name (the protocol fact
+        # does not depend on naming the proxy host).
+        backends = set()
+        for scheme, target in re.findall(r"(?<![\w.-])proxy_pass\s+(\w+)://([^/;\s]+)", body):
+            host = target.split(":")[0].strip().lower()
+            backend = upstreams.get(host)
+            if backend is None:
+                continue  # not a defined single-backend upstream: out of scope
+            backends.add(backend)
+            if scheme.lower() in _MODELED_SCHEMES:
+                _declare_protocol(
+                    protocols, dropped_protocols, backend, scheme.lower(), provenance,
+                    _RANK_PROXY_PASS, "nginx proxy_pass", notes,
+                )
+            else:
+                notes.append(
+                    f"skipped proxy_pass {scheme}:// in {provenance}: "
+                    "only http/https backends are modeled"
+                )
         name_m = re.search(r"(?<![\w.-])server_name\s+([^;]+);", body)
         if not name_m:
+            if backends:
+                notes.append(f"skipped server block in {provenance}: no concrete server_name")
             continue
         hosts = {n.strip().lower().rstrip(".") for n in name_m.group(1).split()}
         valid = {h for h in hosts if _HOST_TOKEN.match(h) and h not in {"_", "*"}}
         if not valid:
             notes.append(f"skipped server block in {provenance}: no concrete server_name")
             continue
-        backends = {
-            upstreams[a.split(":")[0].strip().lower()]
-            for a in re.findall(r"(?<![\w.-])proxy_pass\s+\w+://([^/;\s]+)", body)
-            if a.split(":")[0].strip().lower() in upstreams
-        }
         if not backends:
             continue  # not upstream-backed (or a skipped upstream): out of scope
         if len(backends) > 1:
@@ -701,19 +908,7 @@ def _extract_nginx_proxies(
             continue
         backend = backends.pop()
         for host in sorted(valid):
-            if host in dropped:
-                continue
-            if host in proxies and proxies[host] != backend:
-                prior = proxies.pop(host)
-                proxy_sources.pop(host, None)
-                dropped.add(host)
-                notes.append(
-                    f"dropped proxy {host!r}: fronting multiple backends across configs "
-                    f"({prior}, {backend})"
-                )
-                continue
-            proxies[host] = backend
-            proxy_sources[host] = provenance
+            _declare_proxy(host, backend, provenance, proxies, proxy_sources, dropped, notes)
 
 
 def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAliases", list[str]]:
@@ -721,16 +916,21 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
 
     Returns ``(aliases, notes)``: the aliases carry ``source_files`` provenance
     (``repo-dir/rel-path``) for every extracted declaration, and the notes name
-    every skipped or conflicting extraction with its reason. Only
+    every skipped or conflicting extraction with its reason. Extracted surface:
     ``service_ports`` (k8s Service/Deployment container ports, compose container
-    ports) and ``proxies`` (nginx upstream-backed server blocks) are extracted —
-    schemes are never inferred and no host aliases are guessed.
+    ports), ``proxies`` (nginx single-backend upstream server blocks; k8s
+    Ingress rule hosts fronting exactly one backend service), and
+    ``service_protocols`` (a Service port's ``appProtocol``, an nginx
+    ``proxy_pass`` scheme, an Ingress ``backend-protocol`` annotation — never a
+    port *name*). No host aliases are guessed.
     """
     from .contracts import DeploymentAliases
     import yaml  # type: ignore[import-untyped]  # core dependency (suppress.py et al.)
 
     declared: dict[str, tuple[int, str, int]] = {}
     dropped_ports: set[str] = set()
+    protocols: dict[str, tuple[str, str, int]] = {}
+    dropped_protocols: set[str] = set()
     proxies: dict[str, str] = {}
     proxy_sources: dict[str, str] = {}
     dropped_proxies: set[str] = set()
@@ -756,7 +956,8 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
             provenance = f"{label}/{path.relative_to(repo).as_posix()}"
             if kind == "nginx":
                 _extract_nginx_proxies(
-                    text, provenance, proxies, proxy_sources, dropped_proxies, notes
+                    text, provenance, proxies, proxy_sources, dropped_proxies,
+                    protocols, dropped_protocols, notes,
                 )
                 continue
             if kind == "k8s" and "kind:" not in text:
@@ -771,22 +972,38 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
                     _extract_compose_ports(docs[0], provenance, declared, dropped_ports, notes)
                 continue
             for doc in docs:
+                if str(doc.get("kind", "")).strip() == "Ingress":
+                    _k8s_ingress_declarations(
+                        doc, provenance, proxies, proxy_sources, dropped_proxies,
+                        protocols, dropped_protocols, notes,
+                    )
+                    continue
                 parsed = _k8s_manifest_port(doc, provenance, notes)
                 if parsed is None:
                     continue
-                name, port, rank, kind_label = parsed
+                name, port, rank, kind_label, protocol = parsed
                 if not 1 <= port <= 65535:
                     notes.append(f"skipped {provenance}: {kind_label} {name} port {port} out of range")
                     continue
                 _declare_port(declared, dropped_ports, name, port, provenance, rank, kind_label, notes)
+                if protocol is not None:
+                    _declare_protocol(
+                        protocols, dropped_protocols, name, protocol, provenance,
+                        _RANK_APP_PROTOCOL, f"{kind_label} appProtocol", notes,
+                    )
 
     source_files = {
         f"service_ports:{name}:{port}": provenance
         for name, (port, provenance, _rank) in declared.items()
     }
+    source_files.update({
+        f"service_protocols:{name}:{scheme}": provenance
+        for name, (scheme, provenance, _rank) in protocols.items()
+    })
     source_files.update({f"proxies:{host}": proxy_sources[host] for host in proxies})
     aliases = DeploymentAliases(
         service_ports={name: port for name, (port, _p, _r) in declared.items()},
+        service_protocols={name: scheme for name, (scheme, _p, _r) in protocols.items()},
         proxies=proxies,
         source_files=source_files,
     )

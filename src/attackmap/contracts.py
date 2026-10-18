@@ -108,7 +108,10 @@ class ContractLink:
     # Which deployment declaration resolved the destination, e.g.
     # "hosts:auth.bsky.social", "dns_suffix:.internal", "host_ports:h:p",
     # "service_ports:repo:port", "proxies:edge.internal". `None` when the
-    # destination resolved by repo identity alone (C28 alias provenance).
+    # destination resolved by repo identity alone (C28 alias provenance). On a
+    # scheme_mismatch candidate it instead names the protocol declaration the
+    # call's scheme contradicted ("service_protocols:repo:scheme") — the
+    # declaration that kept the match a candidate.
     alias_provenance: str | None = None
     # The declared proxy hostname the call dials on an ``observed_via_proxy``
     # link; `None` on every other resolution (C28 proxy modeling).
@@ -139,7 +142,9 @@ class DeploymentAliases:
     - ``service_ports``: repo identity → its declared listen port.
     - ``service_protocols``: repo identity → the scheme the service serves
       (``http``/``https``); a call whose URL scheme contradicts it stays a
-      candidate.
+      candidate. Config extraction sources it only from positive declarations:
+      a k8s Service port's ``appProtocol``, an nginx ``proxy_pass`` scheme, or
+      an Ingress ``backend-protocol`` annotation.
     - ``source_files``: provenance key → the config file that declared it
       (config-file extraction, C28), e.g. ``service_ports:auth-api:8443`` →
       ``auth-api/k8s/service.yaml``. Surfaced by appending the file to the
@@ -258,7 +263,14 @@ def _declared_service_protocols(mapping: Mapping[str, str]) -> dict[str, str]:
 
 # Provenance-key prefixes source_files entries are keyed by — the same strings
 # link_contracts records in ContractLink.alias_provenance (C28).
-_SOURCE_KEY_PREFIXES = ("hosts:", "host_ports:", "dns_suffix:", "service_ports:", "proxies:")
+_SOURCE_KEY_PREFIXES = (
+    "hosts:",
+    "host_ports:",
+    "dns_suffix:",
+    "service_ports:",
+    "proxies:",
+    "service_protocols:",
+)
 
 
 def _declared_sources(mapping: Mapping[str, str]) -> dict[str, str]:
@@ -488,19 +500,28 @@ def link_contracts(
     routes_by_repo = {rid: _linkable_routes(scan) for rid, scan in repo_scans}
     identities = {rid: _repo_identities(rid, scan) for rid, scan in repo_scans}
 
-    def scheme_contradicts(scheme: str | None, server_id: str) -> bool:
-        """True when the call declares a URL scheme and the server declares the
-        protocol it serves and the two disagree (C28). Either side undeclared
-        declares nothing. Not applied to via-proxy links — a proxy decouples
-        the client→proxy leg from the protocol the backend serves."""
+    def scheme_contradiction(scheme: str | None, server_id: str) -> str | None:
+        """The provenance key of the protocol declaration a call's scheme
+        contradicts (C28), ``""`` when a contradiction exists but no single
+        declaration vouches for it, and ``None`` when there is no
+        contradiction. Either side undeclared declares nothing. Not applied to
+        via-proxy links — a proxy decouples the client→proxy leg from the
+        protocol the backend serves."""
         if scheme is None:
-            return False
-        declared = {
-            aliases.service_protocols[name]
+            return None
+        declarations = {
+            name: aliases.service_protocols[name]
             for name in identities[server_id]
             if name in aliases.service_protocols
         }
-        return bool(declared) and scheme not in declared
+        schemes = set(declarations.values())
+        if not schemes or scheme in schemes:
+            return None
+        if len(schemes) > 1:
+            return ""  # identities disagree: contradicted, but nothing to cite
+        declared = next(iter(schemes))
+        name = min(n for n, s in declarations.items() if s == declared)
+        return f"service_protocols:{name}:{declared}"
 
     def resolve(
         call_target: str, server_id: str
@@ -571,9 +592,10 @@ def link_contracts(
         # server, so the client's URL scheme describes the leg into it — a
         # contradiction with the server's declared protocol means the same
         # host on a different scheme is a different endpoint, and the match
-        # stays a candidate.
-        if scheme_contradicts(scheme, server_id):
-            return destination, "candidate", "scheme_mismatch", None, None
+        # stays a candidate citing the declaration it contradicted.
+        contradiction = scheme_contradiction(scheme, server_id)
+        if contradiction is not None:
+            return destination, "candidate", "scheme_mismatch", _sourced(aliases, contradiction) or None, None
         return destination, "observed", "", _sourced(aliases, provenance), None
 
     links: list[ContractLink] = []

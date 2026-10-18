@@ -72,9 +72,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from .safe_fs import is_contained, is_oversized, is_unsafe_link, walk_repo
+from .index import PassSources
+from .safe_fs import is_contained, is_unsafe_link, walk_repo
 from .models import WorkflowIssue
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 # A pinned action ref is a full 40-hex commit SHA. Anything else is "unpinned".
 _SHA_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -236,29 +241,37 @@ def _scan_action(data: dict, rel: str, lines: list[str]) -> list[WorkflowIssue]:
     return issues
 
 
-def _load_yaml(path: Path, yaml):  # type: ignore[no-untyped-def]
+def _load_yaml(path: Path, yaml, sources: PassSources):  # type: ignore[no-untyped-def]
     try:
-        text = path.read_text(encoding="utf-8", errors="replace")
+        text = sources.text(path, errors="replace")
+        if text is None:
+            return None, None
         data = yaml.safe_load(text)
     except (OSError, yaml.YAMLError):  # type: ignore[attr-defined]
         return None, None
     return (data, text) if isinstance(data, dict) else (None, None)
 
 
-def scan_workflows(root: str | Path) -> list[WorkflowIssue]:
+def scan_workflows(root: str | Path, index: "RepoIndex | None" = None) -> list[WorkflowIssue]:
     """Scan `.github/workflows/*.yml` and composite-action `action.yml` files
-    under `root` for CI security issues."""
+    under `root` for CI security issues.
+
+    Workflow *content* resolves through the run's captured index when one is
+    given or pinned for this root (C33/AM047): a workflow edited after the
+    index was built is analyzed as captured, and one added after the build is
+    outside the snapshot entirely. The directory listing stays live."""
     try:
         import yaml  # type: ignore[import-untyped]
     except ImportError:
         return []
 
-    root_path = Path(root)
+    root_path = Path(root).resolve()
+    sources = PassSources.for_root(root_path, index)
     issues: list[WorkflowIssue] = []
     for path in walk_repo(root_path, prune=lambda name: name in _ACTION_SKIP_DIRS):
-        if path.name not in _ACTION_FILENAMES or is_oversized(path):
+        if path.name not in _ACTION_FILENAMES or sources.oversized(path):
             continue
-        data, text = _load_yaml(path, yaml)
+        data, text = _load_yaml(path, yaml, sources)
         if data is not None:
             issues.extend(_scan_action(data, path.relative_to(root_path).as_posix(), text.splitlines()))
 
@@ -269,11 +282,10 @@ def scan_workflows(root: str | Path) -> list[WorkflowIssue]:
     for path in sorted(workflows_dir.iterdir()):
         if path.suffix.lower() not in {".yml", ".yaml"} or not path.is_file():
             continue
-        if is_unsafe_link(root_path, path) or is_oversized(path):
+        if is_unsafe_link(root_path, path) or sources.oversized(path):
             continue
-        try:
-            text = path.read_text(encoding="utf-8", errors="replace")
-        except OSError:
+        text = sources.text(path, errors="replace")
+        if text is None:
             continue
         try:
             data = yaml.safe_load(text)

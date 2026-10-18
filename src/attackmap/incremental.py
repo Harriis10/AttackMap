@@ -26,6 +26,21 @@ from pathlib import Path
 # with a different schema string are discarded wholesale (safe recompute).
 CACHE_SCHEMA = "attackmap-incremental/1.0"
 
+# Low-level activation knob for the per-file cache. The CLI ``--incremental``
+# flag sets it for one run (fleet worker subprocesses inherit it); it can
+# also be set directly, like the other ATTACKMAP_* scan-time knobs.
+INCREMENTAL_ENV = "ATTACKMAP_INCREMENTAL"
+
+# Eviction bound (C34/AM048 remainder): the current generation keeps at most
+# MAX_CACHE_ENTRIES entries; older entries (by persisted insertion sequence)
+# are dropped first at insert time. Entries are keyed per (content, pass,
+# policy, engine), so every repo edit mints a NEW entry — without a bound the
+# single JSON file would grow with each edit across runs. 50k entries sits far
+# above the largest reference corpus (juice-shop ≈ 2k files) while keeping
+# load/save cheap; since every scanned file is read on every run, insertion
+# order and last-use order coincide in practice.
+MAX_CACHE_ENTRIES = 50_000
+
 # Environment knobs that change per-file output at scan time without any
 # code change: source-role classification gates routes and the weakness
 # passes (srcpaths.is_test_file / is_vendored_file).
@@ -105,6 +120,11 @@ def source_policy_identity() -> str:
     return _sha256(_canonical({name: os.environ.get(name, "") for name in _POLICY_ENV}))
 
 
+def enabled_by_env() -> bool:
+    """Whether per-file cache activation is requested via ``ATTACKMAP_INCREMENTAL=1``."""
+    return os.environ.get(INCREMENTAL_ENV, "") == "1"
+
+
 @dataclass(frozen=True)
 class FileCacheKey:
     """Everything a per-file cache entry's validity depends on."""
@@ -137,7 +157,8 @@ class PerFileCache:
     enough that load/save time matters.
     """
 
-    def __init__(self, path: Path, *, engine: str, policy: str) -> None:
+    def __init__(self, path: Path, *, engine: str, policy: str,
+                 max_entries: int | None = None) -> None:
         self.path = Path(path)
         self.engine = engine
         self.policy = policy
@@ -145,18 +166,28 @@ class PerFileCache:
         # engine/policy generations are dropped so the file cannot grow
         # without bound across upgrades.
         self.generation = _sha256(_canonical([CACHE_SCHEMA, engine, policy]))
+        self.max_entries = MAX_CACHE_ENTRIES if max_entries is None else max(1, int(max_entries))
         self._entries: dict[str, dict] = self._load()
+        # Insertion sequence for eviction order; continues across runs so an
+        # entry's age survives reopen. Entries from an older layout without a
+        # "seq" count as the oldest possible.
+        seqs = [entry.get("seq") for entry in self._entries.values()]
+        self._seq = max((s for s in seqs if isinstance(s, int) and s >= 0), default=0)
         self._dirty = False
+        # Reopening restores the bound even for a file written under a larger
+        # one (e.g. after MAX_CACHE_ENTRIES is lowered, or max_entries passed).
+        self._evict_to_bound()
 
     # -- lifecycle ---------------------------------------------------------
 
     @classmethod
     def open(cls, path: str | Path, *, engine: str | None = None,
-             policy: str | None = None) -> "PerFileCache":
+             policy: str | None = None, max_entries: int | None = None) -> "PerFileCache":
         return cls(
             Path(path),
             engine=engine if engine is not None else engine_identity(),
             policy=policy if policy is not None else source_policy_identity(),
+            max_entries=max_entries,
         )
 
     def _load(self) -> dict[str, dict]:
@@ -208,11 +239,24 @@ class PerFileCache:
         return payload
 
     def put(self, key: FileCacheKey, payload: dict) -> None:
+        self._seq += 1
         self._entries[key.identity()] = {
             "gen": self.generation,
+            "seq": self._seq,
             "payload": payload,
             "checksum": _sha256(_canonical(payload)),
         }
+        self._dirty = True
+        self._evict_to_bound()
+
+    def _evict_to_bound(self) -> None:
+        """Drop the oldest-inserted entries beyond ``max_entries``."""
+        excess = len(self._entries) - self.max_entries
+        if excess <= 0:
+            return
+        oldest = sorted(self._entries.items(), key=lambda kv: kv[1].get("seq") or 0)
+        for identity, _entry in oldest[:excess]:
+            del self._entries[identity]
         self._dirty = True
 
     @property
