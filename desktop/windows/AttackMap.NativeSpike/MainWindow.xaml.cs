@@ -71,7 +71,7 @@ public sealed partial class MainWindow : Window
         Provider.TestConnectionRequested += async request => await ProviderAction("provider_check", request);
         Provider.ConfigurationChanged += () => NetworkOptionChanged(this, new RoutedEventArgs());
         Closed += (_, _) => { actionLifetime.Cancel(); keyboardBindings?.Dispose(); engine.Disconnect(); };
-        if (Environment.GetCommandLineArgs().Contains("--smoke") || Environment.GetCommandLineArgs().Contains("--report-smoke") || Environment.GetCommandLineArgs().Contains("--scan-smoke") || Environment.GetCommandLineArgs().Contains("--settings-smoke") || Environment.GetCommandLineArgs().Contains("--structure-smoke") || Environment.GetCommandLineArgs().Contains("--export-smoke") || startup.Contains("--performance-smoke") || startup.Contains("--actions-smoke") || startup.Contains("--accessibility-smoke") || startup.Contains("--placement-smoke") || startup.Contains("--startup-smoke"))
+        if (Environment.GetCommandLineArgs().Contains("--smoke") || Environment.GetCommandLineArgs().Contains("--report-smoke") || Environment.GetCommandLineArgs().Contains("--scan-smoke") || Environment.GetCommandLineArgs().Contains("--settings-smoke") || Environment.GetCommandLineArgs().Contains("--structure-smoke") || Environment.GetCommandLineArgs().Contains("--export-smoke") || Environment.GetCommandLineArgs().Contains("--engine-guard-smoke") || startup.Contains("--performance-smoke") || startup.Contains("--actions-smoke") || startup.Contains("--accessibility-smoke") || startup.Contains("--placement-smoke") || startup.Contains("--startup-smoke"))
             ((FrameworkElement)Content).Loaded += SmokeLoaded;
         else if (startup.Contains("--capture-smoke"))
             ((FrameworkElement)Content).Loaded += CaptureLoaded;
@@ -130,7 +130,11 @@ public sealed partial class MainWindow : Window
             var saved = settings.Load();
             PythonPath.Text = saved.PythonPath;
             string bundledEngine = Path.Combine(AppContext.BaseDirectory, "engine", "attackmap.exe");
-            if (PythonPath.Text.Length == 0 && File.Exists(bundledEngine)) PythonPath.Text = bundledEngine;
+            // A saved engine path can outlive its version directory (upgrade or
+            // uninstall of the package it pointed into). Fall back to the
+            // bundled engine instead of leaving a dangling path that would
+            // fail every scan/action with a spawn error.
+            if (File.Exists(bundledEngine) && !File.Exists(PythonPath.Text.Trim())) PythonPath.Text = bundledEngine;
             ApplyScanOptions(saved.EffectiveOptions, saved.Modules);
             repositoryPath = saved.RepositoryPath.Length == 0 ? null : saved.RepositoryPath;
             presentation.SelectRepository(repositoryPath);
@@ -643,6 +647,25 @@ public sealed partial class MainWindow : Window
             Close();
             return;
         }
+        int engineGuardIndex = Array.IndexOf(arguments, "--engine-guard-smoke");
+        if (engineGuardIndex >= 0)
+        {
+            // Verify the engine-selection guards without spawning anything:
+            // the app's own executable must be rejected as an engine (the
+            // duplicate-window regression), a non-Python non-frozen executable
+            // must be rejected, and a bundled engine must end up selected.
+            string? selfRejected = null, foreignRejected = null;
+            try { new EngineLaunchSpec(Environment.ProcessPath!); } catch (InvalidDataException error) { selfRejected = error.Message; }
+            try { new EngineLaunchSpec(Path.Combine(Environment.SystemDirectory, "cmd.exe")); } catch (InvalidDataException error) { foreignRejected = error.Message; }
+            string bundledEngine = Path.Combine(AppContext.BaseDirectory, "engine", "attackmap.exe");
+            bool bundled = File.Exists(bundledEngine);
+            string configured = PythonPath.Text.Trim();
+            if (bundled && !File.Exists(configured)) PythonPath.Text = bundledEngine;
+            bool guardPassed = selfRejected != null && foreignRejected != null && (!bundled || PythonPath.Text == bundledEngine);
+            File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "engine-guard-smoke.json"), JsonSerializer.Serialize(new { passed = guardPassed, selfRejected, foreignRejected, bundledEnginePresent = bundled, bundledEngineSelected = PythonPath.Text }));
+            Close();
+            return;
+        }
         int scanIndex = Array.IndexOf(arguments, "--scan-smoke");
         if (scanIndex >= 0)
         {
@@ -1027,6 +1050,7 @@ public sealed partial class MainWindow : Window
             Provider.ShowResult(result.GetProperty("message").GetString() ?? "Provider action completed.");
             NetworkOptionChanged(this, new RoutedEventArgs());
         }
+        catch (System.IO.InvalidDataException error) { if (!actionLifetime.IsCancellationRequested) Provider.ShowResult(error.Message); }
         catch (Exception) { if (!actionLifetime.IsCancellationRequested) Provider.ShowResult("Provider action failed. Check endpoint, model and protected credential storage; no secrets were logged."); }
         finally { actionRunning = DesktopActionRunner.CleanupBlocked; if (!actionLifetime.IsCancellationRequested) Provider.IsEnabled = !DesktopActionRunner.CleanupBlocked; }
     }

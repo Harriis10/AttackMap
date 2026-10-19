@@ -23,6 +23,37 @@ public sealed class EngineLaunchSpec
         // Explicit kind always wins, including renamed frozen development binaries.
         InferredFrozenName = runtimeKind == null && Path.GetFileName(ExecutablePath).Equals("attackmap.exe", StringComparison.OrdinalIgnoreCase);
         RuntimeKind = runtimeKind ?? (InferredFrozenName ? EngineRuntimeKind.Frozen : EngineRuntimeKind.Python);
+        // Static guards, checked before anything is spawned: a wrong path must
+        // produce a clear error, never a launched process. The desktop app's own
+        // executable must never be spawned as an engine (it ignores broker
+        // arguments and opens a duplicate window), and a Python-kind selection
+        // that carries no Python distribution markers is almost certainly a
+        // mispicked executable.
+        string? ownExecutable = Environment.ProcessPath;
+        if (ownExecutable != null && string.Equals(Path.GetFullPath(ownExecutable), ExecutablePath, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("The desktop app executable is not an engine. Select the bundled engine (engine\\attackmap.exe) or a Python interpreter with AttackMap installed.");
+        if (RuntimeKind == EngineRuntimeKind.Python && !LooksLikePythonInstallation(ExecutablePath))
+            throw new InvalidDataException($"'{Path.GetFileName(ExecutablePath)}' is not a recognized engine executable. Select the bundled engine (engine\\attackmap.exe), or python.exe from an environment with AttackMap installed.");
+    }
+
+    /// <summary>Static, execution-free recognition of a Python installation:
+    /// interpreters ship python3*.dll beside them (root or venv layouts put it
+    /// in the interpreter's own directory or one level up, with Lib\os.py as
+    /// the layout-confirming alternative).</summary>
+    private static bool LooksLikePythonInstallation(string executablePath)
+    {
+        foreach (string directory in new[] { Path.GetDirectoryName(executablePath)!, Path.GetDirectoryName(Path.GetDirectoryName(executablePath))! })
+        {
+            if (directory is null) continue;
+            try
+            {
+                if (Directory.EnumerateFiles(directory, "python3*.dll").Any()) return true;
+                if (File.Exists(Path.Combine(directory, "Lib", "os.py"))) return true;
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+        return false;
     }
 
     public IReadOnlyList<string> ArgumentsFor(EngineBrokerKind broker, string requestPath)
