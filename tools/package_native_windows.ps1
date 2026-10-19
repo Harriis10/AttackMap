@@ -69,7 +69,9 @@ $manifest = [ordered]@{
 }
 $manifest | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $stage 'package-manifest.json') -Encoding utf8
 $deployment = @'
-#requires -Version 7.2
+# Windows PowerShell 5.1 and PowerShell 7+ both run this installer; the
+# unsigned dev channel is normally launched via Install-AttackMap.cmd,
+# which supplies the per-process execution policy.
 [CmdletBinding()]
 param([ValidateSet('Install','Rollback','Uninstall')][string]$Mode='Install',
       [string]$InstallRoot=(Join-Path $env:LOCALAPPDATA 'Programs/AttackMapDevelopment'),[string]$Version)
@@ -94,7 +96,7 @@ function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false) {
     $manifest=Get-Content -LiteralPath (Join-Path $Folder 'package-manifest.json') -Raw | ConvertFrom-Json
     if ($manifest.schema_version -ne 1 -or $manifest.package_id -notmatch '^dev-[0-9]{14}-[a-f0-9]{8}$') { throw 'Unsupported package manifest.' }
     $expected=@('package-manifest.json')
-    if ($IncludeInstaller) { $expected += 'Install-AttackMap.ps1' }
+    if ($IncludeInstaller) { $expected += 'Install-AttackMap.ps1'; $expected += 'Install-AttackMap.cmd' }
     foreach ($file in $manifest.files) {
         if ($file.path -notmatch '^[A-Za-z0-9_./ -]+$' -or $file.path.Split('/') -contains '..' -or [IO.Path]::IsPathRooted($file.path)) { throw 'Unsafe package entry.' }
         $path=Join-Path (Join-Path $Folder 'app') $file.path
@@ -104,7 +106,12 @@ function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false) {
     }
     foreach ($entry in Get-ChildItem -LiteralPath $Folder -Recurse -Force) {
         if ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Redirected package entry.' }
-        if (!$entry.PSIsContainer -and [IO.Path]::GetRelativePath($Folder,$entry.FullName).Replace('\','/') -notin $expected) { throw 'Unrecognized file in owned version; refusing deletion or activation.' }
+        # Relative-path resolution without [IO.Path]::GetRelativePath, which
+        # Windows PowerShell 5.1 (.NET Framework) does not provide.
+        if (!$entry.PSIsContainer) {
+            $relative = if ($entry.FullName.StartsWith($Folder.TrimEnd('\','/'), [StringComparison]::OrdinalIgnoreCase)) { $entry.FullName.Substring($Folder.TrimEnd('\','/').Length).TrimStart('\','/').Replace('\','/') } else { '' }
+            if ($relative -eq '' -or $relative -notin $expected) { throw 'Unrecognized file in owned version; refusing deletion or activation.' }
+        }
     }
     return $manifest
 }
@@ -113,7 +120,9 @@ function Set-Current([string]$Id) {
     $temporary=Join-Path $root ('.current-' + [Guid]::NewGuid().ToString('N') + '.tmp')
     try {
         @{package_id=$Id} | ConvertTo-Json | Set-Content -LiteralPath $temporary -Encoding utf8
-        [IO.File]::Move($temporary,(Join-Path $root 'current.json'),$true)
+        # Move-Item -Force instead of the 3-arg [IO.File]::Move overload,
+        # which Windows PowerShell 5.1 (.NET Framework) does not provide.
+        Move-Item -LiteralPath $temporary -Destination (Join-Path $root 'current.json') -Force
     } finally { if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary } }
 }
 if ($Mode -eq 'Install') {
@@ -165,9 +174,27 @@ if ($Mode -eq 'Install') {
 }
 '@
 $deployment | Set-Content -LiteralPath (Join-Path $stage 'Install-AttackMap.ps1') -Encoding utf8
+# Unsigned dev channel: plain .ps1 launch is blocked by the default
+# Restricted execution policy. A batch wrapper is not subject to it, so it
+# can bootstrap PowerShell with an explicit per-process Bypass policy.
+$launcher = @'
+@echo off
+setlocal
+set "SCRIPT=%~dp0Install-AttackMap.ps1"
+where pwsh.exe >nul 2>nul
+if %errorlevel%==0 (
+  pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%" %*
+) else (
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%" %*
+)
+echo.
+pause
+'@
+$launcher | Set-Content -LiteralPath (Join-Path $stage 'Install-AttackMap.cmd') -Encoding ascii
 $zip = Join-Path $output ($packageId + '.zip')
 Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
 $digest = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
 "$digest  $([IO.Path]::GetFileName($zip))" | Set-Content -LiteralPath ($zip + '.sha256') -Encoding ascii
 Write-Output "Package: $zip"
 Write-Output "SHA256: $digest"
+Write-Output 'Install (unsigned dev channel): run Install-AttackMap.cmd from the extracted package (double-click or cmd), or: powershell -NoProfile -ExecutionPolicy Bypass -File .\Install-AttackMap.ps1'
