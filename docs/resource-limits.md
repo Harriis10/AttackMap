@@ -89,13 +89,74 @@ all three completed inside the 600 s default budget with `exceeded=false`.
 - These numbers describe **this fixture on this host only**. No universal
   repositories-per-second claim is made or implied.
 
-### 50,000 / 100,000-file fixtures
+### 50,000-file fixture (measured 2026-10-19 overnight)
 
-`tools/gen_stress_repo.py --count 50000|100000` is supported and generation is
-deterministic, but full engine measurements at those sizes were **not** run
-tonight — the 10,000-file scan takes ~4 minutes per run on this host, and the
-50k/100k runs need a longer measurement window. This is a stated gap, not an
-extrapolated number.
+Fixture: 50,000 files, 35,372,230 bytes (~33.7 MiB, ~687 bytes/file). 3 full
+engine runs on the **current 9-analyzer engine** (post-AM052 — note the 10k
+reference above was measured on the pre-wave 4-analyzer engine, so the series
+is not a like-for-like scaling curve; a fresh 10k on the current engine is a
+recorded follow-up). All runs scanned all 50,000 files (`files_scanned=50000`,
+1 high finding each).
+
+| Stage | p50 ms | p95 ms | samples |
+| --- | --- | --- | --- |
+| request_validation | 0 | 0 | 3 |
+| select_analyzers | 62,887 | 81,045 | 3 |
+| scan_and_merge | 564,427 | 1,004,332 | 3 |
+| translate | 56,457 | 56,793 | 3 |
+| suppress | — skipped — | — | budget expired before this stage |
+| publish | 91,972 | 94,405 | 3 |
+| Whole run (wall) | 827,328 | 1,287,345 | 3 |
+
+- **The 600 s default time budget EXPIRED in every run** (`exceeded=true`,
+  before the `suppress` stage): the run ends COMPLETED with explicit partial
+  coverage — visible budget exhaustion demonstrated at scale, not only in unit
+  tests.
+- **Peak resident memory: 5,166.0 MiB (5.05 GiB) — ABOVE the 2 GiB
+  threshold.** The peak is transient (mid-run, inside `scan_and_merge`): the
+  working set after each run settles at ~1,265-1,272 MiB.
+- Deadline-check overhead: 295.1 ns per check.
+
+### 100,000-file fixture (measured 2026-10-19 overnight)
+
+Fixture: 100,000 files, 70,822,230 bytes (~67.5 MiB). 3 full engine runs; all
+scanned all 100,000 files — the 100,000-file index cap did **not** trigger
+(exactly 100,000 accepted, none skipped), 1 high finding each.
+
+| Stage | p50 ms | p95 ms | samples |
+| --- | --- | --- | --- |
+| request_validation | 0 | 0 | 3 |
+| select_analyzers | 126,286 | 126,643 | 3 |
+| scan_and_merge | 1,131,806 | 1,981,384 | 3 |
+| translate | 114,234 | 116,229 | 3 |
+| suppress | — skipped — | — | budget expired before this stage |
+| publish | 187,805 | 189,751 | 3 |
+| Whole run (wall) | 1,663,514 | 2,497,808 | 3 |
+
+- Time budget 600 s expired in every run (same explicit partial-coverage
+  outcome; wall p50 27.7 min).
+- **Peak resident memory: 10,279.3 MiB (10.04 GiB) — 5x ABOVE the 2 GiB
+  threshold.** Working set after each run: ~2,465-2,477 MiB. The mid-run spike
+  lives in `scan_and_merge`, which holds per-file signal state for the whole
+  repository before merge/publish can release it.
+- Deadline-check overhead: 265.3 ns per check.
+
+### What the 50k/100k numbers mean for C35
+
+Stated plainly: **the C35 peak-memory criterion (`< 2 GiB`) is NOT met at
+50,000 or 100,000 files on this host.** The 10,000-file measurement passes
+(861.5 MiB, pre-wave engine). The honest reading:
+
+1. Coverage stays complete even when the time budget expires (all files
+   scanned; the skip list is empty) — degradation is visible and typed, never
+   silent.
+2. The memory excess is a transient peak inside `scan_and_merge`, not the
+   steady-state footprint (1.3 GiB / 2.5 GiB after the run). Any fix should
+   target per-file signal lifetime during the scan loop (streaming merge or
+   chunked release), not the published models.
+3. Until a fix or a documented memory budget/degradation policy for very
+   large repositories lands, large-repo peak memory remains an **open
+   criterion gap** — recorded, not waived.
 
 ## Reproducing
 
@@ -105,6 +166,12 @@ Exact commands used for tonight's numbers (from the repo root):
 # 10k measurement (fixture generated into a temp dir, 3 repeats)
 .venv/Scripts/python.exe tools/measure_stress.py --count 10000 --repeat 3 \
   --json-out C:/tmp/attackmap-stress10k.json
+
+# 50k / 100k measurements (2026-10-19 overnight; ~45 min / ~2 h on this host)
+.venv/Scripts/python.exe tools/measure_stress.py --count 50000 --repeat 3 \
+  --json-out C:/tmp/am-c35/measure-50k.json
+.venv/Scripts/python.exe tools/measure_stress.py --count 100000 --repeat 3 \
+  --json-out C:/tmp/am-c35/measure-100k.json
 
 # cancellation-under-load proof (opt-in; measured 125.5 s for the 5,000-file
 # fixture with a 1-second budget — bounded by one scan stage, not a hang)
@@ -118,18 +185,23 @@ ATTACKMAP_STRESS_TESTS=1 .venv/Scripts/python.exe -m pytest \
 
 ## Known gaps vs the C35 criterion
 
-1. 50,000- and 100,000-file measurements not yet recorded (tooling supports
-   them; awaiting a longer window).
-2. The 512 MiB accepted-text default is not a shipped default yet (see honesty
+1. **Peak memory exceeds 2 GiB at 50k/100k files** (5.05 GiB / 10.04 GiB,
+   measured 2026-10-19): open engineering work — streaming/chunked signal
+   release inside `scan_and_merge`, or a documented memory budget with
+   explicit degradation for very large repositories. Recorded, not waived.
+2. The 10k passing reference (861.5 MiB) was measured on the pre-AM052
+   4-analyzer engine; a fresh 10k run on the current 9-analyzer engine is a
+   follow-up so the series is comparable.
+3. The 512 MiB accepted-text default is not a shipped default yet (see honesty
    note above); the 100,000-file-count default shipped on 2026-10-17 via the
    index owner's parallel change.
-3. Peak memory is measured for a single-repo, single-worker, in-process run.
+4. Peak memory is measured for a single-repo, single-worker, in-process run.
    Fleet-wide memory admission (capping total worker memory across
    subprocesses) is not implemented.
-4. Numbers qualify this host only; a reference-host qualification pass (or a
+5. Numbers qualify this host only; a reference-host qualification pass (or a
    documented default reduction) remains open until repeated on the pinned
    reference machine.
-5. The graph edge breach is reported via `graph.graph` attributes and
+6. The graph edge breach is reported via `graph.graph` attributes and
    `scan.limitations`; a typed `ResourceLimitEvent` producer for the graph
    would require extending the `producer`/`category` Literals in
    `models.py` (owned elsewhere; the index owner extended them for
