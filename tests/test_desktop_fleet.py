@@ -206,7 +206,6 @@ def test_broker_partial_preserves_previous_current_and_rejects_stale_progress(tm
     from attackmap.artifact_publisher import generation_dir
     run = request(tmp_path)
     folder = generation_dir(Path(run.output_path), run.run_id)
-    folder.mkdir(parents=True)
     child_generations(run, folder, 1)
     current = Path(run.output_path) / "current.json"
     current.write_text("previous sentinel")
@@ -256,7 +255,6 @@ def test_parent_publication_failure_with_complete_children_is_failed_not_partial
     from attackmap.artifact_publisher import generation_dir
     run = request(tmp_path)
     folder = generation_dir(Path(run.output_path), run.run_id)
-    folder.mkdir(parents=True)
     child_generations(run, folder)
     class Supervisor:
         def start(self, argv, **kwargs):

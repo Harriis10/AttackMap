@@ -4,6 +4,12 @@ using System.Text.Json;
 
 // Test-only broker: never launches children, accesses the network, or stores credentials.
 int index = Array.IndexOf(args, "--request");
+if (index < 0 || index + 1 >= args.Length || !Path.IsPathFullyQualified(args[index + 1]) || !File.Exists(args[index + 1]))
+{
+    Console.Error.WriteLine("Usage: ControlledFakeBroker <broker operation> --request <absolute existing request.json>");
+    Environment.ExitCode = 2;
+    return;
+}
 using var request = JsonDocument.Parse(await File.ReadAllTextAsync(args[index + 1]));
 var root = request.RootElement;
 if (root.TryGetProperty("run_id", out var runIdentity))

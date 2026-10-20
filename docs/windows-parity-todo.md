@@ -1,6 +1,6 @@
 # AttackMap Windows parity — podrobné TODO pro paralelní agenty
 
-**Baseline 20. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Vlna 0 zahájena 20. 10. 2026: WP001/WP002/WP030 jsou IN_PROGRESS; ostatní nové úkoly začínají OPEN; dosavadní implementace se nepřepisuje. `WP036` a `WP041` jsou DEFERRED, `WP021` volitelné rozšíření po paritě.
+**Baseline 20. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Běh obnoven z `a8c4786`: agenti pokračují na WP006/WP015/WP018. Stav při obnovení: 6 DONE, 5 MANUAL_PENDING, 4 IMPLEMENTED, 4 IN_PROGRESS, 20 OPEN a 2 DEFERRED; přidělení samo nemění acceptance. `WP021` je volitelné rozšíření po paritě.
 
 ## Pravidla převzetí
 
@@ -107,7 +107,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 ### WP006 — Progress, ETA a výběr analyzérů
 
 - Priorita: P1; lane: WINDOWS; checkpoint: K2; stav: MANUAL_PENDING.
-- Owner: `/root/wp006_progress`; base: `d45997653970929f5f477c6e2dcd70913cb17fe3`; progress/analyzer controls a úzký EngineSession/EngineProtocol lease, bez MainWindow shell editů.
+- Owner: `/root/wp006_resume`; resume base: `a8c4786`; progress/analyzer a session-test recovery lease, bez MainWindow shell editů.
 - Závislosti: WP003, WP005.
 - Kritéria: C21, C22; původní úkoly: AM028; funkce: F02, F03.
 - Zápis: nový `ScanProgressView.cs`, `AnalyzerSelectionView.cs`, `ScanProgressModel.cs`; focused tests.
@@ -115,7 +115,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: structured progress callback, per-stage done/total a indeterminate; odhad ETA jen s daty; discovery-backed picker s Automatic, experimental/opt-in/missing a chybou analyzéru.
 - DoD: out-of-order/stale events nevrátí procenta ani cizí repo; done analyzéru neukončí scan; žádné automatické instalování pluginů. Filtrovaný seznam nezamlčí vybrané nepřítomné moduly.
 - Ověření: `EngineProtocol.Tests`, `EngineSession.Tests`, nové model tests; synthetic stage fixtures a jeden skutečný native scan s progress.
-- Důkaz: `docs/verification/windows-parity/WP006/`; 73 pure progress/analyzer checks a 102 EngineProtocol checks PASS, tři synthetic light preview snímky root prohlédl. Checkbox glyph v jednom bounded snímku zůstal nekonzistentní a opravný rebuild byl na uživatelův pokyn zastaven. `EngineSession.Tests` harness FAIL: zastaralý fake-broker basename odmítl aktuální launch guard; původní chybné spuštění otevřelo Windows crash dialog. Všechny vlastněné procesy jsou ukončené. Žádný real native scan, keyboard/Narrator, dark/two-size ani session callback acceptance; WP006 není DONE.
+- Důkaz: `docs/verification/windows-parity/WP006/`; 73 pure progress/analyzer checks a 102 EngineProtocol checks PASS, tři synthetic light preview snímky root prohlédl. Obnovení v `recovery-2026-10-20.md` opravilo argumenty a privátní fake-broker staging: **9 session scénářů a 2 argument-negative checks PASS**, root potvrdil hash aktuálního EngineSession; cleanup ověřil 21 markerů a nula živých fake/harness procesů. První 180s timeout je zachovaný odděleně od úspěšného běhu s limitem 420s. Checkbox glyph, shell/real scan, keyboard/Narrator, dark a druhá velikost nadále nemají acceptance; WP006 není DONE.
 
 ## Výsledky a uživatelská práce
 
@@ -246,7 +246,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 ### WP015 — Native AI mode/jury/settings UX
 
 - Priorita: P1; lane: WINDOWS_AI; checkpoint: K3; stav: IN_PROGRESS.
-- Owner: `/root/wp015_ai_native`; base: `d45997653970929f5f477c6e2dcd70913cb17fe3`; native AI/provider settings a 1.3 negotiation lease, shell integraci drží root.
+- Owner: `/root/wp015_resume`; resume base: `a8c4786`; native AI/provider settings a 1.3 negotiation lease, shell integraci drží root.
 - Závislosti: WP005, WP014.
 - Kritéria: C07, C14, C21, C25; původní úkoly: AM033, AM034; funkce: F13, F14, F15.
 - Zápis: `ProviderSettingsView.cs`, `ProviderConfiguration.cs`, nové mode/jury controls, focused C# tests.
@@ -254,7 +254,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: zvolit mode, lokální endpoint/model a supported tuning; vysvětlit skutečný network/usage dopad a premium fast jen při podpoře. Žádné hardcoded remote model-only omezení.
 - DoD: AI off na čistém profilu, uložené credentials protected, switch/reset nikdy neposílá request; nepodporované volby jsou vysvětlené. Všechny controls dosažitelné v malém okně/200% textu.
 - Ověření: `ProviderConfiguration.Tests`, `ProviderRoundtrip.Tests`, protected-store tests; vizuální preview + keyboard; secrets sentinel.
-- Důkaz dosavadního řezu: `docs/verification/windows-parity/WP015/README.md`; 49 nových Native AI checks, 54 NativeOptions a 16 ProviderConfiguration checks PASS. Initial preview build prošel, ale final-source rebuild byl zastaven a žádné UI nebylo spuštěno ani vizuálně přijato. Live `ProviderRoundtrip.Tests` se bez povinných argumentů ukončil před akcí a nebyl opakován; WP015 zůstává IN_PROGRESS.
+- Důkaz dosavadního řezu: `docs/verification/windows-parity/WP015/root-visual-review-2026-10-20.md`; fresh **49 Native AI PASS**, dřívější 54 NativeOptions a 16 ProviderConfiguration PASS jsou oddělené. Final-source capture/clip buildy mají 0 warnings/errors. Dvě skutečné synthetic UI capture journeys prošly, root prohlédl všech 14 PNG, ale překryv záhlaví při scrollování zůstává i po bounds-clip pokusu: visual gate není přijatá. Normální preview bylo na žádost uživatele ponecháno otevřené. Shell/protected-store/manual acceptance a live HTTP chybí; WP015 zůstává IN_PROGRESS.
 
 <a id="wp016"></a>
 
@@ -288,8 +288,8 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP018 — Fleet přes desktop kontrakt a supervisor
 
-- Priorita: P1; lane: CORE_FLEET; checkpoint: K4; stav: IN_PROGRESS.
-- Owner: `/root/wp018_fleet_core`; base: `d45997653970929f5f477c6e2dcd70913cb17fe3`; výhradní fleet core lease na desktop worker/scan service/run schemas/publisher jen v nezbytném rozsahu.
+- Priorita: P1; lane: CORE_FLEET; checkpoint: K4; stav: IMPLEMENTED.
+- Owner: `/root/wp018_resume`; resume base: `a8c4786`; výhradní lease na `desktop_fleet.py` a `test_desktop_fleet.py`; shared worker/service/schemas/publisher pouze po koordinaci s root.
 - Závislosti: WP004.
 - Kritéria: C06, C08, C09, C10, C28; původní úkoly: AM006, AM009–011, AM040; funkce: F19.
 - Zápis: nový desktop fleet adapter, `tests/test_desktop_fleet.py` (nový).
@@ -297,7 +297,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: repo-set identity + per-child identity/progress/terminal/manifest, reuse serial/parallel fleet service, bounded admission a cancel celé vlastněné větve; unsupported mode preflight.
 - DoD: source/frozen serial≡parallel ve všech výstupních formátech; Unicode/spaces/duplicate basename; failed child zachová sibling results a zjevný fleet partial stav. Žádný frozen exe spuštěný jako Python.
 - Ověření: `test_fleet_parallelism.py`, `test_fleet_publication.py`, `test_unreadable_and_fleet_failures.py`, nové native broker fixtures a procesová kontrola.
-- Důkaz dosavadního řezu: `docs/verification/windows-parity/WP018/implementation.md`; explicitní schema 1.4 fleet request/child/terminal a read-only child collection jsou implementované. Poslední root rerun prošel 35 kontrolami a poté selhal v test setupu na `FileExistsError` při opakovaném `mkdir` existujícího `output/fleet-fixture`; zdrojová oprava po předchozím selhání proto zůstává neověřená a WP018 je IN_PROGRESS.
+- Důkaz: `docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md`; root schválil odstranění dvou nadbytečných fixture `mkdir`, produkční kód se nezměnil. **38 focused + 29 regression PASS, 1 explicit Windows chmod skip**. Source-worker serial/parallel parita prošla pro all/json/markdown s mezerami a Unicode; fresh frozen parita a reálné owned-process cancellation/cleanup acceptance chybí, proto WP018 není DONE.
 
 <a id="wp019"></a>
 

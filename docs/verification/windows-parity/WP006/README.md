@@ -1,5 +1,7 @@
 # WP006 verification notes
 
+Latest session harness recovery: [recovery-2026-10-20.md](recovery-2026-10-20.md). The guarded private fake launch now passes all nine session scenarios plus two argument-negative cases, with 21 owned fake process markers independently verified exited. The initial 180-second timeout and successful explicitly authorized 420-second rerun are retained separately. These new results resolve the fake launch/callback harness blocker described in the earlier notes below; UI/real-native-scan acceptance remains MANUAL_PENDING.
+
 Work in progress; final outcomes are recorded below after observed completion. No MainWindow/shared project/resource/trackers or EngineCapabilities edits.
 
 ## Corrected harness invocation

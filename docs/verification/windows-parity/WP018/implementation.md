@@ -1,5 +1,11 @@
 # WP018 implementation candidate — not accepted
 
+Resume verification on 2026-10-20: see
+[the final resumed test record](resume-verification-2026-10-20.md).
+The corrected fixture setup now has 38 focused PASS plus 29 fleet regression
+PASS / 1 Windows skip. Frozen and real process-cleanup acceptance remain open;
+the earlier verification history below is retained as history.
+
 This slice adds explicit schema 1.4 desktop fleet transport. Default schema
 remains 1.2; single-repository 1.0–1.3 mapping and CLI complete-only parent
 publication remain in place. No native EXE, preview or real repository scan was

@@ -3,7 +3,7 @@
   "baseline_date": "2026-10-20",
   "baseline_timezone": "Europe/Prague",
   "baseline_commit": "d45997653970929f5f477c6e2dcd70913cb17fe3",
-  "planning_status": "Execution wave 1 started 2026-10-20; WP001/WP002 done, WP030 audit slice complete but task remains open",
+  "planning_status": "Resumed from a8c4786 on 2026-10-20; WP006/WP015/WP018 assigned to three agents; previous acceptance gates preserved",
   "roadmap": "roadmap-windows-parity-2026-10-20.md",
   "audit": "windows-parity-audit-2026-10-20.md",
   "task_definition_authority": "windows-parity-todo.md; synchronize this JSON when changing dependencies or definitions",
@@ -328,7 +328,7 @@
       "priority": "P1",
       "lane": "WINDOWS",
       "checkpoint": "K2",
-      "owner": "/root/wp006_progress",
+      "owner": "/root/wp006_resume",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP003",
@@ -362,7 +362,9 @@
         "docs/verification/windows-parity/WP006/",
         "73 pure progress analyzer checks and 102 EngineProtocol checks PASS",
         "three synthetic light previews reviewed; one checkbox glyph inconsistency remains",
-        "EngineSession harness unresolved FAIL due stale fake-broker basename; no real scan or manual accessibility acceptance; all owned processes cleaned"
+        "docs/verification/windows-parity/WP006/recovery-2026-10-20.md",
+        "resumed harness: 9 session scenarios and 2 argument-negative cases PASS; initial 180-second timeout retained separately; root verified EngineSession source hash",
+        "21 owned fake markers, zero matching live children and zero harness PIDs; real scan, checkbox visual and accessibility acceptance still pending"
       ]
     },
     {
@@ -752,7 +754,7 @@
       "priority": "P1",
       "lane": "WINDOWS_AI",
       "checkpoint": "K3",
-      "owner": "/root/wp015_ai_native",
+      "owner": "/root/wp015_resume",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP005",
@@ -790,8 +792,10 @@
       "condition": null,
       "evidence": [
         "docs/verification/windows-parity/WP015/README.md",
-        "49 Native AI, 54 NativeOptions and 16 ProviderConfiguration checks PASS; final-source preview rebuild and manual acceptance remain pending",
-        "live ProviderRoundtrip harness was not rerun"
+        "fresh Native AI 49 PASS; final capture and clip preview builds 0 warnings/errors; earlier NativeOptions 54 and ProviderConfiguration 16 remain separate evidence",
+        "docs/verification/windows-parity/WP015/root-visual-review-2026-10-20.md",
+        "both synthetic capture journeys PASS but scroll/header pixel overlap remains after clip attempt; visual gate not accepted; live ProviderRoundtrip not rerun",
+        "user-requested normal preview left open; shell integration, protected-store and manual accessibility acceptance pending"
       ]
     },
     {
@@ -886,11 +890,11 @@
     {
       "id": "WP018",
       "title": "Fleet přes desktop kontrakt a supervisor",
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "priority": "P1",
       "lane": "CORE_FLEET",
       "checkpoint": "K4",
-      "owner": "/root/wp018_fleet_core",
+      "owner": "/root/wp018_resume",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP004"
@@ -929,8 +933,9 @@
       "condition": null,
       "evidence": [
         "docs/verification/windows-parity/WP018/implementation.md",
-        "schema 1.4 fleet implementation present; latest root rerun reached 35 PASS then failed in test setup with FileExistsError on an existing fleet fixture directory",
-        "WP018 remains IN_PROGRESS and unverified"
+        "docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md",
+        "root-reviewed fixture repair: 38 focused tests PASS; fleet regressions 29 PASS and one explicit Windows chmod skip; production source unchanged",
+        "source-worker all/json/markdown serial-parallel parity passed for spaces and Unicode; fresh frozen parity and real process cleanup acceptance remain pending"
       ]
     },
     {
