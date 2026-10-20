@@ -41,6 +41,15 @@ foreach (string version in new[] { "1.0", "1.1" })
     Check(protocol.Terminal && protocol.CurrentState == "completed" && protocol.PolicyOutcome == "failed", "Policy failure is completed execution");
     protocol.EnsureTerminal();
 }
+{
+    var protocol = new EngineProtocol("run-fixture-1", "repo-fixture", 1);
+    var current = JsonNode.Parse(File.ReadAllText(Path.Combine(fixtures, "terminal-policy-failed-1.1.json")))!;
+    current["schema_version"] = "1.2";
+    current["artifact_path"] = "generation/report.json";
+    Check(protocol.ParseAndAccept(current.ToJsonString()), "Schema 1.2 terminal must be accepted without changing 1.0/1.1 behavior");
+    Check(protocol.Terminal && protocol.CurrentState == "completed" && protocol.PolicyOutcome == "failed", "Schema 1.2 preserves policy terminal semantics");
+    protocol.EnsureTerminal();
+}
 try { new EngineProtocol("run-fixture-1", "repo-fixture", 1).EnsureTerminal(); throw new Exception("Missing terminal accepted"); }
 catch (InvalidDataException error) { Check(error.Message.Contains("Previous report retained"), "EOF error guidance"); }
 Console.WriteLine($"EngineProtocol: {checks} checks passed (pure protocol, no UI acceptance claim).");

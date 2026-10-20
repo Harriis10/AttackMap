@@ -1,0 +1,17 @@
+{
+  "capture_command": "python docs/verification/windows-parity/WP001/capture.py",
+  "capture_exit_code": 0,
+  "contract_command": "python docs/verification/windows-parity/WP001/test_baseline.py",
+  "contract_exit_code": 0,
+  "contract_output": "PASS WP001 evidence contract; package integrity and runtime probes only",
+  "original_installer_validation_command": "pwsh -NoProfile -File docs/verification/windows-parity/WP001/capture.ps1",
+  "original_installer_validation_exit_code": 1,
+  "original_installer_diagnostic": "Unrecognized file in owned version; refusing deletion or activation.",
+  "installed_extra_files_preserved": [
+    "app/engine-guard-smoke.json",
+    "app/scan-smoke.json"
+  ],
+  "retained_evidence_entries": 135,
+  "retained_evidence_mismatches": 0,
+  "no_scan_or_model_call": true
+}

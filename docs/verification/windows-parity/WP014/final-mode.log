@@ -1,0 +1,34 @@
+.......................F...............................                  [100%]
+================================== FAILURES ===================================
+________ test_dispatch_matrix_and_exact_findings_bytes_hash_invariance ________
+
+engine = (<test_desktop_ai_modes.FakeSDK object at 0x00000240FAE0DBE0>, <function engine.<locals>.scan at 0x00000240FAE80860>)
+
+    def test_dispatch_matrix_and_exact_findings_bytes_hash_invariance(engine):
+        client,scan=engine;baseline=None
+        for mode in MODES:
+            client.calls.clear();folder,manifest=scan(mode)
+            findings=(folder/"findings.json").read_bytes()
+            if baseline is None:baseline=findings
+            assert findings==baseline
+            assert hashlib.sha256(findings).digest()==hashlib.sha256(baseline).digest()
+            outcome=manifest["desktop_ai"]
+            assert outcome["mode"]==mode
+            if mode=="none":
+                assert not client.calls and outcome["status"]=="not_requested"
+                continue
+            expected=["hunt_generate","hunt_skeptic","hunt_skeptic","hunt_skeptic"] if mode=="hunt_verify" else [mode]
+            assert [call[0] for call in client.calls]==expected
+            assert outcome["status"] in {"completed","partial"} and outcome["model_output_available"]
+            assert manifest["ai_allowance"]["calls_reserved"]==len(expected)
+            assert (folder/ARTIFACTS[mode][0]).is_file()
+            if mode in {"review","remediate","triage"}:
+                metadata=json.loads((folder/ARTIFACTS[mode][1]).read_text())
+>               assert metadata["reference_validation"]["claim_support"]=="not_assessed"
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               TypeError: 'NoneType' object is not subscriptable
+
+tests\test_desktop_ai_modes.py:146: TypeError
+=========================== short test summary info ===========================
+FAILED tests/test_desktop_ai_modes.py::test_dispatch_matrix_and_exact_findings_bytes_hash_invariance
+1 failed, 54 passed in 109.09s (0:01:49)

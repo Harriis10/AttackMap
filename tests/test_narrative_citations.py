@@ -5,6 +5,48 @@ import pytest
 from attackmap.llm_review import LlmReviewResult, _validate_narrative_references
 
 
+@pytest.mark.parametrize('mode', ['review', 'remediate', 'triage'])
+@pytest.mark.parametrize('reference,status', [('finding:1', 'valid'), ('finding:999', 'invalid')])
+def test_narrative_modes_validate_references_without_another_dispatch(tmp_path, mode, reference, status):
+    from attackmap.ai_budget import AiBudget
+    from attackmap.llm_review import generate_llm_review
+    from attackmap.models import Finding, ScanResult
+
+    original = f'Synthetic assessment [{reference}].'
+    calls = []
+
+    class FakeProvider:
+        base_url = 'http://127.0.0.1:1234/v1'
+
+        def __init__(self):
+            self.responses = self
+
+        def with_options(self, **kwargs):
+            return self
+
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(output_text=original, model='offline-fake', status='completed',
+                                   usage=SimpleNamespace(input_tokens=2, output_tokens=3))
+
+    ledger = AiBudget(max_calls=1, max_seconds=30, output_token_limit=64)
+    result = generate_llm_review(ScanResult(root=str(tmp_path)), [], [Finding(
+        title='Static signal', severity='high', evidence=['Captured signal'],
+        mitigation='Validate authorization.', confidence='medium')], [],
+        mode=mode, provider='openai', backend='api', effort='high', max_tokens=64,
+        openai_client=FakeProvider(), budget=ledger)
+    assert len(calls) == ledger.calls_reserved == 1
+    assert calls[0]['max_output_tokens'] == 64
+    assert calls[0]['reasoning']['effort'] == 'high'
+    assert ledger.reserved_output_tokens <= 64
+    assert result.backend == 'api' and result.markdown.endswith(original)
+    metadata = result.reference_validation
+    assert metadata['reference_validity'] == status
+    assert metadata['invalid_references'] == ([] if status == 'valid' else [reference])
+    assert metadata['claim_support'] == 'not_assessed'
+    assert metadata['source_location_validation'] == 'not_assessed'
+
+
 def check(text, payload=None):
     rendered = SimpleNamespace(evidence_json=json.dumps(payload or {'findings':[{'id':'finding:2','finding_id':'stable-id'}]}))
     result = LlmReviewResult(text, 'offline', 'completed', {}, 'api')

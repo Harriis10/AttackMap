@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.2",
+  "synthetic": true,
+  "entries": [
+    {
+      "path": "tests/fixtures/desktop-options-v12/request-defaults.json",
+      "sha256": "9fd1c08509fe5492169d61c4a43716820d0e8cc3771041ff9a7fbe2be27098b6"
+    },
+    {
+      "path": "tests/fixtures/desktop-options-v12/request-sentinels.json",
+      "sha256": "139af42adeef4d76d30a33b075685ae71def9d9d4f1b2a7c76cd806e1370a343"
+    }
+  ],
+  "new_field_sentinels": {
+    "baseline": "C:/parity/baseline.json",
+    "suppress_file": "C:/parity/suppressions.yml",
+    "fail_on_new_high": true,
+    "fail_on_new_suppression": true,
+    "strict_suppressions": true,
+    "isolated_analyzers": true,
+    "time_budget_seconds": 17
+  },
+  "limitations": [
+    "No real scan/provider or consumer-native acceptance.",
+    "WP002 fixture bytes remain unchanged."
+  ]
+}

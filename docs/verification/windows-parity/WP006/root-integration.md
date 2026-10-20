@@ -1,0 +1,21 @@
+# WP006 root integration seam
+
+New components: ScanProgressModel.cs, ScanProgressView.cs, AnalyzerSelectionModel.cs and AnalyzerSelectionView.cs. Shared shell/project/resources are untouched.
+
+## Structured progress
+
+EngineSession.Run appends optional `Action<EngineProgressSnapshot>? structuredProgress = null`; all existing positional/named calls and existing string callback remain valid. Only EngineProtocol-accepted revisions reach the structured callback. Snapshot includes exact RunId, Repository, Generation, Revision, State, Stage, Completed, Total and Terminal. Protocol additively accepts schema 1.3 alongside unchanged 1.0–1.2 semantics. This consumer change does not emit or negotiate AI 1.3 itself (WP015 owns that).
+
+Create one ScanProgressModel and ScanProgressView. In the existing started callback call `model.Select(identity.RunId, identity.Repository, identity.Generation)` and start a Stopwatch. In structuredProgress, marshal to the UI dispatcher; call `model.Accept(snapshot, clock.Elapsed)` and update view only if true. Do not derive identity from a repository basename. Before session.Cancel call model.RequestCancel and refresh; cancelling cannot be undone by delayed running callbacks. On repository switch/close clear the selection immediately; selecting a new identity resets percentages/ETA and rejects prior callbacks. The model rejects nonincreasing revisions, wrong run/repository/generation, same-stage decreasing units and terminal/state regression. A stage string `done` is ordinary progress. Unknown/zero totals remain indeterminate. Counts/percentage and ETA explicitly describe the current stage, not whole-run completion.
+
+ETA uses elapsed monotonic time and requires at least three increasing completed-unit observations over at least two seconds with the same stage and total; missing/changing totals, cancellation/terminal or backward clock resets it. No estimate comes from one sample, wall clock, analyzer name, unit count alone or invented engine timing. UI labels it an estimate. Do not treat a structured terminal callback as artifact publication: preserve the existing process-exit, exit code, ready artifact and completed callback gates before replacing the displayed report.
+
+## Analyzer inventory/selection
+
+Use the exact read-only schema-1 capabilities/modules JSON returned by the selected engine in `selection.LoadDiscovery(json)`. No process/network action is inside this model/view. Inventory uses name/display_name/experimental/enabled_by_default from the actual shared module_inventory shape; absent default metadata remains unknown. It does not claim repository applicability. Restore the saved module string via Restore. Empty saved names selects Automatic and RequestModules returns the existing empty-string default. Explicit names are sorted/deduplicated and retain missing names; ValidateForScan refuses unresolved missing names and failed/stale discovery. Automatic may retain previous checkbox choices for later explicit use while emitting no explicit module list. Filtered lists always retain selected missing records. A deliberately empty explicit selection requires choosing Automatic or selecting something; it does not silently downgrade.
+
+Instantiate AnalyzerSelectionView(selection), subscribe SelectionChanged to refresh saved preferences, and read RequestModules for the existing NativeScanRequest modules parameter. The view owns a native filter, Automatic checkbox, per-item checkboxes, metadata/error labels and bounded-height scrolling. After existing explicit discovery changes, call Refresh. On executable switch call EngineChanged immediately and Refresh before any asynchronous rediscovery; this retains saved names and marks discovery stale. Analyzer execution errors belong to the selected report/run; pass only its identity-validated analyzer-error dictionary through SetAnalyzerErrors and Refresh. Engine change/discovery reload clears those old errors. No plugin install/download or runtime detection is performed.
+
+## Acceptance still separate
+
+Root owns shell composition, actual dispatcher/cancel/repository journey and the task's real native scan progress gate. This component work uses synthetic events plus a childless fake broker; it does not prove real engine progress, keyboard, Narrator, dark/light/two-size usability or release package acceptance.

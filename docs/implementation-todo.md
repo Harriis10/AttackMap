@@ -1,4 +1,10 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # AttackMap implementation TODO
+
+> **Next-work queue — 20 October 2026:** [WP001–WP041](windows-parity-todo.md), [checkpoint roadmap](roadmap-windows-parity-2026-10-20.md), [audit](windows-parity-audit-2026-10-20.md) and [machine-readable backlog](windows-parity-backlog.json). AM001–AM054 and the delivery log below are preserved as historical lineage. Older open checkboxes/dashboard rows do not imply that their implementation is absent; use the audit to distinguish core, WinUI and platform acceptance.
 
 
 

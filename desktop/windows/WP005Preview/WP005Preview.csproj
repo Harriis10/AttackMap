@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion><UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling><WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PlatformTarget>x64</PlatformTarget><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+    <Compile Include="../AttackMap.NativeSpike/NativeScanOptions.cs" Link="NativeScanOptions.cs" />
+    <Compile Include="../AttackMap.NativeSpike/LocalSettings.cs" Link="LocalSettings.cs" />
+    <Compile Include="../AttackMap.NativeSpike/EngineCapabilities.cs" Link="EngineCapabilities.cs" />
+    <Compile Include="../AttackMap.NativeSpike/EngineLaunchSpec.cs" Link="EngineLaunchSpec.cs" />
+    <Compile Include="../AttackMap.NativeSpike/ProviderConfiguration.cs" Link="ProviderConfiguration.cs" />
+  </ItemGroup>
+</Project>

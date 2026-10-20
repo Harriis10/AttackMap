@@ -1,0 +1,32 @@
+# Aktuální dokumentace pro agenty
+
+**Platnost od 20. 10. 2026.** Tento rozcestník určuje, které dokumenty řídí další práci. Pravidla repozitáře v [AGENTS.md](../AGENTS.md) zůstávají platná.
+
+| Dokument | Úloha |
+| --- | --- |
+| [Roadmapa Windows parity](roadmap-windows-parity-2026-10-20.md) | Jediná aktuální roadmapa, checkpointy K0–K9 a akceptační podmínky. |
+| [Podrobné TODO](windows-parity-todo.md) | Jediné aktuální zadání implementace: WP001–WP041, rozsah souborů, kroky a ověření. |
+| [JSON backlog](windows-parity-backlog.json) | Strojový protějšek TODO: závislosti, vlastnictví a zámky pro paralelní agenty. |
+| [Audit Windows/macOS](windows-parity-audit-2026-10-20.md) | Výchozí zjištění a mezery; není průběžným stavem dokončení úkolů. |
+| [Provenience zdrojů](windows-parity-sources-2026-10-20.json) | Identita zdrojů a hashe při auditu, před následným přidáním archivních označení. |
+| [Ověření plánu](verification/windows-parity/plan-validation-2026-10-20.json) | Dokumentační kontrola původního plánu; není runtime ani release acceptance. |
+
+## Ostatní dokumenty: staré a nerelevantní pro řízení práce
+
+Všechny ostatní dříve existující dokumenty jsou **historické podklady**. Nejsou aktuálním zadáním pro agenty. Platí to pro původní roadmapu, AM tracker, handoffy, architektonické plány, technické poznámky, README, `old_docs/` i staré ověřovací záznamy.
+
+- Nevybírat z nich nové úkoly, priority, pořadí práce ani definici aktuálního releasu.
+- Nepřebírat staré statusy PASS/DONE, čísla buildu nebo měření jako důkaz současného stavu.
+- Technický kontrakt, původní kritérium C01–C40 nebo historický důkaz číst jen jako referenci potřebnou pro konkrétní aktivní WP úkol. Platnost technických tvrzení ověřit v aktuálním kódu.
+- Rozsah převzatých kritérií určuje nová roadmapa. Windows M3 zůstává přijaté v zaznamenaném rozsahu; odstraněná Windows C26 se neobnovuje.
+- Nalezený rozpor zaznamenat u příslušného WP úkolu; starý dokument nesmí sám změnit aktuální rozsah.
+
+Archivní označení se týká autority pro plánování, nikoli automatické neplatnosti každého technického tvrzení. Pravidla repozitáře, bezpečnostní a příspěvkové zásady zůstávají platné. Retained evidence, generované reporty a testovací fixtures se kvůli označení nemění; jejich historický status určuje tento rozcestník a `AGENTS.md`.
+
+## Začátek práce agenta
+
+1. Přečíst `AGENTS.md`, novou roadmapu a kartu přiděleného WP úkolu.
+2. Ověřit závislosti, stav a vlastníka úkolu v TODO a JSON backlogu.
+3. Před úpravami převzít příslušný rozsah a zámky podle pravidel paralelní práce v nové roadmapě.
+4. Otevírat starší dokumenty pouze jako potřebné reference, nikoli jako další backlog.
+5. Předat důkazy a aktualizovat stav podle nové roadmapy a TODO.

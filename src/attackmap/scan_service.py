@@ -13,7 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Callable
@@ -38,6 +38,7 @@ from .fleet import (
 )
 from .models import AttackPath, Finding, ScanResult
 from .pipeline import AnalyzeOptions, ScanAiLimits, run_scan
+from .run_contract import RunRequest
 from .safe_fs import UnsafePathError, ensure_output_dir, safe_write_text
 
 
@@ -66,6 +67,7 @@ class ScanRequest:
     isolated_analyzers: bool = False
     # C34/AM048: activate the per-file incremental cache (default off).
     incremental: bool = False
+    time_budget_seconds: int | None = None
     progress_format: str = "auto"
     no_progress: bool = False
     secrets_history: int = 0
@@ -81,6 +83,7 @@ class ScanRequest:
     llm_effort: str | None = None
     llm_backend: str = "auto"
     llm_speed: str = "standard"
+    desktop_ai_mode: str | None = None
     hunt: bool = False
     verify: bool = False
     verify_votes: int = 3
@@ -95,6 +98,12 @@ class ScanRequest:
     max_workers: int = 1
     fleet_result: Path | None = None
     atomic_output: bool = True
+    # Optional desktop fleet transport; ordinary CLI requests retain their path.
+    fleet_supervised: bool = False
+    fleet_timeout_seconds: int = 600
+    fleet_child_run_ids: dict[str, str] = field(default_factory=dict)
+    fleet_event: Callable[[dict], None] | None = None
+    fleet_finished: Callable[[Path, FleetScan], None] | None = None
     # Explicit deployment alias declarations for cross-repo link resolution
     # (C28): positive host→repo mappings; never inferred by similarity.
     deployment_aliases: DeploymentAliases | None = None
@@ -108,6 +117,25 @@ class RunSummary:
     report_path: Path | None = None
     fleet_summary_path: Path | None = None
     error: str | None = None
+
+
+def scan_request_from_run(request: RunRequest, *, echo: Callable[..., None] = emit_text) -> ScanRequest:
+    """Translate the versioned single-repository contract without orchestration policy."""
+    options = request.options
+    provider = options.provider
+    from .desktop_ai import service_ai_options
+    ai = service_ai_options(provider)
+    extended = {name: getattr(options, name, None if name in {"baseline", "suppress_file", "time_budget_seconds"} else False)
+                for name in ("baseline", "suppress_file", "fail_on_new_high", "fail_on_new_suppression",
+                             "strict_suppressions", "isolated_analyzers", "time_budget_seconds")}
+    return ScanRequest(repo_paths=[Path(request.repository_path)], output=Path(request.output_path),
+        output_format="all", modules=list(request.modules), install_missing=False,
+        recall=options.recall, cve=options.cve, no_suppress=options.no_suppress,
+        strict_analyzers=options.strict_analyzers, secrets_history=options.secrets_history,
+        run_id=request.run_id, progress_format="json", atomic_output=False,
+        **ai, ai_limits=ScanAiLimits(max_calls=provider.max_calls,
+            timeout_seconds=provider.timeout_seconds, output_token_limit=provider.output_token_limit),
+        echo=echo, **extended)
 
 
 def _fleet_incompatible_flags(request: ScanRequest) -> list[str]:
@@ -178,6 +206,7 @@ def _analyze_options(
         llm_effort=request.llm_effort,
         llm_backend=request.llm_backend,
         llm_speed=request.llm_speed,
+        desktop_ai_mode=request.desktop_ai_mode,
         hunt=request.hunt,
         verify=request.verify,
         verify_votes=request.verify_votes,
@@ -187,6 +216,7 @@ def _analyze_options(
         remediate=request.remediate,
         triage=request.triage,
         ai_limits=request.ai_limits,
+        time_budget_seconds=request.time_budget_seconds,
         run_id=request.run_id,
         echo=request.echo,
         **extra,
@@ -338,6 +368,10 @@ def _run_fleet_repo_argv(
         argv.append("--strict-suppressions")
     if request.strict_analyzers:
         argv.append("--strict-analyzers")
+    if request.fleet_supervised and request.isolated_analyzers:
+        argv.append("--isolated-analyzers")
+    if request.fleet_supervised and request.time_budget_seconds is not None:
+        argv.extend(["--time-budget-seconds", str(request.time_budget_seconds)])
     if request.incremental:
         # The worker re-parses the flag and sets ATTACKMAP_INCREMENTAL itself,
         # so the subprocess scan activates the per-file cache (C34/AM048).
@@ -366,6 +400,7 @@ def _load_repo_scan(report_path: Path) -> tuple[ScanResult, list[Finding], list[
 
 def _run_supervised_worker(
     argv: list[str], cancel_check: Callable[[], bool] | None = None,
+    *, on_progress: Callable[[dict], None] | None = None, timeout: int = 600,
 ) -> subprocess.CompletedProcess[str]:
     """Wait for a bounded-output worker, including verified cancellation cleanup."""
     from .execution import ProcessSupervisor
@@ -380,7 +415,8 @@ def _run_supervised_worker(
             argv, 130 if supervisor.cancelled else code, "", tail,
         ))
 
-    started = supervisor.start(argv, on_done=complete, timeout=600)
+    extra = {"on_progress": on_progress} if on_progress is not None else {}
+    started = supervisor.start(argv, on_done=complete, timeout=timeout, **extra)
     if not started and not supervisor.running:
         return result[0] if result else subprocess.CompletedProcess(argv, 1, "", supervisor.stderr_tail)
     try:
@@ -405,13 +441,22 @@ def _run_fleet_repo_worker(
 ) -> FleetRepoResult:
     """Run one repository in a subprocess and load its JSON report."""
     repo_out = output_root / repo_id
+    if repo_id in request.fleet_child_run_ids:
+        request = replace(request, run_id=request.fleet_child_run_ids[repo_id])
     argv = _run_fleet_repo_argv(request, repo_path, repo_out, analyzer_names)
     # Interchange lives outside report/source directories and is removed even
     # when a child fails. Presentation format never controls this payload.
     with tempfile.TemporaryDirectory(prefix="attackmap-fleet-") as worker_dir:
         result_path = Path(worker_dir) / "result.json"
         argv.extend(["--fleet-result", str(result_path)])
-        completed = _run_supervised_worker(argv, cancel_check=request.cancel_check)
+        if request.fleet_event is not None:
+            request.fleet_event({"repo_id": repo_id, "state": "running"})
+            completed = _run_supervised_worker(argv, cancel_check=request.cancel_check,
+                on_progress=lambda event: request.fleet_event({"repo_id": repo_id,
+                    "state": "running", "progress": event}),
+                timeout=request.fleet_timeout_seconds)
+        else:
+            completed = _run_supervised_worker(argv, cancel_check=request.cancel_check)
         if completed.returncode != 0:
             # A usage error applies to the request; policy/analysis failures
             # remain per-repository failures even when their exit code is 2.
@@ -500,47 +545,57 @@ def _run_fleet_parallel(
 
     with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="fleet-") as executor:
         futures: dict[Any, tuple[str, Path]] = {}
-        for repo_id, repo_path in pending:
-            if request.cancel_check is not None and request.cancel_check():
-                # Drain already-submitted work; cancel_check is checked again as
-                # results arrive below.
-                break
-            future = executor.submit(
-                _run_fleet_repo_worker,
-                request,
-                repo_id,
-                repo_path,
-                output_root,
-                analyzer_names,
-            )
-            futures[future] = (repo_id, repo_path)
+        remaining = iter(pending)
 
-        for future in as_completed(futures):
-            repo_id, repo_path = futures[future]
+        def admit() -> bool:
             if request.cancel_check is not None and request.cancel_check():
-                continue
-            try:
-                result = future.result()
-                fleet.results.append(result)
-                request.echo(f"  done {repo_id}  ({repo_path})")
-            except ScanRequestError:
-                raise
-            except _FleetRepoError as exc:
-                request.echo(
-                    f"Error: {exc.repo_id} failed and was skipped - {exc.message}",
-                    err=True,
-                )
-                fleet.failed.append(
-                    {"repo_id": exc.repo_id, "root": exc.root, "error": exc.message}
-                )
-            except Exception as exc:  # noqa: BLE001 — worker bugs must not sink the fleet
-                message = f"{type(exc).__name__}: {exc}"
-                request.echo(
-                    f"Error: {repo_id} failed and was skipped - {message}", err=True
-                )
-                fleet.failed.append(
-                    {"repo_id": repo_id, "root": str(repo_path), "error": message}
-                )
+                return False
+            item = next(remaining, None)
+            if item is None:
+                return False
+            repo_id, repo_path = item
+            future = executor.submit(_run_fleet_repo_worker, request, repo_id,
+                                     repo_path, output_root, analyzer_names)
+            futures[future] = item
+            return True
+
+        for _ in range(max_workers):
+            if not admit():
+                break
+        while futures:
+            completed, _ = wait(futures, return_when=FIRST_COMPLETED)
+            for future in completed:
+                repo_id, repo_path = futures.pop(future)
+                try:
+                    result = future.result()
+                    fleet.results.append(result)
+                    if request.fleet_event is not None:
+                        request.fleet_event({"repo_id": repo_id, "state": "completed"})
+                    request.echo(f"  done {repo_id}  ({repo_path})")
+                except ScanRequestError:
+                    raise
+                except _FleetRepoError as exc:
+                    request.echo(
+                        f"Error: {exc.repo_id} failed and was skipped - {exc.message}",
+                        err=True,
+                    )
+                    fleet.failed.append(
+                        {"repo_id": exc.repo_id, "root": exc.root, "error": exc.message}
+                    )
+                    if request.fleet_event is not None:
+                        request.fleet_event({"repo_id": repo_id, "state": "failed"})
+                except Exception as exc:  # noqa: BLE001 — worker bugs must not sink the fleet
+                    message = f"{type(exc).__name__}: {exc}"
+                    request.echo(
+                        f"Error: {repo_id} failed and was skipped - {message}", err=True
+                    )
+                    fleet.failed.append(
+                        {"repo_id": repo_id, "root": str(repo_path), "error": message}
+                    )
+                    if request.fleet_event is not None:
+                        request.fleet_event({"repo_id": repo_id, "state": "failed"})
+            while len(futures) < max_workers and admit():
+                pass
 
     # Completion order must not change normalized fleet output.
     order = {repo_id: index for index, repo_id in enumerate(repo_ids)}
@@ -662,7 +717,7 @@ def _run_fleet_generation(request: ScanRequest, analyzers: list | None) -> RunSu
     # The parent may itself be staged by a desktop caller, but child results
     # always need independently verified, manifest-bound generations.
     child_request = replace(request, atomic_output=True)
-    if _effective_max_workers(request) == 1:
+    if _effective_max_workers(request) == 1 and not request.fleet_supervised:
         _run_fleet_serial(child_request, analyzers, fleet, output_root)
     else:
         _run_fleet_parallel(child_request, _analyzer_names(analyzers), fleet, output_root)
@@ -688,6 +743,8 @@ def _run_fleet_generation(request: ScanRequest, analyzers: list | None) -> RunSu
     }) + "\n")
 
     summary = _finalize_fleet(replace(request, output_format="all"), fleet, output_root)
+    if request.fleet_finished is not None:
+        request.fleet_finished(output_root, fleet)
     summary.fleet_summary_path = output_root / (
         "fleet-summary.json" if request.output_format == "json" else "fleet-summary.md")
     if not summary.exit_code and not (request.cancel_check and request.cancel_check()):

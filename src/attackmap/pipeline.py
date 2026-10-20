@@ -176,6 +176,7 @@ class AnalyzeOptions:
     llm_effort: str | None = None
     llm_backend: str = "auto"
     llm_speed: str = "standard"
+    desktop_ai_mode: str | None = None
     hunt: bool = False
     verify: bool = False
     verify_votes: int = 3
@@ -212,6 +213,7 @@ class RunState:
     suppressed: list[SuppressedFinding] = field(default_factory=list)
     timings: list[StageTiming] = field(default_factory=list)
     llm_usage: dict[str, int] = field(default_factory=dict)
+    ai_outputs: dict[str, bool] = field(default_factory=dict)
     exit_code: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
     scan_started_at: str = field(default_factory=lambda: _engine_utc_now())
@@ -313,6 +315,21 @@ def write_run_manifest(state: RunState, output: Path) -> None:
         ledger = current_budget()
         if ledger is not None:
             payload["ai_allowance"] = ledger.snapshot()
+    if state.options.desktop_ai_mode is not None:
+        from .desktop_ai import manifest_ai_result
+        from .llm_review import DEFAULT_EFFORT, OPENAI_EFFORT_MAP
+        ledger = current_budget()
+        payload["desktop_ai"] = manifest_ai_result(state.options.desktop_ai_mode, Path(output),
+                                                  ledger.snapshot() if ledger is not None else None, state.ai_outputs)
+        effort = state.options.llm_effort or DEFAULT_EFFORT
+        payload["desktop_ai"]["service_parameters"] = {
+            "requested_effort": state.options.llm_effort,
+            "mapped_effort": None if state.options.desktop_ai_mode == "none" else
+                OPENAI_EFFORT_MAP.get(effort, "high") if state.options.llm_provider == "openai" else effort,
+            "provider": state.options.llm_provider, "requested_model": state.options.llm_model,
+            "backend": state.options.llm_backend, "speed": state.options.llm_speed,
+            "jury_votes": state.options.verify_votes if state.options.desktop_ai_mode == "hunt_verify" else None,
+        }
     if state.time_budget is not None:
         payload["time_budget"] = {
             "seconds": state.time_budget.seconds,
@@ -757,6 +774,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                     )
                     + "\n",
                 )
+                state.ai_outputs["review"] = bool(result.markdown.strip())
                 echo(f"LLM review written to: {llm_md_path.resolve()} (backend={result.backend})")
 
     if options.hunt and not _deadline_hit("hunt"):
@@ -868,6 +886,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                     )
                     + "\n",
                 )
+                state.ai_outputs["hunt_verify" if options.verify else "hunt"] = bool(hunt_markdown.strip()) and hunt_backend in {"api", "cli"}
                 echo(
                     f"Vulnerability hypotheses written to: {hunt_md_path.resolve()} "
                     f"(backend={hunt_backend})"
@@ -915,11 +934,13 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                             "stop_reason": rem_result.stop_reason,
                             "usage": rem_result.usage,
                             "usage_status": getattr(rem_result, "usage_status", "unknown"),
+                            "reference_validation": getattr(rem_result, "reference_validation", None),
                         },
                         indent=2,
                     )
                     + "\n",
                 )
+                state.ai_outputs["remediate"] = bool(rem_result.markdown.strip())
                 echo(
                     f"Remediation suggestions written to: {rem_md_path.resolve()} "
                     f"(backend={rem_result.backend})"
@@ -935,6 +956,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
             tri_stop: str | None = None
             tri_usage: dict = {}
             tri_usage_status = "unknown"
+            tri_reference_validation = None
             try:
                 echo("")
                 echo(
@@ -962,6 +984,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                 tri_stop = tri_result.stop_reason
                 tri_usage = tri_result.usage
                 tri_usage_status = getattr(tri_result, "usage_status", "unknown")
+                tri_reference_validation = getattr(tri_result, "reference_validation", None)
                 _add_usage(tri_usage)
             except LlmReviewError as exc:
                 echo(f"Triage LLM unavailable ({exc}); using deterministic ordering.", err=True)
@@ -976,11 +999,13 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                         "stop_reason": tri_stop,
                         "usage": tri_usage,
                         "usage_status": tri_usage_status,
+                        "reference_validation": tri_reference_validation,
                     },
                     indent=2,
                 )
                 + "\n",
             )
+            state.ai_outputs["triage"] = tri_backend != "deterministic" and bool(tri_result.markdown.strip())
             echo(f"Triage shortlist written to: {tri_md_path.resolve()} (backend={tri_backend})")
 
     state.exit_code = diff_exit_code

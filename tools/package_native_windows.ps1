@@ -4,11 +4,58 @@ param(
     [string]$PublishDirectory = (Join-Path $PSScriptRoot '../desktop/windows/artifacts/native-spike'),
     [string]$OutputDirectory = (Join-Path $PSScriptRoot '../desktop/windows/artifacts/development-packages'),
     [string]$EngineDirectory,
-    [string]$EngineVerificationPath
+    [string]$EngineVerificationPath,
+    [ValidateSet('RequiredBundled','ExternalEngine')][string]$Profile='RequiredBundled',
+    [string]$ReleaseLockPath,
+    [string]$SourceRoot=(Join-Path $PSScriptRoot '..'),
+    [string]$PythonExecutable=(Join-Path $PSScriptRoot '../.venv/Scripts/python.exe')
 )
 $ErrorActionPreference = 'Stop'
 $publish = [IO.Path]::GetFullPath($PublishDirectory)
 $output = [IO.Path]::GetFullPath($OutputDirectory)
+if ($Profile -eq 'RequiredBundled' -and !$EngineDirectory) { throw 'RequiredBundled profile requires a verified frozen engine.' }
+if ($Profile -eq 'ExternalEngine' -and $EngineDirectory) { throw 'ExternalEngine profile must not bundle an engine; choose RequiredBundled.' }
+if ($EngineDirectory) {
+    if (!$ReleaseLockPath) { throw 'RequiredBundled profile requires a current release lock.' }
+    $engine=[IO.Path]::GetFullPath($EngineDirectory)
+    if (!$EngineVerificationPath) { $EngineVerificationPath=Join-Path $engine 'engine-verification.json' }
+    $proof=Get-Content -LiteralPath $EngineVerificationPath -Raw | ConvertFrom-Json
+    $lock=Get-Content -LiteralPath $ReleaseLockPath -Raw | ConvertFrom-Json
+    # Recompute from disk, including newly added sources, rather than trusting
+    # the caller's lock or a stale list of hashes. This does not execute an engine.
+    $probe='import importlib.util,json,pathlib,sys; s=importlib.util.spec_from_file_location("release_lock",sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(json.dumps(m.release_inputs(pathlib.Path(sys.argv[2]).resolve())))'
+    $currentText=& $PythonExecutable -c $probe (Join-Path $PSScriptRoot 'generate_release_lock.py') $SourceRoot
+    if ($LASTEXITCODE -ne 0) { throw 'Cannot recompute current release inputs.' }
+    $current=$currentText | ConvertFrom-Json
+    foreach ($key in @('source_checksums_sha256','release_inputs_sha256','analyzer_requirements_sha256')) {
+        if (!$lock.$key -or $lock.$key -notmatch '^[a-f0-9]{64}$' -or $current.$key -ne $lock.$key -or $proof.$key -ne $lock.$key) { throw "Stale frozen engine or release lock: $key differs from current sources/analyzer requirements." }
+    }
+    if (!$lock.source_checksums_sha256 -or $proof.source_checksums_sha256 -ne $lock.source_checksums_sha256 -or
+        $proof.release_lock_sha256 -ne (Get-FileHash -LiteralPath $ReleaseLockPath -Algorithm SHA256).Hash) { throw 'Frozen engine is not bound to the supplied source/toolchain release lock.' }
+    foreach ($tool in @('python','pyinstaller','dotnet_sdk')) {
+        if (!$lock.toolchain.$tool.version -or $lock.toolchain.$tool.version -eq 'unknown') { throw "Required bundled profile needs a known $tool toolchain identity." }
+    }
+    $engineExe=Join-Path $engine 'attackmap.exe'
+    if (!(Test-Path -LiteralPath $engineExe -PathType Leaf) -or $proof.exe_sha256 -ne (Get-FileHash -LiteralPath $engineExe -Algorithm SHA256).Hash -or
+        !$proof.version -or $proof.checks.modules_discovered -lt 15 -or !$proof.checks.native_broker_commands_present -or
+        !$proof.checks.scan_atomic_current_ready -or !$proof.checks.frozen_compare_action_ready -or
+        $proof.scan.exit_code -ne 0 -or $proof.action.exit_code -ne 0 -or $proof.scan.terminal.state -ne 'completed' -or
+        $proof.scan.terminal.artifact_readiness -ne 'ready' -or $proof.action.terminal.state -ne 'completed' -or !$proof.payload_files) { throw 'Frozen engine requires matching successful version/modules/scan/action verification.' }
+    $expected=@{}
+    foreach ($file in $proof.payload_files) {
+        if ($file.path -notmatch '^[A-Za-z0-9_./ -]+$' -or $file.path.Split('/') -contains '..' -or [IO.Path]::IsPathRooted($file.path) -or $expected.ContainsKey($file.path)) { throw 'Unsafe frozen verification entry.' }
+        $expected[$file.path]=$file
+    }
+    foreach ($entry in Get-ChildItem -LiteralPath $engine -Recurse -Force) {
+        if ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Frozen engine refuses redirected entries.' }
+        if ($entry.PSIsContainer) { continue }
+        $relative=[IO.Path]::GetRelativePath($engine,$entry.FullName).Replace('\','/')
+        if ($relative -eq 'engine-verification.json') { continue }
+        if (!$expected.ContainsKey($relative) -or $entry.Length -ne $expected[$relative].size_bytes -or (Get-FileHash -LiteralPath $entry.FullName -Algorithm SHA256).Hash -ne $expected[$relative].sha256) { throw 'Frozen payload changed after verification.' }
+        $expected.Remove($relative)
+    }
+    if ($expected.Count -ne 0) { throw 'Frozen verification references missing payload files.' }
+}
 if ($output.Equals($publish,[StringComparison]::OrdinalIgnoreCase) -or $output.StartsWith($publish.TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Package output must be outside the published payload.' }
 foreach ($required in @('AttackMap.NativeSpike.exe','AttackMap.NativeSpike.runtimeconfig.json','coreclr.dll','Microsoft.UI.Xaml.dll')) {
     if (!(Test-Path -LiteralPath (Join-Path $publish $required) -PathType Leaf)) { throw "Missing published runtime file: $required" }
@@ -59,12 +106,17 @@ if ($EngineDirectory) {
     }
     if ($bound.Count -ne 0) { throw 'Frozen verification references missing payload files.' }
     $engineMetadata=[ordered]@{bundled=$true;executable='app/engine/attackmap.exe';runtime_kind='Frozen';version=$proof.version;analyzer_count=$proof.checks.modules_discovered;run_schema_range='1.0-1.1';verification_sha256=(Get-FileHash -LiteralPath $EngineVerificationPath -Algorithm SHA256).Hash.ToLowerInvariant();source_checksums_sha256=$proof.source_checksums_sha256;discovery='Exact bundled executable selected only when no engine path is configured; no PATH probing, automatic execution or downloads.';limitations=$proof.limitations}
+    $engineMetadata.release_inputs_sha256=$proof.release_inputs_sha256
+    $engineMetadata.analyzer_requirements_sha256=$proof.analyzer_requirements_sha256
+    $engineMetadata.release_lock_sha256=$proof.release_lock_sha256
 }
 $runtime = Get-Content -LiteralPath (Join-Path $publish 'AttackMap.NativeSpike.runtimeconfig.json') -Raw | ConvertFrom-Json
 $manifest = [ordered]@{
     schema_version=1;package_id=$packageId;channel='unsigned-development';architecture='win-x64';minimum_windows='10.0.19041.0'
     native_runtime=[ordered]@{dotnet_self_contained=$true;included_frameworks=$runtime.runtimeOptions.includedFrameworks;windows_app_sdk_self_contained=$true;windows_app_sdk='2.4.0'}
     engine=$engineMetadata
+    profile=$Profile
+    signing=[ordered]@{status='unsigned';note='Unsigned preflight only; signed releases must sign payloads before final hashing, SBOM generation and archiving.'}
     files=$files
 }
 $manifest | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $stage 'package-manifest.json') -Encoding utf8
@@ -91,7 +143,7 @@ function Assert-OwnedRoot {
     Assert-NoLinks $root
     if (!(Test-Path -LiteralPath (Join-Path $root '.attackmap-development-install'))) { throw 'Refusing an unowned installation directory.' }
 }
-function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false) {
+function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false,[switch]$TolerateExtras) {
     Assert-NoLinks $Folder
     $manifest=Get-Content -LiteralPath (Join-Path $Folder 'package-manifest.json') -Raw | ConvertFrom-Json
     if ($manifest.schema_version -ne 1 -or $manifest.package_id -notmatch '^dev-[0-9]{14}-[a-f0-9]{8}$') { throw 'Unsupported package manifest.' }
@@ -101,18 +153,22 @@ function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false) {
         if ($file.path -notmatch '^[A-Za-z0-9_./ -]+$' -or $file.path.Split('/') -contains '..' -or [IO.Path]::IsPathRooted($file.path)) { throw 'Unsafe package entry.' }
         $path=Join-Path (Join-Path $Folder 'app') $file.path
         Assert-NoLinks $path
-        if (!(Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).Length -ne $file.size_bytes -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $file.sha256) { throw 'Package checksum mismatch; prior installation retained.' }
+        if (!(Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).Length -ne $file.size_bytes -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $file.sha256) { throw "Package checksum mismatch for $($file.path); prior installation retained." }
         $expected += 'app/' + $file.path
     }
+    $extras=@()
     foreach ($entry in Get-ChildItem -LiteralPath $Folder -Recurse -Force) {
         if ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Redirected package entry.' }
         # Relative-path resolution without [IO.Path]::GetRelativePath, which
         # Windows PowerShell 5.1 (.NET Framework) does not provide.
         if (!$entry.PSIsContainer) {
             $relative = if ($entry.FullName.StartsWith($Folder.TrimEnd('\','/'), [StringComparison]::OrdinalIgnoreCase)) { $entry.FullName.Substring($Folder.TrimEnd('\','/').Length).TrimStart('\','/').Replace('\','/') } else { '' }
-            if ($relative -eq '' -or $relative -notin $expected) { throw 'Unrecognized file in owned version; refusing deletion or activation.' }
+            if ($relative -eq '' -or $relative -notin $expected) {
+                if ($TolerateExtras) { $extras += $relative } else { throw "Unrecognized file in package folder: '$relative' (refusing deletion or activation)." }
+            }
         }
     }
+    if ($TolerateExtras -and $extras.Count -gt 0) { Write-Warning "Ignoring unrecognized file(s) in the package folder (not part of the verified payload): $($extras -join ', ')" }
     return $manifest
 }
 function Set-Current([string]$Id) {
@@ -129,7 +185,10 @@ if ($Mode -eq 'Install') {
     Assert-NoLinks $root
     if ((Test-Path -LiteralPath $root) -and !(Test-Path -LiteralPath (Join-Path $root '.attackmap-development-install'))) { throw 'Choose a new empty installation path; existing user directories are refused.' }
     $sourceManifest=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'package-manifest.json') -Raw | ConvertFrom-Json
-    Validate-Payload $PSScriptRoot $true | Out-Null
+    # The user's extracted folder is not owned storage: tolerate and report
+    # unrecognized files (extraction artifacts, copies parked beside the
+    # payload) while every expected file still has to checksum-match.
+    Validate-Payload $PSScriptRoot $true -TolerateExtras | Out-Null
     $id=$sourceManifest.package_id
     if ($id -notmatch '^dev-[0-9]{14}-[a-f0-9]{8}$') { throw 'Invalid package identity.' }
     New-Item -ItemType Directory -Path (Join-Path $root 'versions') -Force | Out-Null
@@ -187,10 +246,16 @@ if %errorlevel%==0 (
 ) else (
   powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%" %*
 )
-echo.
-pause
+set "ATTACKMAP_INSTALL_EXIT=%errorlevel%"
+if /I not "%ATTACKMAP_INSTALL_NONINTERACTIVE%"=="1" pause
+exit /b %ATTACKMAP_INSTALL_EXIT%
 '@
 $launcher | Set-Content -LiteralPath (Join-Path $stage 'Install-AttackMap.cmd') -Encoding ascii
+$manifest.deployment_files=@('Install-AttackMap.ps1','Install-AttackMap.cmd') | ForEach-Object {
+    $deploymentPath=Join-Path $stage $_
+    [ordered]@{path=$_;size_bytes=(Get-Item -LiteralPath $deploymentPath).Length;sha256=(Get-FileHash -LiteralPath $deploymentPath -Algorithm SHA256).Hash.ToLowerInvariant()}
+}
+$manifest | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $stage 'package-manifest.json') -Encoding utf8
 $zip = Join-Path $output ($packageId + '.zip')
 Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
 $digest = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()

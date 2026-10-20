@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {"id": "a1", "title": "NoSQL injection on feedback", "rule_id": "nosql-injection", "severity": "high", "evidence": ["POST /api/Feedbacks"], "mitigation": "Validate filters.", "locations": [{"file": "routes/feedback.ts", "line": 12}]},
+    {"id": "a2", "title": "SSRF on chat", "rule_id": "ssrf", "severity": "high", "evidence": ["POST /rest/chat"], "mitigation": "Allow-list URLs.", "locations": [{"file": "routes/chat.ts", "line": 149}]}
+  ],
+  "attack_paths": [
+    {"name": "Public feedback to datastore", "steps": [{"stage": "Entry", "detail": "POST /api/Feedbacks"}], "impact": "Data integrity"}
+  ],
+  "attack_surfaces": [
+    {"file": "routes/feedback.ts", "route": "/api/Feedbacks", "method": "POST", "category": "api", "exposure": "public"}
+  ],
+  "exploitability": [
+    {"subject": "POST /api/Feedbacks → nosql_injection", "route": "/api/Feedbacks", "method": "POST", "sink_kind": "nosql_injection", "location": "routes/feedback.ts:12", "score": 100, "raw_score": 100, "tier": "critical", "factors": [{"name": "sink danger", "points": 25, "detail": "NoSQL injection"}, {"name": "public exposure", "points": 20, "detail": "public"}]},
+    {"subject": "POST /rest/chat → ssrf", "route": "/rest/chat", "method": "POST", "sink_kind": "ssrf", "location": "routes/chat.ts:149", "score": 98, "raw_score": 98, "tier": "critical", "factors": [{"name": "sink danger", "points": 20, "detail": "SSRF"}]},
+    {"subject": "GET /api/Users → sql_execute", "route": "/api/Users", "method": "GET", "sink_kind": "sql_execute", "location": "routes/user.ts:40", "score": 93, "raw_score": 93, "tier": "critical", "factors": [{"name": "sink danger", "points": 35, "detail": "SQL"}]},
+    {"subject": "POST /rest/user/login → eval", "route": "/rest/user/login", "method": "POST", "sink_kind": "eval", "location": "routes/login.ts:8", "score": 90, "raw_score": 90, "tier": "high", "factors": [{"name": "sink danger", "points": 35, "detail": "eval"}]}
+  ],
+  "defensive_review": "# Defensive review\n\nJuice Shop fixture.",
+  "defensive_review_llm": "",
+  "architecture_summary": "Express API with SQLite.",
+  "diff": {"new": 22, "resolved": 13, "persisted": 7},
+  "suppressed_findings": [
+    {"id": "s1", "title": "Old XSS", "rule_id": "xss", "severity": "low", "reason": "accepted in tests", "mitigation": "n/a", "locations": []}
+  ],
+  "scan": {
+    "root": "juice-shop",
+    "languages": ["javascript"],
+    "files_scanned": 12,
+    "routes": [{"method": "POST", "path": "/api/Feedbacks", "file": "routes/feedback.ts", "line": 12}],
+    "secret_hints": [{"name": "API_KEY", "kind": "generic", "file": "config/index.ts", "line": 4}],
+    "dependencies": [{"name": "express", "version": "4.18.0", "ecosystem": "npm"}],
+    "vulnerabilities": [],
+    "workflow_issues": [],
+    "taint_chains": [{"sink_kind": "nosql_injection", "file": "routes/feedback.ts", "line": 12}],
+    "analyzer_errors": [],
+    "limitations": []
+  },
+  "paths_mermaid": "# Attack paths\n\n## 1. Public feedback\n\n```mermaid\nflowchart TD\n  n0[\"POST /api/Feedbacks\"]\n  n1[\"Impact: Data integrity\"]\n  class n1 impact\n  n0 --> n1\n```\n"
+}

@@ -1,4 +1,10 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](../README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # AttackMap — předání vývoje, 16. října 2026
+
+> **Novější pokračování — 20. října 2026:** nejdříve [audit Windows/macOS](../windows-parity-audit-2026-10-20.md), [nová roadmapa](../roadmap-windows-parity-2026-10-20.md) a [WP TODO](../windows-parity-todo.md). Níže je historické předání po úklidu 16. 10.; jeho HEAD, seznam otevřených implementací a „poslední build“ již nejsou aktuální. Rozhodnutí o přijatém M3, přesunutých ručních kontrolách a odstraněném Windows C26 zůstávají platná.
 
 **Windows M3 je dokončené jako funkční beta s uvedenými omezeními. Další fáze je M4.** Uživatel tento rozsah výslovně přijal 15. října 2026. Poslední práce byla úklid pracovního adresáře; tento dokument předává stav po úklidu, nikoli výsledky nového testování.
 

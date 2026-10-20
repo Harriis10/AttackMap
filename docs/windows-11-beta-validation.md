@@ -1,3 +1,7 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # Windows 11 development-preview validation (optional historical runbook)
 
 **Scope change — 15 October 2026, user decision:** C26 performance qualification is removed from Windows M3 acceptance. A Windows 11 performance host and repeated performance campaign are not required; no replacement Windows 10 performance gate is introduced. Existing measurements remain optional diagnostics, not a performance pass. Other requirements retain their evidence status; the later Windows M3 closure moves remaining manual UX/accessibility and participant validation to M4. macOS C26 is unchanged. Historical Windows C26 blockers below are superseded by this decision.

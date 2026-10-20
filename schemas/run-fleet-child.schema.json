@@ -1,0 +1,129 @@
+{
+  "properties": {
+    "schema_version": {
+      "const": "1.4",
+      "default": "1.4",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "repository_id": {
+      "minLength": 1,
+      "title": "Repository Id",
+      "type": "string"
+    },
+    "generation": {
+      "minimum": 1,
+      "title": "Generation",
+      "type": "integer"
+    },
+    "revision": {
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "fleet_child",
+      "default": "fleet_child",
+      "title": "Kind",
+      "type": "string"
+    },
+    "child_repository_id": {
+      "title": "Child Repository Id",
+      "type": "string"
+    },
+    "child_repository_path": {
+      "title": "Child Repository Path",
+      "type": "string"
+    },
+    "child_run_id": {
+      "title": "Child Run Id",
+      "type": "string"
+    },
+    "child_output_id": {
+      "title": "Child Output Id",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+        "skipped"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "completed_units": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed Units"
+    },
+    "total_units": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Total Units"
+    },
+    "manifest_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Manifest Path"
+    },
+    "manifest_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Manifest Sha256"
+    }
+  },
+  "required": [
+    "run_id",
+    "repository_id",
+    "generation",
+    "revision",
+    "child_repository_id",
+    "child_repository_path",
+    "child_run_id",
+    "child_output_id",
+    "state"
+  ],
+  "title": "FleetChildEvent",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

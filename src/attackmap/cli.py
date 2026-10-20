@@ -726,7 +726,7 @@ def analyze(
 
 
 
-CAPABILITIES_SCHEMA_VERSION = 1
+from .desktop_capabilities import CAPABILITIES_SCHEMA_VERSION
 
 
 @app.command("capabilities")
@@ -738,24 +738,8 @@ def capabilities() -> None:
     JSON document instead: the version, the subcommands, every long option
     `analyze` accepts, and whether `analyze` takes multiple repo paths.
     """
-    root = typer.main.get_command(app)
-    commands = getattr(root, "commands", {})
-    analyze_cmd = commands.get("analyze")
-    options: set[str] = set()
-    multi_repo = False
-    for param in getattr(analyze_cmd, "params", []):
-        for opt in [*getattr(param, "opts", []), *getattr(param, "secondary_opts", [])]:
-            if opt.startswith("--"):
-                options.add(opt)
-        if getattr(param, "param_type_name", "") == "argument" and getattr(param, "nargs", 1) == -1:
-            multi_repo = True
-    payload = {
-        "schema": CAPABILITIES_SCHEMA_VERSION,
-        "version": __version__,
-        "commands": sorted(commands),
-        "analyze": {"options": sorted(options), "multi_repo": multi_repo},
-        "progress_protocol": PROGRESS_PROTOCOL_VERSION,
-    }
+    from .desktop_capabilities import build_capabilities
+    payload = build_capabilities(app)
     typer.echo(json.dumps(payload, indent=2))
 
 
@@ -772,19 +756,8 @@ def modules(
 ) -> None:
     available_modules = get_available_modules()
     if json_output:
-        payload = [
-            {
-                "name": meta.name,
-                "display_name": meta.display_name or meta.name,
-                "description": meta.description,
-                "scope": meta.scope,
-                "ecosystems": list(meta.ecosystems),
-                "enabled_by_default": meta.enabled_by_default,
-                "priority": meta.priority,
-                "experimental": meta.experimental,
-            }
-            for meta in available_modules
-        ]
+        from .desktop_capabilities import module_inventory
+        payload = module_inventory(available_modules)
         typer.echo(json.dumps(payload, indent=2))
         return
 

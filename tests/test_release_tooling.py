@@ -100,6 +100,20 @@ def write_package(root: Path, *, bundled=False, package_id="dev-20260101200000-1
 
 
 class TestReleaseSbom:
+    def test_launcher_is_inventoried_and_unrelated_extras_still_refused(self, sbom_tool, tmp_path):
+        package, manifest = write_package(tmp_path)
+        launcher = package / "Install-AttackMap.cmd"
+        launcher.write_bytes(b"@echo off\r\nexit /b 0\r\n")
+        proof = sbom_tool.verify_package(package, manifest)
+        assert proof["installer_launcher"]["sha256"] == sha256_bytes(launcher.read_bytes())
+        manifest["deployment_files"] = [{"path": launcher.name, "size_bytes": launcher.stat().st_size, "sha256": sha256_bytes(launcher.read_bytes())}]
+        launcher.write_bytes(b"tampered launcher")
+        with pytest.raises(sbom_tool.ToolError, match="Deployment checksum"):
+            sbom_tool.verify_package(package, manifest)
+        launcher.write_bytes(b"@echo off\r\nexit /b 0\r\n")
+        (package / "unlisted.cmd").write_text("unexpected")
+        with pytest.raises(sbom_tool.ToolError, match="Unrecognized"):
+            sbom_tool.verify_package(package, manifest)
     def test_schema_and_hash_correctness(self, sbom_tool, tmp_path):
         package, manifest = write_package(tmp_path, bundled=True)
         out = tmp_path / "sbom-out"
@@ -233,6 +247,19 @@ class TestReleaseSbom:
 
 
 class TestReleaseLock:
+    def test_release_binding_detects_new_desktop_sources_and_analyzer_pin_changes(self, lock_tool, tmp_path):
+        repo = self.write_fake_repo(tmp_path / "repo")
+        project = repo / "pyproject.toml"
+        project.write_text('[project]\nname="fixture"\ndependencies=["attackmap-analyzer-python @ git+https://example.invalid/repo@abc"]\n')
+        baseline = lock_tool.release_inputs(repo)
+        desktop = repo / "desktop/windows/AttackMap.NativeSpike/New.cs"
+        desktop.parent.mkdir(parents=True)
+        desktop.write_text("class New {}")
+        changed = lock_tool.release_inputs(repo)
+        assert changed["release_inputs_sha256"] != baseline["release_inputs_sha256"]
+        assert changed["source_checksums_sha256"] == baseline["source_checksums_sha256"]
+        project.write_text(project.read_text().replace("@abc", "@def"))
+        assert lock_tool.release_inputs(repo)["analyzer_requirements_sha256"] != baseline["analyzer_requirements_sha256"]
     @staticmethod
     def write_fake_repo(root: Path):
         (root / "src" / "attackmap").mkdir(parents=True)

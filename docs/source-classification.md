@@ -1,3 +1,7 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # Normalized source classification
 
 Signal and SignalOrigin carry classification_version (1.0 or absent for legacy), source_role, evidence_kind and classification_basis. Missing legacy fields remain unknown. New typed synthesis receives static_extraction, never runtime evidence. Path conventions classify tests/__tests__, fixtures, mocks, examples, generated/__generated__; these describe path conventions, not verified deployment or artifact ownership. All other paths remain unknown. Production requires explicit source_role=production plus classification_basis=detector_owned; a non-low-quality path cannot establish production. Existing analyzers do not yet supply positive production ownership, so normal src paths remain unknown.

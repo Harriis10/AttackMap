@@ -991,7 +991,7 @@ def generate_llm_review(
 
     def review_call(*args, **kwargs):
         result = _provider_call(*args, **kwargs)
-        return _validate_narrative_references(result, rendered) if mode == "review" else result
+        return _validate_narrative_references(result, rendered) if mode in {"review", "remediate", "triage"} else result
 
     if provider == "openai":
         resolved_model = (

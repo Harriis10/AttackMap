@@ -10,11 +10,32 @@ public sealed record ProviderConfiguration(
     [property: JsonPropertyName("timeout_seconds")] int TimeoutSeconds = 600,
     [property: JsonPropertyName("output_token_limit")] int OutputTokenLimit = 32000)
 {
+    [JsonPropertyName("mode"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Mode { get; init; }
+    [JsonPropertyName("jury_votes"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? JuryVotes { get; init; }
+    [JsonPropertyName("effort"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Effort { get; init; }
+    [JsonPropertyName("speed"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Speed { get; init; }
+    [JsonPropertyName("backend"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Backend { get; init; }
+    [JsonIgnore] public bool RequiresSchema13 => Mode != null || JuryVotes != null || Effort != null || Speed != null || Backend != null;
+    [JsonIgnore] public string EffectiveMode => EnableAi ? Mode ?? "review" : "none";
+    public ProviderConfiguration ForRequest() => EnableAi ? this : this with {
+        Mode = null, JuryVotes = null, Effort = null, Speed = null, Backend = null };
+    public void ValidateForRequest()
+    {
+        Validate();
+        if (Backend is not (null or "api")) throw new InvalidDataException("CLI backend is unavailable: strict output caps cannot be enforced.");
+        if (EnableAi && Mode == "none") throw new InvalidDataException("None mode requires AI to be off.");
+        if (JuryVotes != null && EffectiveMode != "hunt_verify") throw new InvalidDataException("Jury votes apply only to Hunt+verify.");
+        if (EffectiveMode == "none" && (Effort != null || Speed == "fast")) throw new InvalidDataException("AI tuning requires an enabled mode.");
+    }
     public void Validate()
     {
         if (Provider is not ("openai" or "claude")) throw new InvalidDataException("Choose openai or claude.");
         if (MaxCalls is < 1 or > 64 || TimeoutSeconds is < 1 or > 3600 || OutputTokenLimit is < 1 or > 256000) throw new InvalidDataException("AI limits: 1-64 calls, 1-3600 seconds, 1-256000 output tokens.");
         if (Model != null && (Model.Length > 200 || Model.Any(char.IsControl))) throw new InvalidDataException("Invalid provider model.");
+        if (Mode is not (null or "none" or "review" or "hunt" or "hunt_verify" or "remediate" or "triage") ||
+            JuryVotes is < 1 or > 7 || Effort is not (null or "low" or "medium" or "high" or "xhigh" or "max") ||
+            Speed is not (null or "standard" or "fast") || Backend is not (null or "api" or "cli"))
+            throw new InvalidDataException("Invalid AI mode or tuning preference. Jury range is 1–7.");
         if (!string.IsNullOrWhiteSpace(Endpoint))
         {
             if (Endpoint.Length > 2048 || Endpoint.Any(char.IsControl) || !Uri.TryCreate(Endpoint,UriKind.Absolute,out var uri) || uri.Scheme is not ("http" or "https") || uri.UserInfo.Length > 0 || uri.Query.Length > 0 || uri.Fragment.Length > 0 || uri.Host.Length == 0 ||
@@ -24,7 +45,9 @@ public sealed record ProviderConfiguration(
 }
 public sealed class ProviderAccessRequest(ProviderConfiguration configuration,string credential)
 {
-    public ProviderConfiguration Configuration { get; } = configuration;
+    // Protected provider actions retain their established seven-field contract.
+    public ProviderConfiguration Configuration { get; } = configuration with { Mode = null, JuryVotes = null, Effort = null, Speed = null, Backend = null };
+    [JsonIgnore] public ProviderConfiguration Preferences { get; } = configuration;
     [JsonIgnore] public string Credential { get; } = credential;
     public override string ToString() => "ProviderAccessRequest (credential redacted)";
 }

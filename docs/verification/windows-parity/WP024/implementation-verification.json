@@ -1,0 +1,52 @@
+{
+  "task": "WP024",
+  "status": "IN_PROGRESS",
+  "scope": "Required-bundled packaging guards and isolated synthetic package/installer verification; not real frozen-engine runtime acceptance",
+  "focused_python": {
+    "command": ".venv/Scripts/python.exe -m pytest tests/test_release_tooling.py tests/test_windows_release.py -q --basetemp docs/verification/windows-parity/WP024/focused-final --junitxml docs/verification/windows-parity/WP024/focused-final.xml",
+    "exit_code": 0,
+    "passed": 23,
+    "elapsed_seconds": 61.93
+  },
+  "engine_launch_spec": {
+    "sdk": ".tools/dotnet/dotnet.exe",
+    "isolated_artifacts": "docs/verification/windows-parity/WP024/dotnet-artifacts",
+    "exit_code": 0,
+    "checks": 24,
+    "production_source_modified": false,
+    "engine_child_launched": false
+  },
+  "powershell_parse": "PASS builder and package smoke",
+  "windows_powershell_version": "5.1.19041.7802",
+  "final_sbom_targeted_checks": {"passed": 2, "deselected": 14, "elapsed_seconds": 1.72},
+  "diff_check": "PASS",
+  "actual_synthetic_sbom": {
+    "exit_code": 0,
+    "path": "docs/verification/windows-parity/WP024/synthetic-sbom/release-sbom.json",
+    "payload_files_verified": 6,
+    "payload_bytes_verified": 228,
+    "dependency_inventory": "unknown by design: synthetic fixture has no freeze venv"
+  },
+  "synthetic_packaging_smoke": {
+    "command": "tools/test_native_windows_package.ps1 -TestRoot docs/verification/windows-parity/WP024/smoke-20261020-implementation",
+    "exit_code": 0,
+    "log": "docs/verification/windows-parity/WP024/package-smoke.log",
+    "proof": "docs/verification/windows-parity/WP024/smoke-20261020-implementation/package-smoke.json",
+    "package_id": "dev-20261020181321-22de2acf",
+    "zip_sha256": "1a78def8ba28bb9df8b7162e24057e759ca6c6867379ce5c25321c759af2de44",
+    "cases": ["isolated install/repeat/upgrade/rollback/tamper/uninstall", "required engine absence", "stale source", "altered frozen sentinel", "missing frozen sentinel", "unexpected frozen sentinel", "Windows PowerShell 5.1 installation", "noninteractive launcher success", "launcher failure exit propagation"]
+  },
+  "preservation": {
+    "existing_tolerate_extras_intent_preserved": true,
+    "retained_packages_modified": false,
+    "current_install_modified": false,
+    "installer_sources_modified": false,
+    "signed_or_published": false
+  },
+  "remaining_acceptance": [
+    "Fresh production native publish and frozen engine with new source/toolchain/analyzer requirement binding",
+    "Actual installed bundled scan with Python removed from PATH in a new isolated root",
+    "Independent installed analyzer source lineage attestation; requirement pins and frozen payload hashes alone do not establish this",
+    "WP025 certificate, signing and clean Windows installation acceptance remain separate"
+  ]
+}

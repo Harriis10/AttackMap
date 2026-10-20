@@ -1,4 +1,10 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](../../docs/README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # Windows desktop development
+
+> **20 October 2026 planning update:** the [current source/parity audit](../../docs/windows-parity-audit-2026-10-20.md) records the newer October 19 package manifest and remaining native UI gaps. Continue with the [new roadmap](../../docs/roadmap-windows-parity-2026-10-20.md) and [agent TODO](../../docs/windows-parity-todo.md). The October 15 package below is the historically accepted M3 baseline, not the newest development package.
 
 Windows M3 is accepted as a functional beta with documented limitations. The
 WinUI shell uses the shared Python engine for analysis, supervision and report

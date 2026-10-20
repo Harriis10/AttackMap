@@ -22,7 +22,7 @@ def test_shared_golden_messages(path):
     assert "future_additive_field" not in message.model_dump()
 
 
-@pytest.mark.parametrize("version", ["2.0", "1.2", "0.9", "garbage"])
+@pytest.mark.parametrize("version", ["2.0", "1.5", "0.9", "garbage"])
 def test_unsupported_versions_actionable(version):
     with pytest.raises(ValidationError, match="Upgrade the consumer"):
         RunProgress(**BASE, schema_version=version, state="running")
@@ -84,7 +84,7 @@ def test_published_schemas_match_models(name,model):
     actual = json.loads((ROOT / f"schemas/run-{name}.schema.json").read_text(encoding="utf-8"))
     expected = model.model_json_schema()
     expected["$schema"] = "https://json-schema.org/draft/2020-12/schema"
-    expected["properties"]["schema_version"]["enum"] = ["1.0","1.1"]
+    expected["properties"]["schema_version"]["enum"] = list(SUPPORTED_SCHEMA_VERSIONS)
     assert actual == expected
 
 

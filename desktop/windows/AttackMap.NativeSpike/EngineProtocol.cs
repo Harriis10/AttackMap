@@ -3,6 +3,8 @@ using System.Text.Json;
 namespace AttackMap.NativeSpike;
 
 /// <summary>Validates stream metadata, not artifact contents or publication integrity.</summary>
+public sealed record EngineProgressSnapshot(string RunId, string Repository, long Generation, long Revision, string State, string Stage, long? Completed, long? Total, bool Terminal);
+
 public sealed class EngineProtocol
 {
     private readonly string runId;
@@ -15,6 +17,7 @@ public sealed class EngineProtocol
     public string ArtifactReadiness { get; private set; } = "pending";
     public string? ArtifactPath { get; private set; }
     public double? Percent { get; private set; }
+    public EngineProgressSnapshot? Progress { get; private set; }
 
     public EngineProtocol(string runId, string repository, long generation)
     {
@@ -40,7 +43,7 @@ public sealed class EngineProtocol
     {
         if (message.ValueKind != JsonValueKind.Object) throw Invalid("Engine message must be an object.");
         string schema = Text(message, "schema_version");
-        if (schema is not ("1.0" or "1.1")) throw Invalid("Unsupported engine schema; supported range is 1.0–1.1. Upgrade the engine or desktop.");
+        if (schema is not ("1.0" or "1.1" or "1.2" or "1.3")) throw Invalid("Unsupported engine schema; supported range is 1.0–1.3. Upgrade the engine or desktop.");
         if (Text(message, "run_id") != runId || Text(message, "repository_id") != repository || Integer(message, "generation") != generation)
             throw Invalid("Engine message does not match the selected run, repository and generation.");
         long incoming = Integer(message, "revision");
@@ -51,6 +54,7 @@ public sealed class EngineProtocol
         double? percent = null;
         string policy = "not_evaluated", readiness = "pending";
         string? artifact = null;
+        string stageName = ""; long? completedUnits = null, totalUnits = null;
         if (kind == "progress")
         {
             if (state is not ("queued" or "running" or "cancelling")) throw Invalid("Invalid engine progress state.");
@@ -59,6 +63,8 @@ public sealed class EngineProtocol
             long? completed = OptionalUnits(message, "completed_units");
             long? total = OptionalUnits(message, "total_units");
             if (total.HasValue && (!completed.HasValue || completed > total)) throw Invalid("Bounded progress requires completed units within total units.");
+            stageName = message.TryGetProperty("stage", out var stageValue) ? stageValue.GetString()! : "";
+            completedUnits = completed; totalUnits = total;
             if (total > 0) percent = 100.0 * completed!.Value / total.Value;
             if ((CurrentState == "running" && state == "queued") ||
                 (CurrentState == "cancelling" && state != "cancelling")) return false;
@@ -88,6 +94,7 @@ public sealed class EngineProtocol
         ArtifactReadiness = readiness;
         ArtifactPath = artifact;
         Percent = percent;
+        Progress = new(runId, repository, generation, incoming, state, stageName, completedUnits, totalUnits, Terminal);
         return true;
     }
 

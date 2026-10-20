@@ -84,6 +84,18 @@ def verify_package(package_dir: Path, manifest: dict) -> dict:
     installer = package_dir / "Install-AttackMap.ps1"
     if installer.is_file():
         expected.add("Install-AttackMap.ps1")
+    launcher = package_dir / "Install-AttackMap.cmd"
+    if launcher.is_file():
+        expected.add("Install-AttackMap.cmd")
+    deployment_seen = set()
+    for entry in manifest.get("deployment_files", []):
+        name = entry.get("path")
+        if name not in {"Install-AttackMap.ps1", "Install-AttackMap.cmd"} or name in deployment_seen:
+            raise ToolError(f"Unsafe or duplicate deployment entry: {name}")
+        deployment_seen.add(name)
+        target = package_dir / name
+        if not target.is_file() or target.is_symlink() or target.stat().st_size != entry.get("size_bytes") or sha256_file(target) != entry.get("sha256"):
+            raise ToolError(f"Deployment checksum mismatch: {name}")
     seen = set()
     bytes_verified = 0
     for entry in manifest["files"]:
@@ -120,6 +132,12 @@ def verify_package(package_dir: Path, manifest: dict) -> dict:
             "path": "Install-AttackMap.ps1",
             "size_bytes": installer.stat().st_size,
             "sha256": sha256_file(installer),
+        }
+    if launcher.is_file():
+        verification["installer_launcher"] = {
+            "path": launcher.name,
+            "size_bytes": launcher.stat().st_size,
+            "sha256": sha256_file(launcher),
         }
     return verification
 
@@ -161,7 +179,7 @@ def build_sbom(manifest: dict, verification: dict, python_dependencies: dict) ->
     engine_identity = {"bundled": bool(engine_meta.get("bundled"))}
     if engine_identity["bundled"]:
         for key in ("executable", "runtime_kind", "version", "analyzer_count", "run_schema_range",
-                    "verification_sha256", "source_checksums_sha256", "limitations"):
+                    "verification_sha256", "source_checksums_sha256", "release_inputs_sha256", "analyzer_requirements_sha256", "release_lock_sha256", "limitations"):
             if key in engine_meta:
                 engine_identity[key] = engine_meta[key]
     else:

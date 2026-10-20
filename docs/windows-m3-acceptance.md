@@ -1,3 +1,7 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # Windows M3 acceptance ledger
 
 **Workspace cleanup (2026-10-16):** only the latest accepted Windows package is retained. Final raw evidence was moved without changing its bytes to `desktop/windows/verification/retained-m3/`; its relocation manifest maps the historical paths below. Older builds and disposable raw QA campaigns were removed. The local .NET SDK/NuGet toolchain now lives under `.tools/`. See `desktop/windows/README.md` for current development commands.

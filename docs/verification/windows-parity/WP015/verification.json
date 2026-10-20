@@ -1,0 +1,12 @@
+{
+  "task": "WP015",
+  "status": "IMPLEMENTED_FINAL_UI_BUILD_AND_MANUAL_PENDING",
+  "model_tests": {"final": 49, "log": "native-ai-final.log", "provider_dispatches": 0},
+  "existing_offline_suites": {"NativeOptions.Tests": 54, "ProviderConfiguration.Tests": 16},
+  "excluded_live_suite": {"name": "ProviderRoundtrip.Tests", "attempt": "No-argument invocation failed at args[0] before any action", "error": "IndexOutOfRangeException", "rerun": false, "reason": "Harness includes an explicit /models HTTP call; WP015 is offline"},
+  "preview": {"initial_build": "succeeded", "errors": 0, "warnings": 2, "warning": "NU1900 vulnerability-feed metadata unavailable", "elapsed": "00:08:32.86", "final_rebuild": "interrupted on user STOP", "executable_launched": false, "visual_acceptance": false, "keyboard_acceptance": false, "text_200_percent_acceptance": false},
+  "changed_paths": ["desktop/windows/AttackMap.NativeSpike/ProviderConfiguration.cs", "desktop/windows/AttackMap.NativeSpike/ProviderSettingsView.cs", "desktop/windows/AttackMap.NativeSpike/NativeScanOptions.cs", "desktop/windows/AttackMap.NativeSpike/LocalSettings.cs", "desktop/windows/AttackMap.NativeSpike/EngineCapabilities.cs", "desktop/windows/NativeAiOptions.Tests/", "desktop/windows/WP015Preview/", "docs/verification/windows-parity/WP015/"],
+  "not_edited": ["MainWindow", "shared project/resources", "EngineProtocol", "EngineSession", "trackers", "packaging"],
+  "remaining": ["Root shell integration documented in README", "Final UI compilation after STOP is lifted", "Visible preview and actual visual/keyboard/200 percent text review", "WP017 live local-model acceptance"],
+  "network": "No HTTP provider or authenticated CLI request was made by these tests; NuGet build metadata lookup emitted an unavailable-feed warning"
+}

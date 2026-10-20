@@ -1,5 +1,32 @@
 # AGENTS.md
 
+## Documentation authority — 2026-10-20
+
+For planning and agent execution, start with [the current documentation index](docs/README.md).
+The only active implementation plan is:
+
+- [Windows parity roadmap](docs/roadmap-windows-parity-2026-10-20.md): checkpoints, scope, and acceptance gates.
+- [Windows parity TODO](docs/windows-parity-todo.md): executable WP001–WP041 task definitions.
+- [Windows parity backlog](docs/windows-parity-backlog.json): dependencies, ownership, and parallel-work leases.
+
+The [dated audit](docs/windows-parity-audit-2026-10-20.md), its
+[source manifest](docs/windows-parity-sources-2026-10-20.json), and
+[plan validation](docs/verification/windows-parity/plan-validation-2026-10-20.json)
+support that plan; they do not prove new runtime acceptance.
+
+All other pre-existing documentation is OLD / HISTORICAL and IRRELEVANT as an
+independent source of agent tasks, priorities, delivery status, or release approval.
+Do not resume its TODOs, copy its completion claims, or let an old handoff override
+the active plan. This applies also to documents outside `docs/`, old READMEs,
+`old_docs/`, and retained verification notes.
+Read historical technical contracts, C01–C40 criteria, or evidence only when an
+active WP task needs that reference; verify implementation claims against current
+code. Criteria remain applicable only in the scope incorporated by the new plan.
+Preserve Windows M3 acceptance and the removal of Windows C26.
+Do not modify retained evidence or fixture data merely to add archival labels.
+This section changes documentation authority, not repository instructions,
+security/contribution policies, or the contents of historical evidence.
+
 ## Project
 AttackMap is an open-source defensive security analysis engine.
 

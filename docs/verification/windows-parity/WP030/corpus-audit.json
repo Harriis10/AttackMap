@@ -1,0 +1,480 @@
+{
+  "scope": "Current local seed inventory only; no independent human label review or production-diversity claim",
+  "manifest_sha256": "ef1506717bc65c49abfae9a493cd7b703527736a16ff3f6d0fef0c2bed8bf15b",
+  "corpus_version": "0.2.0",
+  "repositories": 13,
+  "expectations": 46,
+  "counts": {
+    "positive": 25,
+    "negative": 19,
+    "clean": 2
+  },
+  "families": {
+    "bola": {
+      "positive": 4,
+      "negative": 4
+    },
+    "clean": {
+      "clean": 2
+    },
+    "crypto": {
+      "positive": 1,
+      "negative": 1
+    },
+    "injection": {
+      "negative": 7,
+      "positive": 9
+    },
+    "unauth_state_change": {
+      "positive": 8,
+      "negative": 6
+    },
+    "webhook_exposure": {
+      "positive": 3,
+      "negative": 1
+    }
+  },
+  "deficits": {
+    "repositories": 17,
+    "positive": 275,
+    "negative": 281,
+    "clean": 8
+  },
+  "split": {
+    "seed": 20261011,
+    "holdout_fraction": 0.3,
+    "tuning_repositories": [
+      "atproto-service",
+      "bola-ownership-pair",
+      "clean-flask-demo",
+      "clean-node-demo",
+      "express-docs-demo",
+      "orders-api-demo",
+      "sql-param-pair",
+      "webhook-billing-demo",
+      "webhook-verify-pair"
+    ],
+    "holdout_repositories": [
+      "auth-gate-pair",
+      "flask-admin-demo",
+      "php-omeka-app",
+      "python-service-app"
+    ],
+    "tuning_cases": 27,
+    "holdout_cases": 19
+  },
+  "schema_load": "PASS",
+  "missing_source_cases": [],
+  "duplicate_same_family_anchors": [],
+  "identical_repository_trees": [],
+  "provenance_fields_present": {
+    "source_url": 0,
+    "source_revision": 0,
+    "license": 0,
+    "reviewer": 0,
+    "reviewed_at": 0
+  },
+  "sources": [
+    {
+      "repository": "atproto-service",
+      "path": "tests/fixtures/atproto-service",
+      "files": [
+        {
+          "file": "lexicons/com.example.moderation.report.json",
+          "sha256": "02173facac2279b5fb6f96be76214407b13ed5523042e3ef82c8a21d2bc1ea33"
+        },
+        {
+          "file": "lexicons/com.example.profile.get.json",
+          "sha256": "7364fb3488461a61e332a420eade0790c2e6d9e20c0e155edc98d190fd93b529"
+        },
+        {
+          "file": "lexicons/com.example.status.list.json",
+          "sha256": "5dba768d92d2dd262416bcb541da143fbfbdf70a7be3c3c3bd54207c0e40f928"
+        },
+        {
+          "file": "lexicons/com.example.status.post.json",
+          "sha256": "9a1d9a862ba37f8f34d92695a92fbd27528f70f8ceb178f25fb9ee150afa01ec"
+        },
+        {
+          "file": "package.json",
+          "sha256": "1b0f87808b930c7d04db4ef80c2e8f5ab4f84a70ac0595ed75b8a1601d18a91f"
+        },
+        {
+          "file": "src/auth.ts",
+          "sha256": "eade4c3e555b3afc716573a1d55db92d328718995bbda839dd76b5d293f29bc8"
+        },
+        {
+          "file": "src/context.ts",
+          "sha256": "1eff7a975b84275dc23a5d870a87e9fffd373dc82ec42699147ad3424ca5f014"
+        },
+        {
+          "file": "src/db.ts",
+          "sha256": "886999aa76556323f122977e8afce14804ec4fe36e2598eaefc58d62aefeb5f4"
+        },
+        {
+          "file": "src/feed-gen.ts",
+          "sha256": "2f4b393100c65d0ce8e1df8a1f0950da30613c4361c60b48a9f5fb0a7f0bf6f2"
+        },
+        {
+          "file": "src/firehose.ts",
+          "sha256": "c78f150a036801996b7e24b986147e8aff77b9450d91cb6663e84ee04f76c7c5"
+        },
+        {
+          "file": "src/identity.ts",
+          "sha256": "875d7a2a4283471f14e5d018f342bac8ce7ac165b1acdf8f3ae9e8f99c856f57"
+        },
+        {
+          "file": "src/index.ts",
+          "sha256": "8e3e1c7e0e8f6f1fafadbee0611b8cc77c9eda48c71c7a81a22ebf4709e9ea19"
+        },
+        {
+          "file": "src/pds-client.ts",
+          "sha256": "c5e1c9c0ca6c8b3dbeec3db8b26e5bb6d653aa8bc76c90ff579f800990f42532"
+        },
+        {
+          "file": "src/status.ts",
+          "sha256": "558d8abc81bd001a937d89567151152920b1fce225174a8dc0bde4868736acb7"
+        },
+        {
+          "file": "src/xrpc-methods.ts",
+          "sha256": "45ef0410362146582fd244ee5def069b4ae698c8c3577f9ba054619b1a27256e"
+        }
+      ],
+      "tree_sha256": "e7c72c7f0b0c13a23511583763a1ef47020e60c4567894d68f507d7a5be38ac8"
+    },
+    {
+      "repository": "auth-gate-pair",
+      "path": "fixtures/evaluation/auth-gate-pair",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "5ffcbfe60ce8bfa65c58ef1c0c2876c7e05e9bf0d9d55e589318259c1f225070"
+        }
+      ],
+      "tree_sha256": "8f9817610634827c88e1a1d92ac15c2c8828514502e9721d008a0e8b9bdd2d39"
+    },
+    {
+      "repository": "bola-ownership-pair",
+      "path": "fixtures/evaluation/bola-ownership-pair",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "6aba19d13634a10fa9fa26eb1ef8cee897e141e3fef4d53066f0058331dfa204"
+        }
+      ],
+      "tree_sha256": "096c225ea156626ee9a828aa7eab049941f721a66c5ea9b946723bfaa9d2f33e"
+    },
+    {
+      "repository": "clean-flask-demo",
+      "path": "fixtures/evaluation/clean-flask-demo",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "1285edc80a4bbdc5b022bdb9afa554c95591aa69af57c2bf9f08d18da093016d"
+        }
+      ],
+      "tree_sha256": "d8d53970a429b8a63eba425240bf4503c7c94db2eb3a8b06d35ac920b9d0660c"
+    },
+    {
+      "repository": "clean-node-demo",
+      "path": "fixtures/evaluation/clean-node-demo",
+      "files": [
+        {
+          "file": "package.json",
+          "sha256": "cf1d319d6944300b8a68469caef362f64df56f421f58e84373ee0e690ff7476b"
+        },
+        {
+          "file": "server.js",
+          "sha256": "bd58e1cee898f675d10c94a150757c1426b1e99615305cbbbd7376af3e081a76"
+        }
+      ],
+      "tree_sha256": "83a863466447980afd94198fcbbc8984b3713497c4086de7f1c3a2bd8a280be0"
+    },
+    {
+      "repository": "express-docs-demo",
+      "path": "evals/benchmark/cases/express-docs-demo",
+      "files": [
+        {
+          "file": "package.json",
+          "sha256": "10bb6379a1b03b40934162d7d153bfba4ef36c4912655f83cc9dda97f5cc2a04"
+        },
+        {
+          "file": "README.md",
+          "sha256": "823bdb6251a641eca91e268844ba034865ddef4d4701be971a57f5e30d8de2b8"
+        },
+        {
+          "file": "server.js",
+          "sha256": "7b7a5640ee5111e68d48c75de699b45ea05c626af30b545ec1ed4d402b9ff345"
+        }
+      ],
+      "tree_sha256": "2f6efd6393276a041df24ab2561c5fca166b73d9a58267d3d09bb42b2a5eae50"
+    },
+    {
+      "repository": "flask-admin-demo",
+      "path": "examples/flask-admin-demo",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "93f6615568257abc5357cc9298c0567dc58f7d727f1b438cf1cbd45934819cf2"
+        },
+        {
+          "file": "README.md",
+          "sha256": "5ff6ce50e2cc6a24dacca33ad83606864f2c8c5c6f8b19091a19feacfd9e565e"
+        }
+      ],
+      "tree_sha256": "70fbfe9e29bd654ab8bd1e5324a573d3a833e5635eb4dac599fbfad326b2414e"
+    },
+    {
+      "repository": "orders-api-demo",
+      "path": "examples/orders-api-demo",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "e25c06633d84246c1b2d8670ffbc6663a6c5547bdd99265f60d494ce1f5d6873"
+        },
+        {
+          "file": "README.md",
+          "sha256": "6db7734e9c4531d35cb7efebba6a689e7248cf4b61fc7195142be69778d11a49"
+        }
+      ],
+      "tree_sha256": "4fa3a98198148c673a49cc480c6505a5414692f4ea22a3311b6789170c6b0f25"
+    },
+    {
+      "repository": "php-omeka-app",
+      "path": "tests/fixtures/php-omeka-app",
+      "files": [
+        {
+          "file": "composer.json",
+          "sha256": "7da2b05cf82cbb591e1901fda426d18d299cc00c9610175eccb3dad903ce581b"
+        },
+        {
+          "file": "config/application.config.php",
+          "sha256": "34017abed307887d65e9b5571a143bb4756bfdc01a50085b5b5402931b01efdf"
+        },
+        {
+          "file": "config/modules.config.php",
+          "sha256": "4698b9b640e3a881c563ad036dd5539bb3a15ab3945b4b012b9f78b2b29acd7f"
+        },
+        {
+          "file": "module/ContactBoard/config/module.config.php",
+          "sha256": "f67a4ddb074f758c0985bc669b8c412a758e7744692edcc6bb98a99ccba90727"
+        },
+        {
+          "file": "module/ContactBoard/Module.php",
+          "sha256": "27daa54ec70238d8845aa1fe5db859fb9ad950d43f9794c564a8b6d26c6dcb8f"
+        },
+        {
+          "file": "module/ContactBoard/src/Api/Adapter/BoardItemAdapter.php",
+          "sha256": "d2bb1921b4c12cc2c2225f53288cc47524f64aebc6bb2c8fcbf4a26a474eee45"
+        },
+        {
+          "file": "module/ContactBoard/src/Api/Representation/BoardItemRepresentation.php",
+          "sha256": "ac1bb1a2975a526017f96f9b72adcfcef7a892679a9d16b80e33ab440dbdca47"
+        },
+        {
+          "file": "module/ContactBoard/src/Controller/BoardAdminController.php",
+          "sha256": "7f16bdb5a0927284ee8a85318b1bd04708b298d55fd7c8033d4f3d4737769c66"
+        },
+        {
+          "file": "module/ContactBoard/src/Controller/BoardSiteController.php",
+          "sha256": "b5fb3883fc0445c61100f94d86e54f3c2011112a4a01165c81961f38a414caa2"
+        },
+        {
+          "file": "module/ContactBoard/src/Form/BoardForm.php",
+          "sha256": "bc1c521d6e032fb1c3a6b95257ae02bdefcd317ac2bdbd3627400c1edefb3cbf"
+        },
+        {
+          "file": "module/ContactBoard/src/Infrastructure/BoardMailerFactory.php",
+          "sha256": "78a79f77989a214343ad33ca9466cc518b2c38f9121541c543204257806eaa76"
+        },
+        {
+          "file": "module/ContactBoard/src/Media/Ingester/BoardUpload.php",
+          "sha256": "5649bd82b0023d7e00144bd82f37d9596e7d0009cbecffde44ca304c9088d3d4"
+        },
+        {
+          "file": "module/ContactBoard/src/Service/BoardMailer.php",
+          "sha256": "47ca1a3b973d987be4f4bbe61bb1f39c79cc7343a490ef4b6485f1e19bbadad8"
+        },
+        {
+          "file": "module/ContactBoard/view/board/submit.phtml",
+          "sha256": "736542d185989d543560849b3b5c9c6539728407b3ecc6abe614291d7caba933"
+        },
+        {
+          "file": "public/index.php",
+          "sha256": "69313b4ea16ac72328e06dcdc4ce560801e476e4a1d423620773f44737e01c90"
+        },
+        {
+          "file": "src/Legacy/ajax_lookup.php",
+          "sha256": "1a74a65d936576f2d989fda7e14982a4c04b72df67e77e4e11fe590086a03cd5"
+        },
+        {
+          "file": "src/Legacy/db.php",
+          "sha256": "de6cf9b9d3f976a2cf93c4d6e1838d21d4425a36f322432b50e70199a67167f3"
+        }
+      ],
+      "tree_sha256": "433cd9ea7eb6fb8fe6fc118f813c22469f23f5b40debb66241ff477aea2065ca"
+    },
+    {
+      "repository": "python-service-app",
+      "path": "tests/fixtures/python-service-app",
+      "files": [
+        {
+          "file": "app/__init__.py",
+          "sha256": "bcfbace5be2a7ae004f668a8a68ae6e50d5e9f22154c14646fc1fefe22d47cd2"
+        },
+        {
+          "file": "app/deps.py",
+          "sha256": "6226f2512b63bab67db8b68b8af2f2d3311534c639d86ce1890b980876851323"
+        },
+        {
+          "file": "app/main.py",
+          "sha256": "1867694ab67b9d1026c5bc41d05da8734b5f1b32fbe8eee46c9a75f36673b1b1"
+        },
+        {
+          "file": "app/routers/__init__.py",
+          "sha256": "131ae833415e2543be400ad849a5e00d80f7228443cff38bb16de43cb6602a31"
+        },
+        {
+          "file": "app/routers/items.py",
+          "sha256": "b32737cf050dcba698e10e7373ecbfcf4c85606191389d0d24ea84a7a87e45ec"
+        },
+        {
+          "file": "app/routers/webhooks.py",
+          "sha256": "0eb382d98218bb9a732cd642c34edbbed3ad1c34e7816c13c2323f670acd3f3c"
+        },
+        {
+          "file": "app/settings.py",
+          "sha256": "11765f85c1c66f6ecca7b652398b4d120266d1aae5843aebeda9c84df5e42dfc"
+        },
+        {
+          "file": "cli.py",
+          "sha256": "58f1936ee6b8df0a19c9189593591f5751d6281a010b74a7dd9926291de66326"
+        },
+        {
+          "file": "db.py",
+          "sha256": "6ad4446a145680946677a03c24171e4a5708545ff095a374cf361187034866d9"
+        },
+        {
+          "file": "django_site/__init__.py",
+          "sha256": "a830294ff3278ffa1ee496a47b2d440d852b76104c6786792abbe26fc80be765"
+        },
+        {
+          "file": "django_site/api/__init__.py",
+          "sha256": "47388c31c1f23570b8d04464708d53004e88390b13ae450c84a3066e570225db"
+        },
+        {
+          "file": "django_site/api/middleware.py",
+          "sha256": "e48c50cc297019170bd3da06fcc391f1a4d1838145e952dff61280153e5c1e8e"
+        },
+        {
+          "file": "django_site/api/models.py",
+          "sha256": "cb85eae9684991ec624cfcc341832b8f975c6a029d918f4252b26eeb13a9f53a"
+        },
+        {
+          "file": "django_site/api/urls.py",
+          "sha256": "62d23b1b3aba4c24adde0c2b69602e6af5725572189515200c4a44957f5f4855"
+        },
+        {
+          "file": "django_site/api/views.py",
+          "sha256": "17819dc013eb65f622047aaef11a92803b07d041601d796a9b2ccf567b1b3a50"
+        },
+        {
+          "file": "django_site/settings.py",
+          "sha256": "0a335658e55120b3588760f29f804786868e0c573a52b4c65dd725c23952dcf9"
+        },
+        {
+          "file": "django_site/urls.py",
+          "sha256": "aa0eb016470b9331f767daae2166d11033539749e3941aa8c6ace3979e907cc1"
+        },
+        {
+          "file": "django_site/views.py",
+          "sha256": "ffd830ae94de0d98988c5fa01a89e010655c4fd6255e884e9950b6b00ba0f9a4"
+        },
+        {
+          "file": "django_site/wsgi.py",
+          "sha256": "479bc4c69ead1fcf1a8b30aa53c45b10c1496f985dea0adf9733baf0a38bb572"
+        },
+        {
+          "file": "README.md",
+          "sha256": "895fb3175283a2c2b257aa7297c570382d354894c6ed7c2a79c4382b4f804fef"
+        },
+        {
+          "file": "requirements.txt",
+          "sha256": "91a9d17e6c93f553e2c8af03e0405a231a3888895b0baf87639f0c0f82aabc6c"
+        },
+        {
+          "file": "tasks/__init__.py",
+          "sha256": "0928eaffee0f3d0328c7a0f918b6851b9ae496b9741fac5f1a2fc5a1dc966f8a"
+        },
+        {
+          "file": "tasks/celery_app.py",
+          "sha256": "ee29047a81925d48a764efe8752dc0690a6974293a5e8b8f35ee2df3fcc4c7fc"
+        },
+        {
+          "file": "tasks/jobs.py",
+          "sha256": "d5ab776bc774d99969e769c493cce1b70a691cf653c3aa877cf83a4195225381"
+        },
+        {
+          "file": "web/__init__.py",
+          "sha256": "d5a11150a7b867245343fc33ee720937ccb085cb87707b0b3b60043625e762b0"
+        },
+        {
+          "file": "web/api_views.py",
+          "sha256": "1ce148826aee0599a4210e8292d47014bcf2faa65cef861b6685ec041846d6c1"
+        },
+        {
+          "file": "web/auth.py",
+          "sha256": "28e8d8bed012c7c22595578a1771bedfd6e507b01e4ac739e204085d5608130e"
+        },
+        {
+          "file": "web/flask_app.py",
+          "sha256": "3eeaeb356c51203d7c2d1730e2b6de6146ddb9345e78543d4535ea2d187de682"
+        }
+      ],
+      "tree_sha256": "6d90c69806ad2f2e455093f0680bff60540c3c2008bafa4d573bfbf5a438548e"
+    },
+    {
+      "repository": "sql-param-pair",
+      "path": "fixtures/evaluation/sql-param-pair",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "9486ba26f1349c066a42842087558589476862df589fd4aa3bf9a0bdb1219a64"
+        }
+      ],
+      "tree_sha256": "43b5a14b5094fdaede3558abf9f5cf63e13b782c35e3c66238f35c9e09433498"
+    },
+    {
+      "repository": "webhook-billing-demo",
+      "path": "examples/webhook-billing-demo",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "068249ab3a97c10cf4c68aca4243b589b4d4baa695b5008c6fcce0e0f184bfd4"
+        },
+        {
+          "file": "README.md",
+          "sha256": "0b0c69be86d293875714ccfc7bcf09c358c5c4318137bbd7cfbb3a8b5178e637"
+        }
+      ],
+      "tree_sha256": "98d6ffd889b390baa2bc16cadffdaf3e7b7b9c4735c8cad18c8bd28596e83c12"
+    },
+    {
+      "repository": "webhook-verify-pair",
+      "path": "fixtures/evaluation/webhook-verify-pair",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "314d4f702ed91b0762661f3ef37048b42034f066a5fbb2d6211fbe2475fd0b07"
+        }
+      ],
+      "tree_sha256": "7b28ec3b0170397f4c46b0ad0c1769d730403f973ab990bde30f25d04d870084"
+    }
+  ],
+  "limitations": [
+    "Tree hashes detect exact copies only; semantic/template duplication requires review",
+    "Seeded repository split prevents identical repository IDs crossing sides; does not prove independent lineage or freeze before prior tuning",
+    "Case provenance fields are absent; repository LICENSE must not be assumed to establish external-source provenance",
+    "Labels retained unchanged; manifest states v0.2 labels await C27 human review"
+  ]
+}

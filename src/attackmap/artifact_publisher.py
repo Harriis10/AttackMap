@@ -437,7 +437,7 @@ def write_fleet_manifest(folder: Path, run_id: str, *, engine_version: str,
     if not (folder / "run-manifest.json").exists():
         safe_write_text(folder, folder / "run-manifest.json", json.dumps({"stages": []}) + "\n")
     entries = []
-    for name in ("fleet-summary.json", "run-manifest.json", "fleet-summary.md", "fleet-graph.md"):
+    for name in ("fleet-summary.json", "run-manifest.json", "fleet-summary.md", "fleet-graph.md", "desktop-fleet.json"):
         path = _safe(folder / name)
         if path.is_file():
             entries.append({"name": name, "path": name, "format": path.suffix[1:],

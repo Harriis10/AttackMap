@@ -8,13 +8,13 @@ public sealed class EngineSession
     private bool cancelling;
     private int admission;
     public bool CleanupBlocked { get; private set; }
-    public async Task Run(string python, string repository, string output, long generation, Action<string> progress, Func<string, Task> completed, Action<RunIdentity>? started = null, NativeScanOptions? options = null, string modules = "")
+    public async Task Run(string python, string repository, string output, long generation, Action<string> progress, Func<string, Task> completed, Action<RunIdentity>? started = null, NativeScanOptions? options = null, string modules = "", Action<EngineProgressSnapshot>? structuredProgress = null)
     {
         if (CleanupBlocked || Interlocked.CompareExchange(ref admission, 1, 0) != 0) throw new InvalidOperationException("A scan is active or cleanup is unverified; restart is blocked.");
-        try { await RunCore(python, repository, output, generation, progress, completed, started, options, modules); }
+        try { await RunCore(python, repository, output, generation, progress, completed, started, options, modules, structuredProgress); }
         finally { if (!CleanupBlocked) Interlocked.Exchange(ref admission, 0); }
     }
-    private async Task RunCore(string python, string repository, string output, long generation, Action<string> progress, Func<string, Task> completed, Action<RunIdentity>? started, NativeScanOptions? options, string modules)
+    private async Task RunCore(string python, string repository, string output, long generation, Action<string> progress, Func<string, Task> completed, Action<RunIdentity>? started, NativeScanOptions? options, string modules, Action<EngineProgressSnapshot>? structuredProgress)
     {
         if (!Path.IsPathFullyQualified(python) || !File.Exists(python)) throw new InvalidDataException("Choose an absolute Python executable path with AttackMap installed.");
         Directory.CreateDirectory(output);
@@ -35,6 +35,7 @@ public sealed class EngineSession
             while (await ReadBounded(process.StandardOutput) is string line)
             {
                 if (!protocol.ParseAndAccept(line)) continue;
+                structuredProgress?.Invoke(protocol.Progress!);
                 using var document = JsonDocument.Parse(line);
                 var message = document.RootElement;
                 if (!protocol.Terminal && !cancelling) progress($"Engine {protocol.CurrentState}: {(message.TryGetProperty("stage", out var stage) ? stage.GetString() : "")}");

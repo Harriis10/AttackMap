@@ -1,0 +1,374 @@
+{
+  "schema_version": "1.0",
+  "audit_date": "2026-10-20",
+  "timezone": "Europe/Prague",
+  "local_head": "d45997653970929f5f477c6e2dcd70913cb17fe3",
+  "local_product_version": "1.5.1",
+  "preexisting_changes": [
+    "tools/package_native_windows.ps1",
+    ".zcode/"
+  ],
+  "method": "CodeGraph MCP first; targeted source/config/doc reads; direct HTTPS public docs and pinned macOS sources; no app runtime/model tests in this audit",
+  "runtime_validation_performed": false,
+  "wiki_declared_version": "0.4.27",
+  "remote_identity": {
+    "AttackMap": {
+      "latest_release": "v0.5.1",
+      "published_at": "2026-10-02T16:03:42Z",
+      "release_url": "https://github.com/mlaify/AttackMap/releases/tag/v0.5.1",
+      "head_sha": "08ae7044770e0776d4dcffc1ef6466ea80c7579d",
+      "head_commit_date": "2026-10-13T12:24:36Z",
+      "assets": [
+        "attackmap-0.5.1-py3-none-any.whl",
+        "attackmap-0.5.1.tar.gz"
+      ],
+      "signature_verified_in_this_audit": false
+    },
+    "AttackMap-mac": {
+      "latest_release": "v0.2.3",
+      "published_at": "2026-10-02T14:07:24Z",
+      "release_url": "https://github.com/mlaify/AttackMap-mac/releases/tag/v0.2.3",
+      "head_sha": "5f2e8b4d84f9dff06e0f87c69c861a434981bd6a",
+      "head_commit_date": "2026-10-12T12:49:52Z",
+      "assets": [
+        "AttackMap-0.2.3.dmg"
+      ],
+      "signature_verified_in_this_audit": false
+    }
+  },
+  "package_manifest": {
+    "package_id": "dev-20261019192050-b678aee2",
+    "channel": "unsigned-development",
+    "architecture": "win-x64",
+    "minimum_windows": "10.0.19041.0",
+    "engine": {
+      "bundled": true,
+      "executable": "app/engine/attackmap.exe",
+      "runtime_kind": "Frozen",
+      "version": "attackmap 1.5.1",
+      "analyzer_count": 21,
+      "run_schema_range": "1.0-1.1",
+      "verification_sha256": "6ff3d9cf850262012735b846c744ef341b96ffe5d4dabef9b31db4e5583fba59",
+      "source_checksums_sha256": "cd08fd6c1eb5833f0c819b21b7a6b683cd83c807965595f62da4cee07f0a1542",
+      "discovery": "Exact bundled executable selected only when no engine path is configured; no PATH probing, automatic execution or downloads.",
+      "limitations": [
+        "Development preview only. Retention/diagnostics engine; no full acceptance matrix.",
+        "No AI/model calls in frozen checks; no signing/clean-machine/platform acceptance."
+      ]
+    }
+  },
+  "external_sources": [
+    {
+      "url": "https://docs.mlaify.io/",
+      "sha256": "15a1c81cccdc6591b4197a68792d49a9273d52c8275925ddafeafcf393105052",
+      "retrieved_utc": "2026-10-20T16:42:43.527113+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/analyzers/",
+      "sha256": "89b68ae28cfc03361519baaace2522cfd954b330031bb8dca9071fc497db1da5",
+      "retrieved_utc": "2026-10-20T16:42:43.756473+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/ci/",
+      "sha256": "1c17edb2840240839f2cfe7442afa17c2a1463f8b56c29863a5086fba5ef5108",
+      "retrieved_utc": "2026-10-20T16:42:44.009774+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/cli/",
+      "sha256": "7a2d183ba15f3bbda74d35544c8e058429cab9d39f2091276459ce2db95b8372",
+      "retrieved_utc": "2026-10-20T16:42:44.352873+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/feature-availability/",
+      "sha256": "d8573ea9ec7c1c7a32510fc5e0f76c91e225c19c9d4324cddd178fdd234257c0",
+      "retrieved_utc": "2026-10-20T16:42:44.662257+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/gui/",
+      "sha256": "bb9001c74434f872de3b6d3b690b0ed098ca7e77b4231e35f7d4b90740d99a9c",
+      "retrieved_utc": "2026-10-20T16:42:44.964421+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/install/",
+      "sha256": "31066435f8d5f8998fc6862c9abfbc6dfa285b128bf91ac605bedd3e96a25e75",
+      "retrieved_utc": "2026-10-20T16:42:45.199348+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/llm/",
+      "sha256": "544d2721641197552f275f307a31b73aec658420cd39419e0dfc488863efdc45",
+      "retrieved_utc": "2026-10-20T16:42:45.413606+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/quickstart/",
+      "sha256": "326d459a808c3e605fc4d4ba9ffa1614abcd6d9e8b86a11373b53fa3a98d41d8",
+      "retrieved_utc": "2026-10-20T16:42:45.647292+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/scanning/",
+      "sha256": "02719fe9ddbf57cab2a69eceb7f8cd4691c896ac2ea3305023c0c23af6f01d34",
+      "retrieved_utc": "2026-10-20T16:42:45.883315+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://docs.mlaify.io/sdk/",
+      "sha256": "5625f2f3bf739f88418067e27e732ae05c19164a50fb1a3dd0d096a15f23519d",
+      "retrieved_utc": "2026-10-20T16:42:46.097553+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/Home.md",
+      "sha256": "c1b46d321e7b6ff0d9f18411e3cb6b77daf9fb1f2d6358463b6eaaaaf1be0692",
+      "retrieved_utc": "2026-10-20T16:42:46.350371+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/Architecture.md",
+      "sha256": "99278698ecf7914ae9c28091cf9cf2b1ee49de996ea22dd2b588b162ad01b590",
+      "retrieved_utc": "2026-10-20T16:42:46.927874+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/Contributing.md",
+      "sha256": "e10887b948c7773b2190b28f1f553499f7cc307eac0b5947828525034c29a37a",
+      "retrieved_utc": "2026-10-20T16:42:47.202672+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/Examples.md",
+      "sha256": "9649e89ba89c7f1b4fb0535f10971c33353b6af2ae71f54ffd2b448d80d5f07e",
+      "retrieved_utc": "2026-10-20T16:42:47.477888+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/Generated-Docs.md",
+      "sha256": "8893ccc58caa529a350249508bb041f6332b5f46fcfa93f6270bdea39252491a",
+      "retrieved_utc": "2026-10-20T16:42:47.747540+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/Roadmap.md",
+      "sha256": "f2c3e3b5ee6164cb73597dd56e60185ef7bbb293f82932a2344e1ea34a65b926",
+      "retrieved_utc": "2026-10-20T16:42:48.086012+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/Threat-Modeling-Approach.md",
+      "sha256": "c884ba47297c6cc609a2f932ed07814552fe6977a7b3ed2a70284a1809179c2c",
+      "retrieved_utc": "2026-10-20T16:42:48.375603+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://api.github.com/repos/mlaify/AttackMap/releases/latest",
+      "sha256": "26959738f0efbb2b43cb3e9033fc29c3953c21e4d64addb5bc13b610dd587739",
+      "retrieved_utc": "2026-10-20T16:42:48.681820+00:00",
+      "review_scope": "identity metadata"
+    },
+    {
+      "url": "https://api.github.com/repos/mlaify/AttackMap/commits?per_page=1",
+      "sha256": "f09403e143ab9627ef0bc7009776d10f2a912d81558cb5aadf1c51e83779a18f",
+      "retrieved_utc": "2026-10-20T16:42:49.101430+00:00",
+      "review_scope": "identity metadata"
+    },
+    {
+      "url": "https://api.github.com/repos/mlaify/AttackMap-mac/releases/latest",
+      "sha256": "68df1e686df258f8c8266cf1ab50c50b33932a80e4434b41c1d230cd56374109",
+      "retrieved_utc": "2026-10-20T16:42:49.369018+00:00",
+      "review_scope": "identity metadata"
+    },
+    {
+      "url": "https://api.github.com/repos/mlaify/AttackMap-mac/commits?per_page=1",
+      "sha256": "a3d5d4f6724b2f746d6f91a77a8d7897ab7836960339d40449cb7579f9ebe42a",
+      "retrieved_utc": "2026-10-20T16:42:49.696362+00:00",
+      "review_scope": "identity metadata"
+    },
+    {
+      "url": "https://api.github.com/repos/mlaify/AttackMap-mac/git/trees/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a?recursive=1",
+      "sha256": "9f0ff52a0939cefd3b6bdf87febff3b33ee35d0eec2f6646c10949711f5ecb30",
+      "retrieved_utc": "2026-10-20T16:42:50.039428+00:00",
+      "review_scope": "identity metadata"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlaify/AttackMap-mac/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a/AttackMap/Models/ScanConfig.swift",
+      "sha256": "410f97a0e2da4d3557251fc45776ff99c729add9949cb7e7deb00e24d7b2ad3b",
+      "retrieved_utc": "2026-10-20T16:43:54.045806+00:00",
+      "review_scope": "selected code sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlaify/AttackMap-mac/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a/AttackMap/Services/CLILocator.swift",
+      "sha256": "2f7588de42e2c1686c9a0b719ea561cad616adb6730c2dd33d2c4987f731bff5",
+      "retrieved_utc": "2026-10-20T16:43:54.657387+00:00",
+      "review_scope": "selected code sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlaify/AttackMap-mac/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a/AttackMap/Services/RepoWatcher.swift",
+      "sha256": "e11d3adba9d8c63906d12a4be723860faeb67b26f07e9075038a86f891987c45",
+      "retrieved_utc": "2026-10-20T16:43:57.355021+00:00",
+      "review_scope": "selected code sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlaify/AttackMap-mac/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a/AttackMap/Services/ReportExporter.swift",
+      "sha256": "03dce47cde4851e480a3baa2b7ccd9ea478d5f6c3d955cbd9d1527ae68e4a1e7",
+      "retrieved_utc": "2026-10-20T16:43:57.670459+00:00",
+      "review_scope": "selected code sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlaify/AttackMap-mac/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a/AttackMap/ViewModels/ScanViewModel.swift",
+      "sha256": "fd2bbe767da3bab81b450868e5ce2305ebc5bee7a025d404c95a14d2978a5b3c",
+      "retrieved_utc": "2026-10-20T16:43:59.009087+00:00",
+      "review_scope": "selected code sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlaify/AttackMap-mac/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a/AttackMap/Views/ContentView.swift",
+      "sha256": "cffd1e0185c7fd17a9ce097630e3fa34cbf795159dc693397ccf4d09fac5a0ef",
+      "retrieved_utc": "2026-10-20T16:44:00.970566+00:00",
+      "review_scope": "selected code sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlaify/AttackMap-mac/5f2e8b4d84f9dff06e0f87c69c861a434981bd6a/AttackMap/Views/InventoryViews.swift",
+      "sha256": "548e0d257dc5d8609eac84598852e9c4109469989319d4743155ac7598fcc11f",
+      "retrieved_utc": "2026-10-20T16:44:03.272586+00:00",
+      "review_scope": "selected code sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/docs/ARCHITECTURE_OVERVIEW.md",
+      "sha256": "65825f806ba6695d3459c74704f2f57d0ead5e0a3d70f45a857e4db8b196f3a0",
+      "retrieved_utc": "2026-10-20T16:47:07.850917+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/docs/ANALYZER_CONTRACT.md",
+      "sha256": "0ea58c61f1b8eea50d4f5f1aacd447439c9f166d60a068967d626ec548fe11dd",
+      "retrieved_utc": "2026-10-20T16:47:08.249276+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/docs/BEHAVIOR_GUARANTEES.md",
+      "sha256": "bb00154df302fb57d49c3f43eb976685a400725e43865f87611659c6045cd91b",
+      "retrieved_utc": "2026-10-20T16:47:08.528112+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/docs/TEST_GAPS.md",
+      "sha256": "77a6f37b3e1e383720cd1a02bd0ff262c419893fa66deb2c09fb293b7b874ece",
+      "retrieved_utc": "2026-10-20T16:47:08.881880+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/docs/KNOWN_DESIGN_DEBT.md",
+      "sha256": "4533c3edb5659abfe680b377f1335abd3a6b0788f6182c0bdd381a344f863239",
+      "retrieved_utc": "2026-10-20T16:47:09.159104+00:00",
+      "review_scope": "feature and architecture documentation"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/mlaify/AttackMap/docs/DEFENDER_WORKFLOW.md",
+      "sha256": "bf33cbb98081ab081d4402d8107915e5c4c3203a678b24e3bf337a6647c10cd8",
+      "retrieved_utc": "2026-10-20T16:47:09.474912+00:00",
+      "review_scope": "feature and architecture documentation"
+    }
+  ],
+  "local_source_hashes": [
+    {
+      "path": "src/attackmap/__init__.py",
+      "sha256": "b2ae4c7dee0c0ce448af5b032fcdf042395b1a2df598d60eedcd5d8790693096"
+    },
+    {
+      "path": "src/attackmap/cli.py",
+      "sha256": "81567a0ccbba9452e03c39913cbd2c92008eaed397fad3f7f201b59989a1558a"
+    },
+    {
+      "path": "src/attackmap/run_contract.py",
+      "sha256": "246892c08dba65c97d949788246f9d84337bc6a2f755b70722b78a815dbf5057"
+    },
+    {
+      "path": "src/attackmap/desktop_worker.py",
+      "sha256": "9fd8f58ee74c0055715d758e446086834d0adc7a6df23a78275149783b6b302f"
+    },
+    {
+      "path": "src/attackmap/scan_service.py",
+      "sha256": "390d438ee9b78125c2d1a64d6f17a6b59578da6aa8096226c4e1a8d3a62bc814"
+    },
+    {
+      "path": "src/attackmap/pipeline.py",
+      "sha256": "9678f4549affb5cce4e0936612db5d51b864ae7d6ae1ff41b67c9aee300cd222"
+    },
+    {
+      "path": "src/attackmap/scanner.py",
+      "sha256": "dc56389be60dd5e2e89e64bcab32cdcbdb578c1ddca15c0c8eb831b83bc8d552"
+    },
+    {
+      "path": "src/attackmap/incremental.py",
+      "sha256": "248fee5dd1a3061a54e97f3c6dcf2bafbdc61c3df10e5458e79c4cf946b3bd12"
+    },
+    {
+      "path": "src/attackmap/exploitability.py",
+      "sha256": "cd9eec1d5e7eae794fd8c54f5c90ed0447011c827cd7f1d064681207287807c4"
+    },
+    {
+      "path": "src/attackmap/ui/server.py",
+      "sha256": "251f3a698e85c6d4c30810676b51c9eb96ba7f91d6bb1a8b70e97fac04730ba3"
+    },
+    {
+      "path": "src/attackmap/ui/watch.py",
+      "sha256": "da70cbeac6a66b792f801686e2f1c1b2fce03ac3241560c1a0eae2936cbb6830"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml",
+      "sha256": "6f11c156f2e422e8ff3fc9746c50aea9d1d20e801cd369f6fbcf84bd396c3c3d"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs",
+      "sha256": "304b009d2574355808025ef01154b17891b9601d46ec8bdf6450710069d0227b"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/NativeScanOptions.cs",
+      "sha256": "c00856b253773868d3fee35288de287b6aa18f2d6401c0a18cab8366b4a297f8"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/EngineSession.cs",
+      "sha256": "7a1058a8ff3cfaf9e11aa1ba54d55265437869a404c24094d53512a9cdf7f4ef"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ProviderSettingsView.cs",
+      "sha256": "7cbcaccba7f5880483b9d2008d955f0c9632ed9fcfd91561c755ecc9bf728ae0"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ReportAdapter.cs",
+      "sha256": "a6bc546d512742b4072aeb7e1821d454ff24819f4ecf5a45042ce21315f6e77d"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/StructureAdapter.cs",
+      "sha256": "493261417dc1c074dba594674486ba02179284e4bc45bb706c6811ac2d1f3f4c"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/OverviewAdapter.cs",
+      "sha256": "8946af4bfa93140fe9477fc358361dedc9877c426f998b1f5697a41c23821699"
+    },
+    {
+      "path": "fixtures/evaluation/corpus.json",
+      "sha256": "ef1506717bc65c49abfae9a493cd7b703527736a16ff3f6d0fef0c2bed8bf15b"
+    },
+    {
+      "path": "docs/criterion-acceptance-2026-10-17.md",
+      "sha256": "6d0c2f987146dff72680309718da0e1de586afccce1b5c348d8c536e9e96d2c1"
+    },
+    {
+      "path": "docs/resource-limits.md",
+      "sha256": "c1a976bb64722b92c6ef58c5d33688c0312bea9fa8e55decc1411b3112a22125"
+    },
+    {
+      "path": "desktop/windows/artifacts/development-packages/dev-20261019192050-b678aee2/package-manifest.json",
+      "sha256": "c0eebb067edb5814d63b9fb3b63ef98921e7c2d07493553c8b25e3fbe18d0ea4",
+      "inspection": "manifest only; payload and installed runtime not revalidated"
+    }
+  ],
+  "temporary_download_cache": ".pytest_cache/parity-audit-2026-10-20 (disposable; URLs and hashes are authoritative references)"
+}

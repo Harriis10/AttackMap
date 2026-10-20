@@ -1,0 +1,80 @@
+{
+  "task": "WP004",
+  "status": "focused_core_verification_passed_native_acceptance_root_owned",
+  "schema_decision": {
+    "current": "1.2",
+    "supported": [
+      "1.0",
+      "1.1",
+      "1.2"
+    ],
+    "legacy_options_model_unchanged": true,
+    "broker_response_schema": "echo request schema",
+    "capability_document_schema": 1,
+    "frozen_WP002_fixtures_modified": false
+  },
+  "supported_new_fields": [
+    "baseline",
+    "suppress_file",
+    "fail_on_new_high",
+    "fail_on_new_suppression",
+    "strict_suppressions",
+    "isolated_analyzers",
+    "time_budget_seconds"
+  ],
+  "unsupported_absent_features": [
+    "fleet",
+    "new AI modes",
+    "jury/effort/fast/backend tuning",
+    "incremental",
+    "memory/worker limits"
+  ],
+  "mapping_proof": {
+    "passed": 17,
+    "deselected": 10,
+    "command": ".venv/Scripts/python.exe -m pytest tests/test_desktop_options.py -q -k 'every_new_field or v12_paths or old_versions' --basetemp=.tmp-wp004-mapping-approved -p no:cacheprovider --tb=short"
+  },
+  "focused_result": {
+    "exit_code": 0,
+    "passed": 169,
+    "failed": 0,
+    "duration_seconds": 413.15,
+    "log": "pytest-focused.log",
+    "command": ".venv/Scripts/python.exe -m pytest tests/test_run_contract.py tests/test_desktop_options.py tests/test_desktop_worker.py tests/test_application_boundary.py tests/test_desktop_capabilities.py tests/test_capabilities.py tests/test_desktop_actions.py tests/test_diagnostic_adapters.py tests/test_scan_service.py -q --basetemp=docs/verification/windows-parity/WP004/pytest-tmp-approved -p no:cacheprovider --tb=short"
+  },
+  "frozen_contract": {
+    "exit_code": 0,
+    "checks": 266,
+    "log": "frozen-contract.log",
+    "manifest_sha256": "7df32d08be7f0baf1edb24950859bbda1dc97519dacec4e02900aedab1422d3a"
+  },
+  "no_live_provider_or_real_scan": true,
+  "no_package_rebuild_or_install": true,
+  "native_consumer": "Root-owned source seam observed; see native-consumer-handoff.md. This agent made no C# edits or execution claims.",
+  "limitations": [
+    "New1.2 fields are neutral core contract/service support, not native UI controls.",
+    "Python validation does not establish C#/Swift consumer execution or installed/frozen binary acceptance.",
+    "Time budget is soft between deterministic stages; existing supervisor timeout remains hard."
+  ],
+  "final_additions": {
+    "exit_code": 0,
+    "passed": 10,
+    "deselected": 36,
+    "duration_seconds": 15.91,
+    "log": "pytest-final-additions.log",
+    "command": ".venv/Scripts/python.exe -m pytest tests/test_desktop_options.py -q -k 'unwired_top_level_feature_alias or broker_echoes_request_schema' --basetemp=docs/verification/windows-parity/WP004/pytest-tmp-final-approved -p no:cacheprovider --tb=short"
+  },
+  "code_and_schema_sha256": {
+    "src/attackmap/run_contract.py": "70a7bb51575cd35f66e8d598005852b30022aa036b5f087edbc4436b560a8f9f",
+    "src/attackmap/desktop_worker.py": "4c207b0eb1d167c5bae00272566d88ccf0e52ff7f609d0a53c777e4f03024b19",
+    "src/attackmap/scan_service.py": "58d543f305e49b4b5ec1963b8a4f01260938c814ec3d07872e90ccf1409b1820",
+    "src/attackmap/desktop_capabilities.py": "5c8ebde57bf73de6c36e5d45f4e8cacdb17ff885130f09834d1bf6e2d01fa2d9",
+    "tests/test_desktop_options.py": "8bc61662cfe752fddb8bc6015e52852758acec6d02fd2e44b20e71698bf5188a",
+    "tests/test_run_contract.py": "e4db88f55b5ffa42d5c21ef6588b119b15d196f267d179b7037a5391452c60f3",
+    "tests/test_desktop_capabilities.py": "d5bfd8fb5af9f70b3e581f0d413d352523ca022b15c67c300696990a8213485b",
+    "schemas/run-request.schema.json": "e1c72895dc8d163368278d0dcac0589c629abff0f47f7f512167eb921a8e4ab0",
+    "schemas/run-progress.schema.json": "04c15ca5382d57c32d3703da04f5f01ebbf746372c9551e5da3cd13c3f7f7076",
+    "schemas/run-terminal.schema.json": "f9249c339afabc4b6a04bce42f9d18672d4f70ef8681339f3e356b1a65606815",
+    "schemas/run-manifest.schema.json": "194339c2f5e266076149fd1394daff30283d3244c82551c9f5410a12c9b861b1"
+  }
+}

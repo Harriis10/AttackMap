@@ -1,0 +1,29 @@
+{
+  "task": "WP014",
+  "scope": "Core desktop AI mapping and offline fake-provider verification",
+  "status": "CORE_IMPLEMENTED_NATIVE_AND_LIVE_PENDING",
+  "schema": {"default": "1.2", "advanced_opt_in": "1.3", "legacy_provider_bytes_preserved": true},
+  "verification": [
+    {"log": "initial.log", "passed": 112, "failed": 3, "purpose": "Exposed stale future-version assertion and generated-schema drift; corrected before checkpoint"},
+    {"log": "focused.log", "junit": "focused.xml", "passed": 389, "failed": 0, "skipped": 1, "seconds": 203.25, "scope": "Mode, options, capabilities, run-contract, service, worker, budget, hunt, citations and CLI isolation suites before final narrative extension", "skip": "Authenticated live hostile-repository CLI test requires ATTACKMAP_LIVE_CLI_TESTS=1"},
+    {"log": "final-mode.log", "junit": "final-mode.xml", "passed": 54, "failed": 1, "seconds": 109.09, "purpose": "Exposed Review-only reference validator; Remediate/Triage metadata assertion correctly failed"},
+    {"log": "citation-final.log", "junit": "citation-final.xml", "passed": 72, "failed": 0, "seconds": 143.02, "command": ".venv/Scripts/python.exe -m pytest tests/test_desktop_ai_modes.py tests/test_remediate.py tests/test_triage.py tests/test_narrative_citations.py --basetemp=docs/verification/windows-parity/WP014/citation-final-temp --junitxml=docs/verification/windows-parity/WP014/citation-final.xml -q", "scope": "Final narrow rerun after approved shared narrative predicate extension and six valid/invalid ID dispatch-budget tests"}
+  ],
+  "invariance_evidence": "matrix-evidence.json",
+  "collection_procedure": ".venv/Scripts/python.exe docs/verification/windows-parity/WP014/collect_matrix.py --temp-root docs/verification/windows-parity/WP014/citation-final-temp",
+  "access_limit": "Pytest temporary artifacts require out-of-sandbox read access due their ACL; final logs and collected summary remain separately retained",
+  "changed_paths": [
+    "src/attackmap/desktop_ai.py", "src/attackmap/provider_options.py", "src/attackmap/run_contract.py",
+    "src/attackmap/scan_service.py", "src/attackmap/pipeline.py", "src/attackmap/desktop_capabilities.py",
+    "src/attackmap/llm_review.py", "schemas/run-request.schema.json", "schemas/run-progress.schema.json",
+    "schemas/run-terminal.schema.json", "schemas/run-manifest.schema.json", "tests/test_run_contract.py",
+    "tests/test_desktop_ai_modes.py", "tests/test_narrative_citations.py", "docs/verification/windows-parity/WP014/"
+  ],
+  "preservation": "Existing WP004 and unrelated dirty changes preserved; desktop_worker.py transport reused without modification; Hunt/Hunt+verify reference semantics unchanged",
+  "not_run": ["Live HTTP provider request", "Authenticated subscription CLI", "Native UI rendering, keyboard or accessibility acceptance", "Package build, signing or publishing"],
+  "remaining": [
+    "WP015: negotiate explicit schema 1.3 and map native controls using per-schema capabilities while preserving the WP005 1.2 producer",
+    "WP016: display generation-bound mode artifacts and unavailable/fallback/partial status, uncertainty, usage and citation assessments honestly",
+    "WP017: actual authorized local LM Studio mode matrix against juice-shop with retained response and findings-invariance evidence"
+  ]
+}

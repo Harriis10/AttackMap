@@ -1,3 +1,7 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](../README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # M4 gate status — 2026-10-16 night session (final)
 
 **Baseline:** working tree at the end of the 2026-10-16 night session; final package `dev-20261016211158-6f0b8b18` (ZIP SHA256 0dc947fe…499a), installed and engine-verified. Integration regression: **3,407 passed / 6 skipped** (one release-tooling test made fixture-based after the live snapshot was superseded; 14/14 green after the fix).

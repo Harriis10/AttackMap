@@ -1,3 +1,7 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](../README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # Key Facts — AttackMap (Windows GUI)
 
 Current continuation guide: [Agent handoff — 2026-10-16](HANDOFF.md). It records the accepted Windows M3 scope, M4 follow-up, retained build/evidence and development paths after cleanup; older entries below remain historical.

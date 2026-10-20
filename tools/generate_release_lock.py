@@ -15,6 +15,7 @@ import hashlib
 import json
 import platform
 import sys
+import tomllib
 from pathlib import Path
 
 SCHEMA_VERSION = 1
@@ -77,6 +78,37 @@ def canonical_source_checksums_bytes(mapping: dict) -> bytes:
     """Byte-exact reproduction of the frozen-engine source-checksums.json format."""
     ordered = dict(sorted(mapping.items(), key=lambda item: item[0].casefold()))
     return json.dumps(ordered, indent=1).replace("\n", "\r\n").encode("utf-8")
+
+
+def release_inputs(repo: Path) -> dict:
+    """Bind desktop and packaging inputs without changing the legacy engine digest."""
+    inventory = collect_source_checksums(repo)
+    for directory in ("desktop/windows/AttackMap.NativeSpike",):
+        for path in sorted((repo / directory).rglob("*")):
+            if any(part in {"bin", "obj", "__pycache__"} for part in path.parts):
+                continue
+            if path.is_symlink():
+                raise ToolError(f"Redirected release input refused: {path}")
+            if path.is_file():
+                inventory[path.relative_to(repo).as_posix()] = sha256_file(path)
+    for name in ("tools/package_native_windows.ps1", "tools/generate_release_lock.py", "tools/generate_release_sbom.py"):
+        path = repo / name
+        if path.is_file():
+            inventory[name] = sha256_file(path)
+    project = repo / "pyproject.toml"
+    metadata = tomllib.loads(project.read_text(encoding="utf-8")) if project.is_file() else {}
+    config = metadata.get("project", {})
+    requirements = list(config.get("dependencies", []))
+    for group in config.get("optional-dependencies", {}).values():
+        requirements.extend(group)
+    analyzers = sorted({item for item in requirements if item.lower().startswith("attackmap-analyzer-")})
+    return {
+        "source_checksums_sha256": hashlib.sha256(canonical_source_checksums_bytes(collect_source_checksums(repo))).hexdigest(),
+        "release_inputs": dict(sorted(inventory.items())),
+        "release_inputs_sha256": hashlib.sha256(canonical_source_checksums_bytes(inventory)).hexdigest(),
+        "analyzer_requirements": analyzers,
+        "analyzer_requirements_sha256": hashlib.sha256(json.dumps(analyzers, separators=(",", ":")).encode()).hexdigest(),
+    }
 
 
 def _run_command(cmd, timeout=RUN_TIMEOUT_SECONDS):
@@ -147,6 +179,7 @@ def generate_lock(repo: Path, output_dir: Path, engine_venv: Path = DEFAULT_ENGI
             "source-checksums.json, so it can be compared directly with engine source_checksums_sha256 values.",
         ],
     }
+    lock.update(release_inputs(repo))
     if reference_source_checksums is not None:
         reference = Path(reference_source_checksums)
         if reference.is_file():

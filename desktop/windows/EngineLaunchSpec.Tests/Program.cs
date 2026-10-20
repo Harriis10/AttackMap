@@ -10,6 +10,8 @@ try
 {
     string python = Path.Combine(root, "python with spaces.exe"), frozen = Path.Combine(root, "AttackMap.exe"), renamed = Path.Combine(root, "renamed.exe");
     foreach (string path in new[] { python, frozen, renamed }) File.WriteAllText(path, "Fake filename fixture; never executed.");
+    File.WriteAllText(Path.Combine(root, "python313.dll"), "Static Python layout marker; never loaded.");
+    if (Environment.ProcessPath is string self) Refuse(() => new EngineLaunchSpec(self, EngineRuntimeKind.Frozen));
     string request = Path.Combine(root, "request space ü.json");
     foreach (var kind in new[] { EngineRuntimeKind.Python, EngineRuntimeKind.Frozen })
     foreach (var broker in new[] { EngineBrokerKind.Worker, EngineBrokerKind.Action })
@@ -33,6 +35,8 @@ try
     Refuse(() => new EngineLaunchSpec(python).ArgumentsFor((EngineBrokerKind)99, request));
     Refuse(() => new EngineLaunchSpec(python).ArgumentsFor(EngineBrokerKind.Worker, "relative.json"));
     Refuse(() => new EngineLaunchSpec(python).Configure(new ProcessStartInfo { Arguments = "untrusted" }, EngineBrokerKind.Worker, request));
+    File.Delete(Path.Combine(root, "python313.dll"));
+    Refuse(() => new EngineLaunchSpec(renamed, EngineRuntimeKind.Python));
     Console.WriteLine($"EngineLaunchSpec: {checks} checks passed; no executable probing or child launch.");
 }
 finally { Directory.Delete(root, recursive: true); }

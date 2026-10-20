@@ -29,7 +29,7 @@ def serve(request: RunRequest, *, control: TextIO, events: TextIO) -> int:
     output = generation_dir(output_base, request.run_id)
     from .safe_fs import ensure_output_dir
     ensure_output_dir(output, mark=True)
-    identity = dict(run_id=request.run_id, repository_id=request.repository_id,
+    identity = dict(schema_version=request.schema_version, run_id=request.run_id, repository_id=request.repository_id,
                     generation=request.generation)
 
     def diagnostic(state: str, error: str | None = None) -> None:
@@ -188,11 +188,20 @@ def run_request_file(path: Path, *, engine: bool = False) -> int:
     try:
         if path.stat().st_size > 1_000_000:
             raise ValueError("Request exceeds size limit")
-        request = RunRequest.model_validate(json.loads(path.read_text(encoding="utf-8")))
+        from .desktop_capabilities import validate_desktop_request
+        request = validate_desktop_request(json.loads(path.read_text(encoding="utf-8")))
+        if request.kind == "fleet_request":
+            from .desktop_fleet import run_engine, serve as serve_fleet, validate_roots
+            validate_roots(request)
+            return run_engine(request) if engine else serve_fleet(request, control=sys.stdin, events=sys.stdout)
         if not Path(request.repository_path).is_dir():
             raise ValueError("Repository directory does not exist")
+        for name in ("baseline", "suppress_file"):
+            configured = getattr(request.options, name, None)
+            if configured is not None and not Path(configured).is_file():
+                raise ValueError("Configured local input file is unavailable")
         if engine:
-            from .pipeline import AnalyzeOptions, run_scan
+            from .scan_service import ScanRequestError, execute_scan_request, scan_request_from_run
             from .analyzers import select_requested_analyzers
             stage_id = "select_analyzers"
             stage_started = time.perf_counter()
@@ -204,15 +213,12 @@ def run_request_file(path: Path, *, engine: bool = False) -> int:
             ledger = AiBudget(max_calls=provider.max_calls, max_seconds=provider.timeout_seconds,
                               output_token_limit=provider.output_token_limit)
             with budget_scope(ledger):
-                state = run_scan(AnalyzeOptions(repo_path=Path(request.repository_path),
-                output=Path(request.output_path), output_format="all", atomic_output=False,
-                run_id=request.run_id, progress_format="json", analyzers=selected,
-                recall=request.options.recall, strict_analyzers=request.options.strict_analyzers,
-                no_suppress=request.options.no_suppress, cve=request.options.cve,
-                secrets_history=request.options.secrets_history,
-                llm=provider.enable_ai, llm_provider=provider.provider, llm_model=provider.model,
-                llm_backend="api",
-                echo=lambda *args, **kwargs: None))
+                try:
+                    service_request = scan_request_from_run(request, echo=lambda *args, **kwargs: None)
+                    service_request.analyzers = selected
+                    state = execute_scan_request(service_request)
+                except ScanRequestError:
+                    raise ValueError("Desktop application request failed validation") from None
             return state.exit_code
         return serve(request, control=sys.stdin, events=sys.stdout)
     except (OSError, ValueError):
@@ -230,7 +236,7 @@ def run_request_file(path: Path, *, engine: bool = False) -> int:
             except (OSError, ValueError):
                 pass
         if request is not None and not engine:
-            terminal = RunTerminal(run_id=request.run_id, repository_id=request.repository_id,
+            terminal = RunTerminal(schema_version=request.schema_version, run_id=request.run_id, repository_id=request.repository_id,
                 generation=request.generation, revision=request.revision + 1,
                 state="failed", execution_outcome="failed", error=error)
             print(terminal.model_dump_json(), flush=True)

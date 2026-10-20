@@ -1,0 +1,17 @@
+{
+  "scope": "read-only preflight; no product package/install mutations",
+  "packaging_script_sha256": "d33c95b088a75d13d1c2594ed8525fd5564d128cdbd7a129d850775bd4e08299",
+  "focused_release_tests": {
+    "passed": 21,
+    "seconds": 24.98,
+    "tests": [
+      "tests/test_release_tooling.py",
+      "tests/test_windows_release.py"
+    ]
+  },
+  "engine_launch_harness": {
+    "exit_code": 1,
+    "failure": "Python-kind renamed.exe fixture lacks Python installation marker; EngineLaunchSpec.cs:36 / Program.cs:17"
+  },
+  "initial_installer_entry_cli_help": "30 second timeout; no pass claim"
+}

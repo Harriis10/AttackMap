@@ -21,7 +21,7 @@ class ActionRequest(BaseModel):
     model_config = ConfigDict(strict=True, extra="forbid")
     schema_version: Literal["1.1"] = "1.1"
     request_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
-    operation: Literal["compare", "suppression_preview", "suppression_apply", "suppression_undo", "suppression_recover",
+    operation: Literal["capabilities", "preflight", "compare", "suppression_preview", "suppression_apply", "suppression_undo", "suppression_recover",
                        "provider_save", "provider_check",
                        "pin_generation", "unpin_generation", "diagnostics_preview", "diagnostics_export"]
     output_path: str = Field(min_length=1)
@@ -30,6 +30,16 @@ class ActionRequest(BaseModel):
 
 def execute_action(request: ActionRequest) -> dict:
     payload = request.payload
+    if request.operation in {"capabilities", "preflight"}:
+        from .cli import app
+        from .desktop_capabilities import build_capabilities, preflight_capabilities
+        if set(payload) - ({"request", "expected_identity"} if request.operation == "preflight" else set()):
+            raise ValueError("Unsupported capability action payload")
+        capabilities = build_capabilities(app)
+        if request.operation == "capabilities":
+            return capabilities
+        return preflight_capabilities(capabilities, request=payload.get("request"),
+                                      expected_identity=payload.get("expected_identity"))
     if request.operation == "compare":
         from .comparison import compare_report_files
         return compare_report_files(Path(payload["baseline_path"]), Path(payload["current_path"]))

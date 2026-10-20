@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.2",
+  "run_id": "wp004-synthetic",
+  "repository_id": "opaque-repository-id",
+  "generation": 2,
+  "revision": 0,
+  "kind": "request",
+  "repository_path": "C:/parity/repository",
+  "output_path": "C:/parity/reports",
+  "modules": [],
+  "options": {
+    "recall": false,
+    "strict_analyzers": false,
+    "no_suppress": false,
+    "cve": false,
+    "secrets_history": 0,
+    "timeout_seconds": 600,
+    "provider": {
+      "enable_ai": false,
+      "provider": "openai",
+      "endpoint": "http://127.0.0.1:1234/v1",
+      "model": "cyberstag-security-26b-a4b-v1",
+      "max_calls": 8,
+      "timeout_seconds": 600,
+      "output_token_limit": 32000
+    },
+    "baseline": null,
+    "suppress_file": null,
+    "fail_on_new_high": false,
+    "fail_on_new_suppression": false,
+    "strict_suppressions": false,
+    "isolated_analyzers": false,
+    "time_budget_seconds": null
+  }
+}
