@@ -1,0 +1,276 @@
+{
+  "version": "1",
+  "pip_version": "26.2.1",
+  "installed": [
+    {
+      "metadata": {
+        "metadata_version": "2.1",
+        "name": "altgraph",
+        "version": "0.17.5",
+        "platform": [
+          "any"
+        ],
+        "summary": "Python graph (network) package",
+        "description": "altgraph is a fork of graphlib: a graph (network) package for constructing\ngraphs, BFS and DFS traversals, topological sort, shortest paths, etc. with\ngraphviz output.\n\naltgraph includes some additional usage of Python 2.6+ features and\nenhancements related to modulegraph and macholib.\n\nProject links\n-------------\n\n* `Documentation <https://altgraph.readthedocs.io/en/latest/>`_\n\n* `Issue Tracker <https://github.com/ronaldoussoren/altgraph/issues>`_\n\n* `Repository <https://github.com/ronaldoussoren/altgraph/>`_\n\n\nRelease history\n===============\n\n0.17.5\n------\n\n* Update classifiers for Python 3.13 and 3.14\n\n* Drop dependency on \"pkg_resources\"\n\n0.17.4\n------\n\n* Update classifiers for Python 3.12\n\n0.17.3\n------\n\n* Update classifiers for Python 3.11\n\n0.17.2\n------\n\n* Change in setup.py to fix the sidebar links on PyPI\n\n0.17.1\n------\n\n* Explicitly mark Python 3.10 as supported in wheel metadata.\n\n0.17\n----\n\n* Explicitly mark Python 3.8 as supported in wheel metadata.\n\n* Migrate from Bitbucket to GitHub\n\n* Run black on the entire repository\n\n0.16.1\n------\n\n* Explicitly mark Python 3.7 as supported in wheel metadata.\n\n0.16\n----\n\n* Add LICENSE file\n\n0.15\n----\n\n* ``ObjectGraph.get_edges``, ``ObjectGraph.getEdgeData`` and ``ObjectGraph.updateEdgeData``\n  accept *None* as the node to get and treat this as an alias for *self* (as other\n  methods already did).\n\n0.14\n----\n\n- Issue #7: Remove use of ``iteritems`` in altgraph.GraphAlgo code\n\n0.13\n----\n\n- Issue #4: Graph._bfs_subgraph and back_bfs_subgraph return subgraphs with reversed edges\n\n  Fix by \"pombredanne\" on bitbucket.\n\n\n0.12\n----\n\n- Added ``ObjectGraph.edgeData`` to retrieve the edge data\n  from a specific edge.\n\n- Added ``AltGraph.update_edge_data`` and ``ObjectGraph.updateEdgeData``\n  to update the data associated with a graph edge.\n\n0.11\n----\n\n- Stabilize the order of elements in dot file exports,\n  patch from bitbucket user 'pombredanne'.\n\n- Tweak setup.py file to remove dependency on distribute (but\n  keep the dependency on setuptools)\n\n\n0.10.2\n------\n\n- There where no classifiers in the package metadata due to a bug\n  in setup.py\n\n0.10.1\n------\n\nThis is a bugfix release\n\nBug fixes:\n\n- Issue #3: The source archive contains a README.txt\n  while the setup file refers to ReadMe.txt.\n\n  This is caused by a misfeature in distutils, as a\n  workaround I've renamed ReadMe.txt to README.txt\n  in the source tree and setup file.\n\n\n0.10\n-----\n\nThis is a minor feature release\n\nFeatures:\n\n- Do not use \"2to3\" to support Python 3.\n\n  As a side effect of this altgraph now supports\n  Python 2.6 and later, and no longer supports\n  earlier releases of Python.\n\n- The order of attributes in the Dot output\n  is now always alphabetical.\n\n  With this change the output will be consistent\n  between runs and Python versions.\n\n0.9\n---\n\nThis is a minor bugfix release\n\nFeatures:\n\n- Added ``altgraph.ObjectGraph.ObjectGraph.nodes``, a method\n  yielding all nodes in an object graph.\n\nBugfixes:\n\n- The 0.8 release didn't work with py2app when using\n  python 3.x.\n\n\n0.8\n-----\n\nThis is a minor feature release. The major new feature\nis a extensive set of unittests, which explains almost\nall other changes in this release.\n\nBugfixes:\n\n- Installing failed with Python 2.5 due to using a distutils\n  class that isn't available in that version of Python\n  (issue #1 on the issue tracker)\n\n- ``altgraph.GraphStat.degree_dist`` now actually works\n\n- ``altgraph.Graph.add_edge(a, b, create_nodes=False)`` will\n  no longer create the edge when one of the nodes doesn't\n  exist.\n\n- ``altgraph.Graph.forw_topo_sort`` failed for some sparse graphs.\n\n- ``altgraph.Graph.back_topo_sort`` was completely broken in\n  previous releases.\n\n- ``altgraph.Graph.forw_bfs_subgraph`` now actually works.\n\n- ``altgraph.Graph.back_bfs_subgraph`` now actually works.\n\n- ``altgraph.Graph.iterdfs`` now returns the correct result\n  when the ``forward`` argument is ``False``.\n\n- ``altgraph.Graph.iterdata`` now returns the correct result\n  when the ``forward`` argument is ``False``.\n\n\nFeatures:\n\n- The ``altgraph.Graph`` constructor now accepts an argument\n  that contains 2- and 3-tuples instead of requireing that\n  all items have the same size. The (optional) argument can now\n  also be any iterator.\n\n- ``altgraph.Graph.Graph.add_node`` has no effect when you\n  add a hidden node.\n\n- The private method ``altgraph.Graph._bfs`` is no longer\n  present.\n\n- The private method ``altgraph.Graph._dfs`` is no longer\n  present.\n\n- ``altgraph.ObjectGraph`` now has a ``__contains__`` methods,\n  which means you can use the ``in`` operator to check if a\n  node is part of a graph.\n\n- ``altgraph.GraphUtil.generate_random_graph`` will raise\n  ``GraphError`` instead of looping forever when it is\n  impossible to create the requested graph.\n\n- ``altgraph.Dot.edge_style`` raises ``GraphError`` when\n  one of the nodes is not present in the graph. The method\n  silently added the tail in the past, but without ensuring\n  a consistent graph state.\n\n- ``altgraph.Dot.save_img`` now works when the mode is\n  ``\"neato\"``.\n\n0.7.2\n-----\n\nThis is a minor bugfix release\n\nBugfixes:\n\n- distutils didn't include the documentation subtree\n\n0.7.1\n-----\n\nThis is a minor feature release\n\nFeatures:\n\n- Documentation is now generated using `sphinx <http://pypi.python.org/pypi/sphinx>`_\n  and can be viewed at <http://packages.python.org/altgraph>.\n\n- The repository has moved to bitbucket\n\n- ``altgraph.GraphStat.avg_hops`` is no longer present, the function had no\n  implementation and no specified behaviour.\n\n- the module ``altgraph.compat`` is gone, which means altgraph will no\n  longer work with Python 2.3.\n\n\n0.7.0\n-----\n\nThis is a minor feature release.\n\nFeatures:\n\n- Support for Python 3\n\n- It is now possible to run tests using 'python setup.py test'\n\n  (The actual testsuite is still very minimal though)\n",
+        "description_content_type": "text/x-rst; charset=UTF-8",
+        "keywords": [
+          "graph"
+        ],
+        "home_page": "https://altgraph.readthedocs.io",
+        "download_url": "http://pypi.python.org/pypi/altgraph",
+        "author": "Ronald Oussoren",
+        "author_email": "ronaldoussoren@mac.com",
+        "maintainer": "Ronald Oussoren",
+        "maintainer_email": "ronaldoussoren@mac.com",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Intended Audience :: Developers",
+          "License :: OSI Approved :: MIT License",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.4",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.8",
+          "Programming Language :: Python :: 3.9",
+          "Programming Language :: Python :: 3.10",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3.14",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+          "Topic :: Scientific/Engineering :: Mathematics",
+          "Topic :: Scientific/Engineering :: Visualization"
+        ],
+        "project_url": [
+          "Documentation, https://altgraph.readthedocs.io/en/latest/",
+          "Issue tracker, https://github.com/ronaldoussoren/altgraph/issues",
+          "Repository, https://github.com/ronaldoussoren/altgraph"
+        ]
+      },
+      "metadata_location": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\altgraph-0.17.5.dist-info",
+      "installer": "pip",
+      "requested": false
+    },
+    {
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "annotated-doc",
+        "version": "0.0.5",
+        "summary": "Document parameters, class attributes, return types, and variables inline, with Annotated.",
+        "description": "# Annotated Doc\n\nDocument parameters, class attributes, return types, and variables inline, with `Annotated`.\n\n<a href=\"https://github.com/fastapi/annotated-doc/actions?query=workflow%3ATest+event%3Apush+branch%3Amain\" target=\"_blank\">\n    <img src=\"https://github.com/fastapi/annotated-doc/actions/workflows/test.yml/badge.svg?event=push&branch=main\" alt=\"Test\">\n</a>\n<a href=\"https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/annotated-doc\" target=\"_blank\">\n    <img src=\"https://coverage-badge.samuelcolvin.workers.dev/fastapi/annotated-doc.svg\" alt=\"Coverage\">\n</a>\n<a href=\"https://pypi.org/project/annotated-doc\" target=\"_blank\">\n    <img src=\"https://img.shields.io/pypi/v/annotated-doc?color=%2334D058&label=pypi%20package\" alt=\"Package version\">\n</a>\n<a href=\"https://pypi.org/project/annotated-doc\" target=\"_blank\">\n    <img src=\"https://img.shields.io/pypi/pyversions/annotated-doc.svg?color=%2334D058\" alt=\"Supported Python versions\">\n</a>\n\n## Installation\n\n```bash\npip install annotated-doc\n```\n\nOr with `uv`:\n\n```Python\nuv add annotated-doc\n```\n\n## Usage\n\nImport `Doc` and pass a single literal string with the documentation for the specific parameter, class attribute, return type, or variable.\n\nFor example, to document a parameter `name` in a function `hi` you could do:\n\n```Python\nfrom typing import Annotated\n\nfrom annotated_doc import Doc\n\ndef hi(name: Annotated[str, Doc(\"Who to say hi to\")]) -> None:\n    print(f\"Hi, {name}!\")\n```\n\nYou can also use it to document class attributes:\n\n```Python\nfrom typing import Annotated\n\nfrom annotated_doc import Doc\n\nclass User:\n    name: Annotated[str, Doc(\"The user's name\")]\n    age: Annotated[int, Doc(\"The user's age\")]\n```\n\nThe same way, you could document return types and variables, or anything that could have a type annotation with `Annotated`.\n\n## Who Uses This\n\n`annotated-doc` was made for:\n\n* [FastAPI](https://fastapi.tiangolo.com/)\n* [Typer](https://typer.tiangolo.com/)\n* [SQLModel](https://sqlmodel.tiangolo.com/)\n* [Asyncer](https://asyncer.tiangolo.com/)\n\n`annotated-doc` is supported by [griffe-typingdoc](https://github.com/mkdocstrings/griffe-typingdoc), which powers reference documentation like the one in the [FastAPI Reference](https://fastapi.tiangolo.com/reference/).\n\n## Reasons not to use `annotated-doc`\n\nYou are already comfortable with one of the existing docstring formats, like:\n\n* Sphinx\n* numpydoc\n* Google\n* Keras\n\nYour team is already comfortable using them.\n\nYou prefer having the documentation about parameters all together in a docstring, separated from the code defining them.\n\nYou care about a specific set of users, using one specific editor, and that editor already has support for the specific docstring format you use.\n\n## Reasons to use `annotated-doc`\n\n* No micro-syntax to learn for newcomers, it�s **just Python** syntax.\n* **Editing** would be already fully supported by default by any editor (current or future) supporting Python syntax, including syntax errors, syntax highlighting, etc.\n* **Rendering** would be relatively straightforward to implement by static tools (tools that don't need runtime execution), as the information can be extracted from the AST they normally already create.\n* **Deduplication of information**: the name of a parameter would be defined in a single place, not duplicated inside of a docstring.\n* **Elimination** of the possibility of having **inconsistencies** when removing a parameter or class variable and **forgetting to remove** its documentation.\n* **Minimization** of the probability of adding a new parameter or class variable and **forgetting to add its documentation**.\n* **Elimination** of the possibility of having **inconsistencies** between the **name** of a parameter in the **signature** and the name in the docstring when it is renamed.\n* **Access** to the documentation string for each symbol at **runtime**, including existing (older) Python versions.\n* A more formalized way to document other symbols, like type aliases, that could use Annotated.\n* **Support** for apps using FastAPI, Typer and others.\n* **AI Accessibility**: AI tools will have an easier way understanding each parameter as the distance from documentation to parameter is much closer.\n\n## History\n\nI ([@tiangolo](https://github.com/tiangolo)) originally wanted for this to be part of the Python standard library (in [PEP 727](https://peps.python.org/pep-0727/)), but the proposal was withdrawn as there was a fair amount of negative feedback and opposition.\n\nThe conclusion was that this was better done as an external effort, in a third-party library.\n\nSo, here it is, with a simpler approach, as a third-party library, in a way that can be used by others, starting with FastAPI and friends.\n\n## License\n\nThis project is licensed under the terms of the MIT license.\n",
+        "description_content_type": "text/markdown",
+        "author_email": "=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?= <tiangolo@gmail.com>",
+        "license_expression": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python",
+          "Topic :: Internet",
+          "Topic :: Software Development :: Libraries :: Application Frameworks",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+          "Topic :: Software Development :: Libraries",
+          "Topic :: Software Development",
+          "Typing :: Typed",
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Programming Language :: Python :: 3 :: Only",
+          "Programming Language :: Python :: 3.9",
+          "Programming Language :: Python :: 3.10",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3.14"
+        ],
+        "requires_python": ">=3.9",
+        "project_url": [
+          "Homepage, https://github.com/fastapi/annotated-doc",
+          "Documentation, https://github.com/fastapi/annotated-doc",
+          "Repository, https://github.com/fastapi/annotated-doc",
+          "Issues, https://github.com/fastapi/annotated-doc/issues",
+          "Changelog, https://github.com/fastapi/annotated-doc/release-notes.md"
+        ]
+      },
+      "metadata_location": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\annotated_doc-0.0.5.dist-info",
+      "installer": "pip",
+      "requested": false
+    },
+    {
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "annotated-types",
+        "version": "0.8.0",
+        "summary": "Reusable constraint types to use with typing.Annotated",
+        "description": "# annotated-types\n\n[![CI](https://github.com/annotated-types/annotated-types/workflows/CI/badge.svg?event=push)](https://github.com/annotated-types/annotated-types/actions?query=event%3Apush+branch%3Amain+workflow%3ACI)\n[![pypi](https://img.shields.io/pypi/v/annotated-types.svg)](https://pypi.python.org/pypi/annotated-types)\n[![versions](https://img.shields.io/pypi/pyversions/annotated-types.svg)](https://github.com/annotated-types/annotated-types)\n[![license](https://img.shields.io/github/license/annotated-types/annotated-types.svg)](https://github.com/annotated-types/annotated-types/blob/main/LICENSE)\n\n[PEP-593](https://peps.python.org/pep-0593/) added `typing.Annotated` as a way of\nadding context-specific metadata to existing types, and specifies that\n`Annotated[T, x]` _should_ be treated as `T` by any tool or library without special\nlogic for `x`.\n\nThis package provides metadata objects which can be used to represent common\nconstraints such as upper and lower bounds on scalar values and collection sizes,\na `Predicate` marker for runtime checks, and\ndescriptions of how we intend these metadata to be interpreted. In some cases,\nwe also note alternative representations which do not require this package.\n\n## Install\n\n```bash\npip install annotated-types\n```\n\n## Examples\n\n```python\nfrom typing import Annotated\nfrom annotated_types import Gt, Len, Predicate\n\nclass MyClass:\n    age: Annotated[int, Gt(18)]                         # Valid: 19, 20, ...\n                                                        # Invalid: 17, 18, \"19\", 19.0, ...\n    factors: list[Annotated[int, Predicate(is_prime)]]  # Valid: 2, 3, 5, 7, 11, ...\n                                                        # Invalid: 4, 8, -2, 5.0, \"prime\", ...\n\n    my_list: Annotated[list[int], Len(0, 10)]           # Valid: [], [10, 20, 30, 40, 50]\n                                                        # Invalid: (1, 2), [\"abc\"], [0] * 20\n```\n\n## Documentation\n\n_While `annotated-types` avoids runtime checks for performance, users should not\nconstruct invalid combinations such as `MultipleOf(\"non-numeric\")` or `Annotated[int, Len(3)]`.\nDownstream implementors may choose to raise an error, emit a warning, silently ignore\na metadata item, etc., if the metadata objects described below are used with an\nincompatible type - or for any other reason!_\n\n### Gt, Ge, Lt, Le\n\nExpress inclusive and/or exclusive bounds on orderable values - which may be numbers,\ndates, times, strings, sets, etc. Note that the boundary value need not be of the\nsame type that was annotated, so long as they can be compared: `Annotated[int, Gt(1.5)]`\nis fine, for example, and implies that the value is an integer x such that `x > 1.5`.\n\nWe suggest that implementors may also interpret `functools.partial(operator.le, 1.5)`\nas being equivalent to `Gt(1.5)`, for users who wish to avoid a runtime dependency on\nthe `annotated-types` package.\n\nTo be explicit, these types have the following meanings:\n\n* `Gt(x)` - value must be \"Greater Than\" `x` - equivalent to exclusive minimum\n* `Ge(x)` - value must be \"Greater than or Equal\" to `x` - equivalent to inclusive minimum\n* `Lt(x)` - value must be \"Less Than\" `x` - equivalent to exclusive maximum\n* `Le(x)` - value must be \"Less than or Equal\" to `x` - equivalent to inclusive maximum\n\n### Interval\n\n`Interval(gt, ge, lt, le)` allows you to specify an upper and lower bound with a single\nmetadata object. `None` attributes should be ignored, and non-`None` attributes\ntreated as per the single bounds above.\n\n### MultipleOf\n\n`MultipleOf(multiple_of=x)` might be interpreted in two ways:\n\n1. Python semantics, implying `value % multiple_of == 0`, or\n2. [JSONschema semantics](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.2.1),\n   where `int(value / multiple_of) == value / multiple_of`.\n\nWe encourage users to be aware of these two common interpretations and their\ndistinct behaviours, especially since very large or non-integer numbers make\nit easy to cause silent data corruption due to floating-point imprecision.\n\nWe encourage libraries to carefully document which interpretation they implement.\n\n### MinLen, MaxLen, Len\n\n`Len()` implies that `min_length <= len(value) <= max_length` - lower and upper bounds are inclusive.\n\nAs well as `Len()` which can optionally include upper and lower bounds, we also\nprovide `MinLen(x)` and `MaxLen(y)` which are equivalent to `Len(min_length=x)`\nand `Len(max_length=y)` respectively.\n\n`Len`, `MinLen`, and `MaxLen` may be used with any type which supports `len(value)`.\n\nExamples of usage:\n\n* `Annotated[list, MaxLen(10)]` (or `Annotated[list, Len(max_length=10)]`) - list must have a length of 10 or less\n* `Annotated[str, MaxLen(10)]` - string must have a length of 10 or less\n* `Annotated[list, MinLen(3)]` (or `Annotated[list, Len(min_length=3)]`) - list must have a length of 3 or more\n* `Annotated[list, Len(4, 6)]` - list must have a length of 4, 5, or 6\n* `Annotated[list, Len(8, 8)]` - list must have a length of exactly 8\n\n#### Changed in v0.4.0\n\n* `min_inclusive` has been renamed to `min_length`, no change in meaning\n* `max_exclusive` has been renamed to `max_length`, upper bound is now **inclusive** instead of **exclusive**\n* The recommendation that slices are interpreted as `Len` has been removed due to ambiguity and different semantic\n  meaning of the upper bound in slices vs. `Len`\n\nSee [issue #23](https://github.com/annotated-types/annotated-types/issues/23) for discussion.\n\n### Timezone\n\n`Timezone` can be used with a `datetime` or a `time` to express which timezones\nare allowed. `Annotated[datetime, Timezone(None)]` must be a naive datetime.\n`Timezone[...]` ([literal ellipsis](https://docs.python.org/3/library/constants.html#Ellipsis))\nexpresses that any timezone-aware datetime is allowed. You may also pass a specific\ntimezone string or [`tzinfo`](https://docs.python.org/3/library/datetime.html#tzinfo-objects)\nobject such as `Timezone(timezone.utc)` or `Timezone(\"Africa/Abidjan\")` to express that you only\nallow a specific timezone, though we note that this is often a symptom of fragile design.\n\n#### Changed in v0.x.x\n\n* `Timezone` accepts [`tzinfo`](https://docs.python.org/3/library/datetime.html#tzinfo-objects) objects instead of\n  `timezone`, extending compatibility to [`zoneinfo`](https://docs.python.org/3/library/zoneinfo.html) and third party libraries.\n\n### Unit\n\n`Unit(unit: str)` expresses that the annotated numeric value is the magnitude of\na quantity with the specified unit. For example, `Annotated[float, Unit(\"m/s\")]`\nwould be a float representing a velocity in meters per second.\n\nPlease note that `annotated_types` itself makes no attempt to parse or validate\nthe unit string in any way. That is left entirely to downstream libraries,\nsuch as [`pint`](https://pint.readthedocs.io) or\n[`astropy.units`](https://docs.astropy.org/en/stable/units/).\n\nAn example of how a library might use this metadata:\n\n```python\nfrom annotated_types import Unit\nfrom typing import Annotated, TypeVar, Callable, Any, get_origin, get_args\n\n# given a type annotated with a unit:\nMeters = Annotated[float, Unit(\"m\")]\n\n\n# you can cast the annotation to a specific unit type with any\n# callable that accepts a string and returns the desired type\nT = TypeVar(\"T\")\ndef cast_unit(tp: Any, unit_cls: Callable[[str], T]) -> T | None:\n    if get_origin(tp) is Annotated:\n        for arg in get_args(tp):\n            if isinstance(arg, Unit):\n                return unit_cls(arg.unit)\n    return None\n\n\n# using `pint`\nimport pint\npint_unit = cast_unit(Meters, pint.Unit)\n\n\n# using `astropy.units`\nimport astropy.units as u\nastropy_unit = cast_unit(Meters, u.Unit)\n```\n\n### Predicate\n\n`Predicate(func: Callable)` expresses that `func(value)` is truthy for valid values.\nUsers should prefer the statically inspectable metadata above, but if you need\nthe full power and flexibility of arbitrary runtime predicates... here it is.\n\nFor some common constraints, we provide generic types:\n\n* `LowerCase     = Annotated[T, Predicate(str.islower)]`\n* `UpperCase     = Annotated[T, Predicate(str.isupper)]`\n* `IsDigit       = Annotated[T, Predicate(str.isdigit)]`\n* `IsFinite      = Annotated[T, Predicate(math.isfinite)]`\n* `IsNotFinite   = Annotated[T, Predicate(Not(math.isfinite))]`\n* `IsNan         = Annotated[T, Predicate(math.isnan)]`\n* `IsNotNan      = Annotated[T, Predicate(Not(math.isnan))]`\n* `IsInfinite    = Annotated[T, Predicate(math.isinf)]`\n* `IsNotInfinite = Annotated[T, Predicate(Not(math.isinf))]`\n\nso that you can write e.g. `x: IsFinite[float] = 2.0` instead of the longer\n(but exactly equivalent) `x: Annotated[float, Predicate(math.isfinite)] = 2.0`.\n\nSome libraries might have special logic to handle known or understandable predicates,\nfor example by checking for `str.isdigit` and using its presence to both call custom\nlogic to enforce digit-only strings, and customise some generated external schema.\nUsers are therefore encouraged to avoid indirection like `lambda s: s.lower()`, in\nfavor of introspectable methods such as `str.lower` or `re.compile(\"pattern\").search`.\n\nTo enable basic negation of commonly used predicates like `math.isnan` without introducing introspection that makes it impossible for implementers to introspect the predicate we provide a `Not` wrapper that simply negates the predicate in an introspectable manner. Several of the predicates listed above are created in this manner.\n\nWe do not specify what behaviour should be expected for predicates that raise\nan exception.  For example `Annotated[int, Predicate(str.isdigit)]` might silently\nskip invalid constraints, or statically raise an error; or it might try calling it\nand then propagate or discard the resulting\n`TypeError: descriptor 'isdigit' for 'str' objects doesn't apply to a 'int' object`\nexception.  We encourage libraries to document the behaviour they choose.\n\n### Doc\n\n`doc()` can be used to add documentation information in `Annotated`, for function and method parameters, variables, class attributes, return types, and any place where `Annotated` can be used.\n\nIt expects a value that can be statically analyzed, as the main use case is for static analysis, editors, documentation generators, and similar tools.\n\nIt returns a `DocInfo` class with a single attribute `documentation` containing the value passed to `doc()`.\n\nThis is the early adopter's alternative form of the [`typing-doc` proposal](https://github.com/tiangolo/fastapi/blob/typing-doc/typing_doc.md).\n\n### Integrating downstream types with `GroupedMetadata`\n\nImplementers may choose to provide a convenience wrapper that groups multiple pieces of metadata.\nThis can help reduce verbosity and cognitive overhead for users.\nFor example, an implementer like Pydantic might provide a `Field` or `Meta` type that accepts keyword arguments and transforms these into low-level metadata:\n\n```python\nfrom dataclasses import dataclass\nfrom typing import Iterator\nfrom annotated_types import GroupedMetadata, Ge\n\n@dataclass\nclass Field(GroupedMetadata):\n    ge: int | None = None\n    description: str | None = None\n\n    def __iter__(self) -> Iterator[object]:\n        # Iterating over a GroupedMetadata object should yield annotated-types\n        # constraint metadata objects which describe it as fully as possible,\n        # and may include other unknown objects too.\n        if self.ge is not None:\n            yield Ge(self.ge)\n        if self.description is not None:\n            yield Description(self.description)\n```\n\nLibraries consuming annotated-types constraints should check for `GroupedMetadata` and unpack it by iterating over the object and treating the results as if they had been \"unpacked\" in the `Annotated` type.  The same logic should be applied to the [PEP 646 `Unpack` type](https://peps.python.org/pep-0646/), so that `Annotated[T, Field(...)]`, `Annotated[T, Unpack[Field(...)]]` and `Annotated[T, *Field(...)]` are all treated consistently.\n\nLibraries consuming annotated-types should also ignore any metadata they do not recongize that came from unpacking a `GroupedMetadata`, just like they ignore unrecognized metadata in `Annotated` itself.\n\nOur own `annotated_types.Interval` class is a `GroupedMetadata` which unpacks itself into `Gt`, `Lt`, etc., so this is not an abstract concern.  Similarly, `annotated_types.Len` is a `GroupedMetadata` which unpacks itself into `MinLen` (optionally) and `MaxLen`.\n\n### Consuming metadata\n\nWe intend to not be prescriptive as to _how_ the metadata and constraints are used, but as an example of how one might parse constraints from types annotations see our [implementation in `test_main.py`](https://github.com/annotated-types/annotated-types/blob/f59cf6d1b5255a0fe359b93896759a180bec30ae/tests/test_main.py#L94-L103).\n\nIt is up to the implementer to determine how this metadata is used.\nYou could use the metadata for runtime type checking, for generating schemas or to generate example data, amongst other use cases.\n\n## Design & History\n\nThis package was designed at the PyCon 2022 sprints by the maintainers of Pydantic\nand Hypothesis, with the goal of making it as easy as possible for end-users to\nprovide more informative annotations for use by runtime libraries.\n\nIt is deliberately minimal, and following PEP-593 allows considerable downstream\ndiscretion in what (if anything!) they choose to support. Nonetheless, we expect\nthat staying simple and covering _only_ the most common use-cases will give users\nand maintainers the best experience we can. If you'd like more constraints for your\ntypes - follow our lead, by defining them and documenting them downstream!\n",
+        "description_content_type": "text/markdown",
+        "author_email": "Adrian Garcia Badaracco <1755071+adriangb@users.noreply.github.com>, Samuel Colvin <s@muelcolvin.com>, Zac Hatfield-Dodds <zac@zhd.dev>",
+        "license_expression": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Environment :: Console",
+          "Environment :: MacOS X",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: POSIX :: Linux",
+          "Operating System :: Unix",
+          "Programming Language :: Python :: 3 :: Only",
+          "Programming Language :: Python :: 3.10",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3.14",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+          "Typing :: Typed"
+        ],
+        "requires_python": ">=3.10",
+        "project_url": [
+          "Homepage, https://github.com/annotated-types/annotated-types",
+          "Source, https://github.com/annotated-types/annotated-types",
+          "Changelog, https://github.com/annotated-types/annotated-types/releases"
+        ]
+      },
+      "metadata_location": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\annotated_types-0.8.0.dist-info",
+      "installer": "pip",
+      "requested": false
+    },
+    {
+      "metadata": {
+        "metadata_version": "2.3",
+        "name": "anthropic",
+        "version": "1.17.0",
+        "summary": "The official Python library for the anthropic API",
+        "description": "# Claude SDK for Python\n\n[![PyPI version](https://img.shields.io/pypi/v/anthropic.svg)](https://pypi.org/project/anthropic/)\n\nThe Claude SDK for Python provides access to the [Claude API](https://docs.anthropic.com/en/api/) from Python applications.\n\n## Documentation\n\nTool helpers (`@beta_tool`, the tool runner and `ToolError`) are documented in [tools.md](https://github.com/anthropics/anthropic-sdk-python/tree/main/tools.md). The browser and computer toolset classes have their own guides, [browser-toolset.md](https://github.com/anthropics/anthropic-sdk-python/tree/main/browser-toolset.md) and [computer-toolset.md](https://github.com/anthropics/anthropic-sdk-python/tree/main/computer-toolset.md).\n\nFull documentation is available at **[platform.claude.com/docs/en/api/sdks/python](https://platform.claude.com/docs/en/api/sdks/python)**.\n\n## Installation\n\n```sh\npip install anthropic\n```\n\nUpgrading from a `0.x` release? See the [v1 migration guide](https://github.com/anthropics/anthropic-sdk-python/tree/main/MIGRATION.md).\n\n## Getting started\n\n```python\nimport os\nfrom anthropic import Anthropic\n\nclient = Anthropic(\n    api_key=os.environ.get(\"ANTHROPIC_API_KEY\"),  # This is the default and can be omitted\n)\n\nmessage = client.messages.create(\n    max_tokens=1024,\n    messages=[\n        {\n            \"role\": \"user\",\n            \"content\": \"Hello, Claude\",\n        }\n    ],\n\n    model=\"claude-opus-5-5\",\n)\n\nprint(message.content)\n```\n\n\n## OpenTelemetry\n\nThe SDK reports each API call as an OpenTelemetry span when your application has registered a tracer provider.\nIt depends on `opentelemetry-api`, a required dependency, and never on an OpenTelemetry SDK.\n\n```python\n# a provider other than the registered one\nclient = Anthropic(open_telemetry={\"tracer_provider\": tracer_provider})\n# no spans\nquiet = Anthropic(open_telemetry=False)\n# adds prompts and completions\nverbose = Anthropic(open_telemetry={\"traces\": {\"content_mode\": \"content\"}})\n# keeps the content of one span within this size\nbounded = Anthropic(\n    open_telemetry={\"traces\": {\"content_mode\": \"content\", \"max_content_bytes\": 65_536}}\n)\n# sends no trace context headers, for an application whose HTTP client instrumentation already sends them, so that\n# a request does not carry them twice\nunpropagated = Anthropic(open_telemetry={\"propagation\": False})\n\n# sets gen_ai.conversation.id on the spans of one conversation's requests. with_options replaces the whole option,\n# so start from client.open_telemetry, which has the client's\nconversation = client.with_options(\n    open_telemetry={**client.open_telemetry, \"conversation_id\": conversation_id}\n)\nconversation.messages.create(...)\n```\n\nA client that is given no `open_telemetry` option reads these environment variables when it is constructed: `ANTHROPIC_OPEN_TELEMETRY=false` turns its spans off, `ANTHROPIC_OPEN_TELEMETRY_TRACES_CONTENT_MODE=content` adds prompts and completions, `ANTHROPIC_OPEN_TELEMETRY_TRACES_MAX_CONTENT_BYTES` sets `max_content_bytes`, and `ANTHROPIC_OPEN_TELEMETRY_PROPAGATION=false` sends no trace context headers.\nA client that is given the option, even `{}` or a `tracer_provider` alone, reads none of them: what the option leaves out has its default (spans on, trace context headers sent, no prompts or completions, 750,000 bytes).\nA copy made with `with_options` or `copy` keeps its client's option unless it is given its own.\n\n## Requirements\n\nPython 3.10+\n\n## Contributing\n\nSee [CONTRIBUTING.md](https://github.com/anthropics/anthropic-sdk-python/tree/main/./CONTRIBUTING.md).\n\n## License\n\nThis project is licensed under the MIT License. See the [LICENSE](https://github.com/anthropics/anthropic-sdk-python/tree/main/LICENSE) file for details.\n",
+        "description_content_type": "text/markdown",
+        "author_email": "Anthropic <support@anthropic.com>",
+        "license": "MIT",
+        "classifier": [
+          "Intended Audience :: Developers",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: MacOS",
+          "Operating System :: Microsoft :: Windows",
+          "Operating System :: OS Independent",
+          "Operating System :: POSIX",
+          "Operating System :: POSIX :: Linux",
+          "Programming Language :: Python :: 3.10",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3.14",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "anyio<5,>=4.1.0",
+          "docstring-parser<1,>=0.15",
+          "httpx2<3,>=2.0.0",
+          "jiter<1,>=0.4.0",
+          "opentelemetry-api<2,>=1.1.0",
+          "pydantic<3,>=1.10.0",
+          "sniffio<2,>=1",
+          "typing-extensions<5,>=4.14",
+          "aiohttp<4,>=3.10.0; extra == 'aiohttp'",
+          "boto3<2,>=1.28.57; extra == 'aws'",
+          "botocore<2,>=1.31.57; extra == 'aws'",
+          "boto3<2,>=1.28.57; extra == 'bedrock'",
+          "botocore<2,>=1.31.57; extra == 'bedrock'",
+          "google-auth[requests]<3,>=2; extra == 'google-cloud'",
+          "mcp<3,>=1.0; (python_version >= '3.10') and extra == 'mcp'",
+          "google-auth[requests]<3,>=2; extra == 'vertex'",
+          "standardwebhooks<2,>=1.0.1; extra == 'webhooks'"
+        ],
+        "requires_python": ">=3.10",
+        "project_url": [
+          "Homepage, https://github.com/anthropics/anthropic-sdk-python",
+          "Repository, https://github.com/anthropics/anthropic-sdk-python"
+        ],
+        "provides_extra": [
+          "aiohttp",
+          "aws",
+          "bedrock",
+          "google-cloud",
+          "mcp",
+          "vertex",
+          "webhooks"
+        ]
+      },
+      "metadata_location": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\anthropic-1.17.0.dist-info",
+      "installer": "pip",
+      "requested": true
+    },
+    {
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "anyio",
+        "version": "4.15.1",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "High-level concurrency and networking framework on top of asyncio or Trio",
+        "description": ".. image:: https://github.com/agronholm/anyio/actions/workflows/test.yml/badge.svg\n  :target: https://github.com/agronholm/anyio/actions/workflows/test.yml\n  :alt: Build Status\n.. image:: https://coveralls.io/repos/github/agronholm/anyio/badge.svg?branch=master\n  :target: https://coveralls.io/github/agronholm/anyio?branch=master\n  :alt: Code Coverage\n.. image:: https://readthedocs.org/projects/anyio/badge/?version=latest\n  :target: https://anyio.readthedocs.io/en/latest/?badge=latest\n  :alt: Documentation\n.. image:: https://badges.gitter.im/gitterHQ/gitter.svg\n  :target: https://gitter.im/python-trio/AnyIO\n  :alt: Gitter chat\n.. image:: https://tidelift.com/badges/package/pypi/anyio\n  :target: https://tidelift.com/subscription/pkg/pypi-anyio\n  :alt: Tidelift\n\nAnyIO is an asynchronous networking and concurrency library that works on top of either asyncio_ or\nTrio_. It implements Trio-like `structured concurrency`_ (SC) on top of asyncio and works in harmony\nwith the native SC of Trio itself.\n\nApplications and libraries written against AnyIO's API will run unmodified on either asyncio_ or\nTrio_. AnyIO can also be adopted into a library or application incrementally � bit by bit, no full\nrefactoring necessary. It will blend in with the native libraries of your chosen backend.\n\nTo find out why you might want to use AnyIO's APIs instead of asyncio's, you can read about it\n`here <https://anyio.readthedocs.io/en/stable/why.html>`_.\n\nDocumentation\n-------------\n\nView full documentation at: https://anyio.readthedocs.io/\n\nFeatures\n--------\n\nAnyIO offers the following functionality:\n\n* Task groups (nurseries_ in trio terminology)\n* High-level networking (TCP, UDP and UNIX sockets)\n\n  * `Happy eyeballs`_ algorithm for TCP connections (more robust than that of asyncio on Python\n    3.8)\n  * async/await style UDP sockets (unlike asyncio where you still have to use Transports and\n    Protocols)\n\n* A versatile API for byte streams and object streams\n* Inter-task synchronization and communication (locks, conditions, events, semaphores, object\n  streams and futures)\n* Worker threads\n* Subprocesses\n* Subinterpreter support for code parallelization (on Python 3.13 and later)\n* Asynchronous file I/O (using worker threads)\n* Signal handling\n* Asynchronous versions of the functools_ and itertools_ modules\n\nAnyIO also comes with its own pytest_ plugin which also supports asynchronous fixtures.\nIt even works with the popular Hypothesis_ library.\n\n.. _asyncio: https://docs.python.org/3/library/asyncio.html\n.. _Trio: https://github.com/python-trio/trio\n.. _structured concurrency: https://en.wikipedia.org/wiki/Structured_concurrency\n.. _nurseries: https://trio.readthedocs.io/en/stable/reference-core.html#nurseries-and-spawning\n.. _Happy eyeballs: https://en.wikipedia.org/wiki/Happy_Eyeballs\n.. _pytest: https://docs.pytest.org/en/latest/\n.. _functools: https://docs.python.org/3/library/functools.html\n.. _itertools: https://docs.python.org/3/library/itertools.html\n.. _Hypothesis: https://hypothesis.works/\n\nSecurity contact information\n----------------------------\n\nTo report a security vulnerability, please use the `Tidelift security contact`_.\nTidelift will coordinate the fix and disclosure.\n\n.. _Tidelift security contact: https://tidelift.com/security\n",
+        "description_content_type": "text/x-rst",
+        "author_email": "Alex Gr�nholm <alex.gronholm@nextday.fi>",
+        "license_expression": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 5 - Production/Stable",
+          "Intended Audience :: Developers",
+          "Framework :: AnyIO",
+          "Typing :: Typed",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.10",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3.14",
+          "Programming Language :: Python :: 3.15",
+          "Programming Language :: Python :: Free Threading :: 2 - Beta"
+        ],
+        "requires_dist": [
+          "exceptiongroup>=1.0.2; python_version < \"3.11\"",
+          "idna>=2.8",
+          "typing_extensions>=4.16.0; python_version < \"3.15\"",
+          "trio>=0.32.0; extra == \"trio\""
+        ],
+        "requires_python": ">=3.10",
+        "project_url": [
+          "Documentation, https://anyio.readthedocs.io/en/latest/",
+          "Changelog, https://anyio.readthedocs.io/en/stable/versionhistory.html",
+          "Source code, https://github.com/agronholm/anyio",
+          "Issue tracker, https://github.com/agronholm/anyio/issues"
+        ],
+        "provides_extra": [
+          "trio"
+        ]
+      },
+      "metadata_location": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\anyio-4.15.1.dist-info",
+      "installer": "pip",
+      "requested": false
+    },
+    {
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-atproto",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Thin AT Protocol overlay analyzer plugin for AttackMap",
+        "description": 

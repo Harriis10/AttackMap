@@ -1,0 +1,120 @@
+Available analyzer modules (installed, in run order):
+- python: Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.
+  scope: Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.
+  ecosystems: python, django, starlette, aiohttp, sanic, litestar
+  priority: 10  runs: default
+- c: C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.
+  scope: C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.
+  ecosystems: c, civetweb, libmicrohttpd, mongoose
+  priority: 20  runs: opt-in (-m c)
+- cpp: C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.
+  scope: C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.
+  ecosystems: cpp, c++, crow, pistache, drogon, cpprestsdk
+  priority: 20  runs: opt-in (-m cpp)
+- dotnet: ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.
+  scope: .NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.
+  ecosystems: csharp, dotnet, aspnetcore
+  priority: 20  runs: default
+- go: Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.
+  scope: Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.
+  ecosystems: go, golang, gin, chi, echo, fiber
+  priority: 20  runs: default
+- javascript-web: Broad built-in analyzer for JavaScript and TypeScript web applications.
+  scope: JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.
+  ecosystems: javascript, typescript, express, fastify, koa, node
+  priority: 20  runs: default
+- php-web: Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.
+  scope: PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.
+  ecosystems: php
+  priority: 20  runs: default
+- python-web: Built-in analyzer for Python web frameworks and related security signals.
+  scope: Python source files handled by the current scanner-backed web heuristics.
+  ecosystems: python, fastapi, flask
+  priority: 20  runs: default
+- rust: Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.
+  scope: Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.
+  ecosystems: rust, axum, actix-web, rocket
+  priority: 20  runs: default
+- swift: Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.
+  scope: Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.
+  ecosystems: swift, swiftpm, vapor, hummingbird
+  priority: 20  runs: opt-in (-m swift)
+- terraform: Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.
+  scope: Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.
+  ecosystems: hcl, terraform, iac, aws, azure, gcp
+  priority: 20  runs: default
+- node-service: Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.
+  scope: Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.
+  ecosystems: javascript, typescript, node-service, node, typescript-service
+  priority: 25  runs: opt-in (-m node-service)
+- config: Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.
+  scope: Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.
+  ecosystems: yaml, toml, json, ini, env
+  priority: 30  runs: default
+- iac: Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.
+  scope: Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS §2 documented for bluesky-social/pds.
+  ecosystems: docker, docker-compose, github-actions, env-template, shell-installer
+  priority: 40  runs: default
+- python-service: Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).
+  scope: Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.
+  ecosystems: python, fastapi, flask, django, celery
+  priority: 50  runs: default
+  note: experimental but enabled by default
+- java-spring: Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.
+  scope: Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.
+  ecosystems: java, kotlin, spring, spring-boot
+  priority: 60  runs: default
+- php-laminas: Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.
+  scope: Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.
+  ecosystems: php, laminas, zend-mvc
+  priority: 60  runs: default
+  note: experimental but enabled by default
+- atproto: Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.
+  scope: AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.
+  ecosystems: typescript, javascript, json, atproto, bluesky, xrpc
+  priority: 90  runs: opt-in (-m atproto)
+- default: Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.
+  scope: Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.
+  ecosystems: none
+  priority: 100  runs: default
+- node-atproto: Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.
+  scope: Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.
+  ecosystems: javascript, typescript, atproto, xrpc, node-service
+  priority: 150  runs: default
+  note: experimental but enabled by default
+- omeka-s: Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.
+  scope: Repos with an Omeka S module marker (Omeka\Module\AbstractModule) or an omeka/* composer dependency.
+  ecosystems: php, omeka-s
+  priority: 160  runs: default
+  note: experimental but enabled by default
+
+Available module repositories (mlaify GitHub org):
+- atproto (attackmap-analyzer-atproto)
+  repo: https://github.com/mlaify/attackmap-analyzer-atproto
+- c (attackmap-analyzer-c)
+  repo: https://github.com/mlaify/attackmap-analyzer-c
+- cpp (attackmap-analyzer-cpp)
+  repo: https://github.com/mlaify/attackmap-analyzer-cpp
+- dotnet (attackmap-analyzer-dotnet)
+  repo: https://github.com/mlaify/attackmap-analyzer-dotnet
+- go (attackmap-analyzer-go)
+  repo: https://github.com/mlaify/attackmap-analyzer-go
+- iac (attackmap-analyzer-iac)
+  repo: https://github.com/mlaify/attackmap-analyzer-iac
+- java-spring (attackmap-analyzer-java-spring)
+  repo: https://github.com/mlaify/attackmap-analyzer-java-spring
+- node-service (attackmap-analyzer-node-service)
+  repo: https://github.com/mlaify/attackmap-analyzer-node-service
+- php-laminas (attackmap-analyzer-php-laminas)
+  repo: https://github.com/mlaify/attackmap-analyzer-php-laminas
+- php-web (attackmap-analyzer-php-web)
+  repo: https://github.com/mlaify/attackmap-analyzer-php-web
+- python (attackmap-analyzer-python)
+  repo: https://github.com/mlaify/attackmap-analyzer-python
+- rust (attackmap-analyzer-rust)
+  repo: https://github.com/mlaify/attackmap-analyzer-rust
+- swift (attackmap-analyzer-swift)
+  repo: https://github.com/mlaify/attackmap-analyzer-swift
+- terraform (attackmap-analyzer-terraform)
+  repo: https://github.com/mlaify/attackmap-analyzer-terraform
+

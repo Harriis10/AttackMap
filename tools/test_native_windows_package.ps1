@@ -12,6 +12,8 @@ foreach ($name in @('AttackMap.NativeSpike.exe','coreclr.dll','Microsoft.UI.Xaml
 'not distributed' | Set-Content -LiteralPath (Join-Path $publish 'scan-smoke.json')
 & (Join-Path $PSScriptRoot 'package_native_windows.ps1') -PublishDirectory $publish -OutputDirectory $packages -Profile ExternalEngine
 $first=Get-ChildItem -LiteralPath $packages -Directory | Select-Object -First 1
+$externalManifest=Get-Content -LiteralPath (Join-Path $first.FullName 'package-manifest.json') -Raw | ConvertFrom-Json
+if ($externalManifest.engine.run_schema_range -ne 'unknown' -or @($externalManifest.engine.run_schema_versions).Count -ne 0) { throw 'External engine schema support was invented.' }
 $installer=Join-Path $first.FullName 'Install-AttackMap.ps1'
 if (Test-Path -LiteralPath (Join-Path $first.FullName 'app/scan-smoke.json')) { throw 'Smoke data packaged' }
 & $installer -InstallRoot $install
@@ -88,6 +90,7 @@ $proof=@{
     source_checksums_sha256=$lock.source_checksums_sha256;release_inputs_sha256=$lock.release_inputs_sha256
     analyzer_requirements_sha256=$lock.analyzer_requirements_sha256;release_lock_sha256=(Get-FileHash $lockPath).Hash
     checks=@{modules_discovered=19;native_broker_commands_present=$true;scan_atomic_current_ready=$true;frozen_compare_action_ready=$true}
+    capabilities=@{desktop=@{schema_versions=@('1.0','1.2','1.4')}}
     scan=@{exit_code=0;terminal=@{state='completed';artifact_readiness='ready'}}
     action=@{exit_code=0;terminal=@{state='completed'}}
     limitations=@('Synthetic test fixture; no executable or scan was run')
@@ -111,6 +114,15 @@ Refuse-Package $options 'extra frozen sentinel'
 Remove-Item -LiteralPath (Join-Path $engine 'extra.txt')
 & $builder @options
 $bundled=Get-ChildItem -LiteralPath $options.OutputDirectory -Directory | Select-Object -First 1
+$bundledManifest=Get-Content -LiteralPath (Join-Path $bundled.FullName 'package-manifest.json') -Raw | ConvertFrom-Json
+if (($bundledManifest.engine.run_schema_versions -join ',') -ne '1.0,1.2,1.4' -or $bundledManifest.engine.run_schema_range -ne '1.0,1.2,1.4') { throw 'Package lost exact frozen capability schema versions or invented gaps.' }
+$proof.Remove('capabilities')
+$proof | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $engine 'engine-verification.json') -Encoding utf8
+$legacyOptions=$options.Clone();$legacyOptions.OutputDirectory=Join-Path $root 'legacy-proof-packages'
+& $builder @legacyOptions
+$legacyPackage=Get-ChildItem -LiteralPath $legacyOptions.OutputDirectory -Directory | Select-Object -First 1
+$legacyManifest=Get-Content -LiteralPath (Join-Path $legacyPackage.FullName 'package-manifest.json') -Raw | ConvertFrom-Json
+if ($legacyManifest.engine.run_schema_range -ne 'unknown' -or @($legacyManifest.engine.run_schema_versions).Count -ne 0) { throw 'Legacy frozen proof invented schema capabilities.' }
 $ps51=Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
 $ps51Install=Join-Path $root 'ps51-install'
 & $ps51 -NoProfile -ExecutionPolicy Bypass -File (Join-Path $bundled.FullName 'Install-AttackMap.ps1') -InstallRoot $ps51Install

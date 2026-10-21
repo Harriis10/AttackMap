@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_type": "attackmap_artifact_manifest",
+  "generation_id": "wp028-owned-generation",
+  "engine_version": "fixture-only",
+  "created_at": "2026-10-21T00:00:00Z",
+  "exit_state": {
+    "exit_code": 0,
+    "status": "succeeded"
+  },
+  "run_identity": {
+    "repo_root": "C:/synthetic/team-a/sample",
+    "repo_name": "sample",
+    "analyzers": [],
+    "analyzer_identity": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "sections": [
+    {
+      "name": "scan",
+      "path": "scan.json",
+      "format": "json",
+      "role": "structured-scan-result",
+      "checksum": "31b19f44753207a9c48bbe6e1e17f4d727a763ccd399acbc6eb6299791f7877d"
+    },
+    {
+      "name": "findings",
+      "path": "findings.json",
+      "format": "json",
+      "role": "findings-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "name": "attack_paths",
+      "path": "attack_paths.json",
+      "format": "json",
+      "role": "attack-paths-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "name": "attack_surfaces",
+      "path": "attack_surfaces.json",
+      "format": "json",
+      "role": "attack-surfaces-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "name": "exploitability",
+      "path": "exploitability.json",
+      "format": "json",
+      "role": "exploitability-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "name": "suppressed_findings",
+      "path": "suppressed_findings.json",
+      "format": "json",
+      "role": "suppressed-findings-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  ],
+  "compatibility_exports": [
+    {
+      "name": "legacy_report",
+      "path": "attackmap-report.json",
+      "format": "json",
+      "role": "monolithic-legacy-report",
+      "checksum": "6cf8d45fcd7d2717a78e825f45b8cf6c321630124bc3f0c4ff1991d8893cfea6"
+    },
+    {
+      "name": "run-manifest.json",
+      "path": "run-manifest.json",
+      "format": "json",
+      "role": "compatibility-export",
+      "checksum": "ba1dd1bee8b7fd4880a1469f6f725380102e60025da6a982f8c51b2c01316274"
+    },
+    {
+      "name": "defensive-review.md",
+      "path": "defensive-review.md",
+      "format": "md",
+      "role": "compatibility-export",
+      "checksum": "59400aa7a516412578b3c6aff06a544526b1b52eaa8fab9a021748f7c81eba22"
+    }
+  ]
+}

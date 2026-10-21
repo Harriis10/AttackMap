@@ -74,7 +74,7 @@ foreach ($entry in Get-ChildItem -LiteralPath $publish -Recurse -Force) {
     Copy-Item -LiteralPath $entry.FullName -Destination $target
     $files += [ordered]@{path=$relative;size_bytes=(Get-Item -LiteralPath $target).Length;sha256=(Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()}
 }
-$engineMetadata = [ordered]@{bundled=$false;discovery='Explicit absolute Python executable selected in desktop settings; no PATH probing or automatic downloads.';required_modules=@('attackmap.desktop_worker','attackmap.desktop_actions');run_schema_range='1.0-1.1';note='Requires compatible AttackMap engine and analyzers installed separately. Current development checkout is the verified engine.'}
+$engineMetadata = [ordered]@{bundled=$false;discovery='Explicit absolute Python executable selected in desktop settings; no PATH probing or automatic downloads.';required_modules=@('attackmap.desktop_worker','attackmap.desktop_actions');run_schema_range='unknown';run_schema_versions=@();note='Requires compatible AttackMap engine and analyzers installed separately. Selected executable capabilities must be checked at runtime.'}
 if ($EngineDirectory) {
     $engine = [IO.Path]::GetFullPath($EngineDirectory)
     if (!$EngineVerificationPath) { $EngineVerificationPath = Join-Path $engine 'engine-verification.json' }
@@ -105,7 +105,13 @@ if ($EngineDirectory) {
         $bound.Remove($relative)
     }
     if ($bound.Count -ne 0) { throw 'Frozen verification references missing payload files.' }
-    $engineMetadata=[ordered]@{bundled=$true;executable='app/engine/attackmap.exe';runtime_kind='Frozen';version=$proof.version;analyzer_count=$proof.checks.modules_discovered;run_schema_range='1.0-1.1';verification_sha256=(Get-FileHash -LiteralPath $EngineVerificationPath -Algorithm SHA256).Hash.ToLowerInvariant();source_checksums_sha256=$proof.source_checksums_sha256;discovery='Exact bundled executable selected only when no engine path is configured; no PATH probing, automatic execution or downloads.';limitations=$proof.limitations}
+    # Describe only the schema versions captured from this exact frozen engine.
+    # Older proof records without capabilities establish no schema support list.
+    $verifiedSchemas=@($proof.capabilities.desktop.schema_versions | Where-Object { $null -ne $_ })
+    foreach ($schemaVersion in $verifiedSchemas) { if ($schemaVersion -isnot [string] -or $schemaVersion -notmatch '^[0-9]+\.[0-9]+$') { throw 'Malformed frozen capability schema version.' } }
+    $verifiedSchemas=@($verifiedSchemas | Select-Object -Unique)
+    $schemaDisclosure=if ($verifiedSchemas.Count) { $verifiedSchemas -join ',' } else { 'unknown' }
+    $engineMetadata=[ordered]@{bundled=$true;executable='app/engine/attackmap.exe';runtime_kind='Frozen';version=$proof.version;analyzer_count=$proof.checks.modules_discovered;run_schema_range=$schemaDisclosure;run_schema_versions=$verifiedSchemas;verification_sha256=(Get-FileHash -LiteralPath $EngineVerificationPath -Algorithm SHA256).Hash.ToLowerInvariant();source_checksums_sha256=$proof.source_checksums_sha256;discovery='Exact bundled executable selected only when no engine path is configured; no PATH probing, automatic execution or downloads.';limitations=$proof.limitations}
     $engineMetadata.release_inputs_sha256=$proof.release_inputs_sha256
     $engineMetadata.analyzer_requirements_sha256=$proof.analyzer_requirements_sha256
     $engineMetadata.release_lock_sha256=$proof.release_lock_sha256
