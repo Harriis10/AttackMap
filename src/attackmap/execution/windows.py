@@ -2,10 +2,16 @@
 from __future__ import annotations
 import ctypes
 
+
+def validate_memory_limit(memory_bytes: int) -> None:
+    if type(memory_bytes) is not int or not 0 <= memory_bytes <= ctypes.c_size_t(-1).value:
+        raise ValueError("Job memory limit must be a nonnegative native-size integer")
+
 class WindowsProcessJob:
     """Own all descendants, including after the original worker exits."""
 
-    def __init__(self) -> None:
+    def __init__(self, memory_bytes: int = 0) -> None:
+        validate_memory_limit(memory_bytes)
         from ctypes import wintypes
 
         self._kernel = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -33,9 +39,14 @@ class WindowsProcessJob:
 
         limits = ExtendedLimits()
         limits.basic.flags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+        if memory_bytes:
+            limits.basic.flags |= 0x200  # JOB_OBJECT_LIMIT_JOB_MEMORY
+            limits.job_memory = memory_bytes
         if not self._kernel.SetInformationJobObject(self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
+            error = ctypes.get_last_error()
             self.close()
-            raise ctypes.WinError(ctypes.get_last_error())
+            raise ctypes.WinError(error)
+        self.memory_limit_bytes = memory_bytes
 
     def attach_and_resume(self, proc) -> None:
         if not self._kernel.AssignProcessToJobObject(self.handle, int(proc._handle)):

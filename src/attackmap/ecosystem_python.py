@@ -107,12 +107,14 @@ def detect_python_service_repo(root: str | Path) -> bool:
     Django urlconf declarations, or a declared framework dependency. A
     repo of plain Python scripts stays silent.
     """
-    repo = Path(root)
-    if not repo.exists() or not repo.is_dir():
+    from .index import PassSources
+    repo = Path(root).resolve()
+    sources = PassSources.for_root(repo)
+    if not sources.is_dir(repo):
         return False
     try:
         examined = 0
-        for candidate in walk_repo(repo, prune=is_skipped_dir):
+        for candidate in sources.iter_files(prune=is_skipped_dir):
             examined += 1
             if examined > _MAX_DETECT_FILES:
                 return False
@@ -126,9 +128,9 @@ def detect_python_service_repo(root: str | Path) -> bool:
             if not is_manifest and (is_test_file(rel.as_posix()) or is_vendored_file(rel.as_posix())):
                 continue  # framework markers in test scaffolding don't make a repo a Python web service
             try:
-                if candidate.stat().st_size > _MAX_FILE_BYTES:
+                text = sources.gated_text(rel.as_posix(), max_bytes=_MAX_FILE_BYTES, errors="replace")
+                if text is None:
                     continue
-                text = candidate.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
             marker = _REQUIREMENT_MARKER_RE if is_manifest else _PY_WEB_MARKER_RE
@@ -819,7 +821,8 @@ def scan_python_services(root: str | Path, index: object | None = None) -> ScanR
     """
     repo = Path(root).resolve()
     result = ScanResult(root=str(repo), scanned_files=[])
-    if not repo.exists() or not repo.is_dir():
+    from .index import PassSources
+    if not PassSources.for_root(repo, index).is_dir(repo):
         return result
     if not detect_python_service_repo(repo):
         return result

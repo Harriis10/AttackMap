@@ -256,6 +256,10 @@ def _normalize_local_endpoint(value: str | None) -> str | None:
 
 
 def _loopback_transport(sdk, base_url: str | None) -> dict:
+    audit_options = {}
+    if getattr(sdk, "__name__", None) == "openai" and os.environ.get("ATTACKMAP_QA_HTTP_AUDIT_DIR"):
+        from .ai_http_audit import client_audit_options
+        audit_options = client_audit_options(base_url)
     if not _literal_loopback_url(base_url):
         return {}
     parsed = urlsplit(base_url)
@@ -264,7 +268,7 @@ def _loopback_transport(sdk, base_url: str | None) -> dict:
     factory = getattr(sdk, "DefaultHttpxClient", None)
     if factory is None:
         raise LlmReviewError("The SDK cannot isolate the local endpoint from proxy settings; upgrade the SDK.")
-    return {"http_client": factory(trust_env=False, follow_redirects=False)}
+    return {"http_client": factory(trust_env=False, follow_redirects=False, **audit_options)}
 
 
 # ---------- Auth + SDK backend ----------

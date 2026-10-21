@@ -18,6 +18,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -54,11 +55,17 @@ _POLICY_ENV = ("ATTACKMAP_INCLUDE_TESTS", "ATTACKMAP_INCLUDE_VENDORED")
 _ENGINE_MODULES = (
     "scanner",
     "analyzers",
+    "ecosystem_php",
+    "analyzer_contracts",
     "weaknesses",
     "crypto",
     "webhardening",
     "srcpaths",
     "redact",
+    "models",
+    "sdk/models",
+    "recon_models",
+    "incremental",
 )
 
 # Payload families: cached key -> model class used to validate on replay.
@@ -101,17 +108,18 @@ def _sha256(text: str) -> str:
 def engine_identity() -> str:
     """Content hash of every module that contributes per-file results."""
     import attackmap
+    import pydantic
 
-    parts: list[str] = [CACHE_SCHEMA]
+    parts: list[str] = [CACHE_SCHEMA, f"python:{sys.version}", f"pydantic:{pydantic.__version__}"]
     package = Path(attackmap.__file__).parent
     for name in _ENGINE_MODULES:
         path = package / f"{name}.py"
         try:
             parts.append(f"{name}:{hashlib.sha256(path.read_bytes()).hexdigest()}")
-        except OSError:
-            # Unreadable engine source can only mean an unusual install;
-            # force misses rather than risking a stale reuse.
-            parts.append(f"{name}:unreadable:{path.name}")
+        except OSError as exc:
+            # Frozen/source-less installs need a separately verified code identity.
+            # A stable placeholder would incorrectly replay entries after upgrades.
+            raise OSError(f"Cannot prove incremental extractor identity: {name}") from exc
     return _sha256(_canonical(parts))
 
 

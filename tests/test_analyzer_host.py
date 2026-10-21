@@ -238,9 +238,13 @@ def test_forged_namespace_cannot_corrupt_sibling_output(tmp_path: Path) -> None:
     assert [r.path for r in scan.routes] == ["/ok"]
     forged_errors = [e for e in scan.analyzer_errors if e.analyzer == "python-web"]
     assert forged_errors == [], "forged analyzer_errors must not survive the merge"
-    # Honest limitation, asserted rather than hidden: a pre-stamped
-    # source_analyzer is not overwritten (provenance is not authenticated).
+    # The builtin remains the first-seen typed representative. The isolated
+    # duplicate is attributed to its selected emitter in the normalized view.
     assert scan.routes[0].source_analyzer == "python-web"
+    origins = [origin for signal in scan.all_signals() for origin in signal.origins]
+    assert any(origin.analyzer == "evil-namespace" and
+               origin.properties.get("untrusted_claimed_producer") == "python-web"
+               for origin in origins)
 
 
 def test_isolated_failure_with_strict_raises(tmp_path: Path) -> None:

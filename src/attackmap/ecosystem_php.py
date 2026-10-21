@@ -221,18 +221,9 @@ def _iter_source_files(
     """Yield ``(repo-relative posix path, text)`` for source files, honoring
     the shared skip/vendored/test policy (``SKIP_DIRS`` + source-quality
     weighting). Uses the prebuilt repo index when core passed one."""
-    if index is not None:
-        for item in getattr(index, "files", ()):
-            rel_path = Path(item.rel)
-            if in_skipped_dir(rel_path):
-                continue
-            if rel_path.suffix.lower() not in suffixes:
-                continue
-            if is_vendored_file(item.rel) or is_test_file(item.rel):
-                continue
-            yield rel_path.as_posix(), item.text
-        return
-    for path in walk_repo(root, prune=is_skipped_dir):
+    from .index import PassSources
+    sources = PassSources.for_root(root, index)
+    for path in sources.iter_files(prune=is_skipped_dir):
         rel = path.relative_to(root).as_posix()
         if in_skipped_dir(Path(rel)):
             continue
@@ -241,29 +232,28 @@ def _iter_source_files(
         if is_vendored_file(rel) or is_test_file(rel):
             continue
         try:
-            text = path.read_text(encoding="utf-8", errors="replace")
+            text = sources.text(path, errors="replace")
         except OSError:
             continue
-        yield rel, text
+        if text is not None:
+            yield rel, text
 
 
 def _composer_files(root: Path, index: object | None) -> Iterator[tuple[str, str]]:
     """Yield ``(rel, text)`` for every composer.json in the repo."""
-    if index is not None:
-        for item in getattr(index, "files", ()):
-            if Path(item.rel).name == "composer.json" and not in_skipped_dir(Path(item.rel)):
-                yield Path(item.rel).as_posix(), item.text
-        return
-    for path in walk_repo(root, prune=is_skipped_dir):
+    from .index import PassSources
+    sources = PassSources.for_root(root, index)
+    for path in sources.iter_files(prune=is_skipped_dir):
         if path.name != "composer.json":
             continue
         if in_skipped_dir(path.relative_to(root)):
             continue
         try:
-            text = path.read_text(encoding="utf-8", errors="replace")
+            text = sources.text(path, errors="replace")
         except OSError:
             continue
-        yield path.relative_to(root).as_posix(), text
+        if text is not None:
+            yield path.relative_to(root).as_posix(), text
 
 
 def _composer_require_entries(text: str) -> list[tuple[str, str, int]]:
@@ -354,8 +344,9 @@ def _snippet_at(text: str, offset: int, max_chars: int = 200) -> str:
 
 def has_php_source(root: str | Path, index: object | None = None) -> bool:
     """Any non-vendored, non-test ``.php`` file below ``root``."""
-    repo = Path(root)
-    if not repo.is_dir():
+    from .index import PassSources
+    repo = Path(root).resolve()
+    if not PassSources.for_root(repo, index).is_dir(repo):
         return False
     for _rel, _text in _iter_source_files(repo, index, {PHP_SUFFIX}):
         return True
@@ -365,8 +356,9 @@ def has_php_source(root: str | Path, index: object | None = None) -> bool:
 def looks_laminas(root: str | Path, index: object | None = None) -> bool:
     """Composer depends on laminas/ or zendframework/, or a Module.php file
     carries a Laminas/Zend class marker. Conservative by design."""
-    repo = Path(root)
-    if not repo.is_dir():
+    from .index import PassSources
+    repo = Path(root).resolve()
+    if not PassSources.for_root(repo, index).is_dir(repo):
         return False
     for _rel, text in _composer_files(repo, index):
         for _section, package, _line in _composer_require_entries(text):
@@ -381,8 +373,9 @@ def looks_laminas(root: str | Path, index: object | None = None) -> bool:
 def looks_omeka_s(root: str | Path, index: object | None = None) -> bool:
     """An Omeka S module marker (``Omeka\\Module\\AbstractModule``) or a
     composer dependency on omeka/*. Conservative by design."""
-    repo = Path(root)
-    if not repo.is_dir():
+    from .index import PassSources
+    repo = Path(root).resolve()
+    if not PassSources.for_root(repo, index).is_dir(repo):
         return False
     for _rel, text in _composer_files(repo, index):
         for _section, package, _line in _composer_require_entries(text):
@@ -404,7 +397,8 @@ def scan_php_web_repo(root: str | Path, index: object | None = None) -> ScanResu
     standard pipeline."""
     repo = Path(root).resolve()
     result = ScanResult(root=str(repo), scanned_files=[])
-    if not repo.is_dir():
+    from .index import PassSources
+    if not PassSources.for_root(repo, index).is_dir(repo):
         return result
     scanned: list[str] = []
     for rel, text in _iter_source_files(repo, index, {PHP_SUFFIX}):
@@ -599,7 +593,8 @@ def scan_php_laminas_repo(root: str | Path, index: object | None = None) -> Scan
     validators/filters. Silent unless laminas markers are present."""
     repo = Path(root).resolve()
     result = ScanResult(root=str(repo), scanned_files=[])
-    if not repo.is_dir() or not looks_laminas(repo, index):
+    from .index import PassSources
+    if not PassSources.for_root(repo, index).is_dir(repo) or not looks_laminas(repo, index):
         return result
     scanned: list[str] = []
     for rel, text in _composer_files(repo, index):
@@ -787,7 +782,8 @@ def scan_omeka_s_repo(root: str | Path, index: object | None = None) -> ScanResu
     Omeka S markers are present."""
     repo = Path(root).resolve()
     result = ScanResult(root=str(repo), scanned_files=[])
-    if not repo.is_dir() or not looks_omeka_s(repo, index):
+    from .index import PassSources
+    if not PassSources.for_root(repo, index).is_dir(repo) or not looks_omeka_s(repo, index):
         return result
     files = list(_iter_source_files(repo, index, frozenset({PHP_SUFFIX, PHTML_SUFFIX})))
 
@@ -991,11 +987,11 @@ class PhpWebAnalyzer:
     def detect(self, root: str | Path) -> bool:
         return has_php_source(root)
 
-    def analyze(self, root: str | Path, index: object | None = None) -> AnalyzerResult:
+    def analyze(self, root: str | Path, index: object | None = None, incremental: bool | None = None) -> AnalyzerResult:
         from .analyzers import merge_analyzer_results
         from .scanner import scan_files
 
-        base = scan_files(root, suffixes={PHP_SUFFIX}, index=index)
+        base = scan_files(root, suffixes={PHP_SUFFIX}, index=index, incremental=incremental)
         extra = scan_php_web_repo(root, index=index)
         combined = merge_analyzer_results([base, extra], root=root)
         # Coverage counts the union of files, not the sum of both passes.

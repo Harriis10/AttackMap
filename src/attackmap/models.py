@@ -940,16 +940,29 @@ class ScanSnapshotIdentity(BaseModel):
 
     Built by the repo index at index time; deterministic passes read the
     indexed text, so their evidence references this snapshot. ``files`` maps
-    repo-relative posix paths to sha256 of the indexed utf-8 text (the same
-    basis verification re-reads with). ``index_config`` records the limits
+    repo-relative paths to the established decoded-content hash (SDK-only binary
+    paths use their byte hash). ``raw_files`` additionally binds original input
+    bytes, including newlines and encoding. ``index_config`` records the limits
     that decided file acceptance, and ``config_identity`` hashes them.
     """
 
     snapshot_id: str
     files: dict[str, str] = Field(default_factory=dict)
+    # Additive exact-byte basis for SDK inputs. Empty preserves legacy text-only identity.
+    raw_files: dict[str, str] = Field(default_factory=dict)
     total_size: int = 0
     index_config: dict[str, int] = Field(default_factory=dict)
     config_identity: str = ""
+
+    @model_validator(mode="after")
+    def _validate_raw_snapshot_paths(self):
+        for relative, digest in self.raw_files.items():
+            path = Path(relative)
+            if (relative not in self.files or path.is_absolute() or path.drive
+                    or any(part in {"", ".", ".."} for part in path.parts)
+                    or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest)):
+                raise ValueError("Raw snapshot hashes require captured relative paths and lowercase SHA-256")
+        return self
 
 
 class ScanResult(BaseModel):

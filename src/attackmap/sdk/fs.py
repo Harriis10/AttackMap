@@ -62,6 +62,26 @@ def iter_repo_files(
     skip = frozenset(skip_dirs)
     cap = max_bytes if max_bytes is not None else max_file_bytes()
 
+    from ..index import active_index_for
+    index = active_index_for(root_path)
+    if index is not None:
+        for source in index.sources:
+            path = root_path / source.rel
+            if any(part in skip for part in Path(source.rel).parts[:-1]):
+                continue
+            if wanted_suffixes is not None or wanted_names is not None:
+                if not ((wanted_suffixes is not None and path.suffix.lower() in wanted_suffixes)
+                        or (wanted_names is not None and path.name in wanted_names)):
+                    continue
+            if not include_tests and is_test_file(source.rel):
+                continue
+            if source.size > cap:
+                if on_skip is not None:
+                    on_skip(path, "oversized file skipped")
+                continue
+            yield path
+        return
+
     def _symlink(path: Path) -> None:
         if on_skip is not None:
             on_skip(path, "symlink not followed")
@@ -95,6 +115,22 @@ def read_source(path: str | Path, *, root: str | Path | None = None) -> str | No
     in the first 8 KiB) and, when ``root`` is given, paths outside it.
     """
     file_path = Path(path)
+    from ..index import active_index_for, decode_source_bytes, pinned_repo_index
+    index = active_index_for(root) if root is not None else pinned_repo_index()
+    if index is not None and root is None and file_path.is_absolute():
+        try:
+            file_path.relative_to(index.root)
+        except ValueError:
+            index = None  # a stale pin for another repository does not own this read
+    if index is not None:
+        if not file_path.is_absolute():
+            file_path = index.root / file_path
+        try:
+            relative = file_path.relative_to(index.root).as_posix()
+        except ValueError:
+            return None
+        source = index.sources_by_rel.get(relative)
+        return decode_source_bytes(source.raw) if source is not None else None
     if root is not None:
         if not file_path.is_absolute():
             file_path = Path(root) / file_path

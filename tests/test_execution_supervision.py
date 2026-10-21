@@ -42,6 +42,7 @@ def test_timeout_uses_verified_cleanup():
 
 def test_failed_cleanup_retains_admission(monkeypatch):
     supervisor = ProcessSupervisor()
+    original_cleanup = supervisor._finish_tree
     finished = threading.Event()
     monkeypatch.setattr(supervisor, "_finish_tree", lambda *args, **kwargs: False)
     assert supervisor.start([sys.executable, "-c", "pass"],
@@ -52,9 +53,11 @@ def test_failed_cleanup_retains_admission(monkeypatch):
     assert not supervisor.wait(0.1)
     assert supervisor.running and not finished.is_set()
     assert not supervisor.start([sys.executable, "-c", "pass"])
-    # Close the test-owned empty job without falsely releasing its slot.
-    if supervisor._job is not None:
-        supervisor._job.close()
+    # Recovery must prove the same owned tree empty before publishing completion.
+    monkeypatch.setattr(supervisor, "_finish_tree", original_cleanup)
+    assert supervisor.retry_cleanup()
+    assert supervisor.wait(0) and not supervisor.running and finished.is_set()
+    assert supervisor.retry_cleanup()  # repeated recovery cannot republish callbacks
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows Job Object lifecycle proof")

@@ -851,19 +851,25 @@ def _extract_nginx_proxies(
     for header, body, start, end in _nginx_blocks(text, "upstream"):
         name = header.split()[0].strip().lower() if header.split() else ""
         hosts = []
+        endpoints = set()
         for entry in re.findall(r"(?<![\w.-])server\s+([^;{}]+);", body):
-            host = entry.strip().split(":")[0].strip().lower()
+            tokens = entry.strip().split()
+            if not tokens:
+                continue
+            endpoint = tokens[0].lower()
+            host = endpoint.split(":")[0].strip()
             if host:
                 hosts.append(host)
+                endpoints.add(endpoint)
         for i in range(start, end):
             blank[i] = " "  # hide upstream bodies: their `server` entries are not server blocks
         if not name:
             continue
-        if len(set(hosts)) == 1:
+        if len(endpoints) == 1 and len(set(hosts)) == 1:
             upstreams[name] = hosts[0]
         else:
             notes.append(
-                f"skipped upstream {name!r} in {provenance}: {len(set(hosts))} backends "
+                f"skipped upstream {name!r} in {provenance}: {len(endpoints)} backends "
                 "(multi-backend proxy routing is not modeled)"
             )
 
@@ -938,19 +944,21 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
 
     for root in repo_roots:
         repo = Path(root).resolve()
-        if not repo.is_dir():
+        from .index import PassSources
+        sources = PassSources.for_root(repo)
+        if not sources.is_dir(repo):
             continue
         label = repo.name
-        for path in walk_repo(repo, prune=is_skipped_dir):
+        for path in sources.iter_files(prune=is_skipped_dir):
             if in_skipped_dir(path.relative_to(repo)):
                 continue
             kind = _deployment_config_kind(path)
             if kind is None:
                 continue
             try:
-                if path.stat().st_size > _MAX_CONFIG_BYTES:
+                text = sources.gated_text(path.relative_to(repo).as_posix(), max_bytes=_MAX_CONFIG_BYTES)
+                if text is None:
                     continue
-                text = path.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
             provenance = f"{label}/{path.relative_to(repo).as_posix()}"

@@ -743,7 +743,7 @@ def scan_files(
     suffixes: set[str] | None = None,
     progress: "ScanProgress | None" = None,
     index: "RepoIndex | None" = None,
-    incremental: bool = False,
+    incremental: bool | None = None,
     cache_dir: str | Path | None = None,
 ) -> ScanResult:
     """The per-file pass: routes, calls, hints, secrets and per-file weakness
@@ -783,7 +783,7 @@ def scan_files(
 
     cache = (
         _open_incremental_cache(root_path, cache_dir)
-        if incremental or enabled_by_env()
+        if (enabled_by_env() if incremental is None else incremental)
         else None
     )
 

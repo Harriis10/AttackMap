@@ -268,7 +268,7 @@ def scan_workflows(root: str | Path, index: "RepoIndex | None" = None) -> list[W
     root_path = Path(root).resolve()
     sources = PassSources.for_root(root_path, index)
     issues: list[WorkflowIssue] = []
-    for path in walk_repo(root_path, prune=lambda name: name in _ACTION_SKIP_DIRS):
+    for path in sources.iter_files(prune=lambda name: name in _ACTION_SKIP_DIRS):
         if path.name not in _ACTION_FILENAMES or sources.oversized(path):
             continue
         data, text = _load_yaml(path, yaml, sources)
@@ -276,13 +276,13 @@ def scan_workflows(root: str | Path, index: "RepoIndex | None" = None) -> list[W
             issues.extend(_scan_action(data, path.relative_to(root_path).as_posix(), text.splitlines()))
 
     workflows_dir = root_path / ".github" / "workflows"
-    if not workflows_dir.is_dir() or not is_contained(root_path, workflows_dir):
+    if not sources.is_dir(workflows_dir) or (not sources.pinned and not is_contained(root_path, workflows_dir)):
         return issues
 
-    for path in sorted(workflows_dir.iterdir()):
-        if path.suffix.lower() not in {".yml", ".yaml"} or not path.is_file():
+    for path in sorted(sources.children(workflows_dir)):
+        if path.suffix.lower() not in {".yml", ".yaml"} or not sources.is_file(path):
             continue
-        if is_unsafe_link(root_path, path) or sources.oversized(path):
+        if sources.unsafe(path) or sources.oversized(path):
             continue
         text = sources.text(path, errors="replace")
         if text is None:

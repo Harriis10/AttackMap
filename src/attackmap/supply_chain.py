@@ -108,11 +108,11 @@ class _Collector:
 
 
 def _iter_files(root: Path, sources: PassSources):
-    for path in walk_repo(root, prune=lambda name: name in _SKIP_DIRS):
+    for path in sources.iter_files(prune=lambda name: name in _SKIP_DIRS):
         rel = path.relative_to(root)
         # The size gate uses the captured size when the file is part of the
         # snapshot (C33/AM047); the walk itself still enumerates the live tree.
-        if len(rel.parts) > _MAX_DEPTH or is_unsafe_link(root, path) or sources.oversized(path):
+        if len(rel.parts) > _MAX_DEPTH or sources.unsafe(path) or sources.oversized(path):
             continue
         # Test fixtures declare deliberately loose or fake manifests; like the
         # other heuristic passes, skip them (ATTACKMAP_INCLUDE_TESTS opts in).
@@ -127,12 +127,13 @@ def _read(path: Path, sources: PassSources) -> str | None:
     return sources.text(path, errors="replace")
 
 
-def _has_lock(root: Path, directory: Path, names: tuple[str, ...]) -> bool:
+def _has_lock(root: Path, directory: Path, names: tuple[str, ...], sources: PassSources | None = None) -> bool:
     """A lockfile in ``directory`` or an ancestor up to ``root`` (workspaces
     keep one lockfile at the top)."""
     current = directory
+    sources = sources or PassSources.for_root(root)
     while True:
-        if any((current / n).is_file() for n in names):
+        if any(sources.exists((current / n).relative_to(sources.root).as_posix()) for n in names):
             return True
         if current == root or root not in current.parents:
             return False
@@ -141,7 +142,7 @@ def _has_lock(root: Path, directory: Path, names: tuple[str, ...]) -> bool:
 
 def _load_internal_prefixes(root: Path, sources: PassSources) -> list[str]:
     config = root / ".attackmap.yaml"
-    if is_unsafe_link(root, config) or sources.oversized(config):
+    if sources.unsafe(config) or sources.oversized(config):
         return []
     try:
         import yaml  # type: ignore[import-untyped]
@@ -176,9 +177,9 @@ def scan_supply_chain(
     tree's structure, not a file's bytes.
     """
     root_path = Path(root).resolve()
-    if not root_path.is_dir():
-        return []
     sources = PassSources.for_root(root_path, index)
+    if not sources.is_dir(root_path):
+        return []
     if dependencies is None:
         from .sbom import analyze_sbom
 
@@ -209,7 +210,7 @@ def scan_supply_chain(
         elif name == "composer.json":
             _scan_unlocked_json(root_path, path, rel, out, ("require", "require-dev"), ("composer.lock",), "composer", sources)
         elif name == "Pipfile":
-            if not (path.parent / "Pipfile.lock").is_file():
+            if not sources.exists((path.parent / "Pipfile.lock").relative_to(root_path).as_posix()):
                 out.add("unlocked_manifest", rel, "low", "Pipfile without Pipfile.lock — installs resolve to whatever is newest", ecosystem="pypi")
 
     production = [d for d in dependencies if not is_test_file(d.file)]
@@ -371,7 +372,7 @@ def _scan_pyproject(path: Path, rel: str, out: _Collector, ctx: _RegistryContext
         data = tomllib.loads(text)
     except (tomllib.TOMLDecodeError, ValueError):
         return
-    locked = _has_lock(path.parent, path.parent, _PY_LOCKS)
+    locked = _has_lock(path.parent, path.parent, _PY_LOCKS, sources)
     project = data.get("project") if isinstance(data.get("project"), dict) else {}
     specs: list[str] = list(project.get("dependencies") or [])
     optional = project.get("optional-dependencies")
@@ -460,7 +461,7 @@ def _scan_package_json(root: Path, path: Path, rel: str, out: _Collector, ctx: _
     own = data.get("name")
     if isinstance(own, str) and own.startswith("@") and "/" in own:
         ctx.npm_own_scopes.add(own[1:].split("/", 1)[0].lower())
-    locked = _has_lock(root, path.parent, _NPM_LOCKS)
+    locked = _has_lock(root, path.parent, _NPM_LOCKS, sources)
     has_deps = False
     for section in ("dependencies", "devDependencies", "optionalDependencies"):
         block = data.get(section)
@@ -590,7 +591,7 @@ def _scan_cargo_toml(root: Path, path: Path, rel: str, out: _Collector, sources:
         data = tomllib.loads(text)
     except (tomllib.TOMLDecodeError, ValueError):
         return
-    locked = _has_lock(root, path.parent, ("Cargo.lock",))
+    locked = _has_lock(root, path.parent, ("Cargo.lock",), sources)
     tables = [data.get(k) for k in ("dependencies", "dev-dependencies", "build-dependencies")]
     workspace = data.get("workspace")
     if isinstance(workspace, dict):
@@ -613,7 +614,7 @@ def _scan_unlocked_json(root: Path, path: Path, rel: str, out: _Collector, secti
         data = json.loads(text) if text else None
     except ValueError:
         return
-    if not isinstance(data, dict) or _has_lock(root, path.parent, locks):
+    if not isinstance(data, dict) or _has_lock(root, path.parent, locks, sources):
         return
     names = [n for s in sections if isinstance(data.get(s), dict) for n in data[s]]
     if any(n.lower() != "php" and not n.lower().startswith(("ext-", "lib-")) for n in names):

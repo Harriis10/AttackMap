@@ -141,19 +141,21 @@ def looks_like_atproto_repo(root: str | Path) -> bool:
     count toward applicability, so a repo that merely *tests* against
     ATProto stays silent.
     """
-    repo = Path(root)
-    if not repo.exists() or not repo.is_dir():
+    from .index import PassSources
+    repo = Path(root).resolve()
+    sources = PassSources.for_root(repo)
+    if not sources.is_dir(repo):
         return False
     try:
-        for path in walk_repo(repo, prune=is_skipped_dir):
+        for path in sources.iter_files(prune=is_skipped_dir):
             rel = path.relative_to(repo)
             if in_skipped_dir(rel) or is_test_file(rel.as_posix()) or is_vendored_file(rel.as_posix()):
                 continue
             if path.name == "package.json":
                 try:
-                    if path.stat().st_size > _MAX_FILE_BYTES:
+                    text = sources.gated_text(rel.as_posix(), max_bytes=_MAX_FILE_BYTES, errors="strict")
+                    if text is None:
                         continue
-                    text = path.read_text(encoding="utf-8")
                 except (UnicodeDecodeError, OSError):
                     continue
                 if _package_markers(text):
@@ -166,9 +168,9 @@ def looks_like_atproto_repo(root: str | Path) -> bool:
                 return True
             if path.suffix in JS_TS_SUFFIXES:
                 try:
-                    if path.stat().st_size > _MAX_FILE_BYTES:
+                    text = sources.gated_text(rel.as_posix(), max_bytes=_MAX_FILE_BYTES, errors="strict")
+                    if text is None:
                         continue
-                    text = path.read_text(encoding="utf-8")
                 except (UnicodeDecodeError, OSError):
                     continue
                 if _SOURCE_MARKER_RE.search(text):
@@ -739,7 +741,8 @@ def scan_node_atproto(root: str | Path, index: object | None = None) -> ScanResu
     # literal belongs to models.py); completeness stays "unknown" honestly
     # and any oversized-file skip is reported via `limitations`.
     result = ScanResult(root=str(repo), scanned_files=None)
-    if not repo.exists() or not repo.is_dir():
+    from .index import PassSources
+    if not PassSources.for_root(repo, index).is_dir(repo):
         return result
     if not looks_like_atproto_repo(repo):
         # Enforced here as well as in detect(): a direct call on a

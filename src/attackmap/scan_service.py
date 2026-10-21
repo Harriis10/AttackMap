@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections import deque
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -36,6 +37,8 @@ from .fleet import (
     render_fleet_graph_mermaid,
     render_fleet_summary,
 )
+from .fleet_admission import (FleetAdmissionError, FleetMemoryLedger, FleetMemoryPolicy,
+                              current_reservation, reservation_scope, unverified_fleet_cleanup)
 from .models import AttackPath, Finding, ScanResult
 from .pipeline import AnalyzeOptions, ScanAiLimits, run_scan
 from .run_contract import RunRequest
@@ -104,6 +107,8 @@ class ScanRequest:
     fleet_child_run_ids: dict[str, str] = field(default_factory=dict)
     fleet_event: Callable[[dict], None] | None = None
     fleet_finished: Callable[[Path, FleetScan], None] | None = None
+    # Opt-in only until current-scope working peaks qualify a measured default.
+    fleet_memory_policy: FleetMemoryPolicy | None = None
     # Explicit deployment alias declarations for cross-repo link resolution
     # (C28): positive host→repo mappings; never inferred by similarity.
     deployment_aliases: DeploymentAliases | None = None
@@ -169,14 +174,8 @@ def _analyze_options(
     output: Path,
     analyzers: list | None,
 ) -> AnalyzeOptions:
-    # C34/AM048: the explicit AnalyzeOptions.incremental field arrives with the
-    # pending pipeline.py patch; pass the kwarg only once the field exists so
-    # this module works unchanged before and after that patch. The cache
-    # itself is activated through ATTACKMAP_INCREMENTAL (set by --incremental),
-    # which scan_files reads, so behavior does not depend on this kwarg.
-    extra: dict[str, Any] = {}
-    if "incremental" in getattr(AnalyzeOptions, "__dataclass_fields__", {}):
-        extra["incremental"] = request.incremental
+    # Explicit False from a desktop request must override inherited CLI env.
+    extra: dict[str, Any] = {"incremental": request.incremental}
     return AnalyzeOptions(
         repo_path=repo_path,
         output=output,
@@ -280,11 +279,12 @@ def _run_single_repo(request: ScanRequest, analyzers: list | None) -> RunSummary
 class _FleetRepoError(Exception):
     """Raised when a single repository in a fleet scan fails."""
 
-    def __init__(self, repo_id: str, root: str, message: str) -> None:
+    def __init__(self, repo_id: str, root: str, message: str, error_type: str = "fleet_worker_failed") -> None:
         super().__init__(message)
         self.repo_id = repo_id
         self.root = root
         self.message = message
+        self.error_type = error_type
 
 
 def _effective_max_workers(request: ScanRequest) -> int:
@@ -383,11 +383,21 @@ def _run_fleet_repo_argv(
     return argv
 
 
-def _load_repo_scan(report_path: Path) -> tuple[ScanResult, list[Finding], list[AttackPath], int]:
+def _read_fleet_payload(report_path: Path, max_bytes: int | None = None):
+    if max_bytes is None:
+        data = json.loads(report_path.read_text(encoding="utf-8"))
+    else:
+        with report_path.open("rb") as stream:
+            raw = stream.read(max_bytes + 1)
+        if len(raw) > max_bytes:
+            raise FleetAdmissionError("fleet_result_bytes", "Worker result exceeds its explicitly reserved payload limit")
+        data = json.loads(raw)
+    return data
+
+
+def _load_repo_scan(report_path: Path, *, max_bytes: int | None = None) -> tuple[ScanResult, list[Finding], list[AttackPath], int]:
     """Load a single repo's result from its worker-written JSON report."""
-    if not report_path.is_file():
-        raise FileNotFoundError(f"missing report: {report_path}")
-    data = json.loads(report_path.read_text(encoding="utf-8"))
+    data = _read_fleet_payload(report_path, max_bytes)
     # The canonical report wraps the scan under "scan"; fall back to treating
     # the top-level object as the scan for compact fixtures / test reports.
     scan_data = data.get("scan", data)
@@ -405,24 +415,41 @@ def _run_supervised_worker(
     """Wait for a bounded-output worker, including verified cancellation cleanup."""
     from .execution import ProcessSupervisor
 
+    def terminal(code: int, tail: str, *, verified: bool = True):
+        outcome = subprocess.CompletedProcess(argv, code, "", tail)
+        outcome.cleanup_verified = verified
+        return outcome
+
     if cancel_check is not None and cancel_check():
-        return subprocess.CompletedProcess(argv, 130, "", "Worker cancelled before launch.")
+        return terminal(130, "Worker cancelled before launch.")
     supervisor = ProcessSupervisor()
+    reservation = current_reservation()
     result: list[subprocess.CompletedProcess[str]] = []
 
     def complete(code: int, tail: str) -> None:
-        result.append(subprocess.CompletedProcess(
-            argv, 130 if supervisor.cancelled else code, "", tail,
-        ))
+        if reservation is not None:
+            reservation.ledger.verified_cleanup(reservation)
+        result.append(terminal(130 if supervisor.cancelled else code, tail))
 
     extra = {"on_progress": on_progress} if on_progress is not None else {}
     started = supervisor.start(argv, on_done=complete, timeout=timeout, **extra)
     if not started and not supervisor.running:
-        return result[0] if result else subprocess.CompletedProcess(argv, 1, "", supervisor.stderr_tail)
+        return result[0] if result else terminal(1, supervisor.stderr_tail)
+    cleanup_deadline: float | None = None
     try:
         while not supervisor.wait(0.1):
             if cancel_check is not None and cancel_check():
                 supervisor.request_cancel()
+                cleanup_deadline = cleanup_deadline or time.monotonic() + 15
+            if getattr(supervisor, "timed_out", False):
+                cleanup_deadline = cleanup_deadline or time.monotonic() + 15
+            if current_reservation() is not None and ("termination could not be verified" in getattr(supervisor, "stderr_tail", "") or (
+                cleanup_deadline is not None and time.monotonic() >= cleanup_deadline
+            )):
+                # Preserve ownership across this return. A late verified callback
+                # releases the quarantine; future completion alone cannot do so.
+                reservation.ledger.settle(reservation, cleanup_verified=False, keep_result=False)
+                return terminal(1, "Worker process-tree cleanup could not be verified; admission remains occupied.", verified=False)
     except BaseException:
         supervisor.request_cancel()
         # Do not let an interrupted caller abandon its owned process tree.
@@ -449,6 +476,9 @@ def _run_fleet_repo_worker(
     with tempfile.TemporaryDirectory(prefix="attackmap-fleet-") as worker_dir:
         result_path = Path(worker_dir) / "result.json"
         argv.extend(["--fleet-result", str(result_path)])
+        reservation = current_reservation()
+        if reservation is not None:
+            reservation.process_cleanup_verified = False
         if request.fleet_event is not None:
             request.fleet_event({"repo_id": repo_id, "state": "running"})
             completed = _run_supervised_worker(argv, cancel_check=request.cancel_check,
@@ -456,13 +486,21 @@ def _run_fleet_repo_worker(
                     "state": "running", "progress": event}),
                 timeout=request.fleet_timeout_seconds)
         else:
-            completed = _run_supervised_worker(argv, cancel_check=request.cancel_check)
+            completed = _run_supervised_worker(argv, cancel_check=request.cancel_check,
+                                               timeout=request.fleet_timeout_seconds)
+        if reservation is not None:
+            reservation.process_cleanup_verified = getattr(completed, "cleanup_verified", False) is True
+            if not reservation.process_cleanup_verified:
+                raise FleetAdmissionError("fleet_cleanup_unknown", "Worker termination unverified; reservation retained")
         if completed.returncode != 0:
             # A usage error applies to the request; policy/analysis failures
             # remain per-repository failures even when their exit code is 2.
             if result_path.is_file():
                 try:
-                    failure = json.loads(result_path.read_text(encoding="utf-8"))
+                    failure = _read_fleet_payload(result_path,
+                        reservation.estimate.result_bytes_limit if reservation is not None else None)
+                except FleetAdmissionError:
+                    raise
                 except (ValueError, OSError):
                     failure = None
                 if isinstance(failure, dict) and failure.get("error_kind") == "configuration":
@@ -473,7 +511,10 @@ def _run_fleet_repo_worker(
                 f"subprocess exited {completed.returncode}{f' - {stderr}' if stderr else ''}",
             )
         try:
-            scan, findings, attack_paths, suppressed_count = _load_repo_scan(result_path)
+            scan, findings, attack_paths, suppressed_count = _load_repo_scan(result_path,
+                **({"max_bytes": reservation.estimate.result_bytes_limit} if reservation is not None else {}))
+        except FleetAdmissionError:
+            raise
         except Exception as exc:  # noqa: BLE001 — surface parse/load errors as a repo failure
             raise _FleetRepoError(
                 repo_id, str(repo_path), f"failed to load report: {type(exc).__name__}: {exc}"
@@ -532,32 +573,72 @@ def _run_fleet_parallel(
     analyzer_names: list[str],
     fleet: FleetScan,
     output_root: Path,
-) -> None:
+) -> dict:
     """Bounded pool of per-repo subprocess workers."""
     max_workers = _effective_max_workers(request)
     repo_ids = fleet_repo_ids(request.repo_paths)
     pending: list[tuple[str, Path]] = [
         (repo_id, repo_path) for repo_id, repo_path in zip(repo_ids, request.repo_paths)
     ]
+    ledger = FleetMemoryLedger(request.fleet_memory_policy) if request.fleet_memory_policy is not None else None
 
     request.echo("")
     request.echo(f"Fleet: scanning {len(pending)} repositories with {max_workers} worker(s)...")
 
     with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="fleet-") as executor:
         futures: dict[Any, tuple[str, Path]] = {}
-        remaining = iter(pending)
+        remaining = deque(pending)
+
+        def admission_failure(repo_id: str, repo_path: Path, exc: FleetAdmissionError):
+            fleet.failed.append({"repo_id": repo_id, "root": str(repo_path),
+                                 "error": str(exc), "error_type": exc.kind})
+            request.echo(f"Error: {repo_id} not admitted — {exc}", err=True)
+            if request.fleet_event is not None:
+                request.fleet_event({"repo_id": repo_id, "state": "failed", "error_type": exc.kind})
+
+        def reserved_worker(repo_id: str, repo_path: Path, reservation):
+            keep_result = False
+            try:
+                with reservation_scope(reservation):
+                    if request.cancel_check is not None and request.cancel_check():
+                        raise FleetAdmissionError("fleet_admission_cancelled", "Child cancelled before dispatch")
+                    result = _run_fleet_repo_worker(request, repo_id, repo_path, output_root, analyzer_names)
+                    keep_result = True
+                    return result
+            finally:
+                if reservation is not None:
+                    ledger.settle(reservation, cleanup_verified=reservation.process_cleanup_verified,
+                                  keep_result=keep_result)
 
         def admit() -> bool:
             if request.cancel_check is not None and request.cancel_check():
+                if ledger is not None:
+                    ledger.cancel()
+                while remaining:
+                    repo_id, repo_path = remaining.popleft()
+                    admission_failure(repo_id, repo_path, FleetAdmissionError(
+                        "fleet_admission_cancelled", "Repository not started because fleet was cancelled"))
                 return False
-            item = next(remaining, None)
-            if item is None:
-                return False
-            repo_id, repo_path = item
-            future = executor.submit(_run_fleet_repo_worker, request, repo_id,
-                                     repo_path, output_root, analyzer_names)
-            futures[future] = item
-            return True
+            while remaining:
+                repo_id, repo_path = remaining[0]
+                try:
+                    reservation = ledger.reserve(repo_id) if ledger is not None else None
+                except FleetAdmissionError as exc:
+                    remaining.popleft()
+                    admission_failure(repo_id, repo_path, exc)
+                    continue
+                if ledger is not None and reservation is None:
+                    return False  # live workers may free capacity; keep input order
+                remaining.popleft()
+                try:
+                    future = executor.submit(reserved_worker, repo_id, repo_path, reservation)
+                except BaseException:
+                    if reservation is not None:
+                        ledger.settle(reservation, cleanup_verified=True, keep_result=False)
+                    raise
+                futures[future] = (repo_id, repo_path)
+                return True
+            return False
 
         for _ in range(max_workers):
             if not admit():
@@ -580,10 +661,13 @@ def _run_fleet_parallel(
                         err=True,
                     )
                     fleet.failed.append(
-                        {"repo_id": exc.repo_id, "root": exc.root, "error": exc.message}
+                        {"repo_id": exc.repo_id, "root": exc.root, "error": exc.message,
+                         "error_type": exc.error_type}
                     )
                     if request.fleet_event is not None:
                         request.fleet_event({"repo_id": repo_id, "state": "failed"})
+                except FleetAdmissionError as exc:
+                    admission_failure(repo_id, repo_path, exc)
                 except Exception as exc:  # noqa: BLE001 — worker bugs must not sink the fleet
                     message = f"{type(exc).__name__}: {exc}"
                     request.echo(
@@ -601,6 +685,11 @@ def _run_fleet_parallel(
     order = {repo_id: index for index, repo_id in enumerate(repo_ids)}
     fleet.results.sort(key=lambda result: order[result.repo_id])
     fleet.failed.sort(key=lambda failure: order[failure["repo_id"]])
+    admission = ledger.snapshot() if ledger is not None else {
+        "policy": "count_only", "memory_qualification": "unknown", "os_enforced": False,
+        "limitation": "Worker count and deadlines do not bound fleet or retained-parent memory"}
+    admission.update(worker_limit=max_workers, hard_worker_timeout_seconds=request.fleet_timeout_seconds)
+    return admission
 
 
 def _effective_deployment_aliases(
@@ -704,6 +793,8 @@ def _finalize_fleet(request: ScanRequest, fleet: FleetScan, output_root: Path) -
 
 
 def _run_fleet_generation(request: ScanRequest, analyzers: list | None) -> RunSummary:
+    if unverified_fleet_cleanup():
+        raise ScanRequestError("Previous fleet process-tree cleanup remains unverified; no new fleet can start")
     output_root = Path(request.output)
     incompatible = _fleet_incompatible_flags(request)
     if incompatible:
@@ -717,10 +808,13 @@ def _run_fleet_generation(request: ScanRequest, analyzers: list | None) -> RunSu
     # The parent may itself be staged by a desktop caller, but child results
     # always need independently verified, manifest-bound generations.
     child_request = replace(request, atomic_output=True)
-    if _effective_max_workers(request) == 1 and not request.fleet_supervised:
+    if (_effective_max_workers(request) == 1 and not request.fleet_supervised
+            and request.fleet_memory_policy is None):
         _run_fleet_serial(child_request, analyzers, fleet, output_root)
+        admission = {"policy": "in_process_serial", "memory_qualification": "unknown", "os_enforced": False,
+                     "limitation": "No current-scope measured memory reservation or hard worker deadline"}
     else:
-        _run_fleet_parallel(child_request, _analyzer_names(analyzers), fleet, output_root)
+        admission = _run_fleet_parallel(child_request, _analyzer_names(analyzers), fleet, output_root)
     fleet_duration = (time.perf_counter() - fleet_started) * 1000
 
     from .diagnostics import fleet_diagnostic
@@ -740,6 +834,7 @@ def _run_fleet_generation(request: ScanRequest, analyzers: list | None) -> RunSu
     safe_write_text(output_root, output_root / "run-manifest.json", json.dumps({
         "stages": [{"name": "fleet", "milliseconds": round(fleet_duration, 3)}],
         "diagnostic_context": context.model_dump(mode="json"),
+        "fleet_resource_admission": admission,
     }) + "\n")
 
     summary = _finalize_fleet(replace(request, output_format="all"), fleet, output_root)

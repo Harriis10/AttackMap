@@ -61,12 +61,12 @@ def analyze_sbom(root: str | Path, index: "RepoIndex | None" = None) -> list[Dep
     cannot change the SBOM; the walk itself still enumerates the live tree.
     """
     root_path = Path(root).resolve()
-    if not root_path.exists() or not root_path.is_dir():
-        return []
     sources = PassSources.for_root(root_path, index)
+    if not sources.is_dir(root_path):
+        return []
 
     manifest_hints: list[DependencyHint] = []
-    for manifest in _iter_manifests(root_path):
+    for manifest in _iter_manifests(root_path, sources):
         rel = str(manifest.relative_to(root_path)).replace("\\", "/")
         try:
             text = sources.text(manifest)
@@ -98,7 +98,7 @@ def analyze_sbom(root: str | Path, index: "RepoIndex | None" = None) -> list[Dep
     return _dedup(hints)
 
 
-def _iter_manifests(root: Path):
+def _iter_manifests(root: Path, sources: PassSources | None = None):
     """Depth-capped walk yielding candidate manifest files by name."""
 
     interesting = {
@@ -109,16 +109,17 @@ def _iter_manifests(root: Path):
         "Cargo.toml",
         "composer.json",
     }
+    sources = sources or PassSources.for_root(root)
 
     def walk(directory: Path, depth: int):
         try:
-            entries = list(directory.iterdir())
+            entries = sources.children(directory)
         except (OSError, PermissionError):
             return
         for entry in entries:
-            if entry.name in _SKIP_DIRS or is_unsafe_link(root, entry):
+            if entry.name in _SKIP_DIRS or sources.unsafe(entry):
                 continue
-            if entry.is_dir():
+            if sources.is_dir(entry):
                 if depth < _MAX_DEPTH:
                     yield from walk(entry, depth + 1)
             elif entry.name in interesting:

@@ -39,7 +39,7 @@ from .diff import (
 from .finding_identity import legacy_id_aliases
 from .gitref import GitRefError
 from .hunt_harness import run_majority_verify
-from .index import active_index_for, clear_pinned_index
+from .index import RepoIndex, active_index_for, clear_pinned_index
 from .llm_review import LlmReviewError, generate_llm_review
 from .md import sanitize_llm_markdown
 from .models import AnalyzerError, AttackPath, AttackSurface, Finding, ScanResult
@@ -154,6 +154,7 @@ class AnalyzeOptions:
     atomic_output: bool = True
     analyzers: list | None = None
     recall: bool = False
+    incremental: bool | None = None
     cve: bool = False
     no_suppress: bool = False
     suppress_file: str | None = None
@@ -397,8 +398,13 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
         )
 
     opt_in_matches: list[str] = []
+    captured_index: RepoIndex | None = None
+    budget = TimeBudget(resolve_time_budget_seconds(options.time_budget_seconds))
+    state.time_budget = budget
 
     def _select() -> None:
+        nonlocal captured_index
+        captured_index = RepoIndex.build(repo_path)
         state.analyzers = resolve_run_analyzers(
             repo_path, analyzers=options.analyzers, opt_in_matches=opt_in_matches
         )
@@ -410,8 +416,6 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
     # C35 elapsed-time budget: one cheap perf_counter read per stage boundary.
     # A breach skips later optional stages and still publishes, so the run ends
     # as a COMPLETED analysis whose scan carries explicit partial coverage.
-    budget = TimeBudget(resolve_time_budget_seconds(options.time_budget_seconds))
-    state.time_budget = budget
 
     def _deadline_hit(skipped_stage: str) -> bool:
         if not budget.check(skipped_stage):
@@ -449,6 +453,8 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                 recall=options.recall,
                 strict=options.strict_analyzers,
                 isolated_analyzers=options.isolated_analyzers,
+                incremental=options.incremental,
+                index=captured_index,
             )
 
         _timed(state, "scan_and_merge", _scan)

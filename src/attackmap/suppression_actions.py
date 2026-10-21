@@ -41,11 +41,25 @@ def _safe_root(repo_root: str | Path) -> Path:
 
 
 def _target(root: Path, relative: str) -> Path:
-    if relative not in _NAMES:
-        raise UnsafePathError("Suppression actions only write the repository suppression file")
+    if (not isinstance(relative, str) or not relative or any(ord(c) < 32 for c in relative)
+            or ":" in relative or "\\" in relative or relative.startswith("/")
+            or any(part in {"", ".", ".."} or part.endswith((" ", ".")) for part in relative.split("/"))
+            or Path(relative).suffix.lower() not in {".yaml", ".yml"}):
+        raise UnsafePathError("Suppression actions require a YAML file inside the selected repository")
+    for part in relative.split("/"):
+        stem = part.split(".", 1)[0].upper()
+        if (stem in {"CON", "PRN", "AUX", "NUL"}
+                or re.fullmatch(r"(?:COM|LPT)[1-9]", stem)
+                or any(char in part for char in '<>"|?*')):
+            raise UnsafePathError("Suppression file path contains a reserved filename")
     path = root / relative
-    if path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction()):
-        raise UnsafePathError("Suppression file cannot be redirected")
+    for component in (path, *path.parents):
+        if component == root:
+            break
+        if component.is_symlink() or (hasattr(component, "is_junction") and component.is_junction()):
+            raise UnsafePathError("Suppression file cannot be redirected")
+    if not path.parent.is_dir():
+        raise UnsafePathError("Suppression destination directory is unavailable")
     if path.exists() and not path.is_file():
         raise UnsafePathError("Suppression destination is not a regular file")
     return path
@@ -148,13 +162,28 @@ def _plan_id(plan: dict) -> str:
 
 def preview_suppression_action(repo_root: str | Path, finding: Finding | Mapping, *, reason: str,
         owner: str = "", ticket: str = "", expires: str | None = None, report_run_id: str = "",
-        origin: str = "desktop", legacy_reviewed: bool = False) -> dict:
+        origin: str = "desktop", legacy_reviewed: bool = False, suppress_file: str | None = None) -> dict:
     root = _safe_root(repo_root)
-    relative = next((name for name in _NAMES if _target(root, name).exists()), _NAMES[0])
+    if suppress_file is None:
+        relative = next((name for name in _NAMES if _target(root, name).exists()), _NAMES[0])
+    else:
+        if not isinstance(suppress_file, str) or not suppress_file.strip():
+            raise UnsafePathError("Explicit suppression file must be a local YAML path")
+        selected = Path(suppress_file)
+        if selected.is_absolute():
+            try:
+                relative = selected.relative_to(root).as_posix()
+            except ValueError as exc:
+                raise UnsafePathError("Suppression file must be inside the selected repository") from exc
+        else:
+            relative = suppress_file.replace("\\", "/")
+        _target(root, relative)
     before = _read(_target(root, relative))
     record = _record(finding)
     options = dict(reason=reason, owner=owner, ticket=ticket, expires=expires,
                    report_run_id=report_run_id, origin=origin, legacy_reviewed=legacy_reviewed)
+    if suppress_file is not None:
+        options["suppress_file"] = relative
     action_id = uuid.uuid4().hex
     created_at = datetime.now(timezone.utc).isoformat()
     entry, review = _entry(record, options, action_id, created_at)
@@ -185,8 +214,15 @@ def _validate_plan(value: Mapping) -> dict:
         raise ValueError("Invalid suppression action ID")
     if not isinstance(plan["created_at"], str) or not isinstance(plan["options"], dict):
         raise ValueError("Invalid suppression plan metadata")
-    if set(plan["options"]) != {"reason", "owner", "ticket", "expires", "report_run_id", "origin", "legacy_reviewed"}:
+    expected_options = {"reason", "owner", "ticket", "expires", "report_run_id", "origin", "legacy_reviewed"}
+    if set(plan["options"]) not in (expected_options, expected_options | {"suppress_file"}):
         raise ValueError("Unsupported suppression plan options")
+    if "suppress_file" in plan["options"]:
+        if plan["options"]["suppress_file"] != plan["relative_path"]:
+            raise ValueError("Selected suppression file changed; create a fresh preview")
+    elif plan["relative_path"] not in _NAMES:
+        raise ValueError("A custom suppression file requires explicit selection")
+    _target(_safe_root(plan["repo_root"]), plan["relative_path"])
     before, after = plan["before_text"], plan["after_text"]
     if before is not None and (not isinstance(before, str) or len(before.encode()) > _LIMIT):
         raise ValueError("Invalid suppression before snapshot")
@@ -241,7 +277,7 @@ def apply_suppression_action(plan: Mapping) -> dict:
     expires = plan["options"].get("expires")
     if expires and date.fromisoformat(expires) < date.today():
         raise ValueError("Suppression expiry is already past")
-    if plan["relative_path"] != _NAMES[0] and _target(root, _NAMES[0]).exists():
+    if "suppress_file" not in plan["options"] and plan["relative_path"] != _NAMES[0] and _target(root, _NAMES[0]).exists():
         raise ValueError("A higher-priority suppression file appeared; create a fresh preview")
     _replace(root, plan["relative_path"], plan["after_text"], plan["before_sha256"])
     return {"kind": "attackmap_suppression_receipt", "schema_version": _VERSION,
@@ -286,7 +322,7 @@ def execute_suppression_action(operation: str, payload: dict) -> dict:
     if not isinstance(payload, dict):
         raise ValueError("Suppression action payload must be an object")
     if operation == "suppression_preview":
-        allowed = {"repo_root", "finding", "reason", "owner", "ticket", "expires", "report_run_id", "origin", "legacy_reviewed"}
+        allowed = {"repo_root", "finding", "reason", "owner", "ticket", "expires", "report_run_id", "origin", "legacy_reviewed", "suppress_file"}
         if not {"repo_root", "finding", "reason"} <= payload.keys() or payload.keys() - allowed:
             raise ValueError("Unsupported suppression preview payload")
         plan = preview_suppression_action(**payload)

@@ -8,7 +8,7 @@ import threading
 import time
 from collections import deque
 from typing import Any, Callable
-from .windows import WindowsProcessJob
+from .windows import WindowsProcessJob, validate_memory_limit
 
 ProgressHook = Callable[[dict[str, Any]], None]
 DoneHook = Callable[[int, str], None]
@@ -25,8 +25,11 @@ class ProcessSupervisor:
         self._stop_lock = threading.Lock()
         self._cancelled = False
         self.timed_out = False
+        self.memory_policy = {"requested_bytes": 0, "enforced_bytes": 0, "status": "disabled"}
         self._completed = threading.Event()
         self._completed.set()
+        self._pending_completion = None
+        self._completion_claimed = False
 
     def start(
         self,
@@ -36,17 +39,23 @@ class ProcessSupervisor:
         on_done: DoneHook | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
+        job_memory_bytes: int = 0,
     ) -> bool:
         with self._lock:
             if self.running:
                 return False
             if timeout is not None and timeout <= 0:
                 raise ValueError("timeout must be positive")
+            validate_memory_limit(job_memory_bytes)
             self._completed.clear()
             self.timed_out = False
             self.running = True
             self.stderr_tail = ""
             self._cancelled = False
+            self._pending_completion = None
+            self._completion_claimed = False
+            self.memory_policy = {"requested_bytes": job_memory_bytes, "enforced_bytes": 0,
+                                  "status": "requested" if job_memory_bytes else "disabled"}
             try:
                 command = argv
                 popen_kwargs = dict(
@@ -55,22 +64,32 @@ class ProcessSupervisor:
                     text=True, encoding="utf-8", errors="replace", env=env,
                 )
                 if os.name == "nt":
-                    self._job = WindowsProcessJob()
+                    # Configure the job BEFORE any worker exists or can run.
+                    # Cap setup failure follows the normal fail-closed launch path.
+                    self._job = (WindowsProcessJob(memory_bytes=job_memory_bytes)
+                                 if job_memory_bytes else WindowsProcessJob())
+                    if job_memory_bytes:
+                        self.memory_policy.update(enforced_bytes=job_memory_bytes, status="enforced")
                     popen_kwargs["creationflags"] = (
                         subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW | 4
                     )  # CREATE_SUSPENDED: contain the process before it can spawn children.
                 else:
                     popen_kwargs["start_new_session"] = True
+                    if job_memory_bytes:
+                        self.memory_policy["status"] = "unsupported_on_platform"
                 self._proc = subprocess.Popen(**popen_kwargs)
                 if self._job is not None:
                     self._job.attach_and_resume(self._proc)
             except (OSError, ValueError) as exc:
+                if job_memory_bytes and self.memory_policy["status"] == "requested":
+                    self.memory_policy["status"] = "setup_failed"
                 if self._proc is not None:
                     try:
                         self._proc.kill()
                         self._proc.wait(timeout=2)
                     except (OSError, subprocess.TimeoutExpired):
                         self.stderr_tail = "Launch failed and worker termination could not be verified."
+                        self._pending_completion = (self._proc, self._job, 1, self.stderr_tail, on_done)
                         return False
                 if self._job is not None:
                     self._job.close()
@@ -148,14 +167,23 @@ class ProcessSupervisor:
             exited = self._finish_tree(proc, job, force=True)
         if not exited:
             self.stderr_tail = "Worker exited but process-tree termination could not be verified."
+            with self._lock:
+                self._pending_completion = (proc, job, code, self.stderr_tail, on_done)
             return  # Keep admission occupied: starting another scan is unsafe.
         for reader in readers:
             reader.join(timeout=0.25)
         with tail_lock:
             self.stderr_tail = "\n".join(tail)
+        self._publish_done(proc, code, self.stderr_tail, on_done)
+
+    def _publish_done(self, proc, code, tail, on_done) -> None:
+        with self._lock:
+            if self._proc is not proc or self._completion_claimed:
+                return
+            self._completion_claimed = True
         try:
             if on_done is not None:
-                on_done(code, self.stderr_tail)
+                on_done(code, tail)
         finally:
             with self._lock:
                 if self._proc is proc:
@@ -165,6 +193,26 @@ class ProcessSupervisor:
                         self._job.close()
                         self._job = None
                     self._completed.set()
+                    self._pending_completion = None
+
+    def retry_cleanup(self) -> bool:
+        """Recover only the stored owned run; never release on PID lookup or acknowledgement."""
+        with self._lock:
+            pending = self._pending_completion
+        if pending is None:
+            return self._completed.is_set()
+        proc, job, code, tail, on_done = pending
+        with self._stop_lock:
+            try:
+                if proc.poll() is None:
+                    proc.kill()  # also covers a launch that failed before job assignment
+                verified = self._finish_tree(proc, job, force=True)
+            except OSError:
+                return False
+        if not verified:
+            return False
+        self._publish_done(proc, code, tail, on_done)
+        return self._completed.is_set()
 
     def _finish_tree(self, proc, job, *, force=False) -> bool:
         deadline = time.monotonic() + (2 if force else 3)

@@ -519,15 +519,15 @@ def _iter_graphql_files(root: Path, sources: PassSources):
     def walk(directory: Path, depth: int):
         nonlocal count
         try:
-            entries = list(directory.iterdir())
+            entries = sources.children(directory)
         except (OSError, PermissionError):
             return
         for entry in entries:
             if count >= _GRAPHQL_MAX_FILES:
                 return
-            if entry.name in _GRAPHQL_SKIP_DIRS or is_unsafe_link(root, entry):
+            if entry.name in _GRAPHQL_SKIP_DIRS or sources.unsafe(entry):
                 continue
-            if entry.is_dir():
+            if sources.is_dir(entry):
                 if depth < _GRAPHQL_MAX_DEPTH:
                     yield from walk(entry, depth + 1)
                 continue

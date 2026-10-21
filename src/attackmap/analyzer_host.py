@@ -24,9 +24,9 @@ What is actually enforced (see docs/external-analyzers.md):
   size before parsing. A deliberately evasive analyzer can re-dup its own
   descriptors and bypass the stream counter; the parent's bounded
   retention (a 50-line tail) keeps core memory safe regardless.
-* Memory — on Windows the supervisor's Job Object gets a job-wide commit
-  cap (applied immediately after resume; a small race window exists while
-  the interpreter boots). On other platforms no memory cap is applied.
+* Memory — on Windows the supervisor configures a job-wide commit cap before
+  creating/assigning/resuming the child. Setup failure prevents launch.
+  Other platforms remain functional with an explicit unenforced policy.
 
 Every breach produces a named partial-coverage result: an
 ``analyzer_errors`` entry with a distinct error_type plus a
@@ -53,7 +53,7 @@ import shutil
 import sys
 import tempfile
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib.metadata import entry_points
 from pathlib import Path
 
@@ -65,6 +65,7 @@ HOST_CRASH = "AnalyzerHostCrash"
 HOST_INVALID_OUTPUT = "AnalyzerHostInvalidOutput"
 HOST_LAUNCH_FAILED = "AnalyzerHostLaunchFailed"
 HOST_STUCK = "AnalyzerHostStuck"
+HOST_INPUT_INVALID = "AnalyzerHostInputInvalid"
 
 _STATUS_FILE = "status.json"
 _RESULT_FILE = "result.json"
@@ -75,6 +76,20 @@ _EXIT_STREAM_BREACH = 80
 _EXIT_RESULT_TOO_LARGE = 81
 
 _MESSAGE_MAX_CHARS = 500
+_QUARANTINE_LOCK = threading.Lock()
+_QUARANTINED_HOSTS: dict[object, Path] = {}
+
+
+def _recover_quarantined_hosts() -> bool:
+    with _QUARANTINE_LOCK:
+        pending = list(_QUARANTINED_HOSTS.items())
+    for supervisor, workdir in pending:
+        if supervisor.wait(0) or supervisor.retry_cleanup():
+            with _QUARANTINE_LOCK:
+                _QUARANTINED_HOSTS.pop(supervisor, None)
+            shutil.rmtree(workdir, ignore_errors=True)
+    with _QUARANTINE_LOCK:
+        return not _QUARANTINED_HOSTS
 
 
 @dataclass(frozen=True)
@@ -90,6 +105,11 @@ class HostLimits:
     stream_bytes: int = 8 * 1024 * 1024
     result_bytes: int = 64 * 1024 * 1024
     memory_bytes: int | None = None
+
+    def __post_init__(self):
+        if self.memory_bytes is not None:
+            from .execution.windows import validate_memory_limit
+            validate_memory_limit(self.memory_bytes)
 
     def effective_memory_limit(self) -> int:
         if self.memory_bytes is not None:
@@ -107,6 +127,7 @@ class IsolatedOutcome:
     message: str = ""
     limitation: str | None = None
     exit_code: int | None = None
+    resource_policy: dict[str, object] = field(default_factory=dict)
 
     @property
     def ok(self) -> bool:
@@ -170,6 +191,7 @@ def run_isolated_analyzer(
     analyzer: object,
     root: str | Path,
     limits: HostLimits | None = None,
+    *, index=None, bundle=None,
 ) -> IsolatedOutcome:
     """Run one analyzer in a supervised subprocess and classify the outcome.
 
@@ -180,18 +202,46 @@ def run_isolated_analyzer(
     """
     host_limits = limits if limits is not None else HostLimits()
     name = _analyzer_name(analyzer)
+    if not _recover_quarantined_hosts():
+        return _partial(name, HOST_STUCK, "previous host cleanup remains unverified",
+                        "no new isolated worker admitted while an owned process tree is uncertain", None)
     spec = _analyzer_load_spec(analyzer)
     if not (spec.get("entry_point") or spec.get("module") or spec.get("file")):
         return _partial(name, HOST_LAUNCH_FAILED, "no loadable analyzer source", "cannot determine how to load the analyzer in a subprocess", None)
 
-    workdir = Path(tempfile.mkdtemp(prefix="attackmap-analyzer-host-"))
+    from .index import RepoIndex, active_index_for
+    from .snapshot_transport import SnapshotBundle, SnapshotInputError
+    own_bundle = bundle is None
     try:
+        if bundle is None:
+            index = index if index is not None else active_index_for(root)
+            index = index if index is not None else RepoIndex.build(root)
+            if index.root != Path(root).resolve():
+                raise SnapshotInputError("Captured index belongs to another repository")
+            bundle = SnapshotBundle(index)
+        if bundle.descriptor.root != str(Path(root).resolve()):
+            raise SnapshotInputError("Sealed input belongs to another repository")
+        expected = index.snapshot if index is not None else bundle.identity
+        if (expected is None or bundle.descriptor.snapshot_id != expected.snapshot_id
+                or bundle.descriptor.config_identity != expected.config_identity):
+            raise SnapshotInputError("Sealed input does not match the selected capture/config")
+        lease = bundle.acquire()
+    except (SnapshotInputError, OSError) as exc:
+        if own_bundle and bundle is not None:
+            bundle.close()
+        return _partial(name, HOST_INPUT_INVALID, "captured input admission failed", str(exc), None)
+
+    workdir = None
+    quarantined = False
+    try:
+        workdir = Path(tempfile.mkdtemp(prefix="attackmap-analyzer-host-"))
         argv = [
             sys.executable, "-m", "attackmap.analyzer_host", "--worker",
             "--repo", str(root),
             "--workdir", str(workdir),
             "--stream-bytes", str(host_limits.stream_bytes),
             "--result-bytes", str(host_limits.result_bytes),
+            "--snapshot-descriptor", bundle.descriptor.dumps(),
         ]
         if spec.get("entry_point"):
             argv += ["--entry-point", str(spec["entry_point"])]
@@ -205,40 +255,87 @@ def run_isolated_analyzer(
         from .execution import ProcessSupervisor
 
         supervisor = ProcessSupervisor()
+        memory_limit = host_limits.effective_memory_limit()
         observed: dict[str, object] = {}
+
+        def with_policy(outcome: IsolatedOutcome) -> IsolatedOutcome:
+            outcome.resource_policy = dict(supervisor.memory_policy)
+            outcome.resource_policy["observed_peak_job_memory_bytes"] = observed.get("peak_memory")
+            outcome.resource_policy.update(input_policy="cooperating_sdk_sealed_snapshot",
+                snapshot_id=bundle.descriptor.snapshot_id, config_identity=bundle.descriptor.config_identity,
+                filesystem_restricted=False, network_restricted=False)
+            if memory_limit and outcome.resource_policy.get("status") == "unsupported_on_platform":
+                note = "Isolated analyzer host requested memory cap is UNENFORCED on this platform; filesystem/network access is unrestricted."
+                if outcome.result is not None:
+                    outcome.result.limitations.append(note)
+                elif outcome.limitation:
+                    outcome.limitation += " " + note
+            return outcome
+
+        def quarantine():
+            nonlocal quarantined
+            with _QUARANTINE_LOCK:
+                _QUARANTINED_HOSTS[supervisor] = workdir
+            quarantined = True
 
         def _on_done(code: int, tail: str) -> None:
             # Runs in the pump thread just before the job object is closed:
             # the last chance to query the job's peak memory footprint.
-            observed["code"] = code
-            observed["tail"] = tail
-            observed["timed_out"] = supervisor.timed_out
-            job = getattr(supervisor, "_job", None)  # private reuse: see module docstring
-            observed["peak_memory"] = _query_job_peak_memory(job.handle) if job is not None else 0
+            try:
+                observed["code"] = code
+                observed["tail"] = tail
+                observed["timed_out"] = supervisor.timed_out
+                job = getattr(supervisor, "_job", None)  # private reuse: see module docstring
+                observed["peak_memory"] = (_query_job_peak_memory(job.handle) or None) if job is not None else None
+                observed["memory_policy"] = dict(supervisor.memory_policy)
+            finally:
+                lease.release()  # on_done runs only after verified owned-tree cleanup
 
-        if not supervisor.start(argv, timeout=host_limits.timeout_seconds, on_done=_on_done):
-            return _partial(name, HOST_LAUNCH_FAILED, "worker launch failed", supervisor.stderr_tail, None)
-
-        memory_limit = host_limits.effective_memory_limit()
-        if memory_limit and os.name == "nt":
-            job = getattr(supervisor, "_job", None)
-            if job is not None:
-                try:
-                    _apply_job_memory_limit(job.handle, memory_limit)
-                except OSError:
-                    # Keep the run without the cap; the classification notes only observed peaks.
-                    pass
+        extra = {"job_memory_bytes": memory_limit} if memory_limit else {}
+        if not supervisor.start(argv, timeout=host_limits.timeout_seconds, on_done=_on_done, **extra):
+            if supervisor.running:
+                quarantine()
+                return with_policy(_partial(name, HOST_STUCK, "launch cleanup remains unverified", supervisor.stderr_tail, None))
+            return with_policy(_partial(name, HOST_LAUNCH_FAILED, "worker launch failed", supervisor.stderr_tail, None))
 
         if not supervisor.wait(host_limits.timeout_seconds + 20):
             supervisor.request_cancel()
             if not supervisor.wait(10):
-                return _partial(
+                quarantine()
+                return with_policy(_partial(
                     name, HOST_STUCK, "worker termination could not be verified",
                     "supervisor could not verify process-tree termination", None,
-                )
-        return _classify(name, workdir, observed, memory_limit, host_limits.result_bytes)
+                ))
+        outcome = _classify(name, workdir, observed, memory_limit, host_limits.result_bytes)
+        if outcome.result is not None:
+            try:
+                root_matches = Path(outcome.result.root).resolve() == Path(bundle.descriptor.root)
+            except (OSError, ValueError):
+                root_matches = False
+            if not root_matches:
+                return with_policy(_partial(name, HOST_INVALID_OUTPUT, "result root differs from captured input", "worker result root mismatch", outcome.exit_code))
+            claimed = outcome.result.scan_snapshot
+            if claimed is not None and claimed != bundle.identity:
+                return with_policy(_partial(name, HOST_INVALID_OUTPUT, "result snapshot differs from captured input", "worker result snapshot/config mismatch", outcome.exit_code))
+            outcome.result.scan_snapshot = bundle.identity
+            from .analyzer_contracts import normalize_analyzer_metadata
+            from .signal_provenance import admit_isolated_provenance
+            version = None
+            try:
+                metadata = normalize_analyzer_metadata(getattr(analyzer, "metadata", None))
+                if "version" in metadata.model_fields_set:
+                    version = metadata.version
+            except (TypeError, ValueError):
+                pass  # metadata-free legacy direct callers retain an unknown version
+            admit_isolated_provenance(outcome.result, name, version)
+        return with_policy(outcome)
     finally:
-        shutil.rmtree(workdir, ignore_errors=True)
+        if not quarantined:
+            lease.release()  # also covers a verified launch failure with no callback
+            if workdir is not None:
+                shutil.rmtree(workdir, ignore_errors=True)
+        if own_bundle:
+            bundle.close()
 
 
 def _classify(name: str, workdir: Path, observed: dict[str, object], memory_limit: int, result_bytes_cap: int) -> IsolatedOutcome:
@@ -249,7 +346,7 @@ def _classify(name: str, workdir: Path, observed: dict[str, object], memory_limi
     tail = observed.get("tail") or ""
     tail_text = tail if isinstance(tail, str) else ""
     peak = observed.get("peak_memory")
-    peak_bytes = peak if isinstance(peak, int) else 0
+    peak_bytes = peak if isinstance(peak, int) and peak > 0 else None
 
     status = _read_json(workdir / _STATUS_FILE)
     stream_breach = _read_json(workdir / _STREAM_BREACH_FILE)
@@ -272,22 +369,22 @@ def _classify(name: str, workdir: Path, observed: dict[str, object], memory_limi
         return _partial(name, HOST_OUTPUT_LIMIT, "result payload exceeded the byte cap",
                         _redacted(str(status.get("message", "worker self-reported a result-size breach"))), code_int)
 
-    # Heuristic: if the job's observed peak commit reached the cap, attribute
-    # the failure to the memory limit — whether it surfaced as a Python
-    # MemoryError (status below) or as a native allocation failure that killed
-    # the interpreter before any status was written.
-    if memory_limit and peak_bytes >= memory_limit * 0.95:
-        detail = f"worker reached the {memory_limit}-byte job memory cap"
-        if isinstance(status, dict) and status.get("error_type"):
-            detail += f"; {status.get('error_type')}: {status.get('message', '')}"
-        elif code_int is not None:
-            detail += f"; exit code {code_int}"
+    # MemoryError is an observed worker report, not proof that a configured cap
+    # caused it. Near-cap peaks alone must never turn a good result into failure.
+    if isinstance(status, dict) and status.get("error_type") == "MemoryError":
+        policy = observed.get("memory_policy") or {}
+        enforced = policy.get("enforced_bytes", 0) if isinstance(policy, dict) else 0
+        detail = (f"worker reported MemoryError; enforced job cap={enforced} bytes; "
+                  f"observed peak={peak_bytes if peak_bytes is not None else 'unknown'}; cap causality is unverified")
         return _partial(name, HOST_MEMORY_LIMIT,
-                        "exceeded the job memory cap (Windows Job Object commit limit)",
+                        "worker reported a memory allocation failure",
                         _redacted(detail), code_int)
     if isinstance(status, dict) and status.get("status") == "error":
         error_type = str(status.get("error_type") or HOST_CRASH)
         message = f"{error_type}: {status.get('message', '')}"
+        if error_type == "SnapshotInputError":
+            return _partial(name, HOST_INPUT_INVALID, "captured input verification failed before plugin import",
+                            _redacted(message), code_int)
         return _partial(name, HOST_CRASH, "worker exited after an analyzer exception",
                         _redacted(message), code_int)
     if code_int not in (0, None):
@@ -348,21 +445,6 @@ def _job_extended_limits_structs() -> "tuple[type, type]":
                     ("process_memory", ctypes.c_size_t), ("job_memory", ctypes.c_size_t),
                     ("peak_process_memory", ctypes.c_size_t), ("peak_job_memory", ctypes.c_size_t)]
     return BasicLimits, ExtendedLimits
-
-
-def _apply_job_memory_limit(handle: int, limit_bytes: int) -> None:
-    import ctypes
-
-    if os.name != "nt":
-        raise OSError("job memory limits are only implemented on Windows")
-    _, extended = _job_extended_limits_structs()
-    value = extended()
-    value.basic.flags = _JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | _JOB_OBJECT_LIMIT_JOB_MEMORY
-    value.job_memory = limit_bytes
-    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
-    kernel.SetInformationJobObject.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_ulong]
-    if not kernel.SetInformationJobObject(handle, _JOB_EXTENDED_LIMIT_INFORMATION, ctypes.byref(value), ctypes.sizeof(value)):
-        raise ctypes.WinError(ctypes.get_last_error())
 
 
 def _query_job_peak_memory(handle: int) -> int:
@@ -473,10 +555,25 @@ def _worker_main(args: "argparse.Namespace") -> int:
     repo = str(args.repo)
     _install_stream_cap(int(args.stream_bytes), workdir / _STREAM_BREACH_FILE)
     try:
-        analyzer = _load_analyzer(args)
-        if isinstance(analyzer, type):
-            analyzer = analyzer()
-        result = analyzer.analyze(repo)  # type: ignore[attr-defined]
+        from .index import pinned_index_scope, install_process_snapshot
+        from .snapshot_transport import SealedSnapshot, read_snapshot, SnapshotInputError
+        descriptor = SealedSnapshot.loads(args.snapshot_descriptor)
+        if descriptor.root != str(Path(repo).resolve()):
+            raise SnapshotInputError("Worker root differs from sealed input")
+        captured = read_snapshot(descriptor)
+        install_process_snapshot(captured)
+        with pinned_index_scope(captured):
+            analyzer = _load_analyzer(args)
+            if isinstance(analyzer, type):
+                analyzer = analyzer()
+            import inspect
+            try:
+                parameters = inspect.signature(analyzer.analyze).parameters
+            except (TypeError, ValueError):
+                parameters = {}  # legacy callables without an inspectable signature
+            extra = {"index": captured} if "index" in parameters or any(
+                p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values()) else {}
+            result = analyzer.analyze(repo, **extra)  # type: ignore[attr-defined]
     except BaseException as exc:  # analyzer crashed; record and exit non-zero
         try:
             _write_json(workdir / _STATUS_FILE, {
@@ -490,6 +587,12 @@ def _worker_main(args: "argparse.Namespace") -> int:
         return 1
 
     if hasattr(result, "model_dump_json"):
+        # Typed producer hints are intentionally excluded from wire models.
+        # Preserve their legacy aliases in normalized origins before encoding;
+        # the parent subsequently treats every such claim as untrusted.
+        from .models import ScanResult
+        if isinstance(result, ScanResult):
+            result.signals = result.all_signals()
         payload_text = result.model_dump_json()
     elif isinstance(result, dict):
         payload = {"root": repo, **result}
@@ -536,6 +639,7 @@ def _main(argv: list[str]) -> int:
     parser.add_argument("--analyzer-module")
     parser.add_argument("--analyzer-file")
     parser.add_argument("--analyzer-attr")
+    parser.add_argument("--snapshot-descriptor", required=True)
     args = parser.parse_args(argv)
     if not args.worker:
         parser.error("--worker is required (this module is the isolated analyzer host worker)")

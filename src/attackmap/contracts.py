@@ -188,6 +188,8 @@ def _declared_hosts(mapping: Mapping[str, str]) -> dict[str, str]:
             raise ValueError(f"host alias {host!r} -> {repo!r} needs a non-empty host and repo")
         if any(c in h for c in ":/?#"):
             raise ValueError(f"host alias {host!r} must be a bare hostname (bind host:port via host_ports)")
+        if h in out and out[h] != r:
+            raise ValueError(f"conflicting host alias {host!r}")
         out[h] = r
     return out
 
@@ -197,11 +199,15 @@ def _declared_host_ports(mapping: Mapping[str, str]) -> dict[str, str]:
     for binding, repo in mapping.items():
         host, _, port = str(binding).strip().lower().rpartition(":")
         r = str(repo).strip().lower()
-        if not host or not port.isdigit() or not r:
+        if (not host or any(c in host for c in "/?#@") or not port.isascii()
+                or not port.isdigit() or not 1 <= int(port) <= 65535 or not r):
             raise ValueError(
                 f"host:port alias {binding!r} -> {repo!r} must be 'host:port' -> repo with a numeric port"
             )
-        out[f"{host}:{port}"] = r
+        key = f"{host}:{int(port)}"
+        if key in out and out[key] != r:
+            raise ValueError(f"conflicting host:port alias {binding!r}")
+        out[key] = r
     return out
 
 
@@ -289,6 +295,12 @@ def _declared_sources(mapping: Mapping[str, str]) -> dict[str, str]:
                 f"declaration source key {key!r} must start with one of: "
                 f"{', '.join(_SOURCE_KEY_PREFIXES)}"
             )
+        if k.startswith("host_ports:"):
+            binding = k[len("host_ports:"):]
+            normalized = _declared_host_ports({binding: "source"})
+            k = "host_ports:" + next(iter(normalized))
+        if k in out and out[k] != p:
+            raise ValueError(f"conflicting declaration source {key!r}")
         out[k] = p
     return out
 
@@ -315,14 +327,21 @@ def destination_authority(target: str) -> tuple[str, bool] | None:
     variable interpolation, or an empty host).
     """
     text = target.strip()
-    if not text or "{" in text or "<" in text or "$" in text or "%" in text:
+    if (not text or any(ord(c) < 32 for c in text)
+            or "{" in text or "<" in text or "$" in text or "%" in text):
         return None
     if _SCHEME.match(text):
-        parts = urlsplit(text)
-        host = (parts.hostname or "").lower()
-        if not host:
+        try:
+            parts = urlsplit(text)
+            host = (parts.hostname or "").lower()
+            port = parts.port
+        except ValueError:
             return None
-        return (f"{host}:{parts.port}" if parts.port is not None else host), parts.port is not None
+        if not host or parts.netloc.endswith(":"):
+            return None
+        if port is not None and not 1 <= port <= 65535:
+            return None
+        return (f"{host}:{port}" if port is not None else host), port is not None
     # Scheme-less: split the authority off the path by hand.
     authority = text.split("/", 1)[0]
     if not authority or authority.startswith("."):
@@ -333,9 +352,9 @@ def destination_authority(target: str) -> tuple[str, bool] | None:
     if not host or not host.replace(".", "").replace("-", "").replace("_", "").isalnum():
         return None
     if port:
-        if not port.isdigit():
+        if not port.isascii() or not port.isdigit() or not 1 <= int(port) <= 65535:
             return None
-        return f"{host.lower()}:{port}", True
+        return f"{host.lower()}:{int(port)}", True
     return host.lower(), False
 
 
@@ -419,14 +438,18 @@ def _normalize_path(path: str, *, client: bool = False) -> tuple[str, ...] | Non
         return None
     # A full URL (client side) — take just the path component.
     if "://" in path:
-        path = urlsplit(path).path
+        try:
+            path = urlsplit(path).path
+        except ValueError:
+            return None
     else:
         path = path.split("?", 1)[0].split("#", 1)[0]
     trailing_slash = path.endswith("/") and path.strip() not in {"", "/"}
     segments = [s for s in path.split("/") if s]
     if not segments:
         return None
-    norm = [_PLACEHOLDER if _PARAM_SEG.match(s) else s.lower() for s in segments]
+    # URL paths remain case-sensitive even though DNS authorities do not.
+    norm = [_PLACEHOLDER if _PARAM_SEG.match(s) else s for s in segments]
     if client and trailing_slash:
         norm.append(_PLACEHOLDER)  # the concatenated dynamic segment
     # Require at least one static segment — a bare `/{id}` or `/*/*` is too
@@ -515,10 +538,12 @@ def link_contracts(
             if name in aliases.service_protocols
         }
         schemes = set(declarations.values())
-        if not schemes or scheme in schemes:
+        if not schemes:
             return None
         if len(schemes) > 1:
             return ""  # identities disagree: contradicted, but nothing to cite
+        if scheme in schemes:
+            return None
         declared = next(iter(schemes))
         name = min(n for n, s in declarations.items() if s == declared)
         return f"service_protocols:{name}:{declared}"
@@ -567,8 +592,12 @@ def link_contracts(
                 repos.update(rid for rid, names in identities.items() if bound in names)
                 if repos:
                     provenance = f"host_ports:{destination}"
-            if server_id in host_repos and port in _declared_listening_ports(server_id, identities, aliases):
-                repos.add(server_id)
+            listening_repos = {
+                rid for rid in host_repos
+                if port in _declared_listening_ports(rid, identities, aliases)
+            }
+            repos.update(listening_repos)
+            if server_id in listening_repos:
                 if provenance is None:
                     declared_as = sorted(
                         n for n in identities[server_id]

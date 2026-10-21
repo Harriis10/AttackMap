@@ -99,13 +99,13 @@ def parse_lockfiles(
     dependency-coverage diagnostics.
     """
     root_path = Path(root).resolve()
-    if not root_path.exists() or not root_path.is_dir():
-        return [], set()
     sources = PassSources.for_root(root_path, index)
+    if not sources.is_dir(root_path):
+        return [], set()
 
     hints: list[DependencyHint] = []
     superseded: set[tuple[str, str]] = set()
-    for lockfile in _iter_lockfiles(root_path):
+    for lockfile in _iter_lockfiles(root_path, sources):
         rel = str(lockfile.relative_to(root_path)).replace("\\", "/")
         directory = str(Path(rel).parent).replace("\\", "/")
         try:
@@ -127,18 +127,19 @@ def parse_lockfiles(
     return hints, superseded
 
 
-def _iter_lockfiles(root: Path):
+def _iter_lockfiles(root: Path, sources: PassSources | None = None):
+    sources = sources or PassSources.for_root(root)
     def walk(directory: Path, depth: int):
         try:
-            entries = list(directory.iterdir())
+            entries = sources.children(directory)
         except (OSError, PermissionError):
             return
         for entry in entries:
             if entry.name in {".git", "node_modules", "__pycache__", "dist", "build", ".venv", "venv", "target", "vendor"}:
                 continue
-            if is_unsafe_link(root, entry):
+            if sources.unsafe(entry):
                 continue
-            if entry.is_dir():
+            if sources.is_dir(entry):
                 if depth < _MAX_DEPTH:
                     yield from walk(entry, depth + 1)
             elif entry.name in _LOCKFILE_NAMES:

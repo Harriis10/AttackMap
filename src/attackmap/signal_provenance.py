@@ -138,3 +138,68 @@ def stamp_scan_provenance(scan: ScanResult, analyzer: str, version: str | None) 
                 origin.analyzer_version = known_version
                 origin.metadata_status = "known"
     scan.signals = observations
+
+
+def admit_isolated_provenance(scan: ScanResult, analyzer: str, version: str | None) -> None:
+    """Bind an isolated emitter to parent metadata; retain legacy claims as untrusted.
+
+    This identifies who returned a statement. It does not authenticate its source
+    locations, semantic truth, installed code or use of the cooperating SDK.
+    In-process/trusted legacy stamping keeps its existing compatibility policy.
+    """
+    from .merge import MERGE_SCHEMA
+    from .redact import redact_text
+
+    known_version = version.strip() if isinstance(version, str) and version.strip() else None
+    observations = scan.all_signals()  # capture old aliases before canonicalizing typed hints
+    reserved = CLASSIFICATION_FIELDS | {"analyzer", "analyzer_version", "metadata_status", "source_analyzer", "observation_id"}
+
+    def claim(properties, key, value):
+        if value is not None:
+            properties["untrusted_claimed_" + key] = str(redact_text(str(value)) or "")[:500]
+
+    def classify(value, properties):
+        # A child cannot confer detector-owned or artifact-manifest authority.
+        role = classify_source_path(value.file)
+        expected = {"classification_version": "1.0", "source_role": role,
+                    "evidence_kind": "static_extraction",
+                    "classification_basis": "path_convention" if role != "unknown" else "unknown"}
+        for field, assigned in expected.items():
+            original = getattr(value, field)
+            if original is not None and original != "unknown" and original != assigned:
+                claim(properties, field, original)
+            setattr(value, field, assigned)
+
+    for rule in MERGE_SCHEMA:
+        for item in getattr(scan, rule.attr):
+            item.source_analyzer = analyzer
+    for signal in observations:
+        for key in sorted(reserved):
+            if key in signal.properties:
+                claim(signal.properties, key, signal.properties.pop(key))
+        for conflict in signal.conflicts:
+            if conflict.field in reserved:
+                claim(signal.properties, "conflict_" + conflict.field, _canonical(conflict.values))
+        signal.conflicts = [conflict for conflict in signal.conflicts if conflict.field not in reserved]
+        classify(signal, signal.properties)
+        signal.observation_id = None
+        if not signal.origins:
+            signal.origins = [SignalOrigin(file=signal.file or None, line=signal.line,
+                evidence_text=signal.evidence_text, properties=dict(signal.properties),
+                location_reason=None if signal.file and signal.line is not None else "Analyzer did not provide a complete file/line location")]
+        for origin in signal.origins:
+            if origin.analyzer not in {None, analyzer}:
+                claim(origin.properties, "producer", origin.analyzer)
+            if origin.analyzer_version is not None and origin.analyzer_version != known_version:
+                claim(origin.properties, "version", origin.analyzer_version)
+            for key in sorted(reserved):
+                if key in origin.properties:
+                    claim(origin.properties, key, origin.properties.pop(key))
+            if not known_version and origin.metadata_status == "known":
+                claim(origin.properties, "metadata_status", origin.metadata_status)
+            origin.analyzer = analyzer
+            origin.analyzer_version = known_version
+            origin.metadata_status = "known" if known_version else "legacy_unknown"
+            origin.evidence_text = redact_text(origin.evidence_text) if origin.evidence_text else origin.evidence_text
+            classify(origin, origin.properties)
+    scan.signals = merge_normalized_signals(observations)

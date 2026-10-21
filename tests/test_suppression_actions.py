@@ -25,6 +25,58 @@ def preview(root, finding, **kwargs):
     return preview_suppression_action(root, finding, reason="Accepted risk tracked by engineering", **kwargs)
 
 
+def test_explicit_repo_baseline_apply_undo_preserves_default(tmp_path, finding):
+    default = tmp_path / ".attackmap-suppress.yaml"
+    default.write_text("version: 1\nsuppress: []\n", encoding="utf-8")
+    folder = tmp_path / "security"
+    folder.mkdir()
+    selected = folder / "accepted.yml"
+    original = "version: 1\nsuppress: []\n"
+    selected.write_text(original, encoding="utf-8")
+    result = execute_suppression_action("suppression_preview", {
+        "repo_root": str(tmp_path), "finding": finding.model_dump(mode="json"),
+        "reason": "Reviewed", "suppress_file": str(selected)})
+    plan = result["plan"]
+    assert plan["relative_path"] == "security/accepted.yml"
+    assert plan["options"]["suppress_file"] == "security/accepted.yml"
+    receipt = apply_suppression_action(plan)
+    assert "Reviewed" in selected.read_text(encoding="utf-8")
+    assert default.read_text(encoding="utf-8") == original
+    undo_suppression_action(receipt)
+    assert selected.read_text(encoding="utf-8") == original
+
+
+@pytest.mark.parametrize("selected", ["../outside.yaml", "security/../outside.yml", "https://example/a.yml",
+    "C:outside.yml", "security/./accepted.yaml", "security/accepted.txt", "", "security/accepted.yml:stream"])
+def test_explicit_baseline_rejects_unsafe_selection(tmp_path, finding, selected):
+    (tmp_path / "security").mkdir()
+    with pytest.raises(UnsafePathError):
+        preview(tmp_path, finding, suppress_file=selected)
+
+
+def test_explicit_baseline_rejects_outside_absolute_and_redirected_parent(tmp_path, finding):
+    outside = tmp_path.parent / "outside.yaml"
+    with pytest.raises(UnsafePathError):
+        preview(tmp_path, finding, suppress_file=str(outside))
+    link = tmp_path / "redirect"
+    try:
+        link.symlink_to(tmp_path.parent, target_is_directory=True)
+    except OSError:
+        pytest.skip("Host does not permit directory symlink creation")
+    with pytest.raises(UnsafePathError):
+        preview(tmp_path, finding, suppress_file="redirect/outside.yaml")
+
+
+def test_explicit_baseline_changed_after_preview_is_not_overwritten(tmp_path, finding):
+    selected = tmp_path / "accepted.yaml"
+    selected.write_text("version: 1\nsuppress: []\n", encoding="utf-8")
+    plan = preview(tmp_path, finding, suppress_file="accepted.yaml")
+    selected.write_text("# changed by user\nversion: 1\nsuppress: []\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="changed"):
+        apply_suppression_action(plan)
+    assert selected.read_text(encoding="utf-8").startswith("# changed by user")
+
+
 def test_preview_is_readonly_and_apply_undo_new_file_roundtrips_engine(tmp_path, finding):
     plan = preview(tmp_path, finding, owner="security-team", ticket="SEC-123", report_run_id="run-1")
     target = tmp_path / ".attackmap-suppress.yaml"

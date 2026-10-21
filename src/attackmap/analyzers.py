@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from contextlib import nullcontext
 from dataclasses import dataclass
 from importlib.metadata import entry_points
 import importlib
@@ -25,7 +26,8 @@ from .srcpaths import JS_TS_SUFFIXES, SKIP_DIRS, in_skipped_dir, is_skipped_dir
 from .plugins_lock import OFFICIAL_PLUGINS
 from .safe_fs import walk_repo
 from .merge import MERGE_SCHEMA, initial_seen, merge_into
-from .analyzer_host import AnalyzerHostError, HostLimits, run_isolated_analyzer
+from .analyzer_host import (AnalyzerHostError, HostLimits, IsolatedOutcome,
+                            HOST_INPUT_INVALID, run_isolated_analyzer)
 from .ecosystem_php import OmekaSAnalyzer, PhpLaminasAnalyzer, PhpWebAnalyzer
 
 from .sdk.contracts import (
@@ -142,17 +144,19 @@ class DefaultAnalyzer:
 
     def detect(self, root: str | Path) -> bool:
         """Default analyzer runs on any repository; it filters by unclaimed suffixes."""
-        return Path(root).is_dir()
+        from .index import PassSources
+        return PassSources.for_root(root).is_dir(Path(root).resolve())
 
     def analyze(
         self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
-        index=None,
+        index=None, incremental: bool | None = None,
     ) -> AnalyzerResult:
         return scan_files(
             root,
             suffixes=set(CODE_EXTENSIONS) - self._CLAIMED_SUFFIXES,
             progress=progress,
             index=index,
+            incremental=incremental,
         )
 
 
@@ -176,13 +180,14 @@ class BuiltinPythonWebAnalyzer:
 
     def detect(self, root: str | Path) -> bool:
         """Python-web runs on any repository; the scanner filters by suffix."""
-        return Path(root).is_dir()
+        from .index import PassSources
+        return PassSources.for_root(root).is_dir(Path(root).resolve())
 
     def analyze(
         self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
-        index=None,
+        index=None, incremental: bool | None = None,
     ) -> AnalyzerResult:
-        return scan_files(root, suffixes={".py"}, progress=progress, index=index)
+        return scan_files(root, suffixes={".py"}, progress=progress, index=index, incremental=incremental)
 
 
 class BuiltinJavaScriptWebAnalyzer:
@@ -238,11 +243,13 @@ class BuiltinJavaScriptWebAnalyzer:
         - `package.json` referencing a known web framework (deeper
           signal — costs one file read).
         """
-        repo = Path(root)
-        if not repo.exists() or not repo.is_dir():
+        from .index import PassSources
+        repo = Path(root).resolve()
+        sources = PassSources.for_root(repo)
+        if not sources.is_dir(repo):
             return False
         try:
-            for candidate in walk_repo(repo, prune=is_skipped_dir):
+            for candidate in sources.iter_files(prune=is_skipped_dir):
                 if in_skipped_dir(candidate.relative_to(repo)):
                     continue
                 if candidate.name == "package.json":
@@ -255,9 +262,9 @@ class BuiltinJavaScriptWebAnalyzer:
 
     def analyze(
         self, root: str | Path, progress: "ScanProgress | None" = None, recall: bool = False,
-        index=None,
+        index=None, incremental: bool | None = None,
     ) -> AnalyzerResult:
-        return scan_files(root, suffixes=self._JS_SUFFIXES, progress=progress, index=index)
+        return scan_files(root, suffixes=self._JS_SUFFIXES, progress=progress, index=index, incremental=incremental)
 
 
 class BuiltinConfigAnalyzer:
@@ -290,11 +297,13 @@ class BuiltinConfigAnalyzer:
 
     def detect(self, root: str | Path) -> bool:
         from .config_scanner import should_scan_config_file
-        repo = Path(root)
-        if not repo.exists() or not repo.is_dir():
+        from .index import PassSources
+        repo = Path(root).resolve()
+        sources = PassSources.for_root(repo)
+        if not sources.is_dir(repo):
             return False
         try:
-            for candidate in walk_repo(repo, prune=is_skipped_dir):
+            for candidate in sources.iter_files(prune=is_skipped_dir):
                 if in_skipped_dir(candidate.relative_to(repo)):
                     continue
                 if should_scan_config_file(candidate):
@@ -726,6 +735,8 @@ def analyze_repository(
     strict: bool = False,
     isolated_analyzers: bool = False,
     isolated_limits: "HostLimits | None" = None,
+    incremental: bool | None = None,
+    index: object | None = None,
 ) -> AnalyzerResult:
     """Run every active analyzer and merge their results.
 
@@ -743,55 +754,68 @@ def analyze_repository(
     from .index import RepoIndex
 
     repo_root = Path(root).resolve()
+    if index is None:
+        index = RepoIndex.build(repo_root)
+    elif not isinstance(index, RepoIndex) or index.root != repo_root:
+        raise ValueError("Captured index does not belong to this repository")
     active_analyzers = resolve_run_analyzers(repo_root, analyzers=analyzers)
-    index = RepoIndex.build(repo_root)
     results: list[AnalyzerResult] = []
     errors: list[AnalyzerError] = []
     host_limitations: list[str] = []
-    for analyzer in active_analyzers:
-        try:
-            if isolated_analyzers and not _is_builtin_analyzer(analyzer):
-                outcome = run_isolated_analyzer(analyzer, repo_root, limits=isolated_limits)
-                if outcome.error_type is not None:
-                    if strict:
-                        raise AnalyzerHostError(
-                            f"isolated analyzer '{analyzer.name}': {outcome.error_type}: {outcome.message}"
-                        )
-                    errors.append(AnalyzerError(
-                        analyzer=analyzer.name,
-                        error_type=outcome.error_type,
-                        message=(outcome.message or "")[:_ANALYZER_ERROR_MAX_CHARS],
-                    ))
-                    if outcome.limitation:
-                        host_limitations.append(outcome.limitation)
-                    logger.warning("Analyzer '%s' terminated by isolated host (%s); continuing.",
-                                   _log_identity(analyzer.name), outcome.error_type)
-                    if progress is not None:
-                        progress.stage(f"Analyzer {_log_identity(analyzer.name)} isolated-host {outcome.error_type}; continuing")
-                    continue
-                result = outcome.result
-            else:
-                result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index), repo_root).model_copy(deep=True)
-        except Exception as exc:
-            if strict:
-                raise
-            error = AnalyzerError(
-                analyzer=analyzer.name,
-                error_type=type(exc).__name__,
-                message=str(redact_text(str(exc)) or "")[:_ANALYZER_ERROR_MAX_CHARS],
-            )
-            errors.append(error)
-            logger.warning("Analyzer '%s' analysis failed (%s); continuing.",
-                           _log_identity(analyzer.name), _log_exception_type(exc))
-            if progress is not None:
-                progress.stage(f"Analyzer {_log_identity(analyzer.name)} failed ({_log_exception_type(exc)}); continuing")
-            continue
-        metadata = get_analyzer_metadata(analyzer)
-        declared_version = metadata.version if "version" in metadata.model_fields_set else None
-        _stamp_provenance(result, analyzer.name)
-        from .signal_provenance import stamp_scan_provenance
-        stamp_scan_provenance(result, analyzer.name, declared_version)
-        results.append(result)
+    from .snapshot_transport import SnapshotBundle, SnapshotInputError
+    input_error = None
+    try:
+        shared_input = SnapshotBundle(index) if isolated_analyzers and any(not _is_builtin_analyzer(a) for a in active_analyzers) else nullcontext(None)
+    except (SnapshotInputError, OSError) as exc:
+        shared_input, input_error = nullcontext(None), exc
+    with shared_input as input_bundle:
+        for analyzer in active_analyzers:
+            try:
+                if isolated_analyzers and not _is_builtin_analyzer(analyzer):
+                    outcome = (IsolatedOutcome(analyzer=analyzer.name, error_type=HOST_INPUT_INVALID,
+                        message=str(input_error), limitation=f"Analyzer '{analyzer.name}' captured inputs unavailable; partial coverage.")
+                        if input_error is not None else run_isolated_analyzer(analyzer, repo_root,
+                            limits=isolated_limits, index=index, bundle=input_bundle))
+                    if outcome.error_type is not None:
+                        if strict:
+                            raise AnalyzerHostError(
+                                f"isolated analyzer '{analyzer.name}': {outcome.error_type}: {outcome.message}"
+                            )
+                        errors.append(AnalyzerError(
+                            analyzer=analyzer.name,
+                            error_type=outcome.error_type,
+                            message=(outcome.message or "")[:_ANALYZER_ERROR_MAX_CHARS],
+                        ))
+                        if outcome.limitation:
+                            host_limitations.append(outcome.limitation)
+                        logger.warning("Analyzer '%s' terminated by isolated host (%s); continuing.",
+                                       _log_identity(analyzer.name), outcome.error_type)
+                        if progress is not None:
+                            progress.stage(f"Analyzer {_log_identity(analyzer.name)} isolated-host {outcome.error_type}; continuing")
+                        continue
+                    result = outcome.result
+                else:
+                    result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index, incremental), repo_root).model_copy(deep=True)
+            except Exception as exc:
+                if strict:
+                    raise
+                error = AnalyzerError(
+                    analyzer=analyzer.name,
+                    error_type=type(exc).__name__,
+                    message=str(redact_text(str(exc)) or "")[:_ANALYZER_ERROR_MAX_CHARS],
+                )
+                errors.append(error)
+                logger.warning("Analyzer '%s' analysis failed (%s); continuing.",
+                               _log_identity(analyzer.name), _log_exception_type(exc))
+                if progress is not None:
+                    progress.stage(f"Analyzer {_log_identity(analyzer.name)} failed ({_log_exception_type(exc)}); continuing")
+                continue
+            metadata = get_analyzer_metadata(analyzer)
+            declared_version = metadata.version if "version" in metadata.model_fields_set else None
+            _stamp_provenance(result, analyzer.name)
+            from .signal_provenance import stamp_scan_provenance
+            stamp_scan_provenance(result, analyzer.name, declared_version)
+            results.append(result)
     merged = merge_analyzer_results(results, root=repo_root) if results else AnalyzerResult(root=str(repo_root))
     merged.analyzer_errors = errors
 
@@ -858,6 +882,7 @@ def _call_analyze(
     progress: "ScanProgress | None",
     recall: bool = False,
     index: object | None = None,
+    incremental: bool | None = None,
 ) -> AnalyzerResult:
     """Invoke ``analyzer.analyze``, forwarding ``progress``/``recall``/``index``
     only to analyzers that accept them. Keeps the plugin ``analyze(root)``
@@ -872,6 +897,8 @@ def _call_analyze(
             kwargs["recall"] = recall
         if index is not None and "index" in params:
             kwargs["index"] = index
+        if incremental is not None and "incremental" in params:
+            kwargs["incremental"] = incremental
     except (TypeError, ValueError):
         pass
     return analyzer.analyze(root, **kwargs)  # type: ignore[call-arg]

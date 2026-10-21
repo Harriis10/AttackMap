@@ -34,7 +34,7 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 
-from .safe_fs import is_contained, is_oversized, read_repo_text, walk_repo
+from .safe_fs import is_contained, is_oversized, max_file_bytes, read_repo_text, walk_repo
 from .models import Route, ScanResult, TaintChain, TaintFlowStep
 from .srcpaths import JS_TS_SUFFIXES, is_infra_route, is_test_file, is_vendored_file, line_number
 from .taint_flow import REST, FileFlow, SinkFlow
@@ -315,7 +315,10 @@ def analyze_taint(
     extra reach is tagged ``speculative`` on the returned chains (#148a).
     """
     root_path = Path(root or scan.root).resolve()
-    if not root_path.exists():
+    from .index import active_index_for
+    if index is None:
+        index = active_index_for(root_path)
+    if index is None and not root_path.exists():
         return []
 
     files = _files_from_index(index, root_path) if index is not None else _index_repo(root_path)
@@ -408,8 +411,7 @@ def _files_from_index(index: object, root: Path) -> dict[str, Path]:
 def _index_content(index: object | None, rel: str, abs_path: Path) -> str | None:
     if index is not None:
         text = getattr(index, "text_of", lambda _r: None)(rel)
-        if text is not None:
-            return text
+        return text
     try:
         return abs_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
@@ -448,12 +450,14 @@ def _normalize_rel(rel: str) -> str:
     return rel.replace("\\", "/")
 
 
-def _go_module_path(root: Path) -> str | None:
+def _go_module_path(root: Path, index: object | None = None) -> str | None:
     """The module path declared in go.mod, if present (e.g. github.com/x/y)."""
-    gomod = root / "go.mod"
+    from .index import PassSources
+    sources = PassSources.for_root(root, index)
     try:
-        if gomod.is_file() and is_contained(root, gomod):
-            m = _GO_MODULE_RE.search(gomod.read_text(encoding="utf-8", errors="ignore"))
+        text = sources.gated_text("go.mod", max_bytes=max_file_bytes(), errors="ignore")
+        if text is not None:
+            m = _GO_MODULE_RE.search(text)
             if m:
                 return m.group("mod")
     except OSError:
@@ -497,12 +501,14 @@ _PHP_REQUIRE_RE = re.compile(
 )
 
 
-def _php_psr4_map(root: Path) -> dict[str, str]:
+def _php_psr4_map(root: Path, index: object | None = None) -> dict[str, str]:
     """namespace-prefix → directory from composer.json PSR-4 autoload."""
-    composer = root / "composer.json"
+    from .index import PassSources
+    sources = PassSources.for_root(root, index)
     out: dict[str, str] = {}
     try:
-        data = json.loads(read_repo_text(root, composer, errors="ignore"))
+        text = sources.gated_text("composer.json", max_bytes=max_file_bytes(), errors="ignore")
+        data = json.loads(text or "{}")
     except (OSError, ValueError):
         return out
     for section in ("autoload", "autoload-dev"):
@@ -549,9 +555,9 @@ def _build_import_graph(files: dict[str, Path], root: Path, index: object | None
     not resolved here, so every edge is kept as a fallback.
     """
     graph: dict[str, set[str]] = {rel: set() for rel in files}
-    go_module = _go_module_path(root)
+    go_module = _go_module_path(root, index)
     go_dirs = _go_dir_index(files)
-    php_psr4 = _php_psr4_map(root)
+    php_psr4 = _php_psr4_map(root, index)
     for rel, abs_path in files.items():
         content = _index_content(index, rel, abs_path)
         if content is None:
