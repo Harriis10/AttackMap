@@ -198,7 +198,7 @@ public sealed partial class MainWindow
                 captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-FindingDetail.png")));
                 FindingInspector.ChangeView(null, 0, null, disableAnimation: true);
             }
-            File.WriteAllText(Path.Combine(directory, "capture-manifest.json"), JsonSerializer.Serialize(new { captures, os = Environment.OSVersion.ToString(), expected = arguments.Contains("--capture-structure-only") ? 8 : 32, completed = captures.Count, findingDetailState = "Production master/detail view with the first finding selected, inspector focused and scrolled toward the recommendation. No separate detail destination is invented.", scope = NativeCaptureProbe.Scope, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(Path.Combine(directory, "capture-manifest.json"), JsonSerializer.Serialize(new { captures, os = Environment.OSVersion.ToString(), expected = arguments.Contains("--capture-structure-only") ? 8 : 4 * (Navigation.MenuItems.Count + 2), completed = captures.Count, findingDetailState = "Production master/detail view with the first finding selected, inspector focused and scrolled toward the recommendation. No separate detail destination is invented.", scope = NativeCaptureProbe.Scope, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
         }
         catch (Exception error)
         {

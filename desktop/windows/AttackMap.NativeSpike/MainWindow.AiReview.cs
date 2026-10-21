@@ -5,8 +5,9 @@ namespace AttackMap.NativeSpike;
 
 public sealed partial class MainWindow
 {
-    private void ResetAiReview()
+    private void ResetAiReview(bool resetArtifacts = true)
     {
+        if (resetArtifacts) AiArtifacts.Clear();
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(AiReviewButton, "Read saved AI review from the selected run; no provider request");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(AiReviewText, "Saved selected-run AI review; unverified model prose");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetLiveSetting(AiReviewStatus, Microsoft.UI.Xaml.Automation.Peers.AutomationLiveSetting.Polite);
@@ -18,7 +19,7 @@ public sealed partial class MainWindow
     {
         var selected = exportSelection;
         long selectedGeneration = generation;
-        ResetAiReview();
+        ResetAiReview(false);
         if (selected == null || !selected.Verified)
         {
             AiReviewStatus.Text = "A verified selected generation is required to read its AI artifacts. Legacy imports retain canonical report viewing; their adjacent AI files have unverified identity.";

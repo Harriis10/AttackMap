@@ -24,6 +24,7 @@ public sealed class ProviderSettingsView : UserControl
     public event Action<ProviderAccessRequest>? SaveRequested;
     public event Action<ProviderAccessRequest>? TestConnectionRequested;
     public event Action? ConfigurationChanged;
+    public ScrollViewer ScrollHost => (ScrollViewer)Content;
     public ProviderSettingsView()
     {
         var panel = new StackPanel { Spacing = 8 };

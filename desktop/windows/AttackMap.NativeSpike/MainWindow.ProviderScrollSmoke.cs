@@ -38,14 +38,13 @@ public sealed partial class MainWindow
             for (int pass = 0; pass < 3; pass++)
             {
                 inner.ChangeView(null, inner.ScrollableHeight, null, disableAnimation: true);
-                ProviderPanel.ChangeView(null, ProviderPanel.ScrollableHeight, null, disableAnimation: true);
                 await ProviderScrollDispatchTurns(); root.UpdateLayout();
             }
             var after = ProviderButtons(root);
             result = new {
                 rootWidth = root.ActualWidth, rootHeight = root.ActualHeight, scale = root.XamlRoot.RasterizationScale,
                 before, after, innerOffset = inner.VerticalOffset, innerScrollableHeight = inner.ScrollableHeight,
-                outerOffset = ProviderPanel.VerticalOffset, outerScrollableHeight = ProviderPanel.ScrollableHeight,
+                outerScrollViewer = false,
                 bothActionsFullyVisibleAndEnabled = after.Count == 2 && after.All(button => button.FullyWithinClippedViewport && button.Enabled),
                 buttonActionsInvoked = 0, providerRequestsInvoked = 0
             };
@@ -55,7 +54,7 @@ public sealed partial class MainWindow
         {
             using var stream = new FileStream(output, FileMode.CreateNew, FileAccess.Write, FileShare.None);
             await JsonSerializer.SerializeAsync(stream, new {
-                scope = "Programmatic actual Settings inner/outer scroll journey and clipped button bounds only; no keyboard, Narrator, contrast or C24 acceptance.",
+                scope = "Programmatic actual Settings single bounded scroll journey and clipped button bounds only; no keyboard, Narrator, contrast or C24 acceptance.",
                 completed = failure == null, failure, result, acceptedC24 = false,
                 settingsRestorePerformedByHelper = false, providerRequestsInvokedByHelper = 0,
                 limitations = new[] { "Root must route this smoke flag before personal settings/provider restore.", "No report, settings file or credential value is read by this helper.", "Visibility requires nonempty bounds intersection through realized ancestor scroll viewports; Visibility enum alone is insufficient.", "Current window size/theme only; repeat on required sizes/scales and verify actual keyboard tasks independently." }

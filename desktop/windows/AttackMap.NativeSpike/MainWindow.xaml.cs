@@ -47,7 +47,11 @@ public sealed partial class MainWindow : Window
         if (settingsIndex >= 0 && settingsIndex + 1 < startup.Length) settings = new LocalSettingsStore(Path.GetFullPath(startup[settingsIndex + 1]));
         int placementIndex = Array.IndexOf(startup, "--placement-smoke");
         if (placementIndex >= 0 && placementIndex + 1 < startup.Length) placementStore = new WindowPlacementStore(Path.GetFullPath(startup[placementIndex + 1]));
+        int parityIndex = Array.IndexOf(startup, "--parity-smoke");
+        if (parityIndex >= 0 && parityIndex + 2 < startup.Length) settings = new LocalSettingsStore(Path.Combine(Path.GetFullPath(startup[parityIndex + 2]), "settings.json"));
         InitializeComponent();
+        InitializeParityWorkspace();
+        InitializeWorkspaceServices();
         ready = true;
         Navigation.SelectedItem = Navigation.MenuItems[0];
         keyboardBindings = NativeAccessibility.Bind((FrameworkElement)Content, new Dictionary<string, Action> {
@@ -60,7 +64,7 @@ public sealed partial class MainWindow : Window
             ["history"] = () => Navigation.SelectedItem = Navigation.MenuItems[5]
         });
         ((FrameworkElement)Content).Loaded += (_, _) => NativeAccessibility.ApplyNames((FrameworkElement)Content);
-        LoadSavedTheme();
+        if (!startup.Any(arg => arg == "--smoke" || arg.EndsWith("-smoke", StringComparison.Ordinal) || arg.StartsWith("--capture-", StringComparison.Ordinal))) LoadSavedTheme();
         History.OwnerWindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(this);
         History.CompareRequested += async request => await CompareReports(request);
         History.GenerationsRequested += async () => await LoadRetainedGenerations();
@@ -73,6 +77,8 @@ public sealed partial class MainWindow : Window
         Closed += (_, _) => { actionLifetime.Cancel(); keyboardBindings?.Dispose(); engine.Disconnect(); };
         if (Environment.GetCommandLineArgs().Contains("--smoke") || Environment.GetCommandLineArgs().Contains("--report-smoke") || Environment.GetCommandLineArgs().Contains("--scan-smoke") || Environment.GetCommandLineArgs().Contains("--settings-smoke") || Environment.GetCommandLineArgs().Contains("--structure-smoke") || Environment.GetCommandLineArgs().Contains("--export-smoke") || Environment.GetCommandLineArgs().Contains("--engine-guard-smoke") || startup.Contains("--performance-smoke") || startup.Contains("--actions-smoke") || startup.Contains("--accessibility-smoke") || startup.Contains("--placement-smoke") || startup.Contains("--startup-smoke"))
             ((FrameworkElement)Content).Loaded += SmokeLoaded;
+        else if (startup.Contains("--parity-smoke"))
+            ((FrameworkElement)Content).Loaded += ParitySmokeLoaded;
         else if (startup.Contains("--capture-smoke"))
             ((FrameworkElement)Content).Loaded += CaptureLoaded;
         else if (startup.Contains("--capture-startup-smoke"))
@@ -92,6 +98,13 @@ public sealed partial class MainWindow : Window
         else
         {
             RestoreLocalSettings(); RestoreProviderSettings();
+            RestoreRecentRepositories();
+            int showReport = Array.IndexOf(startup, "--show-report");
+            if(showReport>=0&&showReport+1<startup.Length)
+                ((FrameworkElement)Content).Loaded += async (_, _) => {
+                    try { if(!actionLifetime.IsCancellationRequested&&Path.IsPathFullyQualified(startup[showReport+1]))await LoadReport(Path.GetFullPath(startup[showReport+1])); }
+                    catch(Exception) { if(!actionLifetime.IsCancellationRequested)Status.Text="Requested report could not be opened. Choose a readable canonical JSON report."; }
+                };
             ((FrameworkElement)Content).Loaded += RestoreWindowPlacement;
             AppWindow.Changed += (_, _) => CaptureWindowPlacement();
             Closed += (_, _) => { if (placementPersistenceEnabled && lastPlacement != null) try { placementStore.Save(lastPlacement); } catch (Exception) { /* Preserve existing geometry if storage is unavailable. */ } };
@@ -158,17 +171,23 @@ public sealed partial class MainWindow : Window
         catch (Exception) { ai = "AI options invalid; scan will require correction"; }
         NetworkDisclosure.Text = ai + ((activeScanOptions?.Cve ?? CveOption.IsChecked == true) ? "; CVE ON: sends dependency names/versions to OSV" : "; CVE lookup off");
     }
-    private NativeScanOptions ReadScanOptions()
+    private NativeScanOptions ReadScanOptions(bool forRequest = false)
     {
         if (!int.TryParse(SecretsHistoryOption.Text, out int history) || !int.TryParse(TimeoutOption.Text, out int timeout)) throw new InvalidDataException("Secret history and timeout must be whole numbers.");
-        var options = new NativeScanOptions(RecallOption.IsChecked == true, StrictAnalyzersOption.IsChecked == true, NoSuppressOption.IsChecked == true, CveOption.IsChecked == true, history, timeout);
+        int? budget = string.IsNullOrWhiteSpace(TimeBudgetOption.Text) ? null : int.TryParse(TimeBudgetOption.Text, out int parsedBudget) ? parsedBudget : throw new InvalidDataException("Time budget must be a whole number of seconds.");
+        var options = restoredScanOptions with { Recall = RecallOption.IsChecked == true, StrictAnalyzers = StrictAnalyzersOption.IsChecked == true,
+            NoSuppress = NoSuppressOption.IsChecked == true, Cve = CveOption.IsChecked == true, SecretsHistory = history, TimeoutSeconds = timeout,
+            Baseline = BlankOption(BaselineOption.Text), SuppressFile = BlankOption(SuppressFileOption.Text), FailOnNewHigh = FailNewHighOption.IsChecked == true,
+            FailOnNewSuppression = FailNewSuppressionOption.IsChecked == true, StrictSuppressions = StrictSuppressionsOption.IsChecked == true,
+            IsolatedAnalyzers = IsolatedAnalyzersOption.IsChecked == true, TimeBudgetSeconds = budget };
         options.Validate();
         NativeScanOptions.ParseModules(ModulesOption.Text);
-        var provider = Provider.ReadConfiguration();
-        return options with { Provider = provider.EnableAi ? provider : null };
+        var provider = forRequest ? Provider.ReadRequestConfiguration() : Provider.ReadConfiguration();
+        return options with { Provider = provider };
     }
     private void ApplyScanOptions(NativeScanOptions options, string modules)
     {
+        restoredScanOptions = options;
         RecallOption.IsChecked = options.Recall;
         StrictAnalyzersOption.IsChecked = options.StrictAnalyzers;
         NoSuppressOption.IsChecked = options.NoSuppress;
@@ -176,11 +195,19 @@ public sealed partial class MainWindow : Window
         SecretsHistoryOption.Text = options.SecretsHistory.ToString();
         TimeoutOption.Text = options.TimeoutSeconds.ToString();
         ModulesOption.Text = modules;
+        BaselineOption.Text = options.Baseline ?? "";
+        SuppressFileOption.Text = options.SuppressFile ?? "";
+        FailNewHighOption.IsChecked = options.FailOnNewHigh;
+        FailNewSuppressionOption.IsChecked = options.FailOnNewSuppression;
+        StrictSuppressionsOption.IsChecked = options.StrictSuppressions;
+        IsolatedAnalyzersOption.IsChecked = options.IsolatedAnalyzers;
+        TimeBudgetOption.Text = options.TimeBudgetSeconds?.ToString() ?? "";
+        analyzerSelection.Restore(modules); analyzerView?.Refresh();
         if (options.Provider != null) Provider.ApplyConfiguration(options.Provider);
     }
     private void ClearLocalSettings(object sender, RoutedEventArgs args)
     {
-        try { settings.Clear(); Status.Text = "Saved settings cleared. Current workspace stays open until you choose another; no scan started."; }
+        try { settings.Clear(); restoredScanOptions = restoredScanOptions with { AdditionalProperties = null, UnrecognizedProviderFields = null }; Status.Text = "Saved settings cleared. Current workspace stays open until you choose another; no scan started."; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         { Status.Text = $"Saved settings could not be cleared: {error.Message}"; }
     }
@@ -192,7 +219,7 @@ public sealed partial class MainWindow : Window
         WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
         picker.FileTypeFilter.Add("*");
         var folder = await picker.PickSingleFolderAsync();
-        if (folder != null) { ++generation; ResetAiReview(); repositoryPath = folder.Path; presentation.SelectRepository(repositoryPath); UpdateRunSummary(); Status.Text = $"Repository selected: {folder.Path}. Scan locally to run deterministic analysis."; }
+        if (folder != null) SelectRepositoryPath(folder.Path);
         }
         catch (Exception) { if (!actionLifetime.IsCancellationRequested) Status.Text = "Repository picker unavailable. Try choosing a repository again; the existing workspace is preserved."; }
     }
@@ -202,41 +229,68 @@ public sealed partial class MainWindow : Window
     private void MenuHistory(object sender, RoutedEventArgs args) => Navigation.SelectedItem = Navigation.MenuItems[5];
     private void CancelScan(object sender, RoutedEventArgs args)
     {
-        engine.Cancel();
+        StopRepositoryWatch();
+        ++generation; scanAdmission?.Cancel();
+        if (fleetRunning) fleetSession.Cancel(); else engine.Cancel();
+        scanProgress.RequestCancel(); ScanProgress.SetModel(scanProgress);
         presentation.Update("Cancelling; waiting for owned worker cleanup. Artifacts pending.");
         UpdateRunSummary();
         CancelButton.IsEnabled = false;
         Status.Text = "Cancelling owned engine work; waiting for terminal confirmation - ";
     }
-    private async void ScanRepository(object sender, RoutedEventArgs args)
+    private async void ScanRepository(object sender, RoutedEventArgs args) => await RunSelectedRepository();
+    private async Task RunSelectedRepository(string? verificationOutput = null)
     {
-        if (scanning || actionRunning || DesktopActionRunner.CleanupBlocked || engine.CleanupBlocked || repositoryPath == null) { Status.Text = "Choose a repository and wait for verified cleanup of any current action first."; return; }
+        if (scanning || actionRunning || DesktopActionRunner.CleanupBlocked || engine.CleanupBlocked || fleetSession.CleanupBlocked || repositoryPath == null) { Status.Text = "Choose a repository and wait for verified cleanup of any current action first."; return; }
         long current = ++generation;
+        string repository = repositoryPath;
+        string modules = ModulesOption.Text.Trim();
+        using var admission = CancellationTokenSource.CreateLinkedTokenSource(actionLifetime.Token);
+        scanAdmission = admission;
+        long watchEpoch = repositoryWatch.Epoch;
+        bool published = false;
+        repositoryWatch.SetScanRunning(true);
         scanning = true;
         ScanButton.IsEnabled = false;
         CancelButton.IsEnabled = true;
+        ScanOptionsPanel.IsEnabled = Provider.IsEnabled = false;
         // Stable per-repository base: generations accumulate here so engine
         // retention (keep window, budget, pins) applies per repository.
-        string output = ScanLocations.ReportsBase(repositoryPath);
+        string output = verificationOutput ?? ScanLocations.ReportsBase(repository);
         lastScanOutput = output;
         DiagnosticPath.Text = $"Selected local run folder: {output}. A terminal diagnostic is available only if the broker writes one.";
         string engineStatus = "";
         RunIdentity? identity = null;
         try
         {
-            activeScanOptions = ReadScanOptions();
+            var preferences = ReadScanOptions();
+            string executable = EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory);
+            await DiscoverEngineCapabilities(admission.Token);
+            CheckScanAdmission(current, repository, executable, admission.Token);
+            activeScanOptions = preferences with { Provider = preferences.Provider?.ForRequest() };
+            capabilityCache.Current!.RequireSupport(activeScanOptions, modules);
+            analyzerSelection.ValidateForScan();
+            using var preflightRequest = JsonDocument.Parse(NativeScanRequest.Serialize("native_preflight", repository, output, current, activeScanOptions, modules));
+            var preflight = await DesktopActionRunner.Run(executable, "preflight", new { request = preflightRequest.RootElement, expected_identity = capabilityCache.Current.ExpectedIdentity }, cancellationToken: admission.Token);
+            CheckScanAdmission(current, repository, executable, admission.Token);
+            if (!preflight.GetProperty("supported").GetBoolean()) throw new InvalidDataException("Selected engine or request changed since discovery; check compatibility again. No scan was started.");
+            var elapsed = System.Diagnostics.Stopwatch.StartNew();
             NetworkOptionChanged(this, new RoutedEventArgs());
-            await engine.Run(PythonPath.Text.Trim(), repositoryPath, output, current,
+            await engine.Run(executable, repository, output, current,
                 text => { engineStatus = text; if (actionLifetime.IsCancellationRequested) return; presentation.Update(text); UpdateRunSummary(); if (generation == current) Status.Text = text; },
                 async path => {
                     if (actionLifetime.IsCancellationRequested || generation != current) return;
                     if (!await LoadReport(path, identity)) throw new InvalidDataException("Completed engine artifacts could not be imported or verified.");
+                    published = true;
                     if (!actionLifetime.IsCancellationRequested) Status.Text += $". {engineStatus}";
                 },
-                run => { identity = run; if (actionLifetime.IsCancellationRequested) return; presentation.Begin(run); UpdateRunSummary(); }, options: activeScanOptions, modules: ModulesOption.Text.Trim());
+                run => { identity = run; if (actionLifetime.IsCancellationRequested) return; scanProgress.Select(run.RunId, run.Repository, run.Generation); ScanProgress.SetModel(scanProgress); ProgressPanel.Visibility = Visibility.Visible; presentation.Begin(run); UpdateRunSummary(); },
+                options: activeScanOptions, modules: modules, structuredProgress: snapshot => {
+                    if (!actionLifetime.IsCancellationRequested && scanProgress.Accept(snapshot, elapsed.Elapsed)) ScanProgress.SetModel(scanProgress);
+                });
         }
         catch (Exception error) { engineStatus = $"Scan result unavailable: {error.Message}. Previous report retained."; if (!actionLifetime.IsCancellationRequested && generation == current) Status.Text = engineStatus; }
-        finally { scanning = false; activeScanOptions = null; if (!actionLifetime.IsCancellationRequested) { presentation.End(engineStatus.Length == 0 ? "Run failed before terminal confirmation; previous report retained" : engineStatus); UpdateRunSummary(); NetworkOptionChanged(this, new RoutedEventArgs()); ScanButton.IsEnabled = !DesktopActionRunner.CleanupBlocked && !engine.CleanupBlocked; CancelButton.IsEnabled = false; } }
+        finally { scanAdmission = null; scanning = false; activeScanOptions = null; repositoryWatch.ScanCompleted(watchEpoch, published); if (!actionLifetime.IsCancellationRequested) { presentation.End(engineStatus.Length == 0 ? "Run failed before terminal confirmation; previous report retained" : engineStatus); UpdateRunSummary(); NetworkOptionChanged(this, new RoutedEventArgs()); ScanButton.IsEnabled = !DesktopActionRunner.CleanupBlocked && !engine.CleanupBlocked && !fleetSession.CleanupBlocked; ScanOptionsPanel.IsEnabled = Provider.IsEnabled = ScanButton.IsEnabled; CancelButton.IsEnabled = false; if (admission.IsCancellationRequested && ScanButton.IsEnabled) Status.Text = "Scan cancelled; previous report retained."; } }
     }
     private async void ExportJson(object sender, RoutedEventArgs args) => await ExportDisplayed(false);
     private async void RevealScanFolder(object sender, RoutedEventArgs args)
@@ -271,6 +325,7 @@ public sealed partial class MainWindow : Window
         var selected = exportSelection;
         if (selected == null) { Status.Text = "Open a canonical report or complete a scan before exporting. Synthetic fixture export is unavailable."; return; }
         bool pdf = extension == ".pdf";
+        string capturedReview = ReviewText.Text;
         Status.Text = selected.Disclosure;
         try
         {
@@ -282,7 +337,7 @@ public sealed partial class MainWindow : Window
             if (destination == null || actionLifetime.IsCancellationRequested) return;
             // Verified runs render the manifest-bound Markdown; legacy imports
             // render exactly the review text already displayed.
-            string markdown = selected.MarkdownPath != null ? await Task.Run(() => selected.ReadVerifiedMarkdown()) : ReviewText.Text;
+            string markdown = selected.MarkdownPath != null ? await Task.Run(() => selected.ReadVerifiedMarkdown()) : capturedReview;
             selected.EnsureExportDestination(destination.Path,selected.ReportPath);
             string html = ReviewExport.BuildHtml(markdown,Path.GetFileNameWithoutExtension(selected.SuggestedName(extension)));
             if (pdf)
@@ -318,6 +373,8 @@ public sealed partial class MainWindow : Window
                 ? ExportSelection.CaptureSavedGeneration(path,report.ReadHash,report.Repository)
                 : ExportSelection.Capture(path,report.ReadHash,identity);
             string engineTiming = await ScanTiming.ReadLabel(selectedExport);
+            var sections = await ReportSectionAdapter.Load(path, report.ReadHash, selectedExport.RunId);
+            var overview = await ParityOverviewAdapter.Load(path, report.ReadHash, selectedExport.RunId);
             if (actionLifetime.IsCancellationRequested || current != generation) return false;
             all = report.Findings;
             ++findingRevision;
@@ -336,6 +393,7 @@ public sealed partial class MainWindow : Window
             structure = report.Structure;
             ReviewText.Text = report.Review;
             OverviewText.Text = report.Overview;
+            BindParityReport(sections, overview, selectedExport);
             presentation.Publish(new DisplayedReport(report.Repository, selectedExport.RunId ?? "Legacy import; run identity unavailable",
                 identity == null ? $"Scan timestamp unavailable; opened (client UTC): {DateTimeOffset.UtcNow.UtcDateTime:O}; {engineTiming}" : $"Requested at (client UTC): {identity.RequestedAt.UtcDateTime:O}; {engineTiming}",
                 report.Coverage));
@@ -345,7 +403,9 @@ public sealed partial class MainWindow : Window
             Navigation.SelectedItem = Navigation.MenuItems[1];
             ShowMatches();
             if (all.Count > 0) Findings.SelectedIndex = 0;
-            return true;
+            var binding = parityViewBinding;
+            await binding;
+            return !actionLifetime.IsCancellationRequested && current == generation;
         }
         catch (Exception error) when (error is IOException or JsonException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException or KeyNotFoundException)
         {
@@ -779,6 +839,9 @@ public sealed partial class MainWindow : Window
     private void Navigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (!ready) return;
+        if (!navigatingBack && previousDestination != null && previousDestination != args.SelectedItem) navigationBack.Push(previousDestination);
+        previousDestination = args.SelectedItem;
+        Navigation.IsBackEnabled = navigationBack.Count > 0;
         Heading.Text = args.IsSettingsSelected ? "Settings" :
             (args.SelectedItem as NavigationViewItem)?.Content?.ToString() ?? "Overview";
         bool structured = Heading.Text is "Architecture" or "Inventory";
@@ -790,6 +853,13 @@ public sealed partial class MainWindow : Window
         HistoryPanel.Visibility = history ? Visibility.Visible : Visibility.Collapsed;
         ProviderPanel.Visibility = provider ? Visibility.Visible : Visibility.Collapsed;
         ScanOptionsPanel.Visibility = scanOptions ? Visibility.Visible : Visibility.Collapsed;
+        bool risk = Heading.Text == "Risk and paths", evidenceInventory = Heading.Text == "Evidence inventory", diagrams = Heading.Text == "Diagrams", fleet = Heading.Text == "Fleet", suppressions = Heading.Text == "Suppressions";
+        RiskPaths.Visibility = risk ? Visibility.Visible : Visibility.Collapsed;
+        EvidenceInventory.Visibility = evidenceInventory ? Visibility.Visible : Visibility.Collapsed;
+        Diagrams.Visibility = diagrams ? Visibility.Visible : Visibility.Collapsed;
+        Fleet.Visibility = fleet ? Visibility.Visible : Visibility.Collapsed;
+        SuppressionWorkspace.Visibility = suppressions ? Visibility.Visible : Visibility.Collapsed;
+        if (risk || evidenceInventory || diagrams || fleet || suppressions) FindingsPanel.Visibility = Visibility.Collapsed;
         inventoryView = Heading.Text == "Inventory";
         if (structured) { ShowStructure(); return; }
         Status.Text = Heading.Text switch {
@@ -885,7 +955,7 @@ public sealed partial class MainWindow : Window
         string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "provider.json");
         try
         {
-            if (!File.Exists(path)) return;
+            if (!File.Exists(path) || restoredScanOptions.Provider != null) return;
             if (new FileInfo(path).Length > 16384) throw new InvalidDataException("Provider settings exceed their limit.");
             using var document = JsonDocument.Parse(File.ReadAllText(path));
             if (document.RootElement.GetProperty("schema_version").GetInt32() != 1) throw new InvalidDataException("Unsupported provider settings.");
@@ -1030,7 +1100,9 @@ public sealed partial class MainWindow : Window
         actionRunning = true; Suppression.SetBusy(true);
         try
         {
-            var result = await DesktopActionRunner.Run(PythonPath.Text.Trim(), request.Operation, request.Payload, cancellationToken: actionLifetime.Token);
+            var payload = JsonSerializer.SerializeToNode(request.Payload)!.AsObject();
+            if (request.Operation == "suppression_preview" && BlankOption(SuppressFileOption.Text) is string selectedFile) payload["suppress_file"] = selectedFile;
+            var result = await DesktopActionRunner.Run(PythonPath.Text.Trim(), request.Operation, payload, cancellationToken: actionLifetime.Token);
             if (revision == findingRevision && !actionLifetime.IsCancellationRequested) Suppression.SetResult(result);
         }
         catch (Exception) { if (revision == findingRevision && !actionLifetime.IsCancellationRequested) Suppression.SetResult(JsonSerializer.SerializeToElement(new { status = "failed", message = "Action did not confirm completion. A change may have applied; use Recover/Undo with the retained preview. Local request snapshot is preserved." })); }
@@ -1046,7 +1118,13 @@ public sealed partial class MainWindow : Window
         {
             var result = await DesktopActionRunner.Run(PythonPath.Text.Trim(), operation, new { configuration = request.Configuration }, request.Credential, cancellationToken: actionLifetime.Token);
             if (actionLifetime.IsCancellationRequested) return;
-            if (result.TryGetProperty("configuration", out var stored)) Provider.ApplyConfiguration(stored.Deserialize<ProviderConfiguration>()!);
+            if (operation == "provider_save")
+            {
+                // The protected credential action has the legacy wire contract. Persist
+                // the complete preferences separately, including AI-off advanced values.
+                Provider.ApplyConfiguration(request.Preferences);
+                settings.Save(new LocalSettings(PythonPath: PythonPath.Text.Trim(), RepositoryPath: repositoryPath ?? "", Options: ReadScanOptions(), Modules: ModulesOption.Text.Trim()));
+            }
             Provider.ShowResult(result.GetProperty("message").GetString() ?? "Provider action completed.");
             NetworkOptionChanged(this, new RoutedEventArgs());
         }

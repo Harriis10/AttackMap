@@ -46,6 +46,24 @@ try
     string unsafeManifest=originalManifest.Replace("\"sections\":[]","\"sections\":[{\"name\":\"unsafe\",\"path\":\"../escape.json\",\"role\":\"artifact\",\"format\":\"json\",\"checksum\":\""+new string('a',64)+"\"}]");
     File.WriteAllText(manifest,unsafeManifest);workspace.Select(selected with{ManifestHash=ExportSelection.Hash(File.ReadAllBytes(manifest))});Reject(()=>workspace.Request(SelectedExportFormat.Json,SelectedExportOperation.Copy));File.WriteAllText(manifest,originalManifest);workspace.Select(selected);
     string alias=Path.Combine(root,"redirected");Directory.CreateSymbolicLink(alias,generation);Reject(()=>workspace.Request(SelectedExportFormat.Sarif,SelectedExportOperation.Save,Path.Combine(alias,"new.sarif")));Directory.Delete(alias);
+    Directory.CreateSymbolicLink(alias,generation);
+    foreach(string extension in new[]{"json","md","html","pdf","sarif","txt"})Reject(()=>selected.EnsureExportDestination(Path.Combine(alias,"new."+extension),report));
+    Reject(()=>selected.Export(Path.Combine(alias,"new.json"),false).GetAwaiter().GetResult());
+    Reject(()=>ReviewExport.WriteHtmlAsync(Path.Combine(alias,"new.html"),"<html>inert</html>").GetAwaiter().GetResult());
+    Reject(()=>ReviewExport.WritePdfAsync("never-launched-renderer.exe","<html>inert</html>",Path.Combine(alias,"new.pdf")).GetAwaiter().GetResult());
+    Directory.Delete(alias);
+    string ordinaryHtml=Path.Combine(root,"ordinary.html");await ReviewExport.WriteHtmlAsync(ordinaryHtml,"<html>inert</html>");Check(File.ReadAllText(ordinaryHtml)=="<html>inert</html>","guarded HTML write succeeds without launching a browser");
+    selected.EnsureExportDestination(Path.Combine(root,"ordinary","new.json"),report);Check(true,"shared destination guard permits non-existing local output folders");
+    if(OperatingSystem.IsWindows())
+    {
+        string junction=Path.Combine(root,"junction-to-generation");
+        var start=new System.Diagnostics.ProcessStartInfo("cmd.exe"){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
+        start.ArgumentList.Add("/d");start.ArgumentList.Add("/c");start.ArgumentList.Add("mklink");start.ArgumentList.Add("/J");start.ArgumentList.Add(junction);start.ArgumentList.Add(generation);
+        using var junctionProcess=System.Diagnostics.Process.Start(start)!;await junctionProcess.WaitForExitAsync();
+        if(junctionProcess.ExitCode!=0)throw new Exception("Actual Windows junction fixture could not be created: "+await junctionProcess.StandardError.ReadToEndAsync());
+        try { Reject(()=>selected.EnsureExportDestination(Path.Combine(junction,"attackmap-report.json"),report));Check(File.ReadAllText(report)==source,"actual junction rejection preserves immutable report"); }
+        finally { Directory.Delete(junction); }
+    }
     string linked=Path.Combine(root,"linked-report.json");File.CreateSymbolicLink(linked,report);Reject(()=>workspace.Request(SelectedExportFormat.Sarif,SelectedExportOperation.Save,linked,true));File.Delete(linked);
     string longPath=root;for(int i=0;i<7;i++)longPath=Path.Combine(longPath,"long-unicode-žluťoučký-segment-"+i);Directory.CreateDirectory(longPath);
     var longIntent=workspace.Request(SelectedExportFormat.Sarif,SelectedExportOperation.Save,Path.Combine(longPath,"selected.sarif"))!;Check(longIntent.Destination!.Length>260&&workspace.Validate(longIntent),"long Unicode destination intent");

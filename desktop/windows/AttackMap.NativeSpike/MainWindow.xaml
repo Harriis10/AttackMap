@@ -1,6 +1,6 @@
 <Window x:Class="AttackMap.NativeSpike.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:AttackMap.NativeSpike" Title="AttackMap">
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:AttackMap.NativeSpike" xmlns:history="using:AttackMap.NativeSpike.HistoryPrep" Title="AttackMap">
  <Grid Background="{ThemeResource AttackCanvasBrush}">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <MenuBar x:Name="CommandMenu" Padding="12,0" AutomationProperties.Name="Application commands">
@@ -35,6 +35,11 @@
    <NavigationViewItem Content="Reports" Icon="Document"/>
    <NavigationViewItem Content="History" Icon="Clock"/>
    <NavigationViewItem Content="Scan options" Icon="Manage"/>
+   <NavigationViewItem Content="Risk and paths" Icon="Flag"/>
+   <NavigationViewItem Content="Evidence inventory" Icon="List"/>
+   <NavigationViewItem Content="Diagrams" Icon="Map"/>
+   <NavigationViewItem Content="Fleet" Icon="World"/>
+   <NavigationViewItem Content="Suppressions" Icon="Filter"/>
   </NavigationView.MenuItems>
   <Grid Padding="24,16" RowSpacing="16" Background="{ThemeResource AttackCanvasBrush}">
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
@@ -51,6 +56,7 @@
    <StackPanel Grid.Row="1" Spacing="8">
     <TextBlock x:Name="Heading" Text="Overview" Style="{StaticResource TitleTextBlockStyle}" FontSize="26" FontWeight="SemiBold" Foreground="{ThemeResource AttackTextBrush}" Margin="0"/>
     <Border Padding="0,0,0,4"><TextBlock x:Name="Status" Text="Choose a repository to scan, or open a saved report." TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" Foreground="{ThemeResource AttackTextBrush}"/></Border>
+    <Expander x:Name="ProgressPanel" Header="Current scan progress" Visibility="Collapsed" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><local:ScanProgressView x:Name="ScanProgress"/></Expander>
    </StackPanel>
    <Grid x:Name="FindingsPanel" Grid.Row="2" Visibility="Collapsed" ColumnSpacing="16" RowSpacing="12" SizeChanged="ResponsivePanels">
     <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
@@ -86,7 +92,7 @@
      <Expander Header="Suppress this finding" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><local:SuppressionPanel x:Name="Suppression"/></Expander>
     </StackPanel></ScrollViewer>
    </Grid>
-   <ScrollViewer x:Name="HistoryPanel" Grid.Row="2" Visibility="Collapsed" HorizontalScrollBarVisibility="Disabled"><Border Style="{StaticResource AttackCardStyle}"><local:HistoryComparisonView x:Name="History"/></Border></ScrollViewer>
+   <ScrollViewer x:Name="HistoryPanel" Grid.Row="2" Visibility="Collapsed" HorizontalScrollBarVisibility="Disabled"><Border Style="{StaticResource AttackCardStyle}"><StackPanel Spacing="16"><history:RecentRepositoriesPanel x:Name="RecentRepositories"/><StackPanel Spacing="8"><TextBlock Text="Baseline for the next scan" FontSize="20"/><Button Content="Use displayed report as next baseline" Click="UseDisplayedBaseline"/><Button Content="Use previous retained report as next baseline" Click="UsePreviousBaseline"/><Button Content="Clear next scan baseline and its policies" Click="ClearScanBaseline"/><TextBlock x:Name="NextBaselineStatus" Text="No next scan baseline selected." TextWrapping="Wrap"/></StackPanel><local:HistoryComparisonView x:Name="History"/></StackPanel></Border></ScrollViewer>
    <ScrollViewer x:Name="OverviewPanel" Grid.Row="2" Visibility="Collapsed" HorizontalScrollBarVisibility="Disabled"><StackPanel Spacing="16" VerticalAlignment="Top"><Border Style="{StaticResource AttackCardStyle}" MaxWidth="960" HorizontalAlignment="Left"><StackPanel Spacing="12">
 
     <TextBlock Text="SECURITY REVIEW" Style="{StaticResource AttackSectionLabelStyle}"/>
@@ -94,6 +100,7 @@
     <TextBlock x:Name="OverviewText" FontSize="16" LineHeight="25" Foreground="{ThemeResource AttackTextBrush}" Text="Choose a repository and start a scan, or open a saved report. AI and CVE lookup are off by default." TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
     <TextBlock Text="Results will appear in Findings, Architecture and Inventory. Read or export the review from Reports." TextWrapping="Wrap"/>
    </StackPanel></Border>
+   <Expander Header="Evidence overview and linked core records" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><local:OverviewView x:Name="EvidenceOverview" MaxHeight="620"/></Expander>
    <Border Style="{StaticResource AttackCardStyle}" MaxWidth="960" HorizontalAlignment="Left"><StackPanel Spacing="12">
     <TextBlock Text="RUN DETAILS AND COVERAGE" Style="{StaticResource AttackSectionLabelStyle}"/>
     <TextBlock x:Name="RunSummary" Text="Displayed report: none" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
@@ -109,6 +116,10 @@
     <TextBlock Text="Scan options" FontSize="24" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{ThemeResource AttackTextBrush}"/>
     <TextBlock Text="Set the engine used for local analysis. Options apply to the next scan; optional network features stay off unless enabled." TextWrapping="Wrap"/>
     <TextBox x:Name="PythonPath" Header="Absolute engine executable: Python with AttackMap, or frozen attackmap.exe" PlaceholderText="C:\path\to\python.exe or attackmap.exe"/>
+    <Button Content="Check engine compatibility and installed analyzers" Click="CheckEngineCapabilities"/>
+    <TextBlock x:Name="EngineCompatibility" Text="Compatibility has not been checked. Checking starts only the selected local engine; it makes no provider request." TextWrapping="Wrap"/>
+    <CheckBox x:Name="WatchOption" Content="Watch this repository and rescan with current settings after edits (off by default)" Checked="WatchChanged" Unchecked="WatchChanged"/>
+    <TextBlock x:Name="WatchStatus" Text="Watch is off." TextWrapping="Wrap"/>
     <StackPanel Orientation="Horizontal" Spacing="8">
      <Button Content="Save local settings" Click="SaveLocalSettings"/>
      <Button Content="Clear saved settings" Click="ClearLocalSettings"/>
@@ -121,6 +132,16 @@
      <CheckBox x:Name="CveOption" Checked="NetworkOptionChanged" Unchecked="NetworkOptionChanged" Content="CVE lookup: contacts OSV and sends dependency names/versions"/>
      <TextBlock Text="CVE lookup is off by default. No analyzer auto-install. Configure optional AI explicitly in Settings." TextWrapping="Wrap"/>
      <TextBox x:Name="ModulesOption" Header="Installed analyzer names (blank = automatic selection)" PlaceholderText="javascript-web, config"/>
+     <Expander Header="Choose installed analyzers" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><ContentControl x:Name="AnalyzerHost" MaxHeight="420"/></Expander>
+     <TextBox x:Name="BaselineOption" Header="Baseline report JSON (absolute local path; blank disables comparison)"/>
+     <Button x:Name="BaselinePicker" Content="Choose baseline report" Click="ChooseScanBaseline"/>
+     <TextBox x:Name="SuppressFileOption" Header="Suppression YAML (absolute local path; blank uses repository default)"/>
+     <Button x:Name="SuppressionPicker" Content="Choose suppression file" Click="ChooseScanSuppression"/>
+     <CheckBox x:Name="FailNewHighOption" Content="Fail policy for new high severity findings against baseline"/>
+     <CheckBox x:Name="FailNewSuppressionOption" Content="Fail policy for new suppressions against baseline"/>
+     <CheckBox x:Name="StrictSuppressionsOption" Content="Fail on invalid suppression rules"/>
+     <CheckBox x:Name="IsolatedAnalyzersOption" Content="Run analyzers in isolated processes"/>
+     <TextBox x:Name="TimeBudgetOption" Header="Soft analysis time budget in seconds (blank = no budget; below hard timeout)"/>
      <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
       <TextBox x:Name="SecretsHistoryOption" Header="Local secret history: commits, 0 disables (0 to 10000)" Text="0"/>
       <TextBox x:Name="TimeoutOption" Grid.Column="1" Header="Worker timeout in seconds (1 to 86400)" Text="600"/>
@@ -143,6 +164,7 @@
       <Button x:Name="ArtifactListButton" Content="List selected run artifacts" Click="ListArtifacts"/>
       <Button x:Name="ArtifactReadButton" Content="Read selected artifact" Click="ReadArtifact"/>
      </StackPanel>
+     <StackPanel Spacing="8"><Button Content="Save selected artifact" Click="SaveSelectedArtifact"/><Button Content="Copy selected artifact text" Click="CopySelectedArtifact"/><Button Content="Show selected artifact folder" Click="RevealSelectedArtifact"/></StackPanel>
      <TextBlock x:Name="ArtifactStatus" Text="Legacy imports support canonical JSON export; verified generations also support artifact browsing." TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
      <ListView x:Name="ArtifactRows" MaxHeight="220" SelectionMode="Single" AutomationProperties.Name="Selected run artifacts" Background="{ThemeResource AttackSurfaceBrush}" BorderBrush="{ThemeResource AttackStrokeBrush}" BorderThickness="1" CornerRadius="8" Padding="4"><ListView.ItemTemplate><DataTemplate><StackPanel Padding="8,7" Spacing="2">
       <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis"/>
@@ -150,10 +172,17 @@
      </StackPanel></DataTemplate></ListView.ItemTemplate></ListView>
      <Border Background="{ThemeResource AttackRaisedBrush}" BorderBrush="{ThemeResource AttackStrokeBrush}" BorderThickness="1" CornerRadius="8" Padding="12"><ScrollViewer MaxHeight="360" HorizontalScrollBarVisibility="Disabled"><TextBlock x:Name="ArtifactText" FontFamily="Consolas" FontSize="12" LineHeight="18" Text="Choose an artifact to inspect its verified text." TextWrapping="Wrap" IsTextSelectionEnabled="True"/></ScrollViewer></Border>
     </StackPanel></Expander>
+    <Expander x:Name="AiArtifactsExpander" Header="AI mode artifacts, support and usage" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><local:AiArtifactsView x:Name="AiArtifacts"/></Expander>
+    <Button Content="Export selected findings as SARIF" Click="ExportSarif" HorizontalAlignment="Left"/>
     <TextBlock Text="Review supplied by the engine. Static conclusions remain subject to the evidence and uncertainty stated in this report. Markdown is displayed as selectable text." TextWrapping="Wrap"/>
     <local:MarkdownView x:Name="ReviewText"/>
    </StackPanel></Border></ScrollViewer>
-   <ScrollViewer x:Name="ProviderPanel" Grid.Row="2" Visibility="Collapsed" HorizontalScrollBarVisibility="Disabled"><Border Style="{StaticResource AttackCardStyle}" VerticalAlignment="Top" HorizontalAlignment="Left"><local:ProviderSettingsView x:Name="Provider" VerticalAlignment="Top"/></Border></ScrollViewer>
+   <Border x:Name="ProviderPanel" Grid.Row="2" Visibility="Collapsed" Style="{StaticResource AttackCardStyle}" HorizontalAlignment="Left"><local:ProviderSettingsView x:Name="Provider" VerticalAlignment="Stretch"/></Border>
+   <local:RiskPathsView x:Name="RiskPaths" Grid.Row="2" Visibility="Collapsed"/>
+   <local:InventoryView x:Name="EvidenceInventory" Grid.Row="2" Visibility="Collapsed"/>
+   <local:DiagramView x:Name="Diagrams" Grid.Row="2" Visibility="Collapsed"/>
+   <local:FleetView x:Name="Fleet" Grid.Row="2" Visibility="Collapsed"/>
+   <local:SuppressionWorkspacePanel x:Name="SuppressionWorkspace" Grid.Row="2" Visibility="Collapsed"/>
    <Grid x:Name="StructurePanel" Grid.Row="2" Visibility="Collapsed" RowSpacing="8" ColumnSpacing="16" SizeChanged="ResponsivePanels">
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

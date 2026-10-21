@@ -44,17 +44,20 @@ public static class ReviewExport
     public static async Task WriteHtmlAsync(string destination, string html)
     {
         destination = Path.GetFullPath(destination);
+        ExportSelection.EnsureDestinationPath(destination);
         string temporary = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
-        try { await File.WriteAllTextAsync(temporary, html, new UTF8Encoding(false)); File.Move(temporary, destination, overwrite: true); }
+        try { ExportSelection.EnsureDestinationPath(destination); await File.WriteAllTextAsync(temporary, html, new UTF8Encoding(false)); ExportSelection.EnsureDestinationPath(destination); File.Move(temporary, destination, overwrite: true); }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
 
     public static async Task WritePdfAsync(string browserPath, string html, string destination)
     {
         destination = Path.GetFullPath(destination);
+        ExportSelection.EnsureDestinationPath(destination);
         string work = Path.Combine(Path.GetTempPath(), "attackmap-review-pdf-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(work);
         string sourcePath = Path.Combine(work, "review.html");
+        string pdfPath = Path.Combine(work, "review.pdf");
         await File.WriteAllTextAsync(sourcePath, html, new UTF8Encoding(false));
         try
         {
@@ -63,7 +66,7 @@ public static class ReviewExport
             string profile = Path.Combine(work, "profile");
             using var process = new Process();
             process.StartInfo = new ProcessStartInfo { FileName = browserPath, UseShellExecute = false, CreateNoWindow = true };
-            foreach (string argument in new[] { "--headless", "--disable-gpu", "--no-pdf-header-footer", $"--user-data-dir={profile}", $"--print-to-pdf={destination}", sourcePath })
+            foreach (string argument in new[] { "--headless", "--disable-gpu", "--no-pdf-header-footer", $"--user-data-dir={profile}", $"--print-to-pdf={pdfPath}", sourcePath })
                 process.StartInfo.ArgumentList.Add(argument);
             process.Start();
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
@@ -74,11 +77,15 @@ public static class ReviewExport
                 throw new TimeoutException("PDF printing did not finish within 60 seconds.");
             }
             if (process.ExitCode != 0) throw new InvalidDataException($"Headless browser print failed with exit code {process.ExitCode}.");
-            if (!File.Exists(destination)) throw new InvalidDataException("Headless browser print produced no PDF file.");
-            await using var written = File.OpenRead(destination);
-            byte[] header = new byte[4];
-            if (await written.ReadAsync(header) < 4 || Encoding.ASCII.GetString(header) != "%PDF")
-                throw new InvalidDataException("Printed output is not a PDF document.");
+            if (!File.Exists(pdfPath)) throw new InvalidDataException("Headless browser print produced no PDF file.");
+            await using (var written = File.OpenRead(pdfPath))
+            {
+                byte[] header = new byte[4];
+                if (await written.ReadAsync(header) < 4 || Encoding.ASCII.GetString(header) != "%PDF")
+                    throw new InvalidDataException("Printed output is not a PDF document.");
+            }
+            ExportSelection.EnsureDestinationPath(destination);
+            File.Move(pdfPath, destination, overwrite: true);
         }
         finally
         {

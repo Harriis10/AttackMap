@@ -20,6 +20,7 @@ public sealed partial class DiagramView:UserControl
     private ExportSelection? selection;
     private DiagramDocument? current;
     private long revision;
+    private bool stopped;
     public event Action<string>? ExportTextRequested;
     public DiagramView()
     {
@@ -43,19 +44,21 @@ public sealed partial class DiagramView:UserControl
         void Add(string name,Action action){var button=new Button{Content=name};AutomationProperties.SetName(button,name);button.Click+=(_,_)=>action();controls.Children.Add(button);}
     }
     private void Pan(double x,double y)=>viewport.ChangeView(Math.Max(0,viewport.HorizontalOffset+x),Math.Max(0,viewport.VerticalOffset+y),null);
-    public async Task SetSelection(ExportSelection? value){selection=value;await Reload();}
+    public void Stop(){stopped=true;revision++;selection=null;}
+    public async Task SetSelection(ExportSelection? value){if(stopped)return;selection=value;await Reload();}
     private async Task Reload()
     {
+        if(stopped)return;
         long captured=++revision;var selected=selection;
         Show(new("",Array.Empty<DiagramNode>(),Array.Empty<DiagramEdge>(),false,"Loading selected diagram; no prior report is displayed."));
         if(selected==null){notice.Text="No manifest-bound report selected.";return;}
         try
         {
             var loaded=await DiagramSelectionReader.Read(selected,artifact.SelectedItem?.ToString()??DiagramSelectionReader.ArtifactNames[0]);
-            if(captured==revision)Show(loaded);
+            if(!stopped&&captured==revision)Show(loaded);
         }
         catch(Exception error) when(error is IOException or System.Text.Json.JsonException or UnauthorizedAccessException or ArgumentException)
-        {if(captured==revision)Show(new("",Array.Empty<DiagramNode>(),Array.Empty<DiagramEdge>(),false,"Diagram unavailable: "+error.Message+" No prior graph is shown. Large or invalid inputs must be inspected/exported through the raw artifact workflow."));}
+        {if(!stopped&&captured==revision)Show(new("",Array.Empty<DiagramNode>(),Array.Empty<DiagramEdge>(),false,"Diagram unavailable: "+error.Message+" No prior graph is shown. Large or invalid inputs must be inspected/exported through the raw artifact workflow."));}
     }
     // This bypass is compiled only into the standalone synthetic preview.
 #if DIAGRAM_STANDALONE_PREVIEW
@@ -63,6 +66,7 @@ public sealed partial class DiagramView:UserControl
 #endif
     private void Show(DiagramDocument diagram)
     {
+        if(stopped)return;
         current=diagram;notice.Text=diagram.Notice;alternative.Text=diagram.TextAlternative;canvas.Children.Clear();
         copy.IsEnabled=diagram.Source.Length>0;export.IsEnabled=diagram.Source.Length>0&&ExportTextRequested!=null;
         viewport.ChangeView(0,0,1);

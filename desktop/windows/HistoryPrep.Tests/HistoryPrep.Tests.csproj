@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup><ItemGroup>
 <Compile Include="../AttackMap.NativeSpike/History/RecentRepositoriesCodec.cs" Link="RecentRepositoriesCodec.cs"/><Compile Include="../AttackMap.NativeSpike/History/HistoryComparisonModel.cs" Link="HistoryComparisonModel.cs"/><Compile Remove="Preview/**/*.cs"/>
+<Compile Include="../AttackMap.NativeSpike/History/RecentRepositoriesStore.cs" Link="RecentRepositoriesStore.cs"/>
 <Content Include="../../../fixtures/desktop-workflows/expected.json" Link="fixtures/expected.json" CopyToOutputDirectory="PreserveNewest"/>
 </ItemGroup></Project>

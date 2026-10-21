@@ -35,4 +35,24 @@ var customTicket=model.BeginCustomSelection()!;var pin=model.Pin(true)!;model.Se
 Check(model.Status.Contains("unavailable")&&model.Status.Contains("Recover"),"missing repo recoverable");
 model.SetGenerations(new[]{new RetainedGeneration(Artifact("g1",hash1,"repo-b"),false,true,"completed","passed")});model.SelectGeneration(Artifact("g1",hash1,"repo-b"));Check(model.BeginLoad()!=null,"retained report remains selectable when repo missing");
 try{model.SetGenerations(new[]{g1,g1});throw new Exception("duplicate generation accepted");}catch(InvalidDataException){checks++;}
-Console.WriteLine($"PASS {checks} bounded WP013 history checks; no scans, report writes, pin writes or retention deletes");
+string ownedTempBase=Path.GetFullPath(Path.GetTempPath());
+string ownedHistory=Path.GetFullPath(Path.Combine(ownedTempBase,"attackmap-recent-tests-"+Guid.NewGuid().ToString("N")));
+Directory.CreateDirectory(ownedHistory);
+try
+{
+    string storePath=Path.Combine(ownedHistory,"recent.json");var store=new RecentRepositoriesStore(storePath);
+    Check(store.Load().Count==0&&!File.Exists(storePath),"empty history load does not create a file");
+    store.Remember(repoA.Root,"g3",hash3);store.Remember(repoB.Root,"g1",hash1);store.Remember(repoA.Root);
+    Check(store.Load().Count==2&&store.Load()[0].Root==Path.TrimEndingDirectorySeparator(Path.GetFullPath(repoA.Root))&&store.Load()[0].LastGenerationId=="g3","store deduplicates recent selection and retains last generation");
+    using(var doc=JsonDocument.Parse(File.ReadAllText(storePath)))
+    {var expanded=System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!.AsObject();expanded["FutureMetadata"]="retain";File.WriteAllText(storePath,expanded.ToJsonString());}
+    store.Remember(repoB.Root);Check(File.ReadAllText(storePath).Contains("FutureMetadata"),"store preserves unknown future metadata");
+    string corrupt="{\"SchemaVersion\":99,\"Repositories\":[]}";File.WriteAllText(storePath,corrupt);
+    try{store.Remember(repoA.Root);throw new Exception("unknown saved history replaced");}catch(InvalidDataException){Check(File.ReadAllText(storePath)==corrupt,"unknown history original preserved on save");}
+}
+finally
+{
+    if(!ownedHistory.StartsWith(Path.TrimEndingDirectorySeparator(ownedTempBase)+Path.DirectorySeparatorChar,OperatingSystem.IsWindows()?StringComparison.OrdinalIgnoreCase:StringComparison.Ordinal)||!Path.GetFileName(ownedHistory).StartsWith("attackmap-recent-tests-",StringComparison.Ordinal))throw new InvalidDataException("Owned history cleanup escaped its temporary base.");
+    Directory.Delete(ownedHistory,recursive:true);
+}
+Console.WriteLine($"PASS {checks} bounded WP013 history checks; owned temporary history files only; no scans, report/pin writes or retention deletes");

@@ -64,7 +64,7 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
         byte[] content = markdown ? ReadBounded(source,64 * 1024 * 1024) : report;
         if (markdown && Hash(content) != MarkdownHash) throw new InvalidDataException("Selected Markdown does not match its captured manifest; destination preserved.");
         string temporary = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
-        try { await File.WriteAllBytesAsync(temporary,content); File.Move(temporary,destination,overwrite:true); }
+        try { EnsureExportDestination(destination, source); await File.WriteAllBytesAsync(temporary,content); EnsureExportDestination(destination, source); File.Move(temporary,destination,overwrite:true); }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
     /// <summary>Returns the displayed run's Markdown review after the same
@@ -82,12 +82,26 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
     public void EnsureExportDestination(string destination, string source)
     {
         destination = Path.GetFullPath(destination);
+        EnsureDestinationPath(destination);
         if (string.Equals(destination,source,StringComparison.OrdinalIgnoreCase) || string.Equals(destination,ReportPath,StringComparison.OrdinalIgnoreCase) || string.Equals(destination,ManifestPath,StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Choose an export destination outside the selected source artifacts.");
         if (Verified)
         {
             string relative = Path.GetRelativePath(Path.GetDirectoryName(ReportPath)!,destination);
             if (!Path.IsPathFullyQualified(relative) && relative != ".." && !relative.StartsWith(".." + Path.DirectorySeparatorChar)) throw new InvalidDataException("Export outside the immutable selected generation directory.");
+        }
+    }
+    /// <summary>Reject redirected destination files and ancestors for every export format.</summary>
+    public static void EnsureDestinationPath(string destination)
+    {
+        for (string? path = Path.GetFullPath(destination); path != null; path = Path.GetDirectoryName(path))
+        {
+            FileAttributes attributes;
+            try { attributes = File.GetAttributes(path); }
+            catch (FileNotFoundException) { continue; }
+            catch (DirectoryNotFoundException) { continue; }
+            if ((attributes & FileAttributes.ReparsePoint) != 0)
+                throw new InvalidDataException("Choose an export destination without redirected files or folders.");
         }
     }
     private static byte[] ReadBounded(string path,int limit)
