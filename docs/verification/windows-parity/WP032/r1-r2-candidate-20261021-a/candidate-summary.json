@@ -1,0 +1,25 @@
+{
+  "canonical_input_count": 139,
+  "canonical_changed_inputs": [],
+  "owned_changed_existing": [
+    "src/attackmap/contracts.py",
+    "src/attackmap/crossrepo.py"
+  ],
+  "candidate_files": {
+    "src/attackmap/contracts.py": "e3b317bedc574b3b903e507df402b3fddd7c5d3a5e148abb9f9e1aeac4bbae2a",
+    "src/attackmap/crossrepo.py": "d544c0a37b86fc7eb9cda3496061e8a7292b7f726a0d229a38175c92936b7fbb",
+    "tests/test_wp032_reference_binding.py": "6bbbeccb8c0628c22d99683b6a20aae42f4fc53dbe0e616660e3a4706d9eb3f0"
+  },
+  "patch_sha256": "6a27aa02a70b5e6021b4fb23d7148f58e704b47ccf9aa22301089f4e942afd86",
+  "patch_apply_check_exit": 0,
+  "initial_collected": 139,
+  "initial_passed": 136,
+  "initial_setup_errors": 3,
+  "fixture_retry_passed": 3,
+  "final_distinct_passed": 139,
+  "new_regression_cases": 30,
+  "canonical_applied": false,
+  "baseline_reproducer": "baseline-pure-reproducers.json",
+  "candidate_reproducer": "candidate-pure-reproducers.json",
+  "scope": "Owned-copy pure/model/fixture tests only; no scan service, provider, GUI, canonical source/test changes, R3 or R5 implementation."
+}

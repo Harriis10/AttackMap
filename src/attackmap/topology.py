@@ -283,9 +283,8 @@ def _service_owning_file(file: str, file_to_service: dict[str, str]) -> str | No
 
 
 def _service_from_url(target: str) -> str | None:
-    """Extract a service slug from an outbound URL. Mirrors the same
-    lightweight heuristic the node-service analyzer uses so both agree
-    on what constitutes a peer name."""
+    """Infer a peer slug from the complete first DNS label of an outbound URL.
+    This remains a naming heuristic, not an observed service identity."""
     try:
         host = urlparse(target).hostname or ""
     except ValueError:
@@ -294,7 +293,7 @@ def _service_from_url(target: str) -> str | None:
         return None
     if host in {"localhost", "127.0.0.1"}:
         return "local-service"
-    return host.split(".")[0].split("-")[0].lower()
+    return host.split(".")[0].lower()
 
 
 def _service_from_env_name(env_name: str) -> str | None:

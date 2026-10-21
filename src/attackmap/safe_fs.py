@@ -233,6 +233,25 @@ def ensure_output_dir(out_dir: str | Path, *, mark: bool = False) -> Path:
     return out
 
 
+def _check_output_target(out: Path, target: Path) -> None:
+    if out.is_symlink():
+        raise UnsafePathError(f"refusing to write reports into a symlinked directory: {out}")
+    if target.is_symlink():
+        raise UnsafePathError(f"refusing to write through a symlink: {target}")
+    if not target.parent.resolve().is_relative_to(out.resolve()):
+        raise UnsafePathError(f"refusing to write outside the output directory {out}: {target}")
+
+
+def _open_output_fd(out: Path, target: Path, flags: int) -> int:
+    _check_output_target(out, target)
+    try:
+        return os.open(target, flags, 0o644)
+    except OSError as exc:
+        if target.is_symlink():
+            raise UnsafePathError(f"refusing to write through a symlink: {target}") from exc
+        raise
+
+
 def safe_write_text(out_dir: str | Path, path: str | Path, text: str, *, encoding: str = "utf-8") -> None:
     """Write ``text`` to ``path`` without following symlinks.
 
@@ -240,20 +259,58 @@ def safe_write_text(out_dir: str | Path, path: str | Path, text: str, *, encodin
     ``out_dir``. The final open uses ``O_NOFOLLOW`` so a symlink swapped in
     after the check is not followed either.
     """
-    out = Path(out_dir)
-    target = Path(path)
-    if out.is_symlink():
-        raise UnsafePathError(f"refusing to write reports into a symlinked directory: {out}")
-    if target.is_symlink():
-        raise UnsafePathError(f"refusing to write through a symlink: {target}")
-    if not target.parent.resolve().is_relative_to(out.resolve()):
-        raise UnsafePathError(f"refusing to write outside the output directory {out}: {target}")
     flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)
-    try:
-        fd = os.open(target, flags, 0o644)
-    except OSError as exc:
-        if target.is_symlink():
-            raise UnsafePathError(f"refusing to write through a symlink: {target}") from exc
-        raise
+    fd = _open_output_fd(Path(out_dir), Path(path), flags)
     with os.fdopen(fd, "w", encoding=encoding, newline="") as handle:
         handle.write(text)
+
+
+def safe_write_json_report(out_dir: str | Path, path: str | Path, value: object) -> None:
+    """Encode to a held temporary, then exclusively create a new report destination."""
+    import json
+    import tempfile
+
+    out, target = Path(out_dir), Path(path)
+    if target.exists() or target.is_symlink():
+        safe_write_text(out, target, json.dumps(value, indent=2) + "\n")
+        return
+    _check_output_target(out, target)
+    with tempfile.TemporaryFile(mode="w+b", dir=target.parent, prefix=".report-stage-") as stage:
+        def emit(text):
+            stage.write(text.encode("utf-8"))
+        if type(value) is dict and all(type(key) is str for key in value):
+            if not value:
+                emit("{}")
+            else:
+                emit("{\n")
+                first = True
+                for key, section in value.items():
+                    if not first:
+                        emit(",\n")
+                    first = False
+                    emit("  " + json.dumps(key) + ": ")
+                    text = json.dumps(section, indent=2)
+                    emit(text.replace("\n", "\n  "))
+                    del text
+                emit("\n}")
+        else:
+            emit(json.dumps(value, indent=2))
+        emit("\n")
+        stage.flush()
+        stage.seek(0)
+        _check_output_target(out, target)
+        if target.exists() or target.is_symlink():
+            raise FileExistsError(f"report destination appeared during encoding: {target}")
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
+        target_fd = _open_output_fd(out, target, flags)
+        try:
+            destination = os.fdopen(target_fd, "wb")
+        except BaseException:
+            try:
+                os.close(target_fd)
+            except OSError:
+                pass
+            raise
+        with destination:
+            while chunk := stage.read(65536):
+                destination.write(chunk)

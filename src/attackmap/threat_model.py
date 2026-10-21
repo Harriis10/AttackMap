@@ -1611,6 +1611,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
             if scored is not None:
                 finding.exploitability = scored.score
                 finding.exploitability_tier = scored.tier
+                finding.exploitability_reference = scored.producer_reference
 
     # Speculative recall findings (#148a). One low-severity, clearly-marked
     # finding per sink kind reached only via a widened recall knob (deeper hop

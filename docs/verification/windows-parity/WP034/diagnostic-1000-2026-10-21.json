@@ -1,0 +1,786 @@
+{
+  "status": "DIAGNOSTIC_ONLY_NOT_C35_ACCEPTANCE",
+  "tool_session": 46015,
+  "command": ".tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-isolated-diagnostic.py; PYTHONPATH=repo/src",
+  "worker": {
+    "diagnostic_only": true,
+    "scope": {
+      "python_executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+      "python_version": "3.13.15",
+      "python_sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b",
+      "engine_module": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\snapshot\\src\\attackmap\\__init__.py",
+      "engine_version": "1.5.1",
+      "pythonpath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\snapshot\\src",
+      "discovered_module_count": 21,
+      "discovered_modules": [
+        {
+          "name": "atproto",
+          "display_name": "AT Protocol Analyzer",
+          "version": "0.1.0",
+          "description": "Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.",
+          "scope": "AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.",
+          "targets": [
+            "atproto",
+            "bluesky",
+            "xrpc"
+          ],
+          "languages": [
+            "typescript",
+            "javascript",
+            "json"
+          ],
+          "priority": 90,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "c",
+          "display_name": "C Analyzer",
+          "version": "0.1.0",
+          "description": "C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.",
+          "scope": "C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.",
+          "targets": [
+            "c",
+            "civetweb",
+            "libmicrohttpd",
+            "mongoose"
+          ],
+          "languages": [
+            "c"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "config",
+          "display_name": "Config File Analyzer",
+          "version": "0.1.0",
+          "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+          "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+          "targets": [
+            "yaml",
+            "toml",
+            "json",
+            "ini",
+            "env"
+          ],
+          "languages": [],
+          "priority": 30,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "cpp",
+          "display_name": "C++ Analyzer",
+          "version": "0.1.0",
+          "description": "C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.",
+          "scope": "C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.",
+          "targets": [
+            "cpp",
+            "c++",
+            "crow",
+            "pistache",
+            "drogon",
+            "cpprestsdk"
+          ],
+          "languages": [
+            "cpp"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "default",
+          "display_name": "Default Analyzer",
+          "version": "0.1.0",
+          "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+          "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+          "targets": [],
+          "languages": [],
+          "priority": 100,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "dotnet",
+          "display_name": "C# / .NET Analyzer",
+          "version": "0.1.0",
+          "description": "ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.",
+          "scope": ".NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.",
+          "targets": [
+            "dotnet",
+            "csharp",
+            "aspnetcore"
+          ],
+          "languages": [
+            "csharp"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "go",
+          "display_name": "Go Analyzer",
+          "version": "0.1.0",
+          "description": "Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.",
+          "scope": "Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.",
+          "targets": [
+            "go",
+            "golang",
+            "gin",
+            "chi",
+            "echo",
+            "fiber"
+          ],
+          "languages": [
+            "go"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "iac",
+          "display_name": "IaC / Deployment-Surface Analyzer",
+          "version": "0.1.0",
+          "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+          "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS \u00a72 documented for bluesky-social/pds.",
+          "targets": [
+            "docker",
+            "docker-compose",
+            "github-actions",
+            "env-template",
+            "shell-installer"
+          ],
+          "languages": [],
+          "priority": 40,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "java-spring",
+          "display_name": "Java/Kotlin Spring Boot Analyzer",
+          "version": "0.1.0",
+          "description": "Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.",
+          "scope": "Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.",
+          "targets": [
+            "java",
+            "kotlin",
+            "spring",
+            "spring-boot"
+          ],
+          "languages": [
+            "java",
+            "kotlin"
+          ],
+          "priority": 60,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "javascript-web",
+          "display_name": "JavaScript / TypeScript Web Analyzer",
+          "version": "0.2.0",
+          "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+          "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+          "targets": [
+            "express",
+            "fastify",
+            "koa",
+            "node"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "node-atproto",
+          "display_name": "Node / ATProto Overlay Analyzer",
+          "version": "0.1.0",
+          "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+          "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+          "targets": [
+            "atproto",
+            "xrpc",
+            "node-service"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 150,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "node-service",
+          "display_name": "Node Service Analyzer",
+          "version": "0.2.0",
+          "description": "Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.",
+          "scope": "Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.",
+          "targets": [
+            "node-service",
+            "node",
+            "typescript-service"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 25,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "omeka-s",
+          "display_name": "Omeka S Analyzer",
+          "version": "0.1.0",
+          "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+          "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+          "targets": [
+            "omeka-s"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 160,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "php-laminas",
+          "display_name": "PHP Laminas (Zend MVC) Analyzer",
+          "version": "0.1.0",
+          "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+          "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+          "targets": [
+            "laminas",
+            "zend-mvc"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 60,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "php-web",
+          "display_name": "PHP Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+          "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+          "targets": [
+            "php"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "python",
+          "display_name": "Python Comprehensive Analyzer",
+          "version": "0.1.0",
+          "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+          "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+          "targets": [
+            "python",
+            "django",
+            "starlette",
+            "aiohttp",
+            "sanic",
+            "litestar"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 10,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "python-service",
+          "display_name": "Python Services Ecosystem Analyzer",
+          "version": "0.1.0",
+          "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+          "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+          "targets": [
+            "fastapi",
+            "flask",
+            "django",
+            "celery"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 50,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "python-web",
+          "display_name": "Python Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for Python web frameworks and related security signals.",
+          "scope": "Python source files handled by the current scanner-backed web heuristics.",
+          "targets": [
+            "fastapi",
+            "flask"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "rust",
+          "display_name": "Rust Analyzer",
+          "version": "0.1.0",
+          "description": "Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.",
+          "scope": "Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.",
+          "targets": [
+            "rust",
+            "axum",
+            "actix-web",
+            "rocket"
+          ],
+          "languages": [
+            "rust"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "swift",
+          "display_name": "Swift Analyzer",
+          "version": "0.1.0",
+          "description": "Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.",
+          "scope": "Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.",
+          "targets": [
+            "swift",
+            "swiftpm",
+            "vapor",
+            "hummingbird"
+          ],
+          "languages": [
+            "swift"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "terraform",
+          "display_name": "Terraform / HCL Analyzer",
+          "version": "0.1.0",
+          "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+          "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+          "targets": [
+            "terraform",
+            "iac",
+            "hcl",
+            "aws",
+            "azure",
+            "gcp"
+          ],
+          "languages": [
+            "hcl"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        }
+      ],
+      "analyzer_packages": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\snapshot\\src\\attackmap",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_atproto",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_c",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_cpp",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_dotnet",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_go",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_iac",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_java_spring",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_node_service",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_rust",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_swift",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_terraform"
+      ],
+      "analyzer_code_sha256": "b08338106274930e2b5f47f8caafe6fbe8e1b1796387dff61296bdcf884f2a05",
+      "selection": "Default detect/applicability and opt-in policy; no analyzer count or topology reduction"
+    },
+    "timings": [
+      {
+        "stage": "capture",
+        "seconds": 63.60879189999832
+      },
+      {
+        "stage": "detect",
+        "seconds": 13.022710200006259
+      }
+    ],
+    "detect_calls": [],
+    "capture": {
+      "files": 1000,
+      "bytes": 694230,
+      "raw_files": 1000,
+      "raw_bytes": 694230
+    },
+    "selected": [
+      "python",
+      "python-web",
+      "python-service",
+      "default"
+    ],
+    "memory": {
+      "available": true,
+      "peak_working_set_bytes": 54087680,
+      "working_set_bytes": 51478528,
+      "peak_commit_bytes": 48234496,
+      "private_bytes": 46120960
+    }
+  },
+  "campaign": {
+    "diagnostic_only": true,
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-isolated-diagnostic.py",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01"
+    ],
+    "exit_code": 0,
+    "aborted": null,
+    "peak_job_commit": 49078272,
+    "cleanup_verified": true,
+    "snapshot_stable": true,
+    "wall_seconds": 96.66733940000995
+  },
+  "fixture": {
+    "files": 1000,
+    "bytes": 694230,
+    "output": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\repo"
+  },
+  "source_identity": {
+    "index.py": {
+      "snapshot": "ad94a6b1cea9b919229d05bdb9620d07a6c4bdeccbd744d94c493997c6fe21d2",
+      "current": "ad94a6b1cea9b919229d05bdb9620d07a6c4bdeccbd744d94c493997c6fe21d2"
+    },
+    "safe_fs.py": {
+      "snapshot": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+      "current": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2"
+    },
+    "scanner.py": {
+      "snapshot": "41e3c3332eabd720f659e51d1669a07f4bd6d0f419455d90413b2b678e62909d",
+      "current": "41e3c3332eabd720f659e51d1669a07f4bd6d0f419455d90413b2b678e62909d"
+    }
+  },
+  "artifacts": {
+    "campaign-result.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\campaign-result.json",
+      "sha256": "bdab10d26108da4c4f4e11b46558e4d0c63372a9cb2a8150664c378cd9e5e7f6"
+    },
+    "fixture.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\fixture.json",
+      "sha256": "efd84a9d922c9de81a709ce5ab0e6ee66d0a5e8a76761af902857aa9289bf91f"
+    },
+    "profile.pstats": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\profile.pstats",
+      "sha256": "f150f6c7aeeaf9cf9059e9769b59feb7d2ef72744d71db3f7bb0ecacd58cdf6a"
+    },
+    "progress.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\progress.json",
+      "sha256": "d3136296079bdf58bad549f524cdb04e2144859e31c5b6d0a05e91d49d5cdad9"
+    },
+    "source-manifest.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\source-manifest.json",
+      "sha256": "8afb2d7e1eb6a2c476105f7cecd313b05d11f0c85a952ea95108d7b9a42b3402"
+    },
+    "stacks.log": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\stacks.log",
+      "sha256": "a1dc8bd0e4bea623a4d92e03808d88e6202d2c48d605f96cab850c1be03ebfd8"
+    },
+    "stderr.log": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\stderr.log",
+      "sha256": "2020be0ed04bf2be55da3260bf3c05f3fb41e24295b429f6ed14eab73658cf6c"
+    },
+    "stdout.log": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-result.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\worker-result.json",
+      "sha256": "16bd37d74c9a6f67cec465de7d80d5403ae9707794d5789c866ceecaaddb7d85"
+    }
+  },
+  "profile_top_internal": [
+    {
+      "function": [
+        "~",
+        0,
+        "<built-in method _io.open>"
+      ],
+      "calls": 1149,
+      "internal_seconds": 56.7870087,
+      "cumulative_seconds": 56.8303511
+    },
+    {
+      "function": [
+        "~",
+        0,
+        "<method 'read' of '_io.BufferedReader' objects>"
+      ],
+      "calls": 1004,
+      "internal_seconds": 3.2952705,
+      "cumulative_seconds": 3.2952705
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        257,
+        "_parse_path"
+      ],
+      "calls": 57304,
+      "internal_seconds": 1.5214,
+      "cumulative_seconds": 2.5811199
+    },
+    {
+      "function": [
+        "~",
+        0,
+        "<built-in method nt.stat>"
+      ],
+      "calls": 3081,
+      "internal_seconds": 1.4486243,
+      "cumulative_seconds": 1.7401547000000002
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        117,
+        "__init__"
+      ],
+      "calls": 90332,
+      "internal_seconds": 0.8903122000000001,
+      "cumulative_seconds": 1.4411752
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        289,
+        "drive"
+      ],
+      "calls": 62305,
+      "internal_seconds": 0.6716945000000001,
+      "cumulative_seconds": 2.9875066
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        498,
+        "__init__"
+      ],
+      "calls": 84331,
+      "internal_seconds": 0.6493533,
+      "cumulative_seconds": 2.0259778
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        174,
+        "_str_normcase"
+      ],
+      "calls": 60080,
+      "internal_seconds": 0.5996325,
+      "cumulative_seconds": 1.9685369000000001
+    },
+    {
+      "function": [
+        "~",
+        0,
+        "<built-in method sys.intern>"
+      ],
+      "calls": 277283,
+      "internal_seconds": 0.5190716000000001,
+      "cumulative_seconds": 0.5190716000000001
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+        130,
+        "with_segments"
+      ],
+      "calls": 52246,
+      "internal_seconds": 0.4570196,
+      "cumulative_seconds": 2.1675358
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        365,
+        "relative_to"
+      ],
+      "calls": 10001,
+      "internal_seconds": 0.417403,
+      "cumulative_seconds": 5.926449600000001
+    },
+    {
+      "function": [
+        "~",
+        0,
+        "<built-in method builtins.isinstance>"
+      ],
+      "calls": 293646,
+      "internal_seconds": 0.3944783,
+      "cumulative_seconds": 0.3945578
+    },
+    {
+      "function": [
+        "<frozen ntpath>",
+        99,
+        "join"
+      ],
+      "calls": 25180,
+      "internal_seconds": 0.3674673,
+      "cumulative_seconds": 0.5704389000000001
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        277,
+        "_raw_path"
+      ],
+      "calls": 57304,
+      "internal_seconds": 0.35529940000000004,
+      "cumulative_seconds": 1.0473762
+    },
+    {
+      "function": [
+        "~",
+        0,
+        "<built-in method builtins.len>"
+      ],
+      "calls": 238183,
+      "internal_seconds": 0.3507407,
+      "cumulative_seconds": 0.4357903
+    },
+    {
+      "function": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\snapshot\\src\\attackmap\\sdk\\fs.py",
+        34,
+        "iter_repo_files"
+      ],
+      "calls": 3015,
+      "internal_seconds": 0.3484756,
+      "cumulative_seconds": 3.3921665
+    },
+    {
+      "function": [
+        "~",
+        0,
+        "<built-in method nt._path_splitroot_ex>"
+      ],
+      "calls": 117937,
+      "internal_seconds": 0.331533,
+      "cumulative_seconds": 0.331533
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        307,
+        "_tail"
+      ],
+      "calls": 118310,
+      "internal_seconds": 0.32970150000000004,
+      "cumulative_seconds": 1.6423855
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        227,
+        "__str__"
+      ],
+      "calls": 46433,
+      "internal_seconds": 0.2671656,
+      "cumulative_seconds": 1.6132856000000002
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        505,
+        "__new__"
+      ],
+      "calls": 84331,
+      "internal_seconds": 0.26524430000000004,
+      "cumulative_seconds": 0.44446
+    },
+    {
+      "function": [
+        "~",
+        0,
+        "<built-in method builtins.compile>"
+      ],
+      "calls": 4,
+      "internal_seconds": 0.2591332,
+      "cumulative_seconds": 0.2591332
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        237,
+        "_format_parsed_parts"
+      ],
+      "calls": 43303,
+      "internal_seconds": 0.2546314,
+      "cumulative_seconds": 0.46456600000000003
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        44,
+        "__getitem__"
+      ],
+      "calls": 20002,
+      "internal_seconds": 0.24268450000000003,
+      "cumulative_seconds": 1.6899271
+    },
+    {
+      "function": [
+        "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+        320,
+        "parts"
+      ],
+      "calls": 29003,
+      "internal_seconds": 0.2285811,
+      "cumulative_seconds": 1.8391955000000002
+    },
+    {
+      "function": [
+        "<frozen _collections_abc>",
+        1041,
+        "__contains__"
+      ],
+      "calls": 10001,
+      "internal_seconds": 0.21297880000000002,
+      "cumulative_seconds": 2.6252397000000003
+    }
+  ],
+  "limitations": [
+    "Capture/detection only. No C35 or full-pipeline acceptance. cProfile overhead included.",
+    "Empty detect_calls instrumentation missed fresh registry instances; profile confirms21 actual detect gates.",
+    "External analyzer packages not copied; original21-module environment retained. Scope hash includes absolute paths so relocation changes its digest.",
+    "Open latency measured; OS/filter/antivirus cause unproven. No settings changed."
+  ],
+  "recommendation": "No production patch justified for dominant unavoidable one-open-per-source cost; hold larger runs pending controlled I/O discrimination. No reduced scope or larger budget."
+}

@@ -1,0 +1,5129 @@
+{
+  "status": "DIAGNOSTIC_PROFILE_WITH_THREADED_CAPTURE_ATTRIBUTION_ANOMALY_NOT_C35_ACCEPTANCE",
+  "tool_session": 86511,
+  "command": "PYTHONPATH=C:/tmp/attackmap-wp034/10k-20261021-02/source/src; PYTHONDONTWRITEBYTECODE=1; .tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-profile-sealed2.py",
+  "campaign": {
+    "diagnostic_only": true,
+    "exit_code": 0,
+    "aborted": null,
+    "cleanup_verified": true,
+    "source_sha256": "89cfa5e94535b5eeaa3576804cb54b720b066505a4c9b55d438aab71240fb042",
+    "source_stable": true,
+    "source_origin": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+    "adapter_sha256": "1415ef03ec5badc94b5552887d745e4af681c357263651a44dbb7898e50b796c",
+    "adapter_stable": true,
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-profile-sealed2.py",
+      "--worker"
+    ],
+    "peak_owned_job_commit_bytes": 202162176,
+    "wall_seconds": 511.06173619999026,
+    "hard_timeout_seconds": 3600,
+    "memory_abort_bytes": 3221225472,
+    "limitations": "cProfile/main-thread fullpipeline diagnostic only, no C35 or standalone performance qualification; rawread worker threads not profiled."
+  },
+  "worker": {
+    "exit_code": 0,
+    "outcome": "completed",
+    "scope": {
+      "python_executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+      "python_version": "3.13.15",
+      "python_sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b",
+      "engine_module": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\__init__.py",
+      "engine_version": "1.5.1",
+      "pythonpath": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src",
+      "discovered_module_count": 21,
+      "discovered_modules": [
+        {
+          "name": "atproto",
+          "display_name": "AT Protocol Analyzer",
+          "version": "0.1.0",
+          "description": "Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.",
+          "scope": "AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.",
+          "targets": [
+            "atproto",
+            "bluesky",
+            "xrpc"
+          ],
+          "languages": [
+            "typescript",
+            "javascript",
+            "json"
+          ],
+          "priority": 90,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "c",
+          "display_name": "C Analyzer",
+          "version": "0.1.0",
+          "description": "C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.",
+          "scope": "C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.",
+          "targets": [
+            "c",
+            "civetweb",
+            "libmicrohttpd",
+            "mongoose"
+          ],
+          "languages": [
+            "c"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "config",
+          "display_name": "Config File Analyzer",
+          "version": "0.1.0",
+          "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+          "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+          "targets": [
+            "yaml",
+            "toml",
+            "json",
+            "ini",
+            "env"
+          ],
+          "languages": [],
+          "priority": 30,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "cpp",
+          "display_name": "C++ Analyzer",
+          "version": "0.1.0",
+          "description": "C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.",
+          "scope": "C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.",
+          "targets": [
+            "cpp",
+            "c++",
+            "crow",
+            "pistache",
+            "drogon",
+            "cpprestsdk"
+          ],
+          "languages": [
+            "cpp"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "default",
+          "display_name": "Default Analyzer",
+          "version": "0.1.0",
+          "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+          "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+          "targets": [],
+          "languages": [],
+          "priority": 100,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "dotnet",
+          "display_name": "C# / .NET Analyzer",
+          "version": "0.1.0",
+          "description": "ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.",
+          "scope": ".NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.",
+          "targets": [
+            "dotnet",
+            "csharp",
+            "aspnetcore"
+          ],
+          "languages": [
+            "csharp"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "go",
+          "display_name": "Go Analyzer",
+          "version": "0.1.0",
+          "description": "Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.",
+          "scope": "Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.",
+          "targets": [
+            "go",
+            "golang",
+            "gin",
+            "chi",
+            "echo",
+            "fiber"
+          ],
+          "languages": [
+            "go"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "iac",
+          "display_name": "IaC / Deployment-Surface Analyzer",
+          "version": "0.1.0",
+          "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+          "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS \u00a72 documented for bluesky-social/pds.",
+          "targets": [
+            "docker",
+            "docker-compose",
+            "github-actions",
+            "env-template",
+            "shell-installer"
+          ],
+          "languages": [],
+          "priority": 40,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "java-spring",
+          "display_name": "Java/Kotlin Spring Boot Analyzer",
+          "version": "0.1.0",
+          "description": "Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.",
+          "scope": "Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.",
+          "targets": [
+            "java",
+            "kotlin",
+            "spring",
+            "spring-boot"
+          ],
+          "languages": [
+            "java",
+            "kotlin"
+          ],
+          "priority": 60,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "javascript-web",
+          "display_name": "JavaScript / TypeScript Web Analyzer",
+          "version": "0.2.0",
+          "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+          "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+          "targets": [
+            "express",
+            "fastify",
+            "koa",
+            "node"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "node-atproto",
+          "display_name": "Node / ATProto Overlay Analyzer",
+          "version": "0.1.0",
+          "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+          "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+          "targets": [
+            "atproto",
+            "xrpc",
+            "node-service"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 150,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "node-service",
+          "display_name": "Node Service Analyzer",
+          "version": "0.2.0",
+          "description": "Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.",
+          "scope": "Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.",
+          "targets": [
+            "node-service",
+            "node",
+            "typescript-service"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 25,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "omeka-s",
+          "display_name": "Omeka S Analyzer",
+          "version": "0.1.0",
+          "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+          "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+          "targets": [
+            "omeka-s"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 160,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "php-laminas",
+          "display_name": "PHP Laminas (Zend MVC) Analyzer",
+          "version": "0.1.0",
+          "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+          "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+          "targets": [
+            "laminas",
+            "zend-mvc"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 60,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "php-web",
+          "display_name": "PHP Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+          "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+          "targets": [
+            "php"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "python",
+          "display_name": "Python Comprehensive Analyzer",
+          "version": "0.1.0",
+          "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+          "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+          "targets": [
+            "python",
+            "django",
+            "starlette",
+            "aiohttp",
+            "sanic",
+            "litestar"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 10,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "python-service",
+          "display_name": "Python Services Ecosystem Analyzer",
+          "version": "0.1.0",
+          "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+          "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+          "targets": [
+            "fastapi",
+            "flask",
+            "django",
+            "celery"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 50,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        {
+          "name": "python-web",
+          "display_name": "Python Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for Python web frameworks and related security signals.",
+          "scope": "Python source files handled by the current scanner-backed web heuristics.",
+          "targets": [
+            "fastapi",
+            "flask"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "rust",
+          "display_name": "Rust Analyzer",
+          "version": "0.1.0",
+          "description": "Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.",
+          "scope": "Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.",
+          "targets": [
+            "rust",
+            "axum",
+            "actix-web",
+            "rocket"
+          ],
+          "languages": [
+            "rust"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        {
+          "name": "swift",
+          "display_name": "Swift Analyzer",
+          "version": "0.1.0",
+          "description": "Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.",
+          "scope": "Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.",
+          "targets": [
+            "swift",
+            "swiftpm",
+            "vapor",
+            "hummingbird"
+          ],
+          "languages": [
+            "swift"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        {
+          "name": "terraform",
+          "display_name": "Terraform / HCL Analyzer",
+          "version": "0.1.0",
+          "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+          "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+          "targets": [
+            "terraform",
+            "iac",
+            "hcl",
+            "aws",
+            "azure",
+            "gcp"
+          ],
+          "languages": [
+            "hcl"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        }
+      ],
+      "analyzer_packages": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_atproto",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_c",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_cpp",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_dotnet",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_go",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_iac",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_java_spring",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_node_service",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_rust",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_swift",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_terraform",
+        "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap"
+      ],
+      "analyzer_code_sha256": "5c9092183e9410e5fc3842bd3abd3a894385594556d67815439a08093fe414bd",
+      "selection": "Default detect/applicability and opt-in policy; no analyzer count or topology reduction"
+    },
+    "wall_seconds": 478.56586199998856,
+    "index_builds": [
+      {
+        "seconds": 42.6517329000053,
+        "accepted_utf8_files": 1000,
+        "accepted_utf8_bytes": 694230,
+        "captured_sdk_files": 1000,
+        "captured_sdk_bytes": 694230,
+        "resource_limit_scopes": [
+          "repo_index.file_bytes",
+          "repo_index.index_bytes"
+        ],
+        "resource_limit_event_count": 0
+      }
+    ],
+    "analyzers": [
+      {
+        "name": "python",
+        "version": "0.1.0"
+      },
+      {
+        "name": "python-web",
+        "version": "0.1.0"
+      },
+      {
+        "name": "python-service",
+        "version": "0.1.0"
+      },
+      {
+        "name": "default",
+        "version": "0.1.0"
+      }
+    ],
+    "signal_counts": {
+      "signals": 6000,
+      "resource_limit_events": 0,
+      "resource_limit_scopes": 2,
+      "languages": 1,
+      "routes": 2000,
+      "external_calls": 0,
+      "databases": 0,
+      "auth_hints": 2000,
+      "service_hints": 0,
+      "edge_hints": 0,
+      "entrypoint_hints": 0,
+      "protocol_hints": 0,
+      "framework_hints": 2000,
+      "secret_hints": 0,
+      "taint_chains": 0,
+      "dependencies": 0,
+      "vulnerabilities": 0,
+      "authz_candidates": 0,
+      "crypto_weaknesses": 0,
+      "web_hardening_issues": 0,
+      "code_weaknesses": 0,
+      "workflow_issues": 0,
+      "supply_chain_issues": 0,
+      "secret_history": 0,
+      "anomalies": 0,
+      "limitations": 1,
+      "analyzer_errors": 0
+    },
+    "graph_and_findings": {
+      "surfaces": 2000,
+      "findings": 1,
+      "paths": 0
+    },
+    "limitations": [
+      "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+    ],
+    "resource_limit_events": [],
+    "resource_limit_scopes": [
+      "repo_index.file_bytes",
+      "repo_index.index_bytes"
+    ],
+    "resource_limit_reporting": "partial",
+    "analyzer_errors": [],
+    "stages": [
+      {
+        "name": "request_validation",
+        "milliseconds": 0
+      },
+      {
+        "name": "select_analyzers",
+        "milliseconds": 72952
+      },
+      {
+        "name": "scan_and_merge",
+        "milliseconds": 312229
+      },
+      {
+        "name": "translate",
+        "milliseconds": 20734
+      },
+      {
+        "name": "suppress",
+        "milliseconds": 10492
+      },
+      {
+        "name": "publish",
+        "milliseconds": 44119
+      }
+    ],
+    "memory_final": {
+      "available": true,
+      "peak_working_set_bytes": 205631488,
+      "working_set_bytes": 106094592,
+      "peak_commit_bytes": 201322496,
+      "private_bytes": 96616448
+    },
+    "default_engine_options": true,
+    "measurement_notes": [
+      "Private bytes sampled externally; no exact OS private-byte high-water counter claimed.",
+      "Instrumentation adds scalar index counts and stage-file writes; engine scans and source structures are unchanged."
+    ]
+  },
+  "clock": {
+    "cpu_seconds": 304.015625,
+    "wall_seconds": 507.5029926000134
+  },
+  "fixture": {
+    "files": 1000,
+    "bytes": 694230,
+    "output": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\repo"
+  },
+  "profile_total_calls": 30933994,
+  "profile_primitive_calls": 28199116,
+  "profile_total_seconds": 506.9918303999995,
+  "top_cumulative": [
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\tools\\measure_memory_admission.py",
+      "line": 142,
+      "name": "worker",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.000857,
+      "cumulative_seconds": 507.07585450000005,
+      "top_callers": []
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+      "line": 1043,
+      "name": "run_scan",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 3.7800000000000004e-05,
+      "cumulative_seconds": 478.56519130000004,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\tools\\measure_memory_admission.py",
+          "line": 142,
+          "name": "worker",
+          "stats": [
+            1,
+            1,
+            3.7800000000000004e-05,
+            478.56519130000004
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+      "line": 1058,
+      "name": "_run_scan_published",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.3865044,
+      "cumulative_seconds": 478.5651535,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 1043,
+          "name": "run_scan",
+          "stats": [
+            1,
+            1,
+            0.3865044,
+            478.5651535
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+      "line": 370,
+      "name": "_run_scan",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.00046820000000000005,
+      "cumulative_seconds": 478.17845420000003,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 1058,
+          "name": "_run_scan_published",
+          "stats": [
+            1,
+            1,
+            0.00046820000000000005,
+            478.17845420000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+      "line": 255,
+      "name": "_timed",
+      "primitive_calls": 5,
+      "calls": 5,
+      "self_seconds": 0.0002672,
+      "cumulative_seconds": 460.54654280000005,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 370,
+          "name": "_run_scan",
+          "stats": [
+            5,
+            5,
+            0.0002672,
+            460.54654280000005
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+      "line": 448,
+      "name": "_scan",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0821886,
+      "cumulative_seconds": 312.22897290000003,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 255,
+          "name": "_timed",
+          "stats": [
+            1,
+            1,
+            0.0821886,
+            312.22897290000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+      "line": 728,
+      "name": "analyze_repository",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.010531200000000001,
+      "cumulative_seconds": 312.14678430000004,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 448,
+          "name": "_scan",
+          "stats": [
+            1,
+            1,
+            0.010531200000000001,
+            312.14678430000004
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+      "line": 51,
+      "name": "merge_normalized_signals",
+      "primitive_calls": 10,
+      "calls": 10,
+      "self_seconds": 6.4506163,
+      "cumulative_seconds": 129.53587040000002,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 84,
+          "name": "normalized_view",
+          "stats": [
+            9,
+            9,
+            4.6500211,
+            93.0418391
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 112,
+          "name": "merge_scan_provenance",
+          "stats": [
+            1,
+            1,
+            1.8005952,
+            36.4940313
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+      "line": 867,
+      "name": "_call_analyze",
+      "primitive_calls": 4,
+      "calls": 4,
+      "self_seconds": 0.000292,
+      "cumulative_seconds": 122.6178376,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            4,
+            4,
+            0.000292,
+            122.6178376
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\models.py",
+      "line": 1017,
+      "name": "all_signals",
+      "primitive_calls": 9,
+      "calls": 9,
+      "self_seconds": 0.6109556,
+      "cumulative_seconds": 117.23403210000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 123,
+          "name": "stamp_scan_provenance",
+          "stats": [
+            4,
+            4,
+            0.26490640000000004,
+            46.0534959
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 112,
+          "name": "merge_scan_provenance",
+          "stats": [
+            4,
+            4,
+            0.19293760000000001,
+            39.266029200000006
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\finding_presentation.py",
+          "line": 34,
+          "name": "__init__",
+          "stats": [
+            1,
+            1,
+            0.15311160000000001,
+            31.914507
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+      "line": 84,
+      "name": "normalized_view",
+      "primitive_calls": 9,
+      "calls": 9,
+      "self_seconds": 0.7183091,
+      "cumulative_seconds": 106.3482706,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\models.py",
+          "line": 1017,
+          "name": "all_signals",
+          "stats": [
+            9,
+            9,
+            0.7183091,
+            106.3482706
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+      "line": 1053,
+      "name": "__deepcopy__",
+      "primitive_calls": 60004,
+      "calls": 90004,
+      "self_seconds": 5.814405600000001,
+      "cumulative_seconds": 98.9751995,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 410,
+          "name": "model_copy",
+          "stats": [
+            54004,
+            54004,
+            3.7407275,
+            95.5493162
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            36000,
+            36000,
+            2.0736781,
+            33.0674137
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+      "line": 410,
+      "name": "model_copy",
+      "primitive_calls": 58006,
+      "calls": 58006,
+      "self_seconds": 0.6437516000000001,
+      "cumulative_seconds": 96.5389377,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "stats": [
+            48000,
+            48000,
+            0.5506545,
+            85.2589207
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 84,
+          "name": "normalized_view",
+          "stats": [
+            6000,
+            6000,
+            0.06921150000000001,
+            7.0022226000000005
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            4,
+            4,
+            6.14e-05,
+            3.9081003
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\recon_to_analysis.py",
+          "line": 67,
+          "name": "_auth_filtered_scan",
+          "stats": [
+            4002,
+            4002,
+            0.0238242,
+            0.3696941
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\_base.py",
+      "line": 430,
+      "name": "result",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 0.031246000000000003,
+      "cumulative_seconds": 95.60926930000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\safe_fs.py",
+          "line": 141,
+          "name": "walk_repo",
+          "stats": [
+            364,
+            43,
+            0.011097500000000001,
+            2.4750124000000002
+          ]
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.next>",
+          "stats": [
+            38,
+            11,
+            0.0028439000000000003,
+            0.9257767
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 30,
+          "name": "_read_capture_bytes",
+          "stats": [
+            3,
+            3,
+            0.000181,
+            0.00022740000000000003
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\thread.py",
+          "line": 54,
+          "name": "run",
+          "stats": [
+            494,
+            1,
+            0.014401200000000001,
+            0.00017940000000000002
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 510,
+          "name": "stat",
+          "stats": [
+            5,
+            3,
+            0.0001493,
+            0.00010070000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 119,
+      "name": "deepcopy",
+      "primitive_calls": 114008,
+      "calls": 2526271,
+      "self_seconds": 46.4488904,
+      "cumulative_seconds": 93.39157560000001,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1053,
+          "name": "__deepcopy__",
+          "stats": [
+            180008,
+            120008,
+            4.2617398,
+            92.6854074
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 218,
+          "name": "_deepcopy_dict",
+          "stats": [
+            2308256,
+            1496256,
+            40.8533659,
+            78.7989682
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 192,
+          "name": "_deepcopy_list",
+          "stats": [
+            32007,
+            32007,
+            1.1907012000000001,
+            31.959199700000003
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\merge.py",
+          "line": 138,
+          "name": "merge_into",
+          "stats": [
+            6000,
+            6000,
+            0.1430835,
+            3.6942936000000004
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+      "line": 327,
+      "name": "wait",
+      "primitive_calls": 1199,
+      "calls": 1199,
+      "self_seconds": 0.048317200000000005,
+      "cumulative_seconds": 90.1699284,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 472,
+          "name": "acquire",
+          "stats": [
+            814,
+            814,
+            0.026054300000000002,
+            0.053540800000000006
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 641,
+          "name": "wait",
+          "stats": [
+            1,
+            0,
+            5.84e-05,
+            0.0
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\_base.py",
+          "line": 430,
+          "name": "result",
+          "stats": [
+            8,
+            0,
+            0.0013397,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 218,
+      "name": "_deepcopy_dict",
+      "primitive_calls": 60004,
+      "calls": 168004,
+      "self_seconds": 15.3021785,
+      "cumulative_seconds": 88.30868790000001,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            168004,
+            60004,
+            15.3021785,
+            88.30868790000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+      "line": 971,
+      "name": "merge_analyzer_results",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0007984,
+      "cumulative_seconds": 79.6624632,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            1,
+            1,
+            0.0007984,
+            79.6624632
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+      "line": 112,
+      "name": "merge_scan_provenance",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.054432100000000004,
+      "cumulative_seconds": 75.8145545,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 971,
+          "name": "merge_analyzer_results",
+          "stats": [
+            1,
+            1,
+            0.054432100000000004,
+            75.8145545
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+      "line": 405,
+      "name": "_select",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 7.450000000000001e-05,
+      "cumulative_seconds": 72.9526306,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 255,
+          "name": "_timed",
+          "stats": [
+            1,
+            1,
+            7.450000000000001e-05,
+            72.9526306
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 741,
+      "name": "scan_files",
+      "primitive_calls": 2,
+      "calls": 2,
+      "self_seconds": 0.2260888,
+      "cumulative_seconds": 68.80045600000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 184,
+          "name": "analyze",
+          "stats": [
+            1,
+            1,
+            0.2114752,
+            68.34115320000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 148,
+          "name": "analyze",
+          "stats": [
+            1,
+            1,
+            0.014613600000000001,
+            0.4593028
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+      "line": 184,
+      "name": "analyze",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 8.15e-05,
+      "cumulative_seconds": 68.3412347,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 867,
+          "name": "_call_analyze",
+          "stats": [
+            1,
+            1,
+            8.15e-05,
+            68.3412347
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 844,
+      "name": "_cached_file_signals",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 0.08484080000000001,
+      "cumulative_seconds": 67.19674900000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 741,
+          "name": "scan_files",
+          "stats": [
+            1000,
+            1000,
+            0.08484080000000001,
+            67.19674900000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 872,
+      "name": "_analyze_indexed_file",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 0.6039569,
+      "cumulative_seconds": 67.0277315,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 844,
+          "name": "_cached_file_signals",
+          "stats": [
+            1000,
+            1000,
+            0.6039569,
+            67.0277315
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+      "line": 35,
+      "name": "_ordered_capture_inputs",
+      "primitive_calls": 1001,
+      "calls": 1001,
+      "self_seconds": 0.0861389,
+      "cumulative_seconds": 54.0973544,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 551,
+          "name": "build",
+          "stats": [
+            1,
+            1,
+            0.0006487,
+            42.5618233
+          ]
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.next>",
+          "stats": [
+            40,
+            11,
+            0.007287,
+            0.341326
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\safe_fs.py",
+          "line": 141,
+          "name": "walk_repo",
+          "stats": [
+            372,
+            36,
+            0.022808400000000003,
+            0.0672253
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 529,
+          "name": "open",
+          "stats": [
+            4,
+            4,
+            0.0002165,
+            0.0066835
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 30,
+          "name": "_read_capture_bytes",
+          "stats": [
+            2,
+            2,
+            0.0001178,
+            0.004897100000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'search' of 're.Pattern' objects>",
+      "primitive_calls": 263025,
+      "calls": 263025,
+      "self_seconds": 46.758761500000006,
+      "cumulative_seconds": 46.758761500000006,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 693,
+          "name": "_append_unique_auth_hints",
+          "stats": [
+            38000,
+            38000,
+            8.471155300000001,
+            8.471155300000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\anomalies.py",
+          "line": 601,
+          "name": "_route_has_signal",
+          "stats": [
+            3000,
+            3000,
+            5.2413071,
+            5.2413071
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 663,
+          "name": "_append_unique_database_hints",
+          "stats": [
+            25000,
+            25000,
+            5.2271693,
+            5.2271693
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 513,
+          "name": "_extract_auth",
+          "stats": [
+            13000,
+            13000,
+            4.4364061,
+            4.4364061
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 560,
+          "name": "_extract_frameworks",
+          "stats": [
+            13000,
+            13000,
+            4.141848,
+            4.141848
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+      "line": 123,
+      "name": "stamp_scan_provenance",
+      "primitive_calls": 4,
+      "calls": 4,
+      "self_seconds": 0.0873269,
+      "cumulative_seconds": 46.433810400000006,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            4,
+            4,
+            0.0873269,
+            46.433810400000006
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+      "line": 618,
+      "name": "_publish",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0366287,
+      "cumulative_seconds": 44.1191049,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 255,
+          "name": "_timed",
+          "stats": [
+            1,
+            1,
+            0.0366287,
+            44.1191049
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 956,
+      "name": "run_repo_passes",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0033047000000000003,
+      "cumulative_seconds": 44.0571034,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            1,
+            1,
+            0.0033047000000000003,
+            44.0571034
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\tools\\measure_memory_admission.py",
+      "line": 157,
+      "name": "measured_build",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.00040570000000000005,
+      "cumulative_seconds": 42.6896112,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 405,
+          "name": "_select",
+          "stats": [
+            1,
+            1,
+            0.00040570000000000005,
+            42.6896112
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+      "line": 551,
+      "name": "build",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0005510000000000001,
+      "cumulative_seconds": 42.651497500000005,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\tools\\measure_memory_admission.py",
+          "line": 157,
+          "name": "measured_build",
+          "stats": [
+            1,
+            1,
+            0.0005510000000000001,
+            42.651497500000005
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'get' of '_queue.SimpleQueue' objects>",
+      "primitive_calls": 84,
+      "calls": 190,
+      "self_seconds": 0.08207300000000001,
+      "cumulative_seconds": 42.5529638,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 1028,
+          "name": "_bootstrap_inner",
+          "stats": [
+            1,
+            1,
+            0.000738,
+            42.492950300000004
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 327,
+          "name": "wait",
+          "stats": [
+            16,
+            2,
+            0.0465292,
+            0.0013089
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\safe_fs.py",
+          "line": 141,
+          "name": "walk_repo",
+          "stats": [
+            1,
+            1,
+            0.0004887,
+            0.0007416
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 510,
+          "name": "stat",
+          "stats": [
+            129,
+            1,
+            0.014893000000000002,
+            0.0002821
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 529,
+          "name": "open",
+          "stats": [
+            5,
+            1,
+            0.010874700000000001,
+            0.0001968
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\_base.py",
+      "line": 652,
+      "name": "__exit__",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 9.1e-05,
+      "cumulative_seconds": 42.512115,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 35,
+          "name": "_ordered_capture_inputs",
+          "stats": [
+            1,
+            1,
+            9.1e-05,
+            42.512115
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\thread.py",
+      "line": 220,
+      "name": "shutdown",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.00010980000000000001,
+      "cumulative_seconds": 42.5119385,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\_base.py",
+          "line": 652,
+          "name": "__exit__",
+          "stats": [
+            0,
+            0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+      "line": 1059,
+      "name": "join",
+      "primitive_calls": 4,
+      "calls": 4,
+      "self_seconds": 0.0001117,
+      "cumulative_seconds": 42.5114583,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\thread.py",
+          "line": 184,
+          "name": "_adjust_thread_count",
+          "stats": [
+            3,
+            3,
+            4.55e-05,
+            0.0001242
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\thread.py",
+          "line": 220,
+          "name": "shutdown",
+          "stats": [
+            0,
+            0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'join' of '_thread._ThreadHandle' objects>",
+      "primitive_calls": 4,
+      "calls": 4,
+      "self_seconds": 0.00040520000000000004,
+      "cumulative_seconds": 42.5110845,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 1059,
+          "name": "join",
+          "stats": [
+            3,
+            0,
+            5.6500000000000005e-05,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+      "line": 1001,
+      "name": "_bootstrap",
+      "primitive_calls": 1,
+      "calls": 4,
+      "self_seconds": 0.000133,
+      "cumulative_seconds": 42.510672,
+      "top_callers": [
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'acquire' of '_thread.lock' objects>",
+          "stats": [
+            1,
+            0,
+            1.63e-05,
+            0.0
+          ]
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method _io.open>",
+          "stats": [
+            0,
+            0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+      "line": 1028,
+      "name": "_bootstrap_inner",
+      "primitive_calls": 1,
+      "calls": 4,
+      "self_seconds": 0.014527400000000001,
+      "cumulative_seconds": 42.5106289,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 1001,
+          "name": "_bootstrap",
+          "stats": [
+            1,
+            0,
+            0.0001451,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+      "line": 984,
+      "name": "run",
+      "primitive_calls": 1,
+      "calls": 4,
+      "self_seconds": 0.00018260000000000002,
+      "cumulative_seconds": 42.4963118,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 1028,
+          "name": "_bootstrap_inner",
+          "stats": [
+            1,
+            0,
+            5.47e-05,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\thread.py",
+      "line": 70,
+      "name": "_worker",
+      "primitive_calls": 1,
+      "calls": 4,
+      "self_seconds": 0.00047920000000000005,
+      "cumulative_seconds": 42.496278200000006,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 984,
+          "name": "run",
+          "stats": [
+            0,
+            0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\thread.py",
+      "line": 54,
+      "name": "run",
+      "primitive_calls": 17,
+      "calls": 1000,
+      "self_seconds": 0.19827,
+      "cumulative_seconds": 42.3964517,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 35,
+          "name": "_ordered_capture_inputs",
+          "stats": [
+            65,
+            10,
+            0.0099775,
+            2.9790011
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 30,
+          "name": "_read_capture_bytes",
+          "stats": [
+            8,
+            6,
+            0.0019041000000000002,
+            1.5212989000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\_base.py",
+          "line": 430,
+          "name": "result",
+          "stats": [
+            3,
+            2,
+            0.0013146000000000002,
+            0.4271745
+          ]
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.next>",
+          "stats": [
+            400,
+            12,
+            0.09724490000000001,
+            0.30979850000000003
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\threading.py",
+          "line": 327,
+          "name": "wait",
+          "stats": [
+            24,
+            2,
+            0.0291889,
+            0.1372439
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\report.py",
+      "line": 36,
+      "name": "write_reports",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.130358,
+      "cumulative_seconds": 40.0466646,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 618,
+          "name": "_publish",
+          "stats": [
+            1,
+            1,
+            0.130358,
+            40.0466646
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+      "line": 339,
+      "name": "analyze",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.1966243,
+      "cumulative_seconds": 37.796650500000005,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 867,
+          "name": "_call_analyze",
+          "stats": [
+            1,
+            1,
+            0.1966243,
+            37.796650500000005
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 192,
+      "name": "_deepcopy_list",
+      "primitive_calls": 62111,
+      "calls": 64111,
+      "self_seconds": 0.8846374,
+      "cumulative_seconds": 33.0143766,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            64111,
+            62111,
+            0.8846374,
+            33.0143766
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\finding_presentation.py",
+      "line": 34,
+      "name": "__init__",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.10582630000000001,
+      "cumulative_seconds": 32.041114300000004,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\report.py",
+          "line": 36,
+          "name": "write_reports",
+          "stats": [
+            1,
+            1,
+            0.10582630000000001,
+            32.041114300000004
+          ]
+        }
+      ]
+    }
+  ],
+  "top_self": [
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'search' of 're.Pattern' objects>",
+      "primitive_calls": 263025,
+      "calls": 263025,
+      "self_seconds": 46.758761500000006,
+      "cumulative_seconds": 46.758761500000006,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 693,
+          "name": "_append_unique_auth_hints",
+          "stats": [
+            38000,
+            38000,
+            8.471155300000001,
+            8.471155300000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\anomalies.py",
+          "line": 601,
+          "name": "_route_has_signal",
+          "stats": [
+            3000,
+            3000,
+            5.2413071,
+            5.2413071
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 663,
+          "name": "_append_unique_database_hints",
+          "stats": [
+            25000,
+            25000,
+            5.2271693,
+            5.2271693
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 513,
+          "name": "_extract_auth",
+          "stats": [
+            13000,
+            13000,
+            4.4364061,
+            4.4364061
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 560,
+          "name": "_extract_frameworks",
+          "stats": [
+            13000,
+            13000,
+            4.141848,
+            4.141848
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 119,
+      "name": "deepcopy",
+      "primitive_calls": 114008,
+      "calls": 2526271,
+      "self_seconds": 46.4488904,
+      "cumulative_seconds": 93.39157560000001,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1053,
+          "name": "__deepcopy__",
+          "stats": [
+            180008,
+            120008,
+            4.2617398,
+            92.6854074
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 218,
+          "name": "_deepcopy_dict",
+          "stats": [
+            2308256,
+            1496256,
+            40.8533659,
+            78.7989682
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 192,
+          "name": "_deepcopy_list",
+          "stats": [
+            32007,
+            32007,
+            1.1907012000000001,
+            31.959199700000003
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\merge.py",
+          "line": 138,
+          "name": "merge_into",
+          "stats": [
+            6000,
+            6000,
+            0.1430835,
+            3.6942936000000004
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _io.open>",
+      "primitive_calls": 6566,
+      "calls": 7548,
+      "self_seconds": 40.4207472,
+      "cumulative_seconds": 9.289994100000001,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 529,
+          "name": "open",
+          "stats": [
+            6961,
+            369,
+            22.4435405,
+            0.4694552
+          ]
+        },
+        {
+          "file": "<frozen os>",
+          "line": 1063,
+          "name": "fdopen",
+          "stats": [
+            22,
+            22,
+            0.0068976,
+            0.0069925000000000005
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\zipfile\\__init__.py",
+          "line": 1350,
+          "name": "__init__",
+          "stats": [
+            5,
+            5,
+            0.0033069,
+            0.0033069
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+      "line": 207,
+      "name": "iterencode",
+      "primitive_calls": 150020,
+      "calls": 150020,
+      "self_seconds": 16.226795600000003,
+      "cumulative_seconds": 16.226826600000003,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+          "line": 185,
+          "name": "encode",
+          "stats": [
+            150020,
+            150020,
+            16.226795600000003,
+            16.226826600000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 218,
+      "name": "_deepcopy_dict",
+      "primitive_calls": 60004,
+      "calls": 168004,
+      "self_seconds": 15.3021785,
+      "cumulative_seconds": 88.30868790000001,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            168004,
+            60004,
+            15.3021785,
+            88.30868790000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method nt.stat>",
+      "primitive_calls": 23479,
+      "calls": 23479,
+      "self_seconds": 14.679836300000002,
+      "cumulative_seconds": 18.3416819,
+      "top_callers": [
+        {
+          "file": "<frozen importlib._bootstrap_external>",
+          "line": 145,
+          "name": "_path_stat",
+          "stats": [
+            1277,
+            1277,
+            0.8949659000000001,
+            0.8949659000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\importlib\\metadata\\__init__.py",
+          "line": 759,
+          "name": "mtime",
+          "stats": [
+            42,
+            42,
+            0.040029,
+            0.040029
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 510,
+          "name": "stat",
+          "stats": [
+            21881,
+            20,
+            13.6458676,
+            0.027996700000000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'get' of 'dict' objects>",
+      "primitive_calls": 5265218,
+      "calls": 5265218,
+      "self_seconds": 14.6493274,
+      "cumulative_seconds": 14.6493274,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            4938534,
+            4938534,
+            12.9678056,
+            12.9678056
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 62,
+          "name": "copy",
+          "stats": [
+            102062,
+            102062,
+            0.6367387,
+            0.6367387
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1107,
+          "name": "__setattr__",
+          "stats": [
+            123036,
+            123036,
+            0.5714077000000001,
+            0.5714077000000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "stats": [
+            24000,
+            24000,
+            0.09921160000000001,
+            0.09921160000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\_compiler.py",
+          "line": 37,
+          "name": "_compile",
+          "stats": [
+            1752,
+            1752,
+            0.07957120000000001,
+            0.07957120000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\crypto.py",
+      "line": 203,
+      "name": "find_crypto_weaknesses",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 13.3226665,
+      "cumulative_seconds": 13.613858700000002,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 872,
+          "name": "_analyze_indexed_file",
+          "stats": [
+            1000,
+            1000,
+            13.3226665,
+            13.613858700000002
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method nt._getfinalpathname>",
+      "primitive_calls": 12378,
+      "calls": 12378,
+      "self_seconds": 12.070333300000001,
+      "cumulative_seconds": 12.070333300000001,
+      "top_callers": [
+        {
+          "file": "<frozen ntpath>",
+          "line": 663,
+          "name": "realpath",
+          "stats": [
+            12378,
+            12378,
+            12.070333300000001,
+            12.070333300000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+      "line": 960,
+      "name": "_find_sinks",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 11.0292189,
+      "cumulative_seconds": 12.239985,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+          "line": 303,
+          "name": "analyze_taint",
+          "stats": [
+            1,
+            1,
+            11.0292189,
+            12.239985
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 1127,
+      "name": "iter_secret_matches",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 10.3727114,
+      "cumulative_seconds": 10.788172600000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 1198,
+          "name": "_append_hardcoded_secret_hints",
+          "stats": [
+            1000,
+            1000,
+            10.3727114,
+            10.788172600000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'sub' of 're.Pattern' objects>",
+      "primitive_calls": 601968,
+      "calls": 601968,
+      "self_seconds": 8.7940884,
+      "cumulative_seconds": 8.7948129,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\redact.py",
+          "line": 167,
+          "name": "redact_text",
+          "stats": [
+            592555,
+            592555,
+            8.3818775,
+            8.3818775
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+          "line": 174,
+          "name": "_used_identifiers",
+          "stats": [
+            1000,
+            1000,
+            0.1573802,
+            0.1573802
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\fingerprint.py",
+          "line": 36,
+          "name": "normalize_line",
+          "stats": [
+            3000,
+            3000,
+            0.1551567,
+            0.1551567
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\md.py",
+          "line": 32,
+          "name": "md_text",
+          "stats": [
+            4004,
+            4004,
+            0.06405480000000001,
+            0.0643384
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\md.py",
+          "line": 28,
+          "name": "_visible",
+          "stats": [
+            1006,
+            1006,
+            0.0134353,
+            0.0134353
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'to_python' of 'pydantic_core._pydantic_core.SchemaSerializer' objects>",
+      "primitive_calls": 102037,
+      "calls": 102037,
+      "self_seconds": 8.3148249,
+      "cumulative_seconds": 8.7862576,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 472,
+          "name": "model_dump",
+          "stats": [
+            102037,
+            102037,
+            8.3148249,
+            8.7862576
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'read' of '_io.BufferedReader' objects>",
+      "primitive_calls": 5375,
+      "calls": 5451,
+      "self_seconds": 7.447412300000001,
+      "cumulative_seconds": 7.2581632,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+          "line": 621,
+          "name": "read_bytes",
+          "stats": [
+            4173,
+            4173,
+            2.6338473000000002,
+            2.6338473000000002
+          ]
+        },
+        {
+          "file": "<frozen importlib._bootstrap_external>",
+          "line": 1211,
+          "name": "get_data",
+          "stats": [
+            278,
+            278,
+            0.14495380000000002,
+            0.14495380000000002
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\_base.py",
+          "line": 430,
+          "name": "result",
+          "stats": [
+            310,
+            11,
+            1.370265,
+            0.040167600000000005
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 30,
+          "name": "_read_capture_bytes",
+          "stats": [
+            398,
+            11,
+            2.3809986000000003,
+            0.0368765
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\concurrent\\futures\\thread.py",
+          "line": 54,
+          "name": "run",
+          "stats": [
+            64,
+            7,
+            0.1546646,
+            0.021215
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+      "line": 51,
+      "name": "merge_normalized_signals",
+      "primitive_calls": 10,
+      "calls": 10,
+      "self_seconds": 6.4506163,
+      "cumulative_seconds": 129.53587040000002,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 84,
+          "name": "normalized_view",
+          "stats": [
+            9,
+            9,
+            4.6500211,
+            93.0418391
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 112,
+          "name": "merge_scan_provenance",
+          "stats": [
+            1,
+            1,
+            1.8005952,
+            36.4940313
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.id>",
+      "primitive_calls": 3088455,
+      "calls": 3088455,
+      "self_seconds": 6.4351588,
+      "cumulative_seconds": 6.4351588,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            2526271,
+            2526271,
+            5.2645947,
+            5.2645947
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 232,
+          "name": "_keep_alive",
+          "stats": [
+            328119,
+            328119,
+            0.6941299000000001,
+            0.6941299000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 218,
+          "name": "_deepcopy_dict",
+          "stats": [
+            168004,
+            168004,
+            0.3450206,
+            0.3450206
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 192,
+          "name": "_deepcopy_list",
+          "stats": [
+            64111,
+            64111,
+            0.12772830000000002,
+            0.12772830000000002
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\inspect.py",
+          "line": 773,
+          "name": "unwrap",
+          "stats": [
+            1404,
+            1404,
+            0.0025089,
+            0.0025089
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 257,
+      "name": "_parse_path",
+      "primitive_calls": 115912,
+      "calls": 115912,
+      "self_seconds": 6.392784000000001,
+      "cumulative_seconds": 11.194223200000001,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 289,
+          "name": "drive",
+          "stats": [
+            84882,
+            84882,
+            4.6291644000000005,
+            8.200576700000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 307,
+          "name": "_tail",
+          "stats": [
+            31030,
+            31030,
+            1.7636196000000002,
+            2.9936465
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+      "line": 1053,
+      "name": "__deepcopy__",
+      "primitive_calls": 60004,
+      "calls": 90004,
+      "self_seconds": 5.814405600000001,
+      "cumulative_seconds": 98.9751995,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 410,
+          "name": "model_copy",
+          "stats": [
+            54004,
+            54004,
+            3.7407275,
+            95.5493162
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            36000,
+            36000,
+            2.0736781,
+            33.0674137
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 468,
+      "name": "_python_route_prefixes",
+      "primitive_calls": 2000,
+      "calls": 2000,
+      "self_seconds": 4.8913868,
+      "cumulative_seconds": 5.0390752,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 503,
+          "name": "_extract_python_routes",
+          "stats": [
+            1000,
+            1000,
+            2.7789832000000003,
+            2.8883516
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\ecosystem_python.py",
+          "line": 519,
+          "name": "_extract_routes",
+          "stats": [
+            1000,
+            1000,
+            2.1124036,
+            2.1507236
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\webhardening.py",
+      "line": 167,
+      "name": "find_web_hardening_issues",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 4.784699900000001,
+      "cumulative_seconds": 10.813899000000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 872,
+          "name": "_analyze_indexed_file",
+          "stats": [
+            1000,
+            1000,
+            4.784699900000001,
+            10.813899000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\json\\__init__.py",
+      "line": 185,
+      "name": "dumps",
+      "primitive_calls": 150020,
+      "calls": 150020,
+      "self_seconds": 4.747620100000001,
+      "cumulative_seconds": 27.1061586,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 47,
+          "name": "_canonical",
+          "stats": [
+            96000,
+            96000,
+            3.3526168000000003,
+            16.3333149
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 39,
+          "name": "_identity",
+          "stats": [
+            54000,
+            54000,
+            1.3944100000000001,
+            5.4490426
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\report.py",
+          "line": 36,
+          "name": "write_reports",
+          "stats": [
+            4,
+            4,
+            0.0001317,
+            4.4575215
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\artifact_manifest.py",
+          "line": 219,
+          "name": "write_artifact_manifest",
+          "stats": [
+            7,
+            7,
+            0.00017140000000000002,
+            0.8295800000000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 248,
+          "name": "_id_for",
+          "stats": [
+            2,
+            2,
+            9.180000000000001e-05,
+            0.029752800000000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.any>",
+      "primitive_calls": 170452,
+      "calls": 170452,
+      "self_seconds": 4.6874306,
+      "cumulative_seconds": 15.5456494,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 371,
+          "name": "_replay_added_files",
+          "stats": [
+            3000,
+            3000,
+            0.086395,
+            4.285231700000001
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 619,
+          "name": "_append_unique_framework",
+          "stats": [
+            1000,
+            1000,
+            1.207213,
+            3.2055547
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 598,
+          "name": "_append_unique_auth",
+          "stats": [
+            1000,
+            1000,
+            1.1576578000000002,
+            3.0674997000000004
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\evidence.py",
+          "line": 29,
+          "name": "is_low_quality_source",
+          "stats": [
+            20078,
+            20078,
+            0.3911564,
+            0.7100461
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\asset_model.py",
+          "line": 11,
+          "name": "_is_low_quality",
+          "stats": [
+            17000,
+            17000,
+            0.2427697,
+            0.47174340000000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.compile>",
+      "primitive_calls": 1301,
+      "calls": 1301,
+      "self_seconds": 4.6682468,
+      "cumulative_seconds": 4.6682468,
+      "top_callers": [
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 480,
+          "name": "_call_with_frames_removed",
+          "stats": [
+            77,
+            77,
+            4.4388766,
+            4.4388766
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\typing.py",
+          "line": 1026,
+          "name": "__init__",
+          "stats": [
+            1150,
+            1150,
+            0.21213610000000002,
+            0.21213610000000002
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\ast.py",
+          "line": 30,
+          "name": "parse",
+          "stats": [
+            74,
+            74,
+            0.017234100000000002,
+            0.017234100000000002
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 117,
+      "name": "__init__",
+      "primitive_calls": 217317,
+      "calls": 217317,
+      "self_seconds": 4.4429129000000005,
+      "cumulative_seconds": 7.4387935,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 498,
+          "name": "__init__",
+          "stats": [
+            208314,
+            208314,
+            4.3199595,
+            7.2166851
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\srcpaths.py",
+          "line": 241,
+          "name": "in_skipped_dir",
+          "stats": [
+            9003,
+            9003,
+            0.1229534,
+            0.2221084
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\webhardening.py",
+      "line": 102,
+      "name": "has_csrf_protection",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 4.281808600000001,
+      "cumulative_seconds": 4.2958654,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 872,
+          "name": "_analyze_indexed_file",
+          "stats": [
+            1000,
+            1000,
+            4.281808600000001,
+            4.2958654
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\weaknesses.py",
+      "line": 269,
+      "name": "find_code_weaknesses",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 4.1160764,
+      "cumulative_seconds": 6.7412166000000004,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 872,
+          "name": "_analyze_indexed_file",
+          "stats": [
+            1000,
+            1000,
+            4.1160764,
+            6.7412166000000004
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.isinstance>",
+      "primitive_calls": 1334336,
+      "calls": 1334357,
+      "self_seconds": 4.0958429,
+      "cumulative_seconds": 4.1392948,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 117,
+          "name": "__init__",
+          "stats": [
+            452030,
+            452030,
+            1.3248598,
+            1.3248598
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+          "line": 185,
+          "name": "encode",
+          "stats": [
+            300040,
+            300040,
+            1.0807422,
+            1.0807422
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\_parser.py",
+          "line": 167,
+          "name": "__getitem__",
+          "stats": [
+            112874,
+            112874,
+            0.36545940000000005,
+            0.36545940000000005
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 193,
+          "name": "__eq__",
+          "stats": [
+            101262,
+            101262,
+            0.2574405,
+            0.2574405
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\__init__.py",
+          "line": 330,
+          "name": "_compile",
+          "stats": [
+            33162,
+            33162,
+            0.1923715,
+            0.1923715
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _io.open_code>",
+      "primitive_calls": 355,
+      "calls": 355,
+      "self_seconds": 3.8822245000000004,
+      "cumulative_seconds": 3.8822245000000004,
+      "top_callers": [
+        {
+          "file": "<frozen importlib._bootstrap_external>",
+          "line": 1211,
+          "name": "get_data",
+          "stats": [
+            355,
+            355,
+            3.8822245000000004,
+            3.8822245000000004
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 174,
+      "name": "_str_normcase",
+      "primitive_calls": 202717,
+      "calls": 202717,
+      "self_seconds": 3.8478382000000004,
+      "cumulative_seconds": 9.315495,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 193,
+          "name": "__eq__",
+          "stats": [
+            202524,
+            202524,
+            3.8434869000000003,
+            9.2699993
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 186,
+          "name": "__hash__",
+          "stats": [
+            21,
+            21,
+            0.0005355000000000001,
+            0.0403511
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 198,
+          "name": "_parts_normcase",
+          "stats": [
+            172,
+            172,
+            0.0038158000000000003,
+            0.0051446
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\ecosystem_python.py",
+      "line": 231,
+      "name": "_iter_assignments",
+      "primitive_calls": 6000,
+      "calls": 6000,
+      "self_seconds": 3.6658218000000002,
+      "cumulative_seconds": 4.066138700000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\ecosystem_python.py",
+          "line": 488,
+          "name": "_extract_flask",
+          "stats": [
+            3000,
+            3000,
+            1.4944252,
+            1.6906735000000002
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\ecosystem_python.py",
+          "line": 454,
+          "name": "_extract_fastapi",
+          "stats": [
+            2000,
+            2000,
+            1.4262965,
+            1.5771248
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\ecosystem_python.py",
+          "line": 628,
+          "name": "_extract_services",
+          "stats": [
+            1000,
+            1000,
+            0.7451001,
+            0.7983404000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 498,
+      "name": "__init__",
+      "primitive_calls": 208314,
+      "calls": 208314,
+      "self_seconds": 3.6638595,
+      "cumulative_seconds": 10.8805446,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+          "line": 130,
+          "name": "with_segments",
+          "stats": [
+            145991,
+            145991,
+            2.591638,
+            7.949355300000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\sdk\\fs.py",
+          "line": 34,
+          "name": "iter_repo_files",
+          "stats": [
+            14018,
+            14018,
+            0.3105775,
+            0.7953147
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 759,
+          "name": "iter_files",
+          "stats": [
+            10003,
+            10003,
+            0.1601488,
+            0.47011980000000003
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\sdk\\fs.py",
+          "line": 153,
+          "name": "rel",
+          "stats": [
+            8000,
+            8000,
+            0.13110070000000001,
+            0.27753510000000003
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\route_auth_fusion.py",
+          "line": 390,
+          "name": "_chain_evidence",
+          "stats": [
+            1000,
+            1000,
+            0.0367118,
+            0.1388878
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+      "line": 185,
+      "name": "encode",
+      "primitive_calls": 150020,
+      "calls": 150020,
+      "self_seconds": 3.6536385,
+      "cumulative_seconds": 21.511035200000002,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\__init__.py",
+          "line": 185,
+          "name": "dumps",
+          "stats": [
+            150020,
+            150020,
+            3.6536385,
+            21.511035200000002
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 173,
+      "name": "_deepcopy_atomic",
+      "primitive_calls": 2258156,
+      "calls": 2258156,
+      "self_seconds": 3.3365433,
+      "cumulative_seconds": 3.3365433,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            2258156,
+            2258156,
+            3.3365433,
+            3.3365433
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _hashlib.openssl_sha256>",
+      "primitive_calls": 30191,
+      "calls": 30191,
+      "self_seconds": 3.0938280000000002,
+      "cumulative_seconds": 3.0938280000000002,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "stats": [
+            24000,
+            24000,
+            0.8810306000000001,
+            0.8810306000000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\artifact_manifest.py",
+          "line": 204,
+          "name": "_section_from_file",
+          "stats": [
+            12,
+            12,
+            0.8496519,
+            0.8496519
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\artifact_manifest.py",
+          "line": 219,
+          "name": "write_artifact_manifest",
+          "stats": [
+            1,
+            1,
+            0.8345147,
+            0.8345147
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\artifact_manifest.py",
+          "line": 106,
+          "name": "_sha256",
+          "stats": [
+            6,
+            6,
+            0.23588900000000002,
+            0.23588900000000002
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\tools\\measure_memory_admission.py",
+          "line": 30,
+          "name": "scope",
+          "stats": [
+            161,
+            161,
+            0.10480560000000001,
+            0.10480560000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 289,
+      "name": "drive",
+      "primitive_calls": 158008,
+      "calls": 158008,
+      "self_seconds": 3.0780593,
+      "cumulative_seconds": 14.501658,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 227,
+          "name": "__str__",
+          "stats": [
+            51864,
+            51864,
+            1.3768363000000001,
+            8.5869619
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 320,
+          "name": "parts",
+          "stats": [
+            45008,
+            45008,
+            1.2966192,
+            4.7729244
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 35,
+          "name": "__init__",
+          "stats": [
+            59093,
+            59093,
+            0.36414030000000003,
+            1.0187945
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 329,
+          "name": "parent",
+          "stats": [
+            1024,
+            1024,
+            0.0386391,
+            0.11927270000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 315,
+          "name": "anchor",
+          "stats": [
+            13,
+            13,
+            0.0005616,
+            0.0022823
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'append' of 'list' objects>",
+      "primitive_calls": 925404,
+      "calls": 925404,
+      "self_seconds": 3.0252549,
+      "cumulative_seconds": 3.0252549,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 117,
+          "name": "__init__",
+          "stats": [
+            190179,
+            190179,
+            0.8282812,
+            0.8282812
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 232,
+          "name": "_keep_alive",
+          "stats": [
+            208111,
+            208111,
+            0.6087698,
+            0.6087698
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\_compiler.py",
+          "line": 37,
+          "name": "_compile",
+          "stats": [
+            134971,
+            134971,
+            0.3668689,
+            0.3668689
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "stats": [
+            48000,
+            48000,
+            0.1891789,
+            0.1891789
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\srcpaths.py",
+          "line": 255,
+          "name": "_line_starts",
+          "stats": [
+            69000,
+            69000,
+            0.1818874,
+            0.1818874
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 232,
+      "name": "_keep_alive",
+      "primitive_calls": 268115,
+      "calls": 268115,
+      "self_seconds": 3.0181656,
+      "cumulative_seconds": 4.3210653,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "stats": [
+            268115,
+            268115,
+            3.0181656,
+            4.3210653
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects>",
+      "primitive_calls": 34097,
+      "calls": 34101,
+      "self_seconds": 2.8828165,
+      "cumulative_seconds": 15.811863100000002,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 270,
+          "name": "__init__",
+          "stats": [
+            34101,
+            34097,
+            2.8828165,
+            15.811863100000002
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.len>",
+      "primitive_calls": 717572,
+      "calls": 861076,
+      "self_seconds": 2.8474464000000004,
+      "cumulative_seconds": 3.3490917000000002,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 44,
+          "name": "__getitem__",
+          "stats": [
+            133210,
+            133210,
+            0.7265595,
+            1.4910686000000002
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 277,
+          "name": "_raw_path",
+          "stats": [
+            231850,
+            231850,
+            0.6447033000000001,
+            0.6447033000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 41,
+          "name": "__len__",
+          "stats": [
+            133214,
+            133214,
+            0.30436860000000004,
+            0.30436860000000004
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "stats": [
+            72000,
+            72000,
+            0.15804700000000002,
+            0.15804700000000002
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+          "line": 167,
+          "name": "suffix",
+          "stats": [
+            35026,
+            35026,
+            0.1497348,
+            0.1497348
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+      "line": 130,
+      "name": "with_segments",
+      "primitive_calls": 145991,
+      "calls": 145991,
+      "self_seconds": 2.6120021,
+      "cumulative_seconds": 11.978533700000002,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 252,
+          "name": "_from_parsed_string",
+          "stats": [
+            95317,
+            95317,
+            1.667027,
+            6.848998000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 148,
+          "name": "__truediv__",
+          "stats": [
+            44126,
+            44126,
+            0.7756924000000001,
+            4.450140800000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 664,
+          "name": "resolve",
+          "stats": [
+            6185,
+            6185,
+            0.1622307,
+            0.6467704000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 140,
+          "name": "joinpath",
+          "stats": [
+            337,
+            337,
+            0.006502000000000001,
+            0.029913500000000003
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 611,
+          "name": "rglob",
+          "stats": [
+            13,
+            13,
+            0.0003999,
+            0.0016778000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\webhardening.py",
+      "line": 251,
+      "name": "_untrusted_origin_offsets",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 2.5262454,
+      "cumulative_seconds": 2.5950588000000003,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\webhardening.py",
+          "line": 167,
+          "name": "find_web_hardening_issues",
+          "stats": [
+            1000,
+            1000,
+            2.5262454,
+            2.5950588000000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 227,
+      "name": "__str__",
+      "primitive_calls": 172806,
+      "calls": 172807,
+      "self_seconds": 2.4306318,
+      "cumulative_seconds": 12.0474533,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 174,
+          "name": "_str_normcase",
+          "stats": [
+            99429,
+            99429,
+            1.0247858,
+            5.014588300000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+          "line": 142,
+          "name": "as_posix",
+          "stats": [
+            30042,
+            30042,
+            0.2028782,
+            0.784722
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 166,
+          "name": "__fspath__",
+          "stats": [
+            41906,
+            3154,
+            1.1947704000000001,
+            0.48537420000000003
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\importlib\\metadata\\__init__.py",
+          "line": 924,
+          "name": "_normalized_name",
+          "stats": [
+            232,
+            232,
+            0.0041773,
+            0.0210873
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\authz.py",
+          "line": 519,
+          "name": "walk",
+          "stats": [
+            1000,
+            1000,
+            0.0031386,
+            0.0031386
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'finditer' of 're.Pattern' objects>",
+      "primitive_calls": 193007,
+      "calls": 193007,
+      "self_seconds": 2.3753091,
+      "cumulative_seconds": 2.3753091,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+          "line": 960,
+          "name": "_find_sinks",
+          "stats": [
+            42000,
+            42000,
+            0.432904,
+            0.432904
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 1127,
+          "name": "iter_secret_matches",
+          "stats": [
+            35000,
+            35000,
+            0.3857876,
+            0.3857876
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\crypto.py",
+          "line": 203,
+          "name": "find_crypto_weaknesses",
+          "stats": [
+            22000,
+            22000,
+            0.2911922,
+            0.2911922
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\weaknesses.py",
+          "line": 269,
+          "name": "find_code_weaknesses",
+          "stats": [
+            15000,
+            15000,
+            0.16616160000000002,
+            0.16616160000000002
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 525,
+          "name": "_extract_secrets",
+          "stats": [
+            3000,
+            3000,
+            0.1617088,
+            0.1617088
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\redact.py",
+      "line": 167,
+      "name": "redact_text",
+      "primitive_calls": 16027,
+      "calls": 16027,
+      "self_seconds": 2.280265,
+      "cumulative_seconds": 10.719280900000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\models.py",
+          "line": 76,
+          "name": "_redact_evidence",
+          "stats": [
+            16000,
+            16000,
+            2.2786079000000004,
+            10.6984688
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\redact.py",
+          "line": 219,
+          "name": "redact_list",
+          "stats": [
+            11,
+            11,
+            0.0012299000000000001,
+            0.0198143
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\diagnostics.py",
+          "line": 87,
+          "name": "_analyzers",
+          "stats": [
+            16,
+            16,
+            0.00042720000000000003,
+            0.0009978
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method sys.intern>",
+      "primitive_calls": 453863,
+      "calls": 453863,
+      "self_seconds": 2.253076,
+      "cumulative_seconds": 2.253076,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 257,
+          "name": "_parse_path",
+          "stats": [
+            453707,
+            453707,
+            2.2526501000000003,
+            2.2526501000000003
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\collections\\__init__.py",
+          "line": 358,
+          "name": "namedtuple",
+          "stats": [
+            156,
+            156,
+            0.00042590000000000005,
+            0.00042590000000000005
+          ]
+        }
+      ]
+    }
+  ],
+  "requested_functions": [
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\models.py",
+      "line": 1017,
+      "name": "all_signals",
+      "primitive_calls": 9,
+      "calls": 9,
+      "self_seconds": 0.6109556,
+      "cumulative_seconds": 117.23403210000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 123,
+          "name": "stamp_scan_provenance",
+          "stats": [
+            4,
+            4,
+            0.26490640000000004,
+            46.0534959
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 112,
+          "name": "merge_scan_provenance",
+          "stats": [
+            4,
+            4,
+            0.19293760000000001,
+            39.266029200000006
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\finding_presentation.py",
+          "line": 34,
+          "name": "__init__",
+          "stats": [
+            1,
+            1,
+            0.15311160000000001,
+            31.914507
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+      "line": 410,
+      "name": "model_copy",
+      "primitive_calls": 58006,
+      "calls": 58006,
+      "self_seconds": 0.6437516000000001,
+      "cumulative_seconds": 96.5389377,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "stats": [
+            48000,
+            48000,
+            0.5506545,
+            85.2589207
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 84,
+          "name": "normalized_view",
+          "stats": [
+            6000,
+            6000,
+            0.06921150000000001,
+            7.0022226000000005
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            4,
+            4,
+            6.14e-05,
+            3.9081003
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\recon_to_analysis.py",
+          "line": 67,
+          "name": "_auth_filtered_scan",
+          "stats": [
+            4002,
+            4002,
+            0.0238242,
+            0.3696941
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+      "line": 119,
+      "name": "deepcopy",
+      "primitive_calls": 114008,
+      "calls": 2526271,
+      "self_seconds": 46.4488904,
+      "cumulative_seconds": 93.39157560000001,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1053,
+          "name": "__deepcopy__",
+          "stats": [
+            180008,
+            120008,
+            4.2617398,
+            92.6854074
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 218,
+          "name": "_deepcopy_dict",
+          "stats": [
+            2308256,
+            1496256,
+            40.8533659,
+            78.7989682
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 192,
+          "name": "_deepcopy_list",
+          "stats": [
+            32007,
+            32007,
+            1.1907012000000001,
+            31.959199700000003
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\merge.py",
+          "line": 138,
+          "name": "merge_into",
+          "stats": [
+            6000,
+            6000,
+            0.1430835,
+            3.6942936000000004
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+      "line": 971,
+      "name": "merge_analyzer_results",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0007984,
+      "cumulative_seconds": 79.6624632,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            1,
+            1,
+            0.0007984,
+            79.6624632
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+      "line": 112,
+      "name": "merge_scan_provenance",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.054432100000000004,
+      "cumulative_seconds": 75.8145545,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 971,
+          "name": "merge_analyzer_results",
+          "stats": [
+            1,
+            1,
+            0.054432100000000004,
+            75.8145545
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 872,
+      "name": "_analyze_indexed_file",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 0.6039569,
+      "cumulative_seconds": 67.0277315,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 844,
+          "name": "_cached_file_signals",
+          "stats": [
+            1000,
+            1000,
+            0.6039569,
+            67.0277315
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'search' of 're.Pattern' objects>",
+      "primitive_calls": 263025,
+      "calls": 263025,
+      "self_seconds": 46.758761500000006,
+      "cumulative_seconds": 46.758761500000006,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 693,
+          "name": "_append_unique_auth_hints",
+          "stats": [
+            38000,
+            38000,
+            8.471155300000001,
+            8.471155300000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\anomalies.py",
+          "line": 601,
+          "name": "_route_has_signal",
+          "stats": [
+            3000,
+            3000,
+            5.2413071,
+            5.2413071
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 663,
+          "name": "_append_unique_database_hints",
+          "stats": [
+            25000,
+            25000,
+            5.2271693,
+            5.2271693
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 513,
+          "name": "_extract_auth",
+          "stats": [
+            13000,
+            13000,
+            4.4364061,
+            4.4364061
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 560,
+          "name": "_extract_frameworks",
+          "stats": [
+            13000,
+            13000,
+            4.141848,
+            4.141848
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 956,
+      "name": "run_repo_passes",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0033047000000000003,
+      "cumulative_seconds": 44.0571034,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\analyzers.py",
+          "line": 728,
+          "name": "analyze_repository",
+          "stats": [
+            1,
+            1,
+            0.0033047000000000003,
+            44.0571034
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method nt.stat>",
+      "primitive_calls": 23479,
+      "calls": 23479,
+      "self_seconds": 14.679836300000002,
+      "cumulative_seconds": 18.3416819,
+      "top_callers": [
+        {
+          "file": "<frozen importlib._bootstrap_external>",
+          "line": 145,
+          "name": "_path_stat",
+          "stats": [
+            1277,
+            1277,
+            0.8949659000000001,
+            0.8949659000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\importlib\\metadata\\__init__.py",
+          "line": 759,
+          "name": "mtime",
+          "stats": [
+            42,
+            42,
+            0.040029,
+            0.040029
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+          "line": 510,
+          "name": "stat",
+          "stats": [
+            21881,
+            20,
+            13.6458676,
+            0.027996700000000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 510,
+      "name": "stat",
+      "primitive_calls": 22160,
+      "calls": 22160,
+      "self_seconds": 0.20040860000000002,
+      "cumulative_seconds": 18.2510727,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 497,
+          "name": "mutation_warnings",
+          "stats": [
+            4000,
+            4000,
+            0.052959400000000004,
+            3.5126149000000004
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 371,
+          "name": "_replay_added_files",
+          "stats": [
+            3000,
+            3000,
+            0.021394800000000002,
+            1.9666156000000001
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 299,
+          "name": "verify",
+          "stats": [
+            1000,
+            1000,
+            0.0074197,
+            0.7164723000000001
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+          "line": 442,
+          "name": "exists",
+          "stats": [
+            43,
+            43,
+            0.0003057,
+            0.052386300000000004
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py",
+          "line": 476,
+          "name": "is_file",
+          "stats": [
+            4978,
+            13,
+            0.0509695,
+            0.020086200000000002
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\artifact_manifest.py",
+      "line": 219,
+      "name": "write_artifact_manifest",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0375062,
+      "cumulative_seconds": 17.595152300000002,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\pipeline.py",
+          "line": 370,
+          "name": "_run_scan",
+          "stats": [
+            1,
+            1,
+            0.0375062,
+            17.595152300000002
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+      "line": 303,
+      "name": "analyze_taint",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.1188642,
+      "cumulative_seconds": 15.4268151,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 956,
+          "name": "run_repo_passes",
+          "stats": [
+            1,
+            1,
+            0.1188642,
+            15.4268151
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Program Files\\Python313\\Lib\\pathlib\\_local.py",
+      "line": 664,
+      "name": "resolve",
+      "primitive_calls": 6185,
+      "calls": 6185,
+      "self_seconds": 0.20259180000000002,
+      "cumulative_seconds": 14.796546600000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\safe_fs.py",
+          "line": 63,
+          "name": "_resolved_within",
+          "stats": [
+            4000,
+            4000,
+            0.1260002,
+            8.907977
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 107,
+          "name": "active_index_for",
+          "stats": [
+            1043,
+            1043,
+            0.019578,
+            3.0467262
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 364,
+          "name": "_is_under",
+          "stats": [
+            1000,
+            1000,
+            0.0543143,
+            2.3789672
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\index.py",
+          "line": 746,
+          "name": "for_root",
+          "stats": [
+            27,
+            27,
+            0.0006392,
+            0.131794
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\safe_fs.py",
+          "line": 236,
+          "name": "safe_write_text",
+          "stats": [
+            44,
+            44,
+            0.000688,
+            0.09479190000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\authz.py",
+      "line": 141,
+      "name": "analyze_authz",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 0.0381876,
+      "cumulative_seconds": 11.722477600000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 956,
+          "name": "run_repo_passes",
+          "stats": [
+            1,
+            1,
+            0.0381876,
+            11.722477600000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\webhardening.py",
+      "line": 167,
+      "name": "find_web_hardening_issues",
+      "primitive_calls": 1000,
+      "calls": 1000,
+      "self_seconds": 4.784699900000001,
+      "cumulative_seconds": 10.813899000000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 872,
+          "name": "_analyze_indexed_file",
+          "stats": [
+            1000,
+            1000,
+            4.784699900000001,
+            10.813899000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\redact.py",
+      "line": 167,
+      "name": "redact_text",
+      "primitive_calls": 16027,
+      "calls": 16027,
+      "self_seconds": 2.280265,
+      "cumulative_seconds": 10.719280900000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\models.py",
+          "line": 76,
+          "name": "_redact_evidence",
+          "stats": [
+            16000,
+            16000,
+            2.2786079000000004,
+            10.6984688
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\redact.py",
+          "line": 219,
+          "name": "redact_list",
+          "stats": [
+            11,
+            11,
+            0.0012299000000000001,
+            0.0198143
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\diagnostics.py",
+          "line": 87,
+          "name": "_analyzers",
+          "stats": [
+            16,
+            16,
+            0.00042720000000000003,
+            0.0009978
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+      "line": 472,
+      "name": "model_dump",
+      "primitive_calls": 102037,
+      "calls": 102037,
+      "self_seconds": 1.2163009,
+      "cumulative_seconds": 10.002558500000001,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 27,
+          "name": "_semantic_dump",
+          "stats": [
+            48000,
+            48000,
+            0.7020476,
+            5.0680559
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "stats": [
+            24000,
+            24000,
+            0.2590752,
+            1.6384401000000002
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 57,
+          "name": "<lambda>",
+          "stats": [
+            24000,
+            24000,
+            0.22491380000000002,
+            1.5556383
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\report.py",
+          "line": 36,
+          "name": "write_reports",
+          "stats": [
+            2002,
+            2002,
+            0.007830100000000001,
+            0.8708348
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\review_json.py",
+          "line": 189,
+          "name": "build_defensive_review_json",
+          "stats": [
+            2008,
+            2008,
+            0.011008700000000001,
+            0.8219694000000001
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'sub' of 're.Pattern' objects>",
+      "primitive_calls": 601968,
+      "calls": 601968,
+      "self_seconds": 8.7940884,
+      "cumulative_seconds": 8.7948129,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\redact.py",
+          "line": 167,
+          "name": "redact_text",
+          "stats": [
+            592555,
+            592555,
+            8.3818775,
+            8.3818775
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+          "line": 174,
+          "name": "_used_identifiers",
+          "stats": [
+            1000,
+            1000,
+            0.1573802,
+            0.1573802
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\fingerprint.py",
+          "line": 36,
+          "name": "normalize_line",
+          "stats": [
+            3000,
+            3000,
+            0.1551567,
+            0.1551567
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\md.py",
+          "line": 32,
+          "name": "md_text",
+          "stats": [
+            4004,
+            4004,
+            0.06405480000000001,
+            0.0643384
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\md.py",
+          "line": 28,
+          "name": "_visible",
+          "stats": [
+            1006,
+            1006,
+            0.0134353,
+            0.0134353
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'to_python' of 'pydantic_core._pydantic_core.SchemaSerializer' objects>",
+      "primitive_calls": 102037,
+      "calls": 102037,
+      "self_seconds": 8.3148249,
+      "cumulative_seconds": 8.7862576,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 472,
+          "name": "model_dump",
+          "stats": [
+            102037,
+            102037,
+            8.3148249,
+            8.7862576
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\sdk\\fs.py",
+      "line": 109,
+      "name": "read_source",
+      "primitive_calls": 1003,
+      "calls": 1003,
+      "self_seconds": 0.12173990000000001,
+      "cumulative_seconds": 5.464937900000001,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 339,
+          "name": "analyze",
+          "stats": [
+            1000,
+            1000,
+            0.1211528,
+            5.441372
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 255,
+          "name": "_name_from_setup_py",
+          "stats": [
+            1,
+            1,
+            0.00015590000000000002,
+            0.013210600000000001
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 240,
+          "name": "_name_from_pyproject",
+          "stats": [
+            1,
+            1,
+            0.00034730000000000004,
+            0.006889500000000001
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 265,
+          "name": "_name_from_setup_cfg",
+          "stats": [
+            1,
+            1,
+            8.39e-05,
+            0.0034658000000000002
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+      "line": 468,
+      "name": "_python_route_prefixes",
+      "primitive_calls": 2000,
+      "calls": 2000,
+      "self_seconds": 4.8913868,
+      "cumulative_seconds": 5.0390752,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 503,
+          "name": "_extract_python_routes",
+          "stats": [
+            1000,
+            1000,
+            2.7789832000000003,
+            2.8883516
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\ecosystem_python.py",
+          "line": 519,
+          "name": "_extract_routes",
+          "stats": [
+            1000,
+            1000,
+            2.1124036,
+            2.1507236
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\artifact_manifest.py",
+      "line": 204,
+      "name": "_section_from_file",
+      "primitive_calls": 23,
+      "calls": 23,
+      "self_seconds": 0.0134531,
+      "cumulative_seconds": 3.3836462000000003,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\artifact_manifest.py",
+          "line": 219,
+          "name": "write_artifact_manifest",
+          "stats": [
+            23,
+            23,
+            0.0134531,
+            3.3836462000000003
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'finditer' of 're.Pattern' objects>",
+      "primitive_calls": 193007,
+      "calls": 193007,
+      "self_seconds": 2.3753091,
+      "cumulative_seconds": 2.3753091,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+          "line": 960,
+          "name": "_find_sinks",
+          "stats": [
+            42000,
+            42000,
+            0.432904,
+            0.432904
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 1127,
+          "name": "iter_secret_matches",
+          "stats": [
+            35000,
+            35000,
+            0.3857876,
+            0.3857876
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\crypto.py",
+          "line": 203,
+          "name": "find_crypto_weaknesses",
+          "stats": [
+            22000,
+            22000,
+            0.2911922,
+            0.2911922
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\weaknesses.py",
+          "line": 269,
+          "name": "find_code_weaknesses",
+          "stats": [
+            15000,
+            15000,
+            0.16616160000000002,
+            0.16616160000000002
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+          "line": 525,
+          "name": "_extract_secrets",
+          "stats": [
+            3000,
+            3000,
+            0.1617088,
+            0.1617088
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'findall' of 're.Pattern' objects>",
+      "primitive_calls": 3035,
+      "calls": 3035,
+      "self_seconds": 0.30223160000000004,
+      "cumulative_seconds": 0.30223160000000004,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint.py",
+          "line": 174,
+          "name": "_used_identifiers",
+          "stats": [
+            1000,
+            1000,
+            0.25393760000000004,
+            0.25393760000000004
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\scanner.py",
+          "line": 460,
+          "name": "_extract_methods",
+          "stats": [
+            2000,
+            2000,
+            0.045567500000000004,
+            0.045567500000000004
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\textwrap.py",
+          "line": 419,
+          "name": "dedent",
+          "stats": [
+            31,
+            31,
+            0.0026867,
+            0.0026867
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\__init__.py",
+          "line": 270,
+          "name": "findall",
+          "stats": [
+            4,
+            4,
+            3.9800000000000005e-05,
+            3.9800000000000005e-05
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'match' of 're.Pattern' objects>",
+      "primitive_calls": 23542,
+      "calls": 23542,
+      "self_seconds": 0.28295410000000004,
+      "cumulative_seconds": 0.28295410000000004,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\__init__.py",
+          "line": 164,
+          "name": "match",
+          "stats": [
+            10000,
+            10000,
+            0.14300980000000002,
+            0.14300980000000002
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\anomalies.py",
+          "line": 565,
+          "name": "_peer_key",
+          "stats": [
+            6000,
+            6000,
+            0.0403591,
+            0.0403591
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\ecosystem_python.py",
+          "line": 401,
+          "name": "_decorator_names",
+          "stats": [
+            2000,
+            2000,
+            0.0257297,
+            0.0257297
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\dataclasses.py",
+          "line": 709,
+          "name": "_is_type",
+          "stats": [
+            1769,
+            1769,
+            0.025077000000000002,
+            0.025077000000000002
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_iac\\analyzer.py",
+          "line": 220,
+          "name": "_is_compose_file",
+          "stats": [
+            1000,
+            1000,
+            0.0228228,
+            0.0228228
+          ]
+        }
+      ]
+    },
+    {
+      "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\yaml\\resolver.py",
+      "line": 143,
+      "name": "resolve",
+      "primitive_calls": 1667,
+      "calls": 1667,
+      "self_seconds": 0.025459100000000002,
+      "cumulative_seconds": 0.040075400000000004,
+      "top_callers": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\yaml\\composer.py",
+          "line": 88,
+          "name": "compose_scalar_node",
+          "stats": [
+            1431,
+            1431,
+            0.024285300000000003,
+            0.0389016
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\yaml\\composer.py",
+          "line": 117,
+          "name": "compose_mapping_node",
+          "stats": [
+            118,
+            118,
+            0.0006493,
+            0.0006493
+          ]
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\yaml\\composer.py",
+          "line": 99,
+          "name": "compose_sequence_node",
+          "stats": [
+            118,
+            118,
+            0.0005245,
+            0.0005245
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'fullmatch' of 're.Pattern' objects>",
+      "primitive_calls": 183,
+      "calls": 183,
+      "self_seconds": 0.0032458,
+      "cumulative_seconds": 0.0032458,
+      "top_callers": [
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\taint_sinks.py",
+          "line": 95,
+          "name": "validate_sink_entry",
+          "stats": [
+            97,
+            97,
+            0.0016857,
+            0.0016857
+          ]
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\__init__.py",
+          "line": 169,
+          "name": "fullmatch",
+          "stats": [
+            54,
+            54,
+            0.0013849,
+            0.0013849
+          ]
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source\\src\\attackmap\\citations.py",
+          "line": 304,
+          "name": "_is_reference_shaped",
+          "stats": [
+            32,
+            32,
+            0.0001752,
+            0.0001752
+          ]
+        }
+      ]
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'split' of 're.Pattern' objects>",
+      "primitive_calls": 1,
+      "calls": 1,
+      "self_seconds": 1.0700000000000001e-05,
+      "cumulative_seconds": 1.0700000000000001e-05,
+      "top_callers": [
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\re\\__init__.py",
+          "line": 241,
+          "name": "split",
+          "stats": [
+            1,
+            1,
+            1.0700000000000001e-05,
+            1.0700000000000001e-05
+          ]
+        }
+      ]
+    }
+  ],
+  "artifacts": {
+    ".wp034-owned.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\.wp034-owned.json",
+      "bytes": 75,
+      "sha256": "35020b44f72419b1f57720c06ba27d76dd1edeca3f5d232bdadcfffdb0b6b401"
+    },
+    "campaign-result.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\campaign-result.json",
+      "bytes": 921,
+      "sha256": "eee3feb76bb066d445b25fdceec5d7c24640f30ac1920364cd06d1eeebdbf98a"
+    },
+    "fixture.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\fixture.json",
+      "bytes": 116,
+      "sha256": "534f1a3ac84c1bb25fa7aae2c04500c580df71a91193da6cf5fc00e7732c2a99"
+    },
+    "full-pipeline.pstats": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\full-pipeline.pstats",
+      "bytes": 549959,
+      "sha256": "92b8c55ced85896cd8ce58e132da0814d8e783ce651cba7109c84eae8a15706a"
+    },
+    "owned-tree-samples.ndjson": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\owned-tree-samples.ndjson",
+      "bytes": 2531420,
+      "sha256": "0a276ea45cc7adce73e7eccd23476cd770e2368824a83a2d114443f7aa82b00b"
+    },
+    "profile-clock.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\profile-clock.json",
+      "bytes": 73,
+      "sha256": "39d64d1c637fbab7f5d0d4353508c125b8622960e428d5101d5090a25b5dbd09"
+    },
+    "profile-stacks.log": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\profile-stacks.log",
+      "bytes": 15074,
+      "sha256": "e58957a1f265e2a11375b62c75daacb28202657869a1285f888bde23ab81bffe"
+    },
+    "runtime-identity.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\runtime-identity.json",
+      "bytes": 236,
+      "sha256": "aa3d2dc538e4195da2e4d398356579955fab9d33e4c5049174087a50e1b6ce3b"
+    },
+    "source-manifest.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\source-manifest.json",
+      "bytes": 14330,
+      "sha256": "c4dd3e6a353278dc8c2f2406fc4d67ebebadfad2402387093219ca88d7902576"
+    },
+    "stage.txt": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\stage.txt",
+      "bytes": 7,
+      "sha256": "a5d47a4311d759db69e576d9eedd6a02fcfd9cd214129fa8492ee1e9c7343def"
+    },
+    "stderr.log": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\stderr.log",
+      "bytes": 417,
+      "sha256": "3e4ec2e5fe70cbc6c6e55178f4de944238aa78aa65ae4338402fbbf353fdc67b"
+    },
+    "stdout.log": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-result.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\worker-result.json",
+      "bytes": 19535,
+      "sha256": "8faa0dc97884e07e33c2ff582a4736f47522916f79347497788cb561643274f9"
+    }
+  },
+  "limitations": [
+    "Exact sealedsource2 copy; canonical packaging source is a different later checkpoint.",
+    "cProfile default timer attributes wall time, not direct CPU cost; independent process_time clock records actual process CPU.",
+    "Nested cumulative times and wrapper/C-call counts overlap; do not sum them as independent costs.",
+    "Regex finditer iterator work may be charged to enclosing Python functions; raw finditer self time is not all matching cost.",
+    "Concurrent root native preview/build and broadtests: no standalone performance or C35 qualification. No coverage/defaultbudget reductions.",
+    "Observed raw-read worker events in cProfile despite intended main-thread profiling: _read_capture_bytes1000calls/17primitive. Threaded capture attribution is unreliable.",
+    "Invariant anomalies retained: _io.open self40.4207472s exceeds cumulative9.2899941s; bufferedread self7.4474123s exceeds cumulative7.2581632s; future result cumulative95.609s exceeds select72.952s. Do not use these capture/I/O function timings as valid cost attribution.",
+    "After capture pooljoined, phase counts/timings appear internally coherent, but causal optimization claims require isolated validation. No extra rerun or production changes authorized by this evidence alone."
+  ],
+  "profile_anomalies": {
+    "threaded_read_calls": 1000,
+    "threaded_read_primitive_calls": 17,
+    "io_open_self_seconds": 40.4207472,
+    "io_open_cumulative_seconds": 9.2899941
+  }
+}

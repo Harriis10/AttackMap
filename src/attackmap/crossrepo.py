@@ -318,7 +318,7 @@ def find_cross_repo_anomalies(
     # (template, method) -> repo -> list[has_auth] ; a representative route per
     # (template, method, repo). Method is part of the cohort key so a GET and a
     # POST on the same path aren't treated as the same route (they aren't).
-    cohort: dict[tuple[str, str], dict[str, list[bool]]] = {}
+    cohort: dict[tuple[str, str], dict[str, list[bool | None]]] = {}
     example: dict[tuple[str, str, str], Route] = {}
     for repo, scan in repo_scans:
         amap = auth_by_repo.get(repo, {})
@@ -329,12 +329,15 @@ def find_cross_repo_anomalies(
             if template is None:
                 continue
             key = (template, (r.method or "ANY").upper())
-            authed = amap.get((r.file, r.method, r.path), False)
+            authed = amap.get((r.file, r.method, r.path))
             cohort.setdefault(key, {}).setdefault(repo, []).append(authed)
             example.setdefault((*key, repo), r)
 
     out: list[CrossRepoAnomaly] = []
     for (template, method), by_repo in cohort.items():
+        # Missing signals cannot establish either enforcement or omission.
+        # Require complete evidence for every route in a repository's cohort.
+        by_repo = {repo: flags for repo, flags in by_repo.items() if all(type(flag) is bool for flag in flags)}
         if len(by_repo) < 3:  # need enough siblings to establish a norm
             continue
         enforcing = {repo for repo, flags in by_repo.items() if all(flags)}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="8" time="163.697" timestamp="2026-10-21T05:34:48.500054+02:00" hostname="corpsec"><testcase classname="tests.test_installer_entry" name="test_actual_cli_help_with_forced_legacy_redirected_output" time="8.091" /><testcase classname="tests.test_resource_budgets" name="test_time_budget_check_overhead_is_negligible" time="0.189"><failure message="AssertionError: 1779.5640000258572&#10;assert 1779.5640000258572 &lt; 1000">tests\test_resource_budgets.py:112: in test_time_budget_check_overhead_is_negligible
+    assert per_check_ns &lt; 1_000, per_check_ns
+E   AssertionError: 1779.5640000258572
+E   assert 1779.5640000258572 &lt; 1000</failure></testcase><testcase classname="tests.test_scan_limits" name="test_long_lines_under_the_cap_scan_in_linear_time[long_word]" time="11.685"><failure message="assert (110374.8800273 - 110363.247541) &lt; 5&#10; +  where 110374.8800273 = &lt;built-in function perf_counter&gt;()&#10; +    where &lt;built-in function perf_counter&gt; = time.perf_counter">tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start &lt; 5
+E   assert (110374.8800273 - 110363.247541) &lt; 5
+E    +  where 110374.8800273 = &lt;built-in function perf_counter&gt;()
+E    +    where &lt;built-in function perf_counter&gt; = time.perf_counter</failure></testcase><testcase classname="tests.test_scan_limits" name="test_long_lines_under_the_cap_scan_in_linear_time[router_assign]" time="16.564"><failure message="assert (110391.4832879 - 110374.9513968) &lt; 5&#10; +  where 110391.4832879 = &lt;built-in function perf_counter&gt;()&#10; +    where &lt;built-in function perf_counter&gt; = time.perf_counter">tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start &lt; 5
+E   assert (110391.4832879 - 110374.9513968) &lt; 5
+E    +  where 110391.4832879 = &lt;built-in function perf_counter&gt;()
+E    +    where &lt;built-in function perf_counter&gt; = time.perf_counter</failure></testcase><testcase classname="tests.test_scan_limits" name="test_long_lines_under_the_cap_scan_in_linear_time[blueprint]" time="10.209"><failure message="assert (110401.7579903 - 110391.6080112) &lt; 5&#10; +  where 110401.7579903 = &lt;built-in function perf_counter&gt;()&#10; +    where &lt;built-in function perf_counter&gt; = time.perf_counter">tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start &lt; 5
+E   assert (110401.7579903 - 110391.6080112) &lt; 5
+E    +  where 110401.7579903 = &lt;built-in function perf_counter&gt;()
+E    +    where &lt;built-in function perf_counter&gt; = time.perf_counter</failure></testcase><testcase classname="tests.test_scan_limits" name="test_long_lines_under_the_cap_scan_in_linear_time[graphql_field]" time="7.989"><failure message="assert (110409.781233 - 110401.822847) &lt; 5&#10; +  where 110409.781233 = &lt;built-in function perf_counter&gt;()&#10; +    where &lt;built-in function perf_counter&gt; = time.perf_counter">tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start &lt; 5
+E   assert (110409.781233 - 110401.822847) &lt; 5
+E    +  where 110409.781233 = &lt;built-in function perf_counter&gt;()
+E    +    where &lt;built-in function perf_counter&gt; = time.perf_counter</failure></testcase><testcase classname="tests.test_scan_limits" name="test_many_matches_in_a_large_file_scan_in_linear_time" time="68.660"><failure message="assert (110478.4564433 - 110409.8527197) &lt; 25&#10; +  where 110478.4564433 = &lt;built-in function perf_counter&gt;()&#10; +    where &lt;built-in function perf_counter&gt; = time.perf_counter">tests\test_scan_limits.py:82: in test_many_matches_in_a_large_file_scan_in_linear_time
+    assert time.perf_counter() - start &lt; 25
+E   assert (110478.4564433 - 110409.8527197) &lt; 25
+E    +  where 110478.4564433 = &lt;built-in function perf_counter&gt;()
+E    +    where &lt;built-in function perf_counter&gt; = time.perf_counter</failure></testcase><testcase classname="tests.test_taint_flow" name="test_flow_pass_stays_linear_on_a_large_file" time="24.510"><failure message="assert (110503.0144145 - 110478.5595188) &lt; 20&#10; +  where 110503.0144145 = &lt;built-in function perf_counter&gt;()&#10; +    where &lt;built-in function perf_counter&gt; = time.perf_counter">tests\test_taint_flow.py:406: in test_flow_pass_stays_linear_on_a_large_file
+    assert time.perf_counter() - start &lt; 20
+E   assert (110503.0144145 - 110478.5595188) &lt; 20
+E    +  where 110503.0144145 = &lt;built-in function perf_counter&gt;()
+E    +    where &lt;built-in function perf_counter&gt; = time.perf_counter</failure></testcase></testsuite></testsuites>

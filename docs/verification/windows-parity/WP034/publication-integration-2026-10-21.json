@@ -1,0 +1,51 @@
+{
+  "status": "FOCUSED_PUBLICATION_CANONICAL_CHECKPOINT_PASS_NOT_C35",
+  "session": 48723,
+  "source_frozen": true,
+  "command": "$env:PYTHONPATH=Join-Path $PWD 'src'; $env:PYTHONDONTWRITEBYTECODE='1'; & ./.venv/Scripts/python.exe -m pytest tests/test_report_json_writer.py tests/test_report.py tests/test_safe_fs.py tests/test_output_format.py tests/test_artifact_manifest.py tests/test_artifact_publisher.py tests/test_diagnostics_export.py -q -p no:cacheprovider --basetemp .tmp/wp034-publication-tests-20261021-02 --junitxml .tmp/wp034-publication-tests-20261021-02.xml",
+  "result": {
+    "testcases": 162,
+    "passed": 162,
+    "failed_or_error": 0,
+    "skipped": 0,
+    "by_module": {
+      "tests.test_artifact_manifest": 11,
+      "tests.test_artifact_publisher": 78,
+      "tests.test_diagnostics_export": 8,
+      "tests.test_output_format": 12,
+      "tests.test_report": 3,
+      "tests.test_report_json_writer": 30,
+      "tests.test_safe_fs": 20
+    },
+    "failures": [],
+    "skip_details": [],
+    "pytest_terminal_seconds": 660.03,
+    "exit_code": 0
+  },
+  "owned_attempt_process_cleanup": {
+    "MatchingOwnedProcesses": 0,
+    "Pids": []
+  },
+  "initial_attempt": {
+    "session": 6030,
+    "status": "INTERRUPTED_NOT_ACCEPTANCE",
+    "details": "Restricted-token run emitted fixture E markers before assertion results; interrupted. No full error stack or terminal test matrix retained, so exact fixture cause not asserted. Approved-access fresh-temp retry is authoritative."
+  },
+  "reviewed_fifth_source_bytes_equal_canonical": true,
+  "files": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\safe_fs.py": "91c7af17f537622dca159e47878bb92e310fbd8da34ff7a1f0d57c4c5b972b4d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\report.py": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_report_json_writer.py": "c3d0c0a592a8ef28d895c90fb54785c5d954c7d8ca569d094c4837fb8da3d7d5",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-tests-20261021-02.xml": "4010e44017505e82d0512e36c1de04a0f18d5e67edf442236b313bd4dcf466ec",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-canonical.diff": "2d7639eb08ee45570be199082debbc3231bb5e4c9048989b595c0e8c2730eada",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-process-cleanup.json": "96ffc5a62b127e7f15a3159b957b32978f3166828f38015f72235a7afcd4953b"
+  },
+  "contract": [
+    "Existing/symlink initial targets retain exact original C dumps+safe_write_text without TemporaryFile creation; original overwrite/error ordering and inode/security metadata preserved.",
+    "New targets use section-C UTF8 encoding in held TemporaryFile; flush+seek before final shared checked EXCL open. No stage name reopen/manual cleanup, rename/replace/link/ACL API in helper.",
+    "Encoding/stage write/flush/seek failures leave destination absent; final copy/fdopen/late temp-close failure may leave new partial/complete destination but prior authoritative generation remains valid. No per-file atomic rollback claim.",
+    "Concurrent appeared regular/symlink/hardlink target deliberately refused; no fallback/retry/actor cleanup. New output parent must authorize report content; mode0600 is not a Windows DACL-private guarantee."
+  ],
+  "memory_evidence_limit": "Earlier isolated fourth/stage-copy prototypes suggested roughly21\u201323% lower whole-child lifetime job peak on retained36.9MB report, with CPU/IO tradeoff. Fifth/canonical held-temp variant has no retained-report benchmark yet. Potential only, not default pipeline/C35/<2GiB or50k/100k acceptance.",
+  "unchanged": "Report dictionary construction/return/ordering, ordinary writer API, generation-level pointer/validation/checksum behavior, defaults/budgets/analyzer coverage. No full suite,36.9MBbenchmark, GUI/provider/build launched by this slice."
+}

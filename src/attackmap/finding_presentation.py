@@ -18,7 +18,7 @@ from typing import Any
 
 from .evidence import is_low_quality_source
 from .finding_identity import finding_id
-from .models import ExploitabilityScore, Finding, ScanResult
+from .models import ExploitabilityScore, ExploitabilityScoreReference, Finding, ScanResult
 from .redact import redact_text
 # Read-only exposure of the existing prioritization weights: one source of
 # truth, so the decomposition shown to users cannot drift from the ranking.
@@ -39,9 +39,18 @@ class FindingPresentationIndex:
             if signal.file and signal.line is not None:
                 self._by_location[(signal.file.replace("\\", "/"), signal.line)].append(signal)
         # Deterministic order so the decomposition is stable across runs.
-        self._exploitability = sorted(
-            exploitability_scores or [], key=lambda s: (-s.score, s.subject)
-        )
+        self._scores_by_ref: dict[str, list[ExploitabilityScore]] = defaultdict(list)
+        for score in exploitability_scores or []:
+            if score.producer_reference is not None:
+                self._scores_by_ref[score.producer_reference.score_id].append(score)
+        snapshot = scan.scan_snapshot.snapshot_id if scan.scan_snapshot is not None else None
+        self._reference_context = ExploitabilityScoreReference.context(scan.root, snapshot)
+        self._chain_references = {
+            reference.score_id: reference
+            for chain in scan.taint_chains if not chain.sanitized and not chain.speculative
+            for reference in [ExploitabilityScoreReference.from_chain(
+                chain, repository_root=scan.root, snapshot_id=snapshot)]
+        }
 
     def for_finding(self, finding: Finding, *, suppression_reason: str | None = None) -> dict[str, Any]:
         locations = []
@@ -70,7 +79,8 @@ class FindingPresentationIndex:
         } for signal in selected]
         roles = {location["source_role"] for location in locations}
         source_role = next(iter(roles)) if len(roles) == 1 else "mixed" if roles else "unknown"
-        decomposition = self._exploitability_decomposition(finding)
+        reference_status, producer_score = self._resolve_score_reference(finding)
+        decomposition = self._exploitability_decomposition(finding, producer_score)
         factors = [
             {"name": "severity", "value": finding.severity, "source": "finding.severity", "points": None,
              "kind": "ordering_band",
@@ -137,6 +147,8 @@ class FindingPresentationIndex:
                                    "the base prioritization score is a severity-by-confidence product, not additive.")
             else:
                 uncertainty.append("Numeric priority is supplied by the engine; finding-owned point contributions are not supplied.")
+        if finding.exploitability is not None and reference_status != "resolved":
+            uncertainty.append(f"Exact producer score association is unavailable: {reference_status}.")
         flows = [[step.model_dump() for step in flow] for flow in finding.code_flows]
         return {
             "context_version": CONTEXT_VERSION,
@@ -148,6 +160,13 @@ class FindingPresentationIndex:
                          "exploitability_tier": finding.exploitability_tier,
                          "factors": factors,
                          "point_contributions": "supplied" if decomposition else "not_supplied",
+                         "score_reference": {
+                             "status": reference_status,
+                             "reference": finding.exploitability_reference.model_dump()
+                                 if finding.exploitability_reference is not None else None,
+                             "scope": self._reference_context[2],
+                             "meaning": "Producer identity within the selected scan; not runtime or publisher authentication.",
+                         },
                          "decomposition": decomposition,
                          "unresolved_assumptions": assumptions,
                          "meaning": "Heuristic prioritization; not verified exploitation. Scores order "
@@ -170,42 +189,57 @@ class FindingPresentationIndex:
             "uncertainty": uncertainty,
         }
 
-    def _exploitability_decomposition(self, finding: Finding) -> list[dict[str, Any]]:
-        """Additive factor decomposition for the finding's fused score, if known.
-
-        Finding carries no reference to the ExploitabilityScore the engine
-        attached (a models.py field cannot be added here), so scores are
-        matched by score and tier value — the match basis is stated in the
-        output rather than implied, and sink-location corroboration against
-        the finding's own locations is reported per candidate. Presentation
-        only: nothing is re-scored.
-        """
+    def _resolve_score_reference(self, finding: Finding) -> tuple[str, ExploitabilityScore | None]:
         if finding.exploitability is None:
+            return "not_applied", None
+        reference = finding.exploitability_reference
+        if reference is None:
+            return "missing_reference", None
+        root, snapshot, scope = self._reference_context
+        if scope != "repository_snapshot" or reference.scope != "repository_snapshot":
+            return "unverified_scope", None
+        if reference.repository_root != root or reference.snapshot_id != snapshot:
+            return "context_mismatch", None
+        if self._chain_references.get(reference.score_id) != reference:
+            return "source_chain_unavailable", None
+        candidates = self._scores_by_ref.get(reference.score_id, [])
+        if not candidates:
+            return "score_unavailable", None
+        if len(candidates) != 1:
+            return "ambiguous_reference", None
+        score = candidates[0]
+        if score.producer_reference != reference:
+            return "producer_reference_mismatch", None
+        if score.score != finding.exploitability or score.tier != finding.exploitability_tier:
+            return "numeric_mismatch", None
+        chain = reference.chain
+        if (score.route, score.method, score.sink_kind, score.location) != (
+            chain.route_path, chain.route_method, chain.sink_kind, f"{chain.sink_file}:{chain.sink_line}"
+        ):
+            return "source_chain_mismatch", None
+        if sum(f.points for f in score.factors) != score.raw_score or max(0, min(100, score.raw_score)) != score.score:
+            return "factor_integrity_mismatch", None
+        return "resolved", score
+
+    def _exploitability_decomposition(self, finding: Finding, score: ExploitabilityScore | None) -> list[dict[str, Any]]:
+        """Expose only the unique, scoped producer record selected at fusion.
+
+        Missing/legacy/unverified references never acquire ownership through
+        equal numeric values, tiers, source co-location or presentation prose.
+        """
+        if score is None:
             return []
-        finding_locs = {
-            (location.file.replace("\\", "/"), location.line) for location in finding.locations
-        }
-        decomposition: list[dict[str, Any]] = []
-        for score in self._exploitability:
-            if score.score != finding.exploitability:
-                continue
-            if finding.exploitability_tier is not None and score.tier != finding.exploitability_tier:
-                continue
-            sink_file, _, sink_line = score.location.rpartition(":")
-            try:
-                corroborated = (sink_file.replace("\\", "/"), int(sink_line)) in finding_locs
-            except ValueError:
-                corroborated = any(sink_file.replace("\\", "/") == path for path, _ in finding_locs)
-            points_sum = sum(factor.points for factor in score.factors)
-            decomposition.append({
-                "subject": score.subject, "route": score.route, "method": score.method,
-                "sink_kind": score.sink_kind, "sink_location": score.location,
-                "score": score.score, "raw_score": score.raw_score, "tier": score.tier,
-                "match_basis": "score_and_tier_value",
-                "location_corroborated": corroborated,
-                "factors": [{"name": factor.name, "points": factor.points, "detail": factor.detail}
-                            for factor in score.factors],
-                "points_sum": points_sum,
-                "sums_to_raw_score": points_sum == score.raw_score,
-            })
-        return decomposition
+        finding_locs = {(location.file.replace("\\", "/"), location.line) for location in finding.locations}
+        chain = score.producer_reference.chain
+        corroborated = (chain.sink_file.replace("\\", "/"), chain.sink_line) in finding_locs
+        points_sum = sum(factor.points for factor in score.factors)
+        return [{
+            "subject": score.subject, "route": score.route, "method": score.method,
+            "sink_kind": score.sink_kind, "sink_location": score.location,
+            "score": score.score, "raw_score": score.raw_score, "tier": score.tier,
+            "match_basis": "exact_producer_reference",
+            "producer_reference": score.producer_reference.model_dump(),
+            "location_corroborated": corroborated,
+            "factors": [{"name": factor.name, "points": factor.points, "detail": factor.detail} for factor in score.factors],
+            "points_sum": points_sum, "sums_to_raw_score": points_sum == score.raw_score,
+        }]

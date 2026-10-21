@@ -45,15 +45,17 @@ public sealed partial class MainWindow
             string? requestedMode = requestedModeIndex < 0 ? null : arguments[requestedModeIndex + 1];
             bool requestedScan = arguments.Contains("--native-scan");
             bool requestedFleetWatch = arguments.Contains("--fleet-watch");
-            if (((requestedScan || requestedFleetWatch) && engineIndex < 0) || (requestedMode != null && !requestedScan)) throw new ArgumentException("A live journey requires an explicit selected engine; AI also requires a native scan.");
+            bool requestedSingleWatch = arguments.Contains("--single-watch");
+            if (((requestedScan || requestedFleetWatch || requestedSingleWatch) && engineIndex < 0) || (requestedMode != null && !requestedScan)) throw new ArgumentException("A live journey requires an explicit selected engine; AI also requires a native scan.");
             bool capabilitiesChecked = false, scanCompleted = false, modelCompleted = false;
-            object? aiDisplay = null, fleetWatchResult = null;
+            object? aiDisplay = null, fleetWatchResult = null, singleWatchResult = null;
             if (engineIndex >= 0)
             {
                 PythonPath.Text = Path.GetFullPath(arguments[engineIndex + 1]);
                 await DiscoverEngineCapabilities(); capabilitiesChecked = capabilityCache.Current?.Compatible == true;
                 if (arguments.Contains("--fleet-watch")) fleetWatchResult = await RunFleetWatchSmoke(directory);
                 ApplyScanOptions(new NativeScanOptions(TimeoutSeconds: 1200), "");
+                if (requestedSingleWatch) singleWatchResult = await RunSingleWatchSmoke(directory);
                 if (arguments.Contains("--native-scan"))
                 {
                     int repositoryIndex = Array.IndexOf(arguments, "--repository");
@@ -88,9 +90,9 @@ public sealed partial class MainWindow
                     }
                 }
             }
-            result = new { passed = (!requestedFleetWatch || capabilitiesChecked) && (!requestedScan || (capabilitiesChecked && scanCompleted)) && (requestedMode == null || modelCompleted) && loaded && roundTrip && aiOffPreferencesRetained && destinations.Contains("Risk and paths") && destinations.Contains("Reports"),
+            result = new { passed = (!(requestedFleetWatch || requestedSingleWatch) || capabilitiesChecked) && (!requestedScan || (capabilitiesChecked && scanCompleted)) && (requestedMode == null || modelCompleted) && loaded && roundTrip && aiOffPreferencesRetained && destinations.Contains("Risk and paths") && destinations.Contains("Reports"),
                 loaded, roundTrip, aiOffPreferencesRetained, destinations, capabilitiesChecked, scanCompleted,
-                outputRoot = Path.Combine(directory, "reports"), isolatedOutput = true, aiDisplay, fleetWatchResult,
+                outputRoot = Path.Combine(directory, "reports"), isolatedOutput = true, aiDisplay, fleetWatchResult, singleWatchResult,
                 report = displayedReportPath, reportHash = displayedReadHash, run = displayedRun,
                 progressState = scanProgress.State, progressTerminal = scanProgress.Terminal, status = Status.Text,
                 acceptedManualUi = false, acceptedAccessibility = false, personalSettingsRead = false };
@@ -152,6 +154,7 @@ public sealed partial class MainWindow
             bool repositoryRowsReadable = roots.Take(3).SequenceEqual(renderedPaths);
             if (!repositoryRowsReadable) throw new InvalidDataException("Rendered fleet repository rows do not match the selected paths.");
             var capture = await NativeCaptureProbe.Capture((FrameworkElement)Content, Path.Combine(directory, "Fleet-watch.png"));
+            var captures = await CaptureWatchView(directory, "Fleet-watch", 10);
             Fleet.RemoveRepository("qa-0"); Fleet.AddRepository("qa-3", roots[3]);
             long switchedEpoch = fleetWatch.Epoch;
             File.AppendAllText(Path.Combine(roots[0], "app.py"), "\n# removed root must remain silent\n");
@@ -172,7 +175,7 @@ public sealed partial class MainWindow
             if (!(defaultOff && explicitOptInIdle && ownedOutputIgnored && thirdRootFullRescan && oldRootIgnored && stopped && cancelledSettled && singleReportPreserved)) throw new InvalidDataException("Native fleet-watch/cancel isolation assertion failed: " + Status.Text);
             return new { passed = true, defaultOff, explicitOptInIdle, secondRootFullRescan, thirdRootFullRescan, ownedOutputIgnored, oldRootIgnored, stopped,
                 cancelledSettled, cancelOutcome = Fleet.Workspace.Outcome, singleReportPreserved, repositoryRowsReadable, renderedPaths,
-                first, second, observed = observed.ToArray(), outputRoot = fleetWatchVerificationOutput, capture, actualEngine = true, providerCallsRequested = false, acceptedManualUi = false };
+                first, second, observed = observed.ToArray(), outputRoot = fleetWatchVerificationOutput, capture, captures, actualEngine = true, providerCallsRequested = false, acceptedManualUi = false };
         }
         finally { StopFleetWatch(); fleetWatch.ScanRequested -= Observed; fleetWatchVerificationOutput = null; }
 

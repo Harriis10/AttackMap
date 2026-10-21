@@ -1,0 +1,84 @@
+{
+  "phase": "baseline",
+  "contracts_import": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-r1-r2-candidate-20261021-a\\src\\attackmap\\contracts.py",
+  "crossrepo_import": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-r1-r2-candidate-20261021-a\\src\\attackmap\\crossrepo.py",
+  "r1_orders": [
+    [
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "path_template": "Api/Users/*",
+        "client_target": "https://api/Api/Users/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_route_path": "/Api/Users/{id}",
+        "server_file": "server.py",
+        "server_line": 7,
+        "client_method": "GET",
+        "destination": "api",
+        "resolution": "observed",
+        "resolution_reason": "",
+        "scheme": "https",
+        "alias_provenance": null,
+        "proxy_host": null
+      }
+    ],
+    [
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "path_template": "Api/Users/*",
+        "client_target": "https://unresolved/Api/Users/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_route_path": "/Api/Users/{id}",
+        "server_file": "server.py",
+        "server_line": 7,
+        "client_method": "GET",
+        "destination": "unresolved",
+        "resolution": "candidate",
+        "resolution_reason": "unresolved_host",
+        "scheme": "https",
+        "alias_provenance": null,
+        "proxy_host": null
+      }
+    ]
+  ],
+  "r2_taint_and_bola": [
+    [
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "route": "/items/{id}",
+        "basis": "taint",
+        "detail": "sql_execute",
+        "client_target": "https://api/items/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_file": "private_db.py",
+        "server_line": 22,
+        "severity": "high"
+      }
+    ],
+    [
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "route": "/items/{id}",
+        "basis": "bola",
+        "detail": "object access on `id`",
+        "client_target": "https://api/items/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_file": "private.py",
+        "server_line": null,
+        "severity": "medium"
+      }
+    ]
+  ],
+  "scans_provider_gui": false
+}

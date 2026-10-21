@@ -1,0 +1,576 @@
+{
+  "schema_version": 1,
+  "captured_utc": "2026-10-21T00:55:59.6570449Z",
+  "status": "PARTIAL_NOT_C35_ACCEPTANCE",
+  "command": "$env:PYTHONPATH=Join-Path $PWD src; .tools/wp024-freeze-venv/Scripts/python.exe tools/measure_memory_admission.py --run --count 10000 --output C:/tmp/attackmap-wp034/10k-20261021-01 --hard-timeout 3600 --abort-memory-bytes 3221225472",
+  "tool_session": 38680,
+  "source_stable": true,
+  "analyzer_code_stable": true,
+  "scope": {
+    "python_executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+    "python_version": "3.13.15",
+    "python_sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b",
+    "engine_module": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\__init__.py",
+    "engine_version": "1.5.1",
+    "pythonpath": "C:\\Projects\\INPROGRESS\\AttackMap\\src",
+    "discovered_module_count": 21,
+    "discovered_modules": [
+      {
+        "name": "atproto",
+        "display_name": "AT Protocol Analyzer",
+        "version": "0.1.0",
+        "description": "Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.",
+        "scope": "AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.",
+        "targets": [
+          "atproto",
+          "bluesky",
+          "xrpc"
+        ],
+        "languages": [
+          "typescript",
+          "javascript",
+          "json"
+        ],
+        "priority": 90,
+        "experimental": true,
+        "enabled_by_default": false
+      },
+      {
+        "name": "c",
+        "display_name": "C Analyzer",
+        "version": "0.1.0",
+        "description": "C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.",
+        "scope": "C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.",
+        "targets": [
+          "c",
+          "civetweb",
+          "libmicrohttpd",
+          "mongoose"
+        ],
+        "languages": [
+          "c"
+        ],
+        "priority": 20,
+        "experimental": true,
+        "enabled_by_default": false
+      },
+      {
+        "name": "config",
+        "display_name": "Config File Analyzer",
+        "version": "0.1.0",
+        "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+        "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+        "targets": [
+          "yaml",
+          "toml",
+          "json",
+          "ini",
+          "env"
+        ],
+        "languages": [],
+        "priority": 30,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "cpp",
+        "display_name": "C++ Analyzer",
+        "version": "0.1.0",
+        "description": "C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.",
+        "scope": "C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.",
+        "targets": [
+          "cpp",
+          "c++",
+          "crow",
+          "pistache",
+          "drogon",
+          "cpprestsdk"
+        ],
+        "languages": [
+          "cpp"
+        ],
+        "priority": 20,
+        "experimental": true,
+        "enabled_by_default": false
+      },
+      {
+        "name": "default",
+        "display_name": "Default Analyzer",
+        "version": "0.1.0",
+        "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+        "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+        "targets": [],
+        "languages": [],
+        "priority": 100,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "dotnet",
+        "display_name": "C# / .NET Analyzer",
+        "version": "0.1.0",
+        "description": "ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.",
+        "scope": ".NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.",
+        "targets": [
+          "dotnet",
+          "csharp",
+          "aspnetcore"
+        ],
+        "languages": [
+          "csharp"
+        ],
+        "priority": 20,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "go",
+        "display_name": "Go Analyzer",
+        "version": "0.1.0",
+        "description": "Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.",
+        "scope": "Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.",
+        "targets": [
+          "go",
+          "golang",
+          "gin",
+          "chi",
+          "echo",
+          "fiber"
+        ],
+        "languages": [
+          "go"
+        ],
+        "priority": 20,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "iac",
+        "display_name": "IaC / Deployment-Surface Analyzer",
+        "version": "0.1.0",
+        "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+        "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS §2 documented for bluesky-social/pds.",
+        "targets": [
+          "docker",
+          "docker-compose",
+          "github-actions",
+          "env-template",
+          "shell-installer"
+        ],
+        "languages": [],
+        "priority": 40,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "java-spring",
+        "display_name": "Java/Kotlin Spring Boot Analyzer",
+        "version": "0.1.0",
+        "description": "Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.",
+        "scope": "Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.",
+        "targets": [
+          "java",
+          "kotlin",
+          "spring",
+          "spring-boot"
+        ],
+        "languages": [
+          "java",
+          "kotlin"
+        ],
+        "priority": 60,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "javascript-web",
+        "display_name": "JavaScript / TypeScript Web Analyzer",
+        "version": "0.2.0",
+        "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+        "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+        "targets": [
+          "express",
+          "fastify",
+          "koa",
+          "node"
+        ],
+        "languages": [
+          "javascript",
+          "typescript"
+        ],
+        "priority": 20,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "node-atproto",
+        "display_name": "Node / ATProto Overlay Analyzer",
+        "version": "0.1.0",
+        "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+        "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+        "targets": [
+          "atproto",
+          "xrpc",
+          "node-service"
+        ],
+        "languages": [
+          "javascript",
+          "typescript"
+        ],
+        "priority": 150,
+        "experimental": true,
+        "enabled_by_default": true
+      },
+      {
+        "name": "node-service",
+        "display_name": "Node Service Analyzer",
+        "version": "0.2.0",
+        "description": "Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.",
+        "scope": "Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.",
+        "targets": [
+          "node-service",
+          "node",
+          "typescript-service"
+        ],
+        "languages": [
+          "javascript",
+          "typescript"
+        ],
+        "priority": 25,
+        "experimental": true,
+        "enabled_by_default": false
+      },
+      {
+        "name": "omeka-s",
+        "display_name": "Omeka S Analyzer",
+        "version": "0.1.0",
+        "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+        "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+        "targets": [
+          "omeka-s"
+        ],
+        "languages": [
+          "php"
+        ],
+        "priority": 160,
+        "experimental": true,
+        "enabled_by_default": true
+      },
+      {
+        "name": "php-laminas",
+        "display_name": "PHP Laminas (Zend MVC) Analyzer",
+        "version": "0.1.0",
+        "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+        "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+        "targets": [
+          "laminas",
+          "zend-mvc"
+        ],
+        "languages": [
+          "php"
+        ],
+        "priority": 60,
+        "experimental": true,
+        "enabled_by_default": true
+      },
+      {
+        "name": "php-web",
+        "display_name": "PHP Web Analyzer",
+        "version": "0.1.0",
+        "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+        "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+        "targets": [
+          "php"
+        ],
+        "languages": [
+          "php"
+        ],
+        "priority": 20,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "python",
+        "display_name": "Python Comprehensive Analyzer",
+        "version": "0.1.0",
+        "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+        "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+        "targets": [
+          "python",
+          "django",
+          "starlette",
+          "aiohttp",
+          "sanic",
+          "litestar"
+        ],
+        "languages": [
+          "python"
+        ],
+        "priority": 10,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "python-service",
+        "display_name": "Python Services Ecosystem Analyzer",
+        "version": "0.1.0",
+        "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+        "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+        "targets": [
+          "fastapi",
+          "flask",
+          "django",
+          "celery"
+        ],
+        "languages": [
+          "python"
+        ],
+        "priority": 50,
+        "experimental": true,
+        "enabled_by_default": true
+      },
+      {
+        "name": "python-web",
+        "display_name": "Python Web Analyzer",
+        "version": "0.1.0",
+        "description": "Built-in analyzer for Python web frameworks and related security signals.",
+        "scope": "Python source files handled by the current scanner-backed web heuristics.",
+        "targets": [
+          "fastapi",
+          "flask"
+        ],
+        "languages": [
+          "python"
+        ],
+        "priority": 20,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "rust",
+        "display_name": "Rust Analyzer",
+        "version": "0.1.0",
+        "description": "Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.",
+        "scope": "Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.",
+        "targets": [
+          "rust",
+          "axum",
+          "actix-web",
+          "rocket"
+        ],
+        "languages": [
+          "rust"
+        ],
+        "priority": 20,
+        "experimental": false,
+        "enabled_by_default": true
+      },
+      {
+        "name": "swift",
+        "display_name": "Swift Analyzer",
+        "version": "0.1.0",
+        "description": "Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.",
+        "scope": "Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.",
+        "targets": [
+          "swift",
+          "swiftpm",
+          "vapor",
+          "hummingbird"
+        ],
+        "languages": [
+          "swift"
+        ],
+        "priority": 20,
+        "experimental": true,
+        "enabled_by_default": false
+      },
+      {
+        "name": "terraform",
+        "display_name": "Terraform / HCL Analyzer",
+        "version": "0.1.0",
+        "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+        "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+        "targets": [
+          "terraform",
+          "iac",
+          "hcl",
+          "aws",
+          "azure",
+          "gcp"
+        ],
+        "languages": [
+          "hcl"
+        ],
+        "priority": 20,
+        "experimental": false,
+        "enabled_by_default": true
+      }
+    ],
+    "analyzer_packages": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_atproto",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_c",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_cpp",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_dotnet",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_go",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_iac",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_java_spring",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_node_service",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_rust",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_swift",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_terraform",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap"
+    ],
+    "analyzer_code_sha256": "de5759c8f00c748bc4e9a7f10638b219e094939092c47ffbbac5f7a53d28c01d",
+    "selection": "Default detect/applicability and opt-in policy; no analyzer count or topology reduction"
+  },
+  "fixture": {
+    "files": 10000,
+    "bytes": 7012230,
+    "output": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\repo"
+  },
+  "index_builds": [
+    {
+      "accepted_utf8_files": 10000,
+      "accepted_utf8_bytes": 7012230,
+      "captured_sdk_files": 10000,
+      "captured_sdk_bytes": 7012230,
+      "resource_limit_scopes": [
+        "repo_index.file_bytes",
+        "repo_index.index_bytes"
+      ],
+      "resource_limit_event_count": 0
+    }
+  ],
+  "wall_seconds": 1072.131315000006,
+  "stages": [
+    {
+      "name": "request_validation",
+      "milliseconds": 0
+    },
+    {
+      "name": "select_analyzers",
+      "milliseconds": 1068226
+    },
+    {
+      "name": "translate",
+      "milliseconds": 2
+    },
+    {
+      "name": "publish",
+      "milliseconds": 144
+    }
+  ],
+  "memory": {
+    "invalid_engine_metrics": [
+      "campaign-result sampled_peak_private_bytes and stage_sampled_peaks measured venv launcher, not actual runtime; exclude them from engine conclusions"
+    ],
+    "late_observer_sampled_private_peak_bytes": 145145856,
+    "late_observer_note": "Late attachment while select_analyzers; private peak is sampled interval lower bound, not full-lifetime exact peak. OS peak WS/commit counters are lifetime high-water marks. Read-only observer never terminates target.",
+    "actual_engine_os_lifetime": {
+      "available": true,
+      "peak_working_set_bytes": 114413568,
+      "working_set_bytes": 55611392,
+      "peak_commit_bytes": 145154048,
+      "private_bytes": 46481408
+    },
+    "owned_job_peak_commit_bytes": 145997824
+  },
+  "acceptance": {
+    "safety_abort": false,
+    "reason": "Default 600s budget expired during composite select_analyzers (snapshot build plus detection). scan_and_merge did not execute; zero signal/route/surface/path counts. Low pre-analysis memory does not prove scan-and-merge memory gate.",
+    "memory_gate_pass": false,
+    "larger_sizes_started": false,
+    "hard_timeout": false,
+    "memory_threshold_bytes": 2147483648,
+    "safety_abort_ceiling_bytes": 3221225472,
+    "exit_code": 0
+  },
+  "partial_errors": [
+    {
+      "analyzer": "pipeline",
+      "error_type": "time_budget_exceeded",
+      "message": "deterministic run deadline (600s) reached; scan_and_merge and later optional stages skipped"
+    },
+    {
+      "analyzer": "pipeline",
+      "error_type": "time_budget_exceeded",
+      "message": "deterministic run deadline (600s) reached; suppress and later optional stages skipped"
+    }
+  ],
+  "limitations": [
+    "elapsed-time budget of 600s expired before scan_and_merge; the remaining optional stages were skipped — ANALYSIS IS PARTIAL, not complete. Raise the ceiling with --time-budget-seconds or ATTACKMAP_TIME_BUDGET_SECONDS.",
+    "elapsed-time budget of 600s expired before suppress; the remaining optional stages were skipped — ANALYSIS IS PARTIAL, not complete. Raise the ceiling with --time-budget-seconds or ATTACKMAP_TIME_BUDGET_SECONDS."
+  ],
+  "cleanup": {
+    "observer_tool_session": 61357,
+    "observer_exit_code": 0,
+    "job_empty_verified": true,
+    "remaining_processes": [],
+    "queried_task_pids": [
+      31424,
+      27392,
+      15652,
+      16588
+    ]
+  },
+  "host": {
+    "cpu": [
+      {
+        "Name": "Intel(R) Core(TM) i7-7820HQ CPU @ 2.90GHz",
+        "NumberOfCores": 4,
+        "NumberOfLogicalProcessors": 8
+      }
+    ],
+    "computer": [
+      {
+        "TotalPhysicalMemory": 68556136448,
+        "NumberOfProcessors": 1
+      }
+    ],
+    "os": [
+      {
+        "Version": "10.0.19045",
+        "BuildNumber": "19045"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\campaign-result.json",
+      "bytes": 39432,
+      "sha256": "f180fba2dedc5e2f295ffa12a687ea5e4641396f428281bccb5b5baf2be02770"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\worker-result.json",
+      "bytes": 19909,
+      "sha256": "9fd82861fe96cf4d68d4a0c0c9287f0d01c1ea40e2ba554affe3a014c90df3d0"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\fixture.json",
+      "bytes": 109,
+      "sha256": "bb94cc892516e1ae65f47b6aba6579f5510c53f3bca5f018c29e84e4f330c6d0"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\stderr.log",
+      "bytes": 786,
+      "sha256": "132e039f4da1480eef6600f5721cd83415a38440f32cac19a365c4bfbbf22c3e"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\runtime-private-observer-late.json",
+      "bytes": 717,
+      "sha256": "fc0e7d31e87a9ff59012c75525ca733d3bc55019f83faae3aeeab7c55887751a"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-01\\runtime-private-samples-late.ndjson",
+      "bytes": 1803414,
+      "sha256": "58bfeb59118966850780e725cd968a1b03400e91fb5598f9f31f4cfe75eac938"
+    }
+  ],
+  "next": "Read-only timed-stack diagnostic on isolated frozen source with identical 21-module scope; locate capture/detect hotspot before focused non-degrading correction. No core/default/coverage changes authorized by this record."
+}

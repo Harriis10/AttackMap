@@ -722,6 +722,7 @@ def _effective_deployment_aliases(
             or (key.startswith("host_ports:") and key[len("host_ports:"):] in cli.host_ports)
             or (key.startswith("proxies:") and key[len("proxies:"):] in cli.proxies)
             or any(key.startswith(f"service_ports:{name}:") for name in cli.service_ports)
+            or any(key.startswith(f"service_protocols:{name}:") for name in cli.service_protocols)
         )
 
     try:

@@ -1,0 +1,120 @@
+{
+  "scores": [
+    {
+      "subject": "GET /sql_execute \u2192 sql_execute",
+      "route": "/sql_execute",
+      "method": "GET",
+      "sink_kind": "sql_execute",
+      "location": "sql_execute_db.py:10",
+      "score": 90,
+      "raw_score": 90,
+      "tier": "critical",
+      "factors": [
+        {
+          "name": "reaches sql_execute sink",
+          "points": 35,
+          "detail": "request-derived data reaches a database (SQL execute) sink at sql_execute_db.py:10"
+        },
+        {
+          "name": "public exposure",
+          "points": 20,
+          "detail": "entry route GET /sql_execute is public (public_api)"
+        },
+        {
+          "name": "no auth at entry",
+          "points": 20,
+          "detail": "no auth signal observed on the entry route"
+        },
+        {
+          "name": "0-hop reachability",
+          "points": 15,
+          "detail": "0 import edge(s) from route to sink"
+        }
+      ]
+    },
+    {
+      "subject": "GET /eval \u2192 eval",
+      "route": "/eval",
+      "method": "GET",
+      "sink_kind": "eval",
+      "location": "eval_db.py:10",
+      "score": 85,
+      "raw_score": 85,
+      "tier": "critical",
+      "factors": [
+        {
+          "name": "reaches eval sink",
+          "points": 35,
+          "detail": "request-derived data reaches a code eval sink at eval_db.py:10"
+        },
+        {
+          "name": "public exposure",
+          "points": 20,
+          "detail": "entry route GET /eval is public (public_api)"
+        },
+        {
+          "name": "no auth at entry",
+          "points": 20,
+          "detail": "no auth signal observed on the entry route"
+        },
+        {
+          "name": "1-hop reachability",
+          "points": 10,
+          "detail": "1 import edge(s) from route to sink"
+        }
+      ]
+    },
+    {
+      "subject": "GET /ssrf \u2192 ssrf",
+      "route": "/ssrf",
+      "method": "GET",
+      "sink_kind": "ssrf",
+      "location": "ssrf_db.py:10",
+      "score": 65,
+      "raw_score": 65,
+      "tier": "high",
+      "factors": [
+        {
+          "name": "reaches ssrf sink",
+          "points": 20,
+          "detail": "request-derived data reaches a outbound request (SSRF) sink at ssrf_db.py:10"
+        },
+        {
+          "name": "public exposure",
+          "points": 20,
+          "detail": "entry route GET /ssrf is public (public_api)"
+        },
+        {
+          "name": "no auth at entry",
+          "points": 20,
+          "detail": "no auth signal observed on the entry route"
+        },
+        {
+          "name": "2-hop reachability",
+          "points": 5,
+          "detail": "2 import edge(s) from route to sink"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "title": "Request-reachable code execution via eval",
+      "rule_id": "eval",
+      "severity": "high",
+      "confidence": "medium",
+      "score": 75,
+      "exploitability": 85,
+      "tier": "critical"
+    },
+    {
+      "title": "Request-reachable server-side request forgery (SSRF)",
+      "rule_id": "ssrf",
+      "severity": "medium",
+      "confidence": "medium",
+      "score": 37,
+      "exploitability": 65,
+      "tier": "high"
+    }
+  ]
+}

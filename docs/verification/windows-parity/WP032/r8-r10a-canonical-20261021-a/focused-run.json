@@ -1,0 +1,32 @@
+{
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "tests/test_crossrepo.py",
+    "tests/test_topology.py",
+    "tests/test_wp032_reference_binding.py",
+    "tests/test_wp032_unknown_auth_topology.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-r8-r10a-approved-temp",
+    "--junitxml",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP032\\r8-r10a-canonical-20261021-a\\focused.xml"
+  ],
+  "cwd": "C:\\Projects\\INPROGRESS\\AttackMap",
+  "pythonpath": "C:\\Projects\\INPROGRESS\\AttackMap\\src",
+  "pid": 24020,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 76.187,
+  "collected": 104,
+  "failures": 0,
+  "errors": 0,
+  "changed_inputs": [
+    "src/attackmap/topology.py"
+  ]
+}

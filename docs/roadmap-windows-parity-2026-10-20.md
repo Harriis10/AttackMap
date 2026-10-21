@@ -41,8 +41,6 @@ Jeden cyklus znamená dokončit malý řez, cíleně ověřit, integrovat a uká
 
 **Stav 20. 10. 2026: PASS pro společný Python kontrakt a Windows C# consumer.** WP001–WP004 a WP007 jsou DONE. Schema 1.2 je additive k 1.0/1.1; frozen WP002 corpus zůstal byte-stable a Mac consumer zůstává samostatně v K7. Důkazy jsou v `docs/verification/windows-parity/WP001/` až `WP004/`, `WP007/` a v nativních consumer suites; K1 neprokazuje GUI, live AI, fresh package ani macOS acceptance.
 
-**Stav 20. 10. 2026: PASS pro společný Python kontrakt a Windows C# consumer.** WP001–WP004 a WP007 jsou DONE. Schema 1.2 je additive k 1.0/1.1; frozen WP002 corpus zůstal byte-stable a Mac consumer zůstává samostatně v K7. Důkazy jsou v `docs/verification/windows-parity/WP001/` až `WP004/`, `WP007/` a v nativních consumer suites; K1 neprokazuje GUI, live AI, fresh package ani macOS acceptance.
-
 - Jeden dokumentovaný request/result/capabilities kontrakt pro nové volby; rozšířit existující strukturované CLI capabilities, nevytvářet soupeřící seznam funkcí. Každé pole má default, rozsah, supported modes, síťový dopad a round-trip fixture.
 - Podporované staré schema 1.0/1.1 se neztratí. Nová verze se určí změnovým návrhem; capabilities se vážou k přesnému executable/engine identity, ne k číslu aplikace.
 - Unsupported požadovaná funkce skončí vysvětlenou chybou **před spawn/provider dispatch**; nikdy není tiše ignorována. Unknown additive metadata zůstávají kompatibilní.

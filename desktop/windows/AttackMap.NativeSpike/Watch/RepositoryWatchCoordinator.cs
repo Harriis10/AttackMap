@@ -18,6 +18,7 @@ public sealed class RepositoryWatchCoordinator : IDisposable
     public string Notice {get;private set;}="Watch is off. Enable it explicitly for one repository.";
     public bool Enabled {get{lock(gate)return state?.Enabled==true;}}
     public bool Pending {get{lock(gate)return state?.Pending==true;}}
+    public bool EventsUncertain {get{lock(gate)return state?.EventsUncertain==true;}}
     public long Epoch {get{lock(gate)return epoch;}}
 
     public bool Start(string repositoryRoot,IEnumerable<string>? ownedOutputRoots=null,TimeSpan? debounce=null,bool scanRunning=false)

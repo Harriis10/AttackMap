@@ -20,7 +20,7 @@ from .models import AttackPath, AttackSurface, ExploitabilityScore, Finding, Sca
 from .review_json import build_defensive_review_json
 from .taxonomy import taxonomy_label
 from .sarif import build_sarif
-from .safe_fs import ensure_output_dir, safe_write_text
+from .safe_fs import ensure_output_dir, safe_write_text, safe_write_json_report
 from .suppress import SuppressedFinding
 from .topology import build_service_graph
 
@@ -120,7 +120,7 @@ def write_reports(
         "exploitability": [score.model_dump() for score in exploitability],
     }
     if emit_json:
-        write("attackmap-report.json", json.dumps(json_report, indent=2) + "\n")
+        safe_write_json_report(out, out / "attackmap-report.json", json_report)
 
         # SARIF 2.1.0 for GitHub Code Scanning / VS Code / other SARIF
         # consumers. Emitted alongside JSON, not in place of it.

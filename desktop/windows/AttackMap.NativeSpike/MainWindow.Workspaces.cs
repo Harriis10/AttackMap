@@ -10,6 +10,7 @@ public sealed partial class MainWindow
     private readonly FleetRepositoryWatchCoordinator fleetWatch = new();
     private readonly FleetSession fleetSession = new();
     private bool fleetRunning;
+    private string? repositoryWatchVerificationOutput;
     private string? fleetWatchVerificationOutput;
     private CancellationTokenSource? scanAdmission;
     private SuppressionWorkspaceModel? suppressionWorkspace;
@@ -23,11 +24,11 @@ public sealed partial class MainWindow
                 if (actionLifetime.IsCancellationRequested || !repositoryWatch.IsCurrent(request)) return;
                 if (scanning || actionRunning || repositoryPath != request.RepositoryRoot || engine.CleanupBlocked || fleetSession.CleanupBlocked || DesktopActionRunner.CleanupBlocked)
                 { repositoryWatch.Requeue(request); return; }
-                await RunSelectedRepository();
+                await RunSelectedRepository(repositoryWatchVerificationOutput);
             });
             if (!queued) repositoryWatch.Requeue(request);
         };
-        repositoryWatch.NoticeChanged += notice => DispatcherQueue.TryEnqueue(() => { if (!actionLifetime.IsCancellationRequested) WatchStatus.Text = notice; });
+        repositoryWatch.NoticeChanged += _ => DispatcherQueue.TryEnqueue(() => { if (!actionLifetime.IsCancellationRequested) RefreshRepositoryWatchNotice(); });
         fleetWatch.ScanRequested += request => {
             if (actionLifetime.IsCancellationRequested) return;
             bool queued = DispatcherQueue.TryEnqueue(async () => {
@@ -103,12 +104,27 @@ public sealed partial class MainWindow
     private void WatchChanged(object sender, RoutedEventArgs args)
     {
         if (!ready) return;
-        if (WatchOption.IsChecked != true) { repositoryWatch.Stop(); WatchStatus.Text = repositoryWatch.Notice; return; }
+        if (WatchOption.IsChecked != true) { repositoryWatch.Stop(); RefreshRepositoryWatchNotice(); return; }
         StopFleetWatch();
-        if (repositoryPath == null || fleetRunning || !repositoryWatch.Start(repositoryPath,
-            new[] { ScanLocations.ReportsBase(repositoryPath), DesktopActionRunner.ActionDirectory }, scanRunning: scanning)) WatchOption.IsChecked = false;
-        WatchStatus.Text = repositoryWatch.Notice;
+        if (repositoryPath == null || fleetRunning)
+        {
+            WatchOption.IsChecked = false;
+            WatchStatus.Text = repositoryPath == null ? "Choose a repository before enabling watch." : "Wait for the active fleet before enabling repository watch.";
+            return;
+        }
+        if (!repositoryWatch.Start(repositoryPath,
+            new[] { ScanLocations.ReportsBase(repositoryPath), DesktopActionRunner.ActionDirectory }, scanRunning: scanning))
+        {
+            string unavailable = repositoryWatch.Notice;
+            WatchOption.IsChecked = false;
+            WatchStatus.Text = unavailable;
+            return;
+        }
+        RefreshRepositoryWatchNotice();
     }
+    private void RefreshRepositoryWatchNotice() => WatchStatus.Text = repositoryWatch.Enabled && !repositoryWatch.EventsUncertain
+        ? "Watching this repository. Changes automatically start a full scan with the current settings when active work finishes."
+        : repositoryWatch.Notice;
     private void StopRepositoryWatch() { repositoryWatch.Stop(); WatchOption.IsChecked = false; WatchStatus.Text = repositoryWatch.Notice; }
     private bool WorkspaceBusy() => scanning || actionRunning || engine.CleanupBlocked || fleetSession.CleanupBlocked || DesktopActionRunner.CleanupBlocked;
     private static bool SameFleetRoots(IReadOnlyList<FleetRoot> selected, IReadOnlyList<string> requested) =>

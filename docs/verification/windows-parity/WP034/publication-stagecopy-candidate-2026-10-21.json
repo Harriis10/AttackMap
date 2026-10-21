@@ -1,0 +1,255 @@
+{
+  "status": "THIRD_OWNED_STAGECOPY_BYTE_FAILURE_IDENTITY_PASS_NOT_CANONICAL_OR_C35",
+  "session": 10634,
+  "command": "$env:PYTHONPATH='C:/tmp/attackmap-wp034/10k-20261021-02/source/src'; $env:PYTHONDONTWRITEBYTECODE='1'; & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-prepare-stagecopy-prototype.py; if ($LASTEXITCODE -eq 0) { & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-publication-stagecopy-prototype.py }",
+  "baseline_source": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+  "owned_candidate": "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\source",
+  "tree_file_count": 138,
+  "changed_files": [
+    "src/attackmap/report.py",
+    "src/attackmap/safe_fs.py"
+  ],
+  "delta": [
+    {
+      "path": "src/attackmap/safe_fs.py",
+      "baseline_sha256": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+      "candidate_sha256": "c87eaac1a541a631a54ec3c8bece0b789335fb325cf11f2a0b73c961dac37e1f"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "baseline_sha256": "20bd67d3390bfaa7e44bd98024a9f1689d9b2f731766865ec62616801cf4b796",
+      "candidate_sha256": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27"
+    }
+  ],
+  "earlier_copies": [
+    {
+      "evidence": "publication-copy-candidate-2026-10-21.json",
+      "recorded_artifacts_unchanged": true
+    },
+    {
+      "evidence": "publication-section-candidate-2026-10-21.json",
+      "recorded_artifacts_unchanged": true
+    }
+  ],
+  "checks": {
+    "byte_golden_cases": 8,
+    "failures_preserve_report_and_valid_current_generation": [
+      "encoder",
+      "write",
+      "close",
+      "stage_fdopen"
+    ],
+    "outside_path_rejected": true,
+    "symlink_results": {
+      "target": "rejected",
+      "directory": "rejected"
+    },
+    "ordinary_writer_bytes": true,
+    "exclusive_collision_preserves_foreign_stage": true,
+    "file_identity": {
+      "before": 844424933849447,
+      "legacy_after": 844424933849447,
+      "copy_after": 844424933849447
+    },
+    "final_copy_failure_legacy_partial_semantics": [
+      {
+        "phase": "read",
+        "partial_report_bytes": 0,
+        "prior_generation_valid": true
+      },
+      {
+        "phase": "write",
+        "partial_report_bytes": 5,
+        "prior_generation_valid": true
+      }
+    ]
+  },
+  "runs": [
+    {
+      "label": "checks",
+      "number": 0,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 20824064,
+      "whole_child_wall_seconds": 5.30309909999778
+    },
+    {
+      "label": "baseline",
+      "number": 1,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 161079296,
+      "whole_child_wall_seconds": 10.709826800011797
+    },
+    {
+      "label": "candidate",
+      "number": 2,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 125726720,
+      "whole_child_wall_seconds": 9.094744999994873
+    },
+    {
+      "label": "candidate",
+      "number": 3,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 126935040,
+      "whole_child_wall_seconds": 15.259304699997301
+    },
+    {
+      "label": "baseline",
+      "number": 4,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 162013184,
+      "whole_child_wall_seconds": 10.410220300007495
+    }
+  ],
+  "actual_serialization_results": [
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126709760,
+        "working_set_bytes": 91897856,
+        "peak_commit_bytes": 120188928,
+        "private_bytes": 84856832
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 165703680,
+        "working_set_bytes": 92880896,
+        "peak_commit_bytes": 160182272,
+        "private_bytes": 85827584
+      },
+      "wall_seconds": 2.9435980999987805,
+      "cpu_seconds": 1.984375,
+      "owned_job_lifetime_peak_commit_bytes": 161079296
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126881792,
+        "working_set_bytes": 91992064,
+        "peak_commit_bytes": 120418304,
+        "private_bytes": 84955136
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 131944448,
+        "working_set_bytes": 92987392,
+        "peak_commit_bytes": 124833792,
+        "private_bytes": 85168128
+      },
+      "wall_seconds": 2.655944300000556,
+      "cpu_seconds": 2.171875,
+      "owned_job_lifetime_peak_commit_bytes": 125726720
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 127062016,
+        "working_set_bytes": 92491776,
+        "peak_commit_bytes": 120520704,
+        "private_bytes": 85700608
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 133025792,
+        "working_set_bytes": 92884992,
+        "peak_commit_bytes": 126038016,
+        "private_bytes": 85450752
+      },
+      "wall_seconds": 4.993427299996256,
+      "cpu_seconds": 2.546875,
+      "owned_job_lifetime_peak_commit_bytes": 126935040
+    },
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126636032,
+        "working_set_bytes": 91897856,
+        "peak_commit_bytes": 120041472,
+        "private_bytes": 84746240
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 166510592,
+        "working_set_bytes": 92868608,
+        "peak_commit_bytes": 161112064,
+        "private_bytes": 85962752
+      },
+      "wall_seconds": 2.7364323000074364,
+      "cpu_seconds": 2.15625,
+      "owned_job_lifetime_peak_commit_bytes": 162013184
+    }
+  ],
+  "medians_separate_wall_cpu_job_peak": {
+    "baseline": {
+      "cpu_seconds": 2.0703125,
+      "wall_seconds": 2.8400152000031085,
+      "owned_job_lifetime_peak_commit_bytes": 161546240.0
+    },
+    "candidate": {
+      "cpu_seconds": 2.359375,
+      "wall_seconds": 3.824685799998406,
+      "owned_job_lifetime_peak_commit_bytes": 126330880.0
+    }
+  },
+  "artifacts": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-prepare-stagecopy-prototype.py": "48f691157749cfa3423baca1a191fa877255173cba624e98b84c95b303e8b647",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-stagecopy-prototype.py": "77384e696a5f6e8ba8708871d959b0931c920e0227d4f8d416517cdcc471bbef",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-stagecopy-candidate.diff": "b290149ed5452794c98c6476d41933e958bdbc5272896216ea2b860753e57d81",
+    "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\source-delta.json": "64941fe89f564aedd194aac736a328ff814cf9b4d0fd44b1ad098b27eddec453",
+    "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\campaign-runs.json": "7982d27174a29bc9351af808f801cf3de13160a9d4295991b6037a14cefb7711",
+    "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\checks-result.json": "45b84e184a30c6157e48a25b72d2aa1e798ab8fb136abbdf34d52f452c893dd3",
+    "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\1-baseline-result.json": "d76722b9a8e638c8cdfa18ddba8066d6358420e21f0d4d0e85dfeaed5455b974",
+    "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\2-candidate-result.json": "67f0b61b3b0abb86c12301fe1024cf476d47f9df368efae839637837f0394447",
+    "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\3-candidate-result.json": "ce3935360861b0d1eb474d827b2167165ed44abb9617b3c30af534a13b2047f6",
+    "C:\\tmp\\attackmap-wp034\\publication-stagecopy-candidate-20261021-01\\4-baseline-result.json": "5dbac1a4131968fec6fb4d7d1b06df77a4249d3d2e8abca51e79e21c95efe0ba"
+  },
+  "behavior": {
+    "encode": "Same per-value C dumps/order/indent/newline as second prototype, fully closed same-directory exclusive stage before opening destination; raw fd close on wrapping errors.",
+    "copy": "Read stage with original output validation/O_RDONLY|O_NOFOLLOW, then destination with exact original O_WRONLY|O_CREAT|O_TRUNC|O_NOFOLLOW and0644 open policy. Bounded65536-byte binary read/write chunks, no full text decode/reencode or replace/rename/link/ACL APIs. Always unlink only owned stage.",
+    "pre_target_failures": "Encoder, stage write, stage close, stage fdopen errors preserve destination bytes; collision does not remove foreign stage. Actual escaping path/symlink target and directory rejected.",
+    "post_target_failures": "Final-copy read failure can leave0B, write failure5B in injected cases. This is non-atomic legacy target-write behavior, not rollback. All prior current-generation pointer bytes unchanged and its generation validates.",
+    "metadata": "Actual existing-target inode/file ID unchanged across ordinary and candidate writes. Destination is not replaced; existing ACL/links follow same original open policy. ACL binary equality was not separately measured.",
+    "temporary_permissions": "New stage uses shared mode0644 and parent-inherited permissions. It is not claimed to inherit a specially restricted existing target ACL. Stage confidentiality under a more permissive parent remains a production policy/review boundary.",
+    "generation": "No pointer, generation validation/commit, compatibility export or report dictionary construction/return changes. Stagecopy file write is not a new atomic/durable commit."
+  },
+  "logical_io_bytes_actual_report": {
+    "baseline_target_write": 36895649,
+    "candidate_stage_write": 36895649,
+    "candidate_stage_read": 36895649,
+    "candidate_target_write": 36895649,
+    "candidate_extra_stage_write_plus_read": 73791298,
+    "qualification": "Logical transfers inferred from exact output/stage content and copy loop, not physical disk counters; filesystem cache and concurrent host affect timing."
+  },
+  "limits": [
+    "Largest section/scalar remains unbounded; indentation replace can hold second full section text and encoding buffer.",
+    "Each owned-job lifetime peak includes startup and JSON input decoding; before/after process counters retained separately. Timed CPU/wall includes encode, stage write/read, final copy and owned-stage cleanup.",
+    "ABBA two runs per implementation on concurrent host; no end-to-end speed/C35 or50k/100k qualification. Scan-stage857MB remains separate.",
+    "Eight fixture goldens and actual36,895,649-byte/SHA comparisons pass. This adapter is serialization-only, not full write_reports or pipeline acceptance. No canonical edits/default/scope changes."
+  ]
+}

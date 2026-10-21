@@ -4,6 +4,82 @@
 
 # Resource limits (C35 / AM049)
 
+## WP034 implementation checkpoint — 2026-10-21
+
+The following describes the current narrow fleet-policy patch. Measurements below
+this section are retained historical evidence, not qualification of the present
+source. WP034 remains **PARTIAL**. The current21-module10k run took about1072s,
+including1068s in analyzer selection, and exceeded the default600s stage budget
+before scan/merge. It provides no working scan/merge peak or <2GiB acceptance.
+The512MiB aggregate input default remains a proposal owned by the index workstream;
+input bytes alone do not bound signal/model/graph memory. No source/analyzer/graph
+coverage was reduced by the fleet patch.
+
+Ordinary fleets retain their existing count-limited behavior. The additive
+`fleet_resource_admission` entry in `run-manifest.json` labels count-only and
+in-process serial execution as memory qualification **unknown**. No fabricated
+per-child2GiB estimate or default failure of unconfigured fleets is introduced.
+
+Core API callers may explicitly supply `ScanRequest.fleet_memory_policy`, a
+`FleetMemoryPolicy` from `attackmap.fleet_admission`. This is an opt-in logical
+admission policy, **not OS enforcement or proof of peak memory**. The caller must
+provide positive total, parent, parse and linking headroom budgets, and a
+`FleetMemoryEstimate` per stable fleet repository ID. Each estimate contains
+live-child bytes, retained-result bytes, serialized-result byte limit and the
+identity of reviewed measurement evidence. A string identity records the caller's
+claim; the ledger does not authenticate or independently validate measurements.
+There is no presently qualified numeric default. The wire protocol and native
+settings do not expose this experimental policy.
+
+Under this policy, the coordinator atomically reserves live plus retained-result
+bytes **before** submitting a child. Fixed parent/parse/linking headroom is charged
+throughout. A successful, verified child exit atomically drops the live charge
+and keeps the retained-result charge through fleet linking/publication. Siblings
+wait when active workers can free capacity; if retained results alone prevent a
+later child from fitting, that child fails explicitly rather than losing source
+coverage silently. The returned manifest records requested estimates, peak
+logical reservations and remaining retained charges. It does not report these
+as observed working set or physical memory limits. Separate fleet requests do
+not share a physical-memory reservation pool.
+
+Missing estimates produce `fleet_memory_unknown`; insufficient capacity produces
+`fleet_memory_capacity`; cancellation before dispatch produces
+`fleet_admission_cancelled`; a result exceeding its configured serialized limit
+produces `fleet_result_bytes`; unverified tree termination produces
+`fleet_cleanup_unknown`. These names live in existing fleet failed rows as
+`error_type`, with ordinary failed/partial fleet behavior and preserved successful
+siblings. Existing `ResourceLimitEvent` categories describe source file/index
+skips only; no incompatible category was inserted into that schema. Both success
+and failure result JSON reads are bounded under the opt-in policy. Bounded JSON
+bytes do not themselves establish a bound on parsed model memory; that must be
+included in reviewed parse/retention estimates.
+
+Cancellation acknowledgement, process leader exit and Future completion never
+prove cleanup. The supervisor's verified entire-tree completion is the release
+condition. An uncertain child keeps its full reservation; a process-local
+quarantine prevents later fleet requests from bypassing its outstanding cleanup.
+A late verified supervisor callback releases the quarantined charge. Repeated
+callbacks cannot double-refund. The current fleet stops further admission after
+uncertainty even if cleanup later completes; already successful siblings remain.
+In-process serial mode remains unchanged unless the caller explicitly opts into
+the policy, which uses supervised children even at concurrency1.
+
+`fleet_timeout_seconds` now reaches the supervised child with or without a
+progress callback. This is a hard worker elapsed timeout, including startup and
+publication, followed by verified cleanup; it is distinct from the cooperative
+stage budget. The stage budget starts before capture, allows the current stage
+to finish and marks skipped later optional stages partial. A stage boundary
+check cannot prevent an in-flight hang. Under opt-in memory policy, failed cleanup
+after cancellation/timeout is surfaced after15s cleanup grace as uncertainty,
+never as verified termination; owned supervision and reservation remain until
+verification. Default count-only mode retains the prior wait-for-cleanup behavior.
+
+Qualification still requires like-for-like current-scope10k/50k/100k working
+measurements, signal/graph counts and source identities, measured finite aggregate
+and per-child defaults, parent parse/link/retention cost, actual sibling and
+cancel-under-load evidence. Small subprocess tests exercise OS lifecycle and
+policy plumbing only, not scanner memory acceptance or an OS memory cap.
+
 AttackMap publishes finite default budgets so a huge repository ends as an
 **explicit partial analysis** instead of an unbounded run. Every exceeded limit
 produces either explicit partial coverage or a typed failure; no truncated

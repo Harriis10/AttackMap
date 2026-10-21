@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from attackmap.exploitability import score_exploitability
+from attackmap.index import ScanSnapshot
 from attackmap.finding_presentation import FindingPresentationIndex, MAX_CANDIDATES
 from attackmap.models import AttackSurface, Finding, ScanResult, Signal, TaintChain
 from attackmap.report import write_reports
@@ -11,6 +12,16 @@ from attackmap.report import write_reports
 
 def finding(**kwargs):
     return Finding(title="Synthetic heuristic", severity="high", mitigation="Review synthetic control", rule_id="synthetic-rule", **kwargs)
+
+
+def _with_fixture_scope(scan):
+    # Synthetic fixture identity only; no live paths or RepoIndex are consulted.
+    import hashlib
+    files = {path: hashlib.sha256(("fixture:" + path).encode()).hexdigest()
+             for c in scan.taint_chains for path in [c.route_file, c.sink_file]}
+    scan.root = "/synthetic/repository"
+    scan.scan_snapshot = ScanSnapshot.from_identity({"files": files}).identity()
+    return scan
 
 
 def test_missing_support_is_explicit_and_scores_are_not_decomposed():
@@ -49,18 +60,20 @@ def test_exploitability_decomposition_is_additive_and_corroborated():
         route_path="/items", route_method="GET", route_file="src/routes/items.py",
         sink_kind="sql_execute", sink_file="src/db/query.py", sink_line=42, hops=1,
         files=["src/routes/items.py", "src/db/query.py"])])
+    scan = _with_fixture_scope(scan)
     surfaces = [AttackSurface(route="/items", method="GET", file="src/routes/items.py",
                               category="public_api", exposure="public", risk="high")]
     scores = score_exploitability(scan, surfaces)
     assert scores
     best = scores[0]
     f = finding(score=100, exploitability=best.score, exploitability_tier=best.tier,
+                exploitability_reference=best.producer_reference,
                 locations=[{"file": "src/db/query.py", "line": 42}])
     context = FindingPresentationIndex(scan, exploitability_scores=scores).for_finding(f)
     assert context["priority"]["point_contributions"] == "supplied"
     decomposition = context["priority"]["decomposition"]
     assert decomposition and decomposition[0]["score"] == best.score
-    assert decomposition[0]["match_basis"] == "score_and_tier_value"
+    assert decomposition[0]["match_basis"] == "exact_producer_reference"
     assert decomposition[0]["location_corroborated"] is True
     points = [factor["points"] for factor in decomposition[0]["factors"]]
     assert all(isinstance(p, int) for p in points)
@@ -72,7 +85,7 @@ def test_exploitability_decomposition_is_additive_and_corroborated():
     assert any("reachability" in name for name in names)  # chain depth
 
 
-def test_decomposition_is_deterministic_and_value_matched_only():
+def test_legacy_missing_reference_never_invents_decomposition():
     scan = ScanResult(root=".")
     scores = score_exploitability(scan, [])
     f = finding(exploitability=99, exploitability_tier="high")
@@ -137,10 +150,12 @@ def test_report_json_exposes_exploitability_decomposition(tmp_path):
         route_path="/items", route_method="GET", route_file="src/routes/items.py",
         sink_kind="sql_execute", sink_file="src/db/query.py", sink_line=42, hops=1,
         files=["src/routes/items.py", "src/db/query.py"])])
+    scan = _with_fixture_scope(scan)
     surfaces = [AttackSurface(route="/items", method="GET", file="src/routes/items.py",
                               category="public_api", exposure="public", risk="high")]
     best = score_exploitability(scan, surfaces)[0]
     f = finding(score=100, exploitability=best.score, exploitability_tier=best.tier,
+                exploitability_reference=best.producer_reference,
                 locations=[{"file": "src/db/query.py", "line": 42}])
     write_reports(tmp_path, scan, "# Synthetic", "# Synthetic", "# Synthetic", surfaces, [f], [])
     payload = json.loads((tmp_path / "attackmap-report.json").read_text(encoding="utf-8"))

@@ -3,7 +3,7 @@
   "baseline_date": "2026-10-20",
   "baseline_timezone": "Europe/Prague",
   "baseline_commit": "d45997653970929f5f477c6e2dcd70913cb17fe3",
-  "planning_status": "Resumed from a8c4786 on 2026-10-20; WP006/WP015/WP018 assigned to three agents; previous acceptance gates preserved",
+  "planning_status": "PAUSED by weeklyusage50percent monitor. Full MainWindow remains product. NativeL/frozenB-J run04 actualfleet+singlewatch PASS;4Fleetframes reviewed, repositorywatch frames unreviewed/dimensionspending. R3focused89PASS;R8strictbool38PASS;publication162PASS. R4WIP interrupted, no terminalPASS. Broad4164pass12fail7skip;4fixturefailures repaired10focusedPASS; original8timingretry1pass7FAIL. Interval/R10b owned prototypes only, R5/R9 design. Finalexactpackage/providerfiveModes/Mac/manual/release/human/C35 gates remainopen. No further work until explicit resume; task statuses/criteria unchanged.",
   "roadmap": "roadmap-windows-parity-2026-10-20.md",
   "audit": "windows-parity-audit-2026-10-20.md",
   "task_definition_authority": "windows-parity-todo.md; synchronize this JSON when changing dependencies or definitions",
@@ -55,7 +55,9 @@
           "WP014"
         ]
       }
-    ]
+    ],
+    "preparation_on_verified_dependency_checkpoints": true,
+    "dependency_acceptance_rule": "Dependencies gate task acceptance. Preparatory implementation/integration may use a reviewed, hash-bound dependency source checkpoint while its manual/live/release gates remain open; record the limited execution scope and never infer DONE from preparation."
   },
   "tasks": [
     {
@@ -318,7 +320,8 @@
         "docs/verification/windows-parity/WP005/README.md",
         "54 NativeOptions checks PASS by agent and root; 71 ReportAdapter and 24 EngineLaunchSpec regressions PASS",
         "root visually reviewed corrected light supported and unsupported previews after contrast and clipping fixes",
-        "shell integration keyboard Narrator dark theme and second size remain pending"
+        "shell integration keyboard Narrator dark theme and second size remain pending",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json"
       ]
     },
     {
@@ -694,7 +697,8 @@
         "docs/verification/windows-parity/WP013/preparation-2026-10-20.md",
         "28 bounded history checks PASS by agent and root",
         "standalone WinUI preview build PASS with zero warnings/errors",
-        "LocalSettings shell integration, real history compare pin retention journey and visual keyboard acceptance remain open"
+        "LocalSettings shell integration, real history compare pin retention journey and visual keyboard acceptance remain open",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/recent-store/process.json"
       ]
     },
     {
@@ -795,17 +799,20 @@
         "fresh Native AI 49 PASS; final capture and clip preview builds 0 warnings/errors; earlier NativeOptions 54 and ProviderConfiguration 16 remain separate evidence",
         "docs/verification/windows-parity/WP015/root-visual-review-2026-10-20.md",
         "both synthetic capture journeys PASS but scroll/header pixel overlap remains after clip attempt; visual gate not accepted; live ProviderRoundtrip not rerun",
-        "user-requested normal preview left open; shell integration, protected-store and manual accessibility acceptance pending"
+        "user-requested normal preview left open; shell integration, protected-store and manual accessibility acceptance pending",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/provider-scroll-c/result.json",
+        "docs/verification/windows-parity/WP016/markdown-review-full-k-20261021-01/visual-review.md"
       ]
     },
     {
       "id": "WP016",
       "title": "AI artefakty a poctivý stav verifikace",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "WINDOWS_AI",
       "checkpoint": "K3",
-      "owner": null,
+      "owner": "/root/product_ui_comparison",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP007",
@@ -839,7 +846,15 @@
       "verification": "AI fixtures, tampered generation/hash, delayed old response; selection→export binding a actual UI preview.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP016/shutdown-hardening-2026-10-21.md",
+        "docs/verification/windows-parity/WP016/compact-ai-presentation-2026-10-21.md",
+        "docs/verification/windows-parity/WP016/compact-review-full-i-20261021-01/visual-review.md",
+        "docs/verification/windows-parity/WP016/markdown-review-full-k-20261021-01/visual-review.md"
+      ],
+      "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
+      "execution_scope": "Compact AI projection implemented; 61 focused checks, component build and actual full I-shell4-frame capture exit0. Root reviewed1024Light/1600Dark saved actual Review generation. Full packaged/mode/manual gates remain open."
     },
     {
       "id": "WP017",
@@ -885,7 +900,12 @@
       "verification": "endpoint `http://127.0.0.1:1234/v1`, model `cyberstag-security-26b-a4b-v1`; žádný remote fallback; provider-down/cancel/malformed odděleně od live úspěchů. Po běhu ověřit ukončení vlastněných workerů.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/WP017/opt-in-http-audit-2026-10-21.md",
+        "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/live-evidence.json",
+        "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/consistency-result.json"
+      ],
+      "execution_scope": "Preparatory source-native Review only: full G app, new Juice Shop scan, exact LM Studio model, one returned HTTP200/completed nonempty output; native exit0, selected display/export hashes consistent. Five final packaged-engine modes and acceptance remain open."
     },
     {
       "id": "WP018",
@@ -941,11 +961,11 @@
     {
       "id": "WP019",
       "title": "Native multi-repo picker a Fleet workspace",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "WINDOWS_FLEET",
       "checkpoint": "K4",
-      "owner": null,
+      "owner": "/root/native_build_provenance",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP005",
@@ -980,16 +1000,21 @@
       "verification": "dva/tři repos, host/port ambiguity fixture, actual native fleet scan se zachyceným výstupem.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP019/agent-fleet-verification-2026-10-21.json"
+      ],
+      "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
+      "execution_scope": "Fleet component/protocol: final 57 focused checks passed; root shell composition, actual fleet run, graph and visual gates pending."
     },
     {
       "id": "WP020",
       "title": "Watch v nativním Windows",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "WATCH",
       "checkpoint": "K4",
-      "owner": null,
+      "owner": "/root/roadmap_completion_audit",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP006",
@@ -1023,16 +1048,22 @@
       "verification": "`test_ui_watch.py` jako regrese starého UI + nové native coordinator tests + skutečný Win32 filesystem journey; unsupported FS notice a worker cleanup.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/watch-requeue/process.json",
+        "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md"
+      ],
+      "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
+      "execution_scope": "Watch component: 31 original Windows/policy checks and 13 Python regressions passed; root added busy-action requeue and shell lifecycle, focused recheck pending."
     },
     {
       "id": "WP021",
       "title": "Volitelné sledování všech repos ve fleet",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P2",
       "lane": "WATCH",
       "checkpoint": "K8",
-      "owner": null,
+      "owner": "/root/product_ui_comparison",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP019",
@@ -1059,7 +1090,14 @@
       "verification": "live multi-root create/edit/rename/delete + output ignore + switch/close; není podmínkou macOS parity K4.",
       "conditional": true,
       "condition": "Optional extension after single-repo parity",
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/WP021/component-verification-2026-10-21.md",
+        "docs/verification/windows-parity/WP021/native-full-shell-j-20261021-01/parity-smoke.json",
+        "docs/verification/windows-parity/WP021/native-full-shell-j-20261021-01/process.json",
+        "docs/verification/windows-parity/WP021/native-full-shell-k-frozen-20261021-01/checkpoint.md",
+        "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md"
+      ],
+      "execution_scope": "Coordinator41checks and full J-host journey passed: second/third-root full rescans, owned canary ignored with actual reports outside roots, set-switch/Stop silence, actual Cancel settles owned workspace and preserves single report; exit0. Usable Jframe reviewed; raw repository labels/host notice need final UI correction. Not whole-task acceptance."
     },
     {
       "id": "WP022",
@@ -1103,17 +1141,18 @@
       "evidence": [
         "docs/verification/windows-parity/WP022/preparation-2026-10-20.md",
         "43 bounded selected export and SARIF checks PASS by agent and root",
-        "no actual export PDF clipboard open reveal or full external SARIF consumer validation; shell and WP013 integration remain open"
+        "no actual export PDF clipboard open reveal or full external SARIF consumer validation; shell and WP013 integration remain open",
+        "docs/verification/windows-parity/WP022/agent-export-verification-2026-10-21.json"
       ]
     },
     {
       "id": "WP023",
       "title": "Stabilní integrační checkpoint Windows",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P0",
       "lane": "INTEGRATION",
       "checkpoint": "K5",
-      "owner": null,
+      "owner": "/root",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP006",
@@ -1191,7 +1230,16 @@
       "verification": "jednou široká relevantní Python suite a native consumer matrix na stabilním snapshotu, source/frozen/native end-to-end; unit/fake/live/manual výsledky zvlášť.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-g/build-inputs-after.json",
+        "docs/verification/windows-parity/WP023/native-consumers-20261021-j-b/aggregate.json",
+        "docs/verification/windows-parity/WP023/python-stable-20261021-01-triage.md",
+        "docs/verification/windows-parity/WP023/controlled-processes-20261021-k-b/checkpoint.md",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-k/build-inputs-after.json",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md"
+      ],
+      "execution_scope": "Full existing MainWindow through nativeK; exact hash-bound K/frozen-B-J fleet runtime. Broad checkpoint terminal with12 failures under triage;4fixture repairs focusedPASS, 8timing retries pending. No final single-source package/AI/manual acceptance inferred."
     },
     {
       "id": "WP024",
@@ -1235,7 +1283,8 @@
         "docs/verification/windows-parity/WP024/implementation-verification.json",
         "23 focused Python release tests PASS",
         "24 EngineLaunchSpec checks PASS",
-        "isolated synthetic install/upgrade/rollback/tamper/uninstall smoke PASS; real production freeze and installed bundled scan remain open"
+        "isolated synthetic install/upgrade/rollback/tamper/uninstall smoke PASS; real production freeze and installed bundled scan remain open",
+        "docs/verification/windows-parity/WP024/fresh-bj-20261021/checkpoint.json"
       ]
     },
     {
@@ -1435,16 +1484,18 @@
       "verification": "Swift fixtures proti WP002, actual Mac process cancellation/publication. Bez Mac hostu lze dodat zdroje/tests, stav zůstává IMPLEMENTED/host pending.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/WP028/mac-patch-preparation.md"
+      ]
     },
     {
       "id": "WP029",
       "title": "Skutečná cross-client contract CI",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "CI",
       "checkpoint": "K7",
-      "owner": null,
+      "owner": "/root/roadmap_completion_audit",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP005",
@@ -1479,7 +1530,11 @@
       "verification": "jedna záměrně nekompatibilní fixture musí job zablokovat; opravená musí projít. Místní YAML validace sama nestačí.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/WP029/implementation-2026-10-21.md",
+        "docs/verification/windows-parity/WP029/actual-three-fixtures-2026-10-21.json"
+      ],
+      "execution_scope": "Local CI wiring, actual seven analyzer extractions across three fixtures and identity guards; remote CI, Swift and frozen consumer qualification remain open."
     },
     {
       "id": "WP030",
@@ -1569,11 +1624,11 @@
     {
       "id": "WP032",
       "title": "Dokončit service identity a evidence links",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "CORE_GRAPH",
       "checkpoint": "K8",
-      "owner": null,
+      "owner": "/root/native_build_provenance",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP002"
@@ -1608,16 +1663,22 @@
       "verification": "`test_contracts.py`, `test_fleet.py`, crossrepo/merge/ranking suites; tříservisová fixture + config-only aliases s negativními kontrolami.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP032/agent-identity-verification-2026-10-21.json",
+        "docs/verification/windows-parity/WP032/r1-r2-canonical-20261021-a/focused-run.json"
+      ],
+      "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
+      "execution_scope": "Service identity fixes: 175 focused and 67 final-source merge/ranking checks passed; full evidence-reference completeness audit remains open."
     },
     {
       "id": "WP033",
       "title": "Snapshot enumerace a úplná invalidace cache",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "CORE_INDEX",
       "checkpoint": "K8",
-      "owner": null,
+      "owner": "/root/roadmap_completion_audit",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP002"
@@ -1650,16 +1711,21 @@
       "verification": "`test_snapshot_consistency.py`, `test_incremental.py`, `test_cli_incremental.py`, native round-trip; performance claim až 20 repetitions/mode na dokumentované reference platformě dle C34.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP033/implementation-2026-10-21.md"
+      ],
+      "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
+      "execution_scope": "Active captured-enumeration/raw SDK bytes/cache identity and explicit incremental work; not frozen or accepted. Noncooperating/isolated plugin input boundary remains open."
     },
     {
       "id": "WP034",
       "title": "Paměťový spike a fleet resource admission",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "CORE_INDEX",
       "checkpoint": "K8",
-      "owner": null,
+      "owner": "/root/native_build_provenance",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP033"
@@ -1691,16 +1757,26 @@
       "verification": "stejný engine/hardware pro srovnání, nová 10k reference, 50k/100k po relevantní opravě, cancel-under-load, sibling admission; jednorázová stará 861.5 MiB hodnota není důkaz této verze. Není Windows C26.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP034/10k-default-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/ordered-prefetch-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/fleet-policy-2026-10-21.md",
+        "docs/verification/windows-parity/WP034/repaired-harness-preflight-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/10k-repaired-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/representative-copy-integration-2026-10-21.json"
+      ],
+      "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
+      "execution_scope": "Sealed-source actual10k fully terminal/cleanup verified: peakjobcommit1,721,356,288B,60000signals/20000surfaces, but600s soft budget exceeded and later stages skipped/coveragepartial, so C35 remains open. Actual1000 full-pipeline CPU profile active; no50k/100k and no source edits under stable test/build leases."
     },
     {
       "id": "WP035",
       "title": "Isolated analyzer host a přesné SDK hranice",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P2",
       "lane": "SDK",
       "checkpoint": "K8",
-      "owner": null,
+      "owner": "/root/roadmap_completion_audit",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP034"
@@ -1731,7 +1807,10 @@
       "verification": "isolated host tests na podporovaných OS, false-negative containment counterexamples; missing OS proof neuzavírá celou C36.",
       "conditional": false,
       "condition": null,
-      "evidence": []
+      "evidence": [
+        "docs/verification/windows-parity/WP035/provenance-2026-10-21.md"
+      ],
+      "execution_scope": "Windows pre-resume OS caps/recovery, sealed shared snapshot SDK transport and parent-authoritative attribution implemented/focused proofs frozen. Single broad Python regression active; direct filesystem/network unrestricted and supported-OS/frozen/resource gates remain open."
     },
     {
       "id": "WP036",
@@ -2033,5 +2112,7 @@
       "condition": "C39 explicit go",
       "evidence": []
     }
-  ]
+  ],
+  "run_state": "PAUSED_WEEKLY_USAGE_50_PERCENT",
+  "resume_note": "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md"
 }

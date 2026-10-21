@@ -1,0 +1,154 @@
+{
+  "status": "OWNED_COPY_PROTOTYPE_PASS_NOT_CANONICAL_OR_C35_ACCEPTANCE",
+  "session": 12440,
+  "command": "$env:PYTHONPATH='C:/tmp/attackmap-wp034/10k-20261021-02/source/src'; $env:PYTHONDONTWRITEBYTECODE='1'; & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-copy-prototype.py",
+  "baseline": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+  "candidate": "C:\\tmp\\attackmap-wp034\\normalization-candidate-20261021-01\\source",
+  "tree_file_count": 138,
+  "tree_changed_files": [
+    "src/attackmap/signal_provenance.py"
+  ],
+  "source_delta": {
+    "origin": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+    "baseline_signal_provenance_sha256": "0522dc9c83aa5ee11175df230b5f32b9c819e3b91062c3a25c3fe5727d3d0134",
+    "candidate_signal_provenance_sha256": "5a61a6fa5fd59e5cf566f797a9ecd69448c72c22aedebe7e02172cc430b3c49d",
+    "input_sha256": "a6db0def59166cb1b191b5c61f75cce28979d3916001b5ece48fcf114f9fcb1b",
+    "scope": "Representative clone only; exacttypes imported from unchanged sealedsource2. New candidate copy, never baseline/canonical."
+  },
+  "worker_result": {
+    "diagnostic_only": true,
+    "golden_cases": 16,
+    "exclusion_combinations": 8,
+    "bidirectional_mutation_isolation": true,
+    "sibling_origin_isolation": true,
+    "actual_input_sha256": "a6db0def59166cb1b191b5c61f75cce28979d3916001b5ece48fcf114f9fcb1b",
+    "actual_signals": 6000,
+    "actual_full_json_and_field_sets_equal": true,
+    "output_sha256": "fb523919d539cb2a26bc6ea149dfb7b4b067d4452d265cb8ab5a856996ead02e",
+    "timings": [
+      {
+        "implementation": "baseline",
+        "wall_seconds": 7.693622000006144,
+        "cpu_seconds": 6.71875
+      },
+      {
+        "implementation": "candidate",
+        "wall_seconds": 5.666925599987735,
+        "cpu_seconds": 4.875
+      },
+      {
+        "implementation": "candidate",
+        "wall_seconds": 6.183507699999609,
+        "cpu_seconds": 4.921875
+      },
+      {
+        "implementation": "baseline",
+        "wall_seconds": 10.904829599996447,
+        "cpu_seconds": 6.75
+      },
+      {
+        "implementation": "baseline",
+        "wall_seconds": 8.333944900005008,
+        "cpu_seconds": 6.765625
+      },
+      {
+        "implementation": "candidate",
+        "wall_seconds": 6.5789621000003535,
+        "cpu_seconds": 4.71875
+      },
+      {
+        "implementation": "candidate",
+        "wall_seconds": 9.783050500001991,
+        "cpu_seconds": 5.046875
+      },
+      {
+        "implementation": "baseline",
+        "wall_seconds": 14.489045099995565,
+        "cpu_seconds": 7.21875
+      }
+    ],
+    "thread_count": 1,
+    "limitations": "Pure-function prototype only. Interleaved timings on concurrent host; no product/C35 claim. No sorting, origin clone/validation, cache or canonical source changes."
+  },
+  "campaign": {
+    "exit_code": 0,
+    "abort": null,
+    "cleanup_verified": true,
+    "peak_owned_job_commit_bytes": 300281856,
+    "wall_seconds": 145.28855479999038,
+    "baseline_source_stable": true
+  },
+  "interleaved_timing": {
+    "baseline": {
+      "cpu_seconds": {
+        "values": [
+          6.71875,
+          6.75,
+          6.765625,
+          7.21875
+        ],
+        "median": 6.7578125
+      },
+      "wall_seconds": {
+        "values": [
+          7.693622000006144,
+          10.904829599996447,
+          8.333944900005008,
+          14.489045099995565
+        ],
+        "median": 9.619387250000727
+      }
+    },
+    "candidate": {
+      "cpu_seconds": {
+        "values": [
+          4.875,
+          4.921875,
+          4.71875,
+          5.046875
+        ],
+        "median": 4.8984375
+      },
+      "wall_seconds": {
+        "values": [
+          5.666925599987735,
+          6.183507699999609,
+          6.5789621000003535,
+          9.783050500001991
+        ],
+        "median": 6.381234899999981
+      }
+    }
+  },
+  "artifacts": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-copy-prototype.py": "a67de380eb15ae4706f9ccce9654f93d85ead620c056b6f550ad79b14b3d8d45",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-representative-copy-candidate.diff": "fa1f9e01bebfde44e0996acdc1501da9c02ea47346c3ef63d7dc735cbf083dea",
+    "C:\\tmp\\attackmap-wp034\\normalization-candidate-20261021-01\\source-delta.json": "43fffe68b793f35534b71d6270b13b773c0aae92ac4d07a6738e25bdf61eef12",
+    "C:\\tmp\\attackmap-wp034\\normalization-candidate-20261021-01\\worker-result.json": "63b784b2857586f313c7fb71276b7ce6dad75a4cbc3bec6a4bf6c0491b7db4c4",
+    "C:\\tmp\\attackmap-wp034\\normalization-candidate-20261021-01\\campaign-result.json": "8693690495877c7316137a7e566843d008aa970edffb7649f999ec6d6da4cdc7",
+    "C:\\tmp\\attackmap-wp034\\normalization-candidate-20261021-01\\stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "C:\\tmp\\attackmap-wp034\\normalization-candidate-20261021-01\\stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "integration_plan": [
+    "After canonical source/test lease release, inspect current signal_provenance.py and apply only guarded representative-copy helper plus one call replacement.",
+    "Add focused canonical test module preserving all16 fixture cases, eight exclusion combinations, actual fields_set, full ID/order/origin/conflict goldens and bidirectional/sibling mutation isolation.",
+    "Explicitly test fallback for exact Signal with unexpected mutable __dict__, mutable properties values, and subclass/extra/private state; no new semantic object bypass.",
+    "Run focused provenance/merge/classification suites once. Recheck changed-file scope and source hashes. No analyzer/scope/budget change or full campaign until root review."
+  ],
+  "next_memory_evidence": {
+    "observed_10k_job_peak_bytes": 1721356288,
+    "observed_10k_signals": 60000,
+    "observed_10k_surfaces": 20000,
+    "limits": "No stage-correlated allocation accounting at actual10k peak. Cannot attribute peak numerically or extrapolate a safe50k/100k bound from one partial run.",
+    "measured_candidates": [
+      "Raw/text capture coexistence:10000 accepted files/7012230 raw bytes, too small alone to explain1.603GiB peak.",
+      "Repeated normalized model/copy reconstruction: clean6000-signal merge pass traced peak19752406 bytes above already-live input; normalized_view20999846 bytes. Trace overhead prevents product peak extrapolation.",
+      "Report materialization/serialization: actual1000 scan.json7961644B, attackmap-report.json36895649B, defensive-review.json11824992B, review-context-pack.json12472285B. Multiple live model/export buffers are plausible, not proven peak attribution.",
+      "Actual10k translate127.926s/publish208.461s plus manifest tail; wall time is not allocation evidence. Next narrow stage RSS/private markers or allocation adapter should identify retention before any larger campaign."
+    ]
+  },
+  "limitations": [
+    "Concurrent host workload; CPU and wall kept separate. No end-to-end speed or memory improvement qualification.",
+    "No canonical source/tests changes. Original sealed source2 and input retained unchanged.3GiB safety abort is not2GiB acceptance."
+  ]
+}

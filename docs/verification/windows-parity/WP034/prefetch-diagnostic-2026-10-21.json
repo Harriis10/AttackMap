@@ -1,0 +1,65 @@
+{
+  "status": "DIAGNOSTIC_ONLY_NOT_C35_ACCEPTANCE",
+  "tool_session": 19596,
+  "command": ".tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-prefetch-diagnostic.py; PYTHONPATH=repo/src",
+  "cases": [
+    {
+      "workers": 1,
+      "seconds": 7.111636599991471,
+      "files": 1000,
+      "bytes": 694230,
+      "max_pending": 0
+    },
+    {
+      "workers": 4,
+      "seconds": 3.5973399999929825,
+      "files": 1000,
+      "bytes": 694230,
+      "max_pending": 8
+    },
+    {
+      "workers": 8,
+      "seconds": 3.5964303000073414,
+      "files": 1000,
+      "bytes": 694230,
+      "max_pending": 16
+    }
+  ],
+  "identical_ordered_raw_hashes": true,
+  "pending_result_byte_bound": 33554448,
+  "campaign": {
+    "exit_code": 0,
+    "aborted": null,
+    "cleanup_verified": true,
+    "peak_job_commit": 47550464,
+    "wall_seconds": 28.342718499989132
+  },
+  "artifacts": {
+    "campaign-result.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\prefetch\\campaign-result.json",
+      "sha256": "b1b3e5dd1d493ed399eed5aa045250694428406871b6569871272dff039c90c0"
+    },
+    "progress.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\prefetch\\progress.json",
+      "sha256": "1b6e212992324d5490ec73da07a8986e6f3f6c50ef2f23349d2de7e53447c789"
+    },
+    "stderr.log": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\prefetch\\stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.log": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\prefetch\\stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-result.json": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-diagnostic-1000-20261021-01\\prefetch\\worker-result.json",
+      "sha256": "9099159a713e1900615f38b6203a308fbe3e17a400b485d46e315209d64cd404"
+    }
+  },
+  "limitations": [
+    "I/O only, no full capture/error/budget semantics or C35 acceptance.",
+    "Order1 then4 then8, warmed existing fixture; 1.98x within-run improvement is confounded by cache/order. Prior cold capture measured much slower.",
+    "No production changes or security settings changed."
+  ],
+  "proposal": "If root approves, deterministic bounded4worker prefetch can overlap reads, consuming results in original sorted order. Must enforce byte/count admission before submission, bounded result bytes, preserve oversized/grow/unreadable handling and typed events, cancel+join workers. Require focused semantic tests and controlled repeated/reversed diagnostic before claiming perf gain."
+}

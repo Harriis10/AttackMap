@@ -1,0 +1,698 @@
+{
+  "status": "OFFLINE_STAGE_CORRELATION_NOT_CAUSAL_ATTRIBUTION_OR_C35",
+  "input_samples": {
+    "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\owned-tree-samples.ndjson",
+    "sha256": "2e05e3bf7089a34171e7e2d2fa4c449beda6861fb170444904ba45d05a66dc49",
+    "count": 26323
+  },
+  "runtime_creation_utc": "2026-10-21T01:20:46.868128+00:00",
+  "runtime_exit_utc": "2026-10-21T02:01:16.115436+00:00",
+  "runtime_lifetime_seconds": 2429.247307777405,
+  "sample_clock": "Coordinator perf_counter relative to started immediately before job/process creation; no paired UTC/monotonic anchor persisted. Runtime creation UTC is a separate later point. Do not equate artifact seconds-after-runtime-creation with sample elapsed exactly.",
+  "stage_semantics": "Worker writes stage.txt at phase entry only; never restores prior stage at exit. capture/detect overwrite select_analyzers. publish label persists through unlabelled post-publish run/artifact manifest and worker result serialization. Stage read follows memory read and can race transition; file truncate/write can yield empty labels.",
+  "boundary_uncertainty": "Each transition lies between last preceding and first following observed labels, with polling/query/file-read lag. No strict timestamped worker event or sample read-start/read-end is retained. Exact causal allocation attribution unavailable.",
+  "peak_sample": {
+    "elapsed_seconds": 2305.215009899999,
+    "stage": "publish",
+    "private_bytes": 1721303040,
+    "working_set_bytes": 1229803520,
+    "live_pids": [
+      25652,
+      20980
+    ],
+    "complete": true
+  },
+  "peak_neighbor_samples": [
+    {
+      "elapsed_seconds": 2305.036470799998,
+      "stage": "publish",
+      "private_bytes": 1208041472,
+      "working_set_bytes": 1175937024,
+      "live_pids": [
+        25652,
+        20980
+      ],
+      "complete": true
+    },
+    {
+      "elapsed_seconds": 2305.1101998999948,
+      "stage": "publish",
+      "private_bytes": 1208041472,
+      "working_set_bytes": 1177378816,
+      "live_pids": [
+        25652,
+        20980
+      ],
+      "complete": true
+    },
+    {
+      "elapsed_seconds": 2305.215009899999,
+      "stage": "publish",
+      "private_bytes": 1721303040,
+      "working_set_bytes": 1229803520,
+      "live_pids": [
+        25652,
+        20980
+      ],
+      "complete": true
+    },
+    {
+      "elapsed_seconds": 2305.300233700007,
+      "stage": "publish",
+      "private_bytes": 1721303040,
+      "working_set_bytes": 1279807488,
+      "live_pids": [
+        25652,
+        20980
+      ],
+      "complete": true
+    },
+    {
+      "elapsed_seconds": 2305.4308300999983,
+      "stage": "publish",
+      "private_bytes": 1721303040,
+      "working_set_bytes": 1415139328,
+      "live_pids": [
+        25652,
+        20980
+      ],
+      "complete": true
+    }
+  ],
+  "peak_publish_relative": {
+    "seconds_after_first_observed_publish_label": 197.79491820000112,
+    "seconds_before_inferred_timed_publish_end": 10.66608179999912,
+    "qualification": "Inferred from first sampled label plus rounded worker timing; not a timestamped phase-end event."
+  },
+  "nearby_timed_stacks": [
+    {
+      "ordinal": 37,
+      "nominal_seconds_after_faulthandler_setup": 2220,
+      "stack": "\nThread 0x0000518c (most recent call first):\n  File \"C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py\", line ??? in _model_field_setattr_handler\n  <invalid frame>\n"
+    },
+    {
+      "ordinal": 38,
+      "nominal_seconds_after_faulthandler_setup": 2280,
+      "stack": "\nThread 0x0000518c (most recent call first):\n  File \"C:\\Program Files\\Python313\\Lib\\json\\encoder.py\", line 263 in iterencode\n  File \"C:\\Program Files\\Python313\\Lib\\json\\encoder.py\", line 202 in encode\n  File \"C:\\Program Files\\Python313\\Lib\\json\\__init__.py\", line 242 in dumps\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\report.py\", line 123 in write_reports\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 635 in _publish\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 257 in _timed\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 658 in _run_scan\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 1063 in _run_scan_published\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 1046 in run_scan\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\tools\\measure_memory_admission.py\", line 181 in worker\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\tools\\measure_memory_admission.py\", line 236 in main\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\tools\\measure_memory_admission.py\", line 359 in <module>\n"
+    },
+    {
+      "ordinal": 39,
+      "nominal_seconds_after_faulthandler_setup": 2340,
+      "stack": "\nThread 0x0000518c (most recent call first):\n  File \"C:\\Program Files\\Python313\\Lib\\pathlib\\_abc.py\", line 626 in read_bytes\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\artifact_manifest.py\", line 215 in _section_from_file\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\artifact_manifest.py\", line 291 in write_artifact_manifest\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 1027 in _run_scan\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 1063 in _run_scan_published\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py\", line 1046 in run_scan\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\tools\\measure_memory_admission.py\", line 181 in worker\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\tools\\measure_memory_admission.py\", line 236 in main\n  File \"C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\tools\\measure_memory_admission.py\", line 359 in <module>\n"
+    }
+  ],
+  "stack_alignment": "60s repeated faulthandler cadence began before worker(), before imports/scope and pipeline start. No exact start/individual UTC markers; ordinal38 at nominal2280s is near peak2305s, not simultaneous. Ordinal37 contains invalid frame and cannot be interpreted.",
+  "runtime_highwater_first_observed_final": {
+    "elapsed_seconds": 2305.215009899999,
+    "stage": "publish",
+    "runtime_peak_commit_bytes": 1720512512
+  },
+  "last_ten_runtime_highwater_changes": [
+    {
+      "elapsed_seconds": 2280.689621800004,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 887320576
+    },
+    {
+      "elapsed_seconds": 2280.957428499998,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 898408448
+    },
+    {
+      "elapsed_seconds": 2281.579893300004,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 915156992
+    },
+    {
+      "elapsed_seconds": 2282.174715500005,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 940158976
+    },
+    {
+      "elapsed_seconds": 2283.6393677000015,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 977682432
+    },
+    {
+      "elapsed_seconds": 2285.3255152000056,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 1034022912
+    },
+    {
+      "elapsed_seconds": 2288.1375075999968,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 1118535680
+    },
+    {
+      "elapsed_seconds": 2291.475076100003,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 1245257728
+    },
+    {
+      "elapsed_seconds": 2296.9705113999953,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 1435369472
+    },
+    {
+      "elapsed_seconds": 2305.215009899999,
+      "stage": "publish",
+      "runtime_peak_commit_bytes": 1720512512
+    }
+  ],
+  "stage_runs": [
+    {
+      "stage": "startup_or_unknown",
+      "first_index": 0,
+      "last_index": 271,
+      "first": {
+        "elapsed_seconds": 0.14270209999813233,
+        "stage": "startup_or_unknown",
+        "private_bytes": 405504,
+        "working_set_bytes": 1662976,
+        "live_pids": [
+          25652
+        ],
+        "complete": true
+      },
+      "last": {
+        "elapsed_seconds": 22.8986872999958,
+        "stage": "startup_or_unknown",
+        "private_bytes": 39120896,
+        "working_set_bytes": 50589696,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "sample_count": 272,
+      "peak_private": {
+        "elapsed_seconds": 19.871112699998775,
+        "stage": "startup_or_unknown",
+        "private_bytes": 41615360,
+        "working_set_bytes": 53633024,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "peak_working_set": {
+        "elapsed_seconds": 19.871112699998775,
+        "stage": "startup_or_unknown",
+        "private_bytes": 41615360,
+        "working_set_bytes": 53633024,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      }
+    },
+    {
+      "stage": "capture_snapshot",
+      "first_index": 272,
+      "last_index": 2860,
+      "first": {
+        "elapsed_seconds": 23.045439099994837,
+        "stage": "capture_snapshot",
+        "private_bytes": 39120896,
+        "working_set_bytes": 50880512,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "last": {
+        "elapsed_seconds": 258.88195769999584,
+        "stage": "capture_snapshot",
+        "private_bytes": 147308544,
+        "working_set_bytes": 119406592,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "sample_count": 2589,
+      "peak_private": {
+        "elapsed_seconds": 258.88195769999584,
+        "stage": "capture_snapshot",
+        "private_bytes": 147308544,
+        "working_set_bytes": 119406592,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "peak_working_set": {
+        "elapsed_seconds": 258.88195769999584,
+        "stage": "capture_snapshot",
+        "private_bytes": 147308544,
+        "working_set_bytes": 119406592,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      }
+    },
+    {
+      "stage": "detect_analyzers",
+      "first_index": 2861,
+      "last_index": 3592,
+      "first": {
+        "elapsed_seconds": 258.96202180000546,
+        "stage": "detect_analyzers",
+        "private_bytes": 142409728,
+        "working_set_bytes": 114528256,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "last": {
+        "elapsed_seconds": 301.9202010000008,
+        "stage": "detect_analyzers",
+        "private_bytes": 145756160,
+        "working_set_bytes": 117067776,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "sample_count": 732,
+      "peak_private": {
+        "elapsed_seconds": 287.0966117000062,
+        "stage": "detect_analyzers",
+        "private_bytes": 147300352,
+        "working_set_bytes": 118771712,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "peak_working_set": {
+        "elapsed_seconds": 287.0966117000062,
+        "stage": "detect_analyzers",
+        "private_bytes": 147300352,
+        "working_set_bytes": 118771712,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      }
+    },
+    {
+      "stage": "scan_and_merge",
+      "first_index": 3593,
+      "last_index": 21662,
+      "first": {
+        "elapsed_seconds": 301.99981890000345,
+        "stage": "scan_and_merge",
+        "private_bytes": 145756160,
+        "working_set_bytes": 117100544,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "last": {
+        "elapsed_seconds": 1979.220082300002,
+        "stage": "scan_and_merge",
+        "private_bytes": 457338880,
+        "working_set_bytes": 428908544,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "sample_count": 18070,
+      "peak_private": {
+        "elapsed_seconds": 1614.6342881000019,
+        "stage": "scan_and_merge",
+        "private_bytes": 857772032,
+        "working_set_bytes": 827756544,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "peak_working_set": {
+        "elapsed_seconds": 1614.7685497000057,
+        "stage": "scan_and_merge",
+        "private_bytes": 857772032,
+        "working_set_bytes": 828006400,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      }
+    },
+    {
+      "stage": "translate",
+      "first_index": 21663,
+      "last_index": 22721,
+      "first": {
+        "elapsed_seconds": 1979.3647891,
+        "stage": "translate",
+        "private_bytes": 444026880,
+        "working_set_bytes": 414547968,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "last": {
+        "elapsed_seconds": 2107.1514437000005,
+        "stage": "translate",
+        "private_bytes": 479453184,
+        "working_set_bytes": 450301952,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "sample_count": 1059,
+      "peak_private": {
+        "elapsed_seconds": 2107.1514437000005,
+        "stage": "translate",
+        "private_bytes": 479453184,
+        "working_set_bytes": 450301952,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "peak_working_set": {
+        "elapsed_seconds": 2107.1514437000005,
+        "stage": "translate",
+        "private_bytes": 479453184,
+        "working_set_bytes": 450301952,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      }
+    },
+    {
+      "stage": "publish",
+      "first_index": 22722,
+      "last_index": 26322,
+      "first": {
+        "elapsed_seconds": 2107.420091699998,
+        "stage": "publish",
+        "private_bytes": 479453184,
+        "working_set_bytes": 450301952,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "last": {
+        "elapsed_seconds": 2429.221054900001,
+        "stage": "publish",
+        "private_bytes": 46862336,
+        "working_set_bytes": 58101760,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "sample_count": 3601,
+      "peak_private": {
+        "elapsed_seconds": 2305.215009899999,
+        "stage": "publish",
+        "private_bytes": 1721303040,
+        "working_set_bytes": 1229803520,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      },
+      "peak_working_set": {
+        "elapsed_seconds": 2308.2896815999993,
+        "stage": "publish",
+        "private_bytes": 1602600960,
+        "working_set_bytes": 1571278848,
+        "live_pids": [
+          25652,
+          20980
+        ],
+        "complete": true
+      }
+    }
+  ],
+  "worker_timing_milliseconds": [
+    {
+      "name": "request_validation",
+      "milliseconds": 0
+    },
+    {
+      "name": "select_analyzers",
+      "milliseconds": 278980
+    },
+    {
+      "name": "scan_and_merge",
+      "milliseconds": 1677316
+    },
+    {
+      "name": "translate",
+      "milliseconds": 127926
+    },
+    {
+      "name": "publish",
+      "milliseconds": 208461
+    }
+  ],
+  "worker_wall_seconds": 2405.3634425999917,
+  "final_worker_memory": {
+    "available": true,
+    "peak_working_set_bytes": 1567756288,
+    "working_set_bytes": 416935936,
+    "peak_commit_bytes": 1720512512,
+    "private_bytes": 408473600
+  },
+  "owned_job_lifetime_peak_commit_bytes": 1721356288,
+  "artifacts_with_retained_filesystem_times": [
+    {
+      "name": ".attackmap-output",
+      "bytes": 84,
+      "mtime_ns": 1792547774229348400,
+      "mtime_utc": "2026-10-21T01:56:14.229348+00:00",
+      "seconds_after_runtime_creation": 2127.3612203598022
+    },
+    {
+      "name": "architecture.md",
+      "bytes": 899,
+      "mtime_ns": 1792547774229348400,
+      "mtime_utc": "2026-10-21T01:56:14.229348+00:00",
+      "seconds_after_runtime_creation": 2127.3612203598022
+    },
+    {
+      "name": "artifact-manifest.json",
+      "bytes": 7564,
+      "mtime_ns": 1792548072185491900,
+      "mtime_utc": "2026-10-21T02:01:12.185492+00:00",
+      "seconds_after_runtime_creation": 2425.3173637390137
+    },
+    {
+      "name": "attack-surface.md",
+      "bytes": 2711,
+      "mtime_ns": 1792547774229348400,
+      "mtime_utc": "2026-10-21T01:56:14.229348+00:00",
+      "seconds_after_runtime_creation": 2127.3612203598022
+    },
+    {
+      "name": "attack_paths.json",
+      "bytes": 3,
+      "mtime_ns": 1792547971874915200,
+      "mtime_utc": "2026-10-21T01:59:31.874915+00:00",
+      "seconds_after_runtime_creation": 2325.0067870616913
+    },
+    {
+      "name": "attack_surfaces.json",
+      "bytes": 22727783,
+      "mtime_ns": 1792547973452760100,
+      "mtime_utc": "2026-10-21T01:59:33.452760+00:00",
+      "seconds_after_runtime_creation": 2326.584631919861
+    },
+    {
+      "name": "attackmap-exploitability.md",
+      "bytes": 237,
+      "mtime_ns": 1792547802635975700,
+      "mtime_utc": "2026-10-21T01:56:42.635976+00:00",
+      "seconds_after_runtime_creation": 2155.7678475379944
+    },
+    {
+      "name": "attackmap-paths.dot",
+      "bytes": 130,
+      "mtime_ns": 1792547961891787100,
+      "mtime_utc": "2026-10-21T01:59:21.891787+00:00",
+      "seconds_after_runtime_creation": 2315.02365899086
+    },
+    {
+      "name": "attackmap-paths.md",
+      "bytes": 71,
+      "mtime_ns": 1792547961865774000,
+      "mtime_utc": "2026-10-21T01:59:21.865774+00:00",
+      "seconds_after_runtime_creation": 2314.99764585495
+    },
+    {
+      "name": "attackmap-report.json",
+      "bytes": 367647004,
+      "mtime_ns": 1792547957477474900,
+      "mtime_utc": "2026-10-21T01:59:17.477475+00:00",
+      "seconds_after_runtime_creation": 2310.6093468666077
+    },
+    {
+      "name": "attackmap-report.sarif",
+      "bytes": 25443618,
+      "mtime_ns": 1792547961457078300,
+      "mtime_utc": "2026-10-21T01:59:21.457078+00:00",
+      "seconds_after_runtime_creation": 2314.5889501571655
+    },
+    {
+      "name": "attackmap-topology.dot",
+      "bytes": 123,
+      "mtime_ns": 1792547961898793800,
+      "mtime_utc": "2026-10-21T01:59:21.898794+00:00",
+      "seconds_after_runtime_creation": 2315.0306656360626
+    },
+    {
+      "name": "attackmap-topology.md",
+      "bytes": 71,
+      "mtime_ns": 1792547961884854400,
+      "mtime_utc": "2026-10-21T01:59:21.884854+00:00",
+      "seconds_after_runtime_creation": 2315.016726255417
+    },
+    {
+      "name": "defensive-review.json",
+      "bytes": 117719428,
+      "mtime_ns": 1792547794671333300,
+      "mtime_utc": "2026-10-21T01:56:34.671333+00:00",
+      "seconds_after_runtime_creation": 2147.8032052516937
+    },
+    {
+      "name": "defensive-review.md",
+      "bytes": 3671,
+      "mtime_ns": 1792547774244977300,
+      "mtime_utc": "2026-10-21T01:56:14.244977+00:00",
+      "seconds_after_runtime_creation": 2127.3768491744995
+    },
+    {
+      "name": "exploitability.json",
+      "bytes": 3,
+      "mtime_ns": 1792547974049580900,
+      "mtime_utc": "2026-10-21T01:59:34.049581+00:00",
+      "seconds_after_runtime_creation": 2327.1814527511597
+    },
+    {
+      "name": "findings.json",
+      "bytes": 4113372,
+      "mtime_ns": 1792547971712348400,
+      "mtime_utc": "2026-10-21T01:59:31.712348+00:00",
+      "seconds_after_runtime_creation": 2324.8442203998566
+    },
+    {
+      "name": "review-context-pack.json",
+      "bytes": 124126735,
+      "mtime_ns": 1792547802203597600,
+      "mtime_utc": "2026-10-21T01:56:42.203598+00:00",
+      "seconds_after_runtime_creation": 2155.335469484329
+    },
+    {
+      "name": "run-manifest.json",
+      "bytes": 3763,
+      "mtime_ns": 1792547962538791800,
+      "mtime_utc": "2026-10-21T01:59:22.538792+00:00",
+      "seconds_after_runtime_creation": 2315.670663833618
+    },
+    {
+      "name": "scan.json",
+      "bytes": 79683055,
+      "mtime_ns": 1792547969485844600,
+      "mtime_utc": "2026-10-21T01:59:29.485845+00:00",
+      "seconds_after_runtime_creation": 2322.617716550827
+    },
+    {
+      "name": "suppressed_findings.json",
+      "bytes": 3,
+      "mtime_ns": 1792547974055322300,
+      "mtime_utc": "2026-10-21T01:59:34.055322+00:00",
+      "seconds_after_runtime_creation": 2327.1871943473816
+    }
+  ],
+  "sealed_sources": [
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\tools\\measure_memory_admission.py",
+      "sha256": "7e0d8fd4c5ecffdf6bd125e1f1b73cb399c42e453080a9273fd9f8b04cf8efa7",
+      "mtime_ns": 1792545472979141500,
+      "mtime_utc": "2026-10-21T01:17:52.979141+00:00"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\pipeline.py",
+      "sha256": "baab4be7b58adfd93429c31bc0f25d04ef5ba3cebe2bfc35e6a5b9b5b29b2928",
+      "mtime_ns": 1792541427591045300,
+      "mtime_utc": "2026-10-21T00:10:27.591045+00:00"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\report.py",
+      "sha256": "20bd67d3390bfaa7e44bd98024a9f1689d9b2f731766865ec62616801cf4b796",
+      "mtime_ns": 1792262112754200400,
+      "mtime_utc": "2026-10-17T18:35:12.754200+00:00"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\artifact_manifest.py",
+      "sha256": "0161c1ede3e53122b521fedabe5802c5f38a2a7041a8c76a29efcfbbf57c3aef",
+      "mtime_ns": 1792306192090891000,
+      "mtime_utc": "2026-10-18T06:49:52.090891+00:00"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+      "sha256": "0522dc9c83aa5ee11175df230b5f32b9c819e3b91062c3a25c3fe5727d3d0134",
+      "mtime_ns": 1792068956044390800,
+      "mtime_utc": "2026-10-15T12:55:56.044391+00:00"
+    },
+    {
+      "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\models.py",
+      "sha256": "cc8f4a00c47e5ef3c9b371464c381b6f42ef80fd3516460c7e5e4aa4e365da81",
+      "mtime_ns": 1792542276946864000,
+      "mtime_utc": "2026-10-21T00:24:36.946864+00:00"
+    }
+  ],
+  "observed_association": "Ordinal38 sampled json.encoder inside report.py123 json.dumps(json_report,indent=2); report file final write2310.61s after runtime creation. Broad peak is during publication and near monolithic report serialization. This supports prioritizing report construction/dumps/write boundaries for measurement, not attribution of all1.603GiB to JSON. Ordinal39 shows later artifact-manifest file hashing; it is not the global sampled peak.",
+  "interpretation_limits": [
+    "Private-byte peak is a sampled sum of owned launcher/runtime current values; lifetime job commit peak is a different counter without a retained time.",
+    "File LastWriteTimeUTC records last write, not allocation start/end or fsync completion. Concurrent host load and filesystem timestamp resolution introduce further uncertainty.",
+    "A stage-correlated peak only identifies a broad execution interval. It does not identify which live models, copies, strings, allocator arenas or filesystem buffers caused it."
+  ],
+  "minimal_future_measurement_design": {
+    "scope": "New owned copy only, no full run authorized; preserve canonical/sealed baseline and exact outputs/defaults.",
+    "events": "Append worker NDJSON markers with time.perf_counter_ns and time.time_ns at stage entry/exit and before/after individual existing publication helpers. Record scalar lengths/serialized file byte counts only; never keep extra model copies.",
+    "sampler": "Record sample read-start/end monotonic_ns, current private/WS, per-process/job peaks and same-clock stage sequence. Worker and observer use host perf_counter; pair clocks explicitly at startup. Bound queue/log volume; preserve owned-job cleanup/abort.",
+    "narrow_adapters": [
+      "Wrap merge_normalized_signals / ScanResult.all_signals call boundaries with counters and scalar current OS memory only; avoid cProfile or allocation tracing across threaded capture.",
+      "Wrap report construction and JSON dump/write boundaries, run-manifest and artifact-manifest hashing separately; emit count/bytes before/after, no JSON duplication.",
+      "If allocation attribution still required, profile a retained actual model in a separate thread-free adapter; do not infer product peak from tracing overhead."
+    ],
+    "acceptance": "Compare complete output hashes/fields/order and no new partial scopes before considering source integration. Larger sizes require reviewed bounded input/result/admission and abort policy; no linear extrapolation from partial10k."
+  }
+}

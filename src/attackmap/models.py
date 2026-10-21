@@ -674,6 +674,68 @@ class ExploitabilityFactor(BaseModel):
     detail: str = ""  # concrete evidence for this factor
 
 
+class ExploitabilityChainIdentity(BaseModel):
+    """The typed taint merge identity, not an observation/prose similarity key."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    route_method: str
+    route_path: str
+    route_file: str
+    sink_kind: str
+    sink_file: str
+    sink_line: int | None = None
+
+
+class ExploitabilityScoreReference(BaseModel):
+    """Producer-local integrity reference; never publisher/runtime attestation."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    version: Literal["route-sink/v1"] = "route-sink/v1"
+    score_id: str = Field(pattern=r"^score/v1:[0-9a-f]{64}$")
+    repository_root: str | None = None
+    snapshot_id: str | None = None
+    scope: Literal["repository_snapshot", "unverified"]
+    chain: ExploitabilityChainIdentity
+
+    @staticmethod
+    def context(repository_root: str | None, snapshot_id: str | None) -> tuple[str | None, str | None, str]:
+        import re
+
+        root = repository_root if isinstance(repository_root, str) and repository_root.strip() else None
+        if root is not None and any(ord(c) < 32 for c in root):
+            root = None
+        snapshot = snapshot_id if isinstance(snapshot_id, str) and re.fullmatch(r"[0-9a-f]{64}", snapshot_id) else None
+        absolute = root is not None and (root.startswith("/") or re.match(r"^[A-Za-z]:[/\\]", root) is not None)
+        return root, snapshot, "repository_snapshot" if absolute and snapshot is not None else "unverified"
+
+    @staticmethod
+    def identity(repository_root: str | None, snapshot_id: str | None, chain: ExploitabilityChainIdentity) -> str:
+        import hashlib
+        import json
+
+        payload = ["route-sink/v1", repository_root, snapshot_id, chain.model_dump()]
+        encoded = json.dumps(payload, sort_keys=True, ensure_ascii=True, separators=(",", ":")).encode()
+        return "score/v1:" + hashlib.sha256(encoded).hexdigest()
+
+    @classmethod
+    def from_chain(cls, chain: TaintChain, *, repository_root: str | None, snapshot_id: str | None):
+        root, snapshot, scope = cls.context(repository_root, snapshot_id)
+        key = ExploitabilityChainIdentity(**{name: getattr(chain, name) for name in ExploitabilityChainIdentity.model_fields})
+        return cls(score_id=cls.identity(root, snapshot, key), repository_root=root,
+                   snapshot_id=snapshot, scope=scope, chain=key)
+
+    @model_validator(mode="after")
+    def _consistent_reference(self):
+        root, snapshot, scope = self.context(self.repository_root, self.snapshot_id)
+        if root != self.repository_root or snapshot != self.snapshot_id:
+            raise ValueError("Unsupported score reference context")
+        if self.scope == "repository_snapshot" and scope != self.scope:
+            raise ValueError("Snapshot-scoped score reference needs absolute repository and snapshot identity")
+        if self.score_id != self.identity(root, snapshot, self.chain):
+            raise ValueError("Score reference does not match its producer identity")
+        return self
+
+
 class ExploitabilityScore(BaseModel):
     """A fused 'exploitable now' score for one route→sink combination (#79).
 
@@ -690,6 +752,7 @@ class ExploitabilityScore(BaseModel):
     raw_score: int  # pre-clamp sum of factor points
     tier: ExploitabilityTier
     factors: list[ExploitabilityFactor] = Field(default_factory=list)
+    producer_reference: ExploitabilityScoreReference | None = None
 
 
 def title_slug(title: str) -> str:
@@ -756,6 +819,8 @@ class Finding(_RedactedEvidence):
     # findings that sit on a route→sink path; `None` when not applicable.
     exploitability: int | None = None
     exploitability_tier: ExploitabilityTier | None = None
+    # Exact producer decision; absent on legacy findings. Never infer from value.
+    exploitability_reference: ExploitabilityScoreReference | None = None
     # Source→sink steps behind a taint finding (#239), one list per traced
     # flow; emitted as SARIF `codeFlows` on the matching sink result.
     code_flows: list[list[TaintFlowStep]] = Field(default_factory=list)

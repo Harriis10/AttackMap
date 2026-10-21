@@ -1,0 +1,92 @@
+{
+  "phase": "candidate",
+  "contracts_import": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-r1-r2-candidate-20261021-a\\src\\attackmap\\contracts.py",
+  "crossrepo_import": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-r1-r2-candidate-20261021-a\\src\\attackmap\\crossrepo.py",
+  "r1_orders": [
+    [
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "path_template": "Api/Users/*",
+        "client_target": "https://api/Api/Users/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_route_path": "/Api/Users/{id}",
+        "server_file": "server.py",
+        "server_line": 7,
+        "client_method": "GET",
+        "destination": "api",
+        "resolution": "observed",
+        "resolution_reason": "",
+        "scheme": "https",
+        "alias_provenance": null,
+        "proxy_host": null
+      },
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "path_template": "Api/Users/*",
+        "client_target": "https://unresolved/Api/Users/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_route_path": "/Api/Users/{id}",
+        "server_file": "server.py",
+        "server_line": 7,
+        "client_method": "GET",
+        "destination": "unresolved",
+        "resolution": "candidate",
+        "resolution_reason": "unresolved_host",
+        "scheme": "https",
+        "alias_provenance": null,
+        "proxy_host": null
+      }
+    ],
+    [
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "path_template": "Api/Users/*",
+        "client_target": "https://api/Api/Users/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_route_path": "/Api/Users/{id}",
+        "server_file": "server.py",
+        "server_line": 7,
+        "client_method": "GET",
+        "destination": "api",
+        "resolution": "observed",
+        "resolution_reason": "",
+        "scheme": "https",
+        "alias_provenance": null,
+        "proxy_host": null
+      },
+      {
+        "client_repo": "client",
+        "server_repo": "api",
+        "method": "GET",
+        "path_template": "Api/Users/*",
+        "client_target": "https://unresolved/Api/Users/42",
+        "client_file": "client.py",
+        "client_line": 3,
+        "server_route_path": "/Api/Users/{id}",
+        "server_file": "server.py",
+        "server_line": 7,
+        "client_method": "GET",
+        "destination": "unresolved",
+        "resolution": "candidate",
+        "resolution_reason": "unresolved_host",
+        "scheme": "https",
+        "alias_provenance": null,
+        "proxy_host": null
+      }
+    ]
+  ],
+  "r2_taint_and_bola": [
+    [],
+    []
+  ],
+  "scans_provider_gui": false
+}

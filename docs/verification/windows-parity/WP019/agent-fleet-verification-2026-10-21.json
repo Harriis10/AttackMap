@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "captured_utc": "2026-10-21T00:13:20.6305356Z",
+  "kind": "agent_tool_transcript_verification",
+  "source_hashes_capture_time_only": true,
+  "files": [
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/Fleet/FleetWorkspace.cs",
+      "sha256": "618abc0967bdbb728fb5d29dc6c50967ed4b17a42d8dd88972fab5f0a42374c4",
+      "size_bytes": 5304
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/Fleet/FleetView.cs",
+      "sha256": "c5e99394ff177e3dad8152e7f8c96ae9c270e15ca0360b70e803ade2036bab2a",
+      "size_bytes": 5981
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/Fleet/FleetSession.cs",
+      "sha256": "a2cba0095c678d3c494ea04073b82e31c9144bffb8765af07419fbbc2ff81eea",
+      "size_bytes": 13132
+    },
+    {
+      "path": "desktop/windows/FleetWorkspace.Tests/Program.cs",
+      "sha256": "f7c24f0fc4378d6e0e52eddba407e9532383a168d2912ec4e5362a520f567ae4",
+      "size_bytes": 7533
+    },
+    {
+      "path": "desktop/windows/FleetWorkspace.Tests/FleetWorkspace.Tests.csproj",
+      "sha256": "461eab8211707849ce1f65e3f3971df521002daeb5d5a7591acbe0d6ecfe03b7",
+      "size_bytes": 599
+    }
+  ],
+  "runs": [
+    {
+      "Session": 53805,
+      "Result": "57 FleetWorkspace/protocol checks PASS",
+      "Command": ".tools/dotnet/dotnet.exe run --project desktop/windows/FleetWorkspace.Tests --no-restore -p:NuGetAudit=false",
+      "ExitCode": 0
+    }
+  ],
+  "environment": {
+    "DOTNET_CLI_HOME": ".tools/dotnet-home",
+    "NUGET_PACKAGES": ".tools/nuget-packages",
+    "DOTNET_ROOT": ".tools/dotnet",
+    "dotnet_sdk": "8.0.426"
+  },
+  "limitations": "Focused pure model/protocol harness only; FleetView not compiled or visually reviewed by this harness. No real fleet scan or GUI acceptance.",
+  "raw_log_status": "Exact stdout summaries recorded from completed tool sessions; full raw stdout was not persisted during execution."
+}

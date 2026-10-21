@@ -1,5 +1,7 @@
 # Aktuální dokumentace pro agenty
 
+**Běh pozastaven kvůli týdennímu limitu 50 %.** [Stav a bezpečné obnovení](verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md). Nespouštět automaticky další práci; tento handoff nemění zadání ani akceptační kritéria roadmapy.
+
 **Platnost od 20. 10. 2026.** Tento rozcestník určuje, které dokumenty řídí další práci. Pravidla repozitáře v [AGENTS.md](../AGENTS.md) zůstávají platná.
 
 | Dokument | Úloha |
@@ -24,6 +26,8 @@ Všechny ostatní dříve existující dokumenty jsou **historické podklady**. 
 Archivní označení se týká autority pro plánování, nikoli automatické neplatnosti každého technického tvrzení. Pravidla repozitáře, bezpečnostní a příspěvkové zásady zůstávají platné. Retained evidence, generované reporty a testovací fixtures se kvůli označení nemění; jejich historický status určuje tento rozcestník a `AGENTS.md`.
 
 ## Začátek práce agenta
+
+Desktopovým produktem je celé stávající okno `AttackMap.NativeSpike/MainWindow`, nikoli projekty `WPxxxPreview`. Ty slouží pouze k izolovanému ověření komponent. Nové ovládací prvky se musí propojit s původní navigací, službami a identitou zobrazeného běhu. Rozhodnutí a porovnání sestavení jsou v [záznamu integrace](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). Původní `artifacts/native-spike` se při ověřování nepřepisuje.
 
 1. Přečíst `AGENTS.md`, novou roadmapu a kartu přiděleného WP úkolu.
 2. Ověřit závislosti, stav a vlastníka úkolu v TODO a JSON backlogu.

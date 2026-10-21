@@ -1,6 +1,9 @@
 # AttackMap Windows parity — podrobné TODO pro paralelní agenty
 
-**Baseline 20. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Běh obnoven z `a8c4786`: agenti pokračují na WP006/WP015/WP018. Stav při obnovení: 6 DONE, 5 MANUAL_PENDING, 4 IMPLEMENTED, 4 IN_PROGRESS, 20 OPEN a 2 DEFERRED; přidělení samo nemění acceptance. `WP021` je volitelné rozšíření po paritě.
+**Baseline 20. 10. 2026; integrační revize 21. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Aktuální stav: 6 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 13 IN_PROGRESS, 10 OPEN, 2 DEFERRED. Přidělení ani component testy neuzavírají integraci nebo acceptance. Produktem je původní celé MainWindow; viz [rozhodnutí](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). WP021 zůstává volitelné rozšíření.
+
+
+Přípravné implementační a integrační řezy mohou pracovat nad zkontrolovaným, hashově svázaným zdrojovým checkpointem závislosti. Otevřené ruční, živé a release brány závislostí stále blokují přijetí celého úkolu; rozpracování neznamená DONE. Přesný omezený rozsah je uveden v JSON `execution_scope`.
 
 ## Pravidla převzetí
 
@@ -260,7 +263,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP016 — AI artefakty a poctivý stav verifikace
 
-- Priorita: P1; lane: WINDOWS_AI; checkpoint: K3; stav: OPEN.
+- Priorita: P1; lane: WINDOWS_AI; checkpoint: K3; stav: IN_PROGRESS.
 - Závislosti: WP007, WP015.
 - Kritéria: C07, C14, C23; původní úkoly: AM016, AM030, AM033; funkce: F12, F13, F14.
 - Zápis: `MainWindow.AiReview.cs`, nové AI artifact projection/view a tests.
@@ -303,7 +306,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP019 — Native multi-repo picker a Fleet workspace
 
-- Priorita: P1; lane: WINDOWS_FLEET; checkpoint: K4; stav: OPEN.
+- Priorita: P1; lane: WINDOWS_FLEET; checkpoint: K4; stav: IN_PROGRESS.
 - Závislosti: WP005, WP007, WP018.
 - Kritéria: C21, C22, C23, C28; původní úkoly: AM028, AM030, AM040; funkce: F19.
 - Zápis: nové `FleetView.cs`, `FleetAdapter.cs`, `FleetWorkspace.cs`, focused tests.
@@ -316,7 +319,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP020 — Watch v nativním Windows
 
-- Priorita: P1; lane: WATCH; checkpoint: K4; stav: OPEN.
+- Priorita: P1; lane: WATCH; checkpoint: K4; stav: IN_PROGRESS.
 - Závislosti: WP006, WP013.
 - Kritéria: C04, C05, C09, C31; původní úkoly: AM004, AM005, AM044; funkce: F20.
 - Zápis: nový nativní watch coordinator nebo malý platform adapter se shared policy; focused tests.
@@ -329,7 +332,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP021 — Volitelné sledování všech repos ve fleet
 
-- Priorita: P2; lane: WATCH; checkpoint: K8; stav: OPEN.
+- Priorita: P2; lane: WATCH; checkpoint: K8; stav: IN_PROGRESS.
 - Závislosti: WP019, WP020.
 - Kritéria: C31; původní úkoly: AM044; funkce: F21.
 - Zápis: fleet watch coordinator + multi-root fixtures/tests.
@@ -359,7 +362,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP023 — Stabilní integrační checkpoint Windows
 
-- Priorita: P0; lane: INTEGRATION; checkpoint: K5; stav: OPEN.
+- Priorita: P0; lane: INTEGRATION; checkpoint: K5; stav: IN_PROGRESS.
 - Závislosti: WP006, WP008, WP009, WP010, WP011, WP012, WP013, WP017, WP019, WP020, WP022.
 - Kritéria: C01, C04–C15, C21–C23; původní úkoly: AM001, AM028, AM030, AM046; funkce: F01–F24.
 - Zápis: shared shell composition, integration fixtures a `docs/verification/windows-parity/WP023/`.
@@ -454,7 +457,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP029 — Skutečná cross-client contract CI
 
-- Priorita: P1; lane: CI; checkpoint: K7; stav: OPEN.
+- Priorita: P1; lane: CI; checkpoint: K7; stav: IN_PROGRESS.
 - Závislosti: WP005, WP007, WP028.
 - Kritéria: C01, C08, C37; původní úkoly: AM025, AM051; funkce: F23, F24.
 - Zápis: `.github/workflows/client-contract-fixtures.yml`, CI wiring v mac repo, contract evidence.
@@ -510,7 +513,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP032 — Dokončit service identity a evidence links
 
-- Priorita: P1; lane: CORE_GRAPH; checkpoint: K8; stav: OPEN.
+- Priorita: P1; lane: CORE_GRAPH; checkpoint: K8; stav: IN_PROGRESS.
 - Závislosti: WP002.
 - Kritéria: C11, C12, C28; původní úkoly: AM012, AM013, AM039, AM040; funkce: F07, F19.
 - Zápis: `contracts.py`, `crossrepo.py`, focused deployment/ownership fixtures a docs.
@@ -523,7 +526,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP033 — Snapshot enumerace a úplná invalidace cache
 
-- Priorita: P1; lane: CORE_INDEX; checkpoint: K8; stav: OPEN.
+- Priorita: P1; lane: CORE_INDEX; checkpoint: K8; stav: IN_PROGRESS.
 - Závislosti: WP002.
 - Kritéria: C33, C34; původní úkoly: AM047, AM048; funkce: F01, F24.
 - Zápis: `index.py`, `incremental.py`, snapshot/cache tests a docs.
@@ -536,7 +539,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP034 — Paměťový spike a fleet resource admission
 
-- Priorita: P1; lane: CORE_INDEX; checkpoint: K8; stav: OPEN.
+- Priorita: P1; lane: CORE_INDEX; checkpoint: K8; stav: IN_PROGRESS.
 - Závislosti: WP033.
 - Kritéria: C09, C35; původní úkoly: AM049; funkce: F01, F19.
 - Zápis: resource budget policy, stress harness/evidence a `docs/resource-limits.md`.
@@ -549,7 +552,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP035 — Isolated analyzer host a přesné SDK hranice
 
-- Priorita: P2; lane: SDK; checkpoint: K8; stav: OPEN.
+- Priorita: P2; lane: SDK; checkpoint: K8; stav: IN_PROGRESS.
 - Závislosti: WP034.
 - Kritéria: C11, C36; původní úkoly: AM050; funkce: F03, F10.
 - Zápis: `analyzer_host.py`, `analyzer_contracts.py`, `sdk/`, malicious-behavior fixtures a docs.

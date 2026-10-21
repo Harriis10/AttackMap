@@ -1,0 +1,53 @@
+         4978918 function calls (4978882 primitive calls) in 300.824 seconds
+
+   Ordered by: cumulative time
+   List reduced from 354 to 45 due to restriction <45>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000  300.824  300.824 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:725(scan_repo)
+        1    0.003    0.003  235.758  235.758 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:956(run_repo_passes)
+        1    3.091    3.091  197.755  197.755 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint.py:303(analyze_taint)
+        1   22.171   22.171  181.730  181.730 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint.py:960(_find_sinks)
+     6000    0.207    0.000  156.600    0.026 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:1550(sink_flow)
+     6000    1.011    0.000  130.697    0.022 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:604(sink_flow)
+     6000   98.534    0.016   98.534    0.016 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:279(_enclosing)
+        1    0.000    0.000   65.065   65.065 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:741(scan_files)
+        1    0.000    0.000   64.139   64.139 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:844(_cached_file_signals)
+        1    0.729    0.729   64.139   64.139 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:872(_analyze_indexed_file)
+    30078   43.698    0.001   43.698    0.001 {method 'search' of 're.Pattern' objects}
+   210014    7.494    0.000   37.364    0.000 C:\Program Files\Python313\Lib\ast.py:384(walk)
+        1    0.431    0.431   36.124   36.124 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\authz.py:141(analyze_authz)
+        1    0.000    0.000   29.257   29.257 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\authz.py:416(_graphql_bola_candidates)
+        1    0.000    0.000   29.257   29.257 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\authz.py:510(_iter_graphql_files)
+        1    0.000    0.000   29.257   29.257 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\authz.py:519(walk)
+   204013    5.094    0.000   28.539    0.000 {method 'extend' of 'collections.deque' objects}
+     6000    0.019    0.000   25.671    0.004 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:1539(_get)
+        1    1.793    1.793   25.652   25.652 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:247(__init__)
+   402025   11.484    0.000   23.445    0.000 C:\Program Files\Python313\Lib\ast.py:284(iter_child_nodes)
+     6000    2.205    0.000   22.598    0.004 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:486(_find_call)
+    12003    0.107    0.000   11.389    0.001 C:\Projects\INPROGRESS\AttackMap\.venv\Lib\site-packages\pydantic\main.py:270(__init__)
+    12003    0.746    0.000   11.282    0.001 {method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects}
+     6000    0.426    0.000   10.520    0.002 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\models.py:76(_redact_evidence)
+        1   10.057   10.057   10.057   10.057 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\crypto.py:203(find_crypto_weaknesses)
+    12000    2.128    0.000    9.836    0.001 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\redact.py:167(redact_text)
+        1    4.020    4.020    9.817    9.817 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\webhardening.py:167(find_web_hardening_issues)
+   660035    5.860    0.000    8.274    0.000 C:\Program Files\Python313\Lib\ast.py:272(iter_fields)
+     6000    0.707    0.000    8.064    0.001 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:727(_finish)
+        1    0.000    0.000    8.031    8.031 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:1198(_append_hardcoded_secret_hints)
+        1    8.028    8.028    8.031    8.031 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:1127(iter_secret_matches)
+   444001    7.737    0.000    7.737    0.000 {method 'sub' of 're.Pattern' objects}
+  1188449    7.107    0.000    7.107    0.000 {built-in method builtins.isinstance}
+        1    3.698    3.698    5.989    5.989 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\weaknesses.py:269(find_code_weaknesses)
+        1    0.000    0.000    5.908    5.908 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:693(_append_unique_auth_hints)
+     6000    0.666    0.000    5.619    0.001 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:477(_env_at)
+     6000    1.362    0.000    4.908    0.001 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\taint_flow.py:416(_function_state)
+     6105    0.202    0.000    4.698    0.001 C:\Program Files\Python313\Lib\pathlib\_local.py:498(__init__)
+     6106    1.874    0.000    4.496    0.001 C:\Program Files\Python313\Lib\pathlib\_local.py:117(__init__)
+        1    0.000    0.000    3.995    3.995 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:663(_append_unique_database_hints)
+        1    0.000    0.000    3.885    3.885 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:651(extract_routes)
+        1    0.503    0.503    3.885    3.885 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\scanner.py:503(_extract_python_routes)
+        1    3.840    3.840    3.840    3.840 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\webhardening.py:102(has_csrf_protection)
+     6000    0.294    0.000    3.513    0.001 C:\Projects\INPROGRESS\AttackMap\.tmp\wp023-perf-profile-20261021-01\source\attackmap\authz.py:275(_path_based_surface)
+        1    0.211    0.211    3.490    3.490 C:\Program Files\Python313\Lib\ast.py:30(parse)
+
+

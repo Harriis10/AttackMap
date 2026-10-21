@@ -1,0 +1,226 @@
+{
+  "status": "BYTE_AND_FAILURE_CHECKS_PASS_MEMORY_CPU_TRADEOFF_NOT_PRODUCTION_OR_C35_ACCEPTANCE",
+  "session": 41096,
+  "command": "$env:PYTHONPATH='C:/tmp/attackmap-wp034/10k-20261021-02/source/src'; $env:PYTHONDONTWRITEBYTECODE='1'; & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-publication-prototype.py",
+  "baseline_source": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+  "owned_candidate_source": "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\source",
+  "source_file_count": 138,
+  "changed_files": [
+    "src/attackmap/report.py",
+    "src/attackmap/safe_fs.py"
+  ],
+  "source_delta": [
+    {
+      "path": "src/attackmap/safe_fs.py",
+      "baseline_sha256": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+      "candidate_sha256": "7863437d7ad94e953d8b3eaf1729c56fe1ff0c05da2e10f50e610fc08c596b0a"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "baseline_sha256": "20bd67d3390bfaa7e44bd98024a9f1689d9b2f731766865ec62616801cf4b796",
+      "candidate_sha256": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27"
+    }
+  ],
+  "checks": {
+    "byte_golden_cases": 8,
+    "failures_preserve_report_and_valid_current_generation": [
+      "encoder",
+      "write",
+      "close",
+      "replace"
+    ],
+    "outside_path_rejected": true,
+    "symlink_results": {
+      "target": "rejected",
+      "directory": "rejected"
+    },
+    "ordinary_writer_bytes": true
+  },
+  "runs": [
+    {
+      "label": "checks",
+      "number": 0,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 20922368,
+      "whole_child_wall_seconds": 5.795208900002763
+    },
+    {
+      "label": "baseline",
+      "number": 1,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 160403456,
+      "whole_child_wall_seconds": 11.957576999993762
+    },
+    {
+      "label": "candidate",
+      "number": 2,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 124035072,
+      "whole_child_wall_seconds": 39.96875450000516
+    },
+    {
+      "label": "candidate",
+      "number": 3,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 123551744,
+      "whole_child_wall_seconds": 39.9273944000015
+    },
+    {
+      "label": "baseline",
+      "number": 4,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 161513472,
+      "whole_child_wall_seconds": 15.247585300006904
+    }
+  ],
+  "serialization_only_results": [
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126099456,
+        "working_set_bytes": 91447296,
+        "peak_commit_bytes": 119427072,
+        "private_bytes": 84955136
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 165195776,
+        "working_set_bytes": 92626944,
+        "peak_commit_bytes": 159506432,
+        "private_bytes": 85209088
+      },
+      "wall_seconds": 2.7629882999899564,
+      "cpu_seconds": 2.171875,
+      "owned_job_lifetime_peak_commit_bytes": 160403456
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126881792,
+        "working_set_bytes": 91959296,
+        "peak_commit_bytes": 120295424,
+        "private_bytes": 85008384
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 130367488,
+        "working_set_bytes": 93757440,
+        "peak_commit_bytes": 123154432,
+        "private_bytes": 86261760
+      },
+      "wall_seconds": 28.12665890000062,
+      "cpu_seconds": 18.140625,
+      "owned_job_lifetime_peak_commit_bytes": 124035072
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126849024,
+        "working_set_bytes": 91983872,
+        "peak_commit_bytes": 120295424,
+        "private_bytes": 84967424
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 130359296,
+        "working_set_bytes": 93880320,
+        "peak_commit_bytes": 122703872,
+        "private_bytes": 86421504
+      },
+      "wall_seconds": 30.13713540000026,
+      "cpu_seconds": 17.78125,
+      "owned_job_lifetime_peak_commit_bytes": 123551744
+    },
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126767104,
+        "working_set_bytes": 91947008,
+        "peak_commit_bytes": 120143872,
+        "private_bytes": 84856832
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 166072320,
+        "working_set_bytes": 93089792,
+        "peak_commit_bytes": 160612352,
+        "private_bytes": 85516288
+      },
+      "wall_seconds": 3.8711719999992056,
+      "cpu_seconds": 2.25,
+      "owned_job_lifetime_peak_commit_bytes": 161513472
+    }
+  ],
+  "medians_separate_wall_cpu_and_job_peak": {
+    "baseline": {
+      "cpu_seconds": 2.2109375,
+      "wall_seconds": 3.317080149994581,
+      "owned_job_lifetime_peak_commit_bytes": 160958464.0
+    },
+    "candidate": {
+      "cpu_seconds": 17.9609375,
+      "wall_seconds": 29.13189715000044,
+      "owned_job_lifetime_peak_commit_bytes": 123793408.0
+    }
+  },
+  "input": {
+    "path": "C:/tmp/attackmap-wp034/1000-profile-20261021-01/reports/attackmap-report.json",
+    "bytes": 36895649,
+    "sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349"
+  },
+  "artifacts": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-prototype.py": "9153c334a1a6623d5c5115e61172318a560b10eb595f5ff0e84d5a78c143f4d5",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-candidate.diff": "410c52e852425e685099d2d5558a760b12a2251a885646c2d37b63e2de958b0b",
+    "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\source-delta.json": "e94ddbf0b9351e2559aefe8cc4cfb685c56e039c961f66d80477016fb6ec7bd8",
+    "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\campaign-runs.json": "7bac4e6bcca6d4494caa9df7490de4e8df4b656bb9b04d089dba447760f2eba6",
+    "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\checks-result.json": "e91ce1c308d4879260e0d5257fd4f097cf77ffd3140264591d670ad02d01bfb0",
+    "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\1-baseline-result.json": "b06019e39880673d59e56fd154371f9429469d0c2bcd1f4730f095a67397e064",
+    "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\2-candidate-result.json": "b2ee514f2c7b01ebf6000051d8c7969ba36c405f6e047b5923300870fd6b64ab",
+    "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\3-candidate-result.json": "7d27cae6945ae034f3c5db43119a2d67b9b21d8c7c42bbc278f2f5ef336f3936",
+    "C:\\tmp\\attackmap-wp034\\publication-candidate-20261021-01\\4-baseline-result.json": "dc7dd3c58ca6233f161330dce169ae88c15d129a67e78a8036c78159e709c888"
+  },
+  "runtime_json_encoder": {
+    "path": "C:/Program Files/Python313/Lib/json/encoder.py",
+    "sha256": "ee564d68abfc001a21312ddff65658513a56ee4d2038c0230f526c5bf08158e2",
+    "verified_behavior": "JSONEncoder.encode calls iterencode(o,_one_shot=True); this runtime selects c_make_encoder whenever _one_shot and accelerator exists, including indent=2. Candidate public iterencode defaults _one_shot=False and selects Python _make_iterencode. This code-path difference is verified; precise cost attribution was not profiled in this comparison."
+  },
+  "interpretation": [
+    "Exact bytes matched all actual outputs and eight fixture goldens; ordinary writer flags/API unchanged, only shared internal target/open validation factored.",
+    "Actual target symlink and directory escape symlink rejected on Windows; no skipped symlink fixture. Encoder/write/close/replace failures kept previous report bytes and a real published, checksum-valid prior generation pointer.",
+    "Same-directory exclusive staging narrows per-report commit: replacement happens after encode and close. No fsync/durability guarantee, generation-pointer changes or blanket cleanup.",
+    "Peak job values include startup and decoding retained input before timed serialization; no resettable OS stage high-water counter was available. before/after and lifetime counters are separately retained. This is not full pipeline peak.",
+    "Candidate CPU regression is material (~18s vs2.2s here); do not integrate as a performance improvement or assume it resolves default600s exhaustion. Memory tradeoff needs review. No50k/100k inference."
+  ],
+  "review_boundaries": [
+    "A stricter follow-up should close the raw descriptor if os.fdopen itself raises before context ownership. Inject that failure before production; current injected write/close errors occur after wrapping.",
+    "Replacing an existing report can change inode/file identity, links and destination-specific permissions/ACL relative to old truncate-in-place behavior. Generated staged reports normally start absent, but custom existing metadata equivalence is unproven and must be reviewed.",
+    "write_reports dictionary construction/return expression is unchanged by the two-line call/import delta; this adapter tests serialization bytes and failure publication isolation, not a full write_reports/pipeline invocation.",
+    "No canonical edits. Root reviews precise delta and tradeoff before any further owned prototype or persistent production integration."
+  ]
+}

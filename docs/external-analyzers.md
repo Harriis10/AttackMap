@@ -336,20 +336,27 @@ separation alone must not be marketed as a sandbox. Specifically:
 | Process-tree escape | Job Object `KILL_ON_JOB_CLOSE` + suspended-start containment | Windows; POSIX uses session/process groups |
 | stdout/stderr size | Worker interposes on file descriptors 1/2 and counts every byte (including raw `os.write` and inherited child processes); over the cap the worker exits immediately. The parent additionally retains only a bounded 50-line tail, so core memory is safe even if the counter is bypassed. | All (in-worker interposition) |
 | Result payload size | Worker refuses to write past the cap; parent re-checks the file size before parsing | All |
-| Memory | Job-wide commit limit (`JOB_OBJECT_LIMIT_JOB_MEMORY`) applied to the supervisor's job object; failure surfaces as `MemoryError` or a native allocation failure, classified from the job's observed peak commit | **Windows only** |
+| Memory | Job-wide commit policy (`JOB_OBJECT_LIMIT_JOB_MEMORY`) configured before creating/assigning/resuming the child; setup failure prevents launch. A reported `MemoryError` is named explicitly, without claiming the cap caused it. Native crashes without that report stay crashes; a near-cap peak alone is not a breach. | **Windows only** |
 
 **Not restricted:** network access (a worker can open sockets exactly like
 core), filesystem access (a worker can read and write anything the invoking
 user can — the test fixture `evil_escape.py` proves a write outside the
 working directory succeeds and documents it), and any other OS capability.
-The memory cap is applied immediately after the worker resumes, so a small
-race window exists while the interpreter boots. A deliberately evasive
+The memory policy is now installed before the suspended child is created;
+the earlier post-resume race and swallowed setup failure are removed. On other
+platforms an explicit memory request remains functional but is recorded as
+unenforced (`IsolatedOutcome.resource_policy`, with a result limitation); no
+non-Windows memory enforcement is claimed. A deliberately evasive
 analyzer can also re-dup its own descriptors to bypass the stream counter
 (core stays memory-safe via bounded retention, but the stream cap itself is
-cooperative interposition, not kernel enforcement). Attributed provenance is
-not authenticated either: an analyzer can pre-stamp another analyzer's name
-into `source_analyzer`; core's merge keeps results per-analyzer and dedups
-first-seen-wins, but it does not — and cannot — verify authorship.
+cooperative interposition, not kernel enforcement). For isolated output the
+parent binds typed and normalized producer fields to the selected analyzer and
+its explicitly declared version. Legacy aliases and conflicting producer,
+version or classification claims remain bounded, redacted `untrusted_claimed_*`
+metadata. Static path classification and observation identities are recomputed.
+This attributes the returned statement; it does not authenticate source claims,
+prove SDK use, restrict direct filesystem/network access, or establish runtime
+verification. In-process legacy producer stamping retains its existing policy.
 
 ## Trusted-analyzer policy (explicit)
 

@@ -1,0 +1,207 @@
+--- a/src/attackmap/topology.py
++++ b/src/attackmap/topology.py
+@@ -139,6 +139,8 @@
+     # 3) Fallback nodes from repo layout: each unique file in services/*,
+     # packages/*, apps/* implies a node named after the directory.
+     for path in _files_in_scan(scan):
++        if path in file_to_service:
++            continue
+         inferred = _infer_from_layout(path)
+         if inferred:
+             _record_node(inferred, file=path)
+@@ -249,34 +251,44 @@
+     return None
+ 
+ 
+-def _file_service_map(scan: ScanResult) -> dict[str, str]:
+-    """Best-guess service name per file, resolved by explicit
+-    ``service_name:<slug>`` hints first, then repo-layout fallback."""
+-    mapping: dict[str, str] = {}
+-    for hint_value, hint_file in _iter_hints(scan):
+-        if hint_value.startswith("service_name:"):
+-            name = hint_value.removeprefix("service_name:").lower()
+-            if name and hint_file not in mapping:
+-                mapping[hint_file] = name
+-    return mapping
++@dataclass(frozen=True)
++class FileServiceOwner:
++    state: Literal["unique", "ambiguous", "absent"]
++    names: tuple[str, ...] = ()
++
++    @property
++    def name(self) -> str | None:
++        return self.names[0] if self.state == "unique" else None
++
++
++def explicit_file_service_owners(hints) -> dict[str, FileServiceOwner]:
++    """Preserve exact file keys and existing lower-only name normalization."""
++    names_by_file: dict[str, set[str]] = {}
++    for name, file in hints:
++        if name:
++            names_by_file.setdefault(file, set()).add(name.lower())
++    return {file: FileServiceOwner("unique" if len(names) == 1 else "ambiguous", tuple(sorted(names)))
++            for file, names in names_by_file.items()}
++
++
++def file_service_owner(file: str, owners: dict[str, FileServiceOwner]) -> FileServiceOwner:
++    return owners.get(file, FileServiceOwner("absent"))
++
++
++def _file_service_map(scan: ScanResult) -> dict[str, str | None]:
++    owners = explicit_file_service_owners(
++        (value.removeprefix("service_name:"), file)
++        for value, file in _iter_hints(scan) if value.startswith("service_name:"))
++    # An explicit None is ambiguity, not an invitation to use layout fallback.
++    return {file: owner.name for file, owner in owners.items()}
+ 
+ 
+ def _services_in_file(file: str, scan: ScanResult) -> list[str]:
+-    names: list[str] = []
+-    seen: set[str] = set()
+-    for hint_value, hint_file in _iter_hints(scan):
+-        if hint_file != file:
+-            continue
+-        if not hint_value.startswith("service_name:"):
+-            continue
+-        name = hint_value.removeprefix("service_name:").lower()
+-        if name and name not in seen:
+-            seen.add(name)
+-            names.append(name)
+-    return names
+-
+-
+-def _service_owning_file(file: str, file_to_service: dict[str, str]) -> str | None:
++    name = _file_service_map(scan).get(file)
++    return [name] if name else []
++
++
++def _service_owning_file(file: str, file_to_service: dict[str, str | None]) -> str | None:
+     if file in file_to_service:
+         return file_to_service[file]
+     return _infer_from_layout(file)
+--- a/src/attackmap/threat_model.py
++++ b/src/attackmap/threat_model.py
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ 
+ from .finding_identity import dependency_entity_id
++from .topology import explicit_file_service_owners
+ 
+ from dataclasses import dataclass
+ 
+@@ -328,10 +329,9 @@
+     return None
+ 
+ 
+-def _file_service_map(scan: ScanResult) -> dict[str, str]:
+-    mapping: dict[str, str] = {}
+-    for service_name, service_file in _extract_prefixed_hints(scan, "service_name:"):
+-        mapping[service_file] = service_name.lower()
++def _file_service_map(scan: ScanResult) -> dict[str, str | None]:
++    owners = explicit_file_service_owners(_extract_prefixed_hints(scan, "service_name:"))
++    mapping = {file: owner.name for file, owner in owners.items()}
+     for path in [*mapping.keys(), *(route.file for route in scan.routes), *(db.file for db in scan.databases), *(call.file for call in scan.external_calls)]:
+         if path in mapping:
+             continue
+@@ -376,6 +376,8 @@
+ 
+     chains: list[ServiceChain] = []
+     for route in _runtime_routes(scan):
++        if route.file in file_service and file_service[route.file] is None:
++            continue
+         evidence = [f"route {route.method} {route.path} in {route.file}"]
+         confidence = 0.35
+         entry_service = file_service.get(route.file) or _infer_service_name_from_file(route.file) or "entry-service"
+@@ -493,6 +495,8 @@
+ 
+     chains: list[AtprotoChain] = []
+     for route in _runtime_routes(scan):
++        if route.file in file_service and file_service[route.file] is None:
++            continue
+         namespace = _extract_xrpc_namespace(route.path)
+         if namespace is None:
+             continue
+--- /dev/null
++++ b/tests/test_wp032_service_owner.py
+@@ -0,0 +1,81 @@
++import itertools
++
++import pytest
++
++from attackmap.models import AuthHint, DatabaseHint, ExternalCall, ProtocolHint, Route, ScanResult, ServiceHint
++from attackmap.topology import build_service_graph, explicit_file_service_owners, file_service_owner, _file_service_map, _service_owning_file
++from attackmap.threat_model import _build_service_chains, _build_atproto_chains, _file_service_map as threat_map
++
++FILE = 'services/layout/app.py'
++
++
++def scan(names, target='https://peer.internal/users'):
++    return ScanResult(root='.',
++        service_hints=[ServiceHint(hint='service_name:'+name, file=FILE) for name in names],
++        auth_hints=[AuthHint(hint='service_role:privileged', file=FILE)],
++        routes=[Route(method='POST', path='/xrpc/com.atproto.repo.createRecord', file=FILE)],
++        databases=[DatabaseHint(kind='postgresql', file=FILE)],
++        external_calls=[ExternalCall(target=target, file=FILE)],
++        protocol_hints=[ProtocolHint(hint='atproto_namespace:com.atproto', file=FILE)])
++
++
++@pytest.mark.parametrize('names', list(itertools.permutations(['alpha', 'beta', 'alpha'])))
++@pytest.mark.parametrize('target', ['https://peer.internal/users', 'env://PEER_URL', 'queue://kafka/events'])
++def test_conflicting_explicit_names_block_derived_edges_roles_layout_and_chains(names, target):
++    value=scan(names,target)
++    owners=explicit_file_service_owners((name,FILE) for name in names)
++    assert file_service_owner(FILE,owners).state == 'ambiguous'
++    assert file_service_owner(FILE,owners).names == ('alpha','beta')
++    assert _service_owning_file(FILE,_file_service_map(value)) is None
++    assert threat_map(value)[FILE] is None
++    graph=build_service_graph(value)
++    assert graph.edges == []
++    assert graph.node_names() == {'alpha','beta'}
++    assert all(node.role == 'service' for node in graph.nodes)
++    assert _build_service_chains(value) == []
++    assert _build_atproto_chains(value) == []
++
++
++@pytest.mark.parametrize('names', [('alpha',), ('alpha','alpha'), ('Auth','auth')])
++def test_unique_explicit_owner_overrides_layout_and_same_name_duplicates(names):
++    value=scan(names)
++    expected=names[0].lower()
++    graph=build_service_graph(value)
++    assert {(edge.source,edge.target) for edge in graph.edges} == {(expected,'peer')}
++    assert 'layout' not in graph.node_names()
++    assert next(node for node in graph.nodes if node.name==expected).role=='privileged'
++    assert threat_map(value)[FILE]==expected
++    assert _build_service_chains(value)[0].entry_service==expected
++    assert _build_atproto_chains(value)[0].entry_service==expected
++
++
++def test_only_absent_explicit_owner_uses_existing_layout():
++    value=scan([])
++    owners=explicit_file_service_owners([])
++    assert file_service_owner(FILE,owners).state=='absent'
++    assert _service_owning_file(FILE,_file_service_map(value))=='layout'
++    assert threat_map(value)[FILE]=='layout'
++
++
++def test_atproto_note_cannot_revive_explicit_ambiguity():
++    value=scan(['alpha','beta'])
++    value.protocol_hints.append(ProtocolHint(hint='atproto_service_note:revived',file=FILE))
++    value.auth_hints.append(AuthHint(hint='atproto_service_note:revived',file=FILE))
++    assert _build_atproto_chains(value)==[]
++
++
++def test_ambiguous_sink_is_not_assigned_to_unique_route_owner():
++    value=scan(['alpha','beta'])
++    route_file='services/entry/route.py'
++    value.routes[0].file=route_file
++    value.service_hints.append(ServiceHint(hint='service_name:entry',file=route_file))
++    chains=_build_service_chains(value)
++    assert len(chains)==1
++    assert not any('database sink in service' in item for item in chains[0].evidence)
++    assert any('elsewhere in repo' in item for item in chains[0].evidence)
++
++
++def test_owner_collector_does_not_strip_names_or_normalize_paths():
++    owners=explicit_file_service_owners([('Auth', 'x\\app.py'), ('auth ', 'x\\app.py')])
++    assert file_service_owner('x\\app.py',owners).names==('auth','auth ')
++    assert file_service_owner('x/app.py',owners).state=='absent'
