@@ -44,13 +44,15 @@ public sealed partial class MainWindow
             int requestedModeIndex = Array.IndexOf(arguments, "--ai-mode");
             string? requestedMode = requestedModeIndex < 0 ? null : arguments[requestedModeIndex + 1];
             bool requestedScan = arguments.Contains("--native-scan");
-            if ((requestedScan && engineIndex < 0) || (requestedMode != null && !requestedScan)) throw new ArgumentException("A live mode requires an explicit native scan and selected engine.");
+            bool requestedFleetWatch = arguments.Contains("--fleet-watch");
+            if (((requestedScan || requestedFleetWatch) && engineIndex < 0) || (requestedMode != null && !requestedScan)) throw new ArgumentException("A live journey requires an explicit selected engine; AI also requires a native scan.");
             bool capabilitiesChecked = false, scanCompleted = false, modelCompleted = false;
-            object? aiDisplay = null;
+            object? aiDisplay = null, fleetWatchResult = null;
             if (engineIndex >= 0)
             {
                 PythonPath.Text = Path.GetFullPath(arguments[engineIndex + 1]);
                 await DiscoverEngineCapabilities(); capabilitiesChecked = capabilityCache.Current?.Compatible == true;
+                if (arguments.Contains("--fleet-watch")) fleetWatchResult = await RunFleetWatchSmoke(directory);
                 ApplyScanOptions(new NativeScanOptions(TimeoutSeconds: 1200), "");
                 if (arguments.Contains("--native-scan"))
                 {
@@ -86,9 +88,9 @@ public sealed partial class MainWindow
                     }
                 }
             }
-            result = new { passed = (!requestedScan || (capabilitiesChecked && scanCompleted)) && (requestedMode == null || modelCompleted) && loaded && roundTrip && aiOffPreferencesRetained && destinations.Contains("Risk and paths") && destinations.Contains("Reports"),
+            result = new { passed = (!requestedFleetWatch || capabilitiesChecked) && (!requestedScan || (capabilitiesChecked && scanCompleted)) && (requestedMode == null || modelCompleted) && loaded && roundTrip && aiOffPreferencesRetained && destinations.Contains("Risk and paths") && destinations.Contains("Reports"),
                 loaded, roundTrip, aiOffPreferencesRetained, destinations, capabilitiesChecked, scanCompleted,
-                outputRoot = Path.Combine(directory, "reports"), isolatedOutput = true, aiDisplay,
+                outputRoot = Path.Combine(directory, "reports"), isolatedOutput = true, aiDisplay, fleetWatchResult,
                 report = displayedReportPath, reportHash = displayedReadHash, run = displayedRun,
                 progressState = scanProgress.State, progressTerminal = scanProgress.Terminal, status = Status.Text,
                 acceptedManualUi = false, acceptedAccessibility = false, personalSettingsRead = false };
@@ -98,6 +100,99 @@ public sealed partial class MainWindow
         {
             try { File.WriteAllText(Path.Combine(directory, "parity-smoke.json"), JsonSerializer.Serialize(new { result, failure }, new JsonSerializerOptions { WriteIndented = true })); }
             finally { Close(); }
+        }
+    }
+
+    private async Task<object> RunFleetWatchSmoke(string directory)
+    {
+        string fixture = Path.Combine(directory, "fleet-fixtures");
+        if (Directory.Exists(fixture)) throw new IOException("Fleet verification fixture must be new.");
+        string[] roots = Enumerable.Range(1, 4).Select(number => Path.Combine(fixture, "repository-" + number)).ToArray();
+        foreach (string root in roots)
+        {
+            Directory.CreateDirectory(root);
+            File.WriteAllText(Path.Combine(root, "app.py"), "from flask import Flask, request\napp = Flask(__name__)\n@app.route('/status')\ndef status():\n    return {'status': 'ok'}\n");
+        }
+        var observed = new System.Collections.Concurrent.ConcurrentQueue<FleetRepositoryWatchRequest>();
+        void Observed(FleetRepositoryWatchRequest request) => observed.Enqueue(request);
+        fleetWatch.ScanRequested += Observed;
+        fleetWatchVerificationOutput = Path.Combine(directory, "fleet-reports");
+        string ignoredOutput = Path.Combine(roots[1], ".owned-fleet-output-canary");
+        bool defaultOff = !Fleet.WatchRequested && !fleetWatch.Enabled;
+        string? retainedRun = displayedRun, retainedHash = displayedReadHash;
+        try
+        {
+            for (int n = 0; n < 3; n++) Fleet.AddRepository("qa-" + n, roots[n]);
+            Fleet.WatchRequested = true;
+            RestartFleetWatch(new[] { ignoredOutput });
+            if (!fleetWatch.Enabled || fleetWatch.WatchedRoots.Count != 3) throw new InvalidDataException("Full native fleet did not install three watchers.");
+            await Task.Delay(1400);
+            bool explicitOptInIdle = !fleetRunning && Fleet.Workspace.Active == null && observed.IsEmpty;
+            File.AppendAllText(Path.Combine(roots[1], "app.py"), "\n# second repository changed\n");
+            await WaitForFleetSmoke(() => Fleet.Workspace.Active != null && !fleetRunning, TimeSpan.FromMinutes(8));
+            var first = Fleet.Workspace.Active!;
+            bool secondRootFullRescan = Fleet.Workspace.IsCurrent && Fleet.Workspace.Children.Count == 3 && Fleet.Workspace.Children.All(child => child.State == "completed")
+                && observed.Any(request => request.RepositoryRoots.Count == 3 && request.ChangedRepositoryRoots.Contains(roots[1], StringComparer.OrdinalIgnoreCase));
+            if (!secondRootFullRescan) throw new InvalidDataException("Second-root edit did not complete a full native fleet: " + Status.Text);
+            Directory.CreateDirectory(ignoredOutput);
+            File.WriteAllText(Path.Combine(ignoredOutput, "ignored-output.txt"), "QA canary: this write must not request another scan; actual reports are outside all fixture roots.");
+            await Task.Delay(1800);
+            bool ownedOutputIgnored = !fleetRunning && Fleet.Workspace.Active == first && observed.Count == 1 && !fleetWatch.Pending;
+            File.AppendAllText(Path.Combine(roots[2], "app.py"), "\n# third repository changed\n");
+            await WaitForFleetSmoke(() => Fleet.Workspace.Active != first && !fleetRunning, TimeSpan.FromMinutes(8));
+            var second = Fleet.Workspace.Active!;
+            bool thirdRootFullRescan = Fleet.Workspace.IsCurrent && Fleet.Workspace.Children.Count == 3 && observed.Count == 2
+                && observed.Last().ChangedRepositoryRoots.Contains(roots[2], StringComparer.OrdinalIgnoreCase);
+            Navigation.SelectedItem = Navigation.MenuItems[10];
+            Activate();
+            await Task.Delay(650);
+            await ReadinessRenderBarrier();
+            var renderedPaths = Descendants(Fleet).OfType<Microsoft.UI.Xaml.Controls.TextBlock>()
+                .Where(block => block.Name == "FleetRepositoryPath").Select(block => block.Text).ToArray();
+            bool repositoryRowsReadable = roots.Take(3).SequenceEqual(renderedPaths);
+            if (!repositoryRowsReadable) throw new InvalidDataException("Rendered fleet repository rows do not match the selected paths.");
+            var capture = await NativeCaptureProbe.Capture((FrameworkElement)Content, Path.Combine(directory, "Fleet-watch.png"));
+            Fleet.RemoveRepository("qa-0"); Fleet.AddRepository("qa-3", roots[3]);
+            long switchedEpoch = fleetWatch.Epoch;
+            File.AppendAllText(Path.Combine(roots[0], "app.py"), "\n# removed root must remain silent\n");
+            await Task.Delay(1600);
+            bool oldRootIgnored = !fleetRunning && observed.Count == 2 && !fleetWatch.Pending && fleetWatch.Epoch == switchedEpoch;
+            Fleet.WatchRequested = false;
+            File.AppendAllText(Path.Combine(roots[2], "app.py"), "\n# stopped watch must remain silent\n");
+            await Task.Delay(1600);
+            bool stopped = !fleetWatch.Enabled && !fleetRunning && observed.Count == 2;
+            Task cancelRun = RunFleet(Fleet.SelectedRoots);
+            await WaitForFleetSmoke(() => Fleet.Workspace.IsRunning || cancelRun.IsCompleted, TimeSpan.FromMinutes(2));
+            if (!Fleet.Workspace.IsRunning) throw new InvalidDataException("Fleet cancel test did not reach an admitted worker: " + Status.Text);
+            CancelScan(this, new RoutedEventArgs());
+            await cancelRun.WaitAsync(TimeSpan.FromMinutes(2));
+            bool cancelledSettled = !Fleet.Workspace.IsRunning && !fleetRunning && !scanning && Fleet.Workspace.Outcome == "cancelled"
+                && !fleetSession.CleanupBlocked && !engine.CleanupBlocked && !DesktopActionRunner.CleanupBlocked;
+            bool singleReportPreserved = displayedRun == retainedRun && displayedReadHash == retainedHash;
+            if (!(defaultOff && explicitOptInIdle && ownedOutputIgnored && thirdRootFullRescan && oldRootIgnored && stopped && cancelledSettled && singleReportPreserved)) throw new InvalidDataException("Native fleet-watch/cancel isolation assertion failed: " + Status.Text);
+            return new { passed = true, defaultOff, explicitOptInIdle, secondRootFullRescan, thirdRootFullRescan, ownedOutputIgnored, oldRootIgnored, stopped,
+                cancelledSettled, cancelOutcome = Fleet.Workspace.Outcome, singleReportPreserved, repositoryRowsReadable, renderedPaths,
+                first, second, observed = observed.ToArray(), outputRoot = fleetWatchVerificationOutput, capture, actualEngine = true, providerCallsRequested = false, acceptedManualUi = false };
+        }
+        finally { StopFleetWatch(); fleetWatch.ScanRequested -= Observed; fleetWatchVerificationOutput = null; }
+
+        static IEnumerable<DependencyObject> Descendants(DependencyObject parent)
+        {
+            for (int n = 0; n < Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent); n++)
+            {
+                var child = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, n);
+                yield return child;
+                foreach (var descendant in Descendants(child)) yield return descendant;
+            }
+        }
+    }
+    private async Task WaitForFleetSmoke(Func<bool> completed, TimeSpan timeout)
+    {
+        var elapsed = System.Diagnostics.Stopwatch.StartNew();
+        while (!completed())
+        {
+            if (elapsed.Elapsed > timeout || actionLifetime.IsCancellationRequested) throw new TimeoutException("Native fleet-watch journey did not settle: " + Status.Text);
+            await Task.Delay(100);
         }
     }
 }

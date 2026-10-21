@@ -13,10 +13,23 @@ foreach (string mode in AiArtifactProjection.Modes)
     Check(page.Markdown == "<script>inert</script>", "inert text preserved");
     Check(page.Notice.Contains("Usage status: unknown"), "unknown usage");
     Check(page.Notice.Contains("Claim support: \"not_assessed\""), "support separate");
+    Check(page.Summary.Contains("Usage: unknown") && page.Summary.Contains("output tokens: unknown") && !page.Summary.Contains("output tokens: 0"), "compact unknown usage never zero");
+    Check(page.Summary.Contains("Reference validity: valid; Claim support: not assessed") && page.Summary.Contains("valid references do not confirm claims"), "compact reference validity never claim support");
     Check(AiArtifactProjection.Project(mode, "text", complete).State.Contains("completion unknown"), "absence cannot prove complete");
 }
 Check(AiArtifactProjection.Project("triage", "fallback", "{\"backend\":\"deterministic\"}").State.Contains("no completed model"), "fallback");
 Check(AiArtifactProjection.Project("hunt_verify", "text", "{\"backend\":\"api\",\"model\":\"local\",\"abstained_votes\":2,\"failed_passes\":1}").State == "partial", "abstentions");
+var abstentions = AiArtifactProjection.Project("hunt_verify", "text", "{\"backend\":\"api\",\"model\":\"local\",\"abstained_votes\":2,\"failed_passes\":1}");
+Check(abstentions.Summary.Contains("hunt_verify · partial") && abstentions.Summary.Contains("Jury abstentions: 2; failed passes: 1"), "compact jury warnings stay visible");
+var fallback = AiArtifactProjection.Project("triage", "fallback", "{\"backend\":\"deterministic\"}");
+Check(fallback.Summary.Contains("deterministic fallback; no completed model response"), "compact fallback does not imply a completed model");
+string largeRun = JsonSerializer.Serialize(new { desktop_ai = new { mode="review", status="completed", model_output_available=true, service_parameters = new { provider = new { provider="openai", model="local", extra="bulky_configuration_marker"+new string('x',10000) } } } });
+var compact = AiArtifactProjection.Project("review", "unchanged narrative", complete, largeRun);
+Check(compact.Summary.Contains("Provider: openai (api); model: local") && compact.Summary.Length < 700 && !compact.Summary.Contains("bulky_configuration_marker"), "large supplied configuration stays outside compact summary");
+Check(compact.Notice.Contains("bulky_configuration_marker") && compact.Metadata == complete && compact.Markdown == "unchanged narrative", "complete technical detail and artifact bytes preserved");
+var reported = AiArtifactProjection.Project("review", "text", "{\"backend\":\"api\",\"model\":\"local\",\"usage_status\":\"reported\",\"usage\":{\"input_tokens\":0,\"output_tokens\":12}}");
+Check(reported.Summary.Contains("input tokens: 0; output tokens: 12"), "reported zero distinct from unknown usage");
+Check(AiArtifactProjection.Unavailable("review", "No supplied output").Summary.Contains("unavailable"), "compact unavailable remains explicit");
 Check(AiArtifactProjection.Project("review", "", complete).State == "unavailable", "empty output");
 Check(AiArtifactProjection.Project("review", "text", "{}").State == "unavailable", "missing metadata");
 foreach (string malformed in new[] { "[]", "{", "{\"failed_passes\":-1}" })

@@ -2,7 +2,10 @@ using System.Text.Json;
 
 namespace AttackMap.NativeSpike;
 
-public sealed record AiArtifactPage(string Mode, string ArtifactName, string State, string Notice, string Markdown, string Metadata);
+public sealed record AiArtifactPage(string Mode, string ArtifactName, string State, string Notice, string Markdown, string Metadata)
+{
+    public string Summary { get; init; } = "";
+}
 public sealed record AiArtifactSnapshot(string Generation, IReadOnlyList<AiArtifactPage> Pages);
 
 /// <summary>Pure projection of supplied metadata. No provider calls or source changes.</summary>
@@ -12,7 +15,16 @@ public static class AiArtifactProjection
     public static string ArtifactName(string mode) => mode switch {
         "review" => "defensive-review-llm.md", "hunt" or "hunt_verify" => "vulnerability-hypotheses.md",
         "remediate" => "remediation.md", "triage" => "triage.md", _ => throw new ArgumentException("Unknown AI mode.") };
-    public static AiArtifactPage Unavailable(string mode, string reason) => new(mode, ArtifactName(mode), "unavailable", reason, "", "");
+    public static AiArtifactPage Unavailable(string mode, string reason) => new(mode, ArtifactName(mode), "unavailable", reason, "", "")
+    { Summary = $"{mode} · unavailable\n{reason}" };
+    private static string Brief(string value)
+    {
+        string text = new(value.Select(c => char.IsControl(c) ? ' ' : c).ToArray());
+        return string.IsNullOrWhiteSpace(text) ? "unknown" : text.Length > 96 ? text[..96] + "…" : text;
+    }
+    private static string Scalar(JsonElement value) => value.ValueKind == JsonValueKind.String ? Brief(value.GetString()!) : "unknown";
+    private static string ProviderName(JsonElement value) => value.ValueKind == JsonValueKind.String ? Scalar(value)
+        : value.ValueKind == JsonValueKind.Object && value.TryGetProperty("provider", out var name) ? Scalar(name) : "unknown";
     public static AiArtifactPage Project(string mode, string markdown, string metadata, string? runManifest = null)
     {
         using var parsed = JsonDocument.Parse(metadata);
@@ -27,6 +39,7 @@ public static class AiArtifactProjection
         }
         string backend = Text("backend"), state = "available; completion unknown";
         string requested = "unknown", allowance = Field(root, "allowance"), provider = Field(root, "provider");
+        string providerName = root.TryGetProperty("provider", out var suppliedProvider) ? ProviderName(suppliedProvider) : "unknown";
         if (runManifest != null)
         {
             using var run = JsonDocument.Parse(runManifest);
@@ -35,7 +48,11 @@ public static class AiArtifactProjection
             {
                 if (ai.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Invalid desktop AI metadata.");
                 requested = Field(ai, "mode");
-                if (ai.TryGetProperty("service_parameters", out var service) && service.ValueKind == JsonValueKind.Object) provider = Field(service, "provider");
+                if (ai.TryGetProperty("service_parameters", out var service) && service.ValueKind == JsonValueKind.Object)
+                {
+                    provider = Field(service, "provider");
+                    if (service.TryGetProperty("provider", out var serviceProvider)) providerName = ProviderName(serviceProvider);
+                }
                 if (ai.TryGetProperty("mode", out var requestedMode) && requestedMode.ValueKind == JsonValueKind.String && requestedMode.GetString() == mode)
                 {
                     string supplied = ai.TryGetProperty("status", out var status) && status.ValueKind == JsonValueKind.String ? status.GetString()! : "unknown";
@@ -50,10 +67,20 @@ public static class AiArtifactProjection
         else if (backend is not ("api" or "cli") || Text("model") == "unknown" || string.IsNullOrWhiteSpace(markdown)) state = "unavailable";
         else if (failed > 0 || abstained > 0 || Text("stop_reason") is not ("unknown" or "stop" or "end_turn" or "completed")) state = "partial";
         string references = "unknown", support = "not assessed";
+        string referenceSummary = "unknown", supportSummary = "not assessed";
         if (root.TryGetProperty("reference_validation", out var validation) && validation.ValueKind == JsonValueKind.Object)
-        { references = Field(validation, "reference_validity"); support = Field(validation, "claim_support"); }
+        {
+            references = Field(validation, "reference_validity"); support = Field(validation, "claim_support");
+            if (validation.TryGetProperty("reference_validity", out var validity)) referenceSummary = Scalar(validity);
+            if (validation.TryGetProperty("claim_support", out var claim)) supportSummary = Scalar(claim).Replace('_', ' ');
+        }
         string notice = $"State (supplied metadata): {state}\nRequested mode: {requested}; displayed section: {mode}\nProvider: {provider}; model: {Text("model")}; backend: {backend}\nUsage status: {Text("usage_status")}; supplied usage: {Field(root, "usage")}\nAllowance: {allowance}\nReference validity: {references}\nClaim support: {support}\nJury abstentions: {(root.TryGetProperty("abstained_votes", out _) ? abstained.ToString() : "unknown")}; failed passes: {(root.TryGetProperty("failed_passes", out _) ? failed.ToString() : "unknown")}; consensus: {Field(root, "consensus")}\nModel judgements are not confirmed vulnerabilities. Missing votes are abstentions; reference validity does not establish claim support. Unknown usage is not zero. Complete supplied metadata follows.";
-        return new(mode, ArtifactName(mode), state, notice, markdown, metadata);
+        string TokenCount(string name) => root.TryGetProperty("usage", out var usage) && usage.ValueKind == JsonValueKind.Object
+            && usage.TryGetProperty(name, out var number) && number.ValueKind == JsonValueKind.Number && number.TryGetInt64(out long count) && count >= 0 ? count.ToString(System.Globalization.CultureInfo.InvariantCulture) : "unknown";
+        string jury = mode == "hunt_verify" || abstained > 0 || failed > 0
+            ? $"\nJury abstentions: {(root.TryGetProperty("abstained_votes", out _) ? abstained.ToString() : "unknown")}; failed passes: {(root.TryGetProperty("failed_passes", out _) ? failed.ToString() : "unknown")}." : "";
+        string summary = $"{mode} · {state}\nProvider: {providerName} ({Brief(backend)}); model: {Brief(Text("model"))}\nUsage: {Brief(Text("usage_status"))}; input tokens: {TokenCount("input_tokens")}; output tokens: {TokenCount("output_tokens")}\nReference validity: {referenceSummary}; Claim support: {supportSummary}{jury}\nModel judgment only; valid references do not confirm claims. Unknown usage is not zero.";
+        return new(mode, ArtifactName(mode), state, notice, markdown, metadata) { Summary = summary };
     }
 }
 

@@ -7,8 +7,10 @@ namespace AttackMap.NativeSpike;
 public sealed partial class MainWindow
 {
     private readonly RepositoryWatchCoordinator repositoryWatch = new();
+    private readonly FleetRepositoryWatchCoordinator fleetWatch = new();
     private readonly FleetSession fleetSession = new();
     private bool fleetRunning;
+    private string? fleetWatchVerificationOutput;
     private CancellationTokenSource? scanAdmission;
     private SuppressionWorkspaceModel? suppressionWorkspace;
     private HistoryPrep.RecentRepositoriesStore recentStore = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "recent-repositories.json"));
@@ -26,6 +28,20 @@ public sealed partial class MainWindow
             if (!queued) repositoryWatch.Requeue(request);
         };
         repositoryWatch.NoticeChanged += notice => DispatcherQueue.TryEnqueue(() => { if (!actionLifetime.IsCancellationRequested) WatchStatus.Text = notice; });
+        fleetWatch.ScanRequested += request => {
+            if (actionLifetime.IsCancellationRequested) return;
+            bool queued = DispatcherQueue.TryEnqueue(async () => {
+                if (actionLifetime.IsCancellationRequested || !fleetWatch.IsCurrent(request) || !Fleet.WatchRequested) return;
+                var roots = Fleet.SelectedRoots;
+                if (!SameFleetRoots(roots, request.RepositoryRoots)) { RestartFleetWatch(); return; }
+                if (WorkspaceBusy()) { fleetWatch.Requeue(request); return; }
+                await RunFleet(roots, request);
+            });
+            if (!queued) fleetWatch.Requeue(request);
+        };
+        fleetWatch.NoticeChanged += _ => DispatcherQueue.TryEnqueue(() => { if (!actionLifetime.IsCancellationRequested) RefreshFleetWatchNotice(); });
+        Fleet.WatchRequestedChanged += enabled => { if (enabled) RestartFleetWatch(); else StopFleetWatch(); };
+        Fleet.RepositorySetChanged += _ => { if (Fleet.WatchRequested) RestartFleetWatch(); };
         RecentRepositories.RepositoryRequested += entry => SelectRepositoryPath(entry.Root);
         Fleet.AddRepositoryRequested += async () => {
             try
@@ -38,7 +54,7 @@ public sealed partial class MainWindow
             catch (Exception) { if (!actionLifetime.IsCancellationRequested) Status.Text = "Fleet folder picker unavailable; existing repository set preserved."; }
         };
         Fleet.ScanRequested += async repositories => await RunFleet(repositories);
-        Fleet.CancelRequested += () => fleetSession.Cancel();
+        Fleet.CancelRequested += () => { StopFleetWatch(); fleetSession.Cancel(); };
         Fleet.OpenRepositoryRequested += async request => await OpenFleetChild(request);
         SuppressionWorkspace.SetSelectionOnly(true);
         SuppressionWorkspace.ChooseBaselineRequested += async ticket => {
@@ -60,13 +76,14 @@ public sealed partial class MainWindow
             if (value) { SuppressFileOption.Text = ""; StrictSuppressionsOption.IsChecked = false; }
             else if (suppressionWorkspace?.Baseline is { } baseline) SuppressFileOption.Text = baseline.Path;
         };
-        Closed += (_, _) => { scanAdmission?.Cancel(); repositoryWatch.Dispose(); fleetSession.Disconnect(); };
+        Closed += (_, _) => { scanAdmission?.Cancel(); repositoryWatch.Dispose(); fleetWatch.Dispose(); fleetSession.Disconnect(); };
     }
 
     private void SelectRepositoryPath(string path)
     {
         if (!Directory.Exists(path)) { Status.Text = "Repository is unavailable. Choose its current folder; the retained report remains open."; return; }
         StopRepositoryWatch();
+        StopFleetWatch();
         scanAdmission?.Cancel();
         if (scanning) { engine.Cancel(); fleetSession.Cancel(); }
         ++generation; ResetAiReview(); repositoryPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
@@ -87,11 +104,41 @@ public sealed partial class MainWindow
     {
         if (!ready) return;
         if (WatchOption.IsChecked != true) { repositoryWatch.Stop(); WatchStatus.Text = repositoryWatch.Notice; return; }
+        StopFleetWatch();
         if (repositoryPath == null || fleetRunning || !repositoryWatch.Start(repositoryPath,
             new[] { ScanLocations.ReportsBase(repositoryPath), DesktopActionRunner.ActionDirectory }, scanRunning: scanning)) WatchOption.IsChecked = false;
         WatchStatus.Text = repositoryWatch.Notice;
     }
     private void StopRepositoryWatch() { repositoryWatch.Stop(); WatchOption.IsChecked = false; WatchStatus.Text = repositoryWatch.Notice; }
+    private bool WorkspaceBusy() => scanning || actionRunning || engine.CleanupBlocked || fleetSession.CleanupBlocked || DesktopActionRunner.CleanupBlocked;
+    private static bool SameFleetRoots(IReadOnlyList<FleetRoot> selected, IReadOnlyList<string> requested) =>
+        selected.Select(root => root.RepositoryPath).SequenceEqual(requested, StringComparer.OrdinalIgnoreCase);
+    private static string FleetOutputBase => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "fleet");
+    private void RestartFleetWatch(IEnumerable<string>? verificationIgnoredOutputs = null)
+    {
+        StopRepositoryWatch();
+        var roots = Fleet.SelectedRoots;
+        var outputs = roots.Select(root => ScanLocations.ReportsBase(root.RepositoryPath)).Append(FleetOutputBase).Append(DesktopActionRunner.ActionDirectory)
+            .Concat(fleetWatchVerificationOutput == null ? [] : new[] { fleetWatchVerificationOutput }).Concat(verificationIgnoredOutputs ?? []);
+        if (!fleetWatch.Start(roots.Select(root => root.RepositoryPath), outputs, fleetRunning: scanning))
+        {
+            string unavailable = fleetWatch.Notice;
+            Fleet.WatchRequested = false; Fleet.SetWatchNotice(unavailable); return;
+        }
+        RefreshFleetWatchNotice();
+    }
+    private void RefreshFleetWatchNotice()
+    {
+        string notice = fleetWatch.Enabled
+            ? $"Watching {fleetWatch.WatchedRoots.Count} of {Fleet.SelectedRoots.Count} selected repositories. Changes automatically start a full fleet scan when active work finishes."
+            : "Fleet watch is off. Enable it explicitly to scan selected repositories after changes.";
+        if (fleetWatch.Enabled && fleetWatch.Pending) notice += " A full fleet rescan is pending.";
+        Fleet.SetWatchNotice(notice + string.Concat(fleetWatch.Limitations.Select(row => $"\n{row.RepositoryRoot}: {row.Notice}")));
+    }
+    private void StopFleetWatch()
+    {
+        fleetWatch.Stop(); Fleet.WatchRequested = false; RefreshFleetWatchNotice();
+    }
     private void UseDisplayedBaseline(object sender, RoutedEventArgs args)
     {
         if (displayedReportPath == null) { NextBaselineStatus.Text = "Open a report first."; return; }
@@ -128,10 +175,15 @@ public sealed partial class MainWindow
         finally { actionRunning = DesktopActionRunner.CleanupBlocked; }
     }
 
-    private async Task RunFleet(IReadOnlyList<FleetRoot> repositories)
+    private async Task RunFleet(IReadOnlyList<FleetRoot> repositories, FleetRepositoryWatchRequest? watchRequest = null, string? verificationOutput = null)
     {
-        if (scanning || actionRunning || engine.CleanupBlocked || fleetSession.CleanupBlocked || DesktopActionRunner.CleanupBlocked) { Status.Text = "Wait for the active operation and verified cleanup."; return; }
+        if (watchRequest != null && (!fleetWatch.IsCurrent(watchRequest) || !Fleet.WatchRequested || !SameFleetRoots(repositories, watchRequest.RepositoryRoots))) return;
+        if (WorkspaceBusy()) { if (watchRequest != null) fleetWatch.Requeue(watchRequest); Status.Text = "Wait for the active operation and verified cleanup."; return; }
+        repositories = repositories.ToArray();
         StopRepositoryWatch(); scanning = fleetRunning = true; ScanButton.IsEnabled = false; CancelButton.IsEnabled = true;
+        long watchEpoch = fleetWatch.Epoch;
+        fleetWatch.SetFleetRunning(true);
+        bool completedFullFleet = false;
         long requestedGeneration = ++generation;
         using var admission = CancellationTokenSource.CreateLinkedTokenSource(actionLifetime.Token); scanAdmission = admission;
         Fleet.IsEnabled = ScanOptionsPanel.IsEnabled = Provider.IsEnabled = false;
@@ -142,8 +194,10 @@ public sealed partial class MainWindow
             await DiscoverEngineCapabilities(admission.Token);
             admission.Token.ThrowIfCancellationRequested();
             if (generation != requestedGeneration || EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory) != executable) throw new OperationCanceledException("Fleet selection changed before launch.");
+            if (watchRequest != null && (!fleetWatch.IsCurrent(watchRequest) || !Fleet.WatchRequested)) throw new OperationCanceledException("Fleet watch selection changed before launch.");
+            if (!Fleet.SelectedRoots.SequenceEqual(repositories)) throw new OperationCanceledException("Selected fleet repositories changed before launch.");
             if (!capabilityCache.Current!.SchemaVersions.Contains("1.4")) throw new InvalidDataException("Selected engine does not support fleet schema 1.4.");
-            string output = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "fleet");
+            string output = verificationOutput ?? fleetWatchVerificationOutput ?? FleetOutputBase;
             await fleetSession.Run(executable, repositories, output, requestedGeneration,
                 run => { identity = run; Fleet.Workspace.Begin(run); Fleet.IsEnabled = true; Fleet.Refresh(); },
                 child => { if (!actionLifetime.IsCancellationRequested && identity != null) { Fleet.Workspace.ApplyChild(identity, child); Fleet.Refresh(); } },
@@ -151,8 +205,15 @@ public sealed partial class MainWindow
                     if (actionLifetime.IsCancellationRequested || Fleet.Workspace.Active != result.Generation) return;
                     foreach (var child in result.Children) Fleet.Workspace.ApplyChild(result.Generation, child);
                     if (!Fleet.Workspace.Finish(result.Generation, result.Outcome)) throw new InvalidDataException("Fleet terminal did not match the selected children.");
-                    Fleet.Refresh(); Status.Text = $"Fleet {result.Outcome}. Previous single-repository report remains selected until you explicitly open a child.";
-                    if (result.IndexPath != null) await LoadFleetSummary(result);
+                    Fleet.Refresh();
+                    // Owned fleet termination must settle even when Cancel or a
+                    // repository switch advanced the single-report generation.
+                    if (generation == requestedGeneration)
+                    {
+                        Status.Text = $"Fleet {result.Outcome}. Previous single-repository report remains selected until you explicitly open a child.";
+                        if (result.IndexPath != null) await LoadFleetSummary(result);
+                    }
+                    completedFullFleet = result.Outcome == "succeeded";
                 });
         }
         catch (Exception error)
@@ -166,7 +227,18 @@ public sealed partial class MainWindow
             }
             if (!actionLifetime.IsCancellationRequested) Status.Text = "Fleet unavailable: " + error.Message;
         }
-        finally { scanAdmission = null; scanning = fleetRunning = false; if (!actionLifetime.IsCancellationRequested) { ScanButton.IsEnabled = !engine.CleanupBlocked && !fleetSession.CleanupBlocked && !DesktopActionRunner.CleanupBlocked; Fleet.IsEnabled = ScanOptionsPanel.IsEnabled = Provider.IsEnabled = ScanButton.IsEnabled; CancelButton.IsEnabled = false; } }
+        finally
+        {
+            scanAdmission = null; scanning = fleetRunning = false;
+            if (watchRequest != null) fleetWatch.FleetCompleted(watchRequest, completedFullFleet);
+            else fleetWatch.FleetCompleted(watchEpoch, completedFullFleet);
+            if (!actionLifetime.IsCancellationRequested)
+            {
+                ScanButton.IsEnabled = !engine.CleanupBlocked && !fleetSession.CleanupBlocked && !DesktopActionRunner.CleanupBlocked;
+                Fleet.IsEnabled = ScanOptionsPanel.IsEnabled = Provider.IsEnabled = ScanButton.IsEnabled;
+                CancelButton.IsEnabled = false; RefreshFleetWatchNotice();
+            }
+        }
     }
 
     private async Task LoadFleetSummary(FleetSessionResult result)

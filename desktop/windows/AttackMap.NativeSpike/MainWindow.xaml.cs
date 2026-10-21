@@ -229,7 +229,7 @@ public sealed partial class MainWindow : Window
     private void MenuHistory(object sender, RoutedEventArgs args) => Navigation.SelectedItem = Navigation.MenuItems[5];
     private void CancelScan(object sender, RoutedEventArgs args)
     {
-        StopRepositoryWatch();
+        StopRepositoryWatch(); StopFleetWatch();
         ++generation; scanAdmission?.Cancel();
         if (fleetRunning) fleetSession.Cancel(); else engine.Cancel();
         scanProgress.RequestCancel(); ScanProgress.SetModel(scanProgress);
@@ -242,6 +242,7 @@ public sealed partial class MainWindow : Window
     private async Task RunSelectedRepository(string? verificationOutput = null)
     {
         if (scanning || actionRunning || DesktopActionRunner.CleanupBlocked || engine.CleanupBlocked || fleetSession.CleanupBlocked || repositoryPath == null) { Status.Text = "Choose a repository and wait for verified cleanup of any current action first."; return; }
+        StopFleetWatch();
         long current = ++generation;
         string repository = repositoryPath;
         string modules = ModulesOption.Text.Trim();
@@ -290,7 +291,7 @@ public sealed partial class MainWindow : Window
                 });
         }
         catch (Exception error) { engineStatus = $"Scan result unavailable: {error.Message}. Previous report retained."; if (!actionLifetime.IsCancellationRequested && generation == current) Status.Text = engineStatus; }
-        finally { scanAdmission = null; scanning = false; activeScanOptions = null; repositoryWatch.ScanCompleted(watchEpoch, published); if (!actionLifetime.IsCancellationRequested) { presentation.End(engineStatus.Length == 0 ? "Run failed before terminal confirmation; previous report retained" : engineStatus); UpdateRunSummary(); NetworkOptionChanged(this, new RoutedEventArgs()); ScanButton.IsEnabled = !DesktopActionRunner.CleanupBlocked && !engine.CleanupBlocked && !fleetSession.CleanupBlocked; ScanOptionsPanel.IsEnabled = Provider.IsEnabled = ScanButton.IsEnabled; CancelButton.IsEnabled = false; if (admission.IsCancellationRequested && ScanButton.IsEnabled) Status.Text = "Scan cancelled; previous report retained."; } }
+        finally { scanAdmission = null; scanning = false; activeScanOptions = null; repositoryWatch.ScanCompleted(watchEpoch, published); fleetWatch.SetFleetRunning(false); if (!actionLifetime.IsCancellationRequested) { presentation.End(engineStatus.Length == 0 ? "Run failed before terminal confirmation; previous report retained" : engineStatus); UpdateRunSummary(); NetworkOptionChanged(this, new RoutedEventArgs()); ScanButton.IsEnabled = !DesktopActionRunner.CleanupBlocked && !engine.CleanupBlocked && !fleetSession.CleanupBlocked; ScanOptionsPanel.IsEnabled = Provider.IsEnabled = ScanButton.IsEnabled; CancelButton.IsEnabled = false; if (admission.IsCancellationRequested && ScanButton.IsEnabled) Status.Text = "Scan cancelled; previous report retained."; } }
     }
     private async void ExportJson(object sender, RoutedEventArgs args) => await ExportDisplayed(false);
     private async void RevealScanFolder(object sender, RoutedEventArgs args)

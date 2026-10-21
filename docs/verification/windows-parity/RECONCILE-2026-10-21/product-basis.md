@@ -32,3 +32,25 @@ Build E published with the same 77 native inputs unchanged through build. Risk/I
 E full-shell capture completed 56/56 frames and exited 0 (PID 21596), with no timeout. Reviewed both light/dark new Risk and Evidence Inventory at 1024x700 and 1600x1000; rows now begin within the smaller viewport and full coverage text remains expandable. The existing Reports toolbar, AI review card and Findings inspector remain present. Reviewed Settings uses the original native theme/card style and its one bounded scroll region. These are in-process frames only: some selection indicators retain transitional pixels, and no live-window, keyboard, Narrator or 200% acceptance is inferred.
 
 The next F source adds static recognition of a valid local venv using bounded pyvenv.cfg/base-runtime markers (including this task environment); 46 EngineLaunchSpec checks passed. It also refuses ambiguous finding IDs during cross-reference navigation. No Python executable was probed by recognition tests.
+
+## K product presentation checkpoint
+
+K published with all 78 native build inputs unchanged. It reuses the established
+native Markdown renderer for saved AI responses, wraps Fleet repository paths
+instead of displaying CLR record strings, and describes automatic watch scans
+at the full-host level. Four saved actual Review frames were completed and
+visually reviewed in both sizes and themes; no new scan/provider call occurred.
+Evidence: `../WP016/markdown-review-full-k-20261021-01/visual-review.md`.
+
+The preceding stable native-consumer checkpoint passed all 26 named projects
+with 1,125 reported checks and 804 unchanged inputs. Five initial missing-assets
+prerequisites were retained, then restored from an owned empty local feed and
+the existing cache; only those five projects reran. This is component/protocol
+evidence, distinct from K appearance and the running actual frozen fleet journey.
+
+The fresh immutable B-J engine build completed with 118 core modules and 308
+payload files; the audit module is in its frozen TOC. Its actual version command
+returned `attackmap 1.5.1`, and corrected `modules` invocation listed 21 installed
+analyzers. An initial incorrect `modules list` invocation exited 2 and remains
+recorded. This engine is a preliminary frozen checkpoint; its lock binds the
+earlier native inputs and is not relabeled as the final K package.

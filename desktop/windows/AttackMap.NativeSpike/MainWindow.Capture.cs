@@ -162,19 +162,30 @@ public sealed partial class MainWindow
         {
             if (!Directory.Exists(directory)) throw new DirectoryNotFoundException("Create a fresh QA directory first.");
             if (!await LoadReport(arguments[index + 1])) throw new InvalidDataException("QA report could not be loaded.");
+            int aiModeIndex = Array.IndexOf(arguments, "--capture-ai-mode");
+            string? aiMode = aiModeIndex < 0 ? null : arguments[aiModeIndex + 1];
+            if (aiMode != null)
+            {
+                await parityViewBinding;
+                if (await AiArtifacts.SelectMode(aiMode) == null) throw new InvalidDataException("Selected saved AI mode is unavailable.");
+                AiArtifactsExpander.IsExpanded = true;
+            }
             foreach (var size in new[] { (Width: 1024, Height: 700), (Width: 1600, Height: 1000) })
             foreach (var theme in new[] { ElementTheme.Light, ElementTheme.Dark })
             {
                 root.RequestedTheme = theme;
                 double scale = root.XamlRoot.RasterizationScale;
                 AppWindow.Resize(new Windows.Graphics.SizeInt32((int)Math.Round(size.Width * scale), (int)Math.Round(size.Height * scale)));
-                foreach (var destination in Navigation.MenuItems.Cast<object>().Append(Navigation.SettingsItem).Where(item => !arguments.Contains("--capture-structure-only") || (item as NavigationViewItem)?.Content?.ToString() is "Architecture" or "Inventory"))
+                foreach (var destination in Navigation.MenuItems.Cast<object>().Append(Navigation.SettingsItem)
+                    .Where(item => aiMode == null || item == Navigation.MenuItems[4])
+                    .Where(item => !arguments.Contains("--capture-structure-only") || (item as NavigationViewItem)?.Content?.ToString() is "Architecture" or "Inventory"))
                 {
                     Navigation.SelectedItem = destination;
                     var settled = new TaskCompletionSource();
                     DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => settled.SetResult());
                     await settled.Task;
                     root.UpdateLayout();
+                    if (aiMode != null) AiArtifactsExpander.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false, VerticalAlignmentRatio = 0 });
                     string view = (destination as NavigationViewItem)?.Content?.ToString() ?? "Settings";
                     string filename = $"{size.Width}x{size.Height}-{theme}-{view}.png";
                     captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, filename)));
@@ -189,7 +200,7 @@ public sealed partial class MainWindow
                         File.WriteAllText(Path.Combine(directory, filename + ".rows.json"), JsonSerializer.Serialize(new { view, boundCount = StructureRecords.Items.Count, width = StructureRecords.ActualWidth, height = StructureRecords.ActualHeight, panelWidth = StructurePanel.ActualWidth, panelHeight = StructurePanel.ActualHeight, rows }, new JsonSerializerOptions { WriteIndented = true }));
                     }
                 }
-                if (arguments.Contains("--capture-structure-only")) continue;
+                if (aiMode != null || arguments.Contains("--capture-structure-only")) continue;
                 Navigation.SelectedItem = Navigation.MenuItems[1];
                 if (all.Count > 0) Findings.SelectedIndex = 0;
                 root.UpdateLayout();
@@ -198,7 +209,7 @@ public sealed partial class MainWindow
                 captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-FindingDetail.png")));
                 FindingInspector.ChangeView(null, 0, null, disableAnimation: true);
             }
-            File.WriteAllText(Path.Combine(directory, "capture-manifest.json"), JsonSerializer.Serialize(new { captures, os = Environment.OSVersion.ToString(), expected = arguments.Contains("--capture-structure-only") ? 8 : 4 * (Navigation.MenuItems.Count + 2), completed = captures.Count, findingDetailState = "Production master/detail view with the first finding selected, inspector focused and scrolled toward the recommendation. No separate detail destination is invented.", scope = NativeCaptureProbe.Scope, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(Path.Combine(directory, "capture-manifest.json"), JsonSerializer.Serialize(new { captures, os = Environment.OSVersion.ToString(), expected = aiMode != null ? 4 : arguments.Contains("--capture-structure-only") ? 8 : 4 * (Navigation.MenuItems.Count + 2), completed = captures.Count, aiMode, selectedReportSha256 = displayedReadHash, providerCalled = false, findingDetailState = "Production master/detail view with the first finding selected, inspector focused and scrolled toward the recommendation. No separate detail destination is invented.", scope = NativeCaptureProbe.Scope, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
         }
         catch (Exception error)
         {
