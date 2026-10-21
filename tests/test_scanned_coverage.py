@@ -40,15 +40,18 @@ def test_config_enumerates_only_successfully_read_accepted_files(tmp_path, monke
 def test_unreadable_file_is_not_enumerated(tmp_path, monkeypatch, scanner, name):
     path = tmp_path / name
     path.write_text("value = 1")
-    real_read = Path.read_text
+    real_open = Path.open
+    denied = []
 
-    def read(self, *args, **kwargs):
+    def open_file(self, *args, **kwargs):
         if self == path:
+            denied.append(self)
             raise PermissionError("fixture access denied")
-        return real_read(self, *args, **kwargs)
+        return real_open(self, *args, **kwargs)
 
-    monkeypatch.setattr(Path, "read_text", read)
+    monkeypatch.setattr(Path, "open", open_file)
     result = scanner(tmp_path)
+    assert denied, "the scanner must reach the denied descriptor seam"
     assert result.scanned_files == [] and result.files_scanned == 0
 
 

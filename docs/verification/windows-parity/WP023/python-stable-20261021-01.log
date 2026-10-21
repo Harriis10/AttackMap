@@ -1,0 +1,162 @@
+........................................................................ [  1%]
+..................................s................s.................... [  3%]
+........................................................................ [  5%]
+........................................................................ [  6%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 17%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+.................FF..................................................... [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+.......................................F.....................s.......... [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+..................................................................F..... [ 60%]
+..s..................................................................... [ 61%]
+........................................................................ [ 63%]
+......................................................FFFF.F............ [ 65%]
+.F...................................................................... [ 67%]
+.......................................s...........F.................... [ 68%]
+........................................................................ [ 70%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+........................F............................................... [ 80%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 91%]
+................................................................s....... [ 92%]
+............................................s........................... [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+.......                                                                  [100%]
+================================== FAILURES ===================================
+_______________ test_sidecar_hash_metadata_and_identical_rerun ________________
+tests\test_desktop_reference.py:33: in test_sidecar_hash_metadata_and_identical_rerun
+    manifest = generator.generate(tmp_path, **options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\generate_desktop_reference.py:82: in generate
+    target = _output_directory(output)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\generate_desktop_reference.py:76: in _output_directory
+    raise ValueError("Inside the workspace, generated fixtures must stay under .pytest_cache")
+E   ValueError: Inside the workspace, generated fixtures must stay under .pytest_cache
+____ test_rejects_different_existing_output_before_other_files_are_written ____
+tests\test_desktop_reference.py:46: in test_rejects_different_existing_output_before_other_files_are_written
+    with pytest.raises(ValueError, match="overwrite"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'overwrite'
+E     Actual message: 'Inside the workspace, generated fixtures must stay under .pytest_cache'
+__________ test_actual_cli_help_with_forced_legacy_redirected_output __________
+tests\test_installer_entry.py:71: in test_actual_cli_help_with_forced_legacy_redirected_output
+    result = subprocess.run([sys.executable, str(ENTRY), "analyze", "--help"], capture_output=True,
+C:\Program Files\Python313\Lib\subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\subprocess.py:1222: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\subprocess.py:1665: in _communicate
+    raise TimeoutExpired(self.args, orig_timeout)
+E   subprocess.TimeoutExpired: Command '['C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe', 'C:\\Projects\\INPROGRESS\\AttackMap\\installer\\entry.py', 'analyze', '--help']' timed out after 30 seconds
+________________ test_time_budget_check_overhead_is_negligible ________________
+tests\test_resource_budgets.py:112: in test_time_budget_check_overhead_is_negligible
+    assert per_check_ns < 1_000, per_check_ns
+E   AssertionError: 5627.674000133993
+E   assert 5627.674000133993 < 1000
+________ test_long_lines_under_the_cap_scan_in_linear_time[long_word] _________
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (108132.2416743 - 108115.6060582) < 5
+E    +  where 108132.2416743 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+______ test_long_lines_under_the_cap_scan_in_linear_time[router_assign] _______
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (108153.3996327 - 108132.450699) < 5
+E    +  where 108153.3996327 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+________ test_long_lines_under_the_cap_scan_in_linear_time[blueprint] _________
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (108164.0597743 - 108153.52178) < 5
+E    +  where 108164.0597743 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+______ test_long_lines_under_the_cap_scan_in_linear_time[graphql_field] _______
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (108174.3173874 - 108164.133232) < 5
+E    +  where 108174.3173874 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+____________ test_many_matches_in_a_large_file_scan_in_linear_time ____________
+tests\test_scan_limits.py:82: in test_many_matches_in_a_large_file_scan_in_linear_time
+    assert time.perf_counter() - start < 25
+E   assert (108244.7572653 - 108174.5479469) < 25
+E    +  where 108244.7572653 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+________ test_unreadable_file_is_not_enumerated[scan_files-locked.py] _________
+tests\test_scanned_coverage.py:52: in test_unreadable_file_is_not_enumerated
+    assert result.scanned_files == [] and result.files_scanned == 0
+E   AssertionError: assert (['locked.py'] == []
+E     
+E     Left contains one more item: 'locked.py'
+E     Use -v to get more diff)
+_____________________ test_history_on_a_non_git_directory _____________________
+tests\test_secrets_deep.py:239: in test_history_on_a_non_git_directory
+    assert hits == [] and "not a git repository" in notes[0]
+                                                    ^^^^^^^^
+E   IndexError: list index out of range
+_________________ test_flow_pass_stays_linear_on_a_large_file _________________
+tests\test_taint_flow.py:406: in test_flow_pass_stays_linear_on_a_large_file
+    assert time.perf_counter() - start < 20
+E   assert (109564.9506281 - 109535.6032476) < 20
+E    +  where 109564.9506281 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+============================== warnings summary ===============================
+tests/test_snapshot_transport.py::test_sealed_malformed_input_is_rejected[duplicate]
+  C:\Program Files\Python313\Lib\zipfile\__init__.py:1661: UserWarning: Duplicate name: 'payloads/00000000.bin'
+    return self._open_to_write(zinfo, force_zip64=force_zip64)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_desktop_reference.py::test_sidecar_hash_metadata_and_identical_rerun
+FAILED tests/test_desktop_reference.py::test_rejects_different_existing_output_before_other_files_are_written
+FAILED tests/test_installer_entry.py::test_actual_cli_help_with_forced_legacy_redirected_output
+FAILED tests/test_resource_budgets.py::test_time_budget_check_overhead_is_negligible
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[long_word]
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[router_assign]
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[blueprint]
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[graphql_field]
+FAILED tests/test_scan_limits.py::test_many_matches_in_a_large_file_scan_in_linear_time
+FAILED tests/test_scanned_coverage.py::test_unreadable_file_is_not_enumerated[scan_files-locked.py]
+FAILED tests/test_secrets_deep.py::test_history_on_a_non_git_directory - Inde...
+FAILED tests/test_taint_flow.py::test_flow_pass_stays_linear_on_a_large_file
+12 failed, 4164 passed, 7 skipped, 1 warning in 5110.46s (1:25:10)

@@ -72,12 +72,13 @@ class CrossBoundaryFlow:
     severity: str  # "high" | "medium"
 
 
-def _route_taint(scan: ScanResult, route: str, method: str) -> TaintChain | None:
+def _route_taint(scan: ScanResult, route: str, method: str, route_file: str) -> TaintChain | None:
     """The most-direct unsanitized dangerous sink the given server route reaches."""
     candidates = [
         c
         for c in scan.taint_chains
         if c.route_path == route
+        and c.route_file == route_file
         and not c.sanitized
         and c.sink_kind in _DANGEROUS_SINKS
         and _method_ok(method, c.route_method)
@@ -87,10 +88,11 @@ def _route_taint(scan: ScanResult, route: str, method: str) -> TaintChain | None
     return min(candidates, key=lambda c: (c.hops, -c.confidence))
 
 
-def _route_bola(scan: ScanResult, route: str, method: str):
+def _route_bola(scan: ScanResult, route: str, method: str, route_file: str):
     for cand in scan.authz_candidates:
         if (
             cand.route_path == route
+            and cand.route_file == route_file
             and not cand.has_ownership_check
             and cand.reaches_db
             # Only a path-param object id is provably the value the caller
@@ -153,8 +155,8 @@ def find_cross_boundary_flows(
         if not _carries_path_value(link):
             continue
 
-        chain = _route_taint(server_scan, link.server_route_path, link.method)
-        bola = _route_bola(server_scan, link.server_route_path, link.method)
+        chain = _route_taint(server_scan, link.server_route_path, link.method, link.server_file)
+        bola = _route_bola(server_scan, link.server_route_path, link.method, link.server_file)
         if chain is None and bola is None:
             continue
 

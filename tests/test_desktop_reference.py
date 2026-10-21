@@ -2,6 +2,7 @@
 import hashlib
 import importlib.util
 import json
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -28,7 +29,16 @@ def test_deterministic_exact_size_canonical_report_and_known_counts():
     assert report["fixture"]["security_evidence"] is False
 
 
-def test_sidecar_hash_metadata_and_identical_rerun(tmp_path):
+@pytest.fixture
+def reference_output():
+    with tempfile.TemporaryDirectory(prefix="attackmap-reference-test-") as owned:
+        output = Path(owned)
+        assert not output.resolve().is_relative_to(generator.WORKSPACE)
+        yield output
+
+
+def test_sidecar_hash_metadata_and_identical_rerun(reference_output):
+    tmp_path = reference_output
     options = dict(findings=7, observations=11, report_bytes=16_384)
     manifest = generator.generate(tmp_path, **options)
     assert generator.generate(tmp_path, **options) == manifest
@@ -40,7 +50,8 @@ def test_sidecar_hash_metadata_and_identical_rerun(tmp_path):
     assert (tmp_path / "attackmap-report.sha256").read_text().split()[0] == manifest["sha256"]
 
 
-def test_rejects_different_existing_output_before_other_files_are_written(tmp_path):
+def test_rejects_different_existing_output_before_other_files_are_written(reference_output):
+    tmp_path = reference_output
     path = tmp_path / "attackmap-report.json"
     path.write_bytes(b"user file")
     with pytest.raises(ValueError, match="overwrite"):

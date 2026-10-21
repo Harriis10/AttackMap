@@ -12,6 +12,7 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -234,9 +235,17 @@ def test_history_does_not_run_repo_config_or_hooks(history_repo, tmp_path: Path)
     assert not marker.exists()  # ...without running anything from the repo's config
 
 
-def test_history_on_a_non_git_directory(tmp_path: Path) -> None:
-    hits, notes = scan_secret_history(tmp_path, 10)
-    assert hits == [] and "not a git repository" in notes[0]
+def test_history_on_a_non_git_directory() -> None:
+    from attackmap.gitref import hardened_git_command, hardened_git_env
+
+    with tempfile.TemporaryDirectory(prefix="attackmap-non-git-test-") as owned:
+        root = Path(owned)
+        assert not root.resolve().is_relative_to(Path(__file__).resolve().parents[1])
+        probe = subprocess.run(hardened_git_command(root, "rev-parse", "--show-prefix"),
+                               capture_output=True, env=hardened_git_env(), timeout=30)
+        assert probe.returncode != 0, "fixture must be outside every Git worktree"
+        hits, notes = scan_secret_history(root, 10)
+        assert hits == [] and "not a git repository" in notes[0]
 
 
 def test_cli_secrets_history_is_opt_in_and_reported(history_repo, tmp_path: Path) -> None:

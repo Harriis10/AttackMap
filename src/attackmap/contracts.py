@@ -644,6 +644,11 @@ def link_contracts(
                         server_id,
                         call.file,
                         call.line,
+                        # Keep distinct destination legs and caller verbs while
+                        # collapsing instance URLs on the same declared seam.
+                        destination_authority(call.target),
+                        _target_scheme(call.target),
+                        call.method.upper() if call.method else None,
                         route.file,
                         route.method,
                         route.path,
@@ -674,7 +679,12 @@ def link_contracts(
                         )
                     )
     links.sort(
-        key=lambda link: (link.client_repo, link.server_repo, link.path_template, link.method)
+        key=lambda link: (
+            link.client_repo, link.server_repo, link.path_template, link.method,
+            link.destination or "", link.scheme or "", link.client_method or "",
+            link.client_file, link.client_line if link.client_line is not None else -1,
+            link.server_file, link.server_line if link.server_line is not None else -1,
+        )
     )
     return links
 
