@@ -3,7 +3,7 @@
   "baseline_date": "2026-10-20",
   "baseline_timezone": "Europe/Prague",
   "baseline_commit": "d45997653970929f5f477c6e2dcd70913cb17fe3",
-  "planning_status": "PAUSED by weeklyusage50percent monitor. Full MainWindow remains product. NativeL/frozenB-J run04 actualfleet+singlewatch PASS;4Fleetframes reviewed, repositorywatch frames unreviewed/dimensionspending. R3focused89PASS;R8strictbool38PASS;publication162PASS. R4WIP interrupted, no terminalPASS. Broad4164pass12fail7skip;4fixturefailures repaired10focusedPASS; original8timingretry1pass7FAIL. Interval/R10b owned prototypes only, R5/R9 design. Finalexactpackage/providerfiveModes/Mac/manual/release/human/C35 gates remainopen. No further work until explicit resume; task statuses/criteria unchanged.",
+  "planning_status": "Active explicit user resume22Oct2026; scoped integration batch: taint275PASS including7 unchanged timing cases, explicit6000full differential equal, ownership132PASS+346fullgoldens equal, R4fivePASS, nativefive-mode runner preparation. New subagents GPT6.1Sol/ultra. No wholecheckpoint/newWPclosure; freshsame-source package, broad/native/livefiveModes/manual/release/Mac/human/scale gates remainopen.",
   "roadmap": "roadmap-windows-parity-2026-10-20.md",
   "audit": "windows-parity-audit-2026-10-20.md",
   "task_definition_authority": "windows-parity-todo.md; synchronize this JSON when changing dependencies or definitions",
@@ -57,7 +57,10 @@
       }
     ],
     "preparation_on_verified_dependency_checkpoints": true,
-    "dependency_acceptance_rule": "Dependencies gate task acceptance. Preparatory implementation/integration may use a reviewed, hash-bound dependency source checkpoint while its manual/live/release gates remain open; record the limited execution scope and never infer DONE from preparation."
+    "dependency_acceptance_rule": "Dependencies gate task acceptance. Preparatory implementation/integration may use a reviewed, hash-bound dependency source checkpoint while its manual/live/release gates remain open; record the limited execution scope and never infer DONE from preparation.",
+    "current_run_subagent_model": "gpt-6.1-sol",
+    "current_run_subagent_reasoning_effort": "ultra",
+    "reasoning_effort_authority": "Explicit user request on2026-10-22"
   },
   "tasks": [
     {
@@ -859,11 +862,11 @@
     {
       "id": "WP017",
       "title": "Skutečné lokální AI end-to-end",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "LIVE_QA",
       "checkpoint": "K3",
-      "owner": null,
+      "owner": "/root",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP016",
@@ -903,9 +906,10 @@
       "evidence": [
         "docs/verification/windows-parity/WP017/opt-in-http-audit-2026-10-21.md",
         "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/live-evidence.json",
-        "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/consistency-result.json"
+        "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/consistency-result.json",
+        "docs/verification/windows-parity/WP017/runner-20261022/README.md"
       ],
-      "execution_scope": "Preparatory source-native Review only: full G app, new Juice Shop scan, exact LM Studio model, one returned HTTP200/completed nonempty output; native exit0, selected display/export hashes consistent. Five final packaged-engine modes and acceptance remain open."
+      "execution_scope": "Reusable local-only full native five-mode runner implemented;30focusedPASS+20subtests, real FINISHED preflight824entriesPASS with0process/provider starts. No actual new model responses in resumed batch; finalfive-mode freshsame-source packaged acceptance remainsopen."
     },
     {
       "id": "WP018",
@@ -1005,7 +1009,7 @@
         "docs/verification/windows-parity/WP019/agent-fleet-verification-2026-10-21.json"
       ],
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
-      "execution_scope": "Fleet component/protocol: final 57 focused checks passed; root shell composition, actual fleet run, graph and visual gates pending."
+      "execution_scope": "Retained full native L/frozenB-J run04 actual fleet+watch runtime PASS, four Fleet frames reviewed. Finalsame-source package and complete native/manual gates remainopen; no newruntime today."
     },
     {
       "id": "WP020",
@@ -1051,10 +1055,11 @@
       "evidence": [
         "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
         "docs/verification/windows-parity/RECONCILE-2026-10-21/watch-requeue/process.json",
-        "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md"
+        "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md",
+        "docs/verification/windows-parity/WP020/watch-review-20261022/README.md"
       ],
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
-      "execution_scope": "Watch component: 31 original Windows/policy checks and 13 Python regressions passed; root added busy-action requeue and shell lifecycle, focused recheck pending."
+      "execution_scope": "Retained native L/frozenB-J single-watch lifecycle PASS. Root reviewed all4 Repository-watch frames22Oct:2themes but ALL actual1584x961, requested size labels do not prove2viewports. Finalcandidate small viewport/runtime/manual gates remainopen."
     },
     {
       "id": "WP021",
@@ -1237,9 +1242,11 @@
         "docs/verification/windows-parity/WP023/python-stable-20261021-01-triage.md",
         "docs/verification/windows-parity/WP023/controlled-processes-20261021-k-b/checkpoint.md",
         "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-k/build-inputs-after.json",
-        "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md"
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md",
+        "docs/verification/windows-parity/WP023/resume-scanner-20261022/README.md",
+        "docs/verification/windows-parity/WP023/ultra-review-20261022.md"
       ],
-      "execution_scope": "Full existing MainWindow through nativeK; exact hash-bound K/frozen-B-J fleet runtime. Broad checkpoint terminal with12 failures under triage;4fixture repairs focusedPASS, 8timing retries pending. No final single-source package/AI/manual acceptance inferred."
+      "execution_scope": "Native full product preserved. Current taint interval-index repair:275focusedPASS including all7 original timing gates unchanged; explicit current/reference6000full ScanResult equal with source/fixture hashes stable and independent ultra review. Historical broad4164pass12fail7skip remains failed; new stable broad/freshsame-source package/provider/manual gates open."
     },
     {
       "id": "WP024",
@@ -1284,8 +1291,10 @@
         "23 focused Python release tests PASS",
         "24 EngineLaunchSpec checks PASS",
         "isolated synthetic install/upgrade/rollback/tamper/uninstall smoke PASS; real production freeze and installed bundled scan remain open",
-        "docs/verification/windows-parity/WP024/fresh-bj-20261021/checkpoint.json"
-      ]
+        "docs/verification/windows-parity/WP024/fresh-bj-20261021/checkpoint.json",
+        "docs/verification/windows-parity/WP024/startscan-fix-20261022/README.md"
+      ],
+      "execution_scope": "Portable startup fix native integrated-20261022-portable-startscan-fix plus unchanged historical B-J engine; two normal-profile Juice Shop scans completed with two actual local model Review responses; public FINISHED copy/BAT verified. Fresh same-source engine/package, install qualification and release acceptance remain open."
     },
     {
       "id": "WP025",
@@ -1628,7 +1637,7 @@
       "priority": "P1",
       "lane": "CORE_GRAPH",
       "checkpoint": "K8",
-      "owner": "/root/native_build_provenance",
+      "owner": "/root",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP002"
@@ -1666,10 +1675,13 @@
       "evidence": [
         "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
         "docs/verification/windows-parity/WP032/agent-identity-verification-2026-10-21.json",
-        "docs/verification/windows-parity/WP032/r1-r2-canonical-20261021-a/focused-run.json"
+        "docs/verification/windows-parity/WP032/r1-r2-canonical-20261021-a/focused-run.json",
+        "docs/verification/windows-parity/WP032/resume-r10b-20261022/README.md",
+        "docs/verification/windows-parity/WP032/ultra-owner-20261022/README.md",
+        "docs/verification/windows-parity/WP032/ultra-owner-review-20261022.md"
       ],
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
-      "execution_scope": "Service identity fixes: 175 focused and 67 final-source merge/ranking checks passed; full evidence-reference completeness audit remains open."
+      "execution_scope": "Current canonical-equivalent topology ownership index:132focusedPASS+346fulloutputs equal; independent ultra review. threat_model.py unchanged. Original ambiguity-policy candidate held after explicit empty-owner evidence/confidence regression negativecontrol. Full C28/reference completeness/final package gates remainopen."
     },
     {
       "id": "WP033",
@@ -1716,7 +1728,7 @@
         "docs/verification/windows-parity/WP033/implementation-2026-10-21.md"
       ],
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
-      "execution_scope": "Active captured-enumeration/raw SDK bytes/cache identity and explicit incremental work; not frozen or accepted. Noncooperating/isolated plugin input boundary remains open."
+      "execution_scope": "Captured enumeration/rawSDK/cache/incremental implementation plus later sealed SDKsnapshot transport retained. Finalsource/frozen/native equivalence and remaining livepath/unsupportedOS qualification open;100edit source tests do not qualify finalpackage or C34 performance."
     },
     {
       "id": "WP034",
@@ -1764,10 +1776,11 @@
         "docs/verification/windows-parity/WP034/fleet-policy-2026-10-21.md",
         "docs/verification/windows-parity/WP034/repaired-harness-preflight-2026-10-21.json",
         "docs/verification/windows-parity/WP034/10k-repaired-2026-10-21.json",
-        "docs/verification/windows-parity/WP034/representative-copy-integration-2026-10-21.json"
+        "docs/verification/windows-parity/WP034/representative-copy-integration-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/resume-r4-20261022/README.md"
       ],
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
-      "execution_scope": "Sealed-source actual10k fully terminal/cleanup verified: peakjobcommit1,721,356,288B,60000signals/20000surfaces, but600s soft budget exceeded and later stages skipped/coveragepartial, so C35 remains open. Actual1000 full-pipeline CPU profile active; no50k/100k and no source edits under stable test/build leases."
+      "execution_scope": "Historical10k terminal peak1721356288B but600s softbudget exhausted/laterstages skipped, so C35open. R4provenance verification completed22Oct5PASS. No50k/100k qualification; no active profile job claimed."
     },
     {
       "id": "WP035",
@@ -1810,7 +1823,7 @@
       "evidence": [
         "docs/verification/windows-parity/WP035/provenance-2026-10-21.md"
       ],
-      "execution_scope": "Windows pre-resume OS caps/recovery, sealed shared snapshot SDK transport and parent-authoritative attribution implemented/focused proofs frozen. Single broad Python regression active; direct filesystem/network unrestricted and supported-OS/frozen/resource gates remain open."
+      "execution_scope": "Windows OS caps/recovery, sealed SDKsnapshot transport and parent-authoritative attribution implemented in prior checkpoint. Prior broad suite terminal failed then scopedfixes; no active broadjob. Filesystem/network unrestricted; finalfrozen/supportedOS/resource gates remainopen."
     },
     {
       "id": "WP036",
@@ -2113,6 +2126,7 @@
       "evidence": []
     }
   ],
-  "run_state": "PAUSED_WEEKLY_USAGE_50_PERCENT",
-  "resume_note": "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md"
+  "run_state": "ACTIVE_USER_RESUMED",
+  "resume_note": "docs/verification/windows-parity/RESUME-2026-10-22/README.md",
+  "active_execution_leases": []
 }

@@ -1,0 +1,68 @@
+{
+  "passed": true,
+  "stage": "preflight-only",
+  "provider_requests_started": 0,
+  "processes_started": 0,
+  "app": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\AttackMap.NativeSpike.exe",
+  "engine": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\engine\\attackmap.exe",
+  "seed": {
+    "path": "C:\\Users\\Precision\\AppData\\Local\\AttackMap\\NativePreview\\scans\\juice-shop-e619901bd518\\reports\\87ab22569abe462999bf21fcd5049984\\attackmap-report.json",
+    "sha256": "9441f964027eec0ab76fa972de29c56811759bd27295f2be0caf501fcb00ffec"
+  },
+  "output": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-five-modes-20261022-01",
+  "repository": "C:\\tmp\\juice-shop",
+  "modes": [
+    "review",
+    "hunt",
+    "hunt_verify",
+    "remediate",
+    "triage"
+  ],
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "provider_budget_seconds": 900,
+  "max_calls": 8,
+  "output_token_limit": 32000,
+  "native_scan_timeout_seconds": 1200,
+  "package": {
+    "passed": true,
+    "scope": "Complete pinned portable payload byte consistency only",
+    "package_id": "sha256:3be444f31b8e6200d04f89be39b47863e9821ac27b2df6cc41f2e6dd52edb02e",
+    "manifest": {
+      "path": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\portable-manifest.json",
+      "sha256": "3be444f31b8e6200d04f89be39b47863e9821ac27b2df6cc41f2e6dd52edb02e"
+    },
+    "files_verified": 824,
+    "kind": "portable-development-preview",
+    "native_build": "integrated-20261022-portable-startscan-fix",
+    "engine_build": "fresh-B-J-20261021-01",
+    "identities": {
+      "AttackMap.NativeSpike.exe": {
+        "path": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\AttackMap.NativeSpike.exe",
+        "sha256": "1796e973b40b37b643a535e80804ab389d84e2191413267b6ce7944539824854"
+      },
+      "AttackMap.NativeSpike.dll": {
+        "path": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\AttackMap.NativeSpike.dll",
+        "sha256": "07b7815e5908f969f20b34719bffcbb0681e14a5807f24698f79ea62249780e0"
+      },
+      "engine/attackmap.exe": {
+        "path": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\engine\\attackmap.exe",
+        "sha256": "ee90e44a35d283326fe3821666e71b33fbd0a1eb3aa6844e827d9d4206ea7195"
+      }
+    },
+    "accepted_wp017": false,
+    "accepted_manual_ui": false,
+    "accepted_same_source": false,
+    "accepted_release": false,
+    "accepted_clean_host": false
+  },
+  "accepted_wp017": false,
+  "accepted_manual_ui": false,
+  "accepted_same_source": false,
+  "accepted_release": false,
+  "accepted_clean_host": false,
+  "runner_source": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tools\\run_wp017_native_modes.py",
+    "sha256": "f0b6df2edafb9b752a799635f141ce8030302b95b16d3e11a0a584f54b5b7f8c"
+  }
+}

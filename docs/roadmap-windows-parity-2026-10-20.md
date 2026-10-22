@@ -35,6 +35,26 @@ Odhady jsou pracovní intervaly při jednom integrátorovi a nejvýše třech im
 
 Jeden cyklus znamená dokončit malý řez, cíleně ověřit, integrovat a ukázat viditelný výsledek. Při jednom člověku se provádí stejné úkoly sekvenčně. **K5 candidate není automaticky veřejné vydání a K0 neuzavírá WP implementace.**
 
+### Stav po obnovení 22. 10. 2026
+
+Aktuální prováděcí záznam a nezávislý audit všech 41 úkolů jsou v
+[obnoveném běhu](verification/windows-parity/RESUME-2026-10-22/README.md).
+Nové subagentní běhy používají na výslovný pokyn GPT-6.1 Sol / `ultra`.
+
+| CP | Současný rozsah a zbývající brána |
+| --- | --- |
+| K1 | Zachovaný scoped PASS Python/Windows kontraktu; samostatný Mac consumer chybí. |
+| K2 | Funkce implementované; final-candidate journeys, dvě skutečné velikosti a ruční ověření zbývají. |
+| K3 | Review má skutečné lokální odpovědi; WP017 runner se rozpracoval. Pět režimů přes nový source-bound package dosud neprošlo. |
+| K4 | L/B-J má scoped fleet/watch runtime důkazy; finální balíček a odpovídající native matrix zbývají. |
+| K5–K7 | Otevřené: stabilní broad checkpoint, nový freeze, podpis/čistý host, UX/a11y, lidé a Mac/CI. |
+| K8 | Nový taint intervalový index: 275 cílených PASS včetně původních timing limitů. Topology index: 132 PASS a 346 úplných diferenciálních shod. Corpus, resource/scale a další původní brány tím nejsou uzavřeny. |
+| K9 | Podmíněné úkoly zůstávají odložené; neblokují Windows paritu. |
+
+Tracker má 6 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 14 IN_PROGRESS, 9 OPEN
+a 2 DEFERRED. Počet není odhadem procenta hotové práce. Původní neúspěšná
+široká regrese zůstává zachována; úspěšná cílená oprava ji nepřepisuje.
+
 ## Akceptační kritéria checkpointů
 
 ### K1 — kompatibilní engine boundary

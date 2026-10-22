@@ -1,0 +1,283 @@
+{
+  "cases": 346,
+  "equal": 346,
+  "differences": [],
+  "full_outputs": [
+    "topology_map",
+    "topology_services",
+    "graph",
+    "threat_map",
+    "service_chains",
+    "atproto_chains",
+    "findings",
+    "attack_paths"
+  ],
+  "golden_sha256": "6fce537fa372707e30713a8ad444ebe1c0e27f594f5c67c24c175d284b9174ae",
+  "inputs_unchanged": true,
+  "rejected_candidate_negative_control_detected": true,
+  "negative_control": {
+    "baseline": {
+      "topology_map": {},
+      "topology_services": {
+        "services/layout/app.py": []
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "peer",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "source": "layout",
+            "target": "peer",
+            "kind": "http-call",
+            "file": "services/layout/app.py",
+            "evidence": "https://peer.internal/users"
+          }
+        ]
+      },
+      "threat_map": {
+        "services/layout/app.py": ""
+      },
+      "service_chains": [
+        {
+          "route_method": "POST",
+          "route_path": "/xrpc/com.atproto.repo.createRecord",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.49999999999999994,
+          "evidence": [
+            "route POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py",
+            "entry service inferred from repository layout: layout",
+            "database hint elsewhere in repo: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ],
+      "atproto_chains": [
+        {
+          "route_method": "POST",
+          "route_path": "/xrpc/com.atproto.repo.createRecord",
+          "route_file": "services/layout/app.py",
+          "namespace": "com.atproto",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.6300000000000001,
+          "evidence": [
+            "xrpc route POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py",
+            "namespace signal observed: com.atproto",
+            "entry service inferred from repository layout: layout",
+            "database hint elsewhere in repo: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ],
+      "findings": [
+        {
+          "title": "Heuristic scan found only a limited attack surface",
+          "severity": "low",
+          "rule_id": "limited-surface",
+          "entity_id": null,
+          "evidence": [
+            "No major route, secret, or integration patterns triggered a stronger finding."
+          ],
+          "locations": [],
+          "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+          "confidence": "low",
+          "attack_techniques": [],
+          "tags": [
+            "weak-signal"
+          ],
+          "score": 5,
+          "exploitability": null,
+          "exploitability_tier": null,
+          "exploitability_reference": null,
+          "code_flows": [],
+          "taxonomy": null
+        }
+      ],
+      "attack_paths": [
+        {
+          "name": "AT Protocol namespace trust-chain abuse",
+          "steps": [
+            "Entry: Attacker reaches POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py",
+            "Namespace: Endpoint is exposed in AT Protocol namespace `com.atproto`",
+            "Service entry: XRPC request is handled by service `layout`",
+            "Sink: Influence reaches database through protocol-driven service flow",
+            "Evidence: confidence=0.63; xrpc route POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py; namespace signal observed: com.atproto; entry service inferred from repository layout: layout; database hint elsewhere in repo: postgresql (services/layout/app.py)"
+          ],
+          "impact": "An exposed XRPC namespace can be abused to propagate across `layout` and affect database when per-namespace authorization and inter-service trust controls are weak."
+        }
+      ]
+    },
+    "rejected_candidate": {
+      "topology_map": {},
+      "topology_services": {
+        "services/layout/app.py": []
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "peer",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "source": "layout",
+            "target": "peer",
+            "kind": "http-call",
+            "file": "services/layout/app.py",
+            "evidence": "https://peer.internal/users"
+          }
+        ]
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "service_chains": [
+        {
+          "route_method": "POST",
+          "route_path": "/xrpc/com.atproto.repo.createRecord",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py",
+            "entry service from file-local hint: layout",
+            "database sink in service layout: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ],
+      "atproto_chains": [
+        {
+          "route_method": "POST",
+          "route_path": "/xrpc/com.atproto.repo.createRecord",
+          "route_file": "services/layout/app.py",
+          "namespace": "com.atproto",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8500000000000001,
+          "evidence": [
+            "xrpc route POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py",
+            "namespace signal observed: com.atproto",
+            "entry service from analyzer hints: layout",
+            "database sink in service layout: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ],
+      "findings": [
+        {
+          "title": "AT Protocol XRPC surface chains into a downstream trust boundary",
+          "severity": "high",
+          "rule_id": "atproto-trust-chain",
+          "entity_id": null,
+          "evidence": [
+            "confidence=0.85",
+            "xrpc route POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py",
+            "namespace signal observed: com.atproto",
+            "entry service from analyzer hints: layout",
+            "database sink in service layout: postgresql (services/layout/app.py)"
+          ],
+          "locations": [
+            {
+              "file": "services/layout/app.py",
+              "line": null,
+              "fingerprint": null
+            }
+          ],
+          "mitigation": "Enforce namespace-specific authz on XRPC handlers, validate service-auth at each hop, and constrain downstream service/database permissions per endpoint.",
+          "confidence": "high",
+          "attack_techniques": [
+            {
+              "technique_id": "T1199",
+              "name": "Trusted Relationship",
+              "tactic": "Initial Access",
+              "url": "https://attack.mitre.org/techniques/T1199/"
+            },
+            {
+              "technique_id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "tactic": "Initial Access",
+              "url": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ],
+          "tags": [
+            "atproto-chain",
+            "data-risk"
+          ],
+          "score": 100,
+          "exploitability": null,
+          "exploitability_tier": null,
+          "exploitability_reference": null,
+          "code_flows": [],
+          "taxonomy": {
+            "cwe": [
+              "CWE-501"
+            ],
+            "owasp": [
+              "A04:2021",
+              "API10:2023"
+            ],
+            "asvs": [],
+            "attack": [
+              "T1199",
+              "T1190"
+            ]
+          }
+        }
+      ],
+      "attack_paths": [
+        {
+          "name": "AT Protocol namespace trust-chain abuse",
+          "steps": [
+            "Entry: Attacker reaches POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py",
+            "Namespace: Endpoint is exposed in AT Protocol namespace `com.atproto`",
+            "Service entry: XRPC request is handled by service `layout`",
+            "Sink: Influence reaches database through protocol-driven service flow",
+            "Evidence: confidence=0.85; xrpc route POST /xrpc/com.atproto.repo.createRecord in services/layout/app.py; namespace signal observed: com.atproto; entry service from analyzer hints: layout; database sink in service layout: postgresql (services/layout/app.py)"
+          ],
+          "impact": "An exposed XRPC namespace can be abused to propagate across `layout` and affect database when per-namespace authorization and inter-service trust controls are weak."
+        }
+      ]
+    }
+  },
+  "baseline_source_sha256": {
+    "topology.py": "28dcf0de5ad989c8732b66cefbc907864788d7863031ae14e7cb432b498c3fd3",
+    "threat_model.py": "49a08f1a0d3ff348b97b62c0dc44897ab7f4232b177117c967192557cb7cb31f"
+  },
+  "current_source_sha256": {
+    "topology.py": "7ed254df6018b69bc59cb7530ee3189ccc83b7af94518ba0135a5915b69b312a",
+    "threat_model.py": "49a08f1a0d3ff348b97b62c0dc44897ab7f4232b177117c967192557cb7cb31f"
+  }
+}

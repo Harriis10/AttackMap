@@ -2,7 +2,7 @@
 
 **Distribuce Windows, oprava Start scan 22. 10. 2026:** aktuální zdrojový portable ZIP je `desktop/windows/artifacts/AttackMap-Windows-Portable-20261022-startscan-fix.zip`. Opravená uživatelská kopie zůstává v `C:\Projects\FINISHED\AttackMap-Windows-Portable-20261022` a odpovídajícím ZIPu. Přenosný start používá vlastní engine i při existující staré cestě v globálním nastavení. [Důkazy opravy](verification/windows-parity/WP024/startscan-fix-20261022/README.md) a [návod ke spuštění](windows-full-product-launch.md) rozlišují skutečné testy od finálního release a čistého PC. Starší L/B-J ZIP zůstává zachován jako historický podklad. Zadání roadmapy se tím nemění.
 
-**Běh pozastaven kvůli týdennímu limitu 50 %.** [Stav a bezpečné obnovení](verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md). Nespouštět automaticky další práci; tento handoff nemění zadání ani akceptační kritéria roadmapy.
+**Běh obnoven na výslovný pokyn uživatele 22. 10. 2026.** [Aktuální rozdělení práce a další brány](verification/windows-parity/RESUME-2026-10-22/README.md). Dřívější pozastavení zůstává historickým záznamem; rozsah ani akceptační kritéria roadmapy se obnovením nemění.
 
 **Platnost od 20. 10. 2026.** Tento rozcestník určuje, které dokumenty řídí další práci. Pravidla repozitáře v [AGENTS.md](../AGENTS.md) zůstávají platná.
 

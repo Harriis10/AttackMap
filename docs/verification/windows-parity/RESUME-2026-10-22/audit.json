@@ -1,0 +1,1127 @@
+{
+  "date": "2026-10-22",
+  "base_commit": "18fc9b2ae711bf0b39d93c996ae2ab220cc9a82d",
+  "scope": "Read-only acceptance gap audit; no source validation/tests/builds/model calls/processes; canonical trackers unchanged. Recorded evidence is historical scoped proof, not fresh acceptance.",
+  "fresh_acceptance": false,
+  "authority": [
+    "AGENTS.md",
+    "docs/README.md",
+    "docs/roadmap-windows-parity-2026-10-20.md",
+    "docs/windows-parity-todo.md",
+    "docs/windows-parity-backlog.json"
+  ],
+  "counts": [
+    {
+      "status": "DEFERRED",
+      "count": 2
+    },
+    {
+      "status": "DONE",
+      "count": 6
+    },
+    {
+      "status": "IMPLEMENTED",
+      "count": 5
+    },
+    {
+      "status": "IN_PROGRESS",
+      "count": 13
+    },
+    {
+      "status": "MANUAL_PENDING",
+      "count": 5
+    },
+    {
+      "status": "OPEN",
+      "count": 10
+    }
+  ],
+  "checkpoint_verdict": {
+    "K0": "documentary",
+    "K1": "preserve prior scoped contract PASS",
+    "K2": "partial",
+    "K3": "partial Review proof only; five final packaged modes open",
+    "K4": "historical scoped L/B-J runtime PASS; final candidate open; WP021 optional",
+    "K5": "open",
+    "K6": "open human",
+    "K7": "open Mac and actual CI",
+    "K8": "partial",
+    "K9": "deferred"
+  },
+  "tasks": [
+    {
+      "id": "WP001",
+      "tracker_status": "DONE",
+      "checkpoint": "K1",
+      "dependencies": [],
+      "next_acceptance_gate": "Preserve recorded scoped DONE; no fresh execution in this audit.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP001/baseline.json",
+        "docs/verification/windows-parity/WP001/focused-verification.json",
+        "Root review 2026-10-20: evidence contract PASS; installed strict validation remains explicitly FAIL due two preserved smoke JSON files"
+      ],
+      "recorded_execution_scope": "Read-only baseline verification; writes limited to task evidence directory",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP001/baseline.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP001/focused-verification.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP002",
+      "tracker_status": "DONE",
+      "checkpoint": "K1",
+      "dependencies": [
+        "WP001"
+      ],
+      "next_acceptance_gate": "Preserve recorded scoped DONE; no fresh execution in this audit.",
+      "recorded_evidence": [
+        "fixtures/desktop-parity/manifest.json",
+        "docs/desktop-parity-contract.md",
+        "docs/verification/windows-parity/WP002/preparation-2026-10-20.json",
+        "Root validation 2026-10-20: PASS 266; current contract frozen, future WP004/WP014/WP018 additions remain additive gates"
+      ],
+      "recorded_execution_scope": "Preparation only; closure requires WP001 and integrator contract approval",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "fixtures/desktop-parity/manifest.json",
+          "exists": true
+        },
+        {
+          "path": "docs/desktop-parity-contract.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP002/preparation-2026-10-20.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP003",
+      "tracker_status": "DONE",
+      "checkpoint": "K1",
+      "dependencies": [
+        "WP002"
+      ],
+      "next_acceptance_gate": "Preserve recorded scoped DONE; no fresh execution in this audit.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP003/README.md",
+        "docs/verification/windows-parity/WP003/verification.json",
+        "Final focused suite: 87 passed in 245.42s; no provider dispatch or frozen package rebuild"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP003/README.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP003/verification.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP004",
+      "tracker_status": "DONE",
+      "checkpoint": "K1",
+      "dependencies": [
+        "WP003"
+      ],
+      "next_acceptance_gate": "Preserve recorded scoped DONE; no fresh execution in this audit.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP004/verification.json",
+        "169 focused regressions PASS plus 10 final alias/schema echo checks PASS",
+        "frozen WP002 validator 266 PASS unchanged",
+        "native EngineProtocol schema 1.2 consumer 102 checks PASS"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP004/verification.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP005",
+      "tracker_status": "MANUAL_PENDING",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP004"
+      ],
+      "next_acceptance_gate": "Full-shell choose/save/reopen/unsupported and engine-switch round trip; dark/second-size keyboard/Narrator acceptance.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP005/README.md",
+        "54 NativeOptions checks PASS by agent and root; 71 ReportAdapter and 24 EngineLaunchSpec regressions PASS",
+        "root visually reviewed corrected light supported and unsupported previews after contrast and clipping fixes",
+        "shell integration keyboard Narrator dark theme and second size remain pending",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP005/README.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP006",
+      "tracker_status": "MANUAL_PENDING",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP003",
+        "WP005"
+      ],
+      "next_acceptance_gate": "Actual native progress plus analyzer selection, stale-event/cancel checks; inspect checkbox, themes/sizes/accessibility.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP006/",
+        "73 pure progress analyzer checks and 102 EngineProtocol checks PASS",
+        "three synthetic light previews reviewed; one checkbox glyph inconsistency remains",
+        "docs/verification/windows-parity/WP006/recovery-2026-10-20.md",
+        "resumed harness: 9 session scenarios and 2 argument-negative cases PASS; initial 180-second timeout retained separately; root verified EngineSession source hash",
+        "21 owned fake markers, zero matching live children and zero harness PIDs; real scan, checkbox visual and accessibility acceptance still pending"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP006/",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP006/recovery-2026-10-20.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP007",
+      "tracker_status": "DONE",
+      "checkpoint": "K1",
+      "dependencies": [
+        "WP002"
+      ],
+      "next_acceptance_gate": "Preserve recorded scoped DONE; no fresh execution in this audit.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP007/implementation-2026-10-20.md",
+        "Agent verification: ReportSections 98, ReportAdapter 71, C23 composition 17 PASS",
+        "Root verification 2026-10-20: ReportSections.Tests PASS 98"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP007/implementation-2026-10-20.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP008",
+      "tracker_status": "MANUAL_PENDING",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP007"
+      ],
+      "next_acceptance_gate": "Risk/path evidence navigation in full product; exact canonical ID/order, empty/filter/partial and visual/keyboard proof.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP008/implementation-2026-10-20.md",
+        "Model suite 17 PASS; standalone WinUI preview build PASS with zero warnings/errors",
+        "Manual pending: Computer Use initialization timed out three times; no visual or keyboard acceptance claimed"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP008/implementation-2026-10-20.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP009",
+      "tracker_status": "MANUAL_PENDING",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP007"
+      ],
+      "next_acceptance_gate": "Inventory full-shell selection/evidence/coverage journeys; both themes/two sizes and keyboard/Narrator.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP009/implementation-2026-10-20.md",
+        "64 inventory model checks PASS",
+        "standalone WinUI preview build PASS with zero warnings/errors",
+        "visual, keyboard, Narrator and shell integration remain pending"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP009/implementation-2026-10-20.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP010",
+      "tracker_status": "MANUAL_PENDING",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP007"
+      ],
+      "next_acceptance_gate": "Offline diagram full-shell execution with network disabled, security negatives, text fallback, visual/keyboard/Narrator.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP010/README.md",
+        "20 parser, manifest and security checks PASS by agent and root",
+        "test and standalone WinUI preview builds PASS with zero warnings/errors",
+        "visible window, visual, keyboard, Narrator, network-disabled runtime and shell integration remain open"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP010/README.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP011",
+      "tracker_status": "IMPLEMENTED",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP008",
+        "WP009"
+      ],
+      "next_acceptance_gate": "Overview navigation preserves selected generation/return selection and exact core priorities; full-shell manual review.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP011/preparation-2026-10-20.md",
+        "18 bounded overview checks PASS by agent and root",
+        "standalone WinUI preview build PASS with zero warnings/errors",
+        "shell navigation, return selection and visual/keyboard acceptance remain open"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP011/preparation-2026-10-20.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP012",
+      "tracker_status": "IMPLEMENTED",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP005",
+        "WP007"
+      ],
+      "next_acceptance_gate": "Explicit baseline preview/apply/undo/rescan on user-selected file; demonstrate allowed path contract and preservation.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP012/preparation-2026-10-20.md",
+        "33 bounded suppression checks PASS by agent and root",
+        "standalone WinUI preview build PASS with zero warnings/errors",
+        "arbitrary selected baseline apply is blocked by current repo-root-only action contract; real apply undo rescan and manual acceptance remain open"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP012/preparation-2026-10-20.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP013",
+      "tracker_status": "IMPLEMENTED",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP004",
+        "WP005",
+        "WP007"
+      ],
+      "next_acceptance_gate": "Actual previous/custom comparison, recent repos, pin/retention round trips with selected-generation identity.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP013/preparation-2026-10-20.md",
+        "28 bounded history checks PASS by agent and root",
+        "standalone WinUI preview build PASS with zero warnings/errors",
+        "LocalSettings shell integration, real history compare pin retention journey and visual keyboard acceptance remain open",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/recent-store/process.json"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP013/preparation-2026-10-20.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/recent-store/process.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP014",
+      "tracker_status": "DONE",
+      "checkpoint": "K3",
+      "dependencies": [
+        "WP004"
+      ],
+      "next_acceptance_gate": "Preserve recorded scoped DONE; no fresh execution in this audit.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP014/verification.json",
+        "389 offline checks PASS with one deliberate live CLI skip; final 72 mode citation checks PASS",
+        "root narrative citation check 17 PASS",
+        "six-mode findings invariance: 4871 bytes sha256 ee071c99076fc80af9d1be8e9243bfb75063f5b52c992e6d9fed52561631af49; native and live acceptance remain WP015-WP017"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP014/verification.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP015",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K3",
+      "dependencies": [
+        "WP005",
+        "WP014"
+      ],
+      "next_acceptance_gate": "Final packaged provider/protected-store round trip, supported controls and unsupported combinations; final visual/a11y.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP015/README.md",
+        "fresh Native AI 49 PASS; final capture and clip preview builds 0 warnings/errors; earlier NativeOptions 54 and ProviderConfiguration 16 remain separate evidence",
+        "docs/verification/windows-parity/WP015/root-visual-review-2026-10-20.md",
+        "both synthetic capture journeys PASS but scroll/header pixel overlap remains after clip attempt; visual gate not accepted; live ProviderRoundtrip not rerun",
+        "user-requested normal preview left open; shell integration, protected-store and manual accessibility acceptance pending",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/provider-scroll-c/result.json",
+        "docs/verification/windows-parity/WP016/markdown-review-full-k-20261021-01/visual-review.md"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP015/README.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP015/root-visual-review-2026-10-20.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/provider-scroll-c/result.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP016/markdown-review-full-k-20261021-01/visual-review.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP016",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K3",
+      "dependencies": [
+        "WP007",
+        "WP015"
+      ],
+      "next_acceptance_gate": "All actual mode artifacts and budget/citation/unknown-usage states shown for correct selected generation; packaged/manual checks.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP016/shutdown-hardening-2026-10-21.md",
+        "docs/verification/windows-parity/WP016/compact-ai-presentation-2026-10-21.md",
+        "docs/verification/windows-parity/WP016/compact-review-full-i-20261021-01/visual-review.md",
+        "docs/verification/windows-parity/WP016/markdown-review-full-k-20261021-01/visual-review.md"
+      ],
+      "recorded_execution_scope": "Compact AI projection implemented; 61 focused checks, component build and actual full I-shell4-frame capture exit0. Root reviewed1024Light/1600Dark saved actual Review generation. Full packaged/mode/manual gates remain open.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP016/shutdown-hardening-2026-10-21.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP016/compact-ai-presentation-2026-10-21.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP016/compact-review-full-i-20261021-01/visual-review.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP016/markdown-review-full-k-20261021-01/visual-review.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP017",
+      "tracker_status": "OPEN",
+      "checkpoint": "K3",
+      "dependencies": [
+        "WP016",
+        "WP024"
+      ],
+      "next_acceptance_gate": "Five modes Review/Hunt/Hunt+verify/Remediate/Triage each complete from native UI through final packaged engine against mandated local model/Juice Shop; bind HTTP,response,artifact,usage,generation and visible output. Fault fixtures separately.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP017/opt-in-http-audit-2026-10-21.md",
+        "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/live-evidence.json",
+        "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/consistency-result.json"
+      ],
+      "recorded_execution_scope": "Preparatory source-native Review only: full G app, new Juice Shop scan, exact LM Studio model, one returned HTTP200/completed nonempty output; native exit0, selected display/export hashes consistent. Five final packaged-engine modes and acceptance remain open.",
+      "external_requirements": [
+        "Running local LM Studio and requested model"
+      ],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP017/opt-in-http-audit-2026-10-21.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/live-evidence.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/consistency-result.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP018",
+      "tracker_status": "IMPLEMENTED",
+      "checkpoint": "K4",
+      "dependencies": [
+        "WP004"
+      ],
+      "next_acceptance_gate": "Fresh final frozen source-equivalent serial/parallel 2/3-repo matrix, spaces/Unicode/same basenames/child failure/cancel cleanup.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP018/implementation.md",
+        "docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md",
+        "root-reviewed fixture repair: 38 focused tests PASS; fleet regressions 29 PASS and one explicit Windows chmod skip; production source unchanged",
+        "source-worker all/json/markdown serial-parallel parity passed for spaces and Unicode; fresh frozen parity and real process cleanup acceptance remain pending"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP018/implementation.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP019",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K4",
+      "dependencies": [
+        "WP005",
+        "WP007",
+        "WP018"
+      ],
+      "next_acceptance_gate": "Repeat final candidate fleet outcomes/graph/partial failures and native review. L/B-J fleet runtime and four reviewed frames are historical scoped proof.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP019/agent-fleet-verification-2026-10-21.json"
+      ],
+      "recorded_execution_scope": "Fleet component/protocol: final 57 focused checks passed; root shell composition, actual fleet run, graph and visual gates pending.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP019/agent-fleet-verification-2026-10-21.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP020",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K4",
+      "dependencies": [
+        "WP006",
+        "WP013"
+      ],
+      "next_acceptance_gate": "Final candidate single-watch native lifecycle and platform filesystem matrix; review retained repository-watch actual dimensions/images first.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/watch-requeue/process.json",
+        "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md"
+      ],
+      "recorded_execution_scope": "Watch component: 31 original Windows/policy checks and 13 Python regressions passed; root added busy-action requeue and shell lifecycle, focused recheck pending.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/watch-requeue/process.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP021",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP019",
+        "WP020"
+      ],
+      "next_acceptance_gate": "Optional fleet-watch final source/frozen matrix and final labels/notices review; do not make this optional extension a K4 prerequisite.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP021/component-verification-2026-10-21.md",
+        "docs/verification/windows-parity/WP021/native-full-shell-j-20261021-01/parity-smoke.json",
+        "docs/verification/windows-parity/WP021/native-full-shell-j-20261021-01/process.json",
+        "docs/verification/windows-parity/WP021/native-full-shell-k-frozen-20261021-01/checkpoint.md",
+        "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md"
+      ],
+      "recorded_execution_scope": "Coordinator41checks and full J-host journey passed: second/third-root full rescans, owned canary ignored with actual reports outside roots, set-switch/Stop silence, actual Cancel settles owned workspace and preserves single report; exit0. Usable Jframe reviewed; raw repository labels/host notice need final UI correction. Not whole-task acceptance.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP021/component-verification-2026-10-21.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP021/native-full-shell-j-20261021-01/parity-smoke.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP021/native-full-shell-j-20261021-01/process.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP021/native-full-shell-k-frozen-20261021-01/checkpoint.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP021/native-full-shell-l-frozen-20261021-04/checkpoint.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP022",
+      "tracker_status": "IMPLEMENTED",
+      "checkpoint": "K2",
+      "dependencies": [
+        "WP007",
+        "WP013"
+      ],
+      "next_acceptance_gate": "Actual selected-generation JSON/MD/HTML/PDF/SARIF exports, missing PDF dependency, clipboard/open/reveal and external SARIF consumer.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP022/preparation-2026-10-20.md",
+        "43 bounded selected export and SARIF checks PASS by agent and root",
+        "no actual export PDF clipboard open reveal or full external SARIF consumer validation; shell and WP013 integration remain open",
+        "docs/verification/windows-parity/WP022/agent-export-verification-2026-10-21.json"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP022/preparation-2026-10-20.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP022/agent-export-verification-2026-10-21.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP023",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K5",
+      "dependencies": [
+        "WP006",
+        "WP008",
+        "WP009",
+        "WP010",
+        "WP011",
+        "WP012",
+        "WP013",
+        "WP017",
+        "WP019",
+        "WP020",
+        "WP022"
+      ],
+      "next_acceptance_gate": "Resolve remaining seven timing regressions without weakened assertions; one stable integrated checkpoint then exact final same-source package and end-to-end/manual gates. Prior 26 C# suites/1125 checks are historical.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-g/build-inputs-after.json",
+        "docs/verification/windows-parity/WP023/native-consumers-20261021-j-b/aggregate.json",
+        "docs/verification/windows-parity/WP023/python-stable-20261021-01-triage.md",
+        "docs/verification/windows-parity/WP023/controlled-processes-20261021-k-b/checkpoint.md",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-k/build-inputs-after.json",
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md"
+      ],
+      "recorded_execution_scope": "Full existing MainWindow through nativeK; exact hash-bound K/frozen-B-J fleet runtime. Broad checkpoint terminal with12 failures under triage;4fixture repairs focusedPASS, 8timing retries pending. No final single-source package/AI/manual acceptance inferred.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-g/build-inputs-after.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP023/native-consumers-20261021-j-b/aggregate.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP023/python-stable-20261021-01-triage.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP023/controlled-processes-20261021-k-b/checkpoint.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-k/build-inputs-after.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP024",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K5",
+      "dependencies": [
+        "WP001"
+      ],
+      "next_acceptance_gate": "Fresh production freeze bound to current source/toolchain/analyzer inventory, tamper/SBOM guards, real installed bundled scan without Python PATH. Startscan fix is scoped native+B-J proof, not final source identity.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP024/implementation-verification.json",
+        "23 focused Python release tests PASS",
+        "24 EngineLaunchSpec checks PASS",
+        "isolated synthetic install/upgrade/rollback/tamper/uninstall smoke PASS; real production freeze and installed bundled scan remain open",
+        "docs/verification/windows-parity/WP024/fresh-bj-20261021/checkpoint.json"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP024/implementation-verification.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP024/fresh-bj-20261021/checkpoint.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP025",
+      "tracker_status": "OPEN",
+      "checkpoint": "K5",
+      "dependencies": [
+        "WP023",
+        "WP024"
+      ],
+      "next_acceptance_gate": "Signing certificate, isolated supported Windows x64 clean host and prior supported upgrade package; actual signed install/first scan/cancel/retry/history/export/provider-down/upgrade/rollback/uninstall, PS5.1/MotW/data preservation.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "Signing certificate and clean Windows host"
+      ],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP026",
+      "tracker_status": "OPEN",
+      "checkpoint": "K6",
+      "dependencies": [
+        "WP023"
+      ],
+      "next_acceptance_gate": "Stable build; real tester keyboard/Narrator/focus/Escape/dialogs/clipboard/reveal/contrast/reduced motion/200% text; 72 reference states plus new views reviewed; retain original C19 thresholds.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "Human keyboard, Narrator and visual reviewer"
+      ],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP027",
+      "tracker_status": "OPEN",
+      "checkpoint": "K6",
+      "dependencies": [
+        "WP025",
+        "WP026"
+      ],
+      "next_acceptance_gate": "10 new study participants; 4 actual beta weeks, >=12 participants >=6/platform and >=100 completed/intentionally-cancelled runs/platform; consented data and issue dispositions.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "Consenting real participants and four elapsed beta weeks; macOS evidence separate"
+      ],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP028",
+      "tracker_status": "OPEN",
+      "checkpoint": "K7",
+      "dependencies": [
+        "WP002",
+        "WP003",
+        "WP004"
+      ],
+      "next_acceptance_gate": "Approved pinned Mac checkout and real Swift/Xcode target. Apply/review prepared patch, implement ProcessRunner/action framing, generation/manifest/publication/export/retention, actual cancel/runtime. Existing patch applicability is not Swift acceptance.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP028/mac-patch-preparation.md"
+      ],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "Writable separate AttackMap-mac checkout; macOS runtime for acceptance"
+      ],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP028/mac-patch-preparation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP029",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K7",
+      "dependencies": [
+        "WP005",
+        "WP007",
+        "WP028"
+      ],
+      "next_acceptance_gate": "Real remote Python+C#+Swift CI URLs at pinned core/fixture/Mac revisions; identify real Swift target, prove deliberate broken accepted fixture fails then restored green, final source/frozen equivalence, owner-configured required checks.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP029/implementation-2026-10-21.md",
+        "docs/verification/windows-parity/WP029/actual-three-fixtures-2026-10-21.json"
+      ],
+      "recorded_execution_scope": "Local CI wiring, actual seven analyzer extractions across three fixtures and identity guards; remote CI, Swift and frozen consumer qualification remain open.",
+      "external_requirements": [
+        "Authorized CI dispatch and both repository CI runners"
+      ],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP029/implementation-2026-10-21.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP029/actual-three-fixtures-2026-10-21.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP030",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP001"
+      ],
+      "next_acceptance_gate": "Add 17 repos/275 positive/281 negative/8 clean to reach minimum; provenance/license and independent human labels; freeze >=20% repo holdout before tuning, actual evaluate and metrics.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP030/corpus-audit.json",
+        "docs/verification/windows-parity/WP030/evaluation/evaluation-report.json",
+        "Root verification 2026-10-20: inventory PASS; test_evaluation.py 27 passed; numeric and independent-human-review gates remain open"
+      ],
+      "recorded_execution_scope": "Read-only corpus audit; writes limited to task evidence directory",
+      "external_requirements": [
+        "Independent human-reviewed labels"
+      ],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP030/corpus-audit.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP030/evaluation/evaluation-report.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP031",
+      "tracker_status": "OPEN",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP030"
+      ],
+      "next_acceptance_gate": "After reviewed corpus: paired detector fixes with held-out >=95% precision/>=80% recall per mature family and >=30 positive/30 negative; experimental otherwise.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP032",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP002"
+      ],
+      "next_acceptance_gate": "Complete finding-to-score/evidence-reference audit and multi-backend/protocol/namespace negative controls; preserve authority/host/port/case/alias origins. Revalidate exact final source.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP032/agent-identity-verification-2026-10-21.json",
+        "docs/verification/windows-parity/WP032/r1-r2-canonical-20261021-a/focused-run.json"
+      ],
+      "recorded_execution_scope": "Service identity fixes: 175 focused and 67 final-source merge/ranking checks passed; full evidence-reference completeness audit remains open.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP032/agent-identity-verification-2026-10-21.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP032/r1-r2-canonical-20261021-a/focused-run.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP033",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP002"
+      ],
+      "next_acceptance_gate": "Final source/frozen/native snapshot/incremental round trip including isolated SDK transport and remaining live symlink resolution; 100-edit final equivalence with provenance/coverage; C34 20-repeat campaign only before performance claim.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP033/implementation-2026-10-21.md"
+      ],
+      "recorded_execution_scope": "Active captured-enumeration/raw SDK bytes/cache identity and explicit incremental work; not frozen or accepted. Noncooperating/isolated plugin input boundary remains open.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP033/implementation-2026-10-21.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP034",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP033"
+      ],
+      "next_acceptance_gate": "Same engine/hardware complete 10k/50k/100k with declared bytes/graph, default peak <2GiB or prior measured reviewed policy change; partial 10k under 600s soft-budget skip is not acceptance. Cancel-under-load/fleet admission.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+        "docs/verification/windows-parity/WP034/10k-default-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/ordered-prefetch-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/fleet-policy-2026-10-21.md",
+        "docs/verification/windows-parity/WP034/repaired-harness-preflight-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/10k-repaired-2026-10-21.json",
+        "docs/verification/windows-parity/WP034/representative-copy-integration-2026-10-21.json"
+      ],
+      "recorded_execution_scope": "Sealed-source actual10k fully terminal/cleanup verified: peakjobcommit1,721,356,288B,60000signals/20000surfaces, but600s soft budget exceeded and later stages skipped/coveragepartial, so C35 remains open. Actual1000 full-pipeline CPU profile active; no50k/100k and no source edits under stable test/build leases.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP034/10k-default-2026-10-21.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP034/ordered-prefetch-2026-10-21.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP034/fleet-policy-2026-10-21.md",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP034/repaired-harness-preflight-2026-10-21.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP034/10k-repaired-2026-10-21.json",
+          "exists": true
+        },
+        {
+          "path": "docs/verification/windows-parity/WP034/representative-copy-integration-2026-10-21.json",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP035",
+      "tracker_status": "IN_PROGRESS",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP034"
+      ],
+      "next_acceptance_gate": "Final frozen isolated-host crash/hang/flood/invalid/memory and sibling retention tests on supported OSes; qualified snapshot transport/provenance. Explicit filesystem/network limits; process isolation is not sandbox/authenticity.",
+      "recorded_evidence": [
+        "docs/verification/windows-parity/WP035/provenance-2026-10-21.md"
+      ],
+      "recorded_execution_scope": "Windows pre-resume OS caps/recovery, sealed shared snapshot SDK transport and parent-authoritative attribution implemented/focused proofs frozen. Single broad Python regression active; direct filesystem/network unrestricted and supported-OS/frozen/resource gates remain open.",
+      "external_requirements": [],
+      "evidence_paths": [
+        {
+          "path": "docs/verification/windows-parity/WP035/provenance-2026-10-21.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "WP036",
+      "tracker_status": "DEFERRED",
+      "checkpoint": "K9",
+      "dependencies": [
+        "WP027",
+        "WP033",
+        "WP034",
+        "WP040"
+      ],
+      "next_acceptance_gate": "Deferred: >=3 teams/8 weeks demand, >=2 repeat unmet needs before explicit go; documented no-go valid.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "Three teams and eight-week workflow evidence"
+      ],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP037",
+      "tracker_status": "OPEN",
+      "checkpoint": "K5",
+      "dependencies": [
+        "WP023",
+        "WP025",
+        "WP026"
+      ],
+      "next_acceptance_gate": "After actual WP023/025/026 proof, dossier exact commit/package/scope/K1-K8/gaps/rollback and independent hash/link review; public publication remains separate.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP038",
+      "tracker_status": "OPEN",
+      "checkpoint": "K7",
+      "dependencies": [
+        "WP028",
+        "WP029"
+      ],
+      "next_acceptance_gate": "Actual Mac host, credentials/notarization and human testers; Xcode/runtime/VoiceOver, Mac C26 and signed install/upgrade/rollback. Historical DMG not proof.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "macOS host, signing/notarization credentials and human testers"
+      ],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP039",
+      "tracker_status": "OPEN",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP031",
+        "WP032",
+        "WP035"
+      ],
+      "next_acceptance_gate": "After WP031/032/035: production-like Node/ATProto, PHP/Laminas/Omeka and Python references, labeled reviews, capability/unsupported matrix, provenance and unrelated-repo negatives; maturity requires C27.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP040",
+      "tracker_status": "OPEN",
+      "checkpoint": "K8",
+      "dependencies": [
+        "WP029"
+      ],
+      "next_acceptance_gate": "After actual WP029: clean-runner install proof, 3 new contributor trials core<=30m/desktop<=90m excluding prerequisite downloads and 8 actual weeks lead-time/flaky observations.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "Three new contributors and eight-week observations"
+      ],
+      "evidence_paths": []
+    },
+    {
+      "id": "WP041",
+      "tracker_status": "DEFERRED",
+      "checkpoint": "K9",
+      "dependencies": [
+        "WP035",
+        "WP036"
+      ],
+      "next_acceptance_gate": "Deferred until explicit WP036 go: approved smallest pilot, cross-tenant controls, restore<=4h/data loss<=24h, 30-day real pilot and cost ceiling.",
+      "recorded_evidence": [],
+      "recorded_execution_scope": null,
+      "external_requirements": [
+        "Explicit C39 go decision and authorized pilot"
+      ],
+      "evidence_paths": []
+    }
+  ]
+}

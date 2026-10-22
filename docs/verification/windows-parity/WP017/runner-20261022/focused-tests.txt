@@ -1,0 +1,22 @@
+WP017 runner focused verification — 2026-10-22
+
+Command (repository root):
+.venv\Scripts\python.exe -m pytest tests\test_wp017_native_runner.py tools\test_verify_wp017_live.py -q -p no:cacheprovider --junitxml=docs\verification\windows-parity\WP017\runner-20261022\focused-tests.xml
+
+Observed terminal result:
+..............................                       [100%]
+30 passed, 20 subtests passed in 2.22s
+Exit code: 0
+
+Scope:
+- 20 runner checks: synthetic manifest/input/environment negative gates; harmless
+  actual owned Python-process suspended launch, job cleanup and error-mode checks.
+- 10 existing offline evidence-gate fixture checks.
+- No native GUI, build, HTTP/provider request or completed model response.
+- Root's separate actual 824-entry read-only portable preflight is documented in
+  README.md and is not part of this synthetic/process test count.
+
+The earlier restricted-shell test attempt failed because Python temporary-folder
+ACLs denied nested access; a process-count assertion also exposed Windows venv
+launcher descendants and now correctly requires at least the owned parent+child.
+The focused command above ran in the approved normal test execution context.

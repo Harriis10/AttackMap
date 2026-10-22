@@ -67,6 +67,7 @@ from __future__ import annotations
 
 import ast
 import bisect
+import heapq
 import re
 from dataclasses import dataclass, field
 
@@ -243,6 +244,33 @@ _BRACE_PATH_PARAM_RE = re.compile(r"\{(\w+)(?::[^}]*)?\}")
 _SAFE_CONVERTERS = frozenset({"int", "float", "uuid"})
 
 
+def _enclosing_segments(
+    funcs: list[tuple[int, int, ast.AST]],
+) -> tuple[tuple[int, ...], tuple[ast.AST | None, ...]]:
+    """Index the greatest-start, first-tie winner of inclusive intervals."""
+    events: dict[int, list[tuple[int, int, int, ast.AST]]] = {}
+    for ordinal, (start, end, node) in enumerate(funcs):
+        # The original lookup initializes best_start to -1.
+        if start <= end and start > -1:
+            events.setdefault(start, []).append((-start, ordinal, end, node))
+            events.setdefault(end + 1, [])
+    active: list[tuple[int, int, int, ast.AST]] = []
+    starts: list[int] = []
+    winners: list[ast.AST | None] = []
+    prior = None
+    for line in sorted(events):
+        for entry in events[line]:
+            heapq.heappush(active, entry)
+        while active and active[0][2] < line:
+            heapq.heappop(active)
+        winner = active[0][3] if active else None
+        if winner is not prior:
+            starts.append(line)
+            winners.append(winner)
+            prior = winner
+    return tuple(starts), tuple(winners)
+
+
 class _PyFlow:
     def __init__(self, content: str) -> None:
         self.content = content
@@ -254,6 +282,7 @@ class _PyFlow:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 start = min([d.lineno for d in node.decorator_list] + [node.lineno])
                 self.funcs.append((start, node.end_lineno or node.lineno, node))
+        self._enclosing_starts, self._enclosing_winners = _enclosing_segments(self.funcs)
         for node in self.tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 self._top[node.name] = node
@@ -277,12 +306,8 @@ class _PyFlow:
         return b[:cap].decode("utf-8", "replace")
 
     def _enclosing(self, line: int) -> ast.AST | None:
-        best = None
-        best_start = -1
-        for start, end, node in self.funcs:
-            if start <= line <= end and start > best_start:
-                best, best_start = node, start
-        return best
+        position = bisect.bisect_right(self._enclosing_starts, line) - 1
+        return self._enclosing_winners[position] if position >= 0 else None
 
     # -- sources --
     def _source(self, text: str) -> tuple[str, str] | None:

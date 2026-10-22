@@ -1,0 +1,39 @@
+{
+  "base_commit": "18fc9b2ae711bf0b39d93c996ae2ab220cc9a82d",
+  "task_counts": {
+    "DONE": 6,
+    "MANUAL_PENDING": 5,
+    "IMPLEMENTED": 5,
+    "IN_PROGRESS": 14,
+    "OPEN": 9,
+    "DEFERRED": 2
+  },
+  "dependency_graph_acyclic": true,
+  "scoped_verification": {
+    "taint_tests": 275,
+    "owner_tests": 132,
+    "owner_full_output_equal": 346,
+    "r4_tests": 5,
+    "runner_and_gate_tests": 30,
+    "runner_subtests": 20,
+    "real_portable_preflight_entries": 824
+  },
+  "source_sha256": {
+    "src/attackmap/taint_flow.py": "af4e1bb6341abc26f400aa1cda9d789749a7e38cb28eae99793762fe010944d2",
+    "src/attackmap/topology.py": "7ed254df6018b69bc59cb7530ee3189ccc83b7af94518ba0135a5915b69b312a",
+    "src/attackmap/threat_model.py": "49a08f1a0d3ff348b97b62c0dc44897ab7f4232b177117c967192557cb7cb31f",
+    "tests/test_taint_enclosing_index.py": "db3a6259e2e7fba4636c802975d85e8b32f6f72850ee5cbfd870df40f66dc32a",
+    "tests/test_wp032_service_owner.py": "717b52696efd6ae05c8c7146c9d1422080066248a0001adf2b9905beb8ef9083",
+    "tools/run_wp017_native_modes.py": "f0b6df2edafb9b752a799635f141ce8030302b95b16d3e11a0a584f54b5b7f8c",
+    "tests/test_wp017_native_runner.py": "5cd815833bcf51d0cc2ab72e8e295a95676553b81a290c3aab628e8d65acd219"
+  },
+  "new_live_model_responses": 0,
+  "new_gui_journeys": 0,
+  "new_package_built": false,
+  "broad_regression_accepted": false,
+  "whole_wp_tasks_closed_this_batch": 0,
+  "subagent_model": "gpt-6.1-sol",
+  "new_subagent_reasoning_effort": "ultra",
+  "public_finished_copy_modified": false,
+  "next_gate": "Stable broad checkpoint, fresh same-source frozen engine/package, five native live modes; manual/external gates separately"
+}

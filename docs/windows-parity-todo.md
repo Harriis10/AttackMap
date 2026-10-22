@@ -1,6 +1,8 @@
 # AttackMap Windows parity — podrobné TODO pro paralelní agenty
 
-**Baseline 20. 10. 2026; integrační revize 21. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Aktuální stav: 6 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 13 IN_PROGRESS, 10 OPEN, 2 DEFERRED. Přidělení ani component testy neuzavírají integraci nebo acceptance. Produktem je původní celé MainWindow; viz [rozhodnutí](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). WP021 zůstává volitelné rozšíření.
+**Baseline 20. 10. 2026; integrační revize 22. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Aktuální stav: 6 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 14 IN_PROGRESS, 9 OPEN, 2 DEFERRED. Přidělení ani component testy neuzavírají integraci nebo acceptance. Produktem je původní celé MainWindow; viz [rozhodnutí](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). WP021 zůstává volitelné rozšíření.
+
+**Obnovený běh:** [rozdělení práce a zbývající brány](verification/windows-parity/RESUME-2026-10-22/README.md). Na pokyn uživatele nové subagentní běhy používají GPT-6.1 Sol s reasoning effort `ultra`. WP017 se rozpracovává přípravou runneru; pět skutečných režimů ani finální package se tím neuzavírají.
 
 
 Přípravné implementační a integrační řezy mohou pracovat nad zkontrolovaným, hashově svázaným zdrojovým checkpointem závislosti. Otevřené ruční, živé a release brány závislostí stále blokují přijetí celého úkolu; rozpracování neznamená DONE. Přesný omezený rozsah je uveden v JSON `execution_scope`.
@@ -276,7 +278,8 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP017 — Skutečné lokální AI end-to-end
 
-- Priorita: P1; lane: LIVE_QA; checkpoint: K3; stav: OPEN.
+- Priorita: P1; lane: LIVE_QA; checkpoint: K3; stav: IN_PROGRESS.
+- Owner: `/root` pro provider/UI; příprava runneru `/root/ultra_native_ai_runner`, base `18fc9b2`. Změna stavu znamená přípravu ověření, nikoli nové live modelové odpovědi.
 - Závislosti: WP016, WP024.
 - Kritéria: C14, C21, C22, C23; původní úkoly: AM033; funkce: F12–F15.
 - Zápis: `docs/verification/windows-parity/WP017/`, malý reproduce script pokud potřebný.
@@ -370,6 +373,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: integrovat malé controls přes event APIs, žádná souběžná náhrada MainWindow; replay stejného corpus starým/native klientem pro sémantiku; scan→inspect→suppress→rescan→compare→export; failure/cancel/repo switch.
 - DoD: žádná lost-feature regrese, žádný stale report/secret leak/orphan; K1–K4 kritéria podložená. Jeden identifikovaný source snapshot a odpovídající nový package candidate.
 - Ověření: jednou široká relevantní Python suite a native consumer matrix na stabilním snapshotu, source/frozen/native end-to-end; unit/fake/live/manual výsledky zvlášť.
+- Řez 22. 10. 2026: intervalový index v Python taint flow; 275 cílených testů prošlo včetně všech sedmi dříve selhávajících timing případů s původními limity. Explicitní reference/current porovnání celého ScanResult pro 6000 rout je shodné a vstupy zůstaly beze změny. Nezávislé ultra review bez blokujícího nálezu. [Důkazy](verification/windows-parity/WP023/resume-scanner-20261022/README.md). Nový broad checkpoint, fresh package a zbývající integrační brány zůstávají otevřené.
 
 <a id="wp024"></a>
 
