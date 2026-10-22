@@ -1,5 +1,11 @@
 # Portable Windows correction — 22 October 2026
 
+Follow-up requested by the user: [actual local LM Studio connection, portable
+native AI review scan and advisory report-quality review](live-lmstudio/README.md).
+The original no-AI scan below is kept separate. Follow-up evidence records three
+completed CyberStag responses and an earlier client timeout without claiming
+server-side completion or final release acceptance.
+
 User reported copying the latest native binary to a second PC and being asked
 for Python/AttackMap engine. Confirmed packaging defect: integrated L contains
 the native UI/runtime but no `engine` directory. An EXE link was an incorrect

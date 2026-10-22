@@ -1,0 +1,77 @@
+{
+  "id": "resp_692db7fb76b6de4130bd3a3fa6c5c7135aec34aeeb7cf892",
+  "object": "response",
+  "created_at": 1792643842,
+  "completed_at": 1792643856,
+  "status": "completed",
+  "incomplete_details": null,
+  "model": "cyberstag-security-26b-a4b-v1",
+  "previous_response_id": null,
+  "instructions": null,
+  "output": [
+    {
+      "id": "rs_v7hbwfn7b6hu305z4bd1zj",
+      "type": "reasoning",
+      "status": "completed",
+      "summary": [],
+      "content": [
+        {
+          "type": "reasoning_text",
+          "text": "*   Role: Specialized AI model (hacker, malware analyst, reverse engineer, SOC analyst, detection engineer).\n    *   Task: Local connectivity test.\n    *   Constraint 1: Reply in one short sentence.\n    *   Constraint 2: Do not use tools.\n    *   User prompt: \"Reply with LM_STUDIO_CYBERSTAG_OK to confirm that actual text generation works.\"\n\n    *   The user wants a specific confirmation string: `LM_STUDIO_CYBERSTAG_OK`.\n    *   The system instruction requires one short sentence.\n\n    *   Option 1: \"LM_STUDIO_CYBERSTAG_OK\" (Just the phrase, technically not a full sentence but common in these tests).\n    *   Option 2: \"Confirmed: LM_STUDIO_CYBERSTAG_OK.\"\n    *   Option 3: \"LM_STUDIO_CYBERSTAG_OK confirmed.\"\n\n    *   \"LM_STUDIO_CYBERSTAG_OK\" is what the user explicitly requested. The system instruction says \"Reply in one short sentence\".\n\n    *   \"Confirmed, LM_STUDIO_CYBERSTAG_OK.\" or simply \"LM_STUDIO_CYBERSTAG_OK confirmed.\"\n    *   Let's stick to the most direct response that satisfies both the user and the system instruction.\n\n    *Self-Correction:* The prompt says \"Reply with [string]...\". If I just reply with the string, it is a one-sentence fragment/statement in context of a connectivity test.\n\n    Final Choice: \"LM_STUDIO_CYBERSTAG_OK confirmed.\" (or just the string if interpreted as a sentence). Let's go with \"LM_STUDIO_CYBERSTAG_OK\" - it's short and fulfills the request exactly. Actually, to be safe as a *sentence*: \"The status is LM_STUDIO_CYBERSTAG_OK.\" No, let's just provide the requested confirmation string in a single sentence format.\n\n    Let's use: \"LM_STUDIO_CYBERSTAG_OK confirmed.\" (It is a short sentence).\n\n    Wait, if I want to be 100% compliant with \"Reply with [string]\":\n    \"LM_STUDIO_CYBERSTAG_OK.\" (A single word/phrase can act as a complete utterance in testing).\n\n    Let's go with: \"Confirmed: LM_STUDIO_CYBERSTAG_OK.\"\n\n    Actually, looking at the prompt again: \"Reply with LM_STUDIO_CYBERSTAG_OK to confirm...\".\n    The simplest way is just the string.\n\n    Final decision: `LM_STUDIO_CYBERSTAG_OK confirmed.` -> Short sentence. Contains required string. One sentence only. No tools used.\n\n    Wait, looking at standard LLM testing patterns for \"connectivity tests\", often they want exactly what was asked.\n    \"LM_STUDIO_CYBERSTAG_OK.\"\n\n    Let's go with: `Confirmed: LM_STUDIO_CYBERSTAG_OK.`"
+        }
+      ]
+    },
+    {
+      "id": "msg_sdhtwehgszmmfxshmrd1o",
+      "type": "message",
+      "role": "assistant",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "Confirmed: LM_STUDIO_CYBERSTAG_OK.",
+          "annotations": [],
+          "logprobs": []
+        }
+      ]
+    }
+  ],
+  "error": null,
+  "tools": [],
+  "tool_choice": "auto",
+  "truncation": "auto",
+  "parallel_tool_calls": true,
+  "text": {
+    "format": {
+      "type": "text"
+    }
+  },
+  "top_p": 0.95,
+  "presence_penalty": 0,
+  "frequency_penalty": 1.1,
+  "top_logprobs": 0,
+  "temperature": 0.8,
+  "reasoning": {
+    "summary": null,
+    "effort": null
+  },
+  "usage": {
+    "input_tokens": 98,
+    "output_tokens": 698,
+    "total_tokens": 796,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens_details": {
+      "reasoning_tokens": 684
+    }
+  },
+  "max_output_tokens": 2048,
+  "max_tool_calls": null,
+  "store": true,
+  "background": false,
+  "service_tier": "default",
+  "metadata": {},
+  "safety_identifier": null,
+  "prompt_cache_key": null
+}
