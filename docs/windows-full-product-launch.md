@@ -4,7 +4,8 @@ Use `Launch-AttackMap-Full.bat` from the repository root. It opens the existing
 full `AttackMap.NativeSpike/MainWindow` application selected in
 `desktop/windows/full-product-launch.json`. The release owner sets the exact
 absolute directory and EXE plus DLL SHA256 after verifying that publish. The
-current selection is the verified local K preview. There is no timestamp search,
+current selection is the complete portable L/B-J development preview prepared on
+22 October. It contains the native runtime and frozen engine. There is no timestamp search,
 preview fallback, automatic build, engine download or replacement of the
 preserved `desktop/windows/artifacts/native-spike` baseline.
 
@@ -29,7 +30,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/launch_native_full
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/launch_native_full_product.ps1 -BuildDirectory 'C:\Projects\INPROGRESS\AttackMap\desktop\windows\artifacts\integrated-20261021-g' -ValidateOnly
 ```
 
-The configured route refuses changed EXE or DLL bytes. Explicit directory
+The configured route refuses changed EXE or DLL bytes and validates the bundled
+engine fingerprint and embedded Python runtime files when required by its selection. Explicit directory
 validation prints both fingerprints but does not establish release approval or
 freshness; the user/release owner made that selection. Hashes establish byte
 identity, not publisher authentication. If normal launch does not open the app,
@@ -54,3 +56,22 @@ DLL SHA256 is `7269b892cebf8bf37fa55dae4a5a34a474e1139db738f8bcfdc16756e81f2daf`
 This is a local UI preview, not a signed release or a claim that the preliminary
 B-J engine lock describes the later K native inputs. The preserved baseline
 payload remains unchanged.
+
+## Transfer to another PC — 22 October correction
+
+Use `desktop/windows/artifacts/AttackMap-Windows-Portable-20261022.zip`.
+Extract the **entire ZIP**, then run `AttackMap-Windows/Spustit-AttackMap.bat`
+or its `AttackMap.NativeSpike.exe`. Keep all DLLs, resources and the complete
+`engine/_internal` directory. No separate Python or .NET installation is needed
+by this self-contained payload. Copying the native EXE alone is insufficient.
+
+The earlier K/L native publish directories did not include the engine. Sending
+their EXE paths as portable delivery was incorrect. The new archive preserves
+the tested L UI and B-J frozen engine as a pinned development pair; it does not
+relabel them as a final current-source release candidate. Original publishes and
+the release builder's current-source gates remain unchanged.
+
+A fresh profile selects the adjacent `engine/attackmap.exe` automatically. An
+existing explicit engine path still takes precedence if its file exists; choose
+the local bundled engine in Scan options when deliberately replacing an older
+configuration. User settings are never cleared by packaging or launching.

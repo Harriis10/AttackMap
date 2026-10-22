@@ -1,0 +1,79 @@
+{
+  "portable_engine_checks_passed": true,
+  "zip": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\AttackMap-Windows-Portable-20261022.zip",
+  "zip_sha256": "27dd87f245c23f5f2617d26508822ad9febf73bcf4811ad5a0d7fdf3c6d348d5",
+  "zip_bytes": 117614209,
+  "payload_files_verified": 824,
+  "fresh_native_startup": {
+    "passed": false,
+    "bundledEngine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable extracted 20261022 c\\AttackMap-Windows\\engine\\attackmap.exe",
+    "automaticScan": false,
+    "aiEnabled": false,
+    "cveEnabled": false,
+    "personalSettingsRead": false,
+    "manualStartupAcceptance": false
+  },
+  "moved_native_startup": {
+    "passed": false,
+    "bundledEngine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable moved 20261022 c\\engine\\attackmap.exe",
+    "automaticScan": false,
+    "aiEnabled": false,
+    "cveEnabled": false,
+    "personalSettingsRead": false,
+    "manualStartupAcceptance": false
+  },
+  "version": "attackmap 1.5.1",
+  "analyzers": 21,
+  "child_PATH": "C:\\Windows\\System32;C:\\Windows",
+  "python_on_child_PATH": false,
+  "external_python_required": false,
+  "commands": [
+    {
+      "executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable extracted 20261022 c\\AttackMap-Windows\\AttackMap.NativeSpike.exe",
+      "arguments": [
+        "--startup-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\portable-20261022\\attempt03\\fresh-settings.json"
+      ],
+      "exit_code": 0,
+      "seconds": 1.3170217000006232
+    },
+    {
+      "executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable extracted 20261022 c\\AttackMap-Windows\\engine\\attackmap.exe",
+      "arguments": [
+        "--version"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2216707000043243
+    },
+    {
+      "executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable extracted 20261022 c\\AttackMap-Windows\\engine\\attackmap.exe",
+      "arguments": [
+        "capabilities"
+      ],
+      "exit_code": 0,
+      "seconds": 1.3482220000005327
+    },
+    {
+      "executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable moved 20261022 c\\AttackMap.NativeSpike.exe",
+      "arguments": [
+        "--startup-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\portable-20261022\\attempt03\\moved-settings.json"
+      ],
+      "exit_code": 0,
+      "seconds": 2.726228599989554
+    },
+    {
+      "executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable moved 20261022 c\\engine\\attackmap.exe",
+      "arguments": [
+        "capabilities"
+      ],
+      "exit_code": 0,
+      "seconds": 2.464370300003793
+    }
+  ],
+  "real_clean_PC_test": false,
+  "manual_UI_acceptance": false,
+  "legacy_startup_aggregate_passed": false,
+  "legacy_startup_aggregate_limitation": "Unchanged L smoke expects null Provider; current preferences are nonnull with EnableAi=false. Raw false results retained; no whole-startup acceptance claimed.",
+  "scope": "Real extracted native startup + frozen capabilities in two relocated paths with spaces; developer host, not clean VM."
+}

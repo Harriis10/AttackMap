@@ -52,6 +52,18 @@ try {
     $dllHash = (Get-FileHash -LiteralPath (Join-Path $directory 'AttackMap.NativeSpike.dll') -Algorithm SHA256).Hash.ToLowerInvariant()
     if (!$explicit -and ($exeHash -ne $config.exe_sha256 -or $dllHash -ne $config.dll_sha256)) { throw 'Selected full-product bytes changed. The release owner must reverify and explicitly update both fingerprints.' }
     $selection = [ordered]@{ project=$project; directory=$directory; executable=$exe; exe_sha256=$exeHash; dll_sha256=$dllHash; selection=if($explicit){'explicit directory'}else{'exact configured build'}; validated=$true; launched=$false }
+    if (!$explicit -and $config.bundled_engine_required -eq $true) {
+        if ($config.bundled_engine_sha256 -notmatch '^[a-fA-F0-9]{64}$') { throw 'Bundled engine fingerprint is missing.' }
+        foreach ($required in @('engine/attackmap.exe','engine/_internal/python313.dll','engine/_internal/base_library.zip')) {
+            $file = Join-Path $directory $required
+            if (!(Test-Path -LiteralPath $file -PathType Leaf)) { throw "Incomplete portable application: $required. Extract the entire ZIP, including the engine directory." }
+            $null = Assert-LocalUnredirected $file
+        }
+        $engine = Join-Path $directory 'engine/attackmap.exe'
+        $engineHash = (Get-FileHash -LiteralPath $engine -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($engineHash -ne $config.bundled_engine_sha256) { throw 'Bundled engine bytes changed. Extract the original complete ZIP.' }
+        $selection.engine = $engine; $selection.engine_sha256 = $engineHash
+    }
     if ($ValidateOnly) { $selection | ConvertTo-Json -Depth 4; exit 0 }
     Write-Output ("Opening full AttackMap product: " + $exe + " (DLL SHA256 " + $dllHash + ")")
     Start-Process -FilePath $exe -WorkingDirectory $directory | Out-Null

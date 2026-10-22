@@ -1,0 +1,722 @@
+{
+  "schema": 1,
+  "version": "1.5.1",
+  "commands": [
+    "analyze",
+    "bench",
+    "capabilities",
+    "desktop-action",
+    "desktop-worker",
+    "diagnostics",
+    "evaluate",
+    "modules",
+    "rules",
+    "suggest",
+    "ui"
+  ],
+  "analyze": {
+    "options": [
+      "--ai-max-calls",
+      "--ai-output-tokens",
+      "--ai-timeout-seconds",
+      "--allow-pr-suppressions",
+      "--baseline",
+      "--cve",
+      "--diff-output",
+      "--direct-generation-output",
+      "--fail-on-new-high",
+      "--fail-on-new-suppression",
+      "--fleet-result",
+      "--fleet-workers",
+      "--format",
+      "--hunt",
+      "--hunt-budget",
+      "--hunt-lenses",
+      "--hunt-rounds",
+      "--incremental",
+      "--install-missing",
+      "--isolated-analyzers",
+      "--llm",
+      "--llm-backend",
+      "--llm-effort",
+      "--llm-model",
+      "--llm-provider",
+      "--llm-speed",
+      "--module",
+      "--no-progress",
+      "--no-suppress",
+      "--output",
+      "--pr-comment",
+      "--progress-format",
+      "--recall",
+      "--remediate",
+      "--run-id",
+      "--secrets-history",
+      "--service-alias",
+      "--service-dns-suffix",
+      "--service-port",
+      "--service-protocol",
+      "--strict-analyzers",
+      "--strict-suppressions",
+      "--suppress-file",
+      "--suppress-from-ref",
+      "--time-budget-seconds",
+      "--triage",
+      "--trusted-analyzers-only",
+      "--verify",
+      "--verify-votes",
+      "--via-proxy"
+    ],
+    "multi_repo": true
+  },
+  "progress_protocol": 1,
+  "engine_identity": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable moved 20261022 c\\engine\\attackmap.exe",
+    "sha256": "ee90e44a35d283326fe3821666e71b33fbd0a1eb3aa6844e827d9d4206ea7195",
+    "size_bytes": 18447185,
+    "runtime_kind": "Frozen",
+    "modules_sha256": "4f572266ed8ac6734d8f01e440cfd0927725304ced4bff5e5041a743d91ecb0e"
+  },
+  "modules": [
+    {
+      "name": "python",
+      "display_name": "Python Comprehensive Analyzer",
+      "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+      "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+      "ecosystems": [
+        "python",
+        "django",
+        "starlette",
+        "aiohttp",
+        "sanic",
+        "litestar"
+      ],
+      "enabled_by_default": true,
+      "priority": 10,
+      "experimental": false
+    },
+    {
+      "name": "c",
+      "display_name": "C Analyzer",
+      "description": "C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.",
+      "scope": "C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.",
+      "ecosystems": [
+        "c",
+        "civetweb",
+        "libmicrohttpd",
+        "mongoose"
+      ],
+      "enabled_by_default": false,
+      "priority": 20,
+      "experimental": true
+    },
+    {
+      "name": "cpp",
+      "display_name": "C++ Analyzer",
+      "description": "C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.",
+      "scope": "C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.",
+      "ecosystems": [
+        "cpp",
+        "c++",
+        "crow",
+        "pistache",
+        "drogon",
+        "cpprestsdk"
+      ],
+      "enabled_by_default": false,
+      "priority": 20,
+      "experimental": true
+    },
+    {
+      "name": "dotnet",
+      "display_name": "C# / .NET Analyzer",
+      "description": "ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.",
+      "scope": ".NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.",
+      "ecosystems": [
+        "csharp",
+        "dotnet",
+        "aspnetcore"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "go",
+      "display_name": "Go Analyzer",
+      "description": "Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.",
+      "scope": "Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.",
+      "ecosystems": [
+        "go",
+        "golang",
+        "gin",
+        "chi",
+        "echo",
+        "fiber"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "javascript-web",
+      "display_name": "JavaScript / TypeScript Web Analyzer",
+      "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+      "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "express",
+        "fastify",
+        "koa",
+        "node"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "php-web",
+      "display_name": "PHP Web Analyzer",
+      "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+      "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+      "ecosystems": [
+        "php"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "python-web",
+      "display_name": "Python Web Analyzer",
+      "description": "Built-in analyzer for Python web frameworks and related security signals.",
+      "scope": "Python source files handled by the current scanner-backed web heuristics.",
+      "ecosystems": [
+        "python",
+        "fastapi",
+        "flask"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "rust",
+      "display_name": "Rust Analyzer",
+      "description": "Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.",
+      "scope": "Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.",
+      "ecosystems": [
+        "rust",
+        "axum",
+        "actix-web",
+        "rocket"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "swift",
+      "display_name": "Swift Analyzer",
+      "description": "Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.",
+      "scope": "Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.",
+      "ecosystems": [
+        "swift",
+        "swiftpm",
+        "vapor",
+        "hummingbird"
+      ],
+      "enabled_by_default": false,
+      "priority": 20,
+      "experimental": true
+    },
+    {
+      "name": "terraform",
+      "display_name": "Terraform / HCL Analyzer",
+      "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+      "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+      "ecosystems": [
+        "hcl",
+        "terraform",
+        "iac",
+        "aws",
+        "azure",
+        "gcp"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "node-service",
+      "display_name": "Node Service Analyzer",
+      "description": "Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.",
+      "scope": "Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "node-service",
+        "node",
+        "typescript-service"
+      ],
+      "enabled_by_default": false,
+      "priority": 25,
+      "experimental": true
+    },
+    {
+      "name": "config",
+      "display_name": "Config File Analyzer",
+      "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+      "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+      "ecosystems": [
+        "yaml",
+        "toml",
+        "json",
+        "ini",
+        "env"
+      ],
+      "enabled_by_default": true,
+      "priority": 30,
+      "experimental": false
+    },
+    {
+      "name": "iac",
+      "display_name": "IaC / Deployment-Surface Analyzer",
+      "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+      "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS \u00a72 documented for bluesky-social/pds.",
+      "ecosystems": [
+        "docker",
+        "docker-compose",
+        "github-actions",
+        "env-template",
+        "shell-installer"
+      ],
+      "enabled_by_default": true,
+      "priority": 40,
+      "experimental": false
+    },
+    {
+      "name": "python-service",
+      "display_name": "Python Services Ecosystem Analyzer",
+      "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+      "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+      "ecosystems": [
+        "python",
+        "fastapi",
+        "flask",
+        "django",
+        "celery"
+      ],
+      "enabled_by_default": true,
+      "priority": 50,
+      "experimental": true
+    },
+    {
+      "name": "java-spring",
+      "display_name": "Java/Kotlin Spring Boot Analyzer",
+      "description": "Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.",
+      "scope": "Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.",
+      "ecosystems": [
+        "java",
+        "kotlin",
+        "spring",
+        "spring-boot"
+      ],
+      "enabled_by_default": true,
+      "priority": 60,
+      "experimental": false
+    },
+    {
+      "name": "php-laminas",
+      "display_name": "PHP Laminas (Zend MVC) Analyzer",
+      "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+      "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+      "ecosystems": [
+        "php",
+        "laminas",
+        "zend-mvc"
+      ],
+      "enabled_by_default": true,
+      "priority": 60,
+      "experimental": true
+    },
+    {
+      "name": "atproto",
+      "display_name": "AT Protocol Analyzer",
+      "description": "Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.",
+      "scope": "AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.",
+      "ecosystems": [
+        "typescript",
+        "javascript",
+        "json",
+        "atproto",
+        "bluesky",
+        "xrpc"
+      ],
+      "enabled_by_default": false,
+      "priority": 90,
+      "experimental": true
+    },
+    {
+      "name": "default",
+      "display_name": "Default Analyzer",
+      "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+      "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+      "ecosystems": [],
+      "enabled_by_default": true,
+      "priority": 100,
+      "experimental": false
+    },
+    {
+      "name": "node-atproto",
+      "display_name": "Node / ATProto Overlay Analyzer",
+      "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+      "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "atproto",
+        "xrpc",
+        "node-service"
+      ],
+      "enabled_by_default": true,
+      "priority": 150,
+      "experimental": true
+    },
+    {
+      "name": "omeka-s",
+      "display_name": "Omeka S Analyzer",
+      "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+      "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+      "ecosystems": [
+        "php",
+        "omeka-s"
+      ],
+      "enabled_by_default": true,
+      "priority": 160,
+      "experimental": true
+    }
+  ],
+  "desktop": {
+    "schema_versions": [
+      "1.0",
+      "1.1",
+      "1.2",
+      "1.3",
+      "1.4"
+    ],
+    "actions_schema_versions": [
+      "1.1"
+    ],
+    "operations": [
+      "capabilities",
+      "preflight"
+    ],
+    "scan_options": [
+      "baseline",
+      "cve",
+      "fail_on_new_high",
+      "fail_on_new_suppression",
+      "isolated_analyzers",
+      "no_suppress",
+      "provider",
+      "recall",
+      "secrets_history",
+      "strict_analyzers",
+      "strict_suppressions",
+      "suppress_file",
+      "time_budget_seconds",
+      "timeout_seconds"
+    ],
+    "scan_options_by_schema": {
+      "1.0": [
+        "cve",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "timeout_seconds"
+      ],
+      "1.1": [
+        "cve",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "timeout_seconds"
+      ],
+      "1.2": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.3": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.4": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ]
+    },
+    "scan_option_metadata": {
+      "baseline": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "absolute_file_path"
+      },
+      "suppress_file": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "absolute_file_path"
+      },
+      "fail_on_new_high": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "fail_on_new_suppression": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "strict_suppressions": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "isolated_analyzers": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "time_budget_seconds": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "seconds",
+        "scope": "deterministic_between_stages"
+      }
+    },
+    "provider_options": [
+      "backend",
+      "effort",
+      "enable_ai",
+      "endpoint",
+      "jury_votes",
+      "max_calls",
+      "mode",
+      "model",
+      "output_token_limit",
+      "provider",
+      "speed",
+      "timeout_seconds"
+    ],
+    "provider_options_by_schema": {
+      "1.0": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.1": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.2": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.3": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ],
+      "1.4": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ]
+    },
+    "modes": [
+      "none",
+      "review",
+      "hunt",
+      "hunt_verify",
+      "remediate",
+      "triage"
+    ],
+    "modes_by_schema": {
+      "1.0": [
+        "none",
+        "review"
+      ],
+      "1.1": [
+        "none",
+        "review"
+      ],
+      "1.2": [
+        "none",
+        "review"
+      ],
+      "1.3": [
+        "none",
+        "review",
+        "hunt",
+        "hunt_verify",
+        "remediate",
+        "triage"
+      ],
+      "1.4": [
+        "none",
+        "review"
+      ]
+    },
+    "provider_tuning": {
+      "minimum_schema": "1.3",
+      "backends": [
+        "api"
+      ],
+      "jury_votes": {
+        "minimum": 1,
+        "maximum": 7,
+        "mode": "hunt_verify",
+        "default": 3
+      },
+      "effort": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "openai_effort_mapping": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "high",
+        "max": "high"
+      },
+      "speed": [
+        "standard",
+        "fast"
+      ],
+      "fast_speed": {
+        "provider": "claude",
+        "backend": "api",
+        "models": [
+          "claude-opus-4-7",
+          "claude-opus-4-8"
+        ]
+      }
+    },
+    "providers": [
+      "openai",
+      "claude"
+    ],
+    "provider_backend": "api",
+    "multi_repo": false,
+    "fleet_by_schema": {
+      "1.4": {
+        "kind": "fleet_request",
+        "multi_repo": true,
+        "minimum_repositories": 2,
+        "maximum_repositories": 16,
+        "maximum_workers": 4,
+        "modes": [
+          "none"
+        ],
+        "request_fields": [
+          "repositories",
+          "max_workers"
+        ],
+        "events": [
+          "fleet_child",
+          "fleet_terminal"
+        ],
+        "unsupported": [
+          "AI",
+          "baseline",
+          "baseline_policies",
+          "suppress_file",
+          "secrets_history"
+        ]
+      }
+    },
+    "limitations": [
+      "Installed analyzers are not a repository applicability result.",
+      "No provider connectivity or model response is tested by discovery.",
+      "Fleet AI is unsupported. Strict output caps prevent CLI backend execution.",
+      "Discovery proves option mapping, not provider/model availability or completed responses.",
+      "Identity supports cache invalidation, not publisher authentication."
+    ]
+  }
+}
