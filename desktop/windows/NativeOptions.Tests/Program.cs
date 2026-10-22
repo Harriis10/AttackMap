@@ -66,6 +66,28 @@ try
     string engineDir = Path.Combine(folder, "engine"); Directory.CreateDirectory(engineDir);
     string executable = Path.Combine(engineDir, "attackmap.exe"); File.WriteAllText(executable, "first-engine");
     Check(EngineCapabilities.ResolveEngine("", folder) == executable, "Bundled path is the simple default; no PATH search");
+    string legacyDirectory = Path.Combine(folder, "legacy"); Directory.CreateDirectory(legacyDirectory);
+    string legacyEngine = Path.Combine(legacyDirectory, "attackmap.exe"); File.WriteAllText(legacyEngine, "legacy-engine");
+    Check(EngineCapabilities.RestoreEngineSelection(legacyEngine, folder) == legacyEngine, "Nonportable startup preserves an existing explicit engine");
+    Check(EngineCapabilities.RestoreEngineSelection(Path.Combine(folder, "removed.exe"), folder) == executable, "Missing saved engine retains bundled fallback");
+    string portableMarker = Path.Combine(folder, "portable-manifest.json");
+    string validMarker = "{\"schema_version\":1,\"kind\":\"portable-development-preview\",\"runtime\":{\"engine\":\"engine/attackmap.exe\"}}";
+    File.WriteAllText(portableMarker, validMarker);
+    store.Save(new LocalSettings(PythonPath: legacyEngine, RepositoryPath: folder, Options: advanced, Modules: "config"));
+    string retainedSettings = File.ReadAllText(settingsPath);
+    Check(EngineCapabilities.RestoreEngineSelection(legacyEngine, folder) == executable, "Portable startup ignores a legacy global engine even while that executable exists");
+    Check(EngineCapabilities.RestoreEngineSelection("", folder) == executable, "Fresh portable startup selects the same bundle");
+    Check(File.ReadAllText(settingsPath) == retainedSettings, "Startup selection never rewrites user settings");
+    Check(EngineCapabilities.ResolveEngine(legacyEngine, folder) == legacyEngine, "Explicit runtime selection after startup still wins");
+    File.WriteAllText(portableMarker, "{broken");
+    Rejected(() => EngineCapabilities.RestoreEngineSelection(legacyEngine, folder), "Malformed portable metadata never silently selects legacy engine");
+    File.WriteAllText(portableMarker, validMarker.Replace("\"schema_version\":1", "\"schema_version\":2"));
+    Rejected(() => EngineCapabilities.RestoreEngineSelection(legacyEngine, folder), "Unsupported portable schema reports incomplete package");
+    File.WriteAllText(portableMarker, validMarker);
+    File.Move(executable, executable + ".retained");
+    Rejected(() => EngineCapabilities.RestoreEngineSelection(legacyEngine, folder), "Missing portable bundle never falls back to a legacy global engine");
+    File.Move(executable + ".retained", executable);
+    File.Delete(portableMarker);
     Rejected(() => EngineCapabilities.ResolveEngine("missing.exe", folder), "Advanced engine must be an explicit existing absolute path");
     Rejected(() => EngineCapabilities.ResolveEngine(Environment.ProcessPath!, folder), "Existing self-exe guard preserved");
     string Hash() { using var stream = File.OpenRead(executable); return Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant(); }

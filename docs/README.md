@@ -1,6 +1,6 @@
 # Aktuální dokumentace pro agenty
 
-**Distribuce Windows, oprava 22. 10. 2026:** pro přenos na jiný počítač použít kompletní `AttackMap-Windows-Portable-20261022.zip`, nikoli samotné EXE z native publish. Aktuální postup a místní spouštěč popisuje [návod ke spuštění](windows-full-product-launch.md); [ověření přenosného balíčku](verification/windows-parity/WP024/portable-20261022/README.md) odděluje skutečné testy od čistého PC, které zde nebylo k dispozici. Zadání roadmapy se tím nemění.
+**Distribuce Windows, oprava Start scan 22. 10. 2026:** aktuální zdrojový portable ZIP je `desktop/windows/artifacts/AttackMap-Windows-Portable-20261022-startscan-fix.zip`. Opravená uživatelská kopie zůstává v `C:\Projects\FINISHED\AttackMap-Windows-Portable-20261022` a odpovídajícím ZIPu. Přenosný start používá vlastní engine i při existující staré cestě v globálním nastavení. [Důkazy opravy](verification/windows-parity/WP024/startscan-fix-20261022/README.md) a [návod ke spuštění](windows-full-product-launch.md) rozlišují skutečné testy od finálního release a čistého PC. Starší L/B-J ZIP zůstává zachován jako historický podklad. Zadání roadmapy se tím nemění.
 
 **Běh pozastaven kvůli týdennímu limitu 50 %.** [Stav a bezpečné obnovení](verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md). Nespouštět automaticky další práci; tento handoff nemění zadání ani akceptační kritéria roadmapy.
 

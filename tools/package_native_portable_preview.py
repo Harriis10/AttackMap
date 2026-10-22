@@ -78,6 +78,15 @@ def package(native: Path, native_proof: Path, engine: Path, engine_proof: Path,
             raise ValueError(f'Incomplete embedded Python runtime: {name}')
     if rproof.get('failure') is not None or not rproof.get('result', {}).get('passed'):
         raise ValueError('The explicit native/engine pair requires completed runtime proof')
+    startup_proof = rproof['result']
+    automatic_bundle = (startup_proof.get('normalStartupBranch') is True
+                        and startup_proof.get('explicitEngineArgument') is False
+                        and startup_proof.get('settingsOverride') is False)
+    startup_advice = ('''Pri spusteni pres BAT i primo pres EXE se automaticky vybere mistni
+engine/attackmap.exe z teto rozbalene slozky. Starsi globalni nastaveni se
+neprepisuje; ostatni ulozene volby zustavaji zachovany. Pozdeji lze v Scan
+options vybrat jiny engine.''' if automatic_bundle else '''Pokud uz na PC mate starsi nastaveni, v Scan options zvolte mistni
+engine/attackmap.exe z teto rozbalene slozky. Puvodni nastaveni se neprepisuje.''')
     output.mkdir(parents=True)
     app = output / 'AttackMap-Windows'
     app.mkdir()
@@ -97,6 +106,7 @@ def package(native: Path, native_proof: Path, engine: Path, engine_proof: Path,
         shutil.copyfile(source, provenance / name)
     (app / 'Spustit-AttackMap.bat').write_bytes(b'''@echo off\r
 setlocal\r
+cd /d "%~dp0"\r
 if not exist "%~dp0engine\\attackmap.exe" (\r
   echo Chybi engine. Rozbalte cely ZIP vcetne vsech podslozek.\r
   pause\r
@@ -119,16 +129,17 @@ Samostatna instalace Pythonu ani .NET neni pro tento balicek potreba.
 Zachovejte vsechny soubory a podslozky, vcetne engine a engine/_internal.
 Samotne EXE bez ostatnich souboru neni prenosna aplikace.
 
-Pokud uz na PC mate starsi nastaveni, v Scan options zvolte mistni
-engine/attackmap.exe z teto rozbalene slozky. Puvodni nastaveni se neprepisuje.
+{startup_advice}
 Volitelne AI funkce potrebuji vlastni nakonfigurovany endpoint/model.
 
-Jde o nepodepsany vyvojovy nahled puvodniho plneho UI L s jeho otestovanym
-zmrazenym enginem B-J. Neni to finalni release ani doklad dokonceni roadmapy.
-''', encoding='utf-8')
+Jde o nepodepsany vyvojovy nahled plneho UI s jeho otestovanym zmrazenym
+enginem B-J. Identitu sestaveni uvadi portable-manifest.json. Neni to
+finalni release ani doklad dokonceni roadmapy.
+'''.format(startup_advice=startup_advice), encoding='utf-8')
     manifest = {
         'schema_version': 1, 'kind': 'portable-development-preview', 'release_candidate': False,
-        'native_build': 'integrated-20261021-l', 'engine_build': 'fresh-B-J-20261021-01',
+        'native_build': nproof.get('build_id', 'integrated-20261021-l'), 'engine_build': 'fresh-B-J-20261021-01',
+        'startup_engine_selection': 'bundled_on_portable_startup' if automatic_bundle else 'saved_engine_or_bundle',
         'minimum_windows': '10.0.19041.0', 'architecture': 'x64',
         'runtime': {'dotnet_self_contained': True, 'python_embedded': True,
                     'engine': 'engine/attackmap.exe', 'external_python_required': False},

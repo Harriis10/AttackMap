@@ -44,7 +44,53 @@ def test_complete_archive_preserves_runtime_sidecars_and_case(inputs):
         assert not any('smoke' in name or name.endswith('.pdb') for name in names)
         manifest = json.loads(archive.read('AttackMap-Windows/portable-manifest.json'))
         assert manifest['runtime']['external_python_required'] is False and manifest['release_candidate'] is False
+        assert manifest['schema_version'] == 1 and manifest['kind'] == 'portable-development-preview'
+        assert manifest['runtime']['engine'] == 'engine/attackmap.exe'
+        assert manifest['native_build'] == 'integrated-20261021-l'
+        launcher = archive.read('AttackMap-Windows/Spustit-AttackMap.bat').decode('ascii')
+        assert 'cd /d "%~dp0"\r\n' in launcher
+        assert launcher.index('cd /d "%~dp0"') < launcher.index('start "" "%~dp0AttackMap.NativeSpike.exe"')
+        readme = archive.read('AttackMap-Windows/CTETE-ME.txt').decode('utf-8')
+        assert manifest['startup_engine_selection'] == 'saved_engine_or_bundle'
+        assert 'v Scan options zvolte mistni' in readme
+        assert 'automaticky vybere mistni' not in readme
     assert hashlib.sha256(Path(result['zip']).read_bytes()).hexdigest() == result['zip_sha256']
+
+
+def test_native_build_identity_comes_from_supplied_proof(inputs):
+    proof_path = inputs[1]
+    proof = json.loads(proof_path.read_text())
+    proof['build_id'] = 'portable-startup-fix-20261022'
+    proof_path.write_text(json.dumps(proof))
+    result = builder.package(*inputs)
+    with zipfile.ZipFile(result['zip']) as archive:
+        manifest = json.loads(archive.read('AttackMap-Windows/portable-manifest.json'))
+        assert manifest['native_build'] == proof['build_id']
+        assert json.loads(archive.read('AttackMap-Windows/provenance/native-build.json')) == proof
+
+
+@pytest.mark.parametrize('normal,explicit,override,automatic', [
+    (True, False, False, True),
+    (False, False, False, False),
+    (True, True, False, False),
+    (True, False, True, False),
+    (True, None, False, False),
+    (True, False, None, False),
+])
+def test_startup_advice_requires_normal_startup_proof(inputs, normal, explicit, override, automatic):
+    proof_path = inputs[4]
+    proof_path.write_text(json.dumps({'failure': None, 'result': {
+        'passed': True, 'normalStartupBranch': normal,
+        'explicitEngineArgument': explicit, 'settingsOverride': override}}))
+    result = builder.package(*inputs)
+    with zipfile.ZipFile(result['zip']) as archive:
+        manifest = json.loads(archive.read('AttackMap-Windows/portable-manifest.json'))
+        readme = archive.read('AttackMap-Windows/CTETE-ME.txt').decode('utf-8').replace('\r\n', '\n')
+        assert manifest['startup_engine_selection'] == (
+            'bundled_on_portable_startup' if automatic else 'saved_engine_or_bundle')
+        assert ('pres BAT i primo pres EXE se automaticky vybere mistni' in readme) is automatic
+        assert ('globalni nastaveni se\nneprepisuje' in readme) is automatic
+        assert ('v Scan options zvolte mistni' in readme) is not automatic
 
 
 @pytest.mark.parametrize('kind', ['native','engine','sidecar','extra','runtime-proof'])

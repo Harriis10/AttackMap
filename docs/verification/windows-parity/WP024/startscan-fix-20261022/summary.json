@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "verification": "offline; no new scans or model requests",
+  "native_build": "integrated-20261022-portable-startscan-fix",
+  "runs": [
+    {
+      "name": "normal-startup",
+      "passed": true,
+      "seconds": 183.59354490000987,
+      "run": "f346ab31aaa44a67b00b3e22d7bce34e",
+      "selected_engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\portable-startscan-candidate-20261022\\engine\\attackmap.exe",
+      "report": "C:\\Users\\Precision\\AppData\\Local\\AttackMap\\NativePreview\\scans\\juice-shop-e619901bd518\\reports\\f346ab31aaa44a67b00b3e22d7bce34e\\attackmap-report.json",
+      "report_sha256": "9441f964027eec0ab76fa972de29c56811759bd27295f2be0caf501fcb00ffec",
+      "findings": 40,
+      "checksummed_report_artifacts": 21,
+      "actual_http_requests": 1,
+      "completed_model_responses": 1,
+      "audit_nonce": "startscanfix",
+      "provider_audits": [
+        {
+          "path": "normal-startup\\http-audit\\wp017-startscanfix-33196-e68b823b62bd4df084080150ea65e1f0\\http-audit.jsonl",
+          "sha256": "5e6f3ea3b3cf8578a358a00df74fb173b29cb399bde59b00adb06e7da46817e8"
+        }
+      ],
+      "settings_preserved": true
+    },
+    {
+      "name": "finished-startup",
+      "passed": true,
+      "seconds": 153.32102510001278,
+      "run": "87ab22569abe462999bf21fcd5049984",
+      "selected_engine": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\engine\\attackmap.exe",
+      "report": "C:\\Users\\Precision\\AppData\\Local\\AttackMap\\NativePreview\\scans\\juice-shop-e619901bd518\\reports\\87ab22569abe462999bf21fcd5049984\\attackmap-report.json",
+      "report_sha256": "9441f964027eec0ab76fa972de29c56811759bd27295f2be0caf501fcb00ffec",
+      "findings": 40,
+      "checksummed_report_artifacts": 21,
+      "actual_http_requests": 1,
+      "completed_model_responses": 1,
+      "audit_nonce": "finishedfix",
+      "provider_audits": [
+        {
+          "path": "finished-startup\\http-audit\\wp017-finishedfix-15324-8e8f43dfc75f4e27b3b822acc7227fb9\\http-audit.jsonl",
+          "sha256": "7dbdb9c8dd21bb2eed07d344fb12504437508379ff45cabc9156da6e374e5df8"
+        }
+      ],
+      "settings_preserved": true
+    }
+  ],
+  "synthetic_native_options_checks_passed": 63,
+  "synthetic_package_tests_passed": 15,
+  "zip_path": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022.zip",
+  "zip_sha256": "79a14e259707f89c12a2327798af7365e2da0da85aaaac78ae3dd8e143ef80dd",
+  "interactive_bat_launch": {
+    "launched": true,
+    "via_bat": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\Spustit-AttackMap.bat",
+    "caller_working_directory": "C:\\Windows",
+    "bat_exit_code": 0,
+    "executable": "C:\\Projects\\FINISHED\\AttackMap-Windows-Portable-20261022\\AttackMap.NativeSpike.exe",
+    "pid": 5180,
+    "title": "AttackMap",
+    "main_window_handle": 856762,
+    "process_exited": false,
+    "automatic_scan_requested": false
+  },
+  "accepted_manual_ui": false,
+  "accepted_accessibility": false,
+  "accepted_clean_host": false,
+  "release_candidate": false,
+  "ai_claim_support": "not_assessed; completed output is advisory"
+}

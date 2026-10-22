@@ -175,6 +175,34 @@ public sealed class EngineCapabilities
         var installed = Analyzers.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
         if (NativeScanOptions.ParseModules(modules).Any(name => !installed.Contains(name))) throw new InvalidDataException("An explicitly selected analyzer is unavailable in this engine. No automatic replacement was chosen.");
     }
+    public static string RestoreEngineSelection(string savedPath, string applicationDirectory)
+    {
+        string bundled = Path.Combine(applicationDirectory, "engine", "attackmap.exe");
+        string marker = Path.Combine(applicationDirectory, "portable-manifest.json");
+        if (File.Exists(marker))
+        {
+            try
+            {
+                using var stream = File.OpenRead(marker);
+                if (stream.Length > 1024 * 1024) throw new InvalidDataException();
+                using var document = JsonDocument.Parse(stream);
+                var root = document.RootElement;
+                if (root.GetProperty("schema_version").GetInt32() != 1 ||
+                    root.GetProperty("kind").GetString() != "portable-development-preview" ||
+                    root.GetProperty("runtime").GetProperty("engine").GetString() != "engine/attackmap.exe")
+                    throw new InvalidDataException();
+            }
+            catch (Exception error) when (error is JsonException or InvalidDataException or KeyNotFoundException or InvalidOperationException or FormatException or OverflowException)
+            { throw new InvalidDataException("Portable package metadata is invalid or unsupported. Extract the complete package again; saved settings are preserved."); }
+            if (!File.Exists(bundled))
+                throw new InvalidDataException("The portable engine is missing. Extract the complete package including engine/attackmap.exe; saved settings are preserved.");
+            // Global preferences can name an older installed engine. A portable
+            // startup belongs to its adjacent bundle; a later explicit choice
+            // in Scan options still uses ResolveEngine without substitution.
+            return ResolveEngine("", applicationDirectory);
+        }
+        return File.Exists(bundled) && !File.Exists(savedPath.Trim()) ? bundled : savedPath.Trim();
+    }
     public static string ResolveEngine(string explicitPath, string applicationDirectory)
     {
         string selected = string.IsNullOrWhiteSpace(explicitPath) ? Path.Combine(applicationDirectory, "engine", "attackmap.exe") : explicitPath.Trim();

@@ -1,0 +1,134 @@
+{
+  "backend": "api",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "stop_reason": "completed",
+  "usage": {
+    "input_tokens": 6273,
+    "output_tokens": 3536
+  },
+  "usage_status": "reported",
+  "reference_validation": {
+    "reference_validity": "valid",
+    "scope": "selected_prompt_producer_evidence_ids",
+    "claim_support": "not_assessed",
+    "claim_support_assessments": [
+      {
+        "claim": "*   **Administrative Routes Accessible from Main Surface**: In `server.ts`, routes for `/rest/admin/application-version` and `/rest/admin/application-configurat",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Authorization Inconsistency in Resource Cohorts**: Within `server.ts`, certain endpoints like `POST /api/Feedbacks` and `POST /rest/2fa/verify` lack the a",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Unvalidated Input Flows to Filesystem Path Sink**: In `routes/profileImageFileUpload.ts`, the `upload_filename` input at line 16 flows directly into a fil",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Controls Missing in Inspected Scope**: No auth signals identified for admin routes (`finding:1`), specific Feedbacks/2FA endpoints (`finding:2`), or files",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Controls Missing in Inspected Scope**: No auth signals identified for admin routes (`finding:1`), specific Feedbacks/2FA endpoints (`finding:2`), or files",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Controls Missing in Inspected Scope**: No auth signals identified for admin routes (`finding:1`), specific Feedbacks/2FA endpoints (`finding:2`), or files",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Inconsistent but Present Auth Patterns**: The presence of auth signals on sibling routes (e.g., `PUT /api/Feedbacks/:id`) indicates an established authori",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Critical Administrative Exposure**: Admin routes in `server.ts` lack visible guards, making them high-priority targets (T1078) (`finding:1`).",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Path Traversal Sink**: The direct flow from request input to filesystem path in `profileImageFileUpload.ts` is a high-severity risk for arbitrary file wri",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Supply Chain Vulnerabilities**: Multiple critical advisories exist for foundational dependencies, including `@angular/common`, `@angular/router`, `express",
+        "reference": "finding:5",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Admin Exposure**: `server.ts` (lines 634, 635) $\\rightarrow$ No auth signal identified in inspected scope $\\rightarrow$ Potential T1068/T1098 (`finding:1`",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Auth Bypass via Outlier**: `POST /api/Feedbacks` [server.ts:430] (No signal observed) vs. `PUT /api/Feedbacks/:id` (Signal present) $\\rightarrow$ T1190 ri",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Path Traversal Sink**: `routes/profileImageFileUpload.ts`:16 (`upload_filename`) $\\rightarrow$ `routes/profileImageFileUpload.ts`:42 (Filesystem sink) $\\r",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "1.  **Apply Uniform Authorization to Admin Routes**: Require explicit server-side authorization on all `/rest/admin/*` routes in `server.ts`, moving them behind",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "2.  **Sanitize Filesystem Path Inputs**: Implement path sanitization at `routes/profileImageFileUpload.ts:42` by reducing input to a basename and resolving agai",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "3.  **Remediate Critical Dependency Advisories**: Upgrade `@angular/*`, `express-jwt`, `lodash-es`, and other identified packages (`finding:5`, `6`, `9`, `13`) ",
+        "reference": "finding:5",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      }
+    ],
+    "claim_support_basis": "Reference validity never implies claim support. The selected narrative prompt supplies no captured snapshot spans, so every cited claim remains not_assessed; this check never reads live source files to manufacture support.",
+    "source_location_validation": "unvalidated",
+    "source_reference_validity": "unresolved",
+    "source_references": [
+      "server.ts:430",
+      "routes/profileImageFileUpload.ts:42"
+    ],
+    "unresolved_source_references": [
+      "server.ts:430",
+      "routes/profileImageFileUpload.ts:42"
+    ],
+    "source_reference_scope": "No captured snapshot spans supplied by the selected narrative prompt; live files are not consulted.",
+    "context_sha256": "475922bb95d90930f308274584ef8e37ed8351f1994df44b773fbd5bddb645db",
+    "valid_references": [
+      "finding:1",
+      "finding:2",
+      "finding:4",
+      "finding:5"
+    ],
+    "invalid_references": [],
+    "allowed_reference_count": 10
+  }
+}

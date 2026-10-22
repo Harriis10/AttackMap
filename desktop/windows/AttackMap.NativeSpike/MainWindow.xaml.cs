@@ -108,6 +108,8 @@ public sealed partial class MainWindow : Window
             ((FrameworkElement)Content).Loaded += RestoreWindowPlacement;
             AppWindow.Changed += (_, _) => CaptureWindowPlacement();
             Closed += (_, _) => { if (placementPersistenceEnabled && lastPlacement != null) try { placementStore.Save(lastPlacement); } catch (Exception) { /* Preserve existing geometry if storage is unavailable. */ } };
+            if (startup.Contains("--verify-portable-startup"))
+                ((FrameworkElement)Content).Loaded += VerifyPortableStartup;
         }
     }
     private void RestoreWindowPlacement(object sender, RoutedEventArgs args)
@@ -141,13 +143,7 @@ public sealed partial class MainWindow : Window
         try
         {
             var saved = settings.Load();
-            PythonPath.Text = saved.PythonPath;
-            string bundledEngine = Path.Combine(AppContext.BaseDirectory, "engine", "attackmap.exe");
-            // A saved engine path can outlive its version directory (upgrade or
-            // uninstall of the package it pointed into). Fall back to the
-            // bundled engine instead of leaving a dangling path that would
-            // fail every scan/action with a spawn error.
-            if (File.Exists(bundledEngine) && !File.Exists(PythonPath.Text.Trim())) PythonPath.Text = bundledEngine;
+            PythonPath.Text = EngineCapabilities.RestoreEngineSelection(saved.PythonPath, AppContext.BaseDirectory);
             ApplyScanOptions(saved.EffectiveOptions, saved.Modules);
             repositoryPath = saved.RepositoryPath.Length == 0 ? null : saved.RepositoryPath;
             presentation.SelectRepository(repositoryPath);
