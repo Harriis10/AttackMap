@@ -1,8 +1,24 @@
 # AttackMap Windows parity — podrobné TODO pro paralelní agenty
 
-**Baseline 20. 10. 2026; integrační revize 22. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Aktuální stav: 6 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 14 IN_PROGRESS, 9 OPEN, 2 DEFERRED. Přidělení ani component testy neuzavírají integraci nebo acceptance. Produktem je původní celé MainWindow; viz [rozhodnutí](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). WP021 zůstává volitelné rozšíření.
+**Závěrečný checkpoint 23. 10.:** [výsledky 7200s kandidáta](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md) obsahují nové runtime/package/installed důkazy, všechny čtyři Hunt+verify HTTP odpovědi (partial kvůli abstenci), Triage scoped PASS a otevřené GUI/obsahové brány. Po požadovaném lokálním Git uložení a full portable buildu se další úkoly nezahajují. Následující starší odstavce jsou předchozí checkpoint, nikoli aktuální běhový stav.
 
-**Obnovený běh:** [rozdělení práce a zbývající brány](verification/windows-parity/RESUME-2026-10-22/README.md). Na pokyn uživatele nové subagentní běhy používají GPT-6.1 Sol s reasoning effort `ultra`. WP017 se rozpracovává přípravou runneru; pět skutečných režimů ani finální package se tím neuzavírají.
+**Nejnovější běh AKTIVNÍ na výslovný pokyn uživatele:**
+[obnovený postup](verification/windows-parity/RESUME-2026-10-22/astra-high/RESUMED.md).
+Předchozí STOP hlídače využití (ohlášeno 75 %) je historický.
+[Astra/high handoff](verification/windows-parity/RESUME-2026-10-22/astra-high/STOP-HANDOFF.md):
+4423 Python PASS, native 1134 assertions + 31 controlled cases, frozen13/13,
+50/50 cancellation cycles a nový source-bound RequiredBundled package/SBOM.
+Historické WP024 DONE zůstává v unsigned-preflight scope. [Checkpoint 23. 10.](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md)
+dokládá aplikovaný lokální allowance 7200 s a cílené výsledky 412 Python PASS,
+55 runner testů + 120 subtests PASS, 117 native offline assertions PASS.
+Starší Hunt+verify retry 02 je partial, Remediate scoped live PASS, Triage retry 02
+je přes HTTP 200/pre-close parity true celkově FAIL (`0xC000027B`). Freeze 01 je
+interim, finální freeze 02 se připravuje; nový kandidát nemá přenesený runtime
+nebo live PASS. WP017/WP023 acceptance zůstává otevřená.
+
+**Baseline 20. 10. 2026; integrační revize 22. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Aktuální stav: 7 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 13 IN_PROGRESS, 9 OPEN, 2 DEFERRED. Přidělení ani component testy neuzavírají integraci nebo acceptance. Produktem je původní celé MainWindow; viz [rozhodnutí](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). WP021 zůstává volitelné rozšíření.
+
+**Obnovený běh:** [rozdělení práce a zbývající brány](verification/windows-parity/RESUME-2026-10-22/README.md). Nejnovější pokyn uživatele nastavuje navazující subagenty na GPT-6.1 Sol s reasoning effort `medium`; [aktuální checkpoint](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md). Předchozí Astra/high a Sol/ultra výsledky zůstávají zachované. Příprava runneru sama neuzavírá pět skutečných režimů ani finální package.
 
 
 Přípravné implementační a integrační řezy mohou pracovat nad zkontrolovaným, hashově svázaným zdrojovým checkpointem závislosti. Otevřené ruční, živé a release brány závislostí stále blokují přijetí celého úkolu; rozpracování neznamená DONE. Přesný omezený rozsah je uveden v JSON `execution_scope`.
@@ -279,7 +295,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 ### WP017 — Skutečné lokální AI end-to-end
 
 - Priorita: P1; lane: LIVE_QA; checkpoint: K3; stav: IN_PROGRESS.
-- Owner: `/root` pro provider/UI; příprava runneru `/root/ultra_native_ai_runner`, base `18fc9b2`. Změna stavu znamená přípravu ověření, nikoli nové live modelové odpovědi.
+- Owner: `/root` pro provider/UI; aktuální pracovní revieweři GPT-6.1 Sol / medium. Starší candidate base `258adf66a9ec3c5a691868ae67c3a73b08b92c4a` a původní příprava runneru `/root/ultra_native_ai_runner`, base `18fc9b2`, zůstávají historickou evidencí; nová acceptance vyžaduje vlastní source/package identitu.
 - Závislosti: WP016, WP024.
 - Kritéria: C14, C21, C22, C23; původní úkoly: AM033; funkce: F12–F15.
 - Zápis: `docs/verification/windows-parity/WP017/`, malý reproduce script pokud potřebný.
@@ -287,6 +303,8 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: jeden native→packaged engine běh každého z pěti režimů nad Juice Shopem s izolovaným profilem; odpočítávat budget, uložit request counts a terminal, otevřít výstup a export.
 - DoD: skutečný HTTP + dokončená modelová odpověď pro každý režim, validní manifest/generation a viditelná správná sekce. Fallback, timeout či jen spojení neuzavírá mode jako live pass.
 - Ověření: endpoint `http://127.0.0.1:1234/v1`, model `cyberstag-security-26b-a4b-v1`; žádný remote fallback; provider-down/cancel/malformed odděleně od live úspěchů. Po běhu ověřit ukončení vlastněných workerů.
+- Předchozí live řez 22. 10.: [Review a Hunt](verification/windows-parity/WP017/astra-live-20261022/) dokončily skutečnou HTTP odpověď a hashově shodný export; [výsledek série](verification/windows-parity/WP017/astra-review-20261022/batch-outcome.md) zachovává tehdejší timeout i vizuální/obsahové mezery.
+- Aktuální řez 23. 10.: [checkpoint s přesnými důkazy](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md). Hunt+verify retry 02 na starším kandidátu: partial, 4 reserved / 3 HTTP 200 / 1 timeout s unknown usage, 6652 reported output tokens, remaining 0; úplná jury není PASS. Remediate má scoped live PASS; Triage retry 02 má HTTP 200 a pre-close parity true, ale native exit `0xC000027B`, tedy scénář FAIL. Implementovaný 7200s allowance má pouze cílené offline ověření; finální freeze 02 a nový runtime/live/GUI důkaz zůstávají otevřené.
 
 ## Fleet, watch a export
 
@@ -373,14 +391,15 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: integrovat malé controls přes event APIs, žádná souběžná náhrada MainWindow; replay stejného corpus starým/native klientem pro sémantiku; scan→inspect→suppress→rescan→compare→export; failure/cancel/repo switch.
 - DoD: žádná lost-feature regrese, žádný stale report/secret leak/orphan; K1–K4 kritéria podložená. Jeden identifikovaný source snapshot a odpovídající nový package candidate.
 - Ověření: jednou široká relevantní Python suite a native consumer matrix na stabilním snapshotu, source/frozen/native end-to-end; unit/fake/live/manual výsledky zvlášť.
-- Řez 22. 10. 2026: intervalový index v Python taint flow; 275 cílených testů prošlo včetně všech sedmi dříve selhávajících timing případů s původními limity. Explicitní reference/current porovnání celého ScanResult pro 6000 rout je shodné a vstupy zůstaly beze změny. Nezávislé ultra review bez blokujícího nálezu. [Důkazy](verification/windows-parity/WP023/resume-scanner-20261022/README.md). Nový broad checkpoint, fresh package a zbývající integrační brány zůstávají otevřené.
+- Řez 22. 10. 2026: intervalový index v Python taint flow; 275 cílených testů prošlo včetně všech sedmi dříve selhávajících timing případů s původními limity. Explicitní reference/current porovnání celého ScanResult pro 6000 rout je shodné a vstupy zůstaly beze změny. Nezávislé ultra review bez blokujícího nálezu. [Důkazy](verification/windows-parity/WP023/resume-scanner-20261022/README.md). Historický řez nenahrazuje navazující integrační brány.
+- Checkpoint 23. 10.: [412 Python, 55 runner testů + 120 subtests a 117 native offline assertions](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md) ověřují nový lokální allowance v cíleném rozsahu. Nejde o nový broad/live/GUI PASS. Freeze 01 je interim; finální freeze 02 a příslušný runtime/package/installed důkaz zůstávají otevřené. [Capture mezery](verification/windows-parity/WP023/astra-gui-20261022/smallcapture-diagnosis.md) a Triage abnormal-exit scénář nejsou uzavřené.
 
 <a id="wp024"></a>
 
 ### WP024 — Reprodukovatelné balení a unsigned preflight
 
-- Priorita: P0; lane: RELEASE; checkpoint: K5; stav: IN_PROGRESS.
-- Owner: `/root/wp024_package`; base: `d45997653970929f5f477c6e2dcd70913cb17fe3`; první řez je read-only preflight. `tools/package_native_windows.ps1` zůstává bez lease a nesmí být editován, dokud root nezkontroluje existující cizí diff.
+- Priorita: P0; lane: RELEASE; checkpoint: K5; stav: DONE.
+- Owner přijatého kandidáta: `/root`; base `258adf66a9ec3c5a691868ae67c3a73b08b92c4a`, nezávislé review Astra/high. Historický první preflight vedl `/root/wp024_package` nad base `d45997653970929f5f477c6e2dcd70913cb17fe3`.
 - Závislosti: WP001.
 - Kritéria: C20, C29; původní úkoly: AM024, AM041; funkce: F23, F25.
 - Zápis: release tests/procedury, `docs/verification/windows-parity/WP024/`.
@@ -388,7 +407,10 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: required bundled-engine profile, source/toolchain/analyzer lock, payload verification a SBOM; nový package ID, PS 5.1 `.cmd` launcher, self-exe guard; připravit signing seam.
 - DoD: nelze omylem vydat „standalone“ bez enginu ani použít stale freeze; sentinel tamper selže. Nový unsigned package lze použít pro WP017, ale není vydáván za signed release.
 - Ověření: existující packaging/installer tests, `EngineLaunchSpec.Tests`, installed bundled scan bez Python v PATH na izolovaném test rootu. Žádné přepsání retained package.
-- Důkaz implementačního řezu: `docs/verification/windows-parity/WP024/implementation-verification.json`; 23 Python release testů PASS, 24 launcher guard kontrol PASS a izolovaný syntetický install/repeat/upgrade/rollback/tamper/uninstall smoke PASS. WP024 zůstává IN_PROGRESS do fresh production freeze a skutečného installed bundled scan bez Pythonu v PATH.
+- Historický důkaz implementačního řezu: `docs/verification/windows-parity/WP024/implementation-verification.json`; 23 Python release testů PASS, 24 launcher guard kontrol PASS a izolovaný syntetický install/repeat/upgrade/rollback/tamper/uninstall smoke PASS. Tehdy chybějící fresh production freeze a installed bundled scan bez Pythonu v PATH dokládá následující přijetí.
+
+- Přijetí 22. 10. 2026: [nový unsigned kandidát a skutečný installed bundled scan](verification/windows-parity/WP024/astra-fresh-20261022/unsigned-acceptance.md), nezávislý audit 821 stage / 822 installed files / 19 artefaktů; CMD/PS5.1 a native exit 0, owned Jobs prázdné. Žádná clean-host, podpisová, normální-startup nebo lidská acceptance se tím nepřebírá.
+- Stav DONE tohoto historicky přijatého unsigned řezu se zachovává. [Nový 7200s kandidát](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md) musí doložit vlastní source-bound runtime/package/installed acceptance; freeze 01 je interim a finální freeze 02 se připravuje.
 
 <a id="wp025"></a>
 

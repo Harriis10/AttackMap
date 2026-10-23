@@ -1,0 +1,318 @@
+{
+  "scope": "Read-only source corroboration for at most three priority claims per saved mode; not runtime verification",
+  "source_root": "C:\\tmp\\juice-shop",
+  "codegraph_index_present": false,
+  "artifacts": {
+    "remediate": {
+      "attackmap-report.json": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-remediate/remediate/reports/d2ee2327a28e468bae62ff0542d3e12f/attackmap-report.json",
+        "sha256": "919619d6ffe6a8ccdf153f83d9b127ae06aa46c1b68351ee770565edbeb5b8c9"
+      },
+      "run-manifest.json": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-remediate/remediate/reports/d2ee2327a28e468bae62ff0542d3e12f/run-manifest.json",
+        "sha256": "08d1745eed2dce441a2b95b4b90be3894ee8a18192b86ce6178cadcedc54a5d2"
+      },
+      "remediation.md": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-remediate/remediate/reports/d2ee2327a28e468bae62ff0542d3e12f/remediation.md",
+        "sha256": "3b967d50b922d28a489173ed46fa4f94677590db5f649cb1141b0c871511c0aa"
+      },
+      "remediation.meta.json": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-remediate/remediate/reports/d2ee2327a28e468bae62ff0542d3e12f/remediation.meta.json",
+        "sha256": "c3ada268f94c4b8c74bcdbde4df20fa8178882ed0705e9f6617b70b64ebfec07"
+      }
+    },
+    "triage": {
+      "attackmap-report.json": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage/reports/06a52eed4c6a4981a3b3a12b73cb07ae/attackmap-report.json",
+        "sha256": "919619d6ffe6a8ccdf153f83d9b127ae06aa46c1b68351ee770565edbeb5b8c9"
+      },
+      "run-manifest.json": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage/reports/06a52eed4c6a4981a3b3a12b73cb07ae/run-manifest.json",
+        "sha256": "ccea106c42874f538c87617fe3708a57937a68d7458b52b922198b7eb4596e7d"
+      },
+      "triage.md": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage/reports/06a52eed4c6a4981a3b3a12b73cb07ae/triage.md",
+        "sha256": "2ff740752d275bf22b60e81185c895a44dcb5ec1f6748a0378ba4e51b020e535"
+      },
+      "triage.meta.json": {
+        "path": "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage/reports/06a52eed4c6a4981a3b3a12b73cb07ae/triage.meta.json",
+        "sha256": "d0efa28d7e67954ea528e37181bda09af82e2497e8a53ad1f2a8452b76951ce4"
+      }
+    }
+  },
+  "snapshot_ids": {
+    "remediate": "cd026dcf5b345dbe43113ffd83bcf994813df268d7b12d75a2c5c76f8f9d2935",
+    "triage": "cd026dcf5b345dbe43113ffd83bcf994813df268d7b12d75a2c5c76f8f9d2935"
+  },
+  "sources": [
+    {
+      "path": "server.ts",
+      "current_raw_sha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+      "current_text_sha256": "1aef4d60cbdfb3458a25610d017a678ab4d69fc835bb8b592db9a13aceb20cb1",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+          "text_sha256": "1aef4d60cbdfb3458a25610d017a678ab4d69fc835bb8b592db9a13aceb20cb1",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+          "text_sha256": "1aef4d60cbdfb3458a25610d017a678ab4d69fc835bb8b592db9a13aceb20cb1",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/profileImageFileUpload.ts",
+      "current_raw_sha256": "0ee4a8176b563bceec5191e13552b7d39a2447f715bfd6c0ed7d3b98ad92ff95",
+      "current_text_sha256": "6c19407cb05fbb2e8b676f2d964eccec79db13d302cc806ed1fef0e757b312c7",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "0ee4a8176b563bceec5191e13552b7d39a2447f715bfd6c0ed7d3b98ad92ff95",
+          "text_sha256": "6c19407cb05fbb2e8b676f2d964eccec79db13d302cc806ed1fef0e757b312c7",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "0ee4a8176b563bceec5191e13552b7d39a2447f715bfd6c0ed7d3b98ad92ff95",
+          "text_sha256": "6c19407cb05fbb2e8b676f2d964eccec79db13d302cc806ed1fef0e757b312c7",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/2fa.ts",
+      "current_raw_sha256": "8c3dcda1d19b5c0bba9fba5ac3617834fa68997bd4874101987816651093acf7",
+      "current_text_sha256": "5c899e51dc17e5576b1d8041038b003ebfe35253e062a30aa01bc631d7df4996",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "8c3dcda1d19b5c0bba9fba5ac3617834fa68997bd4874101987816651093acf7",
+          "text_sha256": "5c899e51dc17e5576b1d8041038b003ebfe35253e062a30aa01bc631d7df4996",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "8c3dcda1d19b5c0bba9fba5ac3617834fa68997bd4874101987816651093acf7",
+          "text_sha256": "5c899e51dc17e5576b1d8041038b003ebfe35253e062a30aa01bc631d7df4996",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/appVersion.ts",
+      "current_raw_sha256": "6286bf7d8714d462651731f85d5463a95006bcb23cc0e6e387f9c8d471658715",
+      "current_text_sha256": "228178b1ba2557a26c9f09a0f4cff6e9b2dd9bddd879c3d1fa9eb72cbb2fe5fb",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "6286bf7d8714d462651731f85d5463a95006bcb23cc0e6e387f9c8d471658715",
+          "text_sha256": "228178b1ba2557a26c9f09a0f4cff6e9b2dd9bddd879c3d1fa9eb72cbb2fe5fb",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "6286bf7d8714d462651731f85d5463a95006bcb23cc0e6e387f9c8d471658715",
+          "text_sha256": "228178b1ba2557a26c9f09a0f4cff6e9b2dd9bddd879c3d1fa9eb72cbb2fe5fb",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/appConfiguration.ts",
+      "current_raw_sha256": "c82b2486a6844e0a4eee5833f81959b7321fc69c5283bfe36ad731430caf7364",
+      "current_text_sha256": "bfd59ad93ed8791710239663f100aae63d884df7e3bd487c4931011d18c1856d",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "c82b2486a6844e0a4eee5833f81959b7321fc69c5283bfe36ad731430caf7364",
+          "text_sha256": "bfd59ad93ed8791710239663f100aae63d884df7e3bd487c4931011d18c1856d",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "c82b2486a6844e0a4eee5833f81959b7321fc69c5283bfe36ad731430caf7364",
+          "text_sha256": "bfd59ad93ed8791710239663f100aae63d884df7e3bd487c4931011d18c1856d",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "frontend/src/app/Services/configuration.service.ts",
+      "current_raw_sha256": "535d00499309b9a16907952fb3b42fe8cf1ed4c79bbf6b978420fd67c5a11b74",
+      "current_text_sha256": "4733d33b0ee89dfd68b656780ab9b344a8bc85879e4e4fa7d85ef01c50438ea4",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "535d00499309b9a16907952fb3b42fe8cf1ed4c79bbf6b978420fd67c5a11b74",
+          "text_sha256": "4733d33b0ee89dfd68b656780ab9b344a8bc85879e4e4fa7d85ef01c50438ea4",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "535d00499309b9a16907952fb3b42fe8cf1ed4c79bbf6b978420fd67c5a11b74",
+          "text_sha256": "4733d33b0ee89dfd68b656780ab9b344a8bc85879e4e4fa7d85ef01c50438ea4",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/userProfile.ts",
+      "current_raw_sha256": "b733733456837fe91ed49959e6e49824b1f91f0a114b336f7fd326fad14f4606",
+      "current_text_sha256": "07251f3d0dd9f4c530da60e3911091d8ff1bded650f72c31cbee499093979b39",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "b733733456837fe91ed49959e6e49824b1f91f0a114b336f7fd326fad14f4606",
+          "text_sha256": "07251f3d0dd9f4c530da60e3911091d8ff1bded650f72c31cbee499093979b39",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "b733733456837fe91ed49959e6e49824b1f91f0a114b336f7fd326fad14f4606",
+          "text_sha256": "07251f3d0dd9f4c530da60e3911091d8ff1bded650f72c31cbee499093979b39",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/updateUserProfile.ts",
+      "current_raw_sha256": "eed40e8eca4cbd553c8c00a9d71fe3a654e12eab4a092fe91c80511e212cbcdb",
+      "current_text_sha256": "2eec586af91cd04ab60503ec3477e52dd7c524cfdbfad9ffcfeb4000a23b0641",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "eed40e8eca4cbd553c8c00a9d71fe3a654e12eab4a092fe91c80511e212cbcdb",
+          "text_sha256": "2eec586af91cd04ab60503ec3477e52dd7c524cfdbfad9ffcfeb4000a23b0641",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "eed40e8eca4cbd553c8c00a9d71fe3a654e12eab4a092fe91c80511e212cbcdb",
+          "text_sha256": "2eec586af91cd04ab60503ec3477e52dd7c524cfdbfad9ffcfeb4000a23b0641",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/vulnCodeFixes.ts",
+      "current_raw_sha256": "52688fa6c2be3524848600c5f8ab2fde97fa419d9caf23bfbe265fa1f6fe8dd0",
+      "current_text_sha256": "947bfb300d76d2347d2f3dba8a6432129281b8fcc5aa7f7e806fe9f8207dac96",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "52688fa6c2be3524848600c5f8ab2fde97fa419d9caf23bfbe265fa1f6fe8dd0",
+          "text_sha256": "947bfb300d76d2347d2f3dba8a6432129281b8fcc5aa7f7e806fe9f8207dac96",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "52688fa6c2be3524848600c5f8ab2fde97fa419d9caf23bfbe265fa1f6fe8dd0",
+          "text_sha256": "947bfb300d76d2347d2f3dba8a6432129281b8fcc5aa7f7e806fe9f8207dac96",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/vulnCodeSnippet.ts",
+      "current_raw_sha256": "bccd3f16276ea17ac5738f5c118729c7c37bd2fabccb0fc556654c4dee276a37",
+      "current_text_sha256": "1521983d9a9e6e6f967b8bf7df2c655e7af0aed9976abfe464d3244c6b3e265c",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "bccd3f16276ea17ac5738f5c118729c7c37bd2fabccb0fc556654c4dee276a37",
+          "text_sha256": "1521983d9a9e6e6f967b8bf7df2c655e7af0aed9976abfe464d3244c6b3e265c",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "bccd3f16276ea17ac5738f5c118729c7c37bd2fabccb0fc556654c4dee276a37",
+          "text_sha256": "1521983d9a9e6e6f967b8bf7df2c655e7af0aed9976abfe464d3244c6b3e265c",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/fileUpload.ts",
+      "current_raw_sha256": "d7c3392e84264ef395403c0cfefaed5e0e2d46d7c11233b5764d0e2f463cbf9f",
+      "current_text_sha256": "cbaa5d28d378d7ce5b521b634f5250bb8d1fa09c6ac6004bf3f4759bab892573",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "d7c3392e84264ef395403c0cfefaed5e0e2d46d7c11233b5764d0e2f463cbf9f",
+          "text_sha256": "cbaa5d28d378d7ce5b521b634f5250bb8d1fa09c6ac6004bf3f4759bab892573",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "d7c3392e84264ef395403c0cfefaed5e0e2d46d7c11233b5764d0e2f463cbf9f",
+          "text_sha256": "cbaa5d28d378d7ce5b521b634f5250bb8d1fa09c6ac6004bf3f4759bab892573",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "package.json",
+      "current_raw_sha256": "fd88518d22d30d36b0935879456c727333d2d2ba68125b618077d82c89bc6df5",
+      "current_text_sha256": "81771ac97016ceb8f24fb79ffd24751a90a189c1cbfa6625680142880aedf99c",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "fd88518d22d30d36b0935879456c727333d2d2ba68125b618077d82c89bc6df5",
+          "text_sha256": "81771ac97016ceb8f24fb79ffd24751a90a189c1cbfa6625680142880aedf99c",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "fd88518d22d30d36b0935879456c727333d2d2ba68125b618077d82c89bc6df5",
+          "text_sha256": "81771ac97016ceb8f24fb79ffd24751a90a189c1cbfa6625680142880aedf99c",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "lib/insecurity.ts",
+      "current_raw_sha256": "dc0f84cffee1c0f484fb067ee84c34b95d627384726fd6ea1f7d20b4b713b955",
+      "current_text_sha256": "c3496760cac6a5fde403bf739a8ab5e2536d2bbc57a6e3b6a0ac50b01a6e8b8d",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "dc0f84cffee1c0f484fb067ee84c34b95d627384726fd6ea1f7d20b4b713b955",
+          "text_sha256": "c3496760cac6a5fde403bf739a8ab5e2536d2bbc57a6e3b6a0ac50b01a6e8b8d",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "dc0f84cffee1c0f484fb067ee84c34b95d627384726fd6ea1f7d20b4b713b955",
+          "text_sha256": "c3496760cac6a5fde403bf739a8ab5e2536d2bbc57a6e3b6a0ac50b01a6e8b8d",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    },
+    {
+      "path": "routes/verify.ts",
+      "current_raw_sha256": "fe3f0be52724d8594b8342cd2ae1a3943c58045faff4959e8556058ad497f3f6",
+      "current_text_sha256": "9564a950864d515bbb9aff2718e6b904691bb8dc71a60a13905db80a04b8feff",
+      "snapshots": {
+        "remediate": {
+          "raw_sha256": "fe3f0be52724d8594b8342cd2ae1a3943c58045faff4959e8556058ad497f3f6",
+          "text_sha256": "9564a950864d515bbb9aff2718e6b904691bb8dc71a60a13905db80a04b8feff",
+          "raw_matches": true,
+          "text_matches": true
+        },
+        "triage": {
+          "raw_sha256": "fe3f0be52724d8594b8342cd2ae1a3943c58045faff4959e8556058ad497f3f6",
+          "text_sha256": "9564a950864d515bbb9aff2718e6b904691bb8dc71a60a13905db80a04b8feff",
+          "raw_matches": true,
+          "text_matches": true
+        }
+      }
+    }
+  ],
+  "all_text_matches": true,
+  "all_raw_matches": true,
+  "model_gui_build_tests_executed": false
+}

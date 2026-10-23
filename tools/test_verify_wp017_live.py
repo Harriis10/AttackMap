@@ -1,5 +1,6 @@
 """Synthetic verifier tests; these do not prove live provider integration."""
 import hashlib
+import copy
 import json
 from pathlib import Path
 import tempfile
@@ -41,6 +42,110 @@ class VerificationTests(unittest.TestCase):
         self.assertTrue(result["passed"], result)
         self.assertIn("interim only", result["verdict"])
         self.assertFalse(result["accepted_manual_ui"])
+
+    def budget_evidence(self, provider=3600, scan=4200, harness=4500):
+        budget = dict(provider_timeout_seconds=provider, scan_timeout_seconds=scan, harness_timeout_seconds=harness)
+        self.evidence["timeout_budget"] = budget
+        self.evidence["emitted_provider"]["timeout_seconds"] = provider
+        self.evidence["request"] = self.file("request.json", {"options": {"provider": self.evidence["emitted_provider"], "timeout_seconds": scan}})
+        self.evidence["provider_pointer"] = "/options/provider"
+        smoke = json.loads((self.base / "smoke.json").read_text())
+        smoke["result"]["timeoutBudget"] = budget
+        self.evidence["smoke"] = self.file("smoke.json", smoke)
+        self.evidence["preflight"] = self.file("preflight.json", dict(provider_budget_seconds=provider,
+            native_scan_timeout_seconds=scan, process_timeout_seconds=harness))
+        self.evidence["process"] = self.file("process.json", dict(timeout_seconds=harness, exit_code=0,
+            exited=True, timed_out=False, owned_job_assigned=True, owned_tree_cleanup_verified=True))
+
+    def test_exact_default_and_long_budget_provenance_pass(self):
+        for triplet in ((900, 1200, 1500), (3600, 4200, 4500), (3600, 3600, 3601),
+                        (7200, 7800, 8100), (7200, 7200, 7201), (7200, 10799, 10800)):
+            with self.subTest(triplet=triplet):
+                self.budget_evidence(*triplet)
+                result = verify(self.evidence, self.base)
+                self.assertTrue(result["passed"], result)
+
+    def test_long_budget_without_new_provenance_rejected(self):
+        self.evidence["emitted_provider"]["timeout_seconds"] = 3600
+        self.evidence["request"] = self.file("request.json", {"provider": self.evidence["emitted_provider"]})
+        self.assertFalse(verify(self.evidence, self.base)["passed"])
+
+    def test_budget_provenance_missing_or_hash_tampered_rejected(self):
+        for key in ("preflight", "process"):
+            for change in ("missing", "tampered"):
+                with self.subTest(key=key, change=change):
+                    self.budget_evidence()
+                    if change == "missing":
+                        del self.evidence[key]
+                    else:
+                        (self.base / self.evidence[key]["path"]).write_text("{}")
+                    self.assertFalse(verify(self.evidence, self.base)["passed"])
+
+    def test_each_bound_timeout_source_must_match(self):
+        cases = [("preflight", (key,), 900) for key in ("provider_budget_seconds", "native_scan_timeout_seconds", "process_timeout_seconds")]
+        cases += [("smoke", ("result", "timeoutBudget", key), 900) for key in ("provider_timeout_seconds", "scan_timeout_seconds", "harness_timeout_seconds")]
+        cases += [("request", ("options", "timeout_seconds"), 1200), ("request", ("options", "provider", "timeout_seconds"), 900),
+                  ("request", ("options", "provider", "timeout_seconds"), 3600.0),
+                  ("process", ("timeout_seconds",), 1500), ("process", ("timeout_seconds",), 4500.0),
+                  ("process", ("owned_tree_cleanup_verified",), False), ("process", ("timed_out",), True),
+                  ("preflight", ("provider_budget_seconds",), 3600.0), ("smoke", ("result", "timeoutBudget"), None)]
+        for source, parts, changed in cases:
+            with self.subTest(source=source, parts=parts, changed=changed):
+                self.budget_evidence()
+                record = self.evidence[source]
+                value = json.loads((self.base / record["path"]).read_text())
+                parent = value
+                for part in parts[:-1]:
+                    parent = parent[part]
+                parent[parts[-1]] = changed
+                self.evidence[source] = self.file(record["path"], value)
+                self.assertFalse(verify(self.evidence, self.base)["passed"])
+
+    def test_malformed_collector_budgets_fail_closed(self):
+        self.budget_evidence()
+        valid = copy.deepcopy(self.evidence["timeout_budget"])
+        bad = [None, [], "3600/4200/4500", {}, {**valid, "extra": 1}]
+        for key in valid:
+            bad += [{**valid, key: value} for value in (True, 1.0, "3600", None, 0)]
+        bad += [{**valid, "provider_timeout_seconds": 7201}, {**valid, "harness_timeout_seconds": 10801},
+                {**valid, "scan_timeout_seconds": 86401}, {**valid, "scan_timeout_seconds": 4500},
+                {**valid, "scan_timeout_seconds": 3599}]
+        for value in bad:
+            with self.subTest(value=value):
+                self.evidence["timeout_budget"] = value
+                self.assertFalse(verify(self.evidence, self.base)["passed"])
+
+    def test_extended_each_bound_timeout_source_must_match(self):
+        cases = [("preflight", (key,), 900) for key in ("provider_budget_seconds", "native_scan_timeout_seconds", "process_timeout_seconds")]
+        cases += [("smoke", ("result", "timeoutBudget", key), 900) for key in ("provider_timeout_seconds", "scan_timeout_seconds", "harness_timeout_seconds")]
+        cases += [("request", ("options", "timeout_seconds"), 1200), ("request", ("options", "provider", "timeout_seconds"), 900),
+                  ("request", ("options", "provider", "timeout_seconds"), 7200.0),
+                  ("process", ("timeout_seconds",), 1500), ("process", ("timeout_seconds",), 8100.0),
+                  ("process", ("owned_tree_cleanup_verified",), False), ("process", ("timed_out",), True),
+                  ("preflight", ("provider_budget_seconds",), 7200.0), ("smoke", ("result", "timeoutBudget"), None)]
+        for source, parts, changed in cases:
+            with self.subTest(source=source, parts=parts, changed=changed):
+                self.budget_evidence(7200, 7800, 8100)
+                record = self.evidence[source]
+                value = json.loads((self.base / record["path"]).read_text())
+                parent = value
+                for part in parts[:-1]:
+                    parent = parent[part]
+                parent[parts[-1]] = changed
+                self.evidence[source] = self.file(record["path"], value)
+                self.assertFalse(verify(self.evidence, self.base)["passed"])
+
+    def test_extended_budget_cannot_promote_legacy_or_remote_evidence(self):
+        self.evidence["emitted_provider"]["timeout_seconds"] = 7200
+        self.evidence["request"] = self.file("request.json", {"provider": self.evidence["emitted_provider"]})
+        self.assertFalse(verify(self.evidence, self.base)["passed"])
+        self.budget_evidence(7200, 7800, 8100)
+        self.evidence["emitted_provider"]["endpoint"] = "https://api.openai.com/v1"
+        self.evidence["request"] = self.file("request.json", {"options": {
+            "provider": self.evidence["emitted_provider"], "timeout_seconds": 7800}})
+        result = verify(self.evidence, self.base)
+        self.assertFalse(result["passed"])
+        self.assertIn("provider setting mismatch: endpoint", result["failures"])
 
     def test_reservations_do_not_prove_http_responses(self):
         self.evidence.update(provider_events=[], actual_http_requests=0, completed_responses=0, calls_reserved=8)

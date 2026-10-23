@@ -71,6 +71,7 @@ CLAUDE_CLI_TIMEOUT_SECONDS = 600
 # so our extended tiers (xhigh/max) clamp down to "high".
 OPENAI_DEFAULT_MODEL = "gpt-5-codex"
 OPENAI_API_TIMEOUT_SECONDS = 900
+LOCAL_OPENAI_API_TIMEOUT_SECONDS = 3600
 CODEX_CLI_TIMEOUT_SECONDS = 900
 OPENAI_EFFORT_MAP = {
     "low": "low",
@@ -222,10 +223,10 @@ def _provider_timeout(default: float) -> float:
     return min(default, reservation.timeout_seconds, reservation.ledger.remaining_seconds)
 
 
-def _controlled_client(client):
+def _controlled_client(client, *, timeout: float = OPENAI_API_TIMEOUT_SECONDS):
     reservation = current_reservation()
     if reservation is not None and hasattr(client, "with_options"):
-        return client.with_options(max_retries=0, timeout=_provider_timeout(OPENAI_API_TIMEOUT_SECONDS))
+        return client.with_options(max_retries=0, timeout=_provider_timeout(timeout))
     return client
 
 
@@ -240,6 +241,24 @@ def _literal_loopback_url(value: str | None) -> bool:
                 and ipaddress.ip_address(parsed.hostname).is_loopback)
     except ValueError:
         return False
+
+
+def _openai_timeout_ceiling(client=None, *, budget: AiBudget | None = None) -> float:
+    """Honor an existing local allowance; never create or reset its deadline."""
+    reservation = current_reservation()
+    ledger = budget or current_budget() or (reservation.ledger if reservation else None)
+    endpoint = str(getattr(client, "base_url", "") if client is not None
+                   else os.environ.get("OPENAI_BASE_URL", ""))
+    if ledger is not None and _literal_loopback_url(endpoint):
+        parsed = urlsplit(endpoint)
+        try:
+            port = parsed.port
+        except ValueError:
+            return OPENAI_API_TIMEOUT_SECONDS
+        if (parsed.scheme == "http" and parsed.username is None and parsed.password is None
+                and (port is None or port > 0)):
+            return LOCAL_OPENAI_API_TIMEOUT_SECONDS
+    return OPENAI_API_TIMEOUT_SECONDS
 
 
 def _normalize_local_endpoint(value: str | None) -> str | None:
@@ -651,7 +670,8 @@ def _resolve_openai_client(api_key: str | None, client: Any | None) -> Any:
             "No OpenAI API credentials found. Set OPENAI_API_KEY, or install the `codex` "
             "CLI and run `codex login` to use --llm-backend cli."
         )
-    kwargs: dict[str, Any] = {"api_key": resolved_key, "timeout": OPENAI_API_TIMEOUT_SECONDS, "max_retries": 0}
+    kwargs: dict[str, Any] = {"api_key": resolved_key,
+        "timeout": _provider_timeout(_openai_timeout_ceiling()), "max_retries": 0}
     if base_url:
         kwargs["base_url"] = base_url
     kwargs.update(_loopback_transport(openai, base_url))
@@ -696,7 +716,9 @@ def _run_via_openai_sdk(
     api_key: str | None,
     client: Any | None,
 ) -> LlmReviewResult:
-    oi = _controlled_client(_resolve_openai_client(api_key, client))
+    resolved = _resolve_openai_client(api_key, client)
+    timeout = _openai_timeout_ceiling(resolved)
+    oi = _controlled_client(resolved, timeout=timeout)
     reasoning_effort = OPENAI_EFFORT_MAP.get(effort, "high")
 
     try:
@@ -706,7 +728,7 @@ def _run_via_openai_sdk(
             input=rendered_user,
             reasoning={"effort": reasoning_effort},
             max_output_tokens=max_tokens,
-            timeout=_provider_timeout(OPENAI_API_TIMEOUT_SECONDS),
+            timeout=_provider_timeout(timeout),
         )
     except LlmReviewError:
         raise
@@ -1016,7 +1038,7 @@ def generate_llm_review(
                 max_tokens=limit,
                 api_key=api_key,
                 client=openai_client,
-            ), max_tokens=max_tokens, timeout=OPENAI_API_TIMEOUT_SECONDS, budget=budget)
+            ), max_tokens=max_tokens, timeout=_openai_timeout_ceiling(openai_client, budget=budget), budget=budget)
         return review_call(lambda limit: _run_via_codex_cli(
             rendered.system,
             rendered.user,

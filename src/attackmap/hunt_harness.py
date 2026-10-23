@@ -590,7 +590,10 @@ def run_majority_verify(scan, attack_surfaces, findings, attack_paths, *, votes:
     def reserved_call(mode, **kwargs):
         nonlocal denied
         try:
-            reservation = ledger.reserve(max_output_tokens=max_output_tokens_per_call, timeout_seconds=900)
+            # Keep the single shared deadline; provider adapters apply their own
+            # endpoint-specific per-call ceilings without resetting this budget.
+            reservation = ledger.reserve(max_output_tokens=max_output_tokens_per_call,
+                                         timeout_seconds=3600)
         except AiBudgetExhausted:
             denied += 1
             raise

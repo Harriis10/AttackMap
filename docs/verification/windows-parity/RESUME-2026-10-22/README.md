@@ -1,5 +1,29 @@
 # Obnovení roadmapy — 22. 10. 2026
 
+**Nejnovější checkpoint 23. 10. 2026: [přesné výsledky a další brány](checkpoint-2026-10-23.md).**
+7200s kandidát již prošel build/runtime/package/installed kontrolami. Hunt+verify
+dokončil všechny čtyři HTTP 200 odpovědi, ale zůstává partial kvůli jedné
+abstenci poroty, nikoli kvůli timeoutu. Triage opakování prošlo včetně čistého
+exitu. Přesné scoped důkazy a otevřené GUI/sémantické/ruční brány jsou v
+checkpointu výše. Následuje lokální Git uložení a finální full portable;
+na výslovný pokyn uživatele se potom žádná další práce nezahajuje.
+
+**Běh je výslovně OBNOVEN uživatelem. Následující stav popisuje předchozí dávku; aktuální je checkpoint výše.**
+Předchozí STOP hlídače využití (ohlášeno 75 %) je historický:
+[Astra/high STOP handoff](astra-high/STOP-HANDOFF.md) obsahuje novou širokou
+regresi, native/frozen výsledky a nový RequiredBundled package/SBOM. Po obnovení
+prošel nový installed native scan; [WP024 unsigned preflight](../WP024/astra-fresh-20261022/unsigned-acceptance.md)
+je DONE ve svém omezeném rozsahu. [První živá série](../WP017/astra-review-20261022/batch-outcome.md)
+dokončila Review a Hunt, ale Hunt+verify vyčerpal časový rozpočet bez odpovědi;
+Remediate/Triage se nespustily. Procesy skončily a LM Studio hlásí READY.
+Vizuální a obsahové brány zůstávají otevřené. Po upozornění uživatele na dlouhé
+generování nyní vzniká cílená oprava delšího explicitního lokálního čekání.
+
+**Navazující běh:** nejnovější pokyn uživatele nastavuje všechny nové
+subagenty na GPT-6.1 Sol / `medium`. Předchozí Astra/high výsledky zůstávají zachovány. Aktuální rozdělení, leases a výsledky jsou
+v [navazujícím záznamu](astra-high/README.md). Níže zůstává předchozí dávka
+beze změny jejího modelu, výsledků a akceptačních omezení.
+
 Uživatel výslovně požádal o kontrolu roadmapy, rozdělení práce paralelním
 agentům a zahájení implementace. Tím je obnoven dříve pozastavený běh.
 Autoritou zůstávají roadmapa Windows parity, TODO a JSON backlog uvedené

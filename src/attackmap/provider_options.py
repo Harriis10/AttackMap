@@ -1,6 +1,7 @@
 """Credential-free optional desktop provider configuration; validation performs no I/O."""
 from __future__ import annotations
 
+import re
 from typing import Literal
 from urllib.parse import urlsplit
 
@@ -18,7 +19,7 @@ class ProviderOptions(BaseModel):
     endpoint: str | None = LOCAL_ENDPOINT
     model: str | None = LOCAL_MODEL
     max_calls: int = Field(default=8, ge=1, le=64)
-    timeout_seconds: int = Field(default=600, ge=1, le=3600)
+    timeout_seconds: int = Field(default=600, ge=1, le=7200)
     output_token_limit: int = Field(default=32000, ge=1, le=256000)
 
     @field_validator("endpoint")
@@ -41,6 +42,22 @@ class ProviderOptions(BaseModel):
         except ValueError:
             raise ValueError("Use HTTPS, or literal loopback HTTP; no URL credentials, query or fragment") from None
         return value.rstrip("/")
+
+    @model_validator(mode="after")
+    def local_extended_allowance(self) -> ProviderOptions:
+        if self.timeout_seconds <= 3600:
+            return self
+        endpoint = urlsplit(self.endpoint or "")
+        if (self.provider != "openai" or endpoint.scheme != "http"
+                or endpoint.hostname not in {"localhost", "127.0.0.1", "::1"}
+                or endpoint.username is not None or endpoint.password is not None
+                or endpoint.query or endpoint.fragment
+                or "?" in (self.endpoint or "") or "#" in (self.endpoint or "")
+                or (endpoint.port is not None and endpoint.port <= 0)
+                or re.match(r"\Ahttp://(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]+)?(?:/|\Z)",
+                            self.endpoint or "", re.IGNORECASE) is None):
+            raise ValueError("AI allowances above 3600 seconds require local OpenAI HTTP")
+        return self
 
     @field_validator("model")
     @classmethod

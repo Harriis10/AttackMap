@@ -18,7 +18,7 @@ public sealed class ProviderSettingsView : UserControl
     private EngineCapabilities? capabilities;
     private bool advancedPreference;
     private readonly TextBox calls = new() { Header = "Maximum provider calls (1-64)", Text = "8" };
-    private readonly TextBox seconds = new() { Header = "AI time allowance in seconds (1-3600)", Text = "600" };
+    private readonly TextBox seconds = new() { Header = "Total AI time allowance in seconds (1-3600; explicit local OpenAI HTTP API up to 7200)", Text = "600" };
     private readonly TextBox outputTokens = new() { Header = "Output-token allowance only (1-256000)", Text = "32000" };
     private readonly TextBlock result = new() { TextWrapping = TextWrapping.Wrap };
     public event Action<ProviderAccessRequest>? SaveRequested;

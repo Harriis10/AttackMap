@@ -25,6 +25,21 @@ public sealed partial class MainWindow
         string? failure = null;
         try
         {
+            const string captureFlag = "--provider-scroll-capture";
+            int captureIndex = Array.IndexOf(args, captureFlag);
+            if (args.Count(value => value == captureFlag) > 1 || args.Any(value => value.StartsWith(captureFlag + "=", StringComparison.Ordinal)))
+                throw new ArgumentException("Provide the optional provider capture flag once, followed by a fresh absolute PNG path.");
+            string? capturePath = null;
+            if (captureIndex >= 0)
+            {
+                if (captureIndex + 1 >= args.Length || !Path.IsPathFullyQualified(args[captureIndex + 1]))
+                    throw new ArgumentException("Provider capture requires an absolute PNG path.");
+                capturePath = Path.GetFullPath(args[captureIndex + 1]);
+                if (!string.Equals(Path.GetDirectoryName(capturePath), directory.FullName, StringComparison.OrdinalIgnoreCase) ||
+                    !string.Equals(Path.GetExtension(capturePath), ".png", StringComparison.OrdinalIgnoreCase) ||
+                    File.Exists(capturePath) || Directory.Exists(capturePath))
+                    throw new IOException("Use a fresh PNG in the same caller-owned QA directory as the proof.");
+            }
             int viewport = Array.IndexOf(args, "--viewport");
             if (viewport >= 0 && viewport + 2 < args.Length && int.TryParse(args[viewport + 1], out int width) && int.TryParse(args[viewport + 2], out int height) && width is >= 1024 and <= 16384 && height is >= 700 and <= 16384)
             {
@@ -41,9 +56,29 @@ public sealed partial class MainWindow
                 await ProviderScrollDispatchTurns(); root.UpdateLayout();
             }
             var after = ProviderButtons(root);
+            double bottomInnerOffset = inner.VerticalOffset;
+            CaptureMetadata? capture = null;
+            object? budgetLabel = null;
+            if (capturePath != null)
+            {
+                var budget = ProviderScrollElements(Provider).OfType<TextBox>().Single(control =>
+                    control.Header is string text && text.StartsWith("Total AI time allowance in seconds (", StringComparison.Ordinal));
+                // Only the explicitly requested QA capture changes the post-proof scroll position.
+                budget.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false, VerticalAlignmentRatio = 0.5 });
+                await ProviderScrollDispatchTurns(); root.UpdateLayout();
+                var label = ProviderScrollElements(budget).OfType<TextBlock>().Single(text => text.Text == (string)budget.Header);
+                var labelBounds = ProviderPreviewBounds(label, root);
+                var fieldBounds = ProviderPreviewBounds(budget, root);
+                if (!labelBounds.FullyWithinClippedViewport || !fieldBounds.FullyWithinClippedViewport)
+                    throw new InvalidOperationException("The actual budget label and field are not fully visible in the clipped Settings viewport.");
+                capture = await NativeCaptureProbe.Capture(root, capturePath);
+                budgetLabel = new { text = label.Text, value = budget.Text, labelBounds, fieldBounds,
+                    innerOffset = inner.VerticalOffset, source = "Actual provider TextBox and realized header; no synthetic content" };
+            }
             result = new {
                 rootWidth = root.ActualWidth, rootHeight = root.ActualHeight, scale = root.XamlRoot.RasterizationScale,
-                before, after, innerOffset = inner.VerticalOffset, innerScrollableHeight = inner.ScrollableHeight,
+                before, after, innerOffset = bottomInnerOffset, innerScrollableHeight = inner.ScrollableHeight,
+                actualTheme = root.ActualTheme.ToString(), capture, budgetLabel,
                 outerScrollViewer = false,
                 bothActionsFullyVisibleAndEnabled = after.Count == 2 && after.All(button => button.FullyWithinClippedViewport && button.Enabled),
                 buttonActionsInvoked = 0, providerRequestsInvoked = 0
@@ -54,13 +89,36 @@ public sealed partial class MainWindow
         {
             using var stream = new FileStream(output, FileMode.CreateNew, FileAccess.Write, FileShare.None);
             await JsonSerializer.SerializeAsync(stream, new {
-                scope = "Programmatic actual Settings single bounded scroll journey and clipped button bounds only; no keyboard, Narrator, contrast or C24 acceptance.",
+                scope = "Programmatic actual Settings single bounded scroll journey and clipped button bounds; optional explicitly requested actual budget-label capture; no keyboard, Narrator, contrast or C24 acceptance.",
                 completed = failure == null, failure, result, acceptedC24 = false,
                 settingsRestorePerformedByHelper = false, providerRequestsInvokedByHelper = 0,
                 limitations = new[] { "Root must route this smoke flag before personal settings/provider restore.", "No report, settings file or credential value is read by this helper.", "Visibility requires nonempty bounds intersection through realized ancestor scroll viewports; Visibility enum alone is insufficient.", "Current window size/theme only; repeat on required sizes/scales and verify actual keyboard tasks independently." }
             }, new JsonSerializerOptions { WriteIndented = true });
         }
         finally { Close(); }
+    }
+
+    private sealed record ProviderPreviewElementBounds(Rect BoundsRelativeRoot, Rect ClippedBoundsRelativeRoot,
+        bool FullyWithinClippedViewport);
+
+    private ProviderPreviewElementBounds ProviderPreviewBounds(FrameworkElement element, FrameworkElement root)
+    {
+        var bounds = element.TransformToVisual(root).TransformBounds(new Rect(0, 0, element.ActualWidth, element.ActualHeight));
+        var clipped = ProviderIntersection(bounds, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+        bool visible = element.IsLoaded;
+        for (DependencyObject? ancestor = element; ancestor != null; ancestor = VisualTreeHelper.GetParent(ancestor))
+        {
+            if (ancestor is FrameworkElement parent)
+            {
+                visible &= parent.Visibility == Visibility.Visible;
+                if (parent is ScrollViewer || parent.GetType().Name == "ScrollContentPresenter")
+                    clipped = ProviderIntersection(clipped, parent.TransformToVisual(root).TransformBounds(new Rect(0, 0, parent.ActualWidth, parent.ActualHeight)));
+            }
+            if (ReferenceEquals(ancestor, root)) break;
+        }
+        if (!visible) clipped = new Rect(0, 0, 0, 0);
+        double area = bounds.Width * bounds.Height;
+        return new(bounds, clipped, visible && area > 0 && clipped.Width * clipped.Height / area >= 0.999);
     }
 
     private sealed record ProviderButtonBounds(string Label, Rect BoundsRelativeRoot, Rect BoundsRelativeProviderPanel,

@@ -1,5 +1,22 @@
 # AttackMap — roadmapa Windows parity a dokončení produktu
 
+**Závěrečný checkpoint 23. 10.:** [výsledky 7200s kandidáta](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md) obsahují nové runtime/package/installed důkazy, všechny čtyři Hunt+verify HTTP odpovědi (partial kvůli abstenci), Triage scoped PASS a otevřené GUI/obsahové brány. Po požadovaném lokálním Git uložení a full portable buildu se další úkoly nezahajují. Následující starší odstavce jsou předchozí checkpoint, nikoli aktuální běhový stav.
+
+**Běh 22. 10. 2026 je znovu AKTIVNÍ na výslovný pokyn uživatele.**
+[Aktuální postup](verification/windows-parity/RESUME-2026-10-22/astra-high/RESUMED.md)
+navazuje na historický STOP hlídače využití (ohlášeno 75 %).
+[Aktuální handoff Astra/high](verification/windows-parity/RESUME-2026-10-22/astra-high/STOP-HANDOFF.md)
+zachycuje dokončenou broad/native/frozen regresi a nový RequiredBundled
+package/SBOM. Installed native scan již prošel a [WP024 je DONE v unsigned-preflight rozsahu](verification/windows-parity/WP024/astra-fresh-20261022/unsigned-acceptance.md).
+[Checkpoint 23. 10. 2026](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md)
+dokládá implementaci explicitního lokálního allowance 7200 s: 412 Python PASS,
+55 runner testů + 120 subtests PASS a 117 native offline assertions PASS.
+Na starším kandidátu je Hunt+verify retry 02 partial (poslední jury timeout),
+Remediate scoped live PASS, Triage retry 02 přes HTTP 200/pre-close parity true
+celkově FAIL kvůli exitu `0xC000027B`. Freeze 01 je interim; root připravuje
+finální freeze 02. Nový 7200s kandidát nepřebírá runtime/live/GUI PASS.
+Pracovní agenti používají GPT-6.1 Sol / medium; WP017/WP023 zůstávají IN_PROGRESS.
+
 **Výchozí stav: 20. října 2026.** Tento dokument řídí další pořadí práce. [Audit](windows-parity-audit-2026-10-20.md) zachycuje srovnání místního HEAD, veřejné dokumentace a zdrojů macOS. [TODO](windows-parity-todo.md) rozepisuje úkoly; [JSON backlog](windows-parity-backlog.json) poskytuje závislosti a vlastnictví pro orchestrace.
 
 Původní [C01–C40](roadmap-2026-2028.md) jsou historickým zdrojem definic kvality, platným pouze v rozsahu převzatém touto roadmapou a konkrétními WP úkoly; původní [AM001–AM054](implementation-todo.md) zůstává historickou stopou. Starší dokumenty nejsou samostatným zadáním pro agenty; autoritu dokumentů určuje [aktuální rozcestník](README.md). Nové `WPxxx` označuje konkrétní zbývající řez, nikoli nový důkaz splnění starého kritéria. Windows M3 se znovu neotevírá; Windows C26 se nevrací. Nová roadmapa nepředstavuje souhlas s automatickým publikováním nebo snižováním kritérií.
@@ -39,7 +56,9 @@ Jeden cyklus znamená dokončit malý řez, cíleně ověřit, integrovat a uká
 
 Aktuální prováděcí záznam a nezávislý audit všech 41 úkolů jsou v
 [obnoveném běhu](verification/windows-parity/RESUME-2026-10-22/README.md).
-Nové subagentní běhy používají na výslovný pokyn GPT-6.1 Sol / `ultra`.
+Aktuální navazující subagentní běhy používají na výslovný pokyn
+GPT-6 Astra / `high`; [rozdělení a leases](verification/windows-parity/RESUME-2026-10-22/astra-high/README.md).
+Předchozí Sol / `ultra` výsledky zůstávají historicky zachované.
 
 | CP | Současný rozsah a zbývající brána |
 | --- | --- |

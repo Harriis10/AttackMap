@@ -3,7 +3,7 @@
   "baseline_date": "2026-10-20",
   "baseline_timezone": "Europe/Prague",
   "baseline_commit": "d45997653970929f5f477c6e2dcd70913cb17fe3",
-  "planning_status": "Active explicit user resume22Oct2026; scoped integration batch: taint275PASS including7 unchanged timing cases, explicit6000full differential equal, ownership132PASS+346fullgoldens equal, R4fivePASS, nativefive-mode runner preparation. New subagents GPT6.1Sol/ultra. No wholecheckpoint/newWPclosure; freshsame-source package, broad/native/livefiveModes/manual/release/Mac/human/scale gates remainopen.",
+  "planning_status": "FINALIZING requested local Git save and full portable, then stop: 7200 candidate dev-20261023001948-7fa3eaff runtime21/fullnative/package/SBOM56/installed19 scoped PASS. Hunt_verify 4 HTTP200 completed, native exit0/cleanup, remaining3014s, failed0, abstained1 => partial/harnessFAIL preserved. Triage one HTTP200,21artifacts/export,native exit0/cleanup scopedPASS. Budget label and actual Light AI images reviewed. Independent live-window capture/geometry unavailable; own window exited0. WP017/WP023 remain IN_PROGRESS; semantic/manual/visual/cleanhost/signing gates open. No further roadmap work or delegation after final portable, per user.",
   "roadmap": "roadmap-windows-parity-2026-10-20.md",
   "audit": "windows-parity-audit-2026-10-20.md",
   "task_definition_authority": "windows-parity-todo.md; synchronize this JSON when changing dependencies or definitions",
@@ -59,8 +59,8 @@
     "preparation_on_verified_dependency_checkpoints": true,
     "dependency_acceptance_rule": "Dependencies gate task acceptance. Preparatory implementation/integration may use a reviewed, hash-bound dependency source checkpoint while its manual/live/release gates remain open; record the limited execution scope and never infer DONE from preparation.",
     "current_run_subagent_model": "gpt-6.1-sol",
-    "current_run_subagent_reasoning_effort": "ultra",
-    "reasoning_effort_authority": "Explicit user request on2026-10-22"
+    "current_run_subagent_reasoning_effort": "medium",
+    "reasoning_effort_authority": "Explicit user request on 2026-10-22 after Astra usage limit"
   },
   "tasks": [
     {
@@ -907,9 +907,29 @@
         "docs/verification/windows-parity/WP017/opt-in-http-audit-2026-10-21.md",
         "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/live-evidence.json",
         "docs/verification/windows-parity/WP017/source-review-interim-20261021-01/consistency-result.json",
-        "docs/verification/windows-parity/WP017/runner-20261022/README.md"
+        "docs/verification/windows-parity/WP017/runner-20261022/README.md",
+        "docs/verification/windows-parity/WP017/astra-review-20261022/",
+        "docs/verification/windows-parity/RESUME-2026-10-22/astra-high/STOP-HANDOFF.md",
+        "docs/verification/windows-parity/RESUME-2026-10-22/astra-high/RESUMED.md",
+        "docs/verification/windows-parity/WP017/astra-live-20261022/review/verification.json",
+        "docs/verification/windows-parity/WP017/astra-live-20261022/hunt/verification.json",
+        "docs/verification/windows-parity/WP017/astra-review-20261022/live-observation.md",
+        "docs/verification/windows-parity/WP017/astra-review-20261022/semantic-observations.md",
+        "docs/verification/windows-parity/WP017/astra-review-20261022/original-capture-check.json",
+        "docs/verification/windows-parity/WP017/astra-review-20261022/batch-outcome.md",
+        "docs/verification/windows-parity/WP017/long-local-20261022/core/README.md",
+        "docs/verification/windows-parity/WP017/long-local-20261022/sol-review.md",
+        "docs/verification/windows-parity/WP024/astra-long-local-20261022/installed-native/summary.json",
+        "docs/verification/windows-parity/WP017/sol-long-local-20261023-hunt-verify/preflight.json",
+        "docs/verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md",
+        "docs/verification/windows-parity/WP017/long-local-20261022/newlong-core-tests-01/summary.json",
+        "docs/verification/windows-parity/WP017/long-local-20261022/newlong-runner-tests-01/README.md",
+        "docs/verification/windows-parity/WP017/long-local-20261022/newlong-native-tests-01/README.md",
+        "docs/verification/windows-parity/WP017/sol-long-local-20261023-hunt-verify-02/failure.json",
+        "docs/verification/windows-parity/WP017/sol-long-local-20261023-remediate/summary.json",
+        "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage-teardown-diagnosis.md"
       ],
-      "execution_scope": "Reusable local-only full native five-mode runner implemented;30focusedPASS+20subtests, real FINISHED preflight824entriesPASS with0process/provider starts. No actual new model responses in resumed batch; finalfive-mode freshsame-source packaged acceptance remainsopen."
+      "execution_scope": "ACTIVE 2026-10-23 Sol6.1 medium: explicit local shared allowance 7200s applied; focused Python 412 PASS, runner 55 tests plus 120 subtests PASS, native console 117 offline assertions PASS, source hashes unchanged within each checkpoint. Prior dev-20261022220136-08e1c566 with 3600/4200/4500 budgets: Hunt+verify retry02 partial (4 reserved, 3 HTTP200, last jury timeout/unknown, 6652 reported output tokens, remaining0); Remediate scoped live PASS; Triage02 HTTP200 and pre-close parity true but app exit0xC000027B => scenario FAIL, owned cleanup verified. New 7200 freeze01 interim after UI preview change; root preparing final freeze02. No new 7200 candidate runtime/package/installed/live/GUI PASS recorded by this checkpoint. WP017/WP023 IN_PROGRESS; historical WP024 DONE remains unsigned-preflight only. Visual/manual/semantic/release gates open."
     },
     {
       "id": "WP018",
@@ -1244,18 +1264,24 @@
         "docs/verification/windows-parity/RECONCILE-2026-10-21/integrated-k/build-inputs-after.json",
         "docs/verification/windows-parity/RECONCILE-2026-10-21/PAUSED-50PCT-2026-10-21.md",
         "docs/verification/windows-parity/WP023/resume-scanner-20261022/README.md",
-        "docs/verification/windows-parity/WP023/ultra-review-20261022.md"
+        "docs/verification/windows-parity/WP023/ultra-review-20261022.md",
+        "docs/verification/windows-parity/WP023/astra-python-20261022/README.md",
+        "docs/verification/windows-parity/WP023/astra-native-20261022/README.md",
+        "docs/verification/windows-parity/WP023/astra-frozen-20261022/STOP-HANDOFF.md",
+        "docs/verification/windows-parity/RESUME-2026-10-22/astra-high/STOP-HANDOFF.md",
+        "docs/verification/windows-parity/RESUME-2026-10-22/astra-high/RESUMED.md",
+        "docs/verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md"
       ],
-      "execution_scope": "Native full product preserved. Current taint interval-index repair:275focusedPASS including all7 original timing gates unchanged; explicit current/reference6000full ScanResult equal with source/fixture hashes stable and independent ultra review. Historical broad4164pass12fail7skip remains failed; new stable broad/freshsame-source package/provider/manual gates open."
+      "execution_scope": "ACTIVE 2026-10-23 Sol6.1 medium: explicit local shared allowance 7200s applied; focused Python 412 PASS, runner 55 tests plus 120 subtests PASS, native console 117 offline assertions PASS, source hashes unchanged within each checkpoint. Prior dev-20261022220136-08e1c566 with 3600/4200/4500 budgets: Hunt+verify retry02 partial (4 reserved, 3 HTTP200, last jury timeout/unknown, 6652 reported output tokens, remaining0); Remediate scoped live PASS; Triage02 HTTP200 and pre-close parity true but app exit0xC000027B => scenario FAIL, owned cleanup verified. New 7200 freeze01 interim after UI preview change; root preparing final freeze02. No new 7200 candidate runtime/package/installed/live/GUI PASS recorded by this checkpoint. WP017/WP023 IN_PROGRESS; historical WP024 DONE remains unsigned-preflight only. Visual/manual/semantic/release gates open."
     },
     {
       "id": "WP024",
       "title": "Reprodukovatelné balení a unsigned preflight",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "priority": "P0",
       "lane": "RELEASE",
       "checkpoint": "K5",
-      "owner": "/root/wp024_package",
+      "owner": "/root",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP001"
@@ -1290,11 +1316,21 @@
         "docs/verification/windows-parity/WP024/implementation-verification.json",
         "23 focused Python release tests PASS",
         "24 EngineLaunchSpec checks PASS",
-        "isolated synthetic install/upgrade/rollback/tamper/uninstall smoke PASS; real production freeze and installed bundled scan remain open",
+        "Historical implementation slice: synthetic install/upgrade/rollback/tamper/uninstall PASS; its then-open fresh production freeze and installed bundled scan are supplied by the 2026-10-22 unsigned acceptance below.",
         "docs/verification/windows-parity/WP024/fresh-bj-20261021/checkpoint.json",
-        "docs/verification/windows-parity/WP024/startscan-fix-20261022/README.md"
+        "docs/verification/windows-parity/WP024/startscan-fix-20261022/README.md",
+        "docs/verification/windows-parity/WP024/astra-fresh-20261022/packaging/summary.json",
+        "docs/verification/windows-parity/WP024/astra-fresh-20261022/runtime/engine-verification.json",
+        "docs/verification/windows-parity/WP024/astra-fresh-20261022/packaging-guards/README.md",
+        "docs/verification/windows-parity/RESUME-2026-10-22/astra-high/STOP-HANDOFF.md",
+        "docs/verification/windows-parity/RESUME-2026-10-22/astra-high/RESUMED.md",
+        "docs/verification/windows-parity/WP024/astra-fresh-20261022/unsigned-acceptance.md",
+        "docs/verification/windows-parity/WP024/astra-fresh-20261022/installed-profilefix01/summary.json",
+        "docs/verification/windows-parity/WP024/astra-fresh-20261022/resume-review/installed-acceptance-review.md",
+        "docs/verification/windows-parity/WP017/astra-review-20261022/profile-fix/README.md",
+        "docs/verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md"
       ],
-      "execution_scope": "Portable startup fix native integrated-20261022-portable-startscan-fix plus unchanged historical B-J engine; two normal-profile Juice Shop scans completed with two actual local model Review responses; public FINISHED copy/BAT verified. Fresh same-source engine/package, install qualification and release acceptance remain open."
+      "execution_scope": "Historical unsigned-preflight acceptance retained with original evidence. New 7200s candidate is separate: freeze01 interim; final freeze02 preparation does not transfer old runtime/package/installed or release acceptance."
     },
     {
       "id": "WP025",
@@ -2128,5 +2164,10 @@
   ],
   "run_state": "ACTIVE_USER_RESUMED",
   "resume_note": "docs/verification/windows-parity/RESUME-2026-10-22/README.md",
-  "active_execution_leases": []
+  "active_execution_leases": [
+    {
+      "owner": "/root",
+      "scope": "Final source-bound 7200s candidate freeze02/native/package/runtime preparation; exclusive provider and GUI slots. Product/source/helper mutations only by root-authorized lease. Documentation checkpoint does not grant runtime acceptance."
+    }
+  ]
 }

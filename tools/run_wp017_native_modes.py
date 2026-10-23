@@ -22,8 +22,10 @@ import uuid
 
 try:
     from . import verify_wp017_live as gate
+    from . import generate_release_lock as release_lock_tool
 except ImportError:
     import verify_wp017_live as gate
+    import generate_release_lock as release_lock_tool
 
 REPOSITORY = Path(r"C:\tmp\juice-shop")
 APP_NAME = "AttackMap.NativeSpike.exe"
@@ -109,30 +111,80 @@ def relative_name(name):
     return name
 
 
-def package_identity(app, pin=None):
+def production_inventory(manifest, lock_path):
+    require(manifest.get("profile") == "RequiredBundled" and manifest.get("architecture") == "win-x64",
+            "RequiredBundled win-x64 package required")
+    require(bool(re.fullmatch(r"dev-[0-9]{14}-[a-f0-9]{8}", str(manifest.get("package_id", "")))),
+            "Invalid production package ID")
+    runtime, engine = manifest.get("native_runtime", {}), manifest.get("engine", {})
+    require(runtime.get("dotnet_self_contained") is True and runtime.get("windows_app_sdk_self_contained") is True
+            and engine.get("bundled") is True and engine.get("runtime_kind") == "Frozen"
+            and engine.get("executable") == "app/engine/attackmap.exe", "Complete bundled native/engine runtime required")
+    require(lock_path is not None, "RequiredBundled preflight requires --release-lock")
+    lock_path = local_path(lock_path)
+    lock_record = record(lock_path)
+    require(lock_record["sha256"] == engine.get("release_lock_sha256"), "Package release-lock hash mismatch")
+    lock = read(lock_path)
+    current = release_lock_tool.release_inputs(Path(__file__).resolve().parents[1])
+    for key in ("source_checksums_sha256", "release_inputs_sha256", "analyzer_requirements_sha256"):
+        require(bool(re.fullmatch(r"[a-f0-9]{64}", str(engine.get(key, ""))))
+                and current[key] == lock.get(key) == engine[key], "Stale package/source lock: " + key)
+    for tool in ("python", "pyinstaller", "dotnet_sdk"):
+        version = lock.get("toolchain", {}).get(tool, {}).get("version")
+        require(isinstance(version, str) and version not in ("", "unknown"), "Unknown release toolchain: " + tool)
+    require(record(lock_path) == lock_record, "Release lock changed during validation")
+    expected = {}
+    for key, prefix in (("files", "app/"), ("deployment_files", "")):
+        rows = manifest.get(key)
+        require(isinstance(rows, list) and bool(rows), "Missing production " + key)
+        for row in rows:
+            require(isinstance(row, dict), "Malformed production inventory row")
+            name = prefix + relative_name(row.get("path"))
+            require(name not in expected, "Duplicate production inventory entry")
+            expected[name] = {field: row.get(field) for field in ("size_bytes", "sha256")}
+    runtime_files = {"app/" + name for name in REQUIRED_FILES if not name.startswith("provenance/")}
+    require({name.casefold() for name in runtime_files} <= {name.casefold() for name in expected},
+            "Incomplete production payload inventory")
+    require({row["path"] for row in manifest["deployment_files"]} == {"Install-AttackMap.ps1", "Install-AttackMap.cmd"},
+            "Unexpected production deployment inventory")
+    return expected, lock_record
+
+
+def package_identity(app, pin=None, release_lock=None):
     app = local_path(app)
     require(app.name == APP_NAME and app.is_file(), "--app must select the full " + APP_NAME)
     folder = app.parent
-    manifest_path = folder / "portable-manifest.json"
+    portable = folder / "portable-manifest.json"
+    production = folder.parent / "package-manifest.json"
+    require(not (portable.exists() and production.exists()), "Ambiguous package manifests")
+    is_production = not portable.exists() and production.exists() and folder.name == "app"
+    manifest_path = production if is_production else portable
+    if is_production:
+        folder = folder.parent
     local_path(manifest_path)
     fingerprint = sha(manifest_path)
     if pin is not None:
         require(bool(re.fullmatch(r"[a-f0-9]{64}", pin)), "Invalid --manifest-sha256")
-        require(fingerprint == pin, "Portable manifest differs from the reviewed pin")
+        require(fingerprint == pin, "Package manifest differs from the reviewed pin")
     manifest = read(manifest_path)
-    require(manifest.get("schema_version") == 1 and manifest.get("architecture") == "x64", "Unsupported portable manifest")
-    runtime = manifest.get("runtime", {})
-    require(runtime.get("dotnet_self_contained") is True and runtime.get("python_embedded") is True
-            and runtime.get("external_python_required") is False and runtime.get("engine") == "engine/attackmap.exe",
-            "Complete bundled native/engine runtime required")
-    expected = manifest.get("files")
-    require(isinstance(expected, dict) and {name.casefold() for name in REQUIRED_FILES} <= {name.casefold() for name in expected},
-            "Incomplete portable payload inventory")
+    require(manifest.get("schema_version") == 1, "Unsupported package manifest")
+    lock_record = None
+    if is_production:
+        expected, lock_record = production_inventory(manifest, release_lock)
+    else:
+        require(manifest.get("architecture") == "x64", "Unsupported portable manifest")
+        runtime = manifest.get("runtime", {})
+        require(runtime.get("dotnet_self_contained") is True and runtime.get("python_embedded") is True
+                and runtime.get("external_python_required") is False and runtime.get("engine") == "engine/attackmap.exe",
+                "Complete bundled native/engine runtime required")
+        expected = manifest.get("files")
+        require(isinstance(expected, dict) and {name.casefold() for name in REQUIRED_FILES} <= {name.casefold() for name in expected},
+                "Incomplete portable payload inventory")
     folded = set()
     directories = set()
     for name, wanted in expected.items():
         relative_name(name)
-        require(name != "portable-manifest.json" and name.casefold() not in folded, "Duplicate/self-referential manifest name")
+        require(name != manifest_path.name and name.casefold() not in folded, "Duplicate/self-referential manifest name")
         folded.add(name.casefold())
         require(isinstance(wanted, dict) and type(wanted.get("size_bytes")) is int and wanted["size_bytes"] >= 0
                 and bool(re.fullmatch(r"[a-f0-9]{64}", str(wanted.get("sha256", "")))), "Malformed payload fingerprint")
@@ -146,7 +198,7 @@ def package_identity(app, pin=None):
             relative = path.relative_to(folder).as_posix()
             if path.is_dir():
                 require(relative in directories, "Unexpected portable directory: " + relative)
-            elif relative != "portable-manifest.json":
+            elif relative != manifest_path.name:
                 require(relative in expected, "Unexpected portable file: " + relative)
                 require(path.stat().st_nlink == 1, "Hard-linked payload rejected: " + relative)
                 wanted = expected[relative]
@@ -154,28 +206,47 @@ def package_identity(app, pin=None):
                 actual.add(relative)
     require(actual == expected.keys(), "Missing portable payload files")
     require(sha(manifest_path) == fingerprint, "Portable manifest changed during inventory")
-    return dict(passed=True, scope="Complete pinned portable payload byte consistency only",
-                package_id="sha256:" + fingerprint, manifest=record(manifest_path), files_verified=len(actual),
+    return dict(passed=True, scope="Complete pinned package byte consistency; source lock consistency when RequiredBundled; acceptance separate",
+                package_id=manifest["package_id"] if is_production else "sha256:" + fingerprint,
+                manifest=record(manifest_path), files_verified=len(actual), release_lock=lock_record,
                 kind=manifest.get("kind"), native_build=manifest.get("native_build"), engine_build=manifest.get("engine_build"),
-                identities={name: record(folder / name) for name in (APP_NAME, "AttackMap.NativeSpike.dll", "engine/attackmap.exe")},
+                identities={name: record(app.parent / name) for name in (APP_NAME, "AttackMap.NativeSpike.dll", "engine/attackmap.exe")},
                 **ACCEPTANCE)
 
 
-def preflight(app, seed, output, mode="all", manifest_sha256=None):
+def timeout_budget(provider=900, scan=1200, process=1500):
+    require(type(provider) is int and 1 <= provider <= 7200, "Provider timeout must be 1..7200 whole seconds")
+    require(type(scan) is int and 1 <= scan <= 86400, "Scan timeout must be 1..86400 whole seconds")
+    require(type(process) is int and 1 <= process <= 10800, "Process timeout must be 1..10800 whole seconds")
+    require(provider <= 3600 or gate.ENDPOINT == "http://127.0.0.1:1234/v1",
+            "Extended AI allowance requires the fixed loopback endpoint")
+    require(provider <= scan < process, "Timeouts require provider <= scan < process")
+    return dict(provider_timeout_seconds=provider, scan_timeout_seconds=scan, harness_timeout_seconds=process)
+
+
+def plan_timeouts(plan):
+    return timeout_budget(plan["provider_budget_seconds"], plan["native_scan_timeout_seconds"], plan["process_timeout_seconds"])
+
+
+def preflight(app, seed, output, mode="all", manifest_sha256=None, release_lock=None,
+              *, provider_timeout=900, scan_timeout=1200, process_timeout=1500):
+    timeouts = timeout_budget(provider_timeout, scan_timeout, process_timeout)
     app, seed, output = local_path(app), local_path(seed), local_path(output)
     repository = local_path(REPOSITORY)
     require(seed.is_file() and isinstance(read(seed).get("scan"), dict), "Seed must be an existing report JSON with scan")
     require(repository.is_dir(), "Target repository unavailable: " + str(repository))
     require(not output.exists() and output.parent.is_dir(), "Use a new output directory under an existing parent; stale proof roots rejected")
-    for source in (app.parent, seed.parent, repository):
+    package = package_identity(app, manifest_sha256, release_lock)
+    for source in (Path(package["manifest"]["path"]).parent, seed.parent, repository):
         require(not output.is_relative_to(source) and not source.is_relative_to(output), "Output must be separate from package, seed and repository")
     require(mode == "all" or mode in gate.MODES, "Unsupported AI mode")
     return dict(passed=True, stage="preflight-only", provider_requests_started=0, processes_started=0,
                 app=str(app), engine=str(app.parent / "engine/attackmap.exe"), seed=record(seed), output=str(output),
                 repository=str(repository), modes=list(gate.MODES) if mode == "all" else [mode],
-                endpoint=gate.ENDPOINT, model=gate.MODEL, provider_budget_seconds=900, max_calls=8,
-                output_token_limit=32000, native_scan_timeout_seconds=1200,
-                package=package_identity(app, manifest_sha256), **ACCEPTANCE)
+                endpoint=gate.ENDPOINT, model=gate.MODEL, provider_budget_seconds=timeouts["provider_timeout_seconds"], max_calls=8,
+                output_token_limit=32000, native_scan_timeout_seconds=timeouts["scan_timeout_seconds"],
+                process_timeout_seconds=timeouts["harness_timeout_seconds"],
+                package=package, **ACCEPTANCE)
 
 
 def child_environment(folder, ambient=None):
@@ -188,7 +259,7 @@ def child_environment(folder, ambient=None):
     system = local_path(result.get("SYSTEMROOT", ""))
     require(system.is_dir() and (system / "System32").is_dir(), "Windows system directory unavailable")
     result["PATH"] = str(system / "System32") + ";" + str(system)
-    for key, name in (("APPDATA", "profile/Roaming"), ("LOCALAPPDATA", "profile/Local"), ("USERPROFILE", "profile"), ("TEMP", "temp"), ("TMP", "temp")):
+    for key, name in (("APPDATA", "profile/AppData/Roaming"), ("LOCALAPPDATA", "profile/AppData/Local"), ("USERPROFILE", "profile"), ("TEMP", "temp"), ("TMP", "temp")):
         target = folder / name
         target.mkdir(parents=True, exist_ok=True)
         result[key] = str(target)
@@ -359,7 +430,7 @@ def launch(arguments, folder, environment, timeout):
             job.close()
             save(folder / "process.json", dict(pid=child.pid if child else None, exit_code=child.returncode if child else None,
                  exited=child is not None and child.poll() is not None, seconds=time.monotonic() - started,
-                 timed_out=timed_out, owned_job_assigned=assigned, owned_tree_cleanup_verified=cleanup))
+                 timed_out=timed_out, timeout_seconds=timeout, owned_job_assigned=assigned, owned_tree_cleanup_verified=cleanup))
     require(child.returncode == 0 and cleanup, "Native app failed or owned cleanup unverified")
 
 
@@ -367,6 +438,21 @@ def bound_inside(path, root):
     path = local_path(path)
     require(path.is_relative_to(root) and path.is_file(), "Evidence path outside the fresh mode root: " + str(path))
     return path
+
+
+def verify_timeout_evidence(plan, status, request, process):
+    expected = plan_timeouts(plan)
+    native = status.get("timeoutBudget")
+    require(isinstance(native, dict) and native == expected and all(type(native[key]) is int for key in expected),
+            "Native QA timeout proof differs from requested budgets; legacy/missing proof is not accepted")
+    options = request.get("options", {})
+    provider = options.get("provider", {})
+    require(type(provider.get("timeout_seconds")) is int and provider["timeout_seconds"] == expected["provider_timeout_seconds"]
+            and type(options.get("timeout_seconds")) is int and options["timeout_seconds"] == expected["scan_timeout_seconds"],
+            "Emitted request timeouts differ from requested budgets")
+    require(type(process.get("timeout_seconds")) is int and process["timeout_seconds"] == expected["harness_timeout_seconds"],
+            "Actual launcher timeout differs from requested harness budget")
+    return expected
 
 
 def collect(plan, mode, folder, nonce):
@@ -380,9 +466,11 @@ def collect(plan, mode, folder, nonce):
     require(report.name == "attackmap-report.json" and report.parent.name == status["run"] and sha(report) == status["reportHash"], "Selected report/generation mismatch")
     request_path = folder / "reports/native-request.json"
     request = read(request_path)
+    process_path = folder / "process.json"
+    timeouts = verify_timeout_evidence(plan, status, request, read(process_path))
     expected = dict(enable_ai=True, provider="openai", endpoint=gate.ENDPOINT, model=gate.MODEL, max_calls=8,
-                    timeout_seconds=900, output_token_limit=32000, mode=mode, speed="standard", backend="api")
-    require(request.get("options", {}).get("provider") == expected and request["options"].get("timeout_seconds") == 1200, "Emitted local provider/budgets differ")
+                    timeout_seconds=timeouts["provider_timeout_seconds"], output_token_limit=32000, mode=mode, speed="standard", backend="api")
+    require(request.get("options", {}).get("provider") == expected, "Emitted local provider/budgets differ")
     require(request.get("run_id") == status["run"] and request.get("repository_path") == plan["repository"]
             and request.get("output_path") == str(folder / "reports") and request["options"].get("cve") is False, "Request run/repository/output/network mismatch")
     generation = report.parent
@@ -422,7 +510,9 @@ def collect(plan, mode, folder, nonce):
     evidence = dict(mode=mode, engine_kind="packaged", engine=record(Path(plan["engine"])),
         native=record(Path(plan["app"])), native_dll=record(Path(plan["app"]).with_suffix(".dll")),
         package_proof=record(Path(plan["output"]) / "package-verification.json"), package_id=plan["package"]["package_id"],
-        smoke=record(smoke_path), request=record(request_path), emitted_provider=expected, provider_pointer="/options/provider",
+        smoke=record(smoke_path), request=record(request_path), process=record(process_path), timeout_budget=timeouts,
+        preflight=record(Path(plan["output"]) / "preflight.json"),
+        emitted_provider=expected, provider_pointer="/options/provider",
         provider_fields={**{key: key for key in ("endpoint", "model", "mode", "backend", "speed", "max_calls", "timeout_seconds")}, "max_output_tokens": "output_token_limit"},
         isolated_output=True, run_manifest=record(run_manifest), artifact_manifest=record(artifact_manifest_path),
         report=record(report), artifact=record(artifact), metadata=record(metadata), capture=record(capture), export=record(exported),
@@ -437,8 +527,12 @@ def collect(plan, mode, folder, nonce):
     return result
 
 
-def run(plan, timeout=1500):
+def run(plan, timeout=None):
     require(os.name == "nt", "Native execution requires Windows")
+    timeouts = plan_timeouts(plan)
+    require(timeout is None or (type(timeout) is int and timeout == timeouts["harness_timeout_seconds"]),
+            "Run timeout override differs from preflight harness budget")
+    timeout = timeouts["harness_timeout_seconds"]
     output = local_path(plan["output"])
     output.mkdir()  # Exclusive fresh root: never append to earlier proof.
     save(output / "preflight.json", plan)
@@ -446,7 +540,8 @@ def run(plan, timeout=1500):
     results = []
     try:
         for mode in plan["modes"]:
-            require(package_identity(plan["app"], plan["package"]["manifest"]["sha256"]) == plan["package"], "Package changed since preflight")
+            lock_path = (plan["package"].get("release_lock") or {}).get("path")
+            require(package_identity(plan["app"], plan["package"]["manifest"]["sha256"], lock_path) == plan["package"], "Package changed since preflight")
             require(record(Path(plan["seed"]["path"])) == plan["seed"], "Seed changed since preflight")
             folder = output / mode
             folder.mkdir()
@@ -456,15 +551,20 @@ def run(plan, timeout=1500):
             environment.update(ATTACKMAP_QA_HTTP_AUDIT_DIR=str(folder / "http-audit"), ATTACKMAP_QA_HTTP_AUDIT_NONCE=nonce)
             save(folder / "inputs.json", dict(mode=mode, seed=plan["seed"], package_id=plan["package"]["package_id"],
                  identities=plan["package"]["identities"], endpoint=gate.ENDPOINT, model=gate.MODEL, audit_nonce=nonce,
-                 repository=plan["repository"], personal_settings_read=False, separate_python_on_child_path=False))
+                 repository=plan["repository"], timeout_budget=timeouts,
+                 personal_settings_read=False, separate_python_on_child_path=False))
             check_local_model(folder)  # GET only; completion is proven separately from transport audits.
             arguments = [plan["app"], "--parity-smoke", plan["seed"]["path"], str(folder), "--engine", plan["engine"],
-                         "--native-scan", "--repository", plan["repository"], "--ai-mode", mode]
+                         "--native-scan", "--repository", plan["repository"], "--ai-mode", mode,
+                         "--qa-provider-timeout", str(timeouts["provider_timeout_seconds"]),
+                         "--qa-scan-timeout", str(timeouts["scan_timeout_seconds"]),
+                         "--qa-harness-timeout", str(timeouts["harness_timeout_seconds"])]
             launch(arguments, folder, environment, timeout)
-            require(package_identity(plan["app"], plan["package"]["manifest"]["sha256"]) == plan["package"], "Package changed during native run")
+            require(package_identity(plan["app"], plan["package"]["manifest"]["sha256"], lock_path) == plan["package"], "Package changed during native run")
             results.append(collect(plan, mode, folder, nonce))
-        summary = dict(passed=True, scope="Pinned portable full native shell local AI evidence consistency only",
-                       modes=results, endpoint=gate.ENDPOINT, model=gate.MODEL, package_id=plan["package"]["package_id"], **ACCEPTANCE)
+        summary = dict(passed=True, scope="Pinned package full native shell local AI evidence consistency only",
+                       modes=results, endpoint=gate.ENDPOINT, model=gate.MODEL, package_id=plan["package"]["package_id"],
+                       timeout_budget=timeouts, **ACCEPTANCE)
         save(output / "summary.json", summary)
         return summary
     except BaseException as error:
@@ -477,15 +577,18 @@ def main(argv=None):
     for name in ("app", "seed", "output"):
         parser.add_argument("--" + name, required=True)
     parser.add_argument("--mode", choices=("all", *gate.MODES), default="all")
-    parser.add_argument("--manifest-sha256", help="Reviewed portable-manifest.json pin; required with --run")
+    parser.add_argument("--manifest-sha256", help="Reviewed portable/package manifest pin; required with --run")
+    parser.add_argument("--release-lock", help="RequiredBundled release-lock.json; checked against package and current sources")
     parser.add_argument("--run", action="store_true", help="Explicitly start sequential native scans and local HTTP")
-    parser.add_argument("--process-timeout", type=int, default=1500, help="Per-mode app wall timeout, 1200..1800 seconds")
+    parser.add_argument("--provider-timeout", type=int, default=900, help="QA total AI allowance for the fixed loopback target, 1..7200 seconds (default 900)")
+    parser.add_argument("--scan-timeout", type=int, default=1200, help="QA scan timeout in seconds, 1..86400 (default 1200)")
+    parser.add_argument("--process-timeout", type=int, default=1500, help="Per-mode app wall timeout, at most 10800 seconds; provider <= scan < process (default 1500)")
     args = parser.parse_args(argv)
     try:
-        require(1200 <= args.process_timeout <= 1800, "Process timeout must be 1200..1800 seconds")
         require(not args.run or args.manifest_sha256 is not None, "--run requires the reviewed --manifest-sha256 pin")
-        plan = preflight(args.app, args.seed, args.output, args.mode, args.manifest_sha256)
-        result = run(plan, args.process_timeout) if args.run else plan
+        plan = preflight(args.app, args.seed, args.output, args.mode, args.manifest_sha256, args.release_lock,
+                         provider_timeout=args.provider_timeout, scan_timeout=args.scan_timeout, process_timeout=args.process_timeout)
+        result = run(plan) if args.run else plan
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:

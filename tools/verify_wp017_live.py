@@ -73,10 +73,44 @@ def verify(evidence: dict, base: Path) -> dict:
         require(actual == provider, "provider does not match emitted request")
     except (KeyError, TypeError):
         failures.append("provider_pointer missing in emitted request")
+    # Retained default-budget evidence predates timeout provenance. New evidence
+    # must bind the requested, emitted and actual launcher budgets independently.
+    provider_timeout = 900
+    if any(key in evidence for key in ("timeout_budget", "preflight", "process")) or "timeoutBudget" in result:
+        budget = evidence.get("timeout_budget")
+        keys = {"provider_timeout_seconds", "scan_timeout_seconds", "harness_timeout_seconds"}
+        valid_budget = isinstance(budget, dict) and set(budget) == keys and all(type(budget[key]) is int for key in keys)
+        require(valid_budget, "timeout budget must contain exactly three integer seconds")
+        preflight = document(evidence.get("preflight", {}), "timeout preflight")
+        process = document(evidence.get("process", {}), "native process")
+        requested = {"provider_timeout_seconds": preflight.get("provider_budget_seconds"),
+                     "scan_timeout_seconds": preflight.get("native_scan_timeout_seconds"),
+                     "harness_timeout_seconds": preflight.get("process_timeout_seconds")}
+        native = result.get("timeoutBudget")
+        options = request.get("options")
+        options = options if isinstance(options, dict) else {}
+        if valid_budget:
+            provider_timeout = budget["provider_timeout_seconds"]
+            scan_timeout, harness_timeout = budget["scan_timeout_seconds"], budget["harness_timeout_seconds"]
+            require(1 <= provider_timeout <= 7200 and 1 <= scan_timeout <= 86400
+                    and provider_timeout <= scan_timeout < harness_timeout <= 10800, "timeout budget bounds/order invalid")
+            require(requested == budget and all(type(value) is int for value in requested.values()), "preflight timeout budget mismatch")
+            require(isinstance(native, dict) and native == budget and all(type(value) is int for value in native.values()),
+                    "native timeout budget mismatch")
+            require(type(options.get("timeout_seconds")) is int and options["timeout_seconds"] == scan_timeout,
+                    "emitted scan timeout mismatch")
+            emitted_timeout_key = (evidence.get("provider_fields") or {}).get("timeout_seconds")
+            require(type(provider.get(emitted_timeout_key)) is int and isinstance(actual, dict)
+                    and type(actual.get(emitted_timeout_key)) is int, "emitted provider timeout must be integer seconds")
+            require(type(process.get("timeout_seconds")) is int and process["timeout_seconds"] == harness_timeout,
+                    "actual launcher timeout mismatch")
+        require(process.get("exited") is True and process.get("exit_code") == 0 and process.get("timed_out") is False
+                and process.get("owned_job_assigned") is True and process.get("owned_tree_cleanup_verified") is True,
+                "native process exit/owned cleanup incomplete")
     # Names below are collector-neutral values verified against explicit request paths.
     expected = {"endpoint": ENDPOINT, "model": MODEL, "mode": mode,
                 "backend": "api", "speed": "standard", "max_calls": 8,
-                "max_output_tokens": 32000, "timeout_seconds": 900}
+                "max_output_tokens": 32000, "timeout_seconds": provider_timeout}
     fields = evidence.get("provider_fields") or {}
     for key, wanted in expected.items():
         require(key in fields and provider.get(fields.get(key)) == wanted, "provider setting mismatch: " + key)

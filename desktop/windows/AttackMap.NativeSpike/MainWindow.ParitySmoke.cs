@@ -16,6 +16,7 @@ public sealed partial class MainWindow
         string? failure = null;
         try
         {
+            var timeouts = ParitySmokeTimeouts.Parse(arguments);
             if (!Directory.Exists(directory) || File.Exists(Path.Combine(directory, "parity-smoke.json"))) throw new IOException("Create a fresh caller-owned verification directory.");
             string reportPath = Path.GetFullPath(arguments[index + 1]);
             bool loaded = await LoadReport(reportPath);
@@ -54,16 +55,17 @@ public sealed partial class MainWindow
                 PythonPath.Text = Path.GetFullPath(arguments[engineIndex + 1]);
                 await DiscoverEngineCapabilities(); capabilitiesChecked = capabilityCache.Current?.Compatible == true;
                 if (arguments.Contains("--fleet-watch")) fleetWatchResult = await RunFleetWatchSmoke(directory);
-                ApplyScanOptions(new NativeScanOptions(TimeoutSeconds: 1200), "");
+                ApplyScanOptions(new NativeScanOptions(TimeoutSeconds: timeouts.ScanTimeoutSeconds), "");
                 if (requestedSingleWatch) singleWatchResult = await RunSingleWatchSmoke(directory);
                 if (arguments.Contains("--native-scan"))
                 {
+                    if (requestedSingleWatch) ApplyScanOptions(new NativeScanOptions(TimeoutSeconds: timeouts.ScanTimeoutSeconds), "");
                     int repositoryIndex = Array.IndexOf(arguments, "--repository");
                     if (repositoryIndex < 0) throw new ArgumentException("Native scan requires an explicit verification repository.");
                     repositoryPath = Path.GetFullPath(arguments[repositoryIndex + 1]); presentation.SelectRepository(repositoryPath);
                     int modeIndex = Array.IndexOf(arguments, "--ai-mode");
                     if (modeIndex >= 0)
-                        Provider.ApplyConfiguration(new ProviderConfiguration(EnableAi: true, TimeoutSeconds: 900) with { Mode = arguments[modeIndex + 1], Backend = "api", Speed = "standard" });
+                        Provider.ApplyConfiguration(new ProviderConfiguration(EnableAi: true, TimeoutSeconds: timeouts.ProviderTimeoutSeconds) with { Mode = arguments[modeIndex + 1], Backend = "api", Speed = "standard" });
                     await RunSelectedRepository(Path.Combine(directory, "reports"));
                     scanCompleted = scanProgress.State == "completed" && scanProgress.Terminal && exportSelection?.Verified == true && displayedRepository == repositoryPath;
                     if (!scanCompleted) throw new InvalidDataException("Integrated native scan did not publish a verified result: " + Status.Text);
@@ -91,7 +93,7 @@ public sealed partial class MainWindow
                 }
             }
             result = new { passed = (!(requestedFleetWatch || requestedSingleWatch) || capabilitiesChecked) && (!requestedScan || (capabilitiesChecked && scanCompleted)) && (requestedMode == null || modelCompleted) && loaded && roundTrip && aiOffPreferencesRetained && destinations.Contains("Risk and paths") && destinations.Contains("Reports"),
-                loaded, roundTrip, aiOffPreferencesRetained, destinations, capabilitiesChecked, scanCompleted,
+                loaded, roundTrip, aiOffPreferencesRetained, destinations, capabilitiesChecked, scanCompleted, timeoutBudget = timeouts,
                 outputRoot = Path.Combine(directory, "reports"), isolatedOutput = true, aiDisplay, fleetWatchResult, singleWatchResult,
                 report = displayedReportPath, reportHash = displayedReadHash, run = displayedRun,
                 progressState = scanProgress.State, progressTerminal = scanProgress.Terminal, status = Status.Text,
