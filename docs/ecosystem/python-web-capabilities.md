@@ -4,6 +4,13 @@
 
 # Python web-services capabilities (`ecosystem_python`)
 
+Technical capability update for active WP039/WP042, 23 October 2026. The
+current Python profile also includes the separately installed official `python`
+plugin. Its raw regex/local-path and comment/foreign-call route observations
+are not corrected by this overlay. The bounded overlay and the complete
+profile therefore have different false-positive/duplicate-route limits; see
+[paired qualification](../verification/windows-parity/WP039/sol-ultra-20261023-python/upstream-qualification.md).
+
 Capability matrix for the `python-service` framework-enrichment overlay
 (`src/attackmap/ecosystem_python.py`, AM052 / C38). The overlay is a thin
 cross-file layer on top of the built-in `python-web` per-file analyzer; it
@@ -38,13 +45,15 @@ anything spanning files or requiring framework semantics.
 
 | Capability | Evidence shape | Signal |
 |---|---|---|
-| FastAPI `include_router` prefix + dependency wiring | include call in the app module, router defined elsewhere | `fastapi_router_mount:<full-prefix>` framework hint; `Route(auth="required", guards=[include site])` upgrade |
-| Flask cross-module `register_blueprint` mounts | register call + blueprint definition files | `flask_blueprint_mount:<full-prefix>` framework hint |
+| FastAPI `include_router` prefix + dependency wiring | exact imported app/router/dependency identities | mount hints; auth upgrade only for the exact router when every observed direct app mount has a statically validated guard; mixed public/guarded or unresolved mounts remain unknown |
+| Flask cross-module `register_blueprint` mounts | exact register call + blueprint definition | mount hints; registration `url_prefix` overrides the blueprint default; repeated mounts remain distinct observations |
 | Flask `before_request` auth hooks | hook registration + validated guard function body | `blueprint_auth_hook:<fn>` auth hint; `Route` auth upgrade for the blueprint's routes |
 | Custom auth decorators validated at the definition site | `@<custom>` on a handler + `def <custom>` body that reads identity and rejects | `custom_auth_decorator:<name>` auth hint; `Route` auth upgrade |
 | FastAPI auth dependency definitions | `def get_current_user`/`verify_*`/`require_*` whose body verifies credentials | `auth_dependency_definition` auth hint |
-| Django URLconf tree | `ROOT_URLCONF` → `path(...)` → `include("pkg.urls")` recursion | net-new `Route` records (method `ANY`, `<converter:name>` → `{name}`) |
-| Django per-view decorator auth | view def site resolved via the urlconf's imports | `Route(auth="required", guards=["@login_required (file:line)"])` |
+| Django URLconf tree | statically bound `urlpatterns`, imported `path`/`include` aliases, literal tuple includes and namespaces | `ANY` routes, converter normalization, repeated child mounts; cycles/depth/expansion limits are explicit |
+| Django literal `re_path` | imported function, anchored literal regex only | normalized route; groups, alternatives, character classes and quantifiers remain unsupported |
+| Django per-view decorator/wrapper auth | exact imported function and Django `login_required` identity | evidence-backed required guard; foreign or rebound names, unknown wrappers and unresolved targets remain unknown |
+| Django class-based view URL | statically bound path target `ImportedView.as_view()` | route surface is retained; class/mixin/DRF auth remains unknown |
 | Django middleware chain | `MIDDLEWARE = [...]` literal in settings | `django_middleware_chain` framework hint; `global_auth_middleware` auth hint (session/auth middleware present) |
 | Django admin surface | `path(..., admin.site.urls)` | `django_admin_surface` framework hint |
 | ORM raw SQL escapes | Django `.extra(`/`.raw(`, SQLAlchemy `text(` with a SQL literal | `DatabaseHint(kind="sql")` with escape-named evidence |
@@ -62,7 +71,7 @@ anything spanning files or requiring framework semantics.
 
 | Capability | Basis | Signal |
 |---|---|---|
-| Django `LoginRequiredMiddleware` global auth | middleware entry in settings | all URLconf routes `Route(auth="required")`, guard names the middleware |
+| Django `LoginRequiredMiddleware` auth | exact literal ordered AuthenticationMiddleware + LoginRequiredMiddleware, scoped to resolved ROOT_URLCONF | resolved plain function views may inherit a required guard; opt-outs, unknown decorators, conflicting settings, dynamic/rebound/deleted settings and class views do not |
 | Django urlconf root when `ROOT_URLCONF` is unresolvable | every `urlpatterns` module treated as a root | `django_urlconf_inferred_root` framework hint (confidence 0.5) |
 | Unscoped per-request ORM lookups | `.objects.get(pk=/id=)` / `query(X).get(` with no ownership filter in the file | `orm_unscoped_lookup` auth hint (confidence ≤ 0.5; BOLA-relevant lead, core owns the finding) |
 
@@ -70,11 +79,12 @@ anything spanning files or requiring framework semantics.
 
 - **Template dataflow** (Jinja2/Django template rendering and context
   propagation) — no template parsing, no `|safe` analysis.
-- **Dynamic dependency graphs** — dependencies constructed at runtime
-  (factory patterns, `Depends(get_dep_factory())`, string-based
-  `include()` tuples with namespaces) are not resolved.
-- **Django `re_path` / regex routes** — skipped (regex→path conversion
-  would invent surface).
+- **Dynamic dependency graphs** — constructed dependencies, conditional or
+  rebound router identities, factory-returned routers and runtime configuration
+  remain unresolved. Direct lexical wiring inside a factory is only an observed
+  declaration, not proof that the factory executes.
+- **General Django regex routes** — only exact anchored literal `re_path`
+  patterns are normalized; no invented regex-to-template conversion.
 - **Class-based Django views** (`View.as_view()`) — auth stays `unknown`.
 - **Route path correction** — per-file FastAPI/Flask routes keep their
   router-local prefix; the true mount point is documented via the
@@ -84,9 +94,10 @@ anything spanning files or requiring framework semantics.
   per-file pass's output; the overlay emits `Route` records only when it
   resolves a guard (they merge onto the existing route via
   `_upgrade_route_auth`).
-- **Ambiguous cross-file references** — a dotted include target
-  (`module.router`) whose head symbol cannot be resolved to a file, or a
-  bare router/blueprint name defined in several files, stays silent.
+- **Ambiguous cross-file references** — unresolved/conditional/rebound mount
+  identities produce limitations and cannot upgrade sibling route auth.
+  Per-file prefix resolution is bounded; multiple mounts, cyclic ancestry and
+  oversized prefixes retain the local prefix rather than choosing one mount.
 - **Raw-SQL taint flows** — escapes are recorded as signals only; the
   taint pass (sources → sinks) does not trace ORM escape parameters.
 - **DRF (Django REST Framework) permission classes, `APIView` sets,

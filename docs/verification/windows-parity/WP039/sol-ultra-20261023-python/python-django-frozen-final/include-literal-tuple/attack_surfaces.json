@@ -1,0 +1,75 @@
+[
+  {
+    "route": "/item/",
+    "method": "ANY",
+    "file": "app/urls.py",
+    "category": "public_api",
+    "exposure": "public",
+    "risk": "low",
+    "auth_signals": [],
+    "auth": "unknown",
+    "data_store_interaction": false,
+    "outbound_integration": false,
+    "relationship_basis": "unknown",
+    "context_signals": [
+      "same-file hint (ownership unknown): django"
+    ],
+    "rationale": [
+      "Public application routes are initial footholds for probing input handling and authorization gaps.",
+      "No auth indicators were observed near this route.",
+      "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+      "Exposure is a static inference; deployment reachability has not been observed."
+    ],
+    "line": 4,
+    "evidence_class": "static_observed"
+  },
+  {
+    "route": "/api/",
+    "method": "ANY",
+    "file": "project/urls.py",
+    "category": "public_api",
+    "exposure": "public",
+    "risk": "low",
+    "auth_signals": [],
+    "auth": "unknown",
+    "data_store_interaction": false,
+    "outbound_integration": false,
+    "relationship_basis": "unknown",
+    "context_signals": [
+      "same-file hint (ownership unknown): django",
+      "same-file hint (ownership unknown): urlconf_include:app.urls"
+    ],
+    "rationale": [
+      "Public application routes are initial footholds for probing input handling and authorization gaps.",
+      "No auth indicators were observed near this route.",
+      "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+      "Exposure is a static inference; deployment reachability has not been observed."
+    ],
+    "line": 2,
+    "evidence_class": "static_observed"
+  },
+  {
+    "route": "/api/item/",
+    "method": "ANY",
+    "file": "app/urls.py",
+    "category": "public_api",
+    "exposure": "public",
+    "risk": "low",
+    "auth_signals": [],
+    "auth": "unknown",
+    "data_store_interaction": false,
+    "outbound_integration": false,
+    "relationship_basis": "unknown",
+    "context_signals": [
+      "same-file hint (ownership unknown): django"
+    ],
+    "rationale": [
+      "Public application routes are initial footholds for probing input handling and authorization gaps.",
+      "No auth indicators were observed near this route.",
+      "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+      "Exposure is a static inference; deployment reachability has not been observed."
+    ],
+    "line": 4,
+    "evidence_class": "static_observed"
+  }
+]

@@ -18,10 +18,13 @@ The gaps this overlay fills — all cross-file or framework-semantic:
 
 - **FastAPI router wiring** — ``include_router`` calls in the app module
   carry an extra ``prefix`` and ``dependencies`` that change both the
-  mounted path and the auth posture of every route on a router defined
-  elsewhere. Emitted as mount hints plus ``Route`` auth upgrades whose
+  mounted path and auth posture. Emitted as import-bound mount hints plus
+  ``Route`` auth upgrades only for the exact router when all its observed
+  direct mounts carry a validated blocking dependency. Their
   ``(path, method, file)`` match the per-file routes, so the merge's
   ``_upgrade_route_auth`` fills the guard in without duplicating surface.
+  Cross-file mounted URLs are not re-emitted; unresolved/dynamic wiring
+  remains explicit and cannot certify route auth.
 - **Flask blueprint wiring** — cross-module ``register_blueprint`` mounts
   and ``before_request`` auth hooks, which per-route resolution never sees.
 - **Custom auth decorators validated at the definition site** — a wrapper
@@ -49,6 +52,7 @@ framework markers (imports, call shapes, or declared requirements).
 
 from __future__ import annotations
 
+import ast
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -65,6 +69,7 @@ from .models import (
     ServiceHint,
 )
 from .safe_fs import max_file_bytes, read_repo_text, walk_repo
+from .python_route_binding import BindingIndex
 from .scanner import (
     FASTAPI_API_ROUTE_PATTERN,
     FASTAPI_DECORATOR_PATTERN,
@@ -340,6 +345,7 @@ class _PyState:
     # Django
     django_settings: list[dict] = field(default_factory=list)  # {file,root_urlconf,middleware,auth_mw,login_required_mw}
     url_entries: dict[str, list[tuple[str, str, int]]] = field(default_factory=dict)  # file -> (route,target,line)
+    django_limitations: list[str] = field(default_factory=list)
     wsgi_apps: list[tuple[str, str, int]] = field(default_factory=list)  # (file,kind,line)
 
     # Per-file import symbol map: file -> {symbol -> dotted module}. Used to
@@ -575,38 +581,92 @@ def _import_symbols(text: str) -> dict[str, str]:
 
 
 def _extract_django(rel: str, text: str, state: _PyState) -> None:
-    root = _ROOT_URLCONF_RE.search(text)
-    middleware: list[str] = []
-    mw_line: int | None = None
-    mw_match = re.search(r"MIDDLEWARE\s*=\s*\[", text)
-    if mw_match:
-        mw_line = _line_of(text, mw_match.start())
-        block = _bracket_block(text, mw_match.end() - 1) or ""
-        middleware = [m.group(1) for m in re.finditer(r"['\"]([\w.]+)['\"]", block)]
-    if root or mw_match:
+    from .python_django_routes import extract_django_url_entries
+
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError, RecursionError):
+        return
+    settings: dict[str, list[ast.AST]] = {"ROOT_URLCONF": [], "MIDDLEWARE": []}
+    star_import = False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)) and node.id in settings:
+            settings[node.id].append(node)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name in settings:
+            settings[node.name].append(node)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                star_import = star_import or alias.name == "*"
+                name = alias.asname or (alias.name.split(".")[0] if isinstance(node, ast.Import) else alias.name)
+                if name in settings:
+                    settings[name].append(node)
+        elif isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar)) and node.name in settings:
+            settings[node.name].append(node)
+        elif isinstance(node, ast.MatchMapping) and node.rest in settings:
+            settings[node.rest].append(node)
+    if star_import:
+        for assignments in settings.values():
+            if assignments:
+                assignments.append(tree)
+    values: dict[str, object] = {}
+    lines: dict[str, int] = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            name = node.targets[0].id
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            name = node.target.id
+        else:
+            continue
+        if name not in settings or len(settings[name]) != 1:
+            continue
+        try:
+            values[name] = ast.literal_eval(node.value)
+            lines[name] = node.lineno
+        except (ValueError, TypeError, SyntaxError, RecursionError):
+            pass
+    middleware_value = values.get("MIDDLEWARE")
+    if any(isinstance(node, ast.Name) and node.id == "MIDDLEWARE" and isinstance(node.ctx, ast.Load)
+           for node in ast.walk(tree)):
+        # A referenced list may be mutated or passed to arbitrary code.
+        middleware_value = None
+        state.django_limitations.append(
+            f"ecosystem_python: {rel}: referenced or mutated MIDDLEWARE; no settings auth inference"
+        )
+    middleware = list(middleware_value) if (
+        isinstance(middleware_value, (list, tuple))
+        and all(isinstance(value, str) for value in middleware_value)
+    ) else []
+    root = values.get("ROOT_URLCONF")
+    if not isinstance(root, str) or not re.fullmatch(r"\w+(?:\.\w+)*", root):
+        root = None
+    auth_middleware = "django.contrib.auth.middleware.AuthenticationMiddleware"
+    login_middleware = "django.contrib.auth.middleware.LoginRequiredMiddleware"
+    login_required = (auth_middleware in middleware and login_middleware in middleware
+                      and middleware.index(auth_middleware) < middleware.index(login_middleware))
+    if any(settings.values()):
         state.django_settings.append({
             "file": rel,
-            "root_urlconf": root.group(1) if root else None,
+            "root_urlconf": root,
             "middleware": middleware,
-            "mw_line": mw_line,
-            "login_required_mw": any("LoginRequiredMiddleware" in m for m in middleware),
-            "auth_mw": any(
-                re.search(r"SessionMiddleware|AuthenticationMiddleware|LoginRequiredMiddleware", m)
-                for m in middleware
-            ),
+            "mw_line": lines.get("MIDDLEWARE"),
+            "login_required_mw": login_required,
+            "auth_mw": bool(set(middleware) & {
+                "django.contrib.sessions.middleware.SessionMiddleware", auth_middleware, login_middleware,
+            }),
         })
-    if "urlpatterns" in text:
-        entries: list[tuple[str, str, int]] = []
-        for offset, args in _iter_calls(text, "path"):
-            parts = _split_args(args)
-            if len(parts) < 2:
-                continue
-            route_str = _first_string(parts[0])
-            if route_str is None:
-                continue  # dynamic path expression — unsupported, skipped
-            entries.append((route_str, parts[1], _line_of(text, offset)))
-        if entries:
-            state.url_entries[rel] = entries
+        for name, assignments in settings.items():
+            if assignments and name not in values:
+                state.django_limitations.append(
+                    f"ecosystem_python: {rel}: dynamic or ambiguous Django {name}; no settings auth inference"
+                )
+        if login_middleware in middleware and not login_required:
+            state.django_limitations.append(
+                f"ecosystem_python: {rel}: LoginRequiredMiddleware requires preceding AuthenticationMiddleware; auth unknown"
+            )
+    entries, limitations = extract_django_url_entries(rel, text)
+    state.django_limitations.extend(limitations)
+    if entries:
+        state.url_entries[rel] = entries
 
 
 def _extract_wsgi_asgi(rel: str, text: str, state: _PyState) -> None:
@@ -939,40 +999,38 @@ def _emit(state: _PyState, result: ScanResult) -> None:
     for rel, name, line in state.add_middleware:
         hint("framework", f"hardening_middleware:{name}", rel, line, f"add_middleware({name})", 0.85)
 
-    for include in state.includes:
-        child = _resolve_child(state, include["child"], state.fastapi_routers, include["file"])
-        if child is None:
-            continue
-        child_file, child_prefix = child.file, child.prefix
-        full = _join_route_parts(include["prefix"], child_prefix)
-        if full != child_prefix:
+    bindings = BindingIndex(state.files)
+    for issue in bindings.issues:
+        result.limitations.append(issue)
+    for mount in bindings.mounts:
+        if mount.framework == "fastapi" and mount.supported:
+            child = mount.child
+            full = _join_route_parts(mount.prefix, child.prefix)
             hint(
                 "framework",
                 f"fastapi_router_mount:{full}",
-                include["file"],
-                include["line"],
-                f"router '{include['child']}' mounted at {full} "
-                f"(defined in {child_file}; per-file route paths carry only the router-local prefix)",
+                mount.file,
+                mount.line,
+                f"router '{child.name}' mounted at {full} "
+                f"(defined in {child.file}:{child.line}; route paths retain per-file extraction; declared wiring only)",
                 0.85,
             )
 
     # --- Flask wiring -------------------------------------------------------
     for rel, line in state.flask_apps:
         hint("framework", "wsgi_app:flask", rel, line, "Flask() application object", 0.9)
-    for register in state.registers:
-        child = _resolve_child(state, register["child"], state.blueprints, register["file"])
-        if child is None:
-            continue
-        child_file, child_prefix = child[0], child[1]
-        full = _join_route_parts(register["prefix"], child_prefix)
-        if full != child_prefix:
+    for mount in bindings.mounts:
+        if mount.framework == "flask" and mount.supported:
+            child = mount.child
+            full = _join_route_parts("", mount.prefix)
             hint(
                 "framework",
                 f"flask_blueprint_mount:{full}",
-                register["file"],
-                register["line"],
-                f"blueprint '{register['child']}' mounted at {full} "
-                f"(defined in {child_file}; per-file route paths carry only the blueprint-local prefix)",
+                mount.file,
+                mount.line,
+                f"blueprint '{child.name}' mounted at {full} "
+                f"(defined in {child.file}:{child.line}; registration prefix overrides its default; "
+                "route paths retain per-file extraction; declared wiring only)",
                 0.85,
             )
 
@@ -980,56 +1038,66 @@ def _emit(state: _PyState, result: ScanResult) -> None:
     # resolution never sees (it only reads route decorators and handler
     # signatures). The hook target must be a function whose body actually
     # checks identity and rejects — known-name or not.
-    hook_guards: dict[tuple[str, str], tuple[str, int, str]] = {}
-    for hook in state.before_hooks:
-        target = hook["target"]
-        validated_site = validated.get(target) or _validate_def_body(state, target)
-        if validated_site is None:
+    hook_guards: dict[object, list[tuple[str, int]]] = {}
+    for file, line, receiver, target in bindings.hooks:
+        if not (target.blocking_guard and _WRAPPER_IDENTITY_RE.search(target.text) and _WRAPPER_REJECT_RE.search(target.text)):
             continue
         hint(
             "auth",
-            f"blueprint_auth_hook:{target}",
-            hook["file"],
-            hook["line"],
-            f"before_request({target}) guards this blueprint; guard defined in {validated_site[0]}:{validated_site[1]}",
+            f"blueprint_auth_hook:{target.name}",
+            file,
+            line,
+            f"before_request({target.name}) guards {receiver.file}:{receiver.line}; "
+            f"guard defined in {target.file}:{target.line}",
             0.8,
         )
-        hook_guards[(hook["file"], hook["receiver"])] = validated_site
+        hook_guards.setdefault(receiver, []).append((target.file, target.line))
 
     for name, (rel, line, evidence) in validated.items():
         hint("auth", f"custom_auth_decorator:{name}", rel, line, evidence, 0.8)
 
     # --- Route auth upgrades (FastAPI include deps / Flask hooks / decorators)
-    include_auth: dict[str, list[dict]] = {}
-    for include in state.includes:
-        child = _resolve_child(state, include["child"], state.fastapi_routers, include["file"])
-        if child is not None and include["has_auth"]:
-            include_auth.setdefault(child.file, []).append(include)
+    include_auth: dict[object, list] = {}
+    unresolved_fastapi_child = False
+    for mount in bindings.mounts:
+        if mount.framework != "fastapi":
+            continue
+        if mount.child is None:
+            unresolved_fastapi_child = True
+        else:
+            include_auth.setdefault(mount.child, []).append(mount)
+
+    route_receivers: dict[tuple[str, str, str], set] = {}
+    for use in state.routes:
+        route_receivers.setdefault((use.path, use.method, use.file), set()).add(
+            bindings.route_object(use.file, use.line))
 
     for use in state.routes:
         guards: list[str] = []
         evidence_parts: list[str] = []
+        receiver = bindings.route_object(use.file, use.line)
+        if len(route_receivers[(use.path, use.method, use.file)]) != 1:
+            receiver = None  # a shared merge key cannot carry one object's mount guard
         if use.framework == "fastapi":
-            for include in include_auth.get(use.file, []):
-                guards.append(f"include_router dependencies ({include['file']}:{include['line']})")
-                evidence_parts.append(
-                    f"router-level auth dependencies at include site {include['file']}:{include['line']}"
-                )
+            mounts = include_auth.get(receiver, [])
+            if not unresolved_fastapi_child and mounts and all(
+                mount.supported and any(
+                    target.blocking_guard and _WRAPPER_IDENTITY_RE.search(target.text) and _WRAPPER_REJECT_RE.search(target.text)
+                    for target in mount.dependencies
+                ) for mount in mounts
+            ):
+                for mount in mounts:
+                    guards.append(f"include_router dependencies ({mount.file}:{mount.line})")
+                    evidence_parts.append(f"bound router auth dependencies at include site {mount.file}:{mount.line}")
         else:  # flask
-            for (hook_file, receiver), site in hook_guards.items():
-                if receiver in state.blueprints and any(
-                    bp[0] == use.file for bp in state.blueprints.get(receiver, [])
-                ):
-                    guards.append(f"before_request auth hook ({site[0]}:{site[1]})")
-                    evidence_parts.append(f"blueprint before_request guard defined in {site[0]}:{site[1]}")
+            for file, line in hook_guards.get(receiver, []):
+                guards.append(f"before_request auth hook ({file}:{line})")
+                evidence_parts.append(f"bound blueprint before_request guard defined in {file}:{line}")
         for name in use.decorators:
-            if name in _KNOWN_AUTH_DECORATORS:
-                guards.append(f"@{name}")
-                evidence_parts.append(f"@{name} decorator on handler")
-            elif name in validated:
-                site = validated[name]
-                guards.append(f"@{name} ({site[0]}:{site[1]})")
-                evidence_parts.append(f"@{name} wrapper defined in {site[0]}:{site[1]}")
+            target = bindings.route_decorator(use.file, use.line, name)
+            if target is not None and target.wrapper_guard:
+                guards.append(f"@{name} ({target.file}:{target.line})")
+                evidence_parts.append(f"bound @{name} wrapper defined in {target.file}:{target.line}")
         if guards:
             route(
                 use.path,
@@ -1106,10 +1174,12 @@ def _django_route_path(raw: str) -> str:
 
 
 def _emit_django(state: _PyState, result: ScanResult, route, hint, validated) -> None:
+    from .python_django_routes import DjangoAuthResolver
+
+    result.limitations.extend(state.django_limitations)
     if not state.url_entries and not state.django_settings:
         return
 
-    login_required_mw = any(s["login_required_mw"] for s in state.django_settings)
     for setting in state.django_settings:
         if setting["middleware"]:
             hint(
@@ -1130,14 +1200,13 @@ def _emit_django(state: _PyState, result: ScanResult, route, hint, validated) ->
                 0.7,
             )
 
-    roots: list[tuple[str, bool]] = []  # (module, inferred)
-    resolved_roots: set[str] = set()
+    roots: dict[str, tuple[bool, bool]] = {}  # module -> (inferred, all settings require login)
     for setting in state.django_settings:
         if setting["root_urlconf"]:
             module = setting["root_urlconf"]
             if _resolve_module(state, module):
-                roots.append((module, False))
-                resolved_roots.add(module)
+                previous = roots.get(module, (False, True))[1]
+                roots[module] = (False, previous and setting["login_required_mw"])
             else:
                 result.limitations.append(
                     f"ecosystem_python: could not resolve Django ROOT_URLCONF module '{module}' to a file"
@@ -1149,16 +1218,22 @@ def _emit_django(state: _PyState, result: ScanResult, route, hint, validated) ->
             module = rel[:-3].replace("/", ".")
             if module.endswith(".__init__"):
                 module = module[: -len(".__init__")]
-            if module not in resolved_roots:
-                roots.append((module, True))
+            roots[module] = (True, False)
     if not roots:
         return
 
-    for module, inferred in roots:
+    walk_budget = [0]
+    auth_resolver = DjangoAuthResolver(state.files)
+    for module, (inferred, login_required_mw) in roots.items():
         if inferred:
             hint("framework", "django_urlconf_inferred_root", module.replace(".", "/") + ".py", 1,
                  "no resolvable ROOT_URLCONF; urlpatterns module treated as a root", 0.5)
-        _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw)
+        middleware_evidence = "; ".join(
+            f"{setting['file']}:{setting['mw_line']}" for setting in state.django_settings
+            if setting["root_urlconf"] == module and setting["login_required_mw"]
+        ) if login_required_mw else None
+        _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+                      middleware_evidence, walk_budget, auth_resolver)
 
 
 def _walk_urlconf(
@@ -1171,18 +1246,34 @@ def _walk_urlconf(
     mount: str,
     visited: set[str],
     login_required_mw: bool,
+    middleware_evidence: str | None = None,
+    walk_budget: list[int] | None = None,
+    auth_resolver=None,
 ) -> None:
-    if module in visited or len(visited) > 16:
+    if auth_resolver is None:
+        from .python_django_routes import DjangoAuthResolver
+        auth_resolver = DjangoAuthResolver(state.files)
+    if walk_budget is None:
+        walk_budget = [0]
+    walk_budget[0] += 1
+    if walk_budget[0] > 4096:
+        limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+        if limitation not in result.limitations:
+            result.limitations.append(limitation)
         return
-    visited.add(module)
+    if module in visited or len(visited) >= 16:
+        result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+        return
+    visited = visited | {module}
     urls_file = _resolve_module(state, module)
     if urls_file is None:
+        result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
         return
     symbols = state.symbol_imports.get(urls_file, {})
 
     for raw_route, target, line in state.url_entries.get(urls_file, []):
         full_path = _join_route_parts(mount, _django_route_path(raw_route))
-        if target.startswith("include"):
+        if target.startswith("include("):
             inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
             if not inner:
                 continue
@@ -1199,18 +1290,19 @@ def _walk_urlconf(
                 f"path({raw_route!r}, include({child_module}))",
                 0.9,
             )
-            _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw)
+            _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                          middleware_evidence, walk_budget, auth_resolver)
             continue
-        if "admin.site.urls" in target:
+        from .python_django_routes import DJANGO_ADMIN_TARGET
+        if target == DJANGO_ADMIN_TARGET:
             hint("framework", "django_admin_surface", urls_file, line,
                  f"path({raw_route!r}, admin.site.urls)", 0.9)
             continue
-        if login_required_mw:
-            route(full_path, "ANY", urls_file, line, "required",
-                  ["LoginRequiredMiddleware (settings MIDDLEWARE)"],
-                  "django.contrib.auth.middleware.LoginRequiredMiddleware applies repo-wide")
-            continue
-        auth, guards, evidence = _django_view_auth(state, urls_file, symbols, target, validated)
+        auth, guards, evidence, middleware_eligible = auth_resolver.resolve(urls_file, target, target_line=line)
+        if login_required_mw and middleware_eligible and auth != "required":
+            auth = "required"
+            guards = ["LoginRequiredMiddleware (settings MIDDLEWARE)"]
+            evidence = f"ordered Django authentication/login middleware for this URLconf tree: {middleware_evidence}"
         route(full_path, "ANY", urls_file, line, auth, guards, evidence)
 
 
@@ -1221,46 +1313,10 @@ def _django_view_auth(
     target: str,
     validated: dict[str, tuple[str, int, str]],
 ) -> tuple[str, list[str], str | None]:
-    """Resolve a Django view target to an auth verdict via its def site."""
-    view_name: str | None = None
-    view_module: str | None = None
-    stripped = target.strip()
-    string_match = re.match(r"^['\"]([\w.]+)['\"]$", stripped)
-    if string_match:
-        dotted = string_match.group(1)
-        view_module, _, view_name = dotted.rpartition(".")
-    elif "." in stripped:
-        head, _, view_name = stripped.partition(".")
-        view_module = symbols.get(head)
-    else:
-        view_name = stripped
-        view_module = symbols.get(stripped)
-    if not view_name or not view_module:
-        return "unknown", [], None
-    view_file = _resolve_module(state, view_module)
-    if view_file is None:
-        return "unknown", [], None
-    text = state.files.get(view_file)
-    if text is None:
-        return "unknown", [], None
-
-    pattern = re.compile(rf"^[ \t]*(?:async\s+)?def\s+{re.escape(view_name)}\s*\(", re.MULTILINE)
-    match = pattern.search(text)
-    if match is None:
-        return "unknown", [], None  # class-based view — unsupported, stays unknown
-    line = _line_of(text, match.start())
-    guards: list[str] = []
-    for name in _decorator_names(text, match.start()):
-        if name in _KNOWN_AUTH_DECORATORS:
-            guards.append(f"@{name} ({view_file}:{line - _decorator_offset(text, match.start(), name)})")
-            break
-        if name in validated:
-            site = validated[name]
-            guards.append(f"@{name} ({site[0]}:{site[1]})")
-            break
-    if guards:
-        return "required", guards, f"view decorator in {view_file}"
-    return "unknown", [], None
+    """Resolve exact view/decorator bindings; same-name siblings are not proof."""
+    from .python_django_routes import django_view_auth
+    auth, guards, evidence, _middleware_eligible = django_view_auth(state.files, urls_file, target)
+    return auth, guards, evidence
 
 
 def _decorator_offset(text: str, def_offset: int, name: str) -> int:

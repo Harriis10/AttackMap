@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "engine_identity": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b",
+    "size_bytes": 255200,
+    "runtime_kind": "Python",
+    "source_sha256": "1076ad7395f5dbdef29bac573942a710e1ae978b6d651f16cd30bc3ada850dd3",
+    "modules_sha256": "41326d06728f7aa003cae6c9a9a91c241e075e644b1a7e4d75e82cab87883c35",
+    "analyzer_catalog_sha256": "52aa3cc93a3c5f80306570aae12461a31aa78c93fd63c897058812ce59410f05",
+    "analyzer_profiles_sha256": "dafb33314a3fa35b6eb3cc0e5465cc0e1fc4de57f3b47c3a4289aa4c80ba7fd7"
+  },
+  "analyzer_profiles": {
+    "schema_version": "1.0",
+    "profiles": [
+      {
+        "name": "automatic",
+        "display_name": "Automatic",
+        "version": "1.0",
+        "qualified_name": "automatic@1.0",
+        "description": "Use installed default-enabled analyzers, each subject to runtime detection.",
+        "selection_mode": "automatic",
+        "module_names": [],
+        "experimental_module_names": [],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "javascript-web",
+          "php-web",
+          "python-web",
+          "config",
+          "python-service",
+          "php-laminas",
+          "default",
+          "node-atproto",
+          "omeka-s"
+        ],
+        "installed_experimental_module_names": [
+          "python-service",
+          "php-laminas",
+          "node-atproto",
+          "omeka-s"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "node-atproto",
+        "display_name": "Node / ATProto",
+        "version": "1.0",
+        "qualified_name": "node-atproto@1.0",
+        "description": "JavaScript base, config, fallback, Node service and ATProto layers; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "javascript-web",
+          "node-service",
+          "config",
+          "atproto",
+          "default",
+          "node-atproto"
+        ],
+        "experimental_module_names": [
+          "node-service",
+          "atproto",
+          "node-atproto"
+        ],
+        "available": false,
+        "missing_module_names": [
+          "node-service",
+          "atproto"
+        ],
+        "expanded_module_names": [
+          "javascript-web",
+          "node-service",
+          "config",
+          "atproto",
+          "default",
+          "node-atproto"
+        ],
+        "installed_experimental_module_names": [
+          "node-atproto"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "php-laminas-omeka",
+        "display_name": "PHP / Laminas / Omeka S",
+        "version": "1.0",
+        "qualified_name": "php-laminas-omeka@1.0",
+        "description": "PHP base, config, fallback, Laminas and Omeka S layers; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "php-web",
+          "config",
+          "php-laminas",
+          "default",
+          "omeka-s"
+        ],
+        "experimental_module_names": [
+          "php-laminas",
+          "omeka-s"
+        ],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "php-web",
+          "config",
+          "php-laminas",
+          "default",
+          "omeka-s"
+        ],
+        "installed_experimental_module_names": [
+          "php-laminas",
+          "omeka-s"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "python",
+        "display_name": "Python",
+        "version": "1.0",
+        "qualified_name": "python@1.0",
+        "description": "Python plugin, web base, config, fallback and service overlay; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "python",
+          "python-web",
+          "config",
+          "python-service",
+          "default"
+        ],
+        "experimental_module_names": [
+          "python-service"
+        ],
+        "available": false,
+        "missing_module_names": [
+          "python"
+        ],
+        "expanded_module_names": [
+          "python",
+          "python-web",
+          "config",
+          "python-service",
+          "default"
+        ],
+        "installed_experimental_module_names": [
+          "python-service"
+        ],
+        "opt_in_module_names": []
+      }
+    ]
+  }
+}

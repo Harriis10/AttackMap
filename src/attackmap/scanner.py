@@ -466,6 +466,8 @@ def _extract_methods(args: str, default_method: str = "ANY") -> list[str]:
 
 
 def _python_route_prefixes(content: str) -> dict[str, str]:
+    from collections import defaultdict, deque
+
     local_prefixes: dict[str, str] = {}
 
     for match in FASTAPI_ROUTER_PATTERN.finditer(content):
@@ -474,29 +476,41 @@ def _python_route_prefixes(content: str) -> dict[str, str]:
     for match in FLASK_BLUEPRINT_PATTERN.finditer(content):
         local_prefixes[match.group(1)] = match.group(2) or ""
 
+    # A child can have several mounted URLs, which this per-file map cannot
+    # represent. Keep its local prefix rather than repeatedly overwriting it.
+    # Process each edge once; cyclic/ambiguous ancestry also stays local.
+    incoming = defaultdict(list)
+    descendants = defaultdict(list)
+    for pattern, override in ((FASTAPI_INCLUDE_ROUTER_PATTERN, False),
+                              (FLASK_REGISTER_BLUEPRINT_PATTERN, True)):
+        for match in pattern.finditer(content):
+            parent, child, extra = match.groups()
+            incoming[child].append((parent, extra, override))
+            descendants[parent].append(child)
     prefixes = dict(local_prefixes)
-    updated = True
-    while updated:
-        updated = False
-
-        for match in FASTAPI_INCLUDE_ROUTER_PATTERN.finditer(content):
-            parent_name, child_name, extra_prefix = match.groups()
-            parent_prefix = prefixes.get(parent_name, "")
-            child_prefix = local_prefixes.get(child_name, "")
-            combined = _join_route_parts(parent_prefix, _join_route_parts(extra_prefix or "", child_prefix))
-            if prefixes.get(child_name) != combined:
-                prefixes[child_name] = combined
-                updated = True
-
-        for match in FLASK_REGISTER_BLUEPRINT_PATTERN.finditer(content):
-            parent_name, child_name, extra_prefix = match.groups()
-            parent_prefix = prefixes.get(parent_name, "")
-            child_prefix = local_prefixes.get(child_name, "")
-            combined = _join_route_parts(parent_prefix, _join_route_parts(extra_prefix or "", child_prefix))
-            if prefixes.get(child_name) != combined:
-                prefixes[child_name] = combined
-                updated = True
-
+    blocked = {child for child, edges in incoming.items() if len(edges) != 1}
+    ready = deque(blocked | {child for child, edges in incoming.items()
+                            if len(edges) == 1 and edges[0][0] not in incoming})
+    processed = set()
+    while ready:
+        child = ready.popleft()
+        if child in processed:
+            continue
+        processed.add(child)
+        if child not in blocked:
+            parent, extra, override = incoming[child][0]
+            if parent in blocked:
+                blocked.add(child)
+            else:
+                local = local_prefixes.get(child, "")
+                suffix = extra if override and extra is not None else _join_route_parts(extra or "", local)
+                combined = _join_route_parts(prefixes.get(parent, ""), suffix)
+                if len(combined) <= 16_384:
+                    prefixes[child] = combined
+                else:
+                    blocked.add(child)
+        ready.extend(descendants[child])
+    # Nodes not processed are cycles or descendants of cycles.
     return prefixes
 
 

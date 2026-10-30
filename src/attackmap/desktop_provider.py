@@ -89,5 +89,7 @@ def execute_provider_action(operation: str, payload: dict) -> dict:
             selected_available = options.model is None or any(model.id == options.model for model in models.data)
         finally:
             client.close()
-    return {"status": "connected", "selected_model_listed": selected_available,
-            "message": "Provider model listing succeeded; no repository evidence was sent. Model listing does not prove generation or model availability."}
+    message = "Provider model listing succeeded; no repository evidence was sent. Model listing does not prove generation or model availability."
+    if not selected_available:
+        message = "Selected model was NOT listed by the provider. Check the exact model ID (including case) before scanning. " + message
+    return {"status": "connected", "selected_model_listed": selected_available, "message": message}

@@ -1,0 +1,41 @@
+Scanned 862 files
+Detected languages: javascript, python, typescript
+Routes: 266
+External calls: 1251
+Datastores: 30
+
+Heuristic static analysis; runtime reachability and exploitability are not verified.
+Findings:
+- [HIGH] Administrative routes appear reachable from the main application surface
+- [HIGH] Authorization outlier — route missing an auth check its siblings enforce
+- [HIGH] Hard-coded secret literals were found in source or config
+- [HIGH] Request input flows into a filesystem path (path traversal)
+- [HIGH] Request-reachable code execution via eval  (exploitability 100/100, critical)
+- [HIGH] Request-reachable unsafe deserialization  (exploitability 100/100, critical)
+- [HIGH] State-changing routes are reachable without an authentication control
+- [HIGH] Upload or import routes expand attacker-controlled input handling
+- [MEDIUM] Content-Security-Policy allows unsafe-inline/unsafe-eval
+- [MEDIUM] Insecure randomness for a security value
+- [MEDIUM] Remote script piped into a shell in CI (curl | sh)
+- [MEDIUM] Request-reachable NoSQL injection  (exploitability 95/100, critical)
+- [MEDIUM] Request-reachable server-side request forgery (SSRF)  (exploitability 90/100, critical)
+- [MEDIUM] Secret-bearing environment variables are referenced in executable paths
+- [MEDIUM] Unpinned GitHub Action (not pinned to a commit SHA)
+- [MEDIUM] Workflow relies on default GITHUB_TOKEN permissions
+- [LOW] Dependencies resolved without a lockfile or integrity hashes
+- [LOW] Text aimed at automated reviewers (possible prompt injection)
+
+Highest static finding risk scores:
+- 100/100 [critical] Request-reachable code execution via eval
+- 100/100 [critical] Request-reachable unsafe deserialization
+- 95/100 [critical] Request-reachable NoSQL injection
+- 90/100 [critical] Request-reachable server-side request forgery (SSRF)
+
+Attack paths:
+- Administrative route abuse: Privilege escalation or destructive administrative actions from a route that should be tightly controlled.
+- Authentication boundary bypass: Account takeover or a trusted session that opens access to additional internal actions.
+- Untrusted file handling abuse: Stored malicious content, parser abuse, or denial of service from untrusted file input.
+
+Not analyzed: 2 oversized file skipped (details under scan.limitations in attackmap-report.json).
+
+Reports written to: C:\Projects\INPROGRESS\AttackMap\.tmp\wp039-python-20261023\source-final-juice\20261023T112631-42f64d0bee3c47c1a44f7a497ca858ac

@@ -13,6 +13,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../GraphExplorer.Core/GraphExplorer.Core.csproj" />
+    <ProjectReference Include="../GraphExplorer.NativeView/GraphExplorer.NativeView.csproj" />
+    <Content Include="../GraphExplorer.Core/THIRD-PARTY-NOTICES.txt" Link="licenses/MSAGL.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../GraphExplorer.Web/asset-manifest.json" Link="GraphExplorer.Web/asset-manifest.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromResourceIndex="true" />
+    <Content Include="../GraphExplorer.Web/index.html;../GraphExplorer.Web/app.js;../GraphExplorer.Web/projection.js;../GraphExplorer.Web/styles.css;../GraphExplorer.Web/synthetic-fixture.js" Link="GraphExplorer.Web/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromResourceIndex="true" />
+    <Content Include="../GraphExplorer.Web/vendor/*" Link="GraphExplorer.Web/vendor/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromResourceIndex="true" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
     <Content Include="../fixtures/findings.json" Link="fixtures/findings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

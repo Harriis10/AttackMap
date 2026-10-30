@@ -1,0 +1,150 @@
+Window: "AttackMap", App: AttackMap.NativeSpike.exe.
+	0 Okno AttackMap Secondary Actions: Raise
+		1 Podokno
+			2 Podokno
+				3 řádek nabídek Application commands ID: CommandMenu
+					4 položka nabídky File
+					5 položka nabídky Scan
+					6 položka nabídky View
+				7 vlastní ID: Navigation
+					8 tlačítko Zpět ID: NavigationViewBackButton
+					9 tlačítko Zavřít navigaci ID: TogglePaneButton
+						10 text ID: PaneTitleTextBlock
+					11 okno Secondary Actions: Raise ID: PaneRoot
+						12 text AttackMap
+						13 text Security workspace
+						14 podokno ID: MenuItemsScrollViewer
+							15 skupina ID: MenuItemsHost
+								16 položka seznamu (selectable) Overview
+								17 položka seznamu (selectable) Findings
+								18 položka seznamu (selectable) Architecture
+								19 položka seznamu (selectable) Inventory
+								20 položka seznamu (selectable) Reports
+								21 položka seznamu (selectable) History
+								22 položka seznamu (selectable) Scan options
+								23 položka seznamu (selectable) Risk and paths
+								24 položka seznamu (selectable) Evidence inventory
+								25 položka seznamu (selectable) Diagrams
+								26 položka seznamu (selectable) Fleet
+								27 položka seznamu (selectable) Suppressions
+							1221 posuvník (settable, float) Svisle Value: 0 ID: VerticalScrollBar
+						28 podokno ID: FooterItemsScrollViewer
+							29 skupina ID: FooterMenuItemsHost
+								30 položka seznamu (selectable) Nastavení ID: SettingsItem
+					31 text Workspace: none selected Displayed: C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\team-a\service ID: WorkspaceLabel
+					32 tlačítko Open canonical AttackMap JSON report
+					33 tlačítko Choose repository
+					34 tlačítko Start scan ID: scan
+					35 tlačítko (disabled) Cancel ID: cancel
+					36 text Fleet ID: Heading
+					37 text Open a canonical report, scan locally, or select a finding for evidence and reasoned suppression. ID: Status
+					38 podokno
+						1222 text Fleet architecture
+						1223 tlačítko Fleet graph interpretation, partial coverage and aggregate path warning
+							1224 text Interpretation and coverage
+						1225 text 16 repositories; coverage may be partial. Aggregated paths do not prove service reachability.
+						1226 panel aplikace
+							1227 pole se seznamem Diagram view
+							1228 tlačítko na panelu aplikace (disabled) Open selected repository report
+							1229 tlačítko na panelu aplikace Export complete graph JSON
+							1230 tlačítko Další možnosti ID: MoreButton
+						1231 panel aplikace Find a node or edge
+							1232 upravit (settable, string) Find architecture node or relationship
+							1233 tlačítko na panelu aplikace Fit
+							1234 tlačítko na panelu aplikace Zoom out
+							1235 tlačítko na panelu aplikace Zoom in
+							1236 tlačítko na panelu aplikace Collapse all
+							1237 tlačítko na panelu aplikace Expand all
+						1238 panel aplikace
+							1239 pole se seznamem Relationship resolution filter
+							1240 přepínací tlačítko na panelu aplikace Inter-repository only
+							1241 tlačítko na panelu aplikace Upstream (one hop)
+							1242 tlačítko Další možnosti ID: MoreButton
+						1243 text 16 repositories; 16 visible / 45 captured nodes; 170 visible relationships; 29 hidden nodes; 43 internal edges; 0 original relationships excluded by filters (All, inter-repository False, All). A path in the collapsed overview does not prove a continuous path between concrete services. Inspect original edge endpoints and evidence.
+						1244 podokno Architecture graph. Use the nodes and relationships list for keyboard selection.
+							1245 text cross_repo_http_call (2)
+							1246 text cross_repo_http_call (2)
+							1247 text cross_repo_http_call (2)
+							1248 text cross_repo_http_call (2)
+							1249 text cross_repo_http_call (2)
+							1250 text cross_repo_http_call (2)
+							1251 text cross_repo_http_call (1)
+							1252 text cross_repo_http_call (1)
+							1253 text cross_repo_http_call (2)
+							1254 text cross_repo_http_call (1)
+							1255 text cross_repo_http_call (1)
+							1256 text cross_repo_http_call (1)
+							1257 text cross_repo_http_call (1)
+							1258 text cross_repo_http_call (1)
+							1259 text cross_repo_http_call (1)
+							1260 text cross_repo_http_call (1)
+							1261 text cross_repo_http_call (1)
+							1262 text cross_repo_http_call (2)
+							1263 text cross_repo_http_call (1)
+							1264 text cross_repo_http_call (1)
+							1265 text cross_repo_http_call (1)
+							1266 text cross_repo_http_call (1)
+							1267 text cross_repo_http_call (1)
+							1268 text cross_repo_http_call (1)
+							1269 text cross_repo_http_call (1)
+							1270 text cross_repo_http_call (1)
+							1271 text cross_repo_http_call (1)
+							1272 text cross_repo_http_call (1)
+							1273 text cross_repo_http_call (1)
+							1274 text cross_repo_http_call (1)
+							1275 text cross_repo_http_call (4)
+							1276 text cross_repo_http_call (4)
+							1277 text cross_repo_http_call (4)
+							1278 text cross_repo_http_call (1)
+							1279 text cross_repo_http_call (1)
+							1280 text cross_repo_http_call (1)
+							1281 text cross_repo_http_call (1)
+							1282 text cross_repo_http_call (1)
+							1283 text cross_repo_http_call (1)
+							1284 text cross_repo_http_call (1)
+							1285 text cross_repo_http_call (1)
+							1286 text cross_repo_http_call (1)
+							1287 text cross_repo_http_call (1)
+							1288 text cross_repo_http_call (1)
+							1289 text cross_repo_http_call (1)
+							1290 text cross_repo_http_call (1)
+							1291 text cross_repo_http_call (1)
+							1292 text cross_repo_http_call (1)
+							1293 text cross_repo_http_call (1)
+							1294 text cross_repo_http_call (1)
+							1295 text cross_repo_http_call (1)
+							1296 text cross_repo_http_call (1)
+							1297 text cross_repo_http_call (1)
+							1298 text cross_repo_http_call (1)
+							1299 text cross_repo_http_call (1)
+							1300 text cross_repo_http_call (1)
+							1301 text cross_repo_http_call (1)
+							1302 tlačítko repo-05, partial, 4 underlying nodes, 5 internal relationships
+								1303 text repo-05
+								1304 text partial · 3 hidden
+							1305 tlačítko repo-10, partial, 3 underlying nodes, 3 internal relationships
+								1306 text repo-10
+								1307 text partial · 2 hidden
+							1308 tlačítko repo-04, partial, 3 underlying nodes, 3 internal relationships
+								1309 text repo-04
+								1310 text partial · 2 hidden
+							1311 tlačítko repo-06, partial, 3 underlying nodes, 3 internal relationships
+								1312 text repo-06
+								1313 text partial · 2 hidden
+							1314 tlačítko service-2, partial, 3 underlying nodes, 3 internal relationships
+								1315 text service-2
+								1316 text partial · 2 hidden
+						1317 text Nodes and relationships
+						1318 upravit Selected architecture facts and evidence Value: Select a node or relationship to inspect original facts.
+						1319 tlačítko (disabled) Expand selected group
+						89 posuvník (settable, float) Svisle Value: 734 ID: VerticalScrollBar
+		90 Záhlaví (settable, string) Value: AttackMap
+			91 Řádek nabídek Systém ID: MenuBar
+				92 Příkaz v nabídce Systém
+			93 tlačítko Minimalizovat
+			94 tlačítko Maximalizovat
+			95 tlačítko Zavřít
+
+Document text: ```
+Select a node or relationship to inspect original facts.
+```

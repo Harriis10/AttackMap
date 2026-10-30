@@ -5,9 +5,9 @@ namespace AttackMap.NativeSpike;
 public sealed class ProviderSettingsView : UserControl
 {
     private readonly CheckBox enabled = new() { Content = "Enable AI review for scans (off by default)" };
-    private readonly ComboBox provider = new() { Header = "Provider", ItemsSource = new[] { "openai", "claude" }, SelectedIndex = 0 };
+    private readonly ComboBox provider = new() { Header = "Provider (openai includes compatible APIs)", ItemsSource = new[] { "openai", "claude" }, SelectedIndex = 0 };
     private readonly TextBox endpoint = new() { Header = "Endpoint (blank uses provider default)", Text = "http://127.0.0.1:1234/v1" };
-    private readonly TextBox model = new() { Header = "Model (blank uses provider default)", Text = "cyberstag-security-26b-a4b-v1" };
+    private readonly TextBox model = new() { Header = "Model ID (exact provider spelling; blank uses provider default)", Text = "cyberstag-security-26b-a4b-v1" };
     private readonly PasswordBox credential = new() { Header = "API credential (runtime only; Save uses protected storage)" };
     private readonly ComboBox mode = new() { Header = "AI mode (None sends no AI request)", ItemsSource = new[] { "none", "review", "hunt", "hunt_verify", "remediate", "triage" }, SelectedItem = "review" };
     private readonly TextBox jury = new() { Header = "Hunt+verify jury votes (1–7; blank uses 3)", Text = "" };
@@ -33,7 +33,7 @@ public sealed class ProviderSettingsView : UserControl
         panel.Children.Add(new TextBlock { Text = "API backend only. Output tokens do not bound input tokens, provider reasoning or billing. Missing usage remains unknown. Credentials are never part of configuration JSON.", TextWrapping = TextWrapping.Wrap });
         var buttons = new StackPanel { Spacing = 8 };
         var save = new Button { Content = "Save provider settings" };
-        var test = new Button { Content = "Test connection (sends request)" };
+        var test = new Button { Content = "Check model list (does not test generation)" };
         var reset = new Button { Content = "Reset AI preferences (no request)" };
         reset.Click += (_, _) => ResetPreferences();
         save.Click += (_,_) => Emit(false);
@@ -95,8 +95,9 @@ public sealed class ProviderSettingsView : UserControl
         try
         {
             var configuration = ReadConfiguration();
+            bool compatibleChat = configuration.Provider == "openai" && Uri.TryCreate(configuration.Endpoint, UriKind.Absolute, out var uri) && !uri.IsLoopback && !uri.Host.Equals("api.openai.com", StringComparison.OrdinalIgnoreCase);
             compatibility.Text = (capabilities?.AiConfiguration(configuration).Reason ?? "Check engine compatibility to enable advanced modes. Saved preferences remain available.") +
-                " Requested effort: " + (configuration.Effort ?? "default") + "; mapped: " + (capabilities?.MappedEffort(configuration) ?? "unknown") + ". CLI disabled: strict output cap unavailable.";
+                " Requested effort: " + (configuration.Effort ?? "default") + "; mapped: " + (compatibleChat ? "provider default (compatible Chat Completions; effort is not sent)" : capabilities?.MappedEffort(configuration) ?? "unknown") + ". CLI disabled: strict output cap unavailable.";
         }
         catch (InvalidDataException) { compatibility.Text = "Correct AI preferences before saving or requesting a scan; no request has been sent."; }
         ConfigurationChanged?.Invoke();

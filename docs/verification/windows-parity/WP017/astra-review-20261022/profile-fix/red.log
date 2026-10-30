@@ -1,0 +1,97 @@
+{"known_folders": {"LOCALAPPDATA": {"hresult": -2147024893, "path": "", "expected": "C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\wp017-known-folders-5hu0z4ch\\profile\\Local", "exists": false}, "APPDATA": {"hresult": -2147024893, "path": "", "expected": "C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\wp017-known-folders-5hu0z4ch\\profile\\Roaming", "exists": false}}, "process": {"pid": 7980, "exit_code": 0, "exited": true, "seconds": 0.2649440999957733, "timed_out": false, "owned_job_assigned": true, "owned_tree_cleanup_verified": true}}
+uu.
+================================== FAILURES ===================================
+_ OwnedProcessTests.test_child_known_folders_resolve_inside_isolated_profile (folder='LOCALAPPDATA') _
+
+self = <test_wp017_native_runner.OwnedProcessTests testMethod=test_child_known_folders_resolve_inside_isolated_profile>
+
+    def test_child_known_folders_resolve_inside_isolated_profile(self):
+        probe = textwrap.dedent("""
+            import ctypes, json, os, uuid
+            from pathlib import Path
+            resolve = ctypes.windll.shell32.SHGetKnownFolderPath
+            resolve.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p,
+                                ctypes.POINTER(ctypes.c_void_p)]
+            resolve.restype = ctypes.c_long
+            free = ctypes.windll.ole32.CoTaskMemFree
+            free.argtypes = [ctypes.c_void_p]
+            free.restype = None
+            rows = {}
+            for key, identifier in (
+                ('LOCALAPPDATA', 'F1B32785-6FBA-4FCF-9D55-7B8E7F157091'),
+                ('APPDATA', '3EB685DB-65F9-4CF6-A03A-E3EF65729F3D')):
+                guid = ctypes.create_string_buffer(uuid.UUID(identifier).bytes_le)
+                pointer = ctypes.c_void_p()
+                result = resolve(guid, 0, None, ctypes.byref(pointer))
+                try:
+                    path = ctypes.wstring_at(pointer) if pointer.value else ''
+                    rows[key] = dict(hresult=result, path=path, expected=os.environ[key],
+                                     exists=bool(path) and Path(path).is_dir())
+                finally:
+                    free(pointer)
+            print(json.dumps(rows))
+        """)
+        with tempfile.TemporaryDirectory(prefix="wp017-known-folders-") as folder:
+            output = Path(folder)
+            environment = runner.child_environment(output)
+            runner.launch([sys.executable, "-c", probe], output, environment, 10)
+            rows = json.loads((output / "stdout.log").read_text())
+            process = json.loads((output / "process.json").read_text())
+            print(json.dumps(dict(known_folders=rows, process=process)))
+            self.assertTrue(process["owned_tree_cleanup_verified"] and process["exited"])
+            self.assertEqual(process["exit_code"], 0)
+            for key, row in rows.items():
+                with self.subTest(folder=key):
+>                   self.assertEqual(row["hresult"], 0, row)
+E                   AssertionError: -2147024893 != 0 : {'hresult': -2147024893, 'path': '', 'expected': 'C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\wp017-known-folders-5hu0z4ch\\profile\\Local', 'exists': False}
+
+tests\test_wp017_native_runner.py:378: AssertionError
+_ OwnedProcessTests.test_child_known_folders_resolve_inside_isolated_profile (folder='APPDATA') _
+
+self = <test_wp017_native_runner.OwnedProcessTests testMethod=test_child_known_folders_resolve_inside_isolated_profile>
+
+    def test_child_known_folders_resolve_inside_isolated_profile(self):
+        probe = textwrap.dedent("""
+            import ctypes, json, os, uuid
+            from pathlib import Path
+            resolve = ctypes.windll.shell32.SHGetKnownFolderPath
+            resolve.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p,
+                                ctypes.POINTER(ctypes.c_void_p)]
+            resolve.restype = ctypes.c_long
+            free = ctypes.windll.ole32.CoTaskMemFree
+            free.argtypes = [ctypes.c_void_p]
+            free.restype = None
+            rows = {}
+            for key, identifier in (
+                ('LOCALAPPDATA', 'F1B32785-6FBA-4FCF-9D55-7B8E7F157091'),
+                ('APPDATA', '3EB685DB-65F9-4CF6-A03A-E3EF65729F3D')):
+                guid = ctypes.create_string_buffer(uuid.UUID(identifier).bytes_le)
+                pointer = ctypes.c_void_p()
+                result = resolve(guid, 0, None, ctypes.byref(pointer))
+                try:
+                    path = ctypes.wstring_at(pointer) if pointer.value else ''
+                    rows[key] = dict(hresult=result, path=path, expected=os.environ[key],
+                                     exists=bool(path) and Path(path).is_dir())
+                finally:
+                    free(pointer)
+            print(json.dumps(rows))
+        """)
+        with tempfile.TemporaryDirectory(prefix="wp017-known-folders-") as folder:
+            output = Path(folder)
+            environment = runner.child_environment(output)
+            runner.launch([sys.executable, "-c", probe], output, environment, 10)
+            rows = json.loads((output / "stdout.log").read_text())
+            process = json.loads((output / "process.json").read_text())
+            print(json.dumps(dict(known_folders=rows, process=process)))
+            self.assertTrue(process["owned_tree_cleanup_verified"] and process["exited"])
+            self.assertEqual(process["exit_code"], 0)
+            for key, row in rows.items():
+                with self.subTest(folder=key):
+>                   self.assertEqual(row["hresult"], 0, row)
+E                   AssertionError: -2147024893 != 0 : {'hresult': -2147024893, 'path': '', 'expected': 'C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\wp017-known-folders-5hu0z4ch\\profile\\Roaming', 'exists': False}
+
+tests\test_wp017_native_runner.py:378: AssertionError
+=========================== short test summary info ===========================
+SUBFAILED(folder='LOCALAPPDATA') tests/test_wp017_native_runner.py::OwnedProcessTests::test_child_known_folders_resolve_inside_isolated_profile
+SUBFAILED(folder='APPDATA') tests/test_wp017_native_runner.py::OwnedProcessTests::test_child_known_folders_resolve_inside_isolated_profile
+2 failed, 1 passed in 0.78s

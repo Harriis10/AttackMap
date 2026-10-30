@@ -138,6 +138,11 @@ CI setup: **[install guide](https://docs.mlaify.io/install/)**.
 
 Each run writes Markdown, JSON (`attackmap-report.json`), **SARIF 2.1.0**, and
 diagram artifacts; fleet runs add `fleet-summary.{md,json}` + `fleet-graph.md`.
+The fleet JSON also includes a versioned `fleet_architecture` model with repository
+groups, components, typed relationships and evidence IDs. The native Windows
+preview can explore up to 16 selected repositories, distinguish observed and
+candidate links, and export the captured model or an entire SVG diagram.
+See the [fleet graph contract and current limits](docs/fleet-architecture.md).
 See the [outputs reference](https://docs.mlaify.io/scanning/) for the full list.
 
 CLI and desktop runs publish validated generations under the output directory.

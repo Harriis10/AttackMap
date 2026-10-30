@@ -1,0 +1,665 @@
+{
+  "base_commit": "258adf66a9ec3c5a691868ae67c3a73b08b92c4a",
+  "console_projects": [
+    "EngineLaunchSpec.Tests",
+    "EngineProtocol.Tests",
+    "NativeOptions.Tests",
+    "NativeAiOptions.Tests",
+    "ProviderConfiguration.Tests",
+    "ParityOverview.Tests",
+    "OverviewAdapter.Tests",
+    "ReportAdapter.Tests",
+    "ReportSections.Tests",
+    "RiskPaths.Tests",
+    "Inventory.Tests",
+    "Diagram.Tests",
+    "ScanProgress.Tests",
+    "ScanTiming.Tests",
+    "FindingContextFormatter.Tests",
+    "SourceLocation.Tests",
+    "SelectedArtifacts.Tests",
+    "SelectedExportPrep.Tests",
+    "C23ReportComposition.Tests",
+    "SuppressionWorkspace.Tests",
+    "HistoryPrep.Tests",
+    "FleetWorkspace.Tests",
+    "WatchCoordinator.Tests",
+    "FleetWatchCoordinator.Tests",
+    "AiArtifacts.Tests",
+    "WindowPlacement.Tests"
+  ],
+  "controlled_projects": {
+    "EngineSession.Tests": [
+      "ControlledFakeBroker",
+      9
+    ],
+    "DesktopActionRunner.Tests": [
+      "ControlledFakeBroker",
+      8
+    ],
+    "NativeFaultComposition.Tests": [
+      "NativeFaultBroker",
+      14
+    ]
+  },
+  "deferred_projects": {
+    "FrozenRunner.Tests": "Fresh source-bound frozen engine required; integrator gate.",
+    "FrozenCancellation.Tests": "Fresh frozen engine and exclusive runtime slot required; original 50 cycles/2000 files preserved.",
+    "ProtectedProviderStore.Tests": "Fresh frozen engine plus real Windows DPAPI/Python integration; separate isolated settings gate.",
+    "ProviderRoundtrip.Tests": "Real Python provider configuration/broker processes; separate integration gate.",
+    "ReportExport.Tests": "Runs installed Edge/Chrome headless PDF export; separate browser process gate, not pure consumer fixture."
+  },
+  "all_test_projects": [
+    "AiArtifacts.Tests",
+    "C23ReportComposition.Tests",
+    "DesktopActionRunner.Tests",
+    "Diagram.Tests",
+    "EngineLaunchSpec.Tests",
+    "EngineProtocol.Tests",
+    "EngineSession.Tests",
+    "FindingContextFormatter.Tests",
+    "FleetWatchCoordinator.Tests",
+    "FleetWorkspace.Tests",
+    "FrozenCancellation.Tests",
+    "FrozenRunner.Tests",
+    "HistoryPrep.Tests",
+    "Inventory.Tests",
+    "NativeAiOptions.Tests",
+    "NativeFaultComposition.Tests",
+    "NativeOptions.Tests",
+    "OverviewAdapter.Tests",
+    "ParityOverview.Tests",
+    "ProtectedProviderStore.Tests",
+    "ProviderConfiguration.Tests",
+    "ProviderRoundtrip.Tests",
+    "ReportAdapter.Tests",
+    "ReportExport.Tests",
+    "ReportSections.Tests",
+    "RiskPaths.Tests",
+    "ScanProgress.Tests",
+    "ScanTiming.Tests",
+    "SelectedArtifacts.Tests",
+    "SelectedExportPrep.Tests",
+    "SourceLocation.Tests",
+    "SuppressionWorkspace.Tests",
+    "WatchCoordinator.Tests",
+    "WindowPlacement.Tests"
+  ],
+  "commands": [
+    {
+      "label": "build-EngineLaunchSpec.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineLaunchSpec.Tests\\EngineLaunchSpec.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "EngineLaunchSpec.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineLaunchSpec.Tests\\bin\\Debug\\net8.0\\EngineLaunchSpec.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-EngineProtocol.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineProtocol.Tests\\EngineProtocol.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "EngineProtocol.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineProtocol.Tests\\bin\\Debug\\net8.0\\EngineProtocol.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-NativeOptions.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeOptions.Tests\\NativeOptions.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "NativeOptions.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeOptions.Tests\\bin\\Debug\\net8.0\\NativeOptions.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-NativeAiOptions.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeAiOptions.Tests\\NativeAiOptions.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "NativeAiOptions.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeAiOptions.Tests\\bin\\Debug\\net8.0\\NativeAiOptions.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-ProviderConfiguration.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ProviderConfiguration.Tests\\ProviderConfiguration.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "ProviderConfiguration.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ProviderConfiguration.Tests\\bin\\Debug\\net8.0\\ProviderConfiguration.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-ParityOverview.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ParityOverview.Tests\\ParityOverview.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "ParityOverview.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ParityOverview.Tests\\bin\\Debug\\net8.0\\ParityOverview.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-OverviewAdapter.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\OverviewAdapter.Tests\\OverviewAdapter.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "OverviewAdapter.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\OverviewAdapter.Tests\\bin\\Debug\\net8.0\\OverviewAdapter.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-ReportAdapter.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportAdapter.Tests\\ReportAdapter.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "ReportAdapter.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportAdapter.Tests\\bin\\Debug\\net8.0\\ReportAdapter.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-ReportSections.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportSections.Tests\\ReportSections.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "ReportSections.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportSections.Tests\\bin\\Debug\\net8.0\\ReportSections.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-RiskPaths.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\RiskPaths.Tests\\RiskPaths.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "RiskPaths.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\RiskPaths.Tests\\bin\\Debug\\net8.0\\RiskPaths.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-Inventory.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\Inventory.Tests\\Inventory.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "Inventory.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\Inventory.Tests\\bin\\Debug\\net8.0\\Inventory.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-Diagram.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\Diagram.Tests\\Diagram.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "Diagram.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\Diagram.Tests\\bin\\Debug\\net8.0\\Diagram.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-ScanProgress.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ScanProgress.Tests\\ScanProgress.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "ScanProgress.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ScanProgress.Tests\\bin\\Debug\\net8.0\\ScanProgress.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-ScanTiming.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ScanTiming.Tests\\ScanTiming.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "ScanTiming.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ScanTiming.Tests\\bin\\Debug\\net8.0\\ScanTiming.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-FindingContextFormatter.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FindingContextFormatter.Tests\\FindingContextFormatter.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "FindingContextFormatter.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FindingContextFormatter.Tests\\bin\\Debug\\net8.0\\FindingContextFormatter.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-SourceLocation.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SourceLocation.Tests\\SourceLocation.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "SourceLocation.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SourceLocation.Tests\\bin\\Debug\\net8.0\\SourceLocation.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-SelectedArtifacts.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SelectedArtifacts.Tests\\SelectedArtifacts.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "SelectedArtifacts.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SelectedArtifacts.Tests\\bin\\Debug\\net8.0\\SelectedArtifacts.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-SelectedExportPrep.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SelectedExportPrep.Tests\\SelectedExportPrep.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "SelectedExportPrep.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SelectedExportPrep.Tests\\bin\\Debug\\net8.0\\SelectedExportPrep.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-C23ReportComposition.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\C23ReportComposition.Tests\\C23ReportComposition.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "C23ReportComposition.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\C23ReportComposition.Tests\\bin\\Debug\\net8.0\\C23ReportComposition.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-SuppressionWorkspace.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SuppressionWorkspace.Tests\\SuppressionWorkspace.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "SuppressionWorkspace.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\SuppressionWorkspace.Tests\\bin\\Debug\\net8.0\\SuppressionWorkspace.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-HistoryPrep.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\HistoryPrep.Tests\\HistoryPrep.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "HistoryPrep.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\HistoryPrep.Tests\\bin\\Debug\\net8.0\\HistoryPrep.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-FleetWorkspace.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FleetWorkspace.Tests\\FleetWorkspace.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "FleetWorkspace.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FleetWorkspace.Tests\\bin\\Debug\\net8.0\\FleetWorkspace.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-WatchCoordinator.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\WatchCoordinator.Tests\\WatchCoordinator.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "WatchCoordinator.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\WatchCoordinator.Tests\\bin\\Debug\\net8.0\\WatchCoordinator.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-FleetWatchCoordinator.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FleetWatchCoordinator.Tests\\FleetWatchCoordinator.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "FleetWatchCoordinator.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\FleetWatchCoordinator.Tests\\bin\\Debug\\net8.0\\FleetWatchCoordinator.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-AiArtifacts.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AiArtifacts.Tests\\AiArtifacts.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "AiArtifacts.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AiArtifacts.Tests\\bin\\Debug\\net8.0\\AiArtifacts.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-WindowPlacement.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\WindowPlacement.Tests\\WindowPlacement.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "WindowPlacement.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\WindowPlacement.Tests\\bin\\Debug\\net8.0\\WindowPlacement.Tests.exe"
+      ]
+    },
+    {
+      "label": "build-ControlledFakeBroker",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ControlledFakeBroker\\ControlledFakeBroker.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "build-NativeFaultBroker",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeFaultBroker\\NativeFaultBroker.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "build-EngineSession.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineSession.Tests\\EngineSession.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "build-DesktopActionRunner.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\DesktopActionRunner.Tests\\DesktopActionRunner.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "build-NativeFaultComposition.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeFaultComposition.Tests\\NativeFaultComposition.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ]
+    },
+    {
+      "label": "EngineSession.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineSession.Tests\\bin\\Debug\\net8.0\\EngineSession.Tests.exe",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\staged-brokers\\ControlledFakeBroker\\attackmap.exe",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\EngineSession.Tests-proof.json"
+      ],
+      "expected_cases": 9
+    },
+    {
+      "label": "DesktopActionRunner.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\DesktopActionRunner.Tests\\bin\\Debug\\net8.0\\DesktopActionRunner.Tests.exe",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\staged-brokers\\ControlledFakeBroker\\attackmap.exe",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\DesktopActionRunner.Tests-proof.json"
+      ],
+      "expected_cases": 8
+    },
+    {
+      "label": "NativeFaultComposition.Tests",
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeFaultComposition.Tests\\bin\\Debug\\net8.0\\NativeFaultComposition.Tests.exe",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\staged-brokers\\NativeFaultBroker\\attackmap.exe",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\NativeFaultComposition.Tests-proof.json"
+      ],
+      "expected_cases": 14
+    }
+  ],
+  "environment_overrides": {
+    "DOTNET_ROOT": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet",
+    "DOTNET_CLI_HOME": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet-home",
+    "NUGET_PACKAGES": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\nuget-packages",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_NOLOGO": "1",
+    "MSBUILDDISABLENODEREUSE": "1",
+    "TEMP": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\temp",
+    "TMP": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\temp"
+  },
+  "restore_if_missing": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+    "restore",
+    "<project>",
+    "--source",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\empty-feed",
+    "--ignore-failed-sources",
+    "-p:NuGetAudit=false"
+  ],
+  "scope": "26 native console/owned-filesystem suites plus 3 controlled fake-broker suites; no GUI/provider/frozen acceptance."
+}

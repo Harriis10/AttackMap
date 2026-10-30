@@ -15,6 +15,9 @@ public sealed partial class MarkdownView : UserControl
 {
     private readonly StackPanel blocks = new() { Spacing = 10 };
     private string raw = "";
+    private bool dirty;
+    private bool activated;
+    internal long RenderCount { get; private set; }
 
     public string Text
     {
@@ -24,20 +27,39 @@ public sealed partial class MarkdownView : UserControl
 
     public MarkdownView()
     {
+        MinHeight = 1;
         Content = new ScrollViewer
         {
             Content = blocks,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
         };
+        LayoutUpdated += OnLayoutUpdated;
+    }
+
+    private void OnLayoutUpdated(object? sender, object args)
+    {
+        bool visible = UiActivation.IsEffectivelyVisible(this);
+        if (visible == activated && !(visible && dirty)) return;
+        activated = visible;
+        if (visible && dirty) Build();
     }
 
     public void Render(string markdown)
     {
         raw = markdown ?? "";
         blocks.Children.Clear();
-        if (raw.Length == 0) return;
-        foreach (var block in ParseBlocks(raw)) blocks.Children.Add(block);
+        dirty = raw.Length > 0;
+        if (dirty && UiActivation.IsEffectivelyVisible(this)) Build();
+    }
+
+    private void Build()
+    {
+        if (!dirty) return;
+        string supplied = raw;
+        dirty = false;
+        ++RenderCount;
+        foreach (var block in ParseBlocks(supplied)) blocks.Children.Add(block);
     }
 
     private static IEnumerable<FrameworkElement> ParseBlocks(string markdown)

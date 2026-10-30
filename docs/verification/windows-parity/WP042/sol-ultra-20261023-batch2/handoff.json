@@ -1,0 +1,492 @@
+{
+  "task_id": [
+    "WP042",
+    "WP039"
+  ],
+  "owner": "/root",
+  "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "final_commit_or_diff_hash": {
+    "kind": "changed-source-paths-and-byte-sha256-map",
+    "sha256": "11045162b607b4560b6c057ae5b2ca384420519567a19eee4b62ef2f10744685",
+    "commit_created": false
+  },
+  "paths_changed": [
+    "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionModel.cs",
+    "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionView.cs",
+    "desktop/windows/AttackMap.NativeSpike/EngineCapabilities.cs",
+    "desktop/windows/AttackMap.NativeSpike/EngineProtocol.cs",
+    "desktop/windows/AttackMap.NativeSpike/LocalSettings.cs",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.AnalyzerSmoke.cs",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs",
+    "desktop/windows/AttackMap.NativeSpike/NativeCaptureProbe.cs",
+    "desktop/windows/AttackMap.NativeSpike/NativeScanOptions.cs",
+    "desktop/windows/AttackMap.NativeSpike/ReportSectionAdapter.cs",
+    "desktop/windows/AttackMap.NativeSpike/ReportSections.cs",
+    "desktop/windows/EngineProtocol.Tests/Program.cs",
+    "desktop/windows/NativeAiOptions.Tests/Program.cs",
+    "desktop/windows/ReportAdapter.Tests/Program.cs",
+    "desktop/windows/ScanProgress.Tests/Program.cs",
+    "docs/README.md",
+    "docs/ecosystem/analyzer-catalog.md",
+    "docs/ecosystem/analyzer-profiles.md",
+    "docs/roadmap-windows-parity-2026-10-20.md",
+    "docs/run-contract.md",
+    "docs/verification/windows-parity/WP042/sol-ultra-20261023-batch2/",
+    "docs/windows-parity-backlog.json",
+    "docs/windows-parity-todo.md",
+    "schemas/run-manifest.schema.json",
+    "schemas/run-progress.schema.json",
+    "schemas/run-request.schema.json",
+    "schemas/run-terminal.schema.json",
+    "src/attackmap/analyzer_run_ledger.py",
+    "src/attackmap/analyzers.py",
+    "src/attackmap/cli.py",
+    "src/attackmap/desktop_capabilities.py",
+    "src/attackmap/ecosystem_node_atproto.py",
+    "src/attackmap/models.py",
+    "src/attackmap/pipeline.py",
+    "src/attackmap/run_contract.py",
+    "src/attackmap/scan_service.py",
+    "tests/test_analyzer_run_ledger.py",
+    "tests/test_desktop_analyzer_profiles.py",
+    "tests/test_ecosystem_node_atproto.py",
+    "tests/test_ecosystem_node_atproto_routes.py",
+    "tests/test_pipeline_analyzer_ledger.py",
+    "tests/test_run_contract.py"
+  ],
+  "leases_released": true,
+  "tests_executed": {
+    "integrated": "508 PASS / 2 SKIP",
+    "files": [
+      "tests.test_analyzer_catalog",
+      "tests.test_analyzer_log_privacy",
+      "tests.test_analyzer_metadata_schema",
+      "tests.test_analyzer_order",
+      "tests.test_analyzer_profiles",
+      "tests.test_analyzer_run_ledger",
+      "tests.test_analyzers",
+      "tests.test_cli_analyzer_profiles",
+      "tests.test_desktop_ai_modes",
+      "tests.test_desktop_analyzer_profiles",
+      "tests.test_desktop_capabilities",
+      "tests.test_desktop_options",
+      "tests.test_ecosystem_node_atproto",
+      "tests.test_ecosystem_node_atproto_routes",
+      "tests.test_ecosystem_php",
+      "tests.test_ecosystem_php_nested_routes",
+      "tests.test_pipeline",
+      "tests.test_pipeline_analyzer_ledger",
+      "tests.test_run_contract",
+      "tests.test_snapshot_consistency",
+      "tests.test_snapshot_inputs"
+    ],
+    "native": "597 checks across six console projects",
+    "commands": {
+      "catalog-probe-frozen-capabilities-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "capabilities"
+      ],
+      "catalog-probe-frozen-catalog-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "modules",
+        "--catalog-json"
+      ],
+      "catalog-probe-frozen-modules-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "modules",
+        "--json"
+      ],
+      "catalog-probe-frozen-profiles-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "modules",
+        "--profiles-json"
+      ],
+      "catalog-probe-source-capabilities-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "attackmap",
+        "capabilities"
+      ],
+      "catalog-probe-source-catalog-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "attackmap",
+        "modules",
+        "--catalog-json"
+      ],
+      "catalog-probe-source-modules-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "attackmap",
+        "modules",
+        "--json"
+      ],
+      "catalog-probe-source-profiles-01": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "attackmap",
+        "modules",
+        "--profiles-json"
+      ],
+      "console-build-EngineProtocol.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineProtocol.Tests\\EngineProtocol.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "console-build-NativeAiOptions.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeAiOptions.Tests\\NativeAiOptions.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "console-build-NativeOptions.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeOptions.Tests\\NativeOptions.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "console-build-ReportAdapter.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportAdapter.Tests\\ReportAdapter.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "console-build-ReportSections.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportSections.Tests\\ReportSections.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "console-build-ScanProgress.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ScanProgress.Tests\\ScanProgress.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "console-EngineProtocol.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineProtocol.Tests\\bin\\Debug\\net8.0\\EngineProtocol.Tests.exe"
+      ],
+      "console-NativeAiOptions.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeAiOptions.Tests\\bin\\Debug\\net8.0\\NativeAiOptions.Tests.exe"
+      ],
+      "console-NativeOptions.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeOptions.Tests\\bin\\Debug\\net8.0\\NativeOptions.Tests.exe"
+      ],
+      "console-ReportAdapter.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportAdapter.Tests\\bin\\Debug\\net8.0\\ReportAdapter.Tests.exe"
+      ],
+      "console-ReportSections.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ReportSections.Tests\\bin\\Debug\\net8.0\\ReportSections.Tests.exe"
+      ],
+      "console-ScanProgress.Tests": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ScanProgress.Tests\\bin\\Debug\\net8.0\\ScanProgress.Tests.exe"
+      ],
+      "engine-final": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\fresh_freeze.py",
+        "--root-released",
+        "--repo",
+        "C:\\Projects\\INPROGRESS\\AttackMap",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final",
+        "--freeze-python",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+        "--dotnet",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "--analyzer-audit",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\cached-analyzer-audit-2026-10-21.json",
+        "--wheelhouse",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-wheelhouse",
+        "--build"
+      ],
+      "frozen-scan": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\tmp\\juice-shop",
+        "--format",
+        "json",
+        "--no-progress",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\frozen-scan"
+      ],
+      "native-final": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "publish",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AttackMap.NativeSpike.csproj",
+        "--no-restore",
+        "-c",
+        "Release",
+        "-r",
+        "win-x64",
+        "--self-contained",
+        "true",
+        "-o",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "native-final-preview5": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final5\\AttackMap.NativeSpike.exe",
+        "--analyzer-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final-preview5",
+        "--engine",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "--analyzer-profile",
+        "node-atproto@1.0"
+      ],
+      "native-final-run": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final\\AttackMap.NativeSpike.exe",
+        "--analyzer-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final-run",
+        "--engine",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "--analyzer-profile",
+        "node-atproto@1.0",
+        "--native-scan",
+        "--repository",
+        "C:\\tmp\\juice-shop"
+      ],
+      "native-final-run2": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final2\\AttackMap.NativeSpike.exe",
+        "--analyzer-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final-run2",
+        "--engine",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "--analyzer-profile",
+        "node-atproto@1.0",
+        "--native-scan",
+        "--repository",
+        "C:\\tmp\\juice-shop"
+      ],
+      "native-final-run4": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final4\\AttackMap.NativeSpike.exe",
+        "--analyzer-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final-run4",
+        "--engine",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "--analyzer-profile",
+        "node-atproto@1.0",
+        "--native-scan",
+        "--repository",
+        "C:\\tmp\\juice-shop"
+      ],
+      "native-final-run5": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final5\\AttackMap.NativeSpike.exe",
+        "--analyzer-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final-run5",
+        "--engine",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "--analyzer-profile",
+        "node-atproto@1.0",
+        "--native-scan",
+        "--repository",
+        "C:\\tmp\\juice-shop"
+      ],
+      "native-final2": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "publish",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AttackMap.NativeSpike.csproj",
+        "--no-restore",
+        "-c",
+        "Release",
+        "-r",
+        "win-x64",
+        "--self-contained",
+        "true",
+        "-o",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final2",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "native-final3": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "publish",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AttackMap.NativeSpike.csproj",
+        "--no-restore",
+        "-c",
+        "Release",
+        "-r",
+        "win-x64",
+        "--self-contained",
+        "true",
+        "-o",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final3",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "native-final4": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "publish",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AttackMap.NativeSpike.csproj",
+        "--no-restore",
+        "-c",
+        "Release",
+        "-r",
+        "win-x64",
+        "--self-contained",
+        "true",
+        "-o",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final4",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "native-final5": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "publish",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AttackMap.NativeSpike.csproj",
+        "--no-restore",
+        "-c",
+        "Release",
+        "-r",
+        "win-x64",
+        "--self-contained",
+        "true",
+        "-o",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-final5",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "native-preview": {
+        "unparsed_record": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP042\\sol-ultra-20261023-batch2\\native-preview\\command.json",
+        "sha256": "c19cbefb93d1214ec5e3467a641946c6b70c0672ca3b3db4ad46b8edf6e11ef4",
+        "status": "Retained malformed preliminary command record; not executable verification evidence"
+      },
+      "native-preview2": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\bin\\Debug\\net8.0-windows10.0.19041.0\\win-x64\\AttackMap.NativeSpike.exe",
+        "--analyzer-smoke",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\native-preview2",
+        "--engine",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\frozen-engine-final\\dist\\attackmap\\attackmap.exe",
+        "--analyzer-profile",
+        "node-atproto@1.0"
+      ],
+      "node-frozen-after-query": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\query_null_negative",
+        "--analyzer-profile",
+        "node-atproto",
+        "--format",
+        "json",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-query"
+      ],
+      "node-frozen-after-subscription": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\subscription_null",
+        "--analyzer-profile",
+        "node-atproto",
+        "--format",
+        "json",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-subscription"
+      ],
+      "source-scan": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "-m",
+        "attackmap",
+        "analyze",
+        "C:\\tmp\\juice-shop",
+        "--format",
+        "json",
+        "--no-progress",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\source-scan"
+      ]
+    },
+    "adapters": "87 PASS (overlapping)"
+  },
+  "tests_not_executed": [
+    "full repository regression",
+    "manual keyboard/Narrator/high-contrast",
+    "macOS",
+    "new package/SBOM/release validation",
+    "live AI"
+  ],
+  "live_provider_calls": 0,
+  "manual_checks": "Agent visual inspection of five final5 preview renders plus final4 populated scan ledger; identical product sources, differing QA helpers; no human acceptance",
+  "package_id": "No new portable/release package; frozen engine, native-final4 runtime and native-final5 preview bound separately",
+  "run_ids": [
+    "20261023T101700-fef663512248405fa1c0ba1a4b360603",
+    "20261023T101700-8ba742b6762c4f548249c6f12f7b30ec",
+    "1dbfff3d6468484d8a2835a08f205d41"
+  ],
+  "owned_process_ids": [
+    33416,
+    15000,
+    33968,
+    33332,
+    22224,
+    22952,
+    11064,
+    13352,
+    10356,
+    23344,
+    16588,
+    13912,
+    21868,
+    25576,
+    22852,
+    17792,
+    14048,
+    21304,
+    29904,
+    28020,
+    31264,
+    18812,
+    34560,
+    24684,
+    11460,
+    33496,
+    33536,
+    18100,
+    33876,
+    20980,
+    34428,
+    13988,
+    2968,
+    31748,
+    28020,
+    31404
+  ],
+  "evidence": "docs/verification/windows-parity/WP042/sol-ultra-20261023-batch2/README.md",
+  "limitations": [
+    "C27/C38 corpus and dependencies remain open",
+    "Python cross-file mounts/class views remain open",
+    "route identity fusion incomplete",
+    "runtime pin authenticity not verified",
+    "final5 combined post-scan capture failed; usable preview5 and actual-run4 evidence kept separate"
+  ],
+  "next_action": "Reproduce Python mount/Django class-view/re_path gap on effective pinned implementation; qualify a bounded update or local alternative."
+}

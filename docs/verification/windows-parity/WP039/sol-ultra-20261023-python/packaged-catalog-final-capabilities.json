@@ -1,0 +1,2367 @@
+{
+  "schema": 1,
+  "version": "1.5.1",
+  "commands": [
+    "analyze",
+    "bench",
+    "capabilities",
+    "desktop-action",
+    "desktop-worker",
+    "diagnostics",
+    "evaluate",
+    "modules",
+    "rules",
+    "suggest",
+    "ui"
+  ],
+  "analyze": {
+    "options": [
+      "--ai-max-calls",
+      "--ai-output-tokens",
+      "--ai-timeout-seconds",
+      "--allow-pr-suppressions",
+      "--analyzer-profile",
+      "--baseline",
+      "--cve",
+      "--diff-output",
+      "--direct-generation-output",
+      "--fail-on-new-high",
+      "--fail-on-new-suppression",
+      "--fleet-result",
+      "--fleet-workers",
+      "--format",
+      "--hunt",
+      "--hunt-budget",
+      "--hunt-lenses",
+      "--hunt-rounds",
+      "--incremental",
+      "--install-missing",
+      "--isolated-analyzers",
+      "--llm",
+      "--llm-backend",
+      "--llm-effort",
+      "--llm-model",
+      "--llm-provider",
+      "--llm-speed",
+      "--module",
+      "--no-progress",
+      "--no-suppress",
+      "--output",
+      "--pr-comment",
+      "--progress-format",
+      "--recall",
+      "--remediate",
+      "--run-id",
+      "--secrets-history",
+      "--service-alias",
+      "--service-dns-suffix",
+      "--service-port",
+      "--service-protocol",
+      "--strict-analyzers",
+      "--strict-suppressions",
+      "--suppress-file",
+      "--suppress-from-ref",
+      "--time-budget-seconds",
+      "--triage",
+      "--trusted-analyzers-only",
+      "--verify",
+      "--verify-votes",
+      "--via-proxy"
+    ],
+    "multi_repo": true
+  },
+  "progress_protocol": 1,
+  "engine_identity": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\attackmap.exe",
+    "sha256": "6045194b77c0957166a6eb9fece45dbfd9c42441bb9e32cec6d040db6c419b05",
+    "size_bytes": 18535607,
+    "runtime_kind": "Frozen",
+    "modules_sha256": "4f572266ed8ac6734d8f01e440cfd0927725304ced4bff5e5041a743d91ecb0e",
+    "analyzer_catalog_sha256": "e5eaec64526083286b203734a9e9ae1556bc81dc97b96168e01edd45a6e2dbd6",
+    "analyzer_profiles_sha256": "dfff3494f49019e059ce10816f8276deaa3e357caecb360e8378d90434a3bd40"
+  },
+  "modules": [
+    {
+      "name": "python",
+      "display_name": "Python Comprehensive Analyzer",
+      "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+      "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+      "ecosystems": [
+        "python",
+        "django",
+        "starlette",
+        "aiohttp",
+        "sanic",
+        "litestar"
+      ],
+      "enabled_by_default": true,
+      "priority": 10,
+      "experimental": false
+    },
+    {
+      "name": "c",
+      "display_name": "C Analyzer",
+      "description": "C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.",
+      "scope": "C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.",
+      "ecosystems": [
+        "c",
+        "civetweb",
+        "libmicrohttpd",
+        "mongoose"
+      ],
+      "enabled_by_default": false,
+      "priority": 20,
+      "experimental": true
+    },
+    {
+      "name": "cpp",
+      "display_name": "C++ Analyzer",
+      "description": "C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.",
+      "scope": "C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.",
+      "ecosystems": [
+        "cpp",
+        "c++",
+        "crow",
+        "pistache",
+        "drogon",
+        "cpprestsdk"
+      ],
+      "enabled_by_default": false,
+      "priority": 20,
+      "experimental": true
+    },
+    {
+      "name": "dotnet",
+      "display_name": "C# / .NET Analyzer",
+      "description": "ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.",
+      "scope": ".NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.",
+      "ecosystems": [
+        "csharp",
+        "dotnet",
+        "aspnetcore"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "go",
+      "display_name": "Go Analyzer",
+      "description": "Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.",
+      "scope": "Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.",
+      "ecosystems": [
+        "go",
+        "golang",
+        "gin",
+        "chi",
+        "echo",
+        "fiber"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "javascript-web",
+      "display_name": "JavaScript / TypeScript Web Analyzer",
+      "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+      "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "express",
+        "fastify",
+        "koa",
+        "node"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "php-web",
+      "display_name": "PHP Web Analyzer",
+      "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+      "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+      "ecosystems": [
+        "php"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "python-web",
+      "display_name": "Python Web Analyzer",
+      "description": "Built-in analyzer for Python web frameworks and related security signals.",
+      "scope": "Python source files handled by the current scanner-backed web heuristics.",
+      "ecosystems": [
+        "python",
+        "fastapi",
+        "flask"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "rust",
+      "display_name": "Rust Analyzer",
+      "description": "Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.",
+      "scope": "Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.",
+      "ecosystems": [
+        "rust",
+        "axum",
+        "actix-web",
+        "rocket"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "swift",
+      "display_name": "Swift Analyzer",
+      "description": "Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.",
+      "scope": "Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.",
+      "ecosystems": [
+        "swift",
+        "swiftpm",
+        "vapor",
+        "hummingbird"
+      ],
+      "enabled_by_default": false,
+      "priority": 20,
+      "experimental": true
+    },
+    {
+      "name": "terraform",
+      "display_name": "Terraform / HCL Analyzer",
+      "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+      "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+      "ecosystems": [
+        "hcl",
+        "terraform",
+        "iac",
+        "aws",
+        "azure",
+        "gcp"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "node-service",
+      "display_name": "Node Service Analyzer",
+      "description": "Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.",
+      "scope": "Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "node-service",
+        "node",
+        "typescript-service"
+      ],
+      "enabled_by_default": false,
+      "priority": 25,
+      "experimental": true
+    },
+    {
+      "name": "config",
+      "display_name": "Config File Analyzer",
+      "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+      "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+      "ecosystems": [
+        "yaml",
+        "toml",
+        "json",
+        "ini",
+        "env"
+      ],
+      "enabled_by_default": true,
+      "priority": 30,
+      "experimental": false
+    },
+    {
+      "name": "iac",
+      "display_name": "IaC / Deployment-Surface Analyzer",
+      "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+      "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS \u00a72 documented for bluesky-social/pds.",
+      "ecosystems": [
+        "docker",
+        "docker-compose",
+        "github-actions",
+        "env-template",
+        "shell-installer"
+      ],
+      "enabled_by_default": true,
+      "priority": 40,
+      "experimental": false
+    },
+    {
+      "name": "python-service",
+      "display_name": "Python Services Ecosystem Analyzer",
+      "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+      "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+      "ecosystems": [
+        "python",
+        "fastapi",
+        "flask",
+        "django",
+        "celery"
+      ],
+      "enabled_by_default": true,
+      "priority": 50,
+      "experimental": true
+    },
+    {
+      "name": "java-spring",
+      "display_name": "Java/Kotlin Spring Boot Analyzer",
+      "description": "Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.",
+      "scope": "Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.",
+      "ecosystems": [
+        "java",
+        "kotlin",
+        "spring",
+        "spring-boot"
+      ],
+      "enabled_by_default": true,
+      "priority": 60,
+      "experimental": false
+    },
+    {
+      "name": "php-laminas",
+      "display_name": "PHP Laminas (Zend MVC) Analyzer",
+      "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+      "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+      "ecosystems": [
+        "php",
+        "laminas",
+        "zend-mvc"
+      ],
+      "enabled_by_default": true,
+      "priority": 60,
+      "experimental": true
+    },
+    {
+      "name": "atproto",
+      "display_name": "AT Protocol Analyzer",
+      "description": "Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.",
+      "scope": "AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.",
+      "ecosystems": [
+        "typescript",
+        "javascript",
+        "json",
+        "atproto",
+        "bluesky",
+        "xrpc"
+      ],
+      "enabled_by_default": false,
+      "priority": 90,
+      "experimental": true
+    },
+    {
+      "name": "default",
+      "display_name": "Default Analyzer",
+      "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+      "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+      "ecosystems": [],
+      "enabled_by_default": true,
+      "priority": 100,
+      "experimental": false
+    },
+    {
+      "name": "node-atproto",
+      "display_name": "Node / ATProto Overlay Analyzer",
+      "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+      "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "atproto",
+        "xrpc",
+        "node-service"
+      ],
+      "enabled_by_default": true,
+      "priority": 150,
+      "experimental": true
+    },
+    {
+      "name": "omeka-s",
+      "display_name": "Omeka S Analyzer",
+      "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+      "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+      "ecosystems": [
+        "php",
+        "omeka-s"
+      ],
+      "enabled_by_default": true,
+      "priority": 160,
+      "experimental": true
+    }
+  ],
+  "analyzer_catalog": {
+    "schema": 1,
+    "scope": "installed_discovery",
+    "policy": {
+      "registry_precedence": "builtin_first_seen_name",
+      "run_order": [
+        "priority",
+        "name"
+      ],
+      "trusted_only": false
+    },
+    "effective_order": [
+      "python",
+      "c",
+      "cpp",
+      "dotnet",
+      "go",
+      "javascript-web",
+      "php-web",
+      "python-web",
+      "rust",
+      "swift",
+      "terraform",
+      "node-service",
+      "config",
+      "iac",
+      "python-service",
+      "java-spring",
+      "php-laminas",
+      "atproto",
+      "default",
+      "node-atproto",
+      "omeka-s"
+    ],
+    "candidates": [
+      {
+        "candidate_id": "builtin:python-web",
+        "name": "python-web",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonWebAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\analyzers.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "python-web",
+          "display_name": "Python Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for Python web frameworks and related security signals.",
+          "scope": "Python source files handled by the current scanner-backed web heuristics.",
+          "targets": [
+            "fastapi",
+            "flask"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:javascript-web",
+        "name": "javascript-web",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinJavaScriptWebAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\analyzers.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "javascript-web",
+          "display_name": "JavaScript / TypeScript Web Analyzer",
+          "version": "0.2.0",
+          "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+          "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+          "targets": [
+            "express",
+            "fastify",
+            "koa",
+            "node"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:php-web",
+        "name": "php-web",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.ecosystem_php",
+          "qualname": "PhpWebAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\ecosystem_php.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "php-web",
+          "display_name": "PHP Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+          "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+          "targets": [
+            "php"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:config",
+        "name": "config",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinConfigAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\analyzers.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "config",
+          "display_name": "Config File Analyzer",
+          "version": "0.1.0",
+          "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+          "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+          "targets": [
+            "yaml",
+            "toml",
+            "json",
+            "ini",
+            "env"
+          ],
+          "languages": [],
+          "priority": 30,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:php-laminas",
+        "name": "php-laminas",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.ecosystem_php",
+          "qualname": "PhpLaminasAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\ecosystem_php.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "php-laminas",
+          "display_name": "PHP Laminas (Zend MVC) Analyzer",
+          "version": "0.1.0",
+          "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+          "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+          "targets": [
+            "laminas",
+            "zend-mvc"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 60,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:omeka-s",
+        "name": "omeka-s",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.ecosystem_php",
+          "qualname": "OmekaSAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\ecosystem_php.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "omeka-s",
+          "display_name": "Omeka S Analyzer",
+          "version": "0.1.0",
+          "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+          "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+          "targets": [
+            "omeka-s"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 160,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:node-atproto",
+        "name": "node-atproto",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinNodeAtprotoAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\analyzers.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "node-atproto",
+          "display_name": "Node / ATProto Overlay Analyzer",
+          "version": "0.1.0",
+          "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+          "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+          "targets": [
+            "atproto",
+            "xrpc",
+            "node-service"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 150,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:python-service",
+        "name": "python-service",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonServiceAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\analyzers.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "python-service",
+          "display_name": "Python Services Ecosystem Analyzer",
+          "version": "0.1.0",
+          "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+          "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+          "targets": [
+            "fastapi",
+            "flask",
+            "django",
+            "celery"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 50,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:default",
+        "name": "default",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "DefaultAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap\\analyzers.py",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "metadata": {
+          "name": "default",
+          "display_name": "Default Analyzer",
+          "version": "0.1.0",
+          "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+          "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+          "targets": [],
+          "languages": [],
+          "priority": 100,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:9:attackmap-analyzer-atproto:atproto",
+        "name": "atproto",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-atproto",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "atproto",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_atproto:AtprotoAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_atproto.analyzer",
+          "qualname": "AtprotoAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_atproto\\analyzer.py",
+          "source_sha256": "8a49d7172201fc2c77bd9b7dbb21ce5ae788dc65e98e349e18013253ce0608c1",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "atproto",
+          "display_name": "AT Protocol Analyzer",
+          "version": "0.1.0",
+          "description": "Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.",
+          "scope": "AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.",
+          "targets": [
+            "atproto",
+            "bluesky",
+            "xrpc"
+          ],
+          "languages": [
+            "typescript",
+            "javascript",
+            "json"
+          ],
+          "priority": 90,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-atproto",
+            "package": "attackmap-analyzer-atproto",
+            "version": "0.1.0",
+            "git_sha": "d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+            "entry_points": [
+              "atproto"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_atproto-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "bdb2dd5e0d167b6e6cb3c106196a94999fe45b2b40deeb111592d93cae7c2482"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:10:attackmap-analyzer-c:c",
+        "name": "c",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-c",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "c",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_c:CAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_c.analyzer",
+          "qualname": "CAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_c\\analyzer.py",
+          "source_sha256": "8ec0fb9ce66af7a94393c2a85eadc5fc4066e257b0b5f9a3ebe9f12dad57d4d3",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "c",
+          "display_name": "C Analyzer",
+          "version": "0.1.0",
+          "description": "C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.",
+          "scope": "C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.",
+          "targets": [
+            "c",
+            "civetweb",
+            "libmicrohttpd",
+            "mongoose"
+          ],
+          "languages": [
+            "c"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-c",
+            "package": "attackmap-analyzer-c",
+            "version": "0.1.0",
+            "git_sha": "1c2789ef62e57b713789f483b9409a5c64644795",
+            "entry_points": [
+              "c"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_c-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "5cfdf5ab1d4dd105d2785df36f40ae2f067771f49571659250cb2d70f81403c6"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:11:attackmap-analyzer-cpp:cpp",
+        "name": "cpp",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-cpp",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "cpp",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_cpp:CppAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_cpp.analyzer",
+          "qualname": "CppAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_cpp\\analyzer.py",
+          "source_sha256": "1de4d164871195575c258cba58da254073f2a89736c9b59266d04a7c48551e26",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "cpp",
+          "display_name": "C++ Analyzer",
+          "version": "0.1.0",
+          "description": "C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.",
+          "scope": "C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.",
+          "targets": [
+            "cpp",
+            "c++",
+            "crow",
+            "pistache",
+            "drogon",
+            "cpprestsdk"
+          ],
+          "languages": [
+            "cpp"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-cpp",
+            "package": "attackmap-analyzer-cpp",
+            "version": "0.1.0",
+            "git_sha": "61fa5325696620665bf9ceab10ec7bed378888ec",
+            "entry_points": [
+              "cpp"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_cpp-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "e63846e9676d53a6bf1d19314df226e87a40ae56272acdc52b4db752d4cbd385"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:12:attackmap-analyzer-dotnet:dotnet",
+        "name": "dotnet",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-dotnet",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "dotnet",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_dotnet:DotnetAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_dotnet.analyzer",
+          "qualname": "DotnetAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_dotnet\\analyzer.py",
+          "source_sha256": "af6637a08af0a5d4b0b2607bd14c1f0532e80250e2c3f4a739f7e945cc29119b",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "dotnet",
+          "display_name": "C# / .NET Analyzer",
+          "version": "0.1.0",
+          "description": "ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.",
+          "scope": ".NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.",
+          "targets": [
+            "dotnet",
+            "csharp",
+            "aspnetcore"
+          ],
+          "languages": [
+            "csharp"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-dotnet",
+            "package": "attackmap-analyzer-dotnet",
+            "version": "0.1.0",
+            "git_sha": "a1f00d05bc915940ed684f438c678e696f3de53d",
+            "entry_points": [
+              "dotnet"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_dotnet-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "c16d47f90fefd30caf4e50c57c0311be1fdd46789c9f968b5e19c596c3eb3173"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:13:attackmap-analyzer-go:go",
+        "name": "go",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-go",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "go",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_go:GoAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_go.analyzer",
+          "qualname": "GoAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_go\\analyzer.py",
+          "source_sha256": "7812200dbf617fc1f0e44b1eee3b94d4bab11960df968de6fe24b8faa5577326",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "go",
+          "display_name": "Go Analyzer",
+          "version": "0.1.0",
+          "description": "Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.",
+          "scope": "Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.",
+          "targets": [
+            "go",
+            "golang",
+            "gin",
+            "chi",
+            "echo",
+            "fiber"
+          ],
+          "languages": [
+            "go"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-go",
+            "package": "attackmap-analyzer-go",
+            "version": "0.1.0",
+            "git_sha": "e92fc3de5c34485c4ea06032052ad0f6c21fd133",
+            "entry_points": [
+              "go"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_go-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "c092cef4c869bd8ec6d745ae397198131117797cd5458e134c96e7b04016c6fe"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:14:attackmap-analyzer-iac:iac",
+        "name": "iac",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-iac",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "iac",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_iac:IacAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_iac.analyzer",
+          "qualname": "IacAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_iac\\analyzer.py",
+          "source_sha256": "c1836a276cdfaa87074176b636d61748fc3a4678b3b45719f88482e2030823dc",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "iac",
+          "display_name": "IaC / Deployment-Surface Analyzer",
+          "version": "0.1.0",
+          "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+          "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS \u00a72 documented for bluesky-social/pds.",
+          "targets": [
+            "docker",
+            "docker-compose",
+            "github-actions",
+            "env-template",
+            "shell-installer"
+          ],
+          "languages": [],
+          "priority": 40,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-iac",
+            "package": "attackmap-analyzer-iac",
+            "version": "0.1.0",
+            "git_sha": "002efc484fc26ead1243aa34b610ccb2230147b0",
+            "entry_points": [
+              "iac"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_iac-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "90f18225880cbf9cc79d44f16bf2e5f74c4882a8adc10e3c17fd36b2549313ef"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:15:attackmap-analyzer-java-spring:java_spring",
+        "name": "java-spring",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-java-spring",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "java_spring",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_java_spring:JavaSpringAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_java_spring.analyzer",
+          "qualname": "JavaSpringAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_java_spring\\analyzer.py",
+          "source_sha256": "56dfeb89c174eb0e1b056094029999d2b83d8507bfe9ae42a779e7c47f876d18",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "java-spring",
+          "display_name": "Java/Kotlin Spring Boot Analyzer",
+          "version": "0.1.0",
+          "description": "Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.",
+          "scope": "Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.",
+          "targets": [
+            "java",
+            "kotlin",
+            "spring",
+            "spring-boot"
+          ],
+          "languages": [
+            "java",
+            "kotlin"
+          ],
+          "priority": 60,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-java-spring",
+            "package": "attackmap-analyzer-java-spring",
+            "version": "0.1.0",
+            "git_sha": "98dec01669ca90216cea4559495ee310224fd8f3",
+            "entry_points": [
+              "java_spring"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_java_spring-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "087bc02dbe7418377fc90829b071ad8649f448145a1392d04f8add27940f2d5a"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:16:attackmap-analyzer-node-service:node_service",
+        "name": "node-service",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-node-service",
+          "version": "0.2.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "node_service",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_node_service:NodeServiceAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_node_service.analyzer",
+          "qualname": "NodeServiceAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_node_service\\analyzer.py",
+          "source_sha256": "1b193f1a5086843019cab1f318b8872e476e265ba44105545d0a3001008dce26",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "node-service",
+          "display_name": "Node Service Analyzer",
+          "version": "0.2.0",
+          "description": "Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.",
+          "scope": "Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.",
+          "targets": [
+            "node-service",
+            "node",
+            "typescript-service"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 25,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-node-service",
+            "package": "attackmap-analyzer-node-service",
+            "version": "0.2.0",
+            "git_sha": "8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+            "entry_points": [
+              "node_service"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_node_service-0.2.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "1025b8c7dafe2402967aa820bd9fa3fb23b47a66c33dbaa8f43e0f100d74527f"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:17:attackmap-analyzer-omeka-s:omeka_s",
+        "name": "omeka-s",
+        "origin": "plugin",
+        "status": "shadowed",
+        "package": {
+          "name": "attackmap-analyzer-omeka-s",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "omeka_s",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_omeka_s:OmekaSAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_omeka_s.analyzer",
+          "qualname": "OmekaSAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_omeka_s\\analyzer.py",
+          "source_sha256": "78c132a26207ccfc6893e1f48157ea9812ecff17350b8c7037d48b038d90f783",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "omeka-s",
+          "display_name": "Omeka S Analyzer",
+          "version": "0.1.0",
+          "description": "Application-aware Omeka S analyzer for Laminas module config, services, and extension surfaces.",
+          "scope": "Omeka S and Omeka-style Laminas MVC projects with module config-driven routes and services.",
+          "targets": [
+            "omeka-s",
+            "php-laminas",
+            "php-web"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 160,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attack-map-analyzer-omeka-s",
+            "package": "attackmap-analyzer-omeka-s",
+            "version": "0.1.0",
+            "git_sha": "6b9e478689a825dbcba655de4ff0bf63a3a3c544",
+            "entry_points": [
+              "omeka_s"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_omeka_s-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "a127ed5fcd9448f28f8f416e39405506517981016c96971ef3c6a453cff6cc76"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": "builtin:omeka-s",
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:18:attackmap-analyzer-php-laminas:php_laminas",
+        "name": "php-laminas",
+        "origin": "plugin",
+        "status": "shadowed",
+        "package": {
+          "name": "attackmap-analyzer-php-laminas",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "php_laminas",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_php_laminas:PhpLaminasAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_php_laminas.analyzer",
+          "qualname": "PhpLaminasAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_php_laminas\\analyzer.py",
+          "source_sha256": "19c5ef841cf9f1eaa328d20675dc25efdac6c7a129be0ad3255cca5928ce66e5",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "php-laminas",
+          "display_name": "PHP Laminas Analyzer",
+          "version": "0.1.0",
+          "description": "Framework-aware Laminas analyzer for route, controller, and service mapping hints.",
+          "scope": "Laminas and Zend Framework MVC projects using module and application config arrays.",
+          "targets": [
+            "php-laminas",
+            "laminas",
+            "zendframework"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 70,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-php-laminas",
+            "package": "attackmap-analyzer-php-laminas",
+            "version": "0.1.0",
+            "git_sha": "7eac668b6f64a1d3fc3fa731317cb253a98915ce",
+            "entry_points": [
+              "php_laminas"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_php_laminas-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "a215cb83b4cf0dd403638dd54b3b6ed5bbdb2c96326ee615818f11d7e368a91b"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": "builtin:php-laminas",
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:19:attackmap-analyzer-php-web:php_web",
+        "name": "php-web",
+        "origin": "plugin",
+        "status": "shadowed",
+        "package": {
+          "name": "attackmap-analyzer-php-web",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "php_web",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_php_web:PhpWebAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_php_web.analyzer",
+          "qualname": "PhpWebAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_php_web\\analyzer.py",
+          "source_sha256": "c921cc49d0652c0fa8defd47e275f7d264f12a12fcb6347638bffbbcb658fa4a",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "php-web",
+          "display_name": "PHP Web Analyzer",
+          "version": "0.1.0",
+          "description": "Broad PHP web analyzer that emits structured security-relevant scan signals.",
+          "scope": "Generic PHP web projects using route declarations, web controllers, and common HTTP/database/auth patterns.",
+          "targets": [
+            "php-web"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 40,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-php-web",
+            "package": "attackmap-analyzer-php-web",
+            "version": "0.1.0",
+            "git_sha": "69143bd994ec9111cffc2f78d4020bad611e68c7",
+            "entry_points": [
+              "php_web"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_php_web-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "9692af3efe83a0486df10f772a7b56e7356c276c8131dd6179bb52b9a9bab5c0"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": "builtin:php-web",
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:20:attackmap-analyzer-python:python",
+        "name": "python",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-python",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "python",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_python:PythonAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_python.analyzer",
+          "qualname": "PythonAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_python\\analyzer.py",
+          "source_sha256": "6f66ded3d25f21d24d2414e02084d60c8da6a8f2ede24adaf5bd75ee931a31ea",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "python",
+          "display_name": "Python Comprehensive Analyzer",
+          "version": "0.1.0",
+          "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+          "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+          "targets": [
+            "python",
+            "django",
+            "starlette",
+            "aiohttp",
+            "sanic",
+            "litestar"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 10,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-python",
+            "package": "attackmap-analyzer-python",
+            "version": "0.1.0",
+            "git_sha": "1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+            "entry_points": [
+              "python"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_python-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "89723ca15a0c42b4818242bc5c9541a9611de623c7939dd78fc240605a7c6320"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:21:attackmap-analyzer-rust:rust",
+        "name": "rust",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-rust",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "rust",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_rust:RustAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_rust.analyzer",
+          "qualname": "RustAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_rust\\analyzer.py",
+          "source_sha256": "0951147c05957efca77e28ad3d15d61e7600c7e2b776f1fc9c71011265ee732c",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "rust",
+          "display_name": "Rust Analyzer",
+          "version": "0.1.0",
+          "description": "Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.",
+          "scope": "Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.",
+          "targets": [
+            "rust",
+            "axum",
+            "actix-web",
+            "rocket"
+          ],
+          "languages": [
+            "rust"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-rust",
+            "package": "attackmap-analyzer-rust",
+            "version": "0.1.0",
+            "git_sha": "c2e02d2855e6102153140f2644504b1cc0a95fb8",
+            "entry_points": [
+              "rust"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_rust-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "155ead7e654f477c2fbbaee6bc560ac26e93520c7c6067324b244f8070aa41a3"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:22:attackmap-analyzer-swift:swift",
+        "name": "swift",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-swift",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "swift",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_swift:SwiftAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_swift.analyzer",
+          "qualname": "SwiftAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_swift\\analyzer.py",
+          "source_sha256": "fea38c2085c775bc647764b2b9edd34e34080ed0a352227d22d487d9b1475344",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "swift",
+          "display_name": "Swift Analyzer",
+          "version": "0.1.0",
+          "description": "Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.",
+          "scope": "Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.",
+          "targets": [
+            "swift",
+            "swiftpm",
+            "vapor",
+            "hummingbird"
+          ],
+          "languages": [
+            "swift"
+          ],
+          "priority": 20,
+          "experimental": true,
+          "enabled_by_default": false
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-swift",
+            "package": "attackmap-analyzer-swift",
+            "version": "0.1.0",
+            "git_sha": "bae13e58a49f46c15992197517cf9c036a75d83c",
+            "entry_points": [
+              "swift"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_swift-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "051b76d659b0ab12da43983c8e7fc66eeed3fb1f1e528314970d43995db23549"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "entry-point:23:attackmap-analyzer-terraform:terraform",
+        "name": "terraform",
+        "origin": "plugin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap-analyzer-terraform",
+          "version": "0.1.0"
+        },
+        "official_package": true,
+        "entry_point": {
+          "name": "terraform",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_terraform:TerraformAnalyzer"
+        },
+        "implementation": {
+          "module": "attackmap_analyzer_terraform.analyzer",
+          "qualname": "TerraformAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988\\app\\engine\\_internal\\attackmap_analyzer_terraform\\analyzer.py",
+          "source_sha256": "fd03ddb264c4991b6210cb170fbb98ded58898bc69959ff22a5713e6f4c0dedd",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "terraform",
+          "display_name": "Terraform / HCL Analyzer",
+          "version": "0.1.0",
+          "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+          "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+          "targets": [
+            "terraform",
+            "iac",
+            "hcl",
+            "aws",
+            "azure",
+            "gcp"
+          ],
+          "languages": [
+            "hcl"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-terraform",
+            "package": "attackmap-analyzer-terraform",
+            "version": "0.1.0",
+            "git_sha": "736f2c22051ffca537785edebf941a2d5ddb2487",
+            "entry_points": [
+              "terraform"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url",
+            "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_terraform-0.1.0-py3-none-any.whl",
+            "archive_hashes": {
+              "sha256": "f405fd126eae7f59ee63897dea2ec25c7ad85fc012cb22734920729a09573246"
+            }
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      }
+    ],
+    "discovery_errors": [],
+    "undiscovered_official_packages": []
+  },
+  "analyzer_profiles": {
+    "schema_version": "1.0",
+    "profiles": [
+      {
+        "name": "automatic",
+        "display_name": "Automatic",
+        "version": "1.0",
+        "qualified_name": "automatic@1.0",
+        "description": "Use installed default-enabled analyzers, each subject to runtime detection.",
+        "selection_mode": "automatic",
+        "module_names": [],
+        "experimental_module_names": [],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "python",
+          "dotnet",
+          "go",
+          "javascript-web",
+          "php-web",
+          "python-web",
+          "rust",
+          "terraform",
+          "config",
+          "iac",
+          "python-service",
+          "java-spring",
+          "php-laminas",
+          "default",
+          "node-atproto",
+          "omeka-s"
+        ],
+        "installed_experimental_module_names": [
+          "python-service",
+          "php-laminas",
+          "node-atproto",
+          "omeka-s"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "node-atproto",
+        "display_name": "Node / ATProto",
+        "version": "1.0",
+        "qualified_name": "node-atproto@1.0",
+        "description": "JavaScript base, config, fallback, Node service and ATProto layers; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "javascript-web",
+          "node-service",
+          "config",
+          "atproto",
+          "default",
+          "node-atproto"
+        ],
+        "experimental_module_names": [
+          "node-service",
+          "atproto",
+          "node-atproto"
+        ],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "javascript-web",
+          "node-service",
+          "config",
+          "atproto",
+          "default",
+          "node-atproto"
+        ],
+        "installed_experimental_module_names": [
+          "node-service",
+          "atproto",
+          "node-atproto"
+        ],
+        "opt_in_module_names": [
+          "node-service",
+          "atproto"
+        ]
+      },
+      {
+        "name": "php-laminas-omeka",
+        "display_name": "PHP / Laminas / Omeka S",
+        "version": "1.0",
+        "qualified_name": "php-laminas-omeka@1.0",
+        "description": "PHP base, config, fallback, Laminas and Omeka S layers; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "php-web",
+          "config",
+          "php-laminas",
+          "default",
+          "omeka-s"
+        ],
+        "experimental_module_names": [
+          "php-laminas",
+          "omeka-s"
+        ],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "php-web",
+          "config",
+          "php-laminas",
+          "default",
+          "omeka-s"
+        ],
+        "installed_experimental_module_names": [
+          "php-laminas",
+          "omeka-s"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "python",
+        "display_name": "Python",
+        "version": "1.0",
+        "qualified_name": "python@1.0",
+        "description": "Python plugin, web base, config, fallback and service overlay; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "python",
+          "python-web",
+          "config",
+          "python-service",
+          "default"
+        ],
+        "experimental_module_names": [
+          "python-service"
+        ],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "python",
+          "python-web",
+          "config",
+          "python-service",
+          "default"
+        ],
+        "installed_experimental_module_names": [
+          "python-service"
+        ],
+        "opt_in_module_names": []
+      }
+    ]
+  },
+  "desktop": {
+    "schema_versions": [
+      "1.0",
+      "1.1",
+      "1.2",
+      "1.3",
+      "1.4",
+      "1.5"
+    ],
+    "actions_schema_versions": [
+      "1.1"
+    ],
+    "operations": [
+      "capabilities",
+      "preflight"
+    ],
+    "scan_options": [
+      "baseline",
+      "cve",
+      "fail_on_new_high",
+      "fail_on_new_suppression",
+      "isolated_analyzers",
+      "no_suppress",
+      "provider",
+      "recall",
+      "secrets_history",
+      "strict_analyzers",
+      "strict_suppressions",
+      "suppress_file",
+      "time_budget_seconds",
+      "timeout_seconds"
+    ],
+    "scan_options_by_schema": {
+      "1.0": [
+        "cve",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "timeout_seconds"
+      ],
+      "1.1": [
+        "cve",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "timeout_seconds"
+      ],
+      "1.2": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.3": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.4": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.5": [
+        "analyzer_profile",
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ]
+    },
+    "scan_option_metadata": {
+      "baseline": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "absolute_file_path"
+      },
+      "suppress_file": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "absolute_file_path"
+      },
+      "fail_on_new_high": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "fail_on_new_suppression": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "strict_suppressions": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "isolated_analyzers": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "time_budget_seconds": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "seconds",
+        "scope": "deterministic_between_stages"
+      }
+    },
+    "provider_options": [
+      "backend",
+      "effort",
+      "enable_ai",
+      "endpoint",
+      "jury_votes",
+      "max_calls",
+      "mode",
+      "model",
+      "output_token_limit",
+      "provider",
+      "speed",
+      "timeout_seconds"
+    ],
+    "provider_options_by_schema": {
+      "1.0": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.1": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.2": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.3": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ],
+      "1.4": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ],
+      "1.5": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ]
+    },
+    "modes": [
+      "none",
+      "review",
+      "hunt",
+      "hunt_verify",
+      "remediate",
+      "triage"
+    ],
+    "modes_by_schema": {
+      "1.0": [
+        "none",
+        "review"
+      ],
+      "1.1": [
+        "none",
+        "review"
+      ],
+      "1.2": [
+        "none",
+        "review"
+      ],
+      "1.3": [
+        "none",
+        "review",
+        "hunt",
+        "hunt_verify",
+        "remediate",
+        "triage"
+      ],
+      "1.4": [
+        "none",
+        "review"
+      ],
+      "1.5": [
+        "none",
+        "review",
+        "hunt",
+        "hunt_verify",
+        "remediate",
+        "triage"
+      ]
+    },
+    "provider_tuning": {
+      "minimum_schema": "1.3",
+      "backends": [
+        "api"
+      ],
+      "jury_votes": {
+        "minimum": 1,
+        "maximum": 7,
+        "mode": "hunt_verify",
+        "default": 3
+      },
+      "effort": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "openai_effort_mapping": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "high",
+        "max": "high"
+      },
+      "speed": [
+        "standard",
+        "fast"
+      ],
+      "fast_speed": {
+        "provider": "claude",
+        "backend": "api",
+        "models": [
+          "claude-opus-4-7",
+          "claude-opus-4-8"
+        ]
+      }
+    },
+    "providers": [
+      "openai",
+      "claude"
+    ],
+    "provider_backend": "api",
+    "multi_repo": false,
+    "fleet_by_schema": {
+      "1.4": {
+        "kind": "fleet_request",
+        "multi_repo": true,
+        "minimum_repositories": 2,
+        "maximum_repositories": 16,
+        "maximum_workers": 4,
+        "modes": [
+          "none"
+        ],
+        "request_fields": [
+          "repositories",
+          "max_workers"
+        ],
+        "events": [
+          "fleet_child",
+          "fleet_terminal"
+        ],
+        "unsupported": [
+          "AI",
+          "baseline",
+          "baseline_policies",
+          "suppress_file",
+          "secrets_history"
+        ]
+      }
+    },
+    "limitations": [
+      "Installed analyzers are not a repository applicability result.",
+      "No provider connectivity or model response is tested by discovery.",
+      "Fleet AI is unsupported. Strict output caps prevent CLI backend execution.",
+      "Discovery proves option mapping, not provider/model availability or completed responses.",
+      "Identity supports cache invalidation, not publisher authentication."
+    ]
+  }
+}

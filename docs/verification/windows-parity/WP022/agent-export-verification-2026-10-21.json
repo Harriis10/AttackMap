@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "captured_utc": "2026-10-21T00:13:20.7828695Z",
+  "kind": "agent_tool_transcript_verification",
+  "source_hashes_capture_time_only": true,
+  "files": [
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ExportSelection.cs",
+      "sha256": "e567e9456d26a3febc474111aa415c6d2be7330725a00d1159b86b8c2ddad479",
+      "size_bytes": 9425
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ReviewExport.cs",
+      "sha256": "7902238dce10eac231ffdf410f7125f905175187db2c9df98d23c446da4ecc56",
+      "size_bytes": 13317
+    },
+    {
+      "path": "desktop/windows/SelectedExportPrep.Tests/Program.cs",
+      "sha256": "7fe8ecb9c919bb8b9d09c5d7fb07dad072f9c1eb7933994b3b9df84da07ae20e",
+      "size_bytes": 12872
+    },
+    {
+      "path": "desktop/windows/SelectedExportPrep.Tests/SelectedExportPrep.Tests.csproj",
+      "sha256": "fd9e04d992e5b1d7d68c4a38c1ac586cb9da85411e894340719ac6725962e4c9",
+      "size_bytes": 828
+    }
+  ],
+  "runs": [
+    {
+      "Session": 69275,
+      "Result": "PASS 56 bounded WP022 selected-export/SARIF checks; no actual export/PDF/shell acceptance",
+      "Command": ".tools/dotnet/dotnet.exe run --project desktop/windows/SelectedExportPrep.Tests --no-restore -p:NuGetAudit=false",
+      "ExitCode": 0
+    }
+  ],
+  "environment": {
+    "DOTNET_CLI_HOME": ".tools/dotnet-home",
+    "NUGET_PACKAGES": ".tools/nuget-packages",
+    "DOTNET_ROOT": ".tools/dotnet",
+    "dotnet_sdk": "8.0.426"
+  },
+  "limitations": "Includes actual isolated Windows directory junction rejection, all-format alias guard checks, guarded HTML positive write and PDF rejection before nonexistent renderer launch. No browser/GUI/provider launched; successful PDF rendering untested. Source remains frozen from these checks.",
+  "raw_log_status": "Exact stdout summaries recorded from completed tool sessions; full raw stdout was not persisted during execution."
+}

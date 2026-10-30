@@ -1,0 +1,53 @@
+[
+  {
+    "case": "delete-middleware",
+    "routes": [
+      {
+        "path": "/public/",
+        "method": "ANY",
+        "file": "project/urls.py",
+        "line": 3,
+        "auth": "required",
+        "guards": [
+          "LoginRequiredMiddleware (settings MIDDLEWARE)"
+        ],
+        "guard_evidence": "ordered Django authentication/login middleware for this URLconf tree: project/settings.py:2"
+      }
+    ],
+    "limitations": []
+  },
+  {
+    "case": "delete-root",
+    "routes": [
+      {
+        "path": "/public/",
+        "method": "ANY",
+        "file": "project/urls.py",
+        "line": 3,
+        "auth": "required",
+        "guards": [
+          "LoginRequiredMiddleware (settings MIDDLEWARE)"
+        ],
+        "guard_evidence": "ordered Django authentication/login middleware for this URLconf tree: project/settings.py:2"
+      }
+    ],
+    "limitations": []
+  },
+  {
+    "case": "mutate-middleware",
+    "routes": [
+      {
+        "path": "/public/",
+        "method": "ANY",
+        "file": "project/urls.py",
+        "line": 3,
+        "auth": "unknown",
+        "guards": [],
+        "guard_evidence": null
+      }
+    ],
+    "limitations": [
+      "ecosystem_python: project/settings.py: referenced or mutated MIDDLEWARE; no settings auth inference"
+    ]
+  }
+]

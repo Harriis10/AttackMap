@@ -10,6 +10,7 @@ import json
 import ntpath
 import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
+import stat
 import sys
 import threading
 from typing import Literal, TextIO
@@ -187,10 +188,55 @@ def collect_children(request: FleetRunRequest, folder: Path, *, failed: set[str]
     return rows
 
 
+_MAX_FLEET_SUMMARY_BYTES = 64 * 1024 * 1024
+
+
+def _fleet_summary_reference(folder: Path) -> dict[str, str] | None:
+    """Bind available diagnostic bytes, never establish successful publication."""
+    from .artifact_publisher import _safe
+    target = _safe(folder / "fleet-summary.json")
+    try:
+        before = target.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(before.st_mode) or before.st_size > _MAX_FLEET_SUMMARY_BYTES:
+        raise ValueError("Fleet summary is not a bounded regular file")
+
+    def fingerprint(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_size, info.st_mtime_ns,
+                getattr(info, "st_file_attributes", 0), getattr(info, "st_reparse_tag", 0))
+
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    with os.fdopen(os.open(target, flags), "rb") as handle:
+        opened = os.fstat(handle.fileno())
+        if fingerprint(opened) != fingerprint(before):
+            raise ValueError("Fleet summary changed before reading")
+        raw = handle.read(_MAX_FLEET_SUMMARY_BYTES + 1)
+        after = os.fstat(handle.fileno())
+    _safe(target)
+    current = target.lstat()
+    if (len(raw) > _MAX_FLEET_SUMMARY_BYTES or len(raw) != before.st_size
+            or fingerprint(before) != fingerprint(after)
+            or fingerprint(after) != fingerprint(current)
+            # Windows lstat/fstat may expose different ctime semantics; compare like APIs.
+            or before.st_ctime_ns != current.st_ctime_ns
+            or opened.st_ctime_ns != after.st_ctime_ns):
+        raise ValueError("Fleet summary changed while reading")
+    return {"path": "fleet-summary.json", "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def _index_payload(request: FleetRunRequest, folder: Path, children: list[FleetChildEvent]) -> dict:
+    payload = {**_identity(request), "kind": "fleet_index", "children": [row.model_dump(mode="json") for row in children]}
+    summary = _fleet_summary_reference(folder)
+    if summary is not None:
+        payload["fleet_summary"] = summary
+    return payload
+
+
 def write_index(request: FleetRunRequest, folder: Path, children: list[FleetChildEvent]) -> Path:
     from .safe_fs import safe_write_text
     target = folder / "desktop-fleet.json"
-    payload = {**_identity(request), "kind": "fleet_index", "children": [row.model_dump(mode="json") for row in children]}
+    payload = _index_payload(request, folder, children)
     safe_write_text(folder, target, json.dumps(payload, ensure_ascii=True, indent=2) + "\n")
     return target
 
@@ -329,8 +375,7 @@ def serve(request: FleetRunRequest, *, control: TextIO, events: TextIO) -> int:
             all_complete = all(row.state == "completed" for row in children)
             if code == 0 and all_complete and not cancelled.is_set():
                 index_payload = json.loads((folder / "desktop-fleet.json").read_text(encoding="utf-8"))
-                expected_index = {**_identity(request), "kind": "fleet_index",
-                                  "children": [row.model_dump(mode="json") for row in children]}
+                expected_index = _index_payload(request, folder, children)
                 if index_payload != expected_index:
                     raise ValueError("Fleet index identity mismatch")
                 validate_generation(folder)

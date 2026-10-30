@@ -1,0 +1,205 @@
+{
+  "scope": "Inert static extraction; no FastAPI/PyJWT imports or execution.",
+  "sources": {
+    "src\\attackmap\\python_route_binding.py": "ee8e873b3b2087ed54cc00102f76dc2fa9962490ca799e2b6e50e4777aa3bd34",
+    "src\\attackmap\\ecosystem_python.py": "cdca2a0981cd4e68fcc069e9c4121eb221a2acd40c4007ce2516a7fc849f849c"
+  },
+  "results": [
+    {
+      "case": "blocking-control",
+      "fixture_sha256": "7d7fea96577bcba02620f9db960e29825b4e8eeb4e17e13b675ed7cc841d7af9",
+      "guards": [
+        {
+          "name": "guard",
+          "blocking_guard": true
+        },
+        {
+          "name": "public",
+          "blocking_guard": false
+        }
+      ],
+      "mounts": [
+        {
+          "supported": true,
+          "dependencies": [
+            "guard"
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/public",
+          "method": "GET",
+          "file": "main.py",
+          "line": 8,
+          "auth": "required",
+          "guards": [
+            "include_router dependencies (main.py:11)"
+          ],
+          "guard_evidence": "bound router auth dependencies at include site main.py:11"
+        }
+      ],
+      "limitations": []
+    },
+    {
+      "case": "constant-credential",
+      "fixture_sha256": "bb6213934ebd9a4eefc433e4765f09e89b641ebcc4ab342b51a1b1b535b3404a",
+      "guards": [
+        {
+          "name": "guard",
+          "blocking_guard": true
+        },
+        {
+          "name": "public",
+          "blocking_guard": false
+        }
+      ],
+      "mounts": [
+        {
+          "supported": true,
+          "dependencies": [
+            "guard"
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/public",
+          "method": "GET",
+          "file": "main.py",
+          "line": 9,
+          "auth": "required",
+          "guards": [
+            "include_router dependencies (main.py:12)"
+          ],
+          "guard_evidence": "bound router auth dependencies at include site main.py:12"
+        }
+      ],
+      "limitations": []
+    },
+    {
+      "case": "jwt-signature-disabled",
+      "fixture_sha256": "f959c8207c85f96f4285e903f83be63264ae4897bd0ed0d54d305176512eb049",
+      "guards": [
+        {
+          "name": "guard",
+          "blocking_guard": true
+        },
+        {
+          "name": "public",
+          "blocking_guard": false
+        }
+      ],
+      "mounts": [
+        {
+          "supported": true,
+          "dependencies": [
+            "guard"
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/public",
+          "method": "GET",
+          "file": "main.py",
+          "line": 10,
+          "auth": "required",
+          "guards": [
+            "include_router dependencies (main.py:13)"
+          ],
+          "guard_evidence": "bound router auth dependencies at include site main.py:13"
+        }
+      ],
+      "limitations": []
+    },
+    {
+      "case": "constructor-default-rebinding",
+      "fixture_sha256": "c908f1b018efbaf32336ab681afc8b9e988e6e168b6ec3c1598849b427a966e3",
+      "guards": [
+        {
+          "name": "FakeRouter",
+          "blocking_guard": false
+        },
+        {
+          "name": "unrelated",
+          "blocking_guard": false
+        },
+        {
+          "name": "guard",
+          "blocking_guard": true
+        },
+        {
+          "name": "public",
+          "blocking_guard": false
+        }
+      ],
+      "mounts": [
+        {
+          "supported": true,
+          "dependencies": [
+            "guard"
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/public",
+          "method": "GET",
+          "file": "main.py",
+          "line": 10,
+          "auth": "required",
+          "guards": [
+            "include_router dependencies (main.py:13)"
+          ],
+          "guard_evidence": "bound router auth dependencies at include site main.py:13"
+        }
+      ],
+      "limitations": []
+    },
+    {
+      "case": "exception-default-rebinding",
+      "fixture_sha256": "85c7d3d52b2a56d1d299282bca38f293ff12ad6a3e7da7c87de77dc96d5750d7",
+      "guards": [
+        {
+          "name": "fake_exception",
+          "blocking_guard": false
+        },
+        {
+          "name": "unrelated",
+          "blocking_guard": false
+        },
+        {
+          "name": "guard",
+          "blocking_guard": true
+        },
+        {
+          "name": "public",
+          "blocking_guard": false
+        }
+      ],
+      "mounts": [
+        {
+          "supported": true,
+          "dependencies": [
+            "guard"
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/public",
+          "method": "GET",
+          "file": "main.py",
+          "line": 10,
+          "auth": "required",
+          "guards": [
+            "include_router dependencies (main.py:13)"
+          ],
+          "guard_evidence": "bound router auth dependencies at include site main.py:13"
+        }
+      ],
+      "limitations": []
+    }
+  ]
+}

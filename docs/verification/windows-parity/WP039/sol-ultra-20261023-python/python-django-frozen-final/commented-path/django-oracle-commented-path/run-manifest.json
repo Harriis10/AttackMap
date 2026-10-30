@@ -1,0 +1,562 @@
+{
+  "engine_version": "1.5.1",
+  "diagnostic_context": {
+    "context_version": "1.0",
+    "outcome": "completed",
+    "policy_outcome": "passed",
+    "stages": [
+      {
+        "stage_id": "request_validation",
+        "outcome": "completed",
+        "duration_milliseconds": 0
+      },
+      {
+        "stage_id": "select_analyzers",
+        "outcome": "completed",
+        "duration_milliseconds": 238
+      },
+      {
+        "stage_id": "scan_and_merge",
+        "outcome": "completed",
+        "duration_milliseconds": 182
+      },
+      {
+        "stage_id": "translate",
+        "outcome": "completed",
+        "duration_milliseconds": 1
+      },
+      {
+        "stage_id": "suppress",
+        "outcome": "completed",
+        "duration_milliseconds": 0
+      },
+      {
+        "stage_id": "publish",
+        "outcome": "completed",
+        "duration_milliseconds": 166
+      },
+      {
+        "stage_id": "analysis_pipeline",
+        "outcome": "completed",
+        "duration_milliseconds": 601
+      },
+      {
+        "stage_id": "publication",
+        "outcome": "completed",
+        "duration_milliseconds": 171.933
+      }
+    ],
+    "analyzers": {
+      "status": "complete",
+      "requested_count": null,
+      "items": [
+        {
+          "name": "python",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "python-web",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "config",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "python-service",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "default",
+          "version": "0.1.0",
+          "version_status": "declared"
+        }
+      ],
+      "truncated": false
+    },
+    "coverage": {
+      "status": "partial",
+      "accepted_file_count": null,
+      "legacy_files_scanned_count": 16,
+      "analyzer_error_count": 0,
+      "limitation_count": 1,
+      "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+    },
+    "resource_events": {
+      "status": "partial",
+      "scopes": [
+        "config_scanner.file_bytes",
+        "repo_index.file_bytes",
+        "repo_index.index_bytes"
+      ],
+      "items": [],
+      "truncated": false,
+      "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+    },
+    "fleet": {
+      "status": "not_started",
+      "requested_count": null,
+      "completed_count": null,
+      "failed_count": null,
+      "cancelled_count": null,
+      "children": [],
+      "truncated": false
+    }
+  },
+  "scan_timing": {
+    "schema_version": "1.0",
+    "clock": "engine_utc",
+    "scope": "analysis_pipeline_before_publication",
+    "started_at": "2026-10-23T11:36:56.407567+00:00",
+    "finished_at": "2026-10-23T11:36:57.009438+00:00",
+    "outcome": "completed"
+  },
+  "analyzers": [
+    {
+      "name": "python",
+      "version": "0.1.0"
+    },
+    {
+      "name": "python-web",
+      "version": "0.1.0"
+    },
+    {
+      "name": "config",
+      "version": "0.1.0"
+    },
+    {
+      "name": "python-service",
+      "version": "0.1.0"
+    },
+    {
+      "name": "default",
+      "version": "0.1.0"
+    }
+  ],
+  "stages": [
+    {
+      "name": "request_validation",
+      "milliseconds": 0
+    },
+    {
+      "name": "select_analyzers",
+      "milliseconds": 238
+    },
+    {
+      "name": "scan_and_merge",
+      "milliseconds": 182
+    },
+    {
+      "name": "translate",
+      "milliseconds": 1
+    },
+    {
+      "name": "suppress",
+      "milliseconds": 0
+    },
+    {
+      "name": "publish",
+      "milliseconds": 166
+    },
+    {
+      "name": "publication",
+      "milliseconds": 171.933
+    }
+  ],
+  "files_scanned": 16,
+  "analyzer_errors": [],
+  "limitation_count": 1,
+  "findings_by_severity": {
+    "high": 0,
+    "medium": 0,
+    "low": 1
+  },
+  "llm_usage": {},
+  "analyzer_run_ledger": {
+    "schema_version": "1.1",
+    "scope": "analyzer_selection_and_execution",
+    "inventory_scope": "supplied_candidates",
+    "selection_mode": "explicit",
+    "profile_id": "python@1.0",
+    "resolution_complete": true,
+    "execution_complete": true,
+    "entries": [
+      {
+        "name": "python",
+        "version": "0.1.0",
+        "priority": 10,
+        "origin": "plugin",
+        "implementation": {
+          "module": "attackmap_analyzer_python.analyzer",
+          "qualname": "PythonAnalyzer",
+          "source_sha256": "6f66ded3d25f21d24d2414e02084d60c8da6a8f2ede24adaf5bd75ee931a31ea",
+          "source_status": "observed_file"
+        },
+        "implementation_sha256": "2405f8ef35d663e54d3230e0f9447b174b766014517f480494488f5c34acc1aa",
+        "package": {
+          "name": "attackmap-analyzer-python",
+          "version": "0.1.0"
+        },
+        "entry_point": {
+          "name": "python",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_python:PythonAnalyzer"
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-python",
+            "package": "attackmap-analyzer-python",
+            "version": "0.1.0",
+            "git_sha": "1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+            "entry_points": [
+              "python"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url"
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 0.7703000446781516,
+        "analysis_duration_ms": 21.8666999717243,
+        "signal_counts": {
+          "routes": 1,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 1,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 12.076999992132187,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 12.954499979969114,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 13.004300009924918,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 212.44839997962117,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 234.3327000271529,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "python-web",
+        "version": "0.1.0",
+        "priority": 20,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonWebAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "29772ec771b6a77bdcfa8d51abd64ba82eafcddf17d77d3572089dfea1f73fff",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 1.463600026909262,
+        "analysis_duration_ms": 12.156899960245937,
+        "signal_counts": {
+          "routes": 0,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 2,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 13.357500021811575,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 14.85899998806417,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 14.907300006598234,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 234.38069998519495,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 246.54439999721944,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "config",
+        "version": "0.1.0",
+        "priority": 30,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinConfigAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "6e79503002967b8ba9bdb5f1b825fab9f0cc53555329e3219aa6321e159ab5cf",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 48.51660004351288,
+        "analysis_duration_ms": 3.6362999817356467,
+        "signal_counts": {
+          "routes": 0,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 0,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 15.247100032866001,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 63.82280000252649,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 63.96930001210421,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 246.57650000881404,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 250.21979998564348,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "python-service",
+        "version": "0.1.0",
+        "priority": 50,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonServiceAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "098489bad2a1a3ec283e31b4d45c10ca3c9c84d852712469f7fff816559a0e29",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 117.61940002907068,
+        "analysis_duration_ms": 30.349699954967946,
+        "signal_counts": {
+          "routes": 0,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 0,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 64.48160001309589,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 182.13420000392944,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 182.1949000004679,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 250.25799998547882,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 280.6132999830879,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "default",
+        "version": "0.1.0",
+        "priority": 100,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "DefaultAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "5664998e7929cc9d74a520d449a6d17ced078f714dc923e48d1946fe5089dddd",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 18.356200016569346,
+        "analysis_duration_ms": 0.9268999565392733,
+        "signal_counts": {
+          "routes": 0,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 0,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 186.67279998771846,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 205.09529998525977,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 205.24440001463518,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 280.65030003199354,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 281.5820000250824,
+            "error_type": null
+          }
+        ]
+      }
+    ]
+  },
+  "time_budget": {
+    "seconds": 45,
+    "exceeded": false
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "scope": "Focused native model/profile/provenance/report-ledger checks; no full app build, GUI, provider, scan or packaging by this agent",
+  "build_command": ".tools/dotnet/dotnet.exe build desktop/windows/ScanProgress.Tests/ScanProgress.Tests.csproj --no-restore -p:NuGetAudit=false -p:UseSharedCompilation=false -nodeReuse:false",
+  "build_exit_code": 0,
+  "build_warnings": 0,
+  "build_errors": 0,
+  "test_command": "desktop/windows/ScanProgress.Tests/bin/Debug/net8.0/ScanProgress.Tests.exe",
+  "test_exit_code": 0,
+  "test_output": "ScanProgress: 136 checks passed; synthetic protocol/model/discovery only, no engine/provider process.",
+  "test_dll_sha256": "08849f44280dfbf816489c57a22afe25b10baafdfad7fac78dd5349560459058",
+  "sources": [
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionModel.cs",
+      "sha256": "71d3e21ae27b7d5f0ff9a0e9aa2e817deb2763008e9d30c1eb44136ce6c85c04"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionView.cs",
+      "sha256": "1713978c250d1544af60dce0395d5a76aca7dcaec63d9959579910089622d6b6"
+    },
+    {
+      "path": "desktop/windows/ScanProgress.Tests/Program.cs",
+      "sha256": "ef334e059f73a60f958b93f103039516283e037a1d79a5c0f29c0a21712cc6fa"
+    },
+    {
+      "path": "desktop/windows/ScanProgress.Tests/ScanProgress.Tests.csproj",
+      "sha256": "5df2ecd2de32901be7243e9d48b69e64918f722493aa68c04654997223aec726"
+    }
+  ],
+  "limitations": [
+    "AnalyzerSelectionView.cs is not compiled by ScanProgress.Tests; root performs full native build",
+    "Root owns request/settings/schema integration and actual screenshot review",
+    "Snapshot hashes recorded after focused checks; root final integration evidence owns the complete source freeze"
+  ]
+}

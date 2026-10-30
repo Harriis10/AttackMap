@@ -111,6 +111,20 @@ foreach (string mode in modes)
 }
 var jury = legacy with { EnableAi = true, Mode = "hunt_verify", JuryVotes = 7, Effort = "max", Backend = "api" };
 Check(caps.AiConfiguration(jury).Enabled && caps.MappedEffort(jury) == "high", "requested max maps high");
+var profileDocument = Fixture();
+profileDocument["desktop"]!["schema_versions"] = JsonSerializer.SerializeToNode(new[] { "1.1", "1.2", "1.3", "1.5" });
+profileDocument["desktop"]!["scan_options_by_schema"] = JsonSerializer.SerializeToNode(new Dictionary<string, string[]> {
+    ["1.5"] = new[] { "recall", "strict_analyzers", "no_suppress", "cve", "secrets_history", "timeout_seconds", "provider", "analyzer_profile" } });
+profileDocument["desktop"]!["provider_options_by_schema"]!["1.5"] = JsonSerializer.SerializeToNode(fields);
+profileDocument["desktop"]!["modes_by_schema"]!["1.5"] = JsonSerializer.SerializeToNode(modes);
+var profileCaps = EngineCapabilities.Parse(profileDocument.ToJsonString());
+var profileRequest = new NativeScanOptions(Provider: jury, AnalyzerProfile: "node-atproto@1.0");
+profileCaps.RequireSupport(profileRequest, "");
+Check(profileRequest.RequestSchema == "1.5" && profileCaps.AiConfiguration(jury, "1.5").Enabled, "Profile schema explicitly preserves advanced provider mapping");
+Reject(() => caps.RequireSupport(profileRequest, ""), "Old schema cannot silently ignore named profile");
+Reject(() => profileCaps.RequireSupport(profileRequest, "config"), "Named profile cannot combine modules at capability admission");
+profileDocument["desktop"]!["provider_options_by_schema"]!.AsObject().Remove("1.5");
+Check(!EngineCapabilities.Parse(profileDocument.ToJsonString()).AiConfiguration(jury, "1.5").Enabled, "Profile schema cannot infer provider fields from global inventory");
 Check(!caps.AiConfiguration(jury with { JuryVotes = 8 }).Enabled, "jury high bound");
 Check(!caps.AiConfiguration(jury with { JuryVotes = 0 }).Enabled, "jury low bound");
 Check(!caps.AiConfiguration(jury with { Mode = "review" }).Enabled, "jury mode guard");

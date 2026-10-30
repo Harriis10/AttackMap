@@ -1,0 +1,45 @@
+--- a/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs
++++ b/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs
+@@ -50,6 +50,7 @@
+         int parityIndex = Array.IndexOf(startup, "--parity-smoke");
+         if (parityIndex >= 0 && parityIndex + 2 < startup.Length) settings = new LocalSettingsStore(Path.Combine(Path.GetFullPath(startup[parityIndex + 2]), "settings.json"));
+         InitializeComponent();
++        Closed += (_, _) => { ready = false; ++generation; };
+         InitializeParityWorkspace();
+         InitializeWorkspaceServices();
+         ready = true;
+@@ -161,7 +162,7 @@
+     }
+     private void NetworkOptionChanged(object sender, RoutedEventArgs args)
+     {
+-        if (!ready) return;
++        if (!ready || actionLifetime.IsCancellationRequested) return;
+         string ai;
+         try { var options = activeScanOptions?.Provider ?? (activeScanOptions == null ? Provider.ReadConfiguration() : new ProviderConfiguration()); ai = options.EnableAi ? $"AI ON: sends structured evidence and minimized source excerpts to {options.Provider} / {options.Endpoint ?? "provider default endpoint"}" : "AI off"; }
+         catch (Exception) { ai = "AI options invalid; scan will require correction"; }
+@@ -361,6 +362,7 @@
+     }
+     private async Task<bool> LoadReport(string path, RunIdentity? identity = null)
+     {
++        if (!ready || actionLifetime.IsCancellationRequested) return false;
+         long current = ++generation;
+         try
+         {
+@@ -406,7 +408,7 @@
+         }
+         catch (Exception error) when (error is IOException or JsonException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException or KeyNotFoundException)
+         {
+-            if (current == generation) Status.Text = $"Report import failed ({error.Message}). Previous valid report retained.";
++            if (!actionLifetime.IsCancellationRequested && current == generation) Status.Text = $"Report import failed ({error.Message}). Previous valid report retained.";
+             return false;
+         }
+     }
+@@ -835,7 +837,7 @@
+ 
+     private void Navigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+     {
+-        if (!ready) return;
++        if (!ready || actionLifetime.IsCancellationRequested) return;
+         if (!navigatingBack && previousDestination != null && previousDestination != args.SelectedItem) navigationBack.Push(previousDestination);
+         previousDestination = args.SelectedItem;
+         Navigation.IsBackEnabled = navigationBack.Count > 0;

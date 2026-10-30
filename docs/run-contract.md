@@ -4,9 +4,34 @@
 
 # Run contract foundation (AM009 / C08)
 
+## WP042 named analyzer profiles — 23 October 2026
+
+Single-run schema **1.5** adds optional `options.analyzer_profile` to the 1.3
+option set. It accepts a version-qualified name such as `node-atproto@1.0`;
+nonempty `modules` cannot accompany it. Capabilities advertise the field and
+supported AI modes for this exact schema. Unknown or unavailable profiles fail
+before dispatch without downloading or substituting modules. Older single-run
+schemas reject the field; 1.4 remains the distinct fleet contract. The default
+schema constant remains 1.2 and existing requests retain their wire behavior.
+
+The shared scan service resolves the profile against the effective inventory.
+The Windows picker persists its identity and expansion, invalidates discovery
+when the engine changes, and requires refreshed compatible capabilities before
+dispatch. Progress/terminal messages echo schema 1.5 for these requests. CLI
+fleet workers preserve the qualified profile flag rather than expanding away
+its identity.
+
+Report `scan.analyzer_run_ledger` and the run manifest carry matching schema 1.1
+observations, including bounded lifecycle events, nullable durations and
+successful extraction counts before merge. Readers still accept ledger 1.0;
+absent measurements remain unknown. Selection, applicability and execution are separate; legacy
+manifest `analyzers` still means selected, not necessarily executed. See
+[profile semantics](ecosystem/analyzer-profiles.md) and [ledger semantics](ecosystem/analyzer-catalog.md#per-run-observations).
+These technical changes do not supersede the active WP acceptance gates.
+
 ## WP004 additive contract — 20 October 2026
 
-Current schema is **1.2**; **1.0 and 1.1 remain accepted**. The old `ScanOptions`
+This dated slice introduced schema **1.2**; **1.0 and 1.1 remain accepted**. The old `ScanOptions`
 model and the exact serialization/default behavior for those requests are retained.
 `ScanOptionsV12` is selected only by a 1.2 request. Progress and terminal messages
 echo the request's schema, so an existing native client sending 1.1 does not receive

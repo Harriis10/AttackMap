@@ -1,0 +1,178 @@
+{
+  "stage": "preflight-only",
+  "processes_started": 0,
+  "app": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\astra-long-local-20261022\\package-stages\\dev-20261022220136-08e1c566\\app\\AttackMap.NativeSpike.exe",
+  "release_lock": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-astra-long-local-20261022-01\\release-lock.json",
+  "manifest_sha256": "e717a64e2bc46fc05326d082e708d488b830a5bd259ae424e392a095ee1bf536",
+  "report": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-report.json",
+  "mode": "remediate",
+  "output": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-saved-remediate-01",
+  "phase": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-saved-remediate-01\\capture",
+  "timeout_seconds": 600,
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\astra-long-local-20261022\\package-stages\\dev-20261022220136-08e1c566\\app\\AttackMap.NativeSpike.exe",
+    "--capture-smoke",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-report.json",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-saved-remediate-01\\capture",
+    "--capture-ai-mode",
+    "remediate"
+  ],
+  "requested_scans": 0,
+  "requested_provider_calls": 0,
+  "accepted_visual": false,
+  "accepted_accessibility": false,
+  "accepted_wp017": false,
+  "accepted_wp023": false,
+  "accepted_release": false,
+  "inputs": {
+    "package": {
+      "passed": true,
+      "scope": "Complete pinned package byte consistency; source lock consistency when RequiredBundled; acceptance separate",
+      "package_id": "dev-20261022220136-08e1c566",
+      "manifest": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\astra-long-local-20261022\\package-stages\\dev-20261022220136-08e1c566\\package-manifest.json",
+        "sha256": "e717a64e2bc46fc05326d082e708d488b830a5bd259ae424e392a095ee1bf536"
+      },
+      "files_verified": 778,
+      "release_lock": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-astra-long-local-20261022-01\\release-lock.json",
+        "sha256": "0e87984c22b497635842261700fa0f743db3f5bb2ce747c99b58ecd48c9ec978"
+      },
+      "kind": null,
+      "native_build": null,
+      "engine_build": null,
+      "identities": {
+        "AttackMap.NativeSpike.exe": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\astra-long-local-20261022\\package-stages\\dev-20261022220136-08e1c566\\app\\AttackMap.NativeSpike.exe",
+          "sha256": "81ed7619e1ce5ebcbdc905f784a57d55234a2b03d416f46a77a0a57ef7e734fc"
+        },
+        "AttackMap.NativeSpike.dll": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\astra-long-local-20261022\\package-stages\\dev-20261022220136-08e1c566\\app\\AttackMap.NativeSpike.dll",
+          "sha256": "937557049ac83056796d32ffc4dcd7e8a38d1a353a8601bfb052822fd7e449f0"
+        },
+        "engine/attackmap.exe": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\astra-long-local-20261022\\package-stages\\dev-20261022220136-08e1c566\\app\\engine\\attackmap.exe",
+          "sha256": "2a34022210a826990b10394b627265d42879d83ac854677ae127283cbc724353"
+        }
+      },
+      "accepted_wp017": false,
+      "accepted_manual_ui": false,
+      "accepted_same_source": false,
+      "accepted_release": false,
+      "accepted_clean_host": false
+    },
+    "generation": {
+      "generation": "d2ee2327a28e468bae62ff0542d3e12f",
+      "manifest": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\artifact-manifest.json",
+        "sha256": "6b2f2ed78338b9c9b5fbcf602eef764eb6c340f7e45e97846a3184355f5d8d31"
+      },
+      "files": {
+        "scan.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\scan.json",
+          "sha256": "a1e8ba8ea4f1a8a9590b96f269cdd6077abb361277e446a4b67babe68162b812"
+        },
+        "findings.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\findings.json",
+          "sha256": "02e2f38455a518aadaa094b67dd63ac5d9b181c31b9426287c63edc2a894cb6c"
+        },
+        "attack_paths.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attack_paths.json",
+          "sha256": "c10f4f84dc3445dfd36d9cd6f728aada3d90c7bf6508368e78cbd287940e6c04"
+        },
+        "attack_surfaces.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attack_surfaces.json",
+          "sha256": "bdd68bc837286294ef25cac91d4cedcab734860570a9d7cccd9259d0426e2fe0"
+        },
+        "exploitability.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\exploitability.json",
+          "sha256": "30efcc7547b9613e8419601a2c613368b03fbfd094734eb96cf142b91212b7aa"
+        },
+        "suppressed_findings.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "defensive-review.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\defensive-review.json",
+          "sha256": "c7bed9e5683ab515d9370bcad276f50d7971d86bf9c622367d15724b5a8cc406"
+        },
+        "review-context-pack.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\review-context-pack.json",
+          "sha256": "53650c1c9c80e07156d7c2b1e3e25df0dbae7260b4c97a63cc6ed36ecf3fab95"
+        },
+        "attackmap-report.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-report.json",
+          "sha256": "919619d6ffe6a8ccdf153f83d9b127ae06aa46c1b68351ee770565edbeb5b8c9"
+        },
+        "run-manifest.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\run-manifest.json",
+          "sha256": "08d1745eed2dce441a2b95b4b90be3894ee8a18192b86ce6178cadcedc54a5d2"
+        },
+        "attackmap-report.sarif": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-report.sarif",
+          "sha256": "21e4f8d923a9e4300d16a6d4c24f1c92517771cd012fd93040916bd9a54717ab"
+        },
+        "remediation.md": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\remediation.md",
+          "sha256": "3b967d50b922d28a489173ed46fa4f94677590db5f649cb1141b0c871511c0aa"
+        },
+        "remediation.meta.json": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\remediation.meta.json",
+          "sha256": "c3ada268f94c4b8c74bcdbde4df20fa8178882ed0705e9f6617b70b64ebfec07"
+        },
+        "architecture.md": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\architecture.md",
+          "sha256": "546ee30820fd064863d8d726d635602298a36fad87af868aa6ab7ebdd78fea02"
+        },
+        "attack-surface.md": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attack-surface.md",
+          "sha256": "5ea5c5f3d555df1e6cab20192273ac3ff74231d7064da6e56704799cf79b7f5c"
+        },
+        "defensive-review.md": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\defensive-review.md",
+          "sha256": "99767f71e640efa588d9de5d7f3ca3edb226cdd199211eff87f5462598d63d3e"
+        },
+        "attackmap-exploitability.md": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-exploitability.md",
+          "sha256": "23c3bc4999099cec68e15f4ec8b2232903161d80a5460e413d5e37cd2c4279da"
+        },
+        "attackmap-paths.md": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-paths.md",
+          "sha256": "6dc926b2fa8760d25f11ddccdfc645d0a42d512e5c9844867b251479c2f06f97"
+        },
+        "attackmap-topology.md": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-topology.md",
+          "sha256": "7b85b3b2402a48fb55474bae8a0ed2df987646e07a117f70d54a25a9387bbe67"
+        },
+        "attackmap-paths.dot": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-paths.dot",
+          "sha256": "a44d41cee8c8e57723c7ca3b43cc6f75fdaea1043e2c3ba54fb89a9b5dd35d6d"
+        },
+        "attackmap-topology.dot": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\attackmap-topology.dot",
+          "sha256": "c75db8f35774ffe3206990a4ca12b01325579c991db763241cdca9ba47bc0d76"
+        }
+      },
+      "selected_artifact": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\remediation.md",
+        "sha256": "3b967d50b922d28a489173ed46fa4f94677590db5f649cb1141b0c871511c0aa"
+      },
+      "selected_metadata": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\sol-long-local-20261023-remediate\\remediate\\reports\\d2ee2327a28e468bae62ff0542d3e12f\\remediation.meta.json",
+        "sha256": "c3ada268f94c4b8c74bcdbde4df20fa8178882ed0705e9f6617b70b64ebfec07"
+      }
+    },
+    "runner": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\saved_ai_capture.py",
+      "sha256": "75e60d18e12923e95c6d4cf07f78921c193a22798c3180efd9e5618d6937cb66"
+    },
+    "helper": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tools\\run_wp017_native_modes.py",
+      "sha256": "da2d34c55ad4237ac1a1b586ab59cfd13d056073d657ead75ebfe92758199fcc"
+    },
+    "capture_guard": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\run-gui-checkpoint.py",
+      "sha256": "ca465bd99194112e77a25eaabd9858687ad6a1dbbbe7191facc1c4e32b268afb"
+    }
+  }
+}

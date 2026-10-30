@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "package_id": "dev-20261022113225-6d2de474",
+  "channel": "unsigned-development",
+  "architecture": "win-x64",
+  "minimum_windows": "10.0.19041.0",
+  "native_runtime": {
+    "dotnet_self_contained": true,
+    "included_frameworks": [
+      {
+        "name": "Microsoft.NETCore.App",
+        "version": "8.0.32"
+      }
+    ],
+    "windows_app_sdk_self_contained": true,
+    "windows_app_sdk": "2.4.0"
+  },
+  "engine": {
+    "bundled": false,
+    "discovery": "Explicit absolute Python executable selected in desktop settings; no PATH probing or automatic downloads.",
+    "required_modules": [
+      "attackmap.desktop_worker",
+      "attackmap.desktop_actions"
+    ],
+    "run_schema_range": "unknown",
+    "run_schema_versions": [],
+    "note": "Requires compatible AttackMap engine and analyzers installed separately. Selected executable capabilities must be checked at runtime."
+  },
+  "profile": "ExternalEngine",
+  "signing": {
+    "status": "unsigned",
+    "note": "Unsigned preflight only; signed releases must sign payloads before final hashing, SBOM generation and archiving."
+  },
+  "files": [
+    {
+      "path": "AttackMap.NativeSpike.exe",
+      "size_bytes": 27,
+      "sha256": "266fd0dd89a5700058afaba435c2dbeb75269fd68588d765846ac879ec9d1713"
+    },
+    {
+      "path": "AttackMap.NativeSpike.runtimeconfig.json",
+      "size_bytes": 97,
+      "sha256": "8344e04c23556f253969858701b523e6e9d34242840e173355d7773ac08fbf4c"
+    },
+    {
+      "path": "coreclr.dll",
+      "size_bytes": 27,
+      "sha256": "266fd0dd89a5700058afaba435c2dbeb75269fd68588d765846ac879ec9d1713"
+    },
+    {
+      "path": "Microsoft.UI.Xaml.dll",
+      "size_bytes": 27,
+      "sha256": "266fd0dd89a5700058afaba435c2dbeb75269fd68588d765846ac879ec9d1713"
+    }
+  ],
+  "deployment_files": [
+    {
+      "path": "Install-AttackMap.ps1",
+      "size_bytes": 7373,
+      "sha256": "dfe3680f422e840e6bc517bc13da55dda2c9908a7d4a2d05329850da545e05c0"
+    },
+    {
+      "path": "Install-AttackMap.cmd",
+      "size_bytes": 389,
+      "sha256": "9c1d884f98a18446aeaef545f531fc247996bc8e23ecf8838d437e0de4db8876"
+    }
+  ]
+}

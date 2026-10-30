@@ -1,0 +1,122 @@
+{
+  "declarations": [
+    {
+      "identity": {
+        "host": "db.example.internal",
+        "namespace": "catalog",
+        "port": 5432,
+        "protocol": "postgresql",
+        "resource": "items",
+        "scope": "production.eu"
+      },
+      "operation": "read",
+      "schema_version": "1.0",
+      "source": {
+        "file": "src/store.py",
+        "line": 17,
+        "observation_id": "db-read",
+        "repository_root": "C:/repos/reader",
+        "source_analyzer": "fixture-datastore"
+      }
+    },
+    {
+      "identity": {
+        "host": "db.example.internal",
+        "namespace": "catalog",
+        "port": 5432,
+        "protocol": "postgresql",
+        "resource": "items",
+        "scope": "production.eu"
+      },
+      "operation": "write",
+      "schema_version": "1.0",
+      "source": {
+        "file": "src/store.py",
+        "line": 17,
+        "observation_id": "db-write",
+        "repository_root": "C:/repos/writer",
+        "source_analyzer": "fixture-datastore"
+      }
+    }
+  ],
+  "projection": {
+    "ambiguous": [],
+    "associations": [
+      {
+        "basis": "matching_explicit_qualified_resource_declarations",
+        "directed": false,
+        "endpoints": [
+          {
+            "evidence_refs": [
+              "datastore-evidence-b5b393c512f384556251ae2f3f4d2e595b6160f1ccd7d9cb925e198b7a1dec97"
+            ],
+            "operations": [
+              "read"
+            ],
+            "repository_root": "c:/repos/reader"
+          },
+          {
+            "evidence_refs": [
+              "datastore-evidence-ba8855653b438634c9f53ac8a00c92b9021cf3aaf02db7cdaf8d7bb51de08579"
+            ],
+            "operations": [
+              "write"
+            ],
+            "repository_root": "c:/repos/writer"
+          }
+        ],
+        "evidence_refs": [
+          "datastore-evidence-b5b393c512f384556251ae2f3f4d2e595b6160f1ccd7d9cb925e198b7a1dec97",
+          "datastore-evidence-ba8855653b438634c9f53ac8a00c92b9021cf3aaf02db7cdaf8d7bb51de08579"
+        ],
+        "id": "shared-datastore-9c01b15d7c40e91e62e5dad69125629a14a768e5b91828617288d60193825123",
+        "kind": "shared_datastore",
+        "resolution": "declared",
+        "resource_id": "datastore-resource-9229c3392d476031ed4ca8b14696876340fcfbf16ed9ae2baddc69e27ef7727a"
+      }
+    ],
+    "evidence": [
+      {
+        "file": "src/store.py",
+        "id": "datastore-evidence-b5b393c512f384556251ae2f3f4d2e595b6160f1ccd7d9cb925e198b7a1dec97",
+        "line": 17,
+        "observation_id": "db-read",
+        "repository_root": "c:/repos/reader",
+        "source_analyzer": "fixture-datastore"
+      },
+      {
+        "file": "src/store.py",
+        "id": "datastore-evidence-ba8855653b438634c9f53ac8a00c92b9021cf3aaf02db7cdaf8d7bb51de08579",
+        "line": 17,
+        "observation_id": "db-write",
+        "repository_root": "c:/repos/writer",
+        "source_analyzer": "fixture-datastore"
+      }
+    ],
+    "kind": "shared_datastore_declarations",
+    "limitations": [
+      "Prepared contract only; current scanners do not emit these declarations.",
+      "Static declarations do not establish runtime connectivity or directed data flow."
+    ],
+    "production_extraction": "unavailable",
+    "resources": [
+      {
+        "basis": "explicit_static_declarations",
+        "id": "datastore-resource-9229c3392d476031ed4ca8b14696876340fcfbf16ed9ae2baddc69e27ef7727a",
+        "identity": {
+          "host": "db.example.internal",
+          "namespace": "catalog",
+          "port": 5432,
+          "protocol": "postgresql",
+          "resource": "items",
+          "scope": "production.eu"
+        },
+        "repository_count": 2,
+        "resolution": "declared"
+      }
+    ],
+    "schema_version": "1.0",
+    "unmatched": []
+  },
+  "scope": "synthetic explicit declarations; no scanner execution"
+}

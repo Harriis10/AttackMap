@@ -48,6 +48,78 @@ def test_cli_and_action_share_capabilities_and_module_inventory(monkeypatch):
     assert json.loads(modules.output) == expected_modules
 
 
+def test_catalog_cli_and_capabilities_share_engine_bound_discovery(monkeypatch):
+    import attackmap.analyzer_catalog as catalog_module
+    discover = catalog_module.get_analyzer_catalog
+    calls = []
+
+    def counted():
+        calls.append(1)
+        return discover()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Offline catalog queried remote repositories or installed a plugin")
+
+    monkeypatch.setattr(catalog_module, "get_analyzer_catalog", counted)
+    monkeypatch.setattr("attackmap.cli.get_available_repository_modules", forbidden)
+    monkeypatch.setattr("attackmap.cli.install_analyzer_module", forbidden)
+    result = CliRunner().invoke(app, ["modules", "--catalog-json"])
+    assert result.exit_code == 0, result.output
+    assert len(calls) == 1
+    payload = json.loads(result.output)
+    caps = build_capabilities(app)
+    assert len(calls) == 2
+    for key in ("engine_identity", "modules", "analyzer_catalog", "analyzer_profiles"):
+        assert payload[key] == caps[key]
+    assert payload["analyzer_catalog"]["scope"] == "installed_discovery"
+    assert "--analyzer-profile" in caps["analyze"]["options"]
+    assert "analyzer_profile" not in caps["desktop"]["scan_options"]
+    identity = payload["engine_identity"]
+    for key in ("analyzer_catalog_sha256", "analyzer_profiles_sha256"):
+        assert len(identity[key]) == 64
+
+
+def test_profile_inventory_cli_is_offline_and_engine_bound():
+    result = CliRunner().invoke(app, ["modules", "--profiles-json"])
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert "analyzer_profiles" in payload
+    assert len(payload["engine_identity"]["analyzer_profiles_sha256"]) == 64
+
+
+@pytest.mark.parametrize("flags", [
+    ["--json", "--catalog-json"], ["--json", "--profiles-json"],
+    ["--catalog-json", "--profiles-json"],
+])
+def test_module_json_formats_cannot_silently_override_each_other(flags):
+    result = CliRunner().invoke(app, ["modules", *flags])
+    assert result.exit_code == 2
+    assert "Choose only one" in result.output
+
+
+def test_injected_metadata_cannot_claim_observed_catalog():
+    payload = build_capabilities(app, metadata=[])
+    assert "analyzer_catalog" not in payload
+    assert payload["modules"] == []
+
+
+@pytest.mark.parametrize("changed_module", ["ecosystem_php.py", "desktop_graph.py"])
+def test_analyzer_source_change_invalidates_same_python_host_identity(monkeypatch, changed_module):
+    before = build_capabilities(app, metadata=[])
+    read_bytes = Path.read_bytes
+
+    def changed(path):
+        raw = read_bytes(path)
+        return raw + b"\n# different implementation\n" if path.name == changed_module else raw
+
+    monkeypatch.setattr(Path, "read_bytes", changed)
+    after = build_capabilities(app, metadata=[])
+    assert before["engine_identity"]["sha256"] == after["engine_identity"]["sha256"]
+    assert before["modules"] == after["modules"]
+    assert before["engine_identity"]["source_sha256"] != after["engine_identity"]["source_sha256"]
+    assert preflight_capabilities(after, expected_identity=before["engine_identity"])["status"] == "engine_changed"
+
+
 @pytest.mark.parametrize("schema", ["1.0", "1.1"])
 def test_supported_request_preflight(caps, tmp_path, schema):
     payload = request(tmp_path, schema)

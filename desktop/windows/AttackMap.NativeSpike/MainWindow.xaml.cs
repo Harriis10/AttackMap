@@ -42,6 +42,37 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         var startup = Environment.GetCommandLineArgs();
+        var diagnosticsStartup = startup;
+        int activationIndex = Array.IndexOf(startup, "--activation-smoke");
+        if (activationIndex >= 0)
+        {
+            if (startup.Length != 4 || activationIndex != 1 || startup.Skip(2).Any(path => !Path.IsPathFullyQualified(path)))
+                throw new ArgumentException("Activation QA requires absolute report and caller-created output directory paths.");
+            string qa = Path.GetFullPath(startup[3]);
+            if (!Directory.Exists(qa)) throw new DirectoryNotFoundException("Create a fresh caller-owned activation QA directory first.");
+            settings = new LocalSettingsStore(Path.Combine(qa, "settings.json"));
+            placementStore = new WindowPlacementStore(Path.Combine(qa, "window.json"));
+            recentStore = new HistoryPrep.RecentRepositoriesStore(Path.Combine(qa, "recent.json"));
+            string diagnostics = Path.Combine(qa, "diagnostics");
+            Directory.CreateDirectory(diagnostics);
+            diagnosticsStartup = [.. startup, "--render-diagnostics", diagnostics];
+        }
+        if (startup.Contains("--provider-render-smoke") || startup.Contains("--navigation-render-smoke"))
+        {
+            if (startup.Length != 5 || (startup[1] != "--provider-render-smoke" && startup[1] != "--navigation-render-smoke") || startup.Skip(2).Any(path => !Path.IsPathFullyQualified(path)))
+                throw new ArgumentException("Provider render QA requires absolute report, fresh output directory and engine paths.");
+            string qa = startup[3];
+            settings = new LocalSettingsStore(Path.Combine(qa, "settings.json"));
+            placementStore = new WindowPlacementStore(Path.Combine(qa, "window.json"));
+            recentStore = new HistoryPrep.RecentRepositoriesStore(Path.Combine(qa, "recent.json"));
+        }
+        providerFaultQa = ReadProviderFaultSmokeArguments(startup);
+        if (providerFaultQa is { } providerQa)
+        {
+            settings = new LocalSettingsStore(providerQa.SettingsPath);
+            placementStore = new WindowPlacementStore(providerQa.WindowPath);
+            recentStore = new HistoryPrep.RecentRepositoriesStore(providerQa.RecentPath);
+        }
         int settingsIndex = Array.IndexOf(startup, "--settings-smoke");
         if (settingsIndex < 0) settingsIndex = Array.IndexOf(startup, "--startup-smoke");
         if (settingsIndex >= 0 && settingsIndex + 1 < startup.Length) settings = new LocalSettingsStore(Path.GetFullPath(startup[settingsIndex + 1]));
@@ -49,8 +80,20 @@ public sealed partial class MainWindow : Window
         if (placementIndex >= 0 && placementIndex + 1 < startup.Length) placementStore = new WindowPlacementStore(Path.GetFullPath(startup[placementIndex + 1]));
         int parityIndex = Array.IndexOf(startup, "--parity-smoke");
         if (parityIndex >= 0 && parityIndex + 2 < startup.Length) settings = new LocalSettingsStore(Path.Combine(Path.GetFullPath(startup[parityIndex + 2]), "settings.json"));
+        int analyzerIndex = Array.IndexOf(startup, "--analyzer-smoke");
+        if (analyzerIndex >= 0 && analyzerIndex + 1 < startup.Length) settings = new LocalSettingsStore(Path.Combine(Path.GetFullPath(startup[analyzerIndex + 1]), "settings.json"));
+        int fleetGraphIndex = Array.IndexOf(startup, "--fleet-graph-smoke");
+        if (fleetGraphIndex >= 0 && fleetGraphIndex + 1 < startup.Length)
+        {
+            string qaFolder = Path.GetFullPath(startup[fleetGraphIndex + 1]);
+            settings = new LocalSettingsStore(Path.Combine(qaFolder, "settings.json"));
+            placementStore = new WindowPlacementStore(Path.Combine(qaFolder, "window.json"));
+            recentStore = new HistoryPrep.RecentRepositoriesStore(Path.Combine(qaFolder, "recent.json"));
+        }
         InitializeComponent();
+        Closed += (_, _) => { ready = false; ++generation; };
         InitializeParityWorkspace();
+        InitializeRenderDiagnostics(diagnosticsStartup);
         InitializeWorkspaceServices();
         ready = true;
         Navigation.SelectedItem = Navigation.MenuItems[0];
@@ -77,8 +120,18 @@ public sealed partial class MainWindow : Window
         Closed += (_, _) => { actionLifetime.Cancel(); keyboardBindings?.Dispose(); engine.Disconnect(); };
         if (Environment.GetCommandLineArgs().Contains("--smoke") || Environment.GetCommandLineArgs().Contains("--report-smoke") || Environment.GetCommandLineArgs().Contains("--scan-smoke") || Environment.GetCommandLineArgs().Contains("--settings-smoke") || Environment.GetCommandLineArgs().Contains("--structure-smoke") || Environment.GetCommandLineArgs().Contains("--export-smoke") || Environment.GetCommandLineArgs().Contains("--engine-guard-smoke") || startup.Contains("--performance-smoke") || startup.Contains("--actions-smoke") || startup.Contains("--accessibility-smoke") || startup.Contains("--placement-smoke") || startup.Contains("--startup-smoke"))
             ((FrameworkElement)Content).Loaded += SmokeLoaded;
+        else if (startup.Contains("--provider-render-smoke"))
+            ((FrameworkElement)Content).Loaded += ProviderRenderSmokeLoaded;
+        else if (startup.Contains("--navigation-render-smoke"))
+            ((FrameworkElement)Content).Loaded += NavigationRenderSmokeLoaded;
+        else if (startup.Contains("--fleet-graph-smoke"))
+            ((FrameworkElement)Content).Loaded += FleetGraphSmokeLoaded;
+        else if (startup.Contains("--analyzer-smoke"))
+            ((FrameworkElement)Content).Loaded += AnalyzerSmokeLoaded;
         else if (startup.Contains("--parity-smoke"))
             ((FrameworkElement)Content).Loaded += ParitySmokeLoaded;
+        else if (startup.Contains("--activation-smoke"))
+            ((FrameworkElement)Content).Loaded += ActivationSmokeLoaded;
         else if (startup.Contains("--capture-smoke"))
             ((FrameworkElement)Content).Loaded += CaptureLoaded;
         else if (startup.Contains("--capture-startup-smoke"))
@@ -87,6 +140,8 @@ public sealed partial class MainWindow : Window
             ((FrameworkElement)Content).Loaded += CaptureRetentionLoaded;
         else if (startup.Contains("--capture-reports-artifacts"))
             ((FrameworkElement)Content).Loaded += CaptureReportsArtifactsLoaded;
+        else if (providerFaultQa != null)
+            ((FrameworkElement)Content).Loaded += ProviderFaultSmokeLoaded;
         else if (startup.Contains("--fault-smoke"))
             ((FrameworkElement)Content).Loaded += SmokeLoaded;
         else if (startup.Contains("--expanded-accessibility-smoke"))
@@ -102,7 +157,13 @@ public sealed partial class MainWindow : Window
             int showReport = Array.IndexOf(startup, "--show-report");
             if(showReport>=0&&showReport+1<startup.Length)
                 ((FrameworkElement)Content).Loaded += async (_, _) => {
-                    try { if(!actionLifetime.IsCancellationRequested&&Path.IsPathFullyQualified(startup[showReport+1]))await LoadReport(Path.GetFullPath(startup[showReport+1])); }
+                    try
+                    {
+                        if (!actionLifetime.IsCancellationRequested && Path.IsPathFullyQualified(startup[showReport + 1]) &&
+                            await LoadReport(Path.GetFullPath(startup[showReport + 1])) &&
+                            startup.Contains("--render-diagnostics") && startup.Contains("--render-open-diagrams"))
+                            Navigation.SelectedItem = Navigation.MenuItems.OfType<NavigationViewItem>().Single(item => item.Content?.ToString() == "Diagrams");
+                    }
                     catch(Exception) { if(!actionLifetime.IsCancellationRequested)Status.Text="Requested report could not be opened. Choose a readable canonical JSON report."; }
                 };
             ((FrameworkElement)Content).Loaded += RestoreWindowPlacement;
@@ -132,7 +193,7 @@ public sealed partial class MainWindow : Window
     }
     private void CaptureWindowPlacement()
     {
-        if (!placementPersistenceEnabled || ((FrameworkElement)Content).XamlRoot == null || AppWindow.Presenter is not Microsoft.UI.Windowing.OverlappedPresenter presenter || presenter.State != Microsoft.UI.Windowing.OverlappedPresenterState.Restored) return;
+        if (!ready || actionLifetime.IsCancellationRequested || !placementPersistenceEnabled || ((FrameworkElement)Content).XamlRoot == null || AppWindow.Presenter is not Microsoft.UI.Windowing.OverlappedPresenter presenter || presenter.State != Microsoft.UI.Windowing.OverlappedPresenterState.Restored) return;
         double scale = ((FrameworkElement)Content).XamlRoot.RasterizationScale;
         int width = (int)Math.Round(AppWindow.Size.Width / scale), height = (int)Math.Round(AppWindow.Size.Height / scale);
         if (width < 1024 || height < 700 || width > 16384 || height > 16384) return;
@@ -155,13 +216,13 @@ public sealed partial class MainWindow : Window
     }
     private void SaveLocalSettings(object sender, RoutedEventArgs args)
     {
-        try { settings.Save(new LocalSettings(PythonPath: PythonPath.Text.Trim(), RepositoryPath: repositoryPath ?? "", Options: ReadScanOptions(), Modules: ModulesOption.Text.Trim())); NetworkOptionChanged(this, new RoutedEventArgs()); Status.Text = "Local paths and scan options saved; no scan or provider request started. " + NetworkDisclosure.Text; }
+        try { settings.Save(new LocalSettings(PythonPath: PythonPath.Text.Trim(), RepositoryPath: repositoryPath ?? "", Options: ReadScanOptions(), Modules: analyzerSelection.SelectedProfile == null ? ModulesOption.Text.Trim() : analyzerSelection.ExpandedProfileModules)); NetworkOptionChanged(this, new RoutedEventArgs()); Status.Text = "Local paths and scan options saved; no scan or provider request started. " + NetworkDisclosure.Text; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException)
         { Status.Text = $"Settings could not be saved: {error.Message}"; }
     }
     private void NetworkOptionChanged(object sender, RoutedEventArgs args)
     {
-        if (!ready) return;
+        if (!ready || actionLifetime.IsCancellationRequested) return;
         string ai;
         try { var options = activeScanOptions?.Provider ?? (activeScanOptions == null ? Provider.ReadConfiguration() : new ProviderConfiguration()); ai = options.EnableAi ? $"AI ON: sends structured evidence and minimized source excerpts to {options.Provider} / {options.Endpoint ?? "provider default endpoint"}" : "AI off"; }
         catch (Exception) { ai = "AI options invalid; scan will require correction"; }
@@ -175,7 +236,8 @@ public sealed partial class MainWindow : Window
             NoSuppress = NoSuppressOption.IsChecked == true, Cve = CveOption.IsChecked == true, SecretsHistory = history, TimeoutSeconds = timeout,
             Baseline = BlankOption(BaselineOption.Text), SuppressFile = BlankOption(SuppressFileOption.Text), FailOnNewHigh = FailNewHighOption.IsChecked == true,
             FailOnNewSuppression = FailNewSuppressionOption.IsChecked == true, StrictSuppressions = StrictSuppressionsOption.IsChecked == true,
-            IsolatedAnalyzers = IsolatedAnalyzersOption.IsChecked == true, TimeBudgetSeconds = budget };
+            IsolatedAnalyzers = IsolatedAnalyzersOption.IsChecked == true, TimeBudgetSeconds = budget,
+            AnalyzerProfile = analyzerSelection.RequestProfile };
         options.Validate();
         NativeScanOptions.ParseModules(ModulesOption.Text);
         var provider = forRequest ? Provider.ReadRequestConfiguration() : Provider.ReadConfiguration();
@@ -198,7 +260,12 @@ public sealed partial class MainWindow : Window
         StrictSuppressionsOption.IsChecked = options.StrictSuppressions;
         IsolatedAnalyzersOption.IsChecked = options.IsolatedAnalyzers;
         TimeBudgetOption.Text = options.TimeBudgetSeconds?.ToString() ?? "";
-        analyzerSelection.Restore(modules); analyzerView?.Refresh();
+        if (options.AnalyzerProfile != null) analyzerSelection.RestoreProfile(options.AnalyzerProfile, modules);
+        else analyzerSelection.Restore(modules);
+        synchronizingAnalyzers = true;
+        ModulesOption.Text = analyzerSelection.RequestModules;
+        synchronizingAnalyzers = false;
+        analyzerView?.Refresh();
         if (options.Provider != null) Provider.ApplyConfiguration(options.Provider);
     }
     private void ClearLocalSettings(object sender, RoutedEventArgs args)
@@ -268,7 +335,7 @@ public sealed partial class MainWindow : Window
             capabilityCache.Current!.RequireSupport(activeScanOptions, modules);
             analyzerSelection.ValidateForScan();
             using var preflightRequest = JsonDocument.Parse(NativeScanRequest.Serialize("native_preflight", repository, output, current, activeScanOptions, modules));
-            var preflight = await DesktopActionRunner.Run(executable, "preflight", new { request = preflightRequest.RootElement, expected_identity = capabilityCache.Current.ExpectedIdentity }, cancellationToken: admission.Token);
+            var preflight = await DesktopActionRunner.Run(executable, "preflight", new { request = preflightRequest.RootElement, expected_identity = capabilityCache.Current.ExpectedIdentity }, outputBase: providerFaultQa?.ActionDirectory ?? providerRenderActionDirectory, cancellationToken: admission.Token);
             CheckScanAdmission(current, repository, executable, admission.Token);
             if (!preflight.GetProperty("supported").GetBoolean()) throw new InvalidDataException("Selected engine or request changed since discovery; check compatibility again. No scan was started.");
             var elapsed = System.Diagnostics.Stopwatch.StartNew();
@@ -361,18 +428,31 @@ public sealed partial class MainWindow : Window
     }
     private async Task<bool> LoadReport(string path, RunIdentity? identity = null)
     {
+        if (!ready || actionLifetime.IsCancellationRequested) return false;
         long current = ++generation;
+        var reportClock = System.Diagnostics.Stopwatch.StartNew();
+        RenderDiagnosticsReportStarted(current);
         try
         {
-            var report = await ReportAdapter.Load(path);
+            var snapshot = await VerifiedReportSnapshot.Load(path, identity, actionLifetime.Token);
             if (actionLifetime.IsCancellationRequested || current != generation) return false;
-            var selectedExport = identity == null
-                ? ExportSelection.CaptureSavedGeneration(path,report.ReadHash,report.Repository)
-                : ExportSelection.Capture(path,report.ReadHash,identity);
-            string engineTiming = await ScanTiming.ReadLabel(selectedExport);
-            var sections = await ReportSectionAdapter.Load(path, report.ReadHash, selectedExport.RunId);
-            var overview = await ParityOverviewAdapter.Load(path, report.ReadHash, selectedExport.RunId);
+            RenderDiagnosticsWrite("report-snapshot-read", new { generation = current, displayedRun, displayedReadHash,
+                snapshotRun = snapshot.Selection.RunId, snapshotReadHash = snapshot.ReadHash, elapsedMilliseconds = reportClock.Elapsed.TotalMilliseconds,
+                initialReportReadCount = 1, initialReportHashCount = 1, initialManifestSelectionCount = 1,
+                projectionCounts = new { report = 1, sections = 1, overview = 1 }, snapshot.ProjectionThreadId });
+            var report = snapshot.Report;
+            var selectedExport = snapshot.Selection;
+            var sections = snapshot.Sections;
+            var overview = snapshot.Overview;
+            var timing = await ScanTiming.ReadLabelMeasured(selectedExport);
+            string engineTiming = timing.Label;
+            RenderDiagnosticsWrite("report-integrity-revalidation", new { generation = current, displayedRun, displayedReadHash,
+                snapshotRun = snapshot.Selection.RunId, snapshotReadHash = snapshot.ReadHash, operation = "ScanTiming.ReadLabel",
+                initialReportReadCount = 1, laterReportIntegrityReadCount = timing.ReportIntegrityReadCount, elapsedMilliseconds = reportClock.Elapsed.TotalMilliseconds });
             if (actionLifetime.IsCancellationRequested || current != generation) return false;
+            RenderDiagnosticsWrite("report-bind-started", new { generation = current, displayedRun, displayedReadHash,
+                snapshotRun = snapshot.Selection.RunId, snapshotReadHash = snapshot.ReadHash, elapsedMilliseconds = reportClock.Elapsed.TotalMilliseconds,
+                initialReportReadCount = 1, laterReportIntegrityReadCount = timing.ReportIntegrityReadCount });
             all = report.Findings;
             ++findingRevision;
             Suppression.SetContext("", default, "");
@@ -402,17 +482,38 @@ public sealed partial class MainWindow : Window
             if (all.Count > 0) Findings.SelectedIndex = 0;
             var binding = parityViewBinding;
             await binding;
-            return !actionLifetime.IsCancellationRequested && current == generation;
+            bool bound = !actionLifetime.IsCancellationRequested && current == generation;
+            if (bound)
+            {
+                RenderDiagnosticsWrite("report-bind-completed", new { generation = current, displayedRun, displayedReadHash,
+                    elapsedMilliseconds = reportClock.Elapsed.TotalMilliseconds, initialReportReadCount = 1,
+                    laterReportIntegrityReadCount = timing.ReportIntegrityReadCount, findingCount = all.Count,
+                    reviewCharacters = ReviewText.Text.Length, overviewCount = overview.Counts.Count,
+                    hiddenWorkCounters = new { graphLoads = Diagrams.GraphLoadCount, legacySelectionLoads = Diagrams.LegacySelectionLoadCount,
+                        interactiveInitializationAttempts = Diagrams.InteractiveInitializationAttemptCount,
+                        markdownBuilds = ReviewText.RenderCount + AiReviewText.RenderCount, overviewBuilds = EvidenceOverview.BuildCount },
+                    selectedAiMode = AiArtifacts.CurrentMode,
+                    selectedAiReads = new { mode = AiArtifacts.CurrentMode,
+                        proseReadCount = AiArtifacts.CurrentSnapshot?.ProseReadCount ?? 0,
+                        metadataReadCount = AiArtifacts.CurrentSnapshot?.MetadataReadCount ?? 0,
+                        runManifestReadCount = AiArtifacts.CurrentSnapshot?.RunManifestReadCount ?? 0,
+                        reportIntegrityReadCount = AiArtifacts.CurrentSnapshot?.ReportIntegrityReadCount ?? 0 },
+                    privateMemoryBytes = Environment.WorkingSet });
+                RenderDiagnosticsReportBindCompleted(current);
+            }
+            return bound;
         }
+        catch (OperationCanceledException) when (actionLifetime.IsCancellationRequested) { return false; }
         catch (Exception error) when (error is IOException or JsonException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException or KeyNotFoundException)
         {
-            if (current == generation) Status.Text = $"Report import failed ({error.Message}). Previous valid report retained.";
+            if (!actionLifetime.IsCancellationRequested && current == generation) Status.Text = $"Report import failed ({error.Message}). Previous valid report retained.";
             return false;
         }
     }
     private async void LoadFixture(object sender, RoutedEventArgs args) => await LoadData();
     private async Task LoadData()
     {
+        if (!ready || actionLifetime.IsCancellationRequested) return;
         long current = ++generation;
         try
         {
@@ -443,7 +544,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception error) when (error is IOException or JsonException or UnauthorizedAccessException)
         {
-            Status.Text = $"Fixture unavailable ({error.GetType().Name}). Generate it and retry Load fixture.";
+            if (!actionLifetime.IsCancellationRequested && current == generation) Status.Text = $"Fixture unavailable ({error.GetType().Name}). Generate it and retry Load fixture.";
         }
     }
     private async void SmokeLoaded(object sender, RoutedEventArgs args)
@@ -560,7 +661,7 @@ public sealed partial class MainWindow : Window
             string bundled = Path.Combine(AppContext.BaseDirectory, "engine", "attackmap.exe");
             bool available = File.Exists(bundled);
             var options = ReadScanOptions();
-            File.WriteAllText(arguments[startupIndex + 1] + ".result.json", JsonSerializer.Serialize(new { passed = available && PythonPath.Text == bundled && !scanning && repositoryPath == null && options.Provider == null && !options.Cve, bundledEngine = PythonPath.Text, automaticScan = scanning, aiEnabled = options.Provider?.EnableAi ?? false, cveEnabled = options.Cve, personalSettingsRead = false, manualStartupAcceptance = false }));
+            File.WriteAllText(arguments[startupIndex + 1] + ".result.json", JsonSerializer.Serialize(new { passed = available && PythonPath.Text == bundled && !scanning && repositoryPath == null && options.Provider?.EnableAi != true && !options.Cve, bundledEngine = PythonPath.Text, automaticScan = scanning, aiEnabled = options.Provider?.EnableAi ?? false, cveEnabled = options.Cve, personalSettingsRead = false, manualStartupAcceptance = false }));
             Close(); return;
         }
         int viewportIndex = Array.IndexOf(arguments, "--viewport");
@@ -835,7 +936,8 @@ public sealed partial class MainWindow : Window
 
     private void Navigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        if (!ready) return;
+        if (!ready || actionLifetime.IsCancellationRequested) return;
+        ++renderDiagnosticsNavigationRevision;
         if (!navigatingBack && previousDestination != null && previousDestination != args.SelectedItem) navigationBack.Push(previousDestination);
         previousDestination = args.SelectedItem;
         Navigation.IsBackEnabled = navigationBack.Count > 0;
@@ -854,6 +956,7 @@ public sealed partial class MainWindow : Window
         RiskPaths.Visibility = risk ? Visibility.Visible : Visibility.Collapsed;
         EvidenceInventory.Visibility = evidenceInventory ? Visibility.Visible : Visibility.Collapsed;
         Diagrams.Visibility = diagrams ? Visibility.Visible : Visibility.Collapsed;
+        if (diagrams) _ = Diagrams.ActivateInteractive();
         Fleet.Visibility = fleet ? Visibility.Visible : Visibility.Collapsed;
         SuppressionWorkspace.Visibility = suppressions ? Visibility.Visible : Visibility.Collapsed;
         if (risk || evidenceInventory || diagrams || fleet || suppressions) FindingsPanel.Visibility = Visibility.Collapsed;
@@ -909,6 +1012,9 @@ public sealed partial class MainWindow : Window
             int index = all.IndexOf(finding);
             Suppression.SetContext(displayedRepository, index >= 0 && index < findingRecords.Count ? findingRecords[index] : default, displayedRun);
         }
+        if (ready) RenderDiagnosticsWrite("finding-selection", new { generation, displayedRun, displayedReadHash,
+            navigationRevision = renderDiagnosticsNavigationRevision, findingRevision,
+            hasFinding = Findings.SelectedItem is FixtureFinding });
     }
 
     private async void InspectSource(object sender, RoutedEventArgs args)
@@ -1122,7 +1228,10 @@ public sealed partial class MainWindow : Window
                 Provider.ApplyConfiguration(request.Preferences);
                 settings.Save(new LocalSettings(PythonPath: PythonPath.Text.Trim(), RepositoryPath: repositoryPath ?? "", Options: ReadScanOptions(), Modules: ModulesOption.Text.Trim()));
             }
-            Provider.ShowResult(result.GetProperty("message").GetString() ?? "Provider action completed.");
+            string message = result.GetProperty("message").GetString() ?? "Provider action completed.";
+            if (operation == "provider_check" && result.TryGetProperty("selected_model_listed", out var listed) && listed.ValueKind == JsonValueKind.False && !message.Contains("NOT listed", StringComparison.Ordinal))
+                message = "Selected model was NOT listed. Check the exact model ID (including case) before scanning. " + message;
+            Provider.ShowResult(message);
             NetworkOptionChanged(this, new RoutedEventArgs());
         }
         catch (System.IO.InvalidDataException error) { if (!actionLifetime.IsCancellationRequested) Provider.ShowResult(error.Message); }

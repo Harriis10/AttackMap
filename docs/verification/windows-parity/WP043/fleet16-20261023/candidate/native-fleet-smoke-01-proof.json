@@ -1,0 +1,1125 @@
+{
+  "passed": true,
+  "started": "2026-10-23T11:49:09.1581156+00:00",
+  "ended": "2026-10-23T11:52:07.7560718+00:00",
+  "result": {
+    "passed": true,
+    "source": "actual native RunFleet broker workflow with caller-selected frozen engine",
+    "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\engine-captured-01\\dist\\attackmap\\attackmap.exe",
+    "rootsManifest": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus-manifest.json",
+    "rootsManifestSha256": "4f47501ed86e6c4411f31c98a3e8d9042a94b33694019b6c3d0af47ea6393fd7",
+    "selectedRoots": [
+      {
+        "RepositoryId": "77cccf94a2fc4f9d8ca67d3c097cfe37",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-a\\service"
+      },
+      {
+        "RepositoryId": "681cac9e2981437a96ce48113cdc43b7",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-b\\service"
+      },
+      {
+        "RepositoryId": "427b6b20d663430b92198e935b798831",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-02"
+      },
+      {
+        "RepositoryId": "014a318f78c1471eae2719660891d1a1",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-03"
+      },
+      {
+        "RepositoryId": "de06dd7316e84245976e59cbf641e2e8",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-04"
+      },
+      {
+        "RepositoryId": "452799b6b8b44879a299b541b12a6ef4",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-05"
+      },
+      {
+        "RepositoryId": "5a4303f704cf4ff99820357380f86752",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-06"
+      },
+      {
+        "RepositoryId": "7bba44a0c9a442bd9f2f8be42bf76d82",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-07"
+      },
+      {
+        "RepositoryId": "1b5c0b29eee4433e9aac1b198d4c8244",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-08"
+      },
+      {
+        "RepositoryId": "40d333dbd0db4097bd36eba468748e49",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-09"
+      },
+      {
+        "RepositoryId": "12a9d43323d8469492ee5b23d2c358bd",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-10"
+      },
+      {
+        "RepositoryId": "be53832627544f548a12ad92315e43aa",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-11"
+      },
+      {
+        "RepositoryId": "626116af23c84d26a5d3dde7bb79bac4",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-12"
+      },
+      {
+        "RepositoryId": "c383045c3a8c434c927d2a66e87ff377",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-13"
+      },
+      {
+        "RepositoryId": "b4515767c4f545398f62d09fbedafd00",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-14"
+      },
+      {
+        "RepositoryId": "f8a95268bce74fd698183a50bcc62bd7",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-15"
+      }
+    ],
+    "active": {
+      "RunId": "0d47ee86d5d646048945e6b475ef4c0e",
+      "RepositorySetId": "fleet:ef0e893b25007d6e2699938f68f9c6195f58041db6e5f64ddd27d059a928332c",
+      "Generation": 1
+    },
+    "context": {
+      "RunId": "0d47ee86d5d646048945e6b475ef4c0e",
+      "GenerationId": "0d47ee86d5d646048945e6b475ef4c0e",
+      "ReportHash": "ff52019cafda7d618879466bd67eee0b144e1d550a98e75e2e4e7cc1da9b60dc",
+      "SelectionRevision": 1
+    },
+    "execution": {
+      "TimeoutSeconds": 1200,
+      "MaxWorkers": 2,
+      "Notice": "Fleet allowance: 1200 s total; at most 2 repository worker(s). Each child has its own captured snapshot. Count admission does not prove an OS memory cap."
+    },
+    "automaticAvailableAnalyzers": true,
+    "children": [
+      {
+        "RepositoryId": "77cccf94a2fc4f9d8ca67d3c097cfe37",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-a\\service",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\service\\child-ddb6b1366ba2bc9e1dc979fe3a04fc3a\\artifact-manifest.json",
+        "ManifestHash": "c5404f7bb025a49c2cb4abe71de5ba3091b8f16d21b8dc64f8d38623c756e118"
+      },
+      {
+        "RepositoryId": "681cac9e2981437a96ce48113cdc43b7",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-b\\service",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\service-2\\child-8ac554e1d33d5e812ef49b8fc9abdd92\\artifact-manifest.json",
+        "ManifestHash": "a71eb6e7796c66ab3aaad0516e2c3d3ffa366f0fdd50ccea89b1c315fe8f8d86"
+      },
+      {
+        "RepositoryId": "427b6b20d663430b92198e935b798831",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-02",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-02\\child-ac3749975c31909850cdba762641e484\\artifact-manifest.json",
+        "ManifestHash": "927d56c60b86473a2880316f30b2be3460cb65b2af5d27968baa53a64a8aa66f"
+      },
+      {
+        "RepositoryId": "014a318f78c1471eae2719660891d1a1",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-03",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-03\\child-fd01309116ab312e359f580771824c01\\artifact-manifest.json",
+        "ManifestHash": "1365bfad0f50133e8b1230c5bfe16b0eabfb9d2340e4b780a7e8dbb143db4591"
+      },
+      {
+        "RepositoryId": "de06dd7316e84245976e59cbf641e2e8",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-04",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-04\\child-7a7d9aa671b00fe95d9d7e96f1740c11\\artifact-manifest.json",
+        "ManifestHash": "286b59cef526cfa4734e637f0671669a9eefa429a36fe0268fdccfdbf45ecbb5"
+      },
+      {
+        "RepositoryId": "452799b6b8b44879a299b541b12a6ef4",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-05",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-05\\child-25e81b4107879cbdfe479d742a102c61\\artifact-manifest.json",
+        "ManifestHash": "bbca23d1a6344e986d7bb8ab8bc4d0e5b8378808ef6690850107b41ad34b8322"
+      },
+      {
+        "RepositoryId": "5a4303f704cf4ff99820357380f86752",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-06",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-06\\child-fe5b00a6abc0c5f1a4143be1e729f1c3\\artifact-manifest.json",
+        "ManifestHash": "d8bdeab33cdfd79c7054c895cd7a07a68744ca78591293d7a074eedc71601f64"
+      },
+      {
+        "RepositoryId": "7bba44a0c9a442bd9f2f8be42bf76d82",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-07",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-07\\child-71269c499ac1fbff0ed3c0f6103c2ebc\\artifact-manifest.json",
+        "ManifestHash": "fbd8e05c7cd635cb44c2cdc20bc89f988252a66b452d9c4aec406d9ef78bbed4"
+      },
+      {
+        "RepositoryId": "1b5c0b29eee4433e9aac1b198d4c8244",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-08",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-08\\child-4773c04a8e4d6dd591048b8b9b68d413\\artifact-manifest.json",
+        "ManifestHash": "2eee8841795edaf385896de133d2129db576c6184addfb834be2ec4eb18784c5"
+      },
+      {
+        "RepositoryId": "40d333dbd0db4097bd36eba468748e49",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-09",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-09\\child-21f09ae325987fcc53094cb2ff4675b2\\artifact-manifest.json",
+        "ManifestHash": "315e8905ce572a21f897b8abe92621da136d400188a3a33c7e7754737f326de2"
+      },
+      {
+        "RepositoryId": "12a9d43323d8469492ee5b23d2c358bd",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-10",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-10\\child-1b4936061e802a82efa73d3cd6262f8c\\artifact-manifest.json",
+        "ManifestHash": "ae4ce4b3417a85842550cd99ef70cd56b737307a320efd9a30631206c9dc1362"
+      },
+      {
+        "RepositoryId": "be53832627544f548a12ad92315e43aa",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-11",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-11\\child-e76f86b064773294715ae9c646129347\\artifact-manifest.json",
+        "ManifestHash": "1954f2e5c34245a3fc3c436164e2ee6ecdc2f4b2a67c3a8010493b962cf44b70"
+      },
+      {
+        "RepositoryId": "626116af23c84d26a5d3dde7bb79bac4",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-12",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-12\\child-16afaff71fee9dfb9b1185dcd7bfd21e\\artifact-manifest.json",
+        "ManifestHash": "ae11815cd80f1d6413d9284c8eb518fba7f26f837ffa8a83eec959832d9712a2"
+      },
+      {
+        "RepositoryId": "c383045c3a8c434c927d2a66e87ff377",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-13",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-13\\child-68893f36bbfad252cd6a39ca03c987ac\\artifact-manifest.json",
+        "ManifestHash": "6557a6e6bceb9e476b7741d9411aece4ff290e200e9423e54ddf402c611d1cc4"
+      },
+      {
+        "RepositoryId": "b4515767c4f545398f62d09fbedafd00",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-14",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-14\\child-a1688b850f01c56f7292bc0a2c5ec5d7\\artifact-manifest.json",
+        "ManifestHash": "aaeb2b2760b6d2a6da0e490bb50ad07ce5a1b12607328492c24809b0da4052dd"
+      },
+      {
+        "RepositoryId": "f8a95268bce74fd698183a50bcc62bd7",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-15",
+        "State": "completed",
+        "ManifestPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-15\\child-b0ebd016f2e8671ce29615b378545b2e\\artifact-manifest.json",
+        "ManifestHash": "b5d48a21c9ee2bc8bd251d90ee3cea53993c01f6771a0352c22df2db387573ab"
+      }
+    ],
+    "opened": [
+      {
+        "RepositoryId": "77cccf94a2fc4f9d8ca67d3c097cfe37",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-a\\service",
+        "runId": "child-ddb6b1366ba2bc9e1dc979fe3a04fc3a",
+        "manifestHash": "c5404f7bb025a49c2cb4abe71de5ba3091b8f16d21b8dc64f8d38623c756e118",
+        "returnedContext": {
+          "RunId": "0d47ee86d5d646048945e6b475ef4c0e",
+          "GenerationId": "0d47ee86d5d646048945e6b475ef4c0e",
+          "ReportHash": "ff52019cafda7d618879466bd67eee0b144e1d550a98e75e2e4e7cc1da9b60dc",
+          "SelectionRevision": 1
+        }
+      },
+      {
+        "RepositoryId": "f8a95268bce74fd698183a50bcc62bd7",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-15",
+        "runId": "child-b0ebd016f2e8671ce29615b378545b2e",
+        "manifestHash": "b5d48a21c9ee2bc8bd251d90ee3cea53993c01f6771a0352c22df2db387573ab",
+        "returnedContext": {
+          "RunId": "0d47ee86d5d646048945e6b475ef4c0e",
+          "GenerationId": "0d47ee86d5d646048945e6b475ef4c0e",
+          "ReportHash": "ff52019cafda7d618879466bd67eee0b144e1d550a98e75e2e4e7cc1da9b60dc",
+          "SelectionRevision": 1
+        }
+      }
+    ],
+    "navigationScope": "In-process host navigation history state transition; no OS back-button input",
+    "captures": [
+      {
+        "requestedWindowDip": {
+          "Width": 1024,
+          "Height": 700
+        },
+        "surface": "vector",
+        "capture": {
+          "Width": 1008,
+          "Height": 661,
+          "Scale": 1,
+          "LogicalWidth": 1008,
+          "LogicalHeight": 661,
+          "Theme": "Light",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Light-vector-Fleet.png",
+          "Sha256": "0caeeb1d1b633c06901e263bc3c38bb02a85b27a70d744a0512c1db7f406bc80",
+          "CapturedAt": "2026-10-23T11:51:28.8946139+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      },
+      {
+        "requestedWindowDip": {
+          "Width": 1024,
+          "Height": 700
+        },
+        "surface": "vector",
+        "capture": {
+          "Width": 1008,
+          "Height": 661,
+          "Scale": 1,
+          "LogicalWidth": 1008,
+          "LogicalHeight": 661,
+          "Theme": "Dark",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Dark-vector-Fleet.png",
+          "Sha256": "3d2779d658dd5d55f4b363faf14b9d97b57742a441841359ab9c43d97614aa6f",
+          "CapturedAt": "2026-10-23T11:51:32.6190778+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      },
+      {
+        "requestedWindowDip": {
+          "Width": 1600,
+          "Height": 1000
+        },
+        "surface": "vector",
+        "capture": {
+          "Width": 1584,
+          "Height": 961,
+          "Scale": 1,
+          "LogicalWidth": 1584,
+          "LogicalHeight": 961,
+          "Theme": "Light",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Light-vector-Fleet.png",
+          "Sha256": "540f729f8f499e813615d833a3b427865021ded79190ef9677af39788e2df158",
+          "CapturedAt": "2026-10-23T11:51:36.73973+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      },
+      {
+        "requestedWindowDip": {
+          "Width": 1600,
+          "Height": 1000
+        },
+        "surface": "vector",
+        "capture": {
+          "Width": 1584,
+          "Height": 961,
+          "Scale": 1,
+          "LogicalWidth": 1584,
+          "LogicalHeight": 961,
+          "Theme": "Dark",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Dark-vector-Fleet.png",
+          "Sha256": "905d2ed24d0d4c57835df5f1fc88732921a7f16d5ebc8870cf656deb43043929",
+          "CapturedAt": "2026-10-23T11:51:52.4819148+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      },
+      {
+        "requestedWindowDip": {
+          "Width": 1024,
+          "Height": 700
+        },
+        "surface": "interactive",
+        "capture": {
+          "Width": 1008,
+          "Height": 661,
+          "Scale": 1,
+          "LogicalWidth": 1008,
+          "LogicalHeight": 661,
+          "Theme": "Light",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Light-interactive-Fleet.png",
+          "Sha256": "f40b60fa6989f8b149becc6dd01e6a81c57b2ad5b37b389a03dac83d76fd874e",
+          "CapturedAt": "2026-10-23T11:51:58.0678682+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      },
+      {
+        "requestedWindowDip": {
+          "Width": 1024,
+          "Height": 700
+        },
+        "surface": "interactive",
+        "capture": {
+          "Width": 1008,
+          "Height": 661,
+          "Scale": 1,
+          "LogicalWidth": 1008,
+          "LogicalHeight": 661,
+          "Theme": "Dark",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Dark-interactive-Fleet.png",
+          "Sha256": "d6bc62a2580c92d355f27aaedf70653138ea7a3a0dfe437b29a4a02fc8979bbe",
+          "CapturedAt": "2026-10-23T11:52:01.6428087+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      },
+      {
+        "requestedWindowDip": {
+          "Width": 1600,
+          "Height": 1000
+        },
+        "surface": "interactive",
+        "capture": {
+          "Width": 1584,
+          "Height": 961,
+          "Scale": 1,
+          "LogicalWidth": 1584,
+          "LogicalHeight": 961,
+          "Theme": "Light",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Light-interactive-Fleet.png",
+          "Sha256": "17c5a06ab0c83614625d9c53dad5c703e3ce5aedb7ad28024ee13813e678c9f0",
+          "CapturedAt": "2026-10-23T11:52:05.2176069+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      },
+      {
+        "requestedWindowDip": {
+          "Width": 1600,
+          "Height": 1000
+        },
+        "surface": "interactive",
+        "capture": {
+          "Width": 1584,
+          "Height": 961,
+          "Scale": 1,
+          "LogicalWidth": 1584,
+          "LogicalHeight": 961,
+          "Theme": "Dark",
+          "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Dark-interactive-Fleet.png",
+          "Sha256": "b2fd38bc09ebf2c9125c56f80b70abf6a28fc9bc2a4259e5438cae15eafd7e11",
+          "CapturedAt": "2026-10-23T11:52:07.7534155+00:00",
+          "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+        },
+        "nativeVectorLayoutComplete": true,
+        "interactiveLayoutMessageAcknowledged": true,
+        "provesInteractivePixels": false,
+        "provesOsAppearance": false
+      }
+    ],
+    "captureRetries": [],
+    "clientRenderScope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance.",
+    "interactiveProof": "Current runtime/page/session/context layout completion message; not pixel proof",
+    "personalSettingsRead": false,
+    "providerConfigured": false,
+    "liveProviderCalls": 0,
+    "acceptedManualUi": false,
+    "acceptedOsAppearance": false
+  },
+  "failure": null,
+  "checks": [
+    {
+      "name": "explicit_frozen_executable_exists",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1642366+00:00"
+    },
+    {
+      "name": "owned_synthetic_corpus_manifest",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1871873+00:00"
+    },
+    {
+      "name": "exactly_16_explicit_roots",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1890059+00:00"
+    },
+    {
+      "name": "empty_initial_fleet",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1890414+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-a\\service"
+      },
+      "at": "2026-10-23T11:49:09.1893513+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1895397+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-b\\service"
+      },
+      "at": "2026-10-23T11:49:09.1973291+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.197342+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-02"
+      },
+      "at": "2026-10-23T11:49:09.1975701+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1975768+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-03"
+      },
+      "at": "2026-10-23T11:49:09.1976486+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.197652+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-04"
+      },
+      "at": "2026-10-23T11:49:09.1977179+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1977209+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-05"
+      },
+      "at": "2026-10-23T11:49:09.1977915+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1977946+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-06"
+      },
+      "at": "2026-10-23T11:49:09.1978605+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1978641+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-07"
+      },
+      "at": "2026-10-23T11:49:09.1979254+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1979284+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-08"
+      },
+      "at": "2026-10-23T11:49:09.197994+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1979969+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-09"
+      },
+      "at": "2026-10-23T11:49:09.1980689+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1980722+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-10"
+      },
+      "at": "2026-10-23T11:49:09.1981341+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1981372+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-11"
+      },
+      "at": "2026-10-23T11:49:09.1982025+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1982069+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-12"
+      },
+      "at": "2026-10-23T11:49:09.1982733+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1982761+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-13"
+      },
+      "at": "2026-10-23T11:49:09.1983372+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.19834+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-14"
+      },
+      "at": "2026-10-23T11:49:09.198402+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1984055+00:00"
+    },
+    {
+      "name": "owned_fixture_root_exists",
+      "passed": true,
+      "detail": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-15"
+      },
+      "at": "2026-10-23T11:49:09.1984683+00:00"
+    },
+    {
+      "name": "outputs_outside_target",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.1984712+00:00"
+    },
+    {
+      "name": "no_provider_configured",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:09.2145299+00:00"
+    },
+    {
+      "name": "engine_supports_fleet_1_4",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:49:20.4085824+00:00"
+    },
+    {
+      "name": "workspace_complete_current",
+      "passed": true,
+      "detail": {
+        "Outcome": "succeeded",
+        "Text": "Fleet succeeded. Previous single-repository report remains selected until you explicitly open a child."
+      },
+      "at": "2026-10-23T11:51:08.5732564+00:00"
+    },
+    {
+      "name": "all_16_children_verified",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:08.5734058+00:00"
+    },
+    {
+      "name": "broker_cleanup_settled",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:08.5734072+00:00"
+    },
+    {
+      "name": "graph_context_matches_fleet",
+      "passed": true,
+      "detail": {
+        "RunId": "0d47ee86d5d646048945e6b475ef4c0e",
+        "GenerationId": "0d47ee86d5d646048945e6b475ef4c0e",
+        "ReportHash": "ff52019cafda7d618879466bd67eee0b144e1d550a98e75e2e4e7cc1da9b60dc",
+        "SelectionRevision": 1
+      },
+      "at": "2026-10-23T11:51:08.5735694+00:00"
+    },
+    {
+      "name": "graph_summary_hash_bound",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:08.6134884+00:00"
+    },
+    {
+      "name": "all_16_graph_repository_groups",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:08.6181099+00:00"
+    },
+    {
+      "name": "host_binds_all_16_transport_and_snapshot_ids",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:08.618919+00:00"
+    },
+    {
+      "name": "child_display_and_export_identity",
+      "passed": true,
+      "detail": {
+        "RepositoryId": "77cccf94a2fc4f9d8ca67d3c097cfe37",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-a\\service",
+        "displayedRepository": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\team-a\\service",
+        "displayedRun": "child-ddb6b1366ba2bc9e1dc979fe3a04fc3a",
+        "displayedReportPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\service\\child-ddb6b1366ba2bc9e1dc979fe3a04fc3a\\attackmap-report.json"
+      },
+      "at": "2026-10-23T11:51:11.6088875+00:00"
+    },
+    {
+      "name": "child_navigation_reaches_findings",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:11.6091898+00:00"
+    },
+    {
+      "name": "history_back_targets_fleet",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:11.6091979+00:00"
+    },
+    {
+      "name": "back_to_fleet_retains_graph_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:12.8346067+00:00"
+    },
+    {
+      "name": "child_display_and_export_identity",
+      "passed": true,
+      "detail": {
+        "RepositoryId": "f8a95268bce74fd698183a50bcc62bd7",
+        "RepositoryPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-15",
+        "displayedRepository": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\integration\\corpus\\repo-15",
+        "displayedRun": "child-b0ebd016f2e8671ce29615b378545b2e",
+        "displayedReportPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\reports\\native-fleet-0d47ee86d5d646048945e6b475ef4c0e\\0d47ee86d5d646048945e6b475ef4c0e\\repo-15\\child-b0ebd016f2e8671ce29615b378545b2e\\attackmap-report.json"
+      },
+      "at": "2026-10-23T11:51:13.699436+00:00"
+    },
+    {
+      "name": "child_navigation_reaches_findings",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:13.6995611+00:00"
+    },
+    {
+      "name": "history_back_targets_fleet",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:13.699575+00:00"
+    },
+    {
+      "name": "back_to_fleet_retains_graph_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:14.312923+00:00"
+    },
+    {
+      "name": "vector_navigation_regression_context_before_child",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:14.4775308+00:00"
+    },
+    {
+      "name": "vector_navigation_regression_child_opened",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:15.7059075+00:00"
+    },
+    {
+      "name": "vector_navigation_regression_back_targets_fleet",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:15.7059087+00:00"
+    },
+    {
+      "name": "vector_navigation_regression_current_layout_settled",
+      "passed": true,
+      "detail": {
+        "vectorWasPending": true,
+        "source": "Pending surface transition plus real host child navigation/back; current layout polled after old task."
+      },
+      "at": "2026-10-23T11:51:18.5764464+00:00"
+    },
+    {
+      "name": "native_vector_layout_complete",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:18.5764514+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:25.910495+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:28.895176+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:31.7722346+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:32.6191448+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:35.7095623+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:36.7397651+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:39.480629+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:52.4819449+00:00"
+    },
+    {
+      "name": "interactive_context_layout_message_acknowledged",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:52.4859346+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:56.0697158+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:58.067949+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:52:00.7669629+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:52:01.6428408+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:52:04.2899726+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:52:05.2177836+00:00"
+    },
+    {
+      "name": "capture_context_still_current",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:52:06.8428667+00:00"
+    },
+    {
+      "name": "capture_completed_same_context",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:52:07.7535168+00:00"
+    }
+  ],
+  "captures": [
+    {
+      "requestedWindowDip": {
+        "Width": 1024,
+        "Height": 700
+      },
+      "surface": "vector",
+      "capture": {
+        "Width": 1008,
+        "Height": 661,
+        "Scale": 1,
+        "LogicalWidth": 1008,
+        "LogicalHeight": 661,
+        "Theme": "Light",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Light-vector-Fleet.png",
+        "Sha256": "0caeeb1d1b633c06901e263bc3c38bb02a85b27a70d744a0512c1db7f406bc80",
+        "CapturedAt": "2026-10-23T11:51:28.8946139+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    },
+    {
+      "requestedWindowDip": {
+        "Width": 1024,
+        "Height": 700
+      },
+      "surface": "vector",
+      "capture": {
+        "Width": 1008,
+        "Height": 661,
+        "Scale": 1,
+        "LogicalWidth": 1008,
+        "LogicalHeight": 661,
+        "Theme": "Dark",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Dark-vector-Fleet.png",
+        "Sha256": "3d2779d658dd5d55f4b363faf14b9d97b57742a441841359ab9c43d97614aa6f",
+        "CapturedAt": "2026-10-23T11:51:32.6190778+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    },
+    {
+      "requestedWindowDip": {
+        "Width": 1600,
+        "Height": 1000
+      },
+      "surface": "vector",
+      "capture": {
+        "Width": 1584,
+        "Height": 961,
+        "Scale": 1,
+        "LogicalWidth": 1584,
+        "LogicalHeight": 961,
+        "Theme": "Light",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Light-vector-Fleet.png",
+        "Sha256": "540f729f8f499e813615d833a3b427865021ded79190ef9677af39788e2df158",
+        "CapturedAt": "2026-10-23T11:51:36.73973+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    },
+    {
+      "requestedWindowDip": {
+        "Width": 1600,
+        "Height": 1000
+      },
+      "surface": "vector",
+      "capture": {
+        "Width": 1584,
+        "Height": 961,
+        "Scale": 1,
+        "LogicalWidth": 1584,
+        "LogicalHeight": 961,
+        "Theme": "Dark",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Dark-vector-Fleet.png",
+        "Sha256": "905d2ed24d0d4c57835df5f1fc88732921a7f16d5ebc8870cf656deb43043929",
+        "CapturedAt": "2026-10-23T11:51:52.4819148+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    },
+    {
+      "requestedWindowDip": {
+        "Width": 1024,
+        "Height": 700
+      },
+      "surface": "interactive",
+      "capture": {
+        "Width": 1008,
+        "Height": 661,
+        "Scale": 1,
+        "LogicalWidth": 1008,
+        "LogicalHeight": 661,
+        "Theme": "Light",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Light-interactive-Fleet.png",
+        "Sha256": "f40b60fa6989f8b149becc6dd01e6a81c57b2ad5b37b389a03dac83d76fd874e",
+        "CapturedAt": "2026-10-23T11:51:58.0678682+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    },
+    {
+      "requestedWindowDip": {
+        "Width": 1024,
+        "Height": 700
+      },
+      "surface": "interactive",
+      "capture": {
+        "Width": 1008,
+        "Height": 661,
+        "Scale": 1,
+        "LogicalWidth": 1008,
+        "LogicalHeight": 661,
+        "Theme": "Dark",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1024x700-Dark-interactive-Fleet.png",
+        "Sha256": "d6bc62a2580c92d355f27aaedf70653138ea7a3a0dfe437b29a4a02fc8979bbe",
+        "CapturedAt": "2026-10-23T11:52:01.6428087+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    },
+    {
+      "requestedWindowDip": {
+        "Width": 1600,
+        "Height": 1000
+      },
+      "surface": "interactive",
+      "capture": {
+        "Width": 1584,
+        "Height": 961,
+        "Scale": 1,
+        "LogicalWidth": 1584,
+        "LogicalHeight": 961,
+        "Theme": "Light",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Light-interactive-Fleet.png",
+        "Sha256": "17c5a06ab0c83614625d9c53dad5c703e3ce5aedb7ad28024ee13813e678c9f0",
+        "CapturedAt": "2026-10-23T11:52:05.2176069+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    },
+    {
+      "requestedWindowDip": {
+        "Width": 1600,
+        "Height": 1000
+      },
+      "surface": "interactive",
+      "capture": {
+        "Width": 1584,
+        "Height": 961,
+        "Scale": 1,
+        "LogicalWidth": 1584,
+        "LogicalHeight": 961,
+        "Theme": "Dark",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp043-fleet16-20261023\\native-fleet-smoke-01\\captures\\1600x1000-Dark-interactive-Fleet.png",
+        "Sha256": "b2fd38bc09ebf2c9125c56f80b70abf6a28fc9bc2a4259e5438cae15eafd7e11",
+        "CapturedAt": "2026-10-23T11:52:07.7534155+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      "nativeVectorLayoutComplete": true,
+      "interactiveLayoutMessageAcknowledged": true,
+      "provesInteractivePixels": false,
+      "provesOsAppearance": false
+    }
+  ],
+  "captureRetries": []
+}

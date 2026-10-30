@@ -348,7 +348,10 @@ def render_fleet_graph_mermaid(fleet: FleetScan) -> str:
 
 def fleet_summary_json(fleet: FleetScan) -> dict:
     """Machine-readable fleet index (for GUI / tooling front-ends)."""
+    from .fleet_architecture import build_fleet_architecture
+
     return {
+        "fleet_architecture": build_fleet_architecture(fleet),
         "repo_count": fleet.repo_count,
         "total_findings": fleet.total_findings(),
         "failed": list(fleet.failed),

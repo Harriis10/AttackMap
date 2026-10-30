@@ -1,0 +1,3807 @@
+{
+  "scope": "direct analyzer extraction and core merge; no pipeline or whole-repo passes",
+  "fixture_count": 27,
+  "variants": {
+    "installed": {
+      "fastapi-import-alias": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/v1/users",
+            "/public/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-wrong-import": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-registration-override": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-constructor-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/users",
+            "/public/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-positive": {
+        "plugin_only": {
+          "paths": {
+            "/api/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [
+            "/api/items/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/items/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/": "unknown",
+            "/items/": "unknown",
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-wrong-target": {
+        "plugin_only": {
+          "paths": {
+            "/status/": "unknown",
+            "/api/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [
+            "/api/status/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/status/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/status/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/status/": "unknown",
+            "/api/": "unknown",
+            "/items/": "unknown",
+            "/api/status/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-module-function-control": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-direct-function-import": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-imported-class-view": {
+        "plugin_only": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/detail/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-literal-re-path": {
+        "plugin_only": {
+          "paths": {
+            "^literal/$": "unknown"
+          },
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "^literal/$": "unknown"
+          },
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-unsupported-regex": {
+        "plugin_only": {
+          "paths": {
+            "^items/(?P<pk>[0-9]+)/$": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "^items/(?P<pk>[0-9]+)/$": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-path-concatenation": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-commented-path": {
+        "plugin_only": {
+          "paths": {
+            "/not-registered/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        }
+      },
+      "oracle-foreign-path-function": {
+        "plugin_only": {
+          "paths": {
+            "/not-django/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        }
+      },
+      "oracle-shadowed-auth-decorator": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-spoof-middleware-name": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-two-mounts": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown",
+            "/v1/": "unknown",
+            "/v2/": "unknown"
+          },
+          "missing": [
+            "/v1/item/",
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/v1/item/",
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/v1/item/": "unknown"
+          },
+          "missing": [
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown",
+            "/v1/": "unknown",
+            "/v2/": "unknown",
+            "/v1/item/": "unknown"
+          },
+          "missing": [
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-literal-tuple": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown",
+            "/api/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown",
+            "/api/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-import-alias": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-include-expression": {
+        "plugin_only": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-foreign-auth-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-fake-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-canonical-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      }
+    },
+    "pinned": {
+      "fastapi-import-alias": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/v1/users",
+            "/public/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-wrong-import": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-registration-override": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-constructor-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/users",
+            "/public/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-positive": {
+        "plugin_only": {
+          "paths": {
+            "/api/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [
+            "/api/items/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/items/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/": "unknown",
+            "/items/": "unknown",
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-wrong-target": {
+        "plugin_only": {
+          "paths": {
+            "/status/": "unknown",
+            "/api/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [
+            "/api/status/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/status/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/status/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/status/": "unknown",
+            "/api/": "unknown",
+            "/items/": "unknown",
+            "/api/status/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-module-function-control": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-direct-function-import": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-imported-class-view": {
+        "plugin_only": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/detail/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-literal-re-path": {
+        "plugin_only": {
+          "paths": {
+            "^literal/$": "unknown"
+          },
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "^literal/$": "unknown"
+          },
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-unsupported-regex": {
+        "plugin_only": {
+          "paths": {
+            "^items/(?P<pk>[0-9]+)/$": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "^items/(?P<pk>[0-9]+)/$": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-path-concatenation": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-commented-path": {
+        "plugin_only": {
+          "paths": {
+            "/not-registered/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        }
+      },
+      "oracle-foreign-path-function": {
+        "plugin_only": {
+          "paths": {
+            "/not-django/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        }
+      },
+      "oracle-shadowed-auth-decorator": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-spoof-middleware-name": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-two-mounts": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown",
+            "/v1/": "unknown",
+            "/v2/": "unknown"
+          },
+          "missing": [
+            "/v1/item/",
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/v1/item/",
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/v1/item/": "unknown"
+          },
+          "missing": [
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown",
+            "/v1/": "unknown",
+            "/v2/": "unknown",
+            "/v1/item/": "unknown"
+          },
+          "missing": [
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-literal-tuple": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown",
+            "/api/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown",
+            "/api/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-import-alias": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-include-expression": {
+        "plugin_only": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-foreign-auth-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-fake-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-canonical-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      }
+    },
+    "candidate": {
+      "fastapi-import-alias": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/v1/users",
+            "/public/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-wrong-import": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-registration-override": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-constructor-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/users",
+            "/public/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-positive": {
+        "plugin_only": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/items/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-wrong-target": {
+        "plugin_only": {
+          "paths": {
+            "/api/status/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/status/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/status/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/status/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-module-function-control": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-direct-function-import": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-imported-class-view": {
+        "plugin_only": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/detail/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-literal-re-path": {
+        "plugin_only": {
+          "paths": {
+            "/literal/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/literal/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-unsupported-regex": {
+        "plugin_only": {
+          "paths": {
+            "/items/(?P<pk>[0-9]+)/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/items/(?P<pk>[0-9]+)/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-path-concatenation": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-commented-path": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        }
+      },
+      "oracle-foreign-path-function": {
+        "plugin_only": {
+          "paths": {
+            "/not-django/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        }
+      },
+      "oracle-shadowed-auth-decorator": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-spoof-middleware-name": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-two-mounts": {
+        "plugin_only": {
+          "paths": {
+            "/v1/item/": "unknown",
+            "/v2/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/v1/item/",
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/v1/item/": "unknown"
+          },
+          "missing": [
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/item/": "unknown",
+            "/v2/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-literal-tuple": {
+        "plugin_only": {
+          "paths": {
+            "/api/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-import-alias": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-include-expression": {
+        "plugin_only": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-foreign-auth-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-fake-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-canonical-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        }
+      }
+    },
+    "main_observed": {
+      "fastapi-import-alias": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/v1/users",
+            "/public/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "fastapi-wrong-import": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v2/status": "unknown",
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/v2/status"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-registration-override": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [
+            "/api/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-constructor-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/v1/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-multi-mount": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [
+            "/internal/users",
+            "/public/users"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "flask-dynamic-prefix": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/users": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-positive": {
+        "plugin_only": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/items/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "django-include-wrong-target": {
+        "plugin_only": {
+          "paths": {
+            "/api/status/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/status/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/api/status/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/status/": "unknown",
+            "/items/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-module-function-control": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-direct-function-import": {
+        "plugin_only": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/private/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/private/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/private/": {
+              "expected": "required",
+              "actual": "unknown"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-imported-class-view": {
+        "plugin_only": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/detail/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/detail/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-literal-re-path": {
+        "plugin_only": {
+          "paths": {
+            "/literal/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/literal/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/literal/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-unsupported-regex": {
+        "plugin_only": {
+          "paths": {
+            "/items/(?P<pk>[0-9]+)/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/items/(?P<pk>[0-9]+)/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-path-concatenation": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-commented-path": {
+        "plugin_only": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-registered/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-registered/"
+          ]
+        }
+      },
+      "oracle-foreign-path-function": {
+        "plugin_only": {
+          "paths": {
+            "/not-django/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        },
+        "priority_merged": {
+          "paths": {
+            "/not-django/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": [
+            "/not-django/"
+          ]
+        }
+      },
+      "oracle-shadowed-auth-decorator": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-spoof-middleware-name": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-two-mounts": {
+        "plugin_only": {
+          "paths": {
+            "/v1/item/": "unknown",
+            "/v2/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/v1/item/",
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/v1/item/": "unknown"
+          },
+          "missing": [
+            "/v2/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/v1/item/": "unknown",
+            "/v2/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-literal-tuple": {
+        "plugin_only": {
+          "paths": {
+            "/api/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/item/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-include-import-alias": {
+        "plugin_only": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/item/": "unknown"
+          },
+          "missing": [
+            "/api/item/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-dynamic-include-expression": {
+        "plugin_only": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {},
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/api/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        }
+      },
+      "oracle-foreign-auth-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "required"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "required"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-fake-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        }
+      },
+      "oracle-canonical-public-wrapper": {
+        "plugin_only": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        },
+        "builtin_web": {
+          "paths": {},
+          "missing": [
+            "/public/"
+          ],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "builtin_service": {
+          "paths": {
+            "/public/": "unknown"
+          },
+          "missing": [],
+          "auth_mismatches": {},
+          "forbidden_present": []
+        },
+        "priority_merged": {
+          "paths": {
+            "/public/": "anonymous"
+          },
+          "missing": [],
+          "auth_mismatches": {
+            "/public/": {
+              "expected": "unknown",
+              "actual": "anonymous"
+            }
+          },
+          "forbidden_present": []
+        }
+      }
+    }
+  },
+  "installed_pinned_route_projections_identical": true
+}

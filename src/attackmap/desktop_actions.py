@@ -22,7 +22,7 @@ class ActionRequest(BaseModel):
     schema_version: Literal["1.1"] = "1.1"
     request_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
     operation: Literal["capabilities", "preflight", "compare", "suppression_preview", "suppression_apply", "suppression_undo", "suppression_recover",
-                       "provider_save", "provider_check",
+                       "provider_save", "provider_check", "report_graph",
                        "pin_generation", "unpin_generation", "diagnostics_preview", "diagnostics_export"]
     output_path: str = Field(min_length=1)
     payload: dict
@@ -30,6 +30,9 @@ class ActionRequest(BaseModel):
 
 def execute_action(request: ActionRequest) -> dict:
     payload = request.payload
+    if request.operation == "report_graph":
+        from .desktop_graph import project_report_graph
+        return project_report_graph(payload)
     if request.operation in {"capabilities", "preflight"}:
         from .cli import app
         from .desktop_capabilities import build_capabilities, preflight_capabilities

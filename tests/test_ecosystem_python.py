@@ -138,7 +138,7 @@ def test_flask_custom_decorator_validated_at_definition_site(result: ScanResult)
 
 
 def test_flask_blueprint_mount_hint(result: ScanResult) -> None:
-    hint = next(h for h in result.framework_hints if h.hint == "flask_blueprint_mount:/api/v1")
+    hint = next(h for h in result.framework_hints if h.hint == "flask_blueprint_mount:/api")
     assert (hint.file, hint.line) == ("web/flask_app.py", 11)
     assert "web/api_views.py" in (hint.evidence_text or "")
 
@@ -197,7 +197,8 @@ def test_django_login_required_middleware_infers_global_auth(tmp_path: Path) -> 
     (tmp_path / "site").mkdir()
     (tmp_path / "site" / "__init__.py").write_text("", encoding="utf-8")
     (tmp_path / "site" / "settings.py").write_text(
-        'MIDDLEWARE = [\n    "django.contrib.auth.middleware.LoginRequiredMiddleware",\n]\n'
+        'MIDDLEWARE = [\n    "django.contrib.auth.middleware.AuthenticationMiddleware",\n'
+        '    "django.contrib.auth.middleware.LoginRequiredMiddleware",\n]\n'
         'ROOT_URLCONF = "site.urls"\n',
         encoding="utf-8",
     )

@@ -1,0 +1,91 @@
+{
+  "classification": "deterministic paired source extraction, no provider or GUI",
+  "selected_analyzer": "attackmap.ecosystem_php.PhpLaminasAnalyzer",
+  "cases": {
+    "positive": {
+      "source_sha256": "243e75dcf845a56d7933a5f17ecbc259591786c1e5fd9bed2165304710a844b4",
+      "expected_child": "/admin/item/:id",
+      "routes": [
+        {
+          "path": "/admin/item/:id",
+          "method": "ANY",
+          "file": "config/module.config.php",
+          "line": 8,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "entrypoint_hints": [
+        {
+          "hint": "laminas-route:/admin/item/:id (inferred)",
+          "file": "config/module.config.php",
+          "line": 8,
+          "evidence_text": "parent (line 6): /admin; parent/item (line 8): /item/:id",
+          "confidence": 0.85
+        },
+        {
+          "hint": "laminas-route-default-controller:/admin/item/:id=>Board (inferred)",
+          "file": "config/module.config.php",
+          "line": 6,
+          "evidence_text": "parent (line 6): /admin; parent/item (line 8): /item/:id; controller (line 6): 'Board'",
+          "confidence": 0.85
+        },
+        {
+          "hint": "laminas-route-default-action:/admin/item/:id=>show (observed)",
+          "file": "config/module.config.php",
+          "line": 8,
+          "evidence_text": "parent (line 6): /admin; parent/item (line 8): /item/:id; action (line 8): 'show'",
+          "confidence": 0.85
+        }
+      ],
+      "source": "<?php\nreturn [\n    'router' => ['routes' => [\n        'parent' => [\n            'type' => 'Literal',\n            'options' => ['route' => '/admin', 'defaults' => ['controller' => 'Board', 'action' => 'index']],\n            'child_routes' => [\n                'item' => ['type' => 'Segment', 'options' => ['route' => '/item/:id', 'defaults' => ['action' => 'show']]],\n            ],\n        ],\n    ]],\n];\n",
+      "source_sha256_encoding": "utf-8 normalized LF text",
+      "source_bytes_sha256": "1262128bd2bd6d66c88b67c8343a0a440a35f8ced2e385c3c70d8e5a752910e9"
+    },
+    "wrong_parent_negative": {
+      "source_sha256": "63527a04808984174b032573a9c3f082501e472c77b901f56a56a41a315328dd",
+      "expected_child": "/public/item/:id",
+      "routes": [
+        {
+          "path": "/public/item/:id",
+          "method": "ANY",
+          "file": "config/module.config.php",
+          "line": 8,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "entrypoint_hints": [
+        {
+          "hint": "laminas-route:/public/item/:id (inferred)",
+          "file": "config/module.config.php",
+          "line": 8,
+          "evidence_text": "parent (line 6): /public; parent/item (line 8): /item/:id",
+          "confidence": 0.85
+        },
+        {
+          "hint": "laminas-route-default-controller:/public/item/:id=>Board (inferred)",
+          "file": "config/module.config.php",
+          "line": 6,
+          "evidence_text": "parent (line 6): /public; parent/item (line 8): /item/:id; controller (line 6): 'Board'",
+          "confidence": 0.85
+        },
+        {
+          "hint": "laminas-route-default-action:/public/item/:id=>show (observed)",
+          "file": "config/module.config.php",
+          "line": 8,
+          "evidence_text": "parent (line 6): /public; parent/item (line 8): /item/:id; action (line 8): 'show'",
+          "confidence": 0.85
+        }
+      ],
+      "source": "<?php\nreturn [\n    'router' => ['routes' => [\n        'parent' => [\n            'type' => 'Literal',\n            'options' => ['route' => '/public', 'defaults' => ['controller' => 'Board', 'action' => 'index']],\n            'child_routes' => [\n                'item' => ['type' => 'Segment', 'options' => ['route' => '/item/:id', 'defaults' => ['action' => 'show']]],\n            ],\n        ],\n    ]],\n];\n",
+      "source_sha256_encoding": "utf-8 normalized LF text",
+      "source_bytes_sha256": "084166f25ff3ad0a425dc7832da976832e3d89d46a308f413a38f4d93cf8aa07"
+    }
+  },
+  "phase": "after",
+  "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "implementation_source_sha256": "6b70741e058d4132d7d9a611fc2324a31ad64d0a278d2fb2d205fc27fe6a2161"
+}

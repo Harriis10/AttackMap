@@ -70,3 +70,51 @@ build_v2/
 # Local development toolchain (kept separate from disposable test outputs)
 .tools/
 .tmp/
+
+# Local evidence payloads and offline caches (kept on disk, transferred separately)
+artifacts/
+NuGet/
+.zcode/
+
+# .NET build outputs
+**/bin/
+**/obj/
+
+# Heavy binary evidence payloads (kept on disk, not versioned; already tracked files unaffected)
+*.dll
+*.exe
+*.winmd
+*.mui
+*.pyd
+*.pdb
+*.pri
+*.resfiles
+*.nupkg
+*.zip
+*.pstats
+*.png
+*.ico
+*.cache
+
+# docs/verification runtime/build payload directories (text evidence stays tracked)
+docs/verification/**/runtime/
+docs/verification/**/installed-*/
+docs/verification/**/native-build/
+docs/verification/**/package-stages/
+docs/verification/**/package-evidence/
+docs/verification/**/preview-build/
+docs/verification/**/test-build/
+docs/verification/**/dotnet-artifacts/
+docs/verification/**/dotnet-implementation/
+docs/verification/**/pytest-temp/
+docs/verification/**/pytest-tmp*/
+docs/verification/**/profile/
+docs/verification/**/profiles/
+docs/verification/**/*-temp/
+docs/verification/**/hunt/
+docs/verification/**/hunt_verify/
+docs/verification/**/triage/
+docs/verification/**/remediate/
+docs/verification/**/core/
+docs/verification/**/native/
+docs/verification/windows-parity/WP023/astra-frozen-20261022/

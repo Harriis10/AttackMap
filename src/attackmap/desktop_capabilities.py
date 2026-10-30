@@ -10,7 +10,7 @@ from typing import Any
 from . import __version__
 from .progress import PROGRESS_PROTOCOL_VERSION
 from .provider_options import ProviderOptions, ProviderOptionsV13
-from .run_contract import RunRequest, ScanOptions, ScanOptionsV12, ScanOptionsV13, SUPPORTED_SCHEMA_VERSIONS
+from .run_contract import RunRequest, ScanOptions, ScanOptionsV12, ScanOptionsV13, ScanOptionsV15, SUPPORTED_SCHEMA_VERSIONS
 from .desktop_ai import MODES, provider_mode
 
 CAPABILITIES_SCHEMA_VERSION = 1
@@ -24,11 +24,13 @@ _UNWIRED_FIELDS = frozenset({
 
 
 def _options_model(version: str):
+    if version == "1.5":
+        return ScanOptionsV15
     return ScanOptionsV13 if version in {"1.3", "1.4"} else ScanOptionsV12 if version == "1.2" else ScanOptions
 
 
 def _provider_model(version: str):
-    return ProviderOptionsV13 if version in {"1.3", "1.4"} else ProviderOptions
+    return ProviderOptionsV13 if version in {"1.3", "1.4", "1.5"} else ProviderOptions
 
 
 def module_inventory(metadata: list[Any]) -> list[dict]:
@@ -37,6 +39,21 @@ def module_inventory(metadata: list[Any]) -> list[dict]:
              "description": meta.description, "scope": meta.scope,
              "ecosystems": list(meta.ecosystems), "enabled_by_default": meta.enabled_by_default,
              "priority": meta.priority, "experimental": meta.experimental} for meta in metadata]
+
+
+def build_analyzer_catalog_payload() -> dict:
+    """Discover once in the selected engine; never infer execution from inventory."""
+    from .analyzer_catalog import get_analyzer_catalog
+    from .analyzer_profiles import analyzer_profile_inventory
+    snapshot = get_analyzer_catalog()
+    inventory = module_inventory(list(snapshot.metadata))
+    catalog = snapshot.to_dict()
+    profiles = analyzer_profile_inventory(snapshot.metadata)
+    identity = executable_identity()
+    for name, value in (("modules", inventory), ("analyzer_catalog", catalog), ("analyzer_profiles", profiles)):
+        identity[f"{name}_sha256"] = hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+    return {"schema": 1, "engine_identity": identity, "modules": inventory,
+            "analyzer_catalog": catalog, "analyzer_profiles": profiles}
 
 
 def executable_identity(path: Path | None = None) -> dict:
@@ -56,9 +73,12 @@ def executable_identity(path: Path | None = None) -> dict:
     if not getattr(sys, "frozen", False):
         # The Python host is unchanged when source code is replaced. Bind both.
         source = hashlib.sha256()
-        for name in ("__init__.py", "cli.py", "desktop_capabilities.py", "desktop_actions.py",
+        for name in ("__init__.py", "cli.py", "desktop_capabilities.py", "desktop_actions.py", "desktop_graph.py",
                      "desktop_worker.py", "desktop_fleet.py", "run_contract.py", "provider_options.py", "desktop_ai.py",
-                     "scan_service.py", "pipeline.py"):
+                     "scan_service.py", "pipeline.py", "analyzers.py", "analyzer_catalog.py",
+                     "analyzer_profiles.py", "analyzer_run_ledger.py", "analyzer_contracts.py", "models.py", "plugins_lock.py", "merge.py",
+                     "ecosystem_php.py", "ecosystem_python.py", "ecosystem_node_atproto.py",
+                     "scanner.py", "config_scanner.py"):
             source.update(name.encode("ascii"))
             source.update(Path(__file__).with_name(name).read_bytes())
         result["source_sha256"] = source.hexdigest()
@@ -69,9 +89,7 @@ def build_capabilities(app: Any, *, metadata: list[Any] | None = None) -> dict:
     """Discover CLI flags from registration; desktop fields from typed contracts."""
     import typer
     from .llm_review import FAST_CAPABLE_MODELS, OPENAI_EFFORT_MAP
-    if metadata is None:
-        from .analyzers import get_available_modules
-        metadata = get_available_modules()
+    catalog_payload = build_analyzer_catalog_payload() if metadata is None else None
     root = typer.main.get_command(app)
     commands = getattr(root, "commands", {})
     options: set[str] = set()
@@ -81,13 +99,22 @@ def build_capabilities(app: Any, *, metadata: list[Any] | None = None) -> dict:
                        if opt.startswith("--"))
         if getattr(param, "param_type_name", "") == "argument" and getattr(param, "nargs", 1) == -1:
             multi_repo = True
-    inventory = module_inventory(metadata)
-    identity = executable_identity()
-    identity["modules_sha256"] = hashlib.sha256(json.dumps(inventory, sort_keys=True).encode()).hexdigest()
+    if catalog_payload is not None:
+        inventory = catalog_payload["modules"]
+        identity = catalog_payload["engine_identity"]
+        analyzer_details = {name: catalog_payload[name] for name in ("analyzer_catalog", "analyzer_profiles")}
+    else:
+        inventory = module_inventory(metadata)
+        identity = executable_identity()
+        identity["modules_sha256"] = hashlib.sha256(json.dumps(inventory, sort_keys=True).encode()).hexdigest()
+        # Injected metadata is not evidence about implementation provenance.
+        from .analyzer_profiles import analyzer_profile_inventory
+        analyzer_details = {"analyzer_profiles": analyzer_profile_inventory(metadata)}
     return {"schema": CAPABILITIES_SCHEMA_VERSION, "version": __version__,
             "commands": sorted(commands), "analyze": {"options": sorted(options), "multi_repo": multi_repo},
             "progress_protocol": PROGRESS_PROTOCOL_VERSION, "engine_identity": identity,
             "modules": inventory,
+            **analyzer_details,
             "desktop": {"schema_versions": list(SUPPORTED_SCHEMA_VERSIONS),
                         "actions_schema_versions": ["1.1"],
                         "operations": ["capabilities", "preflight"],
@@ -100,7 +127,7 @@ def build_capabilities(app: Any, *, metadata: list[Any] | None = None) -> dict:
                         "provider_options": sorted(ProviderOptionsV13.model_fields),
                         "provider_options_by_schema": {version: sorted(_provider_model(version).model_fields) for version in SUPPORTED_SCHEMA_VERSIONS},
                         "modes": list(MODES),
-                        "modes_by_schema": {version: list(MODES) if version == "1.3" else ["none", "review"] for version in SUPPORTED_SCHEMA_VERSIONS},
+                        "modes_by_schema": {version: list(MODES) if version in {"1.3", "1.5"} else ["none", "review"] for version in SUPPORTED_SCHEMA_VERSIONS},
                         "provider_tuning": {"minimum_schema": "1.3", "backends": ["api"],
                             "jury_votes": {"minimum": 1, "maximum": 7, "mode": "hunt_verify", "default": 3},
                             "effort": ["low", "medium", "high", "xhigh", "max"],
@@ -193,7 +220,8 @@ def preflight_capabilities(document: Any, *, request: Any = None,
             if validated.kind == "fleet_request" and not desktop.get("fleet_by_schema", {}).get("1.4", {}).get("multi_repo"):
                 return result("unsupported_request")
             raw_options = request.get("options", {})
-            if set(raw_options) - set(desktop.get("scan_options", [])):
+            supported_options = desktop.get("scan_options_by_schema", {}).get(validated.schema_version, desktop.get("scan_options", []))
+            if set(raw_options) - set(supported_options):
                 return result("unsupported_request")
             provider = raw_options.get("provider", {})
             if set(provider) - set(desktop.get("provider_options", [])):
@@ -209,6 +237,19 @@ def preflight_capabilities(document: Any, *, request: Any = None,
                 return result("malformed")
             if set(validated.modules) - {item["name"] for item in installed}:
                 return result("unsupported_request")
+            profile = getattr(validated.options, "analyzer_profile", None)
+            if profile is not None:
+                profiles = document.get("analyzer_profiles", {})
+                if profiles.get("schema_version") != "1.0":
+                    return result("unsupported_request")
+                matches = [item for item in profiles.get("profiles", []) if item.get("qualified_name") == profile]
+                if len(matches) != 1 or matches[0].get("available") is not True:
+                    return result("unsupported_request")
+                from .analyzer_contracts import AnalyzerMetadata
+                from .analyzer_profiles import resolve_analyzer_profile
+                selected = resolve_analyzer_profile(profile, [AnalyzerMetadata.model_validate(item) for item in installed])
+                if list(selected.module_names or ()) != matches[0].get("module_names", []):
+                    return result("unsupported_request")
         except Exception:
             return result("unsupported_request")
     return result("compatible")

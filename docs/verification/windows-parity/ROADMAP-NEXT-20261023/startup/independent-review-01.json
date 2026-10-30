@@ -1,0 +1,34 @@
+{
+  "scope": "Read-only prepared-contract and graph-navigation boundary review; no source edits or builds in review",
+  "source_identity_at_evidence_write": {
+    "src/attackmap/fleet_resource_identity.py": "27769e2b0ed68b079d010ce42a1d28559e29adbec1e928d21abc7cd48770cca9",
+    "tests/test_fleet_resource_identity.py": "b4946d09bbc777cd7803941e4d634bcf2c08d8d18550ac889703ba1324cbb96d",
+    "desktop/windows/AttackMap.NativeSpike/Fleet/FleetGraphEvidenceNavigation.cs": "c6435309f6fdc4188e6045337579416eebde1c87283d9ffce2648163f0282319",
+    "desktop/windows/FleetGraphNavigation.Tests/Program.cs": "2db4ca43aeca84ccbaf9267b48acef9bdd2e6c56bc3e85ef6cf9d76ad4e8e259",
+    "desktop/windows/AttackMap.NativeSpike/SourceLocation.cs": "708199c2888484fb7e85d8d78f48d0181d6c4fbb3f74943fc977e28e2422a169"
+  },
+  "findings_at_review": [
+    {
+      "id": "windows-root-alias",
+      "status": "reported_to_owner",
+      "trigger": "C:/repos/reader and C:/repos/reader. with matching datastore identity",
+      "observed": "Prepared projector emitted one association between Win32-alias roots",
+      "requested_fix": "Reject ambiguous trailing dot/space components in Windows repository roots"
+    },
+    {
+      "id": "global-broadcast-host",
+      "status": "reported_to_owner",
+      "trigger": "255.255.255.255 as datastore host for two distinct repository declarations",
+      "observed": "Prepared projector emitted one association despite non-unicast rejection contract",
+      "requested_fix": "Reject global IPv4 broadcast including IPv4-mapped IPv6 form"
+    }
+  ],
+  "navigation_review": "No blocking issue found in canonical evidence/repo/transport mapping, current context and selection checks, lexical path bounds or SourceLocation final-handle containment. Host hash revalidation remains required.",
+  "test_gap_reported": "Direct same relative file and line in two different repositories; exact repository identity must survive request and revalidation.",
+  "limitations": [
+    "Review is scoped to static preparation; no production non-HTTP extraction or runtime join is established.",
+    "Root owns native source integration, publish and runtime.",
+    "New runtime runner syntax checked only; compiled gate execution awaits root."
+  ],
+  "runner_sha256": "0fd799878f834d87df4b77e8f46c01ed21399d5713d00e47ea671e0583f00e6a"
+}

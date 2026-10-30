@@ -1,0 +1,175 @@
+{
+  "scope": "Owned final integration jobs only; unrelated workloads untouched",
+  "jobs": {
+    "source-final-juice": {
+      "pid": 34628,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 112.91637459996855,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-analyzers-03": {
+      "pid": 12056,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 155.98286619997816,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-analyzers-03-restore": {
+      "pid": 36232,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 7.103398800012656,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "engine-analyzers-final": {
+      "pid": 24944,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 364.4520806999644,
+      "timed_out": false,
+      "timeout_seconds": 1200,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-analyzers-final-01": {
+      "pid": 27820,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 195.15477700001793,
+      "timed_out": false,
+      "timeout_seconds": 900,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "package-build": {
+      "pid": 33684,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 54.33162240003003,
+      "timed_out": false,
+      "timeout_seconds": 1200,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "package-sbom": {
+      "pid": 34324,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 8.102523200039286,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "packaged-catalog-final-modules": {
+      "pid": 33896,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 5.97249420004664,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "packaged-catalog-final-catalog": {
+      "pid": 35104,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 4.654158000019379,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "packaged-catalog-final-profiles": {
+      "pid": 30800,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 5.0422530000214465,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "packaged-catalog-final-capabilities": {
+      "pid": 35420,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 5.081815999990795,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "frozen-qualification/capabilities": {
+      "arguments": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\engine-analyzers-final\\dist\\attackmap\\attackmap.exe",
+        "capabilities"
+      ],
+      "pid": 21932,
+      "exit_code": 0,
+      "seconds": 5.4955700999707915,
+      "owned_tree_cleanup_verified": true,
+      "child_path": "C:\\Windows\\System32;C:\\Windows"
+    },
+    "frozen-qualification/compare": {
+      "arguments": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\engine-analyzers-final\\dist\\attackmap\\attackmap.exe",
+        "desktop-action",
+        "--request",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\frozen-qualification\\action-request.json"
+      ],
+      "pid": 11064,
+      "exit_code": 0,
+      "seconds": 7.558847700012848,
+      "owned_tree_cleanup_verified": true,
+      "child_path": "C:\\Windows\\System32;C:\\Windows"
+    },
+    "frozen-qualification/modules": {
+      "arguments": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\engine-analyzers-final\\dist\\attackmap\\attackmap.exe",
+        "modules",
+        "--json"
+      ],
+      "pid": 36036,
+      "exit_code": 0,
+      "seconds": 4.166815600008704,
+      "owned_tree_cleanup_verified": true,
+      "child_path": "C:\\Windows\\System32;C:\\Windows"
+    },
+    "frozen-qualification/scan": {
+      "arguments": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\engine-analyzers-final\\dist\\attackmap\\attackmap.exe",
+        "desktop-worker",
+        "--request",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\frozen-qualification\\scan-request.json"
+      ],
+      "pid": 17324,
+      "exit_code": 0,
+      "seconds": 107.37449650000781,
+      "owned_tree_cleanup_verified": true,
+      "child_path": "C:\\Windows\\System32;C:\\Windows"
+    },
+    "frozen-qualification/version": {
+      "arguments": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\engine-analyzers-final\\dist\\attackmap\\attackmap.exe",
+        "--version"
+      ],
+      "pid": 4100,
+      "exit_code": 0,
+      "seconds": 4.057661700004246,
+      "owned_tree_cleanup_verified": true,
+      "child_path": "C:\\Windows\\System32;C:\\Windows"
+    }
+  }
+}

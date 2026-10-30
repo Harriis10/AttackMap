@@ -86,13 +86,13 @@ def test_xrpc_surface_routes_with_auth_resolution() -> None:
     result = _scan()
     assert _route_tuples(result) == {
         # wired handlers: method type comes from the lexicon, auth from the
-        # registration config (observed) or a covering middleware (inferred)
+        # registration config. Unbound middleware mounts cannot certify auth.
         ("/xrpc/com.example.status.post", "POST", XRPC_METHODS, 17, "required"),
         ("/xrpc/com.example.status.list", "GET", XRPC_METHODS, 21, "required"),
         ("/xrpc/com.example.moderation.report", "POST", XRPC_METHODS, 26, "unknown"),
         ("/xrpc/com.example.admin.purge", "ANY", XRPC_METHODS, 29, "required"),
         ("/xrpc/com.example.profile.getChecked", "ANY", XRPC_METHODS, 34, "required"),
-        ("/xrpc/com.example.chat.send", "ANY", XRPC_METHODS, 40, "required"),
+        ("/xrpc/com.example.chat.send", "ANY", XRPC_METHODS, 40, "unknown"),
         # declared by a lexicon, never wired: the lexicon file is the evidence
         ("/xrpc/com.example.profile.get", "GET", "lexicons/com.example.profile.get.json", 3, "unknown"),
     }
@@ -108,11 +108,9 @@ def test_wired_route_guards_cite_their_evidence() -> None:
     assert post.guard_evidence.startswith("auth verifier 'authVerifier'")
 
     chat = by_path["/xrpc/com.example.chat.send"]
-    assert chat.guards == ["chatAuth"]
-    assert chat.guard_evidence is not None
-    assert chat.guard_evidence.startswith(
-        "inferred: middleware 'chatAuth' mounted at '/xrpc/com.example.chat.send'"
-    )
+    assert chat.guards == []
+    assert chat.guard_evidence is None
+    assert any(h.hint == "node:auth_middleware_mount:chatAuth" for h in result.auth_hints)
 
     report = by_path["/xrpc/com.example.moderation.report"]
     assert report.guards == []
@@ -135,7 +133,7 @@ def test_xrpc_auth_verifier_and_no_auth_hints() -> None:
     assert no_auth[0].file == XRPC_METHODS
     assert no_auth[0].line == 26
     assert no_auth[0].confidence == 0.6  # inferred, weaker than observed
-    assert "no observed auth verifier" in no_auth[0].evidence_text
+    assert "no supported required-auth verifier" in no_auth[0].evidence_text
 
 
 def test_unwired_lexicon_and_missing_lexicon_inferences() -> None:

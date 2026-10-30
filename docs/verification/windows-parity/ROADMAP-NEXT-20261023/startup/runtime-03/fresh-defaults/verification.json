@@ -1,0 +1,46 @@
+{
+  "name": "fresh-defaults",
+  "passed": true,
+  "checks": {
+    "runtime_completed": true,
+    "gate_matches_expected": true,
+    "restored_ai_matches_input": true,
+    "restored_cve_matches_input": true,
+    "no_automatic_scan": true,
+    "no_broker_dispatch": true,
+    "caller_settings_preserved": true,
+    "owned_process_exited": true
+  },
+  "expected_gate_pass": true,
+  "settings_path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\ROADMAP-NEXT-20261023\\startup\\runtime-03\\fresh-defaults\\settings.json",
+  "settings_sha256_before": null,
+  "settings_sha256_after": null,
+  "smoke": {
+    "passed": true,
+    "bundledEngine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\roadmap-next-20261023\\startup-native-03\\engine\\attackmap.exe",
+    "automaticScan": false,
+    "aiEnabled": false,
+    "cveEnabled": false,
+    "personalSettingsRead": false,
+    "manualStartupAcceptance": false
+  },
+  "process": {
+    "pid": 35572,
+    "exit_code": 0,
+    "exited": true,
+    "seconds": 1.6541480000014417,
+    "timed_out": false,
+    "timeout_seconds": 120,
+    "owned_job_assigned": true,
+    "owned_tree_cleanup_verified": true
+  },
+  "job_accounting": [
+    {
+      "total_processes": 1,
+      "active_before_cleanup": 0,
+      "terminated_processes": 0,
+      "method": "JobObjectBasicAccountingInformation; app assigned while suspended"
+    }
+  ],
+  "failure": null
+}

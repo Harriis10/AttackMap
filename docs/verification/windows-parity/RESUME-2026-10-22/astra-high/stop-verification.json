@@ -1,0 +1,23 @@
+{
+  "state": "PAUSED",
+  "reason": "Usage watchdog requested STOP and reported 75 percent",
+  "usage_independently_measured": false,
+  "stopped_date": "2026-10-22",
+  "process_query_utc": "2026-10-22 11:34 UTC",
+  "matching_owned_processes": [],
+  "process_check": "Approved read-only Win32_Process query after sandbox Access denied",
+  "agents": [
+    "/root/astra_native_checkpoint",
+    "/root/astra_python_checkpoint",
+    "/root/astra_runner_review"
+  ],
+  "agent_reports": "All report idle, owned processes exited and no automatic continuation created",
+  "source_or_test_work_after_stop": false,
+  "permitted_post_stop_work": [
+    "owned-process termination verification",
+    "save handoff and tracker state"
+  ],
+  "live_five_modes_started": false,
+  "isolated_install_started": false,
+  "resume_requires_user_instruction": true
+}

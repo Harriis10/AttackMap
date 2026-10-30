@@ -49,6 +49,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
@@ -168,7 +169,11 @@ _LAMINAS_MIDDLEWARE_RE = re.compile(r"\bMiddlewarePipe\b|['\"]middleware['\"]\s*
 _LAMINAS_MODULE_MARKER_RE = re.compile(r"\b(?:Laminas|Zend)\\")
 
 # Config-array extraction (module.config.php and friends).
-_ROUTE_DEF_RE = re.compile(r"['\"]route['\"]\s*=>\s*['\"](?P<path>[^'\"]+)['\"]")
+_PHP_CONFIG_TOKEN_RE = re.compile(
+    r"(?P<skip>\s+|/\*.*?(?:\*/|\Z)|//[^\r\n]*|\#[^\r\n]*)"
+    r"|(?P<string>'(?:\\[\s\S]|[^'\\])*(?:'|\Z)|\"(?:\\[\s\S]|[^\"\\])*(?:\"|\Z))"
+    r"|[\w\\]+|=>|::|.", re.DOTALL,
+)
 _SERVICE_MANAGER_RE = re.compile(r"['\"]service_manager['\"]\s*=>")
 _CONTROLLERS_CONFIG_RE = re.compile(r"['\"]controllers['\"]\s*=>")
 # Bounded: an unbounded ``[\w\\]+`` backtracks quadratically over long
@@ -584,6 +589,245 @@ def _extract_php_web(rel: str, text: str, result: ScanResult) -> None:
         ))
 
 
+@dataclass(frozen=True)
+class _PhpConfigValue:
+    offset: int
+    expression: str
+    entries: dict[str, "_PhpConfigValue"] | None = None
+    dynamic_keys: bool = False
+
+
+def _php_config_literal(value: _PhpConfigValue | None, *, class_name: bool = False) -> str | None:
+    if value is None or value.entries is not None:
+        return None
+    expression = value.expression
+    if class_name and re.fullmatch(r"\\?[A-Za-z_]\w*(?:\\[A-Za-z_]\w*)*::class", expression):
+        return expression
+    match = re.fullmatch(r"'(?P<single>(?:\\[\s\S]|[^'\\])*)'|\"(?P<double>(?:\\[\s\S]|[^\"\\])*)\"", expression)
+    if match is None:
+        return None
+    body = match.group("single")
+    if body is not None:
+        return re.sub(r"\\(['\\])", r"\1", body)
+    body = match.group("double")
+    # Do not evaluate interpolation or PHP string escape expressions.
+    if "$" in body or re.search(r"\\[^\"\\]", body):
+        return None
+    return re.sub(r'\\(["\\])', r"\1", body)
+
+
+def _php_returned_config(text: str) -> _PhpConfigValue | None:
+    """Read literal returned arrays without evaluating PHP or opaque expressions.
+
+    Balanced token ranges preserve array ownership, comments and source offsets.
+    Size/depth limits reject unsupported input instead of scanning partial arrays.
+    """
+    if len(text) > 1_000_000 or re.match(r"\ufeff?\s*<\?php\b", text) is None:
+        return None
+    tokens: list[re.Match[str]] = []
+    for match in _PHP_CONFIG_TOKEN_RE.finditer(text):
+        if match.lastgroup != "skip":
+            if len(tokens) == 100_000:
+                return None
+            tokens.append(match)
+    pairs: dict[int, int] = {}
+    stack: list[int] = []
+    returns: list[int] = []
+    for pos, token in enumerate(tokens):
+        value = token.group()
+        if value == "<" and [t.group() for t in tokens[pos:pos + 3]] == ["<", "<", "<"]:
+            return None  # Heredoc/nowdoc bodies require a separate lexer.
+        if value == "return" and not stack:
+            returns.append(pos)
+        if not stack and value in {"if", "else", "elseif", "for", "foreach", "while", "switch", "goto"}:
+            return None
+        if value in {"[", "(", "{"}:
+            stack.append(pos)
+            if len(stack) > 64:
+                return None
+        elif value in {"]", ")", "}"}:
+            if not stack or tokens[stack[-1]].group() != {"]": "[", ")": "(", "}": "{"}[value]:
+                return None
+            pairs[stack.pop()] = pos
+    if stack or len(returns) != 1:
+        return None
+    if any(tokens[pos].group() == "?" and tokens[pos + 1].group() == ">" for pos in range(returns[0])):
+        return None
+
+    def read_value(start: int, end: int) -> _PhpConfigValue | None:
+        if start >= end:
+            return None
+        opener = start
+        if tokens[start].group().lower() == "array" and start + 1 < end:
+            opener += 1
+        if tokens[opener].group() not in {"[", "("} or pairs.get(opener) != end - 1:
+            return _PhpConfigValue(tokens[start].start(), text[tokens[start].start():tokens[end - 1].end()])
+        if opener == start and tokens[start].group() != "[":
+            return _PhpConfigValue(tokens[start].start(), text[tokens[start].start():tokens[end - 1].end()])
+        entries: dict[str, _PhpConfigValue] = {}
+        dynamic_keys = False
+        pos = opener + 1
+        while pos < end - 1:
+            entry_start = pos
+            direct_tokens: list[str] = []
+            while pos < end - 1 and tokens[pos].group() != ",":
+                direct_tokens.append(tokens[pos].group())
+                pos = pairs[pos] + 1 if pos in pairs else pos + 1
+            entry_end = pos
+            pos += 1
+            if entry_start == entry_end:
+                return None
+            key = _php_config_literal(_PhpConfigValue(tokens[entry_start].start(), tokens[entry_start].group()))
+            if key is None or entry_start + 1 >= entry_end or tokens[entry_start + 1].group() != "=>":
+                # Unknown keys and unpacking can override an otherwise literal map.
+                dynamic_keys |= "=>" in direct_tokens or direct_tokens[:3] == [".", ".", "."]
+                continue
+            value = read_value(entry_start + 2, entry_end)
+            if value is None or key in entries:
+                return None
+            entries[key] = value
+        return _PhpConfigValue(tokens[start].start(), "", entries, dynamic_keys)
+
+    start = returns[0] + 1
+    if start >= len(tokens):
+        return None
+    opener = start + (tokens[start].group().lower() == "array")
+    end = pairs.get(opener)
+    if end is None or end + 1 >= len(tokens) or tokens[end + 1].group() != ";":
+        return None
+    return read_value(start, end + 1)
+
+
+@dataclass(frozen=True)
+class _LaminasRoute:
+    path: str
+    offset: int
+    evidence: str
+    composed: bool
+
+
+def _extract_laminas_route_tree(rel: str, text: str, result: ScanResult) -> list[_LaminasRoute]:
+    """Resolve only returned router.routes trees of literal/segment HTTP routes."""
+    config = _php_returned_config(text)
+    extracted: list[_LaminasRoute] = []
+
+    def unsupported(name: str, reason: str, value: _PhpConfigValue) -> None:
+        result.framework_hints.append(FrameworkHint(
+            hint=f"laminas-route-unsupported:{name}:{reason} {OBSERVED}", file=rel,
+            line=line_number(text, value.offset), evidence_text=_snippet_at(text, value.offset), confidence=0.85,
+        ))
+
+    if config is None or config.entries is None or config.dynamic_keys:
+        router = re.search(r"['\"]router['\"]\s*=>", text)
+        if router is not None:
+            unsupported("router", "nonliteral-or-malformed-config", _PhpConfigValue(router.start(), ""))
+        return extracted
+    router = config.entries.get("router")
+    if router is None:
+        return extracted
+    routes = router.entries.get("routes") if router.entries is not None and not router.dynamic_keys else None
+    if routes is None or routes.entries is None or routes.dynamic_keys:
+        unsupported("router", "dynamic-routes", routes or router)
+        return extracted
+
+    def walk(
+        definitions: _PhpConfigValue,
+        prefix: str | None,
+        ancestors: list[str],
+        chain: list[str],
+        inherited: dict[str, _PhpConfigValue],
+    ) -> None:
+        for name, definition in (definitions.entries or {}).items():
+            names = [*ancestors, name]
+            identity = "/".join(names)
+            fields = definition.entries or {}
+            options = fields.get("options")
+            options_fields = options.entries if options is not None and options.entries is not None and not options.dynamic_keys else {}
+            route_value = options_fields.get("route")
+            local_path = _php_config_literal(route_value)
+            type_config = fields.get("type")
+            type_value = _php_config_literal(type_config, class_name=True)
+            class_reference = type_config is not None and type_config.expression.endswith("::class")
+            # PHP aliases and relative ::class names need import/namespace resolution.
+            # Accept only fully qualified class references; string plugin aliases are separate.
+            if class_reference:
+                type_value = type_value.removesuffix("::class") if type_value and type_value.startswith("\\") else None
+            route_type = (type_value or "").lstrip("\\").lower()
+            allowed_type = (not class_reference and route_type in {"literal", "segment"}) or route_type in {
+                f"{namespace}\\{kind}" for namespace in (
+                    "laminas\\router\\http", "zend\\router\\http", "zend\\mvc\\router\\http",
+                ) for kind in ("literal", "segment")
+            }
+            path: str | None = None
+            reason = None
+            if prefix is None:
+                reason = "unresolved-parent"
+            elif definition.entries is None or definition.dynamic_keys or (options is not None and options.dynamic_keys):
+                reason = "dynamic-definition"
+            elif "chain_routes" in fields:
+                reason = "unsupported-chain"
+            elif not allowed_type:
+                reason = "unsupported-type"
+            elif local_path is None:
+                reason = "dynamic-path"
+            elif not local_path:
+                reason = "empty-path"
+            elif re.match(r"[A-Za-z][\w+.-]*://", local_path) or not (prefix + local_path).startswith("/"):
+                reason = "non-http-path"
+            else:
+                # Child patterns are relative even when their literal starts with '/'.
+                # Preserve separators and optional Segment syntax; never normalize URLs.
+                path = prefix + local_path
+            if reason:
+                unsupported(identity, reason, route_value or definition)
+            route_chain = [*chain, f"{identity} (line {line_number(text, (route_value or definition).offset)}): {local_path if local_path is not None else 'unresolved'}"]
+            defaults = dict(inherited)
+            local_defaults = options_fields.get("defaults")
+            if local_defaults is not None:
+                if local_defaults.entries is None or local_defaults.dynamic_keys:
+                    defaults.clear()
+                    unsupported(identity, "dynamic-defaults", local_defaults)
+                else:
+                    defaults.update(local_defaults.entries)
+            children = fields.get("child_routes")
+            may_terminate = fields.get("may_terminate")
+            if children is not None and may_terminate is not None and may_terminate.expression.lower() not in {"true", "false"}:
+                unsupported(identity, "dynamic-termination", may_terminate)
+            terminating = children is None or (may_terminate is not None and may_terminate.expression.lower() == "true")
+            if path is not None and terminating:
+                offset = route_value.offset
+                evidence = "; ".join(route_chain)
+                extracted.append(_LaminasRoute(path, offset, evidence, bool(ancestors)))
+                result.routes.append(Route(path=path, method="ANY", file=rel, line=line_number(text, offset)))
+                marker = INFERRED if ancestors else OBSERVED
+                result.entrypoint_hints.append(EntrypointHint(
+                    hint=f"laminas-route:{path} {marker}", file=rel, line=line_number(text, offset),
+                    evidence_text=evidence, confidence=0.85,
+                ))
+                for key in ("controller", "action", "__NAMESPACE__"):
+                    value = defaults.get(key)
+                    literal = _php_config_literal(value, class_name=key == "controller")
+                    if literal is None:
+                        continue
+                    inherited_default = local_defaults is None or local_defaults.entries is None or key not in local_defaults.entries
+                    binding_marker = INFERRED if inherited_default else OBSERVED
+                    label = "namespace" if key == "__NAMESPACE__" else key
+                    result.entrypoint_hints.append(EntrypointHint(
+                        hint=f"laminas-route-default-{label}:{path}=>{literal} {binding_marker}", file=rel,
+                        line=line_number(text, value.offset),
+                        evidence_text=f"{evidence}; {key} (line {line_number(text, value.offset)}): {value.expression}",
+                        confidence=0.85,
+                    ))
+            if children is not None:
+                if children.entries is None or children.dynamic_keys:
+                    unsupported(identity, "dynamic-children", children)
+                else:
+                    walk(children, path, names, route_chain, defaults)
+
+    walk(routes, "", [], [], {})
+    return extracted
+
+
 # --- Layer 2: php-laminas --------------------------------------------------------
 
 
@@ -723,11 +967,7 @@ def _extract_laminas(rel: str, text: str, result: ScanResult) -> None:
         return
 
     # --- Config-array extraction ---
-    for match in _ROUTE_DEF_RE.finditer(text):
-        result.routes.append(Route(
-            path=match.group("path"), method="ANY", file=rel,
-            line=line_number(text, match.start()),
-        ))
+    _extract_laminas_route_tree(rel, text, result)
     if _SERVICE_MANAGER_RE.search(text):
         match = _SERVICE_MANAGER_RE.search(text)
         result.framework_hints.append(FrameworkHint(
@@ -915,10 +1155,9 @@ def _extract_omeka(rel: str, text: str, result: ScanResult, *, is_module_config:
             ))
 
     # Route surface classification (admin vs api vs site vs generic).
-    for match in _ROUTE_DEF_RE.finditer(text):
-        path = match.group("path")
-        line = line_number(text, match.start())
-        result.routes.append(Route(path=path, method="ANY", file=rel, line=line))
+    for route in _extract_laminas_route_tree(rel, text, result):
+        path = route.path
+        line = line_number(text, route.offset)
         if path.startswith("/admin"):
             kind = "omeka-admin-route"
         elif path.startswith("/api"):
@@ -928,8 +1167,8 @@ def _extract_omeka(rel: str, text: str, result: ScanResult, *, is_module_config:
         else:
             kind = "omeka-route"
         result.entrypoint_hints.append(EntrypointHint(
-            hint=f"{kind}:{path} {OBSERVED}", file=rel, line=line,
-            evidence_text=_snippet_at(text, match.start()), confidence=0.85,
+            hint=f"{kind}:{path} {INFERRED if route.composed else OBSERVED}", file=rel, line=line,
+            evidence_text=route.evidence, confidence=0.85,
         ))
 
 

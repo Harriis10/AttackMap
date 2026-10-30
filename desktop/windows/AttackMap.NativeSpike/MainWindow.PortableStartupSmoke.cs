@@ -45,7 +45,7 @@ public sealed partial class MainWindow
             if (!preserved) throw new InvalidDataException("Global saved settings changed during verification.");
             object? capture = null;
             string? captureFailure = null;
-            try { await ReadinessRenderBarrier(); capture = await NativeCaptureProbe.Capture((FrameworkElement)Content, Path.Combine(directory, "normal-startup.png")); }
+            try { await ReadinessRenderBarrier(); capture = await CaptureStrict((FrameworkElement)Content, Path.Combine(directory, "normal-startup.png")); }
             catch (Exception error) { captureFailure = error.GetType().Name; }
             result = new { passed = true, normalStartupBranch = true, explicitEngineArgument = false, settingsOverride = false,
                 personalSettingsRead = true, settingsFilePreserved = preserved, savedEngine = saved.PythonPath, savedEngineExists = legacyExists,

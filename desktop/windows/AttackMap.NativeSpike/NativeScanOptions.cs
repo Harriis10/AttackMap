@@ -17,17 +17,20 @@ public sealed record NativeScanOptions(
     [property: JsonPropertyName("fail_on_new_suppression"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool FailOnNewSuppression = false,
     [property: JsonPropertyName("strict_suppressions"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool StrictSuppressions = false,
     [property: JsonPropertyName("isolated_analyzers"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool IsolatedAnalyzers = false,
-    [property: JsonPropertyName("time_budget_seconds"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TimeBudgetSeconds = null)
+    [property: JsonPropertyName("time_budget_seconds"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TimeBudgetSeconds = null,
+    [property: JsonPropertyName("analyzer_profile"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? AnalyzerProfile = null)
 {
     [JsonExtensionData] public Dictionary<string, JsonElement>? AdditionalProperties { get; init; }
     [JsonIgnore] public IReadOnlyList<string>? UnrecognizedProviderFields { get; init; }
     [JsonIgnore] public bool RequiresSchema12 => Baseline != null || SuppressFile != null || FailOnNewHigh || FailOnNewSuppression || StrictSuppressions || IsolatedAnalyzers || TimeBudgetSeconds != null;
-    [JsonIgnore] public string RequestSchema => Provider?.ForRequest().RequiresSchema13 == true ? "1.3" : RequiresSchema12 ? "1.2" : "1.1";
+    [JsonIgnore] public string RequestSchema => AnalyzerProfile != null ? "1.5" : Provider?.ForRequest().RequiresSchema13 == true ? "1.3" : RequiresSchema12 ? "1.2" : "1.1";
     public void Validate()
     {
         if (SecretsHistory is < 0 or > 10000) throw new InvalidDataException("Secret history must be 0 to 10000 commits (0 disables it).");
         if (TimeoutSeconds is < 1 or > 86400) throw new InvalidDataException("Timeout must be 1 to 86400 seconds.");
         Provider?.Validate();
+        if (AnalyzerProfile != null && (AnalyzerProfile.Length > 160 || !Regex.IsMatch(AnalyzerProfile, "^[a-z][a-z0-9-]*@[0-9]+\\.[0-9]+\\z", RegexOptions.CultureInvariant)))
+            throw new InvalidDataException("Analyzer profile must include its supported version.");
         foreach (string? value in new[] { Baseline, SuppressFile })
             if (value != null && (!Path.IsPathFullyQualified(value) || value.StartsWith("\\\\", StringComparison.Ordinal) || value.StartsWith("//", StringComparison.Ordinal) || value.Any(char.IsControl)))
                 throw new InvalidDataException("Baseline and suppression files require absolute local paths.");
@@ -56,6 +59,8 @@ public static class NativeScanRequest
     public static string Serialize(string runId, string repository, string output, long generation, NativeScanOptions options, string modules)
     {
         options.ValidateForRequest();
+        if (options.AnalyzerProfile != null && NativeScanOptions.ParseModules(modules).Length != 0)
+            throw new InvalidDataException("Choose a named analyzer profile or an explicit module list.");
         return JsonSerializer.Serialize(new { schema_version = options.RequestSchema, kind = "request", run_id = runId, repository_id = repository,
             generation, revision = 0, repository_path = repository, output_path = output, modules = NativeScanOptions.ParseModules(modules), options = options with { Provider = options.Provider?.ForRequest() } });
     }

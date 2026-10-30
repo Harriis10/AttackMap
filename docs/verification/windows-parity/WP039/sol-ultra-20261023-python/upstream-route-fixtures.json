@@ -1,0 +1,206 @@
+{
+  "fastapi-import-alias": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\fastapi-import-alias",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "routes.py": "from fastapi import APIRouter\nrouter = APIRouter(prefix='/v1')\n@router.get('/users')\ndef users():\n    return {}\n",
+      "main.py": "from fastapi import FastAPI\nfrom routes import router as api_router\napp=FastAPI()\napp.include_router(api_router, prefix='/api')\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "routes.py": "45de58c67b4f893733d23762bac9e53355ae930424cc3afac36a79c075624bb1",
+      "main.py": "fcc5e78e498753f56d8ce299c6146798c86dff4c228451e488af42aab1bc28d4"
+    },
+    "expected_mounted_paths": [
+      "/api/v1/users"
+    ],
+    "forbidden_mounted_paths": []
+  },
+  "fastapi-multi-mount": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\fastapi-multi-mount",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "routes.py": "from fastapi import APIRouter\nrouter = APIRouter(prefix='/v1')\n@router.get('/users')\ndef users():\n    return {}\n",
+      "main.py": "from fastapi import FastAPI\nfrom routes import router as api_router\napp=FastAPI()\napp.include_router(api_router, prefix='/internal')\napp.include_router(api_router, prefix='/public')\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "routes.py": "45de58c67b4f893733d23762bac9e53355ae930424cc3afac36a79c075624bb1",
+      "main.py": "90cf4f6822fd033bfa6aac955e2dd71d29ab68f8f5b6e61fb1d64bdbdfedf7a4"
+    },
+    "expected_mounted_paths": [
+      "/internal/v1/users",
+      "/public/v1/users"
+    ],
+    "forbidden_mounted_paths": []
+  },
+  "fastapi-dynamic-prefix": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\fastapi-dynamic-prefix",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "routes.py": "from fastapi import APIRouter\nrouter = APIRouter(prefix='/v1')\n@router.get('/users')\ndef users():\n    return {}\n",
+      "main.py": "from fastapi import FastAPI\nfrom routes import router as api_router\napp=FastAPI()\nprefix = get_prefix()\napp.include_router(api_router, prefix=prefix)\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "routes.py": "45de58c67b4f893733d23762bac9e53355ae930424cc3afac36a79c075624bb1",
+      "main.py": "469d598d3993180fd0cbf636607e18be25a7bca046bf4efe289c0ca9b641f7fc"
+    },
+    "expected_mounted_paths": [],
+    "forbidden_mounted_paths": [
+      "/api/v1/users"
+    ]
+  },
+  "fastapi-wrong-import": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\fastapi-wrong-import",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "routes.py": "from fastapi import APIRouter\nrouter = APIRouter(prefix='/v1')\n@router.get('/users')\ndef users():\n    return {}\n",
+      "other.py": "from fastapi import APIRouter\nrouter=APIRouter(prefix='/v2')\n@router.get('/status')\ndef status(): return {}\n",
+      "main.py": "from fastapi import FastAPI\nfrom other import router as api_router\napp=FastAPI()\napp.include_router(api_router,prefix='/api')\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "routes.py": "45de58c67b4f893733d23762bac9e53355ae930424cc3afac36a79c075624bb1",
+      "other.py": "125c5be9ddc2a93fd9424cfc9f0a9c8d606a3edd34a0d838d440e3b72b0d72f9",
+      "main.py": "9c51178ae15c3b93737c08983aa731fb465c7fc30c9b4c82fb8760ac1a90c75d"
+    },
+    "expected_mounted_paths": [
+      "/api/v2/status"
+    ],
+    "forbidden_mounted_paths": [
+      "/api/v1/users"
+    ]
+  },
+  "flask-registration-override": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\flask-registration-override",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "views.py": "from flask import Blueprint\nbp = Blueprint('users', __name__, url_prefix='/v1')\n@bp.route('/users', methods=['GET'])\ndef users():\n    return {}\n",
+      "main.py": "from flask import Flask\nfrom views import bp as api_bp\napp=Flask(__name__)\napp.register_blueprint(api_bp,url_prefix='/api')\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "views.py": "ba0697e1a1d95a545f7de75ac960ae505471afb95f6b4f8fa8f59e41bb4ea3f4",
+      "main.py": "6eef7f0d9f6da9a523049910409fed00ebebfaeeb3304a80d2f21e0722e1ce94"
+    },
+    "expected_mounted_paths": [
+      "/api/users"
+    ],
+    "forbidden_mounted_paths": [
+      "/api/v1/users"
+    ]
+  },
+  "flask-constructor-prefix": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\flask-constructor-prefix",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "views.py": "from flask import Blueprint\nbp = Blueprint('users', __name__, url_prefix='/v1')\n@bp.route('/users', methods=['GET'])\ndef users():\n    return {}\n",
+      "main.py": "from flask import Flask\nfrom views import bp as api_bp\napp=Flask(__name__)\napp.register_blueprint(api_bp)\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "views.py": "ba0697e1a1d95a545f7de75ac960ae505471afb95f6b4f8fa8f59e41bb4ea3f4",
+      "main.py": "acaf73e64c767d9551025b84f9954b20d8c27f52b892726e28523d9a0e288bc1"
+    },
+    "expected_mounted_paths": [
+      "/v1/users"
+    ],
+    "forbidden_mounted_paths": []
+  },
+  "flask-multi-mount": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\flask-multi-mount",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "views.py": "from flask import Blueprint\nbp = Blueprint('users', __name__, url_prefix='/v1')\n@bp.route('/users', methods=['GET'])\ndef users():\n    return {}\n",
+      "main.py": "from flask import Flask\nfrom views import bp as api_bp\napp=Flask(__name__)\napp.register_blueprint(api_bp,url_prefix='/internal',name='internal')\napp.register_blueprint(api_bp,url_prefix='/public',name='public')\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "views.py": "ba0697e1a1d95a545f7de75ac960ae505471afb95f6b4f8fa8f59e41bb4ea3f4",
+      "main.py": "d26ca10e219769bb10d885cb5712592aa22e9422bb9b1ae505def1635cc94d63"
+    },
+    "expected_mounted_paths": [
+      "/internal/users",
+      "/public/users"
+    ],
+    "forbidden_mounted_paths": []
+  },
+  "flask-dynamic-prefix": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\flask-dynamic-prefix",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "views.py": "from flask import Blueprint\nbp = Blueprint('users', __name__, url_prefix='/v1')\n@bp.route('/users', methods=['GET'])\ndef users():\n    return {}\n",
+      "main.py": "from flask import Flask\nfrom views import bp as api_bp\napp=Flask(__name__)\nprefix=get_prefix()\napp.register_blueprint(api_bp,url_prefix=prefix)\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "views.py": "ba0697e1a1d95a545f7de75ac960ae505471afb95f6b4f8fa8f59e41bb4ea3f4",
+      "main.py": "fef721ea0a79afae7a8a506f9c7cbbb5668dbcbb9cbb746ad468f443e87256fc"
+    },
+    "expected_mounted_paths": [],
+    "forbidden_mounted_paths": []
+  },
+  "django-include-positive": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\django-include-positive",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "manage.py": "# Django project marker\n",
+      "project/__init__.py": "",
+      "shop/__init__.py": "",
+      "project/settings.py": "ROOT_URLCONF='project.urls'\nINSTALLED_APPS=['shop']\n",
+      "shop/urls.py": "from django.urls import path\nfrom . import views\nurlpatterns=[path('items/',views.items)]\n",
+      "shop/views.py": "def items(request): return None\n",
+      "project/urls.py": "from django.urls import path,include\nurlpatterns=[path('api/',include('shop.urls'))]\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "manage.py": "bc24e6c5b567b62d7b9bf80f00eb77019bdbf5c93b1ac689ba8c1f1d62624746",
+      "project/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "shop/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "project/settings.py": "9ddbe5d9d4ab00e9b210c6e84fd9a154b537e199ca1da6a62bb612ca95a6b81b",
+      "shop/urls.py": "ea3ca26d02b53c3023e137b390942f3ce1590e799182473739c1e0f6895df8c4",
+      "shop/views.py": "6fceb0d3c72714bd36a76c2653b2f756b0cd46aa2266bf19cdab50ef69125d76",
+      "project/urls.py": "c41f80da565db211248fdb2b455ee86dfc34c9b1b3b1d71293ddc089e91e108d"
+    },
+    "expected_mounted_paths": [
+      "/api/items/"
+    ],
+    "forbidden_mounted_paths": []
+  },
+  "django-include-wrong-target": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\django-include-wrong-target",
+    "files": {
+      "pyproject.toml": "[project]\nname=\"qualification\"\nversion=\"0.0.0\"\n",
+      "manage.py": "# Django project marker\n",
+      "project/__init__.py": "",
+      "shop/__init__.py": "",
+      "project/settings.py": "ROOT_URLCONF='project.urls'\nINSTALLED_APPS=['shop']\n",
+      "shop/urls.py": "from django.urls import path\nfrom . import views\nurlpatterns=[path('items/',views.items)]\n",
+      "shop/views.py": "def items(request): return None\n",
+      "other/__init__.py": "",
+      "other/views.py": "def status(request): return None\n",
+      "other/urls.py": "from django.urls import path\nfrom . import views\nurlpatterns=[path('status/',views.status)]\n",
+      "project/urls.py": "from django.urls import path,include\nurlpatterns=[path('api/',include('other.urls'))]\n"
+    },
+    "sha256": {
+      "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+      "manage.py": "bc24e6c5b567b62d7b9bf80f00eb77019bdbf5c93b1ac689ba8c1f1d62624746",
+      "project/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "shop/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "project/settings.py": "9ddbe5d9d4ab00e9b210c6e84fd9a154b537e199ca1da6a62bb612ca95a6b81b",
+      "shop/urls.py": "ea3ca26d02b53c3023e137b390942f3ce1590e799182473739c1e0f6895df8c4",
+      "shop/views.py": "6fceb0d3c72714bd36a76c2653b2f756b0cd46aa2266bf19cdab50ef69125d76",
+      "other/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "other/views.py": "9628cb8e8248bbbea4fbdbfa779ffa158cd0a595f8545f5507ea35d0f30a4be7",
+      "other/urls.py": "4921088250411334823b6714897ab9c5fa6d5984da6d91c211eab0d5aa360a09",
+      "project/urls.py": "89616bd1dfe937fdc696c005625a2db75fde0e76b6c929512f9511e06d7f8a7f"
+    },
+    "expected_mounted_paths": [
+      "/api/status/"
+    ],
+    "forbidden_mounted_paths": [
+      "/api/items/"
+    ]
+  }
+}

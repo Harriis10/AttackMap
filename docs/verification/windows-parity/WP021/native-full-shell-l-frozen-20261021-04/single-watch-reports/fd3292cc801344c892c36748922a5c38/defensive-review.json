@@ -1,0 +1,317 @@
+{
+  "schema_version": "1.5.0",
+  "target_metadata": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-l-frozen-20261021-04\\single-watch-fixtures\\repository-1",
+    "files_scanned": 1,
+    "languages": [
+      "python"
+    ]
+  },
+  "system_overview": {
+    "repository_type": "web/service-facing",
+    "raw_inferred_entry_point_count": 1,
+    "external_call_count": 0,
+    "database_count": 0,
+    "auth_hint_count": 0,
+    "secret_hint_count": 0,
+    "asset_count": 0,
+    "control_count_present": 0,
+    "control_count_absent": 1,
+    "notable_observation_count": 0,
+    "detection_opportunity_count": 0,
+    "attack_techniques_observed_count": 0
+  },
+  "attack_surface": {
+    "total_surfaces": 1,
+    "evidence_class_counts": {
+      "static_observed": 1,
+      "inferred_protocol": 0,
+      "low_quality": 0
+    },
+    "surfaces": [
+      {
+        "method": "GET",
+        "route": "/status",
+        "file": "app.py",
+        "line": 3,
+        "category": "public_api",
+        "exposure": "public",
+        "risk": "low",
+        "evidence_class": "static_observed",
+        "auth_signals": [],
+        "auth": "unknown",
+        "data_store_interaction": false,
+        "outbound_integration": false,
+        "relationship_basis": "unknown",
+        "context_signals": []
+      }
+    ]
+  },
+  "assets": [],
+  "controls": [
+    {
+      "id": "control:absent:rate_limiting",
+      "kind": "rate_limiting",
+      "name": "Rate limiting",
+      "strength": "absent",
+      "scope": "global",
+      "placements": [],
+      "evidence": [],
+      "notes": "Public routes observed without any rate-limiting markers."
+    }
+  ],
+  "notable_observations": [],
+  "detection_opportunities": [],
+  "attack_techniques_observed": [],
+  "strengths": [
+    {
+      "statement": "No strong defensive indicators were detected heuristically.",
+      "evidence_basis": "inferred",
+      "evidence": []
+    }
+  ],
+  "weaknesses_risk_hotspots": {
+    "weaknesses": [
+      {
+        "title": "Heuristic scan found only a limited attack surface",
+        "rule_id": "limited-surface",
+        "taxonomy": null,
+        "severity": "low",
+        "confidence": "low",
+        "evidence_basis": "heuristic_static",
+        "claim_support": "not_assessed",
+        "claim_support_terms": [],
+        "surface_association": "unknown",
+        "candidate_surfaces": [],
+        "candidate_surfaces_truncated": false,
+        "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+        "evidence": [
+          "No major route, secret, or integration patterns triggered a stronger finding."
+        ],
+        "locations": [],
+        "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+        "attack_techniques": []
+      }
+    ],
+    "risk_hotspots": [
+      {
+        "surface": {
+          "method": "GET",
+          "route": "/status",
+          "file": "app.py",
+          "category": "public_api",
+          "risk": "low",
+          "exposure": "public"
+        },
+        "evidence_class": "static_observed",
+        "notes": [
+          "Public application routes are initial footholds for probing input handling and authorization gaps.",
+          "No auth indicators were observed near this route.",
+          "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence."
+        ]
+      }
+    ]
+  },
+  "evidence_chains": [],
+  "recommendations": [
+    {
+      "priority": "low",
+      "evidence_basis": "heuristic_static",
+      "claim_support": "not_assessed",
+      "claim_support_terms": [],
+      "surface_association": "unknown",
+      "candidate_surfaces": [],
+      "candidate_surfaces_truncated": false,
+      "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+      "action": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+      "linked_finding": "Heuristic scan found only a limited attack surface"
+    }
+  ],
+  "raw_structured_signals": {
+    "scan": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-l-frozen-20261021-04\\single-watch-fixtures\\repository-1",
+      "signals": [
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "route",
+          "label": "GET /status",
+          "file": "app.py",
+          "line": 3,
+          "confidence": 0.7,
+          "evidence_text": null,
+          "properties": {
+            "method": "GET",
+            "path": "/status",
+            "auth": "unknown"
+          },
+          "observation_id": "obs-767f3b1ed73aaf19bd74ecdfa3265792b9e57a3e9250b2904ed9d61f5a3f8cfd",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python-web",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "app.py",
+              "line": 3,
+              "location_reason": null,
+              "evidence_text": null,
+              "properties": {
+                "method": "GET",
+                "path": "/status",
+                "auth": "unknown"
+              }
+            }
+          ],
+          "conflicts": []
+        }
+      ],
+      "scanned_files": [
+        "app.py"
+      ],
+      "resource_limit_events": [],
+      "resource_limit_scopes": [
+        "repo_index.file_bytes",
+        "repo_index.index_bytes"
+      ],
+      "resource_limit_reporting": "complete",
+      "languages": [
+        "python"
+      ],
+      "routes": [
+        {
+          "path": "/status",
+          "method": "GET",
+          "file": "app.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "external_calls": [],
+      "databases": [],
+      "auth_hints": [],
+      "service_hints": [],
+      "edge_hints": [],
+      "entrypoint_hints": [],
+      "protocol_hints": [],
+      "framework_hints": [],
+      "secret_hints": [],
+      "taint_chains": [],
+      "dependencies": [],
+      "vulnerabilities": [],
+      "authz_candidates": [],
+      "crypto_weaknesses": [],
+      "web_hardening_issues": [],
+      "code_weaknesses": [],
+      "workflow_issues": [],
+      "supply_chain_issues": [],
+      "secret_history": [],
+      "anomalies": [],
+      "limitations": [],
+      "analyzer_errors": [],
+      "files_scanned": 1,
+      "scan_snapshot": {
+        "snapshot_id": "ef214d4c9d2ebae9f72a836cab11b328f91713822119c668d13fb698a4d96ca7",
+        "files": {
+          "app.py": "a0bd8172e1a7ee5a4a710f394ad356c1f8cf0f0ca0d4b66943a8356ad7d19a78"
+        },
+        "raw_files": {
+          "app.py": "a0bd8172e1a7ee5a4a710f394ad356c1f8cf0f0ca0d4b66943a8356ad7d19a78"
+        },
+        "total_size": 138,
+        "index_config": {
+          "capture_sdk_sources": 1,
+          "include_tests": 0,
+          "include_vendored": 0,
+          "index_byte_budget": 0,
+          "index_file_limit": 100000,
+          "max_file_bytes": 2000000
+        },
+        "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+      }
+    },
+    "attack_surfaces": [
+      {
+        "route": "/status",
+        "method": "GET",
+        "file": "app.py",
+        "category": "public_api",
+        "exposure": "public",
+        "risk": "low",
+        "auth_signals": [],
+        "auth": "unknown",
+        "data_store_interaction": false,
+        "outbound_integration": false,
+        "relationship_basis": "unknown",
+        "context_signals": [],
+        "rationale": [
+          "Public application routes are initial footholds for probing input handling and authorization gaps.",
+          "No auth indicators were observed near this route.",
+          "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+          "Exposure is a static inference; deployment reachability has not been observed."
+        ],
+        "line": 3,
+        "evidence_class": "static_observed"
+      }
+    ],
+    "findings": [
+      {
+        "title": "Heuristic scan found only a limited attack surface",
+        "severity": "low",
+        "rule_id": "limited-surface",
+        "entity_id": null,
+        "evidence": [
+          "No major route, secret, or integration patterns triggered a stronger finding."
+        ],
+        "locations": [],
+        "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+        "confidence": "low",
+        "attack_techniques": [],
+        "tags": [
+          "weak-signal"
+        ],
+        "score": 5,
+        "exploitability": null,
+        "exploitability_tier": null,
+        "code_flows": [],
+        "taxonomy": null
+      }
+    ],
+    "attack_paths": [],
+    "assets": [],
+    "controls": [
+      {
+        "id": "control:absent:rate_limiting",
+        "kind": "rate_limiting",
+        "name": "Rate limiting",
+        "strength": "absent",
+        "scope": "global",
+        "placements": [],
+        "evidence": [],
+        "notes": "Public routes observed without any rate-limiting markers."
+      }
+    ],
+    "notable_observations": [],
+    "detection_opportunities": []
+  },
+  "limitations_meta": {
+    "analysis_mode": "heuristic",
+    "defensive_only": true,
+    "notes": [
+      "static_observed describes source declarations, never runtime reachability; exposure is inferred or unknown.",
+      "Same-file context and repository counts do not establish route ownership or auth enforcement.",
+      "Low-quality paths (tests/fixtures/mocks/examples) are retained in raw signals but separated in evidence class counts.",
+      "Use this artifact as a triage source-of-truth; validate high-priority items with repository context and runtime controls.",
+      "Assets, controls, and notable observations are heuristic overlays; absent-control entries indicate scanner did not find evidence, not necessarily that the control is missing in production.",
+      "ATT&CK technique mappings and detection opportunities are derived from insight kinds and finding-title keywords; treat them as triage hooks for SIEM/detection-engineering work, not authoritative MITRE mappings.",
+      "claim_support fields are closed-set token checks: supported_by_cited_evidence only means the cited evidence text names an identifier, route, or secret-kind the claim names; they never verify a claim's conclusion, and not_assessed never means a claim is false."
+    ]
+  }
+}

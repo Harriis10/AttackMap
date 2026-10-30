@@ -21,8 +21,12 @@ public static class ReportAdapter
         byte[] bytes = new byte[(int)length];
         await stream.ReadExactlyAsync(bytes);
         if (await stream.ReadAsync(new byte[1]) != 0) throw new InvalidDataException("Report changed while being read. Reopen it before continuing.");
+        string readHash = ExportSelection.Hash(bytes);
         using var document = JsonDocument.Parse(bytes, new JsonDocumentOptions { MaxDepth = 64 });
-        var root = document.RootElement;
+        return Read(document.RootElement, readHash);
+    }
+    public static ImportedReport Read(JsonElement root, string readHash)
+    {
         if (root.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Report must be an object.");
         if (root.TryGetProperty("schema_version", out _)) throw new InvalidDataException("Versioned run envelopes are not saved reports. Open the canonical report artifact.");
         if (!root.TryGetProperty("scan", out var scan) || scan.ValueKind != JsonValueKind.Object || !scan.TryGetProperty("root", out var repository) || repository.ValueKind != JsonValueKind.String ||
@@ -58,7 +62,7 @@ public static class ReportAdapter
             (limitations.Count == 0 ? "None supplied; completeness is unverified." : string.Join("\n", limitations)) + $"\nAnalyzer errors (as supplied): {errors}";
         if (scan.TryGetProperty("scanned_files", out var accepted) && accepted.ValueKind == JsonValueKind.Array)
             coverage = $"Distinct accepted source paths enumerated by analyzers: {accepted.EnumerateArray().Where(p => p.ValueKind == JsonValueKind.String).Select(p => p.GetString()).Distinct(StringComparer.Ordinal).Count()}\nEnumeration does not establish complete language or runtime coverage.\n" + coverage;
-        return new ImportedReport(repository.GetString()!, rows, LegacyLimitation, coverage, StructureAdapter.Read(root, scan), ExportSelection.Hash(bytes))
+        return new ImportedReport(repository.GetString()!, rows, LegacyLimitation, coverage, StructureAdapter.Read(root, scan), readHash)
         { FindingRecords = findings.EnumerateArray().Select(item => item.Clone()).ToList(),
           Review = Text(root, "defensive_review", "No defensive review supplied in this report."),
           ArchitectureSummary = Text(root, "architecture_summary", "No architecture summary supplied in this report."),

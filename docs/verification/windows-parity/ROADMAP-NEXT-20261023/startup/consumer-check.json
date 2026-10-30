@@ -1,0 +1,10 @@
+{
+  "project": "desktop/windows/NativeAiOptions.Tests/NativeAiOptions.Tests.csproj",
+  "command": ".tools/dotnet/dotnet.exe run --project desktop/windows/NativeAiOptions.Tests/NativeAiOptions.Tests.csproj --artifacts-path docs/verification/windows-parity/ROADMAP-NEXT-20261023/startup/native-ai-options-build --no-launch-profile -p:NuGetAudit=false -p:UseSharedCompilation=false -p:RestoreIgnoreFailedSources=true",
+  "exit_code": 0,
+  "stdout_summary": "PASS 121 WP015 offline settings/capability/secret checks; zero engine/provider dispatches",
+  "checks": 121,
+  "evidence_kind": "actual pure consumer command; not native app execution",
+  "startup_gate_runtime_executed": false,
+  "whole_wp023_status": "IN_PROGRESS"
+}

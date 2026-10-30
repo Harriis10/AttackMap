@@ -566,6 +566,16 @@ def link_contracts(
         # direct service-to-service edge and never a trust-path finding — the
         # proxy is an intermediary whose own controls core does not model.
         backend = aliases.proxies.get(host)
+        bound = aliases.host_ports.get(destination) if explicit_port else None
+        if backend is not None and bound is not None:
+            # A direct host:port binding and a proxy declaration describe
+            # conflicting topologies; the port binding cannot bypass the proxy.
+            implicated_repos = {
+                rid for rid, names in identities.items()
+                if backend in names or bound in names
+            }
+            if server_id in implicated_repos:
+                return destination, "candidate", "ambiguous_identity", None, None
         if backend is not None and not explicit_port:
             backend_repos = {rid for rid, names in identities.items() if backend in names}
             if host_repos:

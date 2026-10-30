@@ -1,5 +1,7 @@
 # Obnovení roadmapy — 22. 10. 2026
 
+**Aktuálně znovu obnoveno 23. 10. na výslovný pokyn uživatele:** [dávka GPT-6.1 Sol ultra](../RESUME-2026-10-23-sol-ultra/README.md). Scoped řezy WP016 metadata, WP023 window lifetime a WP017 controlled provider faults jsou integrované a cíleně ověřené; whole-task brány zůstávají otevřené. Předchozí pokyn po portable skončit je tímto novým zadáním odvolán; starší odstavce níže jsou datované checkpointy. Žádná nová release/ruční acceptance se tím nepřiznává.
+
 **Nejnovější checkpoint 23. 10. 2026: [přesné výsledky a další brány](checkpoint-2026-10-23.md).**
 7200s kandidát již prošel build/runtime/package/installed kontrolami. Hunt+verify
 dokončil všechny čtyři HTTP 200 odpovědi, ale zůstává partial kvůli jedné

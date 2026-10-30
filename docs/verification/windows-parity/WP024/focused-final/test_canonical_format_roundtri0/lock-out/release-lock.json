@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "lock_kind": "attackmap-windows-development-build-inputs",
+  "channel": "unsigned-development",
+  "signing": {
+    "status": "unsigned",
+    "note": "Unsigned development-channel build inputs. No certificate or signing step exists; this lock pins inputs and tool versions only."
+  },
+  "source_checksums_scope": [
+    "src/** (excluding __pycache__ and *.egg-info)",
+    "installer/**",
+    "pyproject.toml",
+    "README.md"
+  ],
+  "source_checksums": {
+    "installer/entry.py": "923fe53966c6cd9343e11af776cd4b05be315ea4b200b02e4d5dfb0f929b73bf",
+    "pyproject.toml": "9db496674d490e553881abaea32031d2ce1b1636c60d33f6efac50161253faf4",
+    "README.md": "711a6108ba2ce6ca93dd47d6817f2361db10d8ab6eec89460b2dfc2c325efabe",
+    "src/attackmap/__init__.py": "bb54068aea85faa7e487530083366be9962390af822e4c71ef1aca7033c83e66",
+    "src/attackmap/cli.py": "99bb88401742848e032fd6f51709415fb6be169a72d2e5d7fc44289255160d3c"
+  },
+  "source_file_count": 5,
+  "source_checksums_sha256": "eaf1298336fb82690f1ce55957bb29de141659aa44dc0da6636e199271980251",
+  "toolchain": {
+    "python": {
+      "version": "3.13.15",
+      "source": "generator interpreter; freeze venv not found, so the exact engine build Python is unknown"
+    },
+    "pyinstaller": {
+      "version": "unknown",
+      "reason": "freeze venv not found at C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\focused-final\\test_canonical_format_roundtri0\\missing-venv; PyInstaller version unavailable"
+    },
+    "dotnet_sdk": {
+      "version": "unknown",
+      "reason": "dotnet SDK not found at C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\focused-final\\test_canonical_format_roundtri0\\missing-dotnet.exe"
+    }
+  },
+  "notes": [
+    "Deterministic output: no timestamps; reruns over identical inputs and toolchain produce identical bytes.",
+    "source_checksums_sha256 uses the same canonical serialization as the frozen-engine source-checksums.json, so it can be compared directly with engine source_checksums_sha256 values."
+  ],
+  "release_inputs": {
+    "README.md": "711a6108ba2ce6ca93dd47d6817f2361db10d8ab6eec89460b2dfc2c325efabe",
+    "installer/entry.py": "923fe53966c6cd9343e11af776cd4b05be315ea4b200b02e4d5dfb0f929b73bf",
+    "pyproject.toml": "9db496674d490e553881abaea32031d2ce1b1636c60d33f6efac50161253faf4",
+    "src/attackmap/__init__.py": "bb54068aea85faa7e487530083366be9962390af822e4c71ef1aca7033c83e66",
+    "src/attackmap/cli.py": "99bb88401742848e032fd6f51709415fb6be169a72d2e5d7fc44289255160d3c"
+  },
+  "release_inputs_sha256": "eaf1298336fb82690f1ce55957bb29de141659aa44dc0da6636e199271980251",
+  "analyzer_requirements": [],
+  "analyzer_requirements_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+}

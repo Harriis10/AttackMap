@@ -71,6 +71,7 @@ public sealed class LocalSettingsStore(string path)
             options["strict_suppressions"] = settings.Options.StrictSuppressions;
             options["isolated_analyzers"] = settings.Options.IsolatedAnalyzers;
             options["time_budget_seconds"] = settings.Options.TimeBudgetSeconds;
+            options["analyzer_profile"] = settings.Options.AnalyzerProfile;
         }
         JsonObject merged = original == null ? new() : JsonNode.Parse(original)!.AsObject();
         Merge(merged, updated);

@@ -1,0 +1,94 @@
+{
+  "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\frozen-engine-final\\dist\\attackmap\\attackmap.exe",
+  "engine_sha256": "341ae7a9619bbf54b1d4207c468055ff540a2ff20b9295f4b9b1109bd6e6d0fa",
+  "cases": {
+    "subscription_null": {
+      "report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\frozen-before-canonical-subscription\\attackmap-report.json",
+      "report_sha256": "292c66fc8d42cc9c5ac8073765de45e4ab22424333536ec085fee64dd95fd5ef",
+      "routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "classification": "before engine actual fixture static scan; no provider"
+    },
+    "query_null_negative": {
+      "report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\frozen-before-canonical-query\\attackmap-report.json",
+      "report_sha256": "9fec69e99c6db1c16b2328e30eb989147c1168aaea1b37ea8828484dec0a8c76",
+      "routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "null"
+          ],
+          "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+        }
+      ],
+      "classification": "before engine actual fixture static scan; no provider"
+    },
+    "initial_invalid_subscription_method_shape": {
+      "report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\frozen-before-subscription-null\\attackmap-report.json",
+      "report_sha256": "d05cc4ea0924ac1457aa5e07fd5c0c4280b79dc82eb85261c6d84af3fcef00ee",
+      "routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "null"
+          ],
+          "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+        }
+      ],
+      "classification": "before engine actual fixture static scan; no provider"
+    }
+  }
+}

@@ -6,7 +6,7 @@ For planning and agent execution, start with [the current documentation index](d
 The only active implementation plan is:
 
 - [Windows parity roadmap](docs/roadmap-windows-parity-2026-10-20.md): checkpoints, scope, and acceptance gates.
-- [Windows parity TODO](docs/windows-parity-todo.md): executable WP001–WP041 task definitions.
+- [Windows parity TODO](docs/windows-parity-todo.md): executable WP001–WP044 task definitions.
 - [Windows parity backlog](docs/windows-parity-backlog.json): dependencies, ownership, and parallel-work leases.
 
 The [dated audit](docs/windows-parity-audit-2026-10-20.md), its

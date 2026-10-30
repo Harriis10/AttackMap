@@ -24,7 +24,7 @@ public sealed partial class MainWindow
                 root.RequestedTheme = theme;
                 double scale = root.XamlRoot.RasterizationScale;
                 AppWindow.Resize(new Windows.Graphics.SizeInt32((int)Math.Round(size.Width * scale), (int)Math.Round(size.Height * scale)));
-                captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-StartWorkspace.png")));
+                captures.Add(await CaptureStrict(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-StartWorkspace.png")));
             }
             File.WriteAllText(Path.Combine(directory, "startup-capture-manifest.json"), JsonSerializer.Serialize(new { captures, overviewVisible = OverviewPanel.Visibility == Visibility.Visible, findingsVisible = FindingsPanel.Visibility == Visibility.Visible, selected = (Navigation.SelectedItem as NavigationViewItem)?.Content?.ToString(), initialViewPassed = OverviewPanel.Visibility == Visibility.Visible && FindingsPanel.Visibility == Visibility.Collapsed && Navigation.SelectedItem == Navigation.MenuItems[0], personalSettingsRead = false, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
         }
@@ -91,7 +91,7 @@ public sealed partial class MainWindow
                 History.SelectGenerationForSmoke(1);
                 root.UpdateLayout();
                 await Task.Delay(450); // let ListView entrance animations settle before capture
-                captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-HistoryRetention.png")));
+                captures.Add(await CaptureStrict(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-HistoryRetention.png")));
             }
             File.WriteAllText(Path.Combine(directory, "retention-capture-manifest.json"), JsonSerializer.Serialize(new { captures, view = "History with fixture generation-retention payload; pinned row selected", os = Environment.OSVersion.ToString(), scope = NativeCaptureProbe.Scope, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
         }
@@ -138,7 +138,7 @@ public sealed partial class MainWindow
                 await settled.Task;
                 root.UpdateLayout();
                 await Task.Delay(450); // let ListView entrance animations settle before capture
-                captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-ReportsArtifacts.png")));
+                captures.Add(await CaptureStrict(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-ReportsArtifacts.png")));
             }
             File.WriteAllText(Path.Combine(directory, "reports-artifacts-capture-manifest.json"), JsonSerializer.Serialize(new { captures, view = "Reports with fixture artifact rows, expander expanded", os = Environment.OSVersion.ToString(), scope = NativeCaptureProbe.Scope, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
         }
@@ -147,6 +147,77 @@ public sealed partial class MainWindow
             if (Directory.Exists(directory)) File.WriteAllText(Path.Combine(directory, "reports-artifacts-capture-failure.json"), JsonSerializer.Serialize(new { error = error.ToString(), completed = captures.Count }));
         }
         finally { Close(); }
+    }
+
+    private FrameworkElement ActiveCapturePanel()
+    {
+        if (Navigation.SelectedItem == Navigation.SettingsItem) return ProviderPanel;
+        int index = Navigation.MenuItems.IndexOf(Navigation.SelectedItem);
+        FrameworkElement[] panels = [OverviewPanel, FindingsPanel, StructurePanel, StructurePanel, ReportsPanel,
+            HistoryPanel, ScanOptionsPanel, RiskPaths, EvidenceInventory, Diagrams, Fleet, SuppressionWorkspace];
+        return index >= 0 && index < panels.Length ? panels[index] : throw new InvalidOperationException("No selected capture destination.");
+    }
+
+    private IReadOnlyList<CaptureRegion> RequiredCaptureRegions(FrameworkElement root, FrameworkElement activePanel)
+    {
+        if (root.RequestedTheme != ElementTheme.Default && root.ActualTheme != root.RequestedTheme)
+            throw new InvalidOperationException("Capture theme has not settled to the requested theme.");
+        if (Navigation.SelectedItem is not NavigationViewItem selected)
+            throw new InvalidOperationException("Capture requires a selected navigation item.");
+        string selectedLabel = ReferenceEquals(selected, Navigation.SettingsItem) ? "Settings" : selected.Content?.ToString() ?? "";
+        if (string.IsNullOrWhiteSpace(selectedLabel) || Heading.Text != selectedLabel)
+            throw new InvalidOperationException("Selected destination and capture heading disagree.");
+        FrameworkElement[] panels = [OverviewPanel, FindingsPanel, StructurePanel, ReportsPanel,
+            HistoryPanel, ScanOptionsPanel, RiskPaths, EvidenceInventory, Diagrams, Fleet, SuppressionWorkspace, ProviderPanel];
+        var visiblePanels = panels.Where(CaptureEffectivelyVisible).ToArray();
+        if (visiblePanels.Length != 1 || !ReferenceEquals(visiblePanels[0], activePanel))
+            throw new InvalidOperationException("Exactly one selected destination panel must be effectively visible.");
+        var navigationText = ProviderScrollElements(selected).OfType<TextBlock>().FirstOrDefault(text =>
+            !string.IsNullOrWhiteSpace(text.Text) && CaptureEffectivelyVisible(text) && ProviderPreviewBounds(text, root).FullyWithinClippedViewport);
+        if (navigationText == null) throw new InvalidOperationException("Selected navigation label has no visible text region.");
+        var pageText = ProviderScrollElements(activePanel).OfType<TextBlock>().FirstOrDefault(text =>
+            !string.IsNullOrWhiteSpace(text.Text) && CaptureEffectivelyVisible(text) && ProviderPreviewBounds(text, root).FullyWithinClippedViewport);
+        if (pageText == null) throw new InvalidOperationException("Selected page has no visible nonempty text region.");
+        return [NativeCaptureProbe.RequireTextRegion(root, Heading, "heading"),
+            NativeCaptureProbe.RequireTextRegion(root, navigationText, "selected-navigation"),
+            NativeCaptureProbe.RequireTextRegion(root, pageText, "page-text-0")];
+    }
+
+    private async Task<CaptureMetadata> CaptureStrict(FrameworkElement root, string path, bool requireVisibleContent = true)
+    {
+        if (!requireVisibleContent) throw new ArgumentException("QA captures must use strict required-text validation.", nameof(requireVisibleContent));
+        if (Navigation.SelectedItem is FrameworkElement selected)
+            selected.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false, VerticalAlignmentRatio = 0.5 });
+        var settled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        if (!DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => settled.SetResult()))
+            throw new InvalidOperationException("Capture dispatcher is unavailable.");
+        await settled.Task;
+        root.UpdateLayout();
+        return await CaptureWithDiagnostics(root, path, RequiredCaptureRegions(root, ActiveCapturePanel()));
+    }
+
+    private async Task<CaptureMetadata> CaptureWithDiagnostics(FrameworkElement root, string path, IReadOnlyList<CaptureRegion> requiredText)
+    {
+        try
+        {
+            var capture = await NativeCaptureProbe.Capture(root, path, requireVisibleContent: true, requiredText);
+            RenderDiagnosticsCapture(capture, Path.GetFileName(path));
+            return capture;
+        }
+        catch (CaptureValidationException error)
+        {
+            RenderDiagnosticsCapture(error.Metadata, Path.GetFileName(path));
+            throw;
+        }
+    }
+
+    private static bool CaptureEffectivelyVisible(FrameworkElement element)
+    {
+        for (FrameworkElement? current = element; current is not null;
+            current = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(current) as FrameworkElement)
+            if (!current.IsLoaded || current.Visibility != Visibility.Visible || current.ActualWidth <= 0 || current.ActualHeight <= 0)
+                return false;
+        return true;
     }
 
     private async void CaptureLoaded(object sender, RoutedEventArgs args)
@@ -158,17 +229,37 @@ public sealed partial class MainWindow
         if (index < 0 || index + 2 >= arguments.Length) { Close(); return; }
         string directory = Path.GetFullPath(arguments[index + 2]);
         var captures = new List<CaptureMetadata>();
+        var aiSummaryProofs = new List<object>();
+        int aiModeIndex = Array.IndexOf(arguments, "--capture-ai-mode");
+        string? aiMode = aiModeIndex < 0 ? null : arguments[aiModeIndex + 1];
+        bool forceInvalidRegion = arguments.Contains("--capture-invalid-region");
+        int expected = aiMode != null ? 4 : arguments.Contains("--capture-structure-only") ? 8 : 4 * (Navigation.MenuItems.Count + 2);
+        var runState = new CaptureRunState(expected);
         try
         {
             if (!Directory.Exists(directory)) throw new DirectoryNotFoundException("Create a fresh QA directory first.");
             if (!await LoadReport(arguments[index + 1])) throw new InvalidDataException("QA report could not be loaded.");
-            int aiModeIndex = Array.IndexOf(arguments, "--capture-ai-mode");
-            string? aiMode = aiModeIndex < 0 ? null : arguments[aiModeIndex + 1];
+            await parityViewBinding;
             if (aiMode != null)
             {
-                await parityViewBinding;
                 if (await AiArtifacts.SelectMode(aiMode) == null) throw new InvalidDataException("Selected saved AI mode is unavailable.");
                 AiArtifactsExpander.IsExpanded = true;
+            }
+            async Task CaptureOne(string name, string path)
+            {
+                try
+                {
+                    captures.Add(forceInvalidRegion
+                        ? await CaptureWithDiagnostics(root, path,
+                            [new CaptureRegion("forced-invalid-region", -1, 0, 10, 10, 255, 255, 255)])
+                        : await CaptureStrict(root, path, requireVisibleContent: true));
+                    runState.Success(name);
+                }
+                catch (CaptureValidationException error)
+                {
+                    captures.Add(error.Metadata);
+                    runState.Failure(name, error.Message);
+                }
             }
             foreach (var size in new[] { (Width: 1024, Height: 700), (Width: 1600, Height: 1000) })
             foreach (var theme in new[] { ElementTheme.Light, ElementTheme.Dark })
@@ -185,10 +276,24 @@ public sealed partial class MainWindow
                     DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => settled.SetResult());
                     await settled.Task;
                     root.UpdateLayout();
-                    if (aiMode != null) AiArtifactsExpander.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false, VerticalAlignmentRatio = 0 });
                     string view = (destination as NavigationViewItem)?.Content?.ToString() ?? "Settings";
                     string filename = $"{size.Width}x{size.Height}-{theme}-{view}.png";
-                    captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, filename)));
+                    if (aiMode != null)
+                    {
+                        await Task.Delay(450);
+                        foreach (var scroll in ProviderScrollElements(AiArtifactsExpander).OfType<ScrollViewer>())
+                            scroll.ChangeView(null, 0, null, disableAnimation: true);
+                        root.UpdateLayout();
+                        var summary = ProviderScrollElements(AiArtifacts).OfType<TextBlock>().Single(text =>
+                            text.Text.StartsWith("Selected generation:", StringComparison.Ordinal));
+                        summary.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false, VerticalAlignmentRatio = 0 });
+                        await ProviderScrollDispatchTurns(); root.UpdateLayout();
+                        var bounds = ProviderPreviewBounds(summary, root);
+                        if (Navigation.SelectedItem != Navigation.MenuItems[4] || Heading.Text != "Reports" || !bounds.FullyWithinClippedViewport)
+                            throw new InvalidOperationException("Actual selected-generation AI summary is not fully visible in Reports.");
+                        aiSummaryProofs.Add(new { filename, selected = view, summary.Text, bounds });
+                    }
+                    await CaptureOne(filename, Path.Combine(directory, filename));
                     if (view is "Architecture" or "Inventory")
                     {
                         var rows = Enumerable.Range(0, Math.Min(StructureRecords.Items.Count, 16)).Select(rowIndex =>
@@ -206,14 +311,27 @@ public sealed partial class MainWindow
                 root.UpdateLayout();
                 FindingInspector.Focus(FocusState.Programmatic);
                 FindingInspector.ChangeView(null, Math.Min(FindingInspector.ScrollableHeight, Math.Max(0, Detail.ActualHeight - FindingInspector.ActualHeight / 2)), null, disableAnimation: true);
-                captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-FindingDetail.png")));
+                string detailName = $"{size.Width}x{size.Height}-{theme}-FindingDetail.png";
+                await CaptureOne(detailName, Path.Combine(directory, detailName));
                 FindingInspector.ChangeView(null, 0, null, disableAnimation: true);
             }
-            File.WriteAllText(Path.Combine(directory, "capture-manifest.json"), JsonSerializer.Serialize(new { captures, os = Environment.OSVersion.ToString(), expected = aiMode != null ? 4 : arguments.Contains("--capture-structure-only") ? 8 : 4 * (Navigation.MenuItems.Count + 2), completed = captures.Count, aiMode, selectedReportSha256 = displayedReadHash, providerCalled = false, findingDetailState = "Production master/detail view with the first finding selected, inspector focused and scrolled toward the recommendation. No separate detail destination is invented.", scope = NativeCaptureProbe.Scope, acceptedC25 = false }, new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(Path.Combine(directory, "capture-manifest.json"), JsonSerializer.Serialize(new {
+                status = runState.Status, attempts = runState.Attempts, captures, expected, completed = captures.Count,
+                aiSummaryProofs, os = Environment.OSVersion.ToString(), aiMode, selectedReportSha256 = displayedReadHash,
+                providerCalled = false, findingDetailState = "Production master/detail view with the first finding selected, inspector focused and scrolled toward the recommendation. No separate detail destination is invented.",
+                scope = NativeCaptureProbe.Scope, manual_review = "not-run", live_window_acceptance = "not-established", acceptedC25 = false
+            }, new JsonSerializerOptions { WriteIndented = true }));
+            if (runState.Failed > 0)
+                File.WriteAllText(Path.Combine(directory, "capture-failure.json"), JsonSerializer.Serialize(new {
+                    error = "One or more required-text capture regions failed.", status = runState.Status,
+                    attempts = runState.Attempts, completed = captures.Count
+                }, new JsonSerializerOptions { WriteIndented = true }));
         }
         catch (Exception error)
         {
-            if (Directory.Exists(directory)) File.WriteAllText(Path.Combine(directory, "capture-failure.json"), JsonSerializer.Serialize(new { error = error.ToString(), completed = captures.Count }));
+            if (Directory.Exists(directory)) File.WriteAllText(Path.Combine(directory, "capture-failure.json"), JsonSerializer.Serialize(new {
+                error = error.ToString(), status = runState.Status, attempts = runState.Attempts, completed = captures.Count
+            }, new JsonSerializerOptions { WriteIndented = true }));
         }
         finally { Close(); }
     }

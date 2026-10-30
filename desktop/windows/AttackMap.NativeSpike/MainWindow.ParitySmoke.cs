@@ -86,7 +86,7 @@ public sealed partial class MainWindow
                         await WriteSelectedBytes(exportPath, bytes);
                         ((FrameworkElement)Content).UpdateLayout();
                         AiArtifactsExpander.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false, VerticalAlignmentRatio = 0 });
-                        var capture = await NativeCaptureProbe.Capture((FrameworkElement)Content, Path.Combine(directory, "AI-mode.png"));
+                        var capture = await CaptureStrict((FrameworkElement)Content, Path.Combine(directory, "AI-mode.png"));
                         aiDisplay = new { mode = page.Mode, state = page.State, artifact = artifact.FullPath, artifactSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant(), exportPath, capture, metadata = page.Metadata };
                         modelCompleted = page.State == "completed";
                     }
@@ -155,7 +155,7 @@ public sealed partial class MainWindow
                 .Where(block => block.Name == "FleetRepositoryPath").Select(block => block.Text).ToArray();
             bool repositoryRowsReadable = roots.Take(3).SequenceEqual(renderedPaths);
             if (!repositoryRowsReadable) throw new InvalidDataException("Rendered fleet repository rows do not match the selected paths.");
-            var capture = await NativeCaptureProbe.Capture((FrameworkElement)Content, Path.Combine(directory, "Fleet-watch.png"));
+            var capture = await CaptureStrict((FrameworkElement)Content, Path.Combine(directory, "Fleet-watch.png"));
             var captures = await CaptureWatchView(directory, "Fleet-watch", 10);
             Fleet.RemoveRepository("qa-0"); Fleet.AddRepository("qa-3", roots[3]);
             long switchedEpoch = fleetWatch.Epoch;

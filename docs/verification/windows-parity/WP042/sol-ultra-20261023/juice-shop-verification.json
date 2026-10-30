@@ -1,0 +1,143 @@
+{
+  "scope": "Actual deterministic Juice Shop scans; no AI, native UI, release or accuracy/maturity acceptance",
+  "target": "C:\\tmp\\juice-shop",
+  "comparisons": [
+    {
+      "label": "source automatic",
+      "before_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\baseline-scan\\20261023T090600-686ad21f91064ceeab77db97a3b95a76\\attackmap-report.json",
+      "after_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\source-verified-final\\20261023T092537-ae998e32ca624ae69dda6fca3f2e666d\\attackmap-report.json",
+      "before_sha256": "9c631f01762172fc2dad5931e8ca9a197e9cab6f66e5af617a8767660de15f0d",
+      "after_sha256": "9c631f01762172fc2dad5931e8ca9a197e9cab6f66e5af617a8767660de15f0d",
+      "complete_report_json_equal": true,
+      "normalization": "none",
+      "executed_analyzers_equal": true,
+      "executed_analyzers": [
+        {
+          "name": "javascript-web",
+          "version": "0.2.0"
+        },
+        {
+          "name": "python-web",
+          "version": "0.1.0"
+        },
+        {
+          "name": "config",
+          "version": "0.1.0"
+        },
+        {
+          "name": "default",
+          "version": "0.1.0"
+        }
+      ],
+      "files_scanned": 862,
+      "routes": 266,
+      "external_calls": 1251,
+      "datastores": 30,
+      "findings": 18,
+      "limitations": [
+        "oversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4",
+        "oversized file skipped (> 2000000 bytes): screenshots/slideshow.gif"
+      ],
+      "provider_calls": 0,
+      "time_budget_exceeded": false,
+      "analyzer_errors": []
+    },
+    {
+      "label": "frozen automatic",
+      "before_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\frozen-baseline-scan\\20261023T091334-93203bd94ae64e4aab7568fdfbd19550\\attackmap-report.json",
+      "after_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\frozen-final-scan\\20261023T092905-7829b3a18bda412182a563d2483b74d8\\attackmap-report.json",
+      "before_sha256": "919619d6ffe6a8ccdf153f83d9b127ae06aa46c1b68351ee770565edbeb5b8c9",
+      "after_sha256": "919619d6ffe6a8ccdf153f83d9b127ae06aa46c1b68351ee770565edbeb5b8c9",
+      "complete_report_json_equal": true,
+      "normalization": "none",
+      "executed_analyzers_equal": true,
+      "executed_analyzers": [
+        {
+          "name": "python",
+          "version": "0.1.0"
+        },
+        {
+          "name": "javascript-web",
+          "version": "0.2.0"
+        },
+        {
+          "name": "python-web",
+          "version": "0.1.0"
+        },
+        {
+          "name": "terraform",
+          "version": "0.1.0"
+        },
+        {
+          "name": "config",
+          "version": "0.1.0"
+        },
+        {
+          "name": "iac",
+          "version": "0.1.0"
+        },
+        {
+          "name": "default",
+          "version": "0.1.0"
+        }
+      ],
+      "files_scanned": 899,
+      "routes": 270,
+      "external_calls": 1251,
+      "datastores": 30,
+      "findings": 18,
+      "limitations": [
+        "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.",
+        "oversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4",
+        "oversized file skipped (> 2000000 bytes): screenshots/slideshow.gif"
+      ],
+      "provider_calls": 0,
+      "time_budget_exceeded": false,
+      "analyzer_errors": []
+    },
+    {
+      "label": "frozen explicit modules versus versioned Node profile",
+      "before_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\frozen-explicit-node-baseline\\20261023T092203-41d704f65b6240c889829949bf7749f7\\attackmap-report.json",
+      "after_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\frozen-node-profile-scan\\20261023T092905-b5524e8795454c46a2c90588c18c5be0\\attackmap-report.json",
+      "before_sha256": "48d42838ca6b9ab5d6a7a7f51c7ef92afa4ab789481da5474d0b09bb49d3f7e5",
+      "after_sha256": "48d42838ca6b9ab5d6a7a7f51c7ef92afa4ab789481da5474d0b09bb49d3f7e5",
+      "complete_report_json_equal": true,
+      "normalization": "none",
+      "executed_analyzers_equal": true,
+      "executed_analyzers": [
+        {
+          "name": "javascript-web",
+          "version": "0.2.0"
+        },
+        {
+          "name": "node-service",
+          "version": "0.2.0"
+        },
+        {
+          "name": "config",
+          "version": "0.1.0"
+        },
+        {
+          "name": "default",
+          "version": "0.1.0"
+        }
+      ],
+      "files_scanned": 1514,
+      "routes": 281,
+      "external_calls": 1261,
+      "datastores": 30,
+      "findings": 18,
+      "limitations": [
+        "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.",
+        "oversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4",
+        "oversized file skipped (> 2000000 bytes): screenshots/slideshow.gif"
+      ],
+      "provider_calls": 0,
+      "time_budget_exceeded": false,
+      "analyzer_errors": []
+    }
+  ],
+  "new_frozen_engine_sha256": "341ae7a9619bbf54b1d4207c468055ff540a2ff20b9295f4b9b1109bd6e6d0fa",
+  "old_frozen_engine_sha256": "574497f7c4ae3c8859edb5506c0538c8cba99dc70436f29857dbec6240aa81f5",
+  "all_equal": true
+}

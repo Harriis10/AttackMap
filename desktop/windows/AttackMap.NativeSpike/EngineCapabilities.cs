@@ -51,9 +51,9 @@ public sealed class EngineCapabilities
             {
                 // Advanced negotiation requires explicit per-schema declarations; never infer 1.3 from global lists.
                 if (desktop.TryGetProperty("provider_options_by_schema", out var providerSchemas) && providerSchemas.TryGetProperty(version, out var providerFields)) result.providerBySchema[version] = Strings(providerFields);
-                else if (version != "1.3") result.providerBySchema[version] = result.providerOptions;
+                else if (version is not ("1.3" or "1.5")) result.providerBySchema[version] = result.providerOptions;
                 if (desktop.TryGetProperty("modes_by_schema", out var modeSchemas) && modeSchemas.TryGetProperty(version, out var modeFields)) result.modesBySchema[version] = Strings(modeFields);
-                else if (version != "1.3") result.modesBySchema[version] = result.modes;
+                else if (version is not ("1.3" or "1.5")) result.modesBySchema[version] = result.modes;
             }
             var identity = root.GetProperty("engine_identity");
             string hash = identity.GetProperty("sha256").GetString()!;
@@ -136,10 +136,10 @@ public sealed class EngineCapabilities
             wire.ValidateForRequest();
             string schema = requestSchema ?? (wire.RequiresSchema13 ? "1.3" : SchemaVersions.Contains("1.1") ? "1.1" : "1.2");
             if (!Compatible || !SchemaVersions.Contains(schema) || !providers.Contains(wire.Provider)) throw new InvalidDataException();
-            if (schema == "1.3" && !AdvancedAiAvailable) throw new InvalidDataException();
+            if (schema is "1.3" or "1.5" && !AdvancedAiAvailable) throw new InvalidDataException();
             if (!modesBySchema.TryGetValue(schema, out var supportedModes) || !supportedModes.Contains(wire.EffectiveMode) ||
                 !providerBySchema.TryGetValue(schema, out var fields) || JsonSerializer.SerializeToElement(wire).EnumerateObject().Any(field => !fields.Contains(field.Name))) throw new InvalidDataException();
-            if (schema == "1.3")
+            if (schema is "1.3" or "1.5")
             {
                 var tuning = document.GetProperty("desktop").GetProperty("provider_tuning");
                 if (!Strings(tuning.GetProperty("backends")).Contains(wire.Backend ?? "api") || !Strings(tuning.GetProperty("speed")).Contains(wire.Speed ?? "standard")) throw new InvalidDataException();
@@ -163,6 +163,8 @@ public sealed class EngineCapabilities
     public void RequireSupport(NativeScanOptions options, string modules)
     {
         options.ValidateForRequest();
+        if (options.AnalyzerProfile != null && NativeScanOptions.ParseModules(modules).Length > 0)
+            throw new InvalidDataException("Analyzer profiles cannot be combined with an explicit module list.");
         if (!Compatible || !SchemaVersions.Contains(options.RequestSchema)) throw new InvalidDataException(Compatible ? "Selected engine does not support the requested run schema. Saved options are retained." : Reason);
         var serialized = JsonSerializer.SerializeToElement(options);
         foreach (var field in serialized.EnumerateObject())

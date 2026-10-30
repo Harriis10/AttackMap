@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_type": "attackmap_artifact_manifest",
+  "generation_id": "f1b2a318378a46929eb1f2d105dc17bb",
+  "generation_profile": "fleet",
+  "engine_version": "1.5.1",
+  "created_at": "2026-10-21T02:54:13.947738+00:00",
+  "exit_state": {
+    "status": "succeeded",
+    "exit_code": 0
+  },
+  "run_identity": {
+    "repo_root": "fleet",
+    "repo_name": "fleet",
+    "analyzers": [],
+    "repo_roots": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-k-frozen-20261021-01\\fleet-fixtures\\repository-1",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-k-frozen-20261021-01\\fleet-fixtures\\repository-2",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-k-frozen-20261021-01\\fleet-fixtures\\repository-3"
+    ]
+  },
+  "sections": [
+    {
+      "name": "fleet-summary.json",
+      "path": "fleet-summary.json",
+      "format": "json",
+      "role": "fleet-artifact",
+      "checksum": "ba4a8760d210f8c3c3c2357d568634fff455454323c3294ffb1bd44f6fbc4ce4",
+      "size_bytes": 1984
+    },
+    {
+      "name": "run-manifest.json",
+      "path": "run-manifest.json",
+      "format": "json",
+      "role": "fleet-artifact",
+      "checksum": "f4594c566a8bcad481f9f00333ee4dafaf5568f567d5e6328955b6ffe39c032e",
+      "size_bytes": 4029
+    },
+    {
+      "name": "fleet-summary.md",
+      "path": "fleet-summary.md",
+      "format": "md",
+      "role": "fleet-artifact",
+      "checksum": "3c8932be3be2bc18973b1cc3d4be4094f279cc6198d102e12ec539de1898e819",
+      "size_bytes": 1507
+    },
+    {
+      "name": "fleet-graph.md",
+      "path": "fleet-graph.md",
+      "format": "md",
+      "role": "fleet-artifact",
+      "checksum": "440a9ad7e0f7038c93d9469d11844781e898641926b3722b7897003c8637cae3",
+      "size_bytes": 97
+    },
+    {
+      "name": "desktop-fleet.json",
+      "path": "desktop-fleet.json",
+      "format": "json",
+      "role": "fleet-artifact",
+      "checksum": "d0330042ae168722ca0136222c1137a96990ef3e6b0fe78e92a8560af331cb92",
+      "size_bytes": 3499
+    }
+  ],
+  "compatibility_exports": [],
+  "children": [
+    {
+      "path": "repository-1/child-1177f1366add93e88ed5e4f203f034a9",
+      "manifest_sha256": "87392b3396cbb41abec18e746db1d5d4ecf785e0d82d05c6a84a801875b5a6bd"
+    },
+    {
+      "path": "repository-2/child-737842d445c6cc38514de560b838e9d5",
+      "manifest_sha256": "2cc119942fd5f9a95f8ffcdcff41dc13d441ff124fa0a5a83b1388372826c63c"
+    },
+    {
+      "path": "repository-3/child-281eb83481303de8f17b054cacc6d84b",
+      "manifest_sha256": "1e8287f323c278943141468d80b069dba6c495dfa2ee2c6c45e16813ca7163e3"
+    }
+  ],
+  "publication": {
+    "immutable": true
+  }
+}

@@ -1,0 +1,28 @@
+Failed read-only baseline attempt, captured from the tool transcript before
+the direct-extraction script was changed to skip old builtin multi-mount cases.
+The final successful per-variant stdout/stderr logs have their own later run.
+
+Command:
+.venv/Scripts/python.exe -B docs/verification/windows-parity/WP039/sol-ultra-20261023-python/qualify_upstream_direct.py
+
+Installed worker stdout before timeout:
+installed fastapi-import-alias
+installed fastapi-multi-mount
+
+Installed worker faulthandler output:
+Timeout (0:01:30)!
+Thread 0x00005bc4 (most recent call first):
+  File "C:\Projects\INPROGRESS\AttackMap\.tmp\wp042-sol-ultra-20261023-batch2\engine-final\source\src\attackmap\scanner.py", line 485 in _python_route_prefixes
+  File "C:\Projects\INPROGRESS\AttackMap\.tmp\wp042-sol-ultra-20261023-batch2\engine-final\source\src\attackmap\scanner.py", line 505 in _extract_python_routes
+  File "C:\Projects\INPROGRESS\AttackMap\.tmp\wp042-sol-ultra-20261023-batch2\engine-final\source\src\attackmap\scanner.py", line 653 in extract_routes
+  File "C:\Projects\INPROGRESS\AttackMap\.tmp\wp042-sol-ultra-20261023-batch2\engine-final\source\src\attackmap\scanner.py", line 890 in _analyze_indexed_file
+  File "C:\Projects\INPROGRESS\AttackMap\.tmp\wp042-sol-ultra-20261023-batch2\engine-final\source\src\attackmap\scanner.py", line 869 in _cached_file_signals
+  File "C:\Projects\INPROGRESS\AttackMap\.tmp\wp042-sol-ultra-20261023-batch2\engine-final\source\src\attackmap\scanner.py", line 801 in scan_files
+  File "C:\Projects\INPROGRESS\AttackMap\.tmp\wp042-sol-ultra-20261023-batch2\engine-final\source\src\attackmap\analyzers.py", line 192 in analyze
+  File "C:\Projects\INPROGRESS\AttackMap\docs\verification\windows-parity\WP039\sol-ultra-20261023-python\qualify_upstream_direct.py", line 40 in worker
+  File "C:\Projects\INPROGRESS\AttackMap\docs\verification\windows-parity\WP039\sol-ultra-20261023-python\qualify_upstream_direct.py", line 54 in main
+  File "C:\Projects\INPROGRESS\AttackMap\docs\verification\windows-parity\WP039\sol-ultra-20261023-python\qualify_upstream_direct.py", line 89 in <module>
+
+Result: worker exited nonzero; outer assertion failed. This is NOT a passing
+scan, test or integration result. The worker's faulthandler exit bound stopped
+the looping direct extraction; no provider or framework runtime was invoked.

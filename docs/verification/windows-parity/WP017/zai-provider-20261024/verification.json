@@ -1,0 +1,699 @@
+{
+  "scope": "WP017/WP023 user-requested external provider and rendering investigation",
+  "whole_task_acceptance": false,
+  "rendering_defect_reproduced": false,
+  "windows_desktop_composition_verified": false,
+  "python_focused_tests": {
+    "passed": 79,
+    "failed": 0,
+    "seconds": 9.1,
+    "files": [
+      "tests/test_openai_compatible.py",
+      "tests/test_llm_review.py",
+      "tests/test_llm_loopback_privacy.py",
+      "tests/test_ai_budget.py"
+    ]
+  },
+  "zai_connectivity": {
+    "completed": true,
+    "model": "glm-5.3-flash",
+    "reply": "ZAI_CONNECTION_OK",
+    "usage": {
+      "input_tokens": 29,
+      "output_tokens": 68
+    },
+    "stop_reason": "stop",
+    "seconds": 3.71,
+    "repository_evidence_sent": false
+  },
+  "cloud_scan_authorization": {
+    "user_explicitly_approved": true,
+    "repository": "C:/tmp/juice-shop",
+    "destination": "https://api.z.ai/api/coding/paas/v4",
+    "payload": "selected source excerpts and static analysis context",
+    "max_provider_calls": 1,
+    "output_token_allowance": 16000
+  },
+  "cloud_scan_exit": {
+    "exit_code": 0,
+    "seconds": 211.06
+  },
+  "previous_cloud_timeout": {
+    "exit_code": 0,
+    "seconds": 248.1
+  },
+  "saved_timeout_change": [
+    {
+      "file": "C:\\Users\\Precision\\AppData\\Local\\AttackMap\\NativePreview\\provider.json",
+      "old_ai_seconds": 600,
+      "new_ai_seconds": 1200,
+      "model": "glm-5.3-flash",
+      "new_scan_hard_seconds": null,
+      "before_sha256": "d6f4022337679c485cabab474f6fcde6060bd9f0796951be3c472a4018b48f6a",
+      "after_sha256": "8bce948af6eb81cc1a333a8fe55f9fcca2972d2cbe729cfbaf355d7816045ada"
+    },
+    {
+      "file": "C:\\Users\\Precision\\AppData\\Local\\AttackMap\\NativePreview\\settings.json",
+      "old_ai_seconds": 600,
+      "new_ai_seconds": 1200,
+      "model": "glm-5.3-flash",
+      "new_scan_hard_seconds": 1800,
+      "before_sha256": "63053c3c4786fca09d2fceae9f211cdafe1c776950aad70f59e71ccba88e13e9",
+      "after_sha256": "333b9c07365774be95f281ac77e434efaec62aff176c461279f44acc33b72ad8"
+    }
+  ],
+  "cloud_review_metadata": {
+    "backend": "api",
+    "model": "glm-5.3-flash",
+    "stop_reason": "stop",
+    "usage": {
+      "input_tokens": 75005,
+      "output_tokens": 9863
+    },
+    "usage_status": "reported",
+    "reference_validation": {
+      "reference_validity": "invalid",
+      "scope": "selected_prompt_producer_evidence_ids",
+      "claim_support": "not_assessed",
+      "claim_support_assessments": [
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "surface:1",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "surface:50",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "surface:46",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "surface:2",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "surface:3",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "surface:4",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "finding:1",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The application declares a large HTTP surface in `server.ts` (50 surfaces captured, e.g., surface:1 `OPTIONS /*` through surface:50 `GET /re",
+          "reference": "path:1",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: Exactly one control is present \u2014 control:mfa:multi-factor_authentication, scoped to route with evidence at `/rest/2fa/verify` (`server.ts:48",
+          "reference": "control:mfa:multi-factor_authentication",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: Exactly one control is present \u2014 control:mfa:multi-factor_authentication, scoped to route with evidence at `/rest/2fa/verify` (`server.ts:48",
+          "reference": "control:absent:authentication",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: Exactly one control is present \u2014 control:mfa:multi-factor_authentication, scoped to route with evidence at `/rest/2fa/verify` (`server.ts:48",
+          "reference": "control:absent:csrf_protection",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: Exactly one control is present \u2014 control:mfa:multi-factor_authentication, scoped to route with evidence at `/rest/2fa/verify` (`server.ts:48",
+          "reference": "control:absent:rate_limiting",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: Exactly one control is present \u2014 control:mfa:multi-factor_authentication, scoped to route with evidence at `/rest/2fa/verify` (`server.ts:48",
+          "reference": "control:absent:encryption_at_rest",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: Exactly one control is present \u2014 control:mfa:multi-factor_authentication, scoped to route with evidence at `/rest/2fa/verify` (`server.ts:48",
+          "reference": "control:absent:audit_logging",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: `GET /rest/admin/application-version` (`server.ts:634`) and `GET /rest/admin/application-configuration` (`server.ts:635`) are declared with ",
+          "reference": "finding:1",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: `GET /rest/admin/application-version` (`server.ts:634`) and `GET /rest/admin/application-configuration` (`server.ts:635`) are declared with ",
+          "reference": "insight:admin-without-auth",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: `GET /rest/admin/application-version` (`server.ts:634`) and `GET /rest/admin/application-configuration` (`server.ts:635`) are declared with ",
+          "reference": "detect:insight:admin-without-auth",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "insight:asset-reachable:asset:credentials",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "insight:asset-reachable:asset:payment",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "insight:asset-reachable:asset:session",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "asset:credentials",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "asset:payment",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "asset:session",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "insight:asset-reachable:asset:user_pii",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: The pack lists five example public routes with no auth signals \u2014 `POST /file-upload` (`server.ts:337`), `POST /profile/image/file` (`server.",
+          "reference": "asset:user_pii",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: path:1 infers: entry at `EXPOSE container:80` in `infrastructure/docker-compose.yml` \u2192 handled by service `juice-shop-net` \u2192 sink at the red",
+          "reference": "path:1",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: path:1 infers: entry at `EXPOSE container:80` in `infrastructure/docker-compose.yml` \u2192 handled by service `juice-shop-net` \u2192 sink at the red",
+          "reference": "insight:defense-gap:1",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "SOURCE OBSERVATION: path:1 infers: entry at `EXPOSE container:80` in `infrastructure/docker-compose.yml` \u2192 handled by service `juice-shop-net` \u2192 sink at the red",
+          "reference": "detect:insight:defense-gap:1",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "| asset:credentials (User credentials at rest) | critical | route `POST /rest/user/reset-password` (`server.ts:626`) |",
+          "reference": "asset:credentials",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "| asset:payment (Payment/billing records) | critical | route `POST /rest/basket/:id/checkout` (`server.ts:632`) |",
+          "reference": "asset:payment",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "| asset:session (Tokens/session material) | critical | login route, OAuth component, `user.service.ts:68` |",
+          "reference": "asset:session",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "| asset:secret:label_private_key | critical | `LABEL_PRIVATE_KEY` literal in `frontend/src/assets/i18n/ar_SA.json:481` \u2014 a translation file; likely challenge co",
+          "reference": "asset:secret:label_private_key",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "| asset:user_pii | high | `server.ts` and `data/static/codefixes/changeProductChallenge_*` (fixtures \u2014 caveat) |",
+          "reference": "asset:user_pii",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "| asset:internal_secret + 7 named secret assets (ALCHEMY_API_KEY, E2E_SOLUTIONS_WEBHOOK, HEROKU_API_KEY, LLM_API_KEY, ORG_ADMIN_TOKEN, orgAdminToken, SLACK_WEBH",
+          "reference": "asset:internal_secret",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "**What protects them:** SOURCE OBSERVATION \u2014 control:mfa:multi-factor_authentication on the four `/rest/2fa/*` routes only. Nothing else.",
+          "reference": "control:mfa:multi-factor_authentication",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "- control:absent:authentication \u2014 \"Admin or auth routes observed without any auth-middleware markers.\"",
+          "reference": "control:absent:authentication",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "- control:absent:audit_logging \u2014 no audit-logging markers anywhere despite 13 sensitive assets (insight:audit-gap:global, T1685 angle).",
+          "reference": "control:absent:audit_logging",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "- control:absent:audit_logging \u2014 no audit-logging markers anywhere despite 13 sensitive assets (insight:audit-gap:global, T1685 angle).",
+          "reference": "insight:audit-gap:global",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "- control:absent:rate_limiting \u2014 no markers on public routes; relevant to brute force on surface:46 (T1110).",
+          "reference": "control:absent:rate_limiting",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        },
+        {
+          "claim": "- control:absent:rate_limiting \u2014 no markers on public routes; relevant to brute force on surface:46 (T1110).",
+          "reference": "surface:46",
+          "claim_support": "not_assessed",
+          "reason": "no captured source spans in the selected narrative prompt"
+        }
+      ],
+      "claim_support_basis": "Reference validity never implies claim support. The selected narrative prompt supplies no captured snapshot spans, so every cited claim remains not_assessed; this check never reads live source files to manufacture support.",
+      "source_location_validation": "unvalidated",
+      "source_reference_validity": "unresolved",
+      "source_references": [
+        "server.ts:634",
+        "server.ts:486",
+        "server.ts:491",
+        "server.ts:493",
+        "server.ts:499",
+        "server.ts:635",
+        "server.ts:337",
+        "server.ts:338",
+        "server.ts:339",
+        "server.ts:423",
+        "server.ts:430",
+        "server.ts:626",
+        "server.ts:632",
+        "user.service.ts:68",
+        "frontend/src/assets/i18n/ar_SA.json:481",
+        "routes/nftMint.ts:18",
+        "routes/web3Wallet.ts:20",
+        "routes/chat.ts:110",
+        "lib/utils.ts:72\u201373",
+        ".github/workflows/codeql-analysis.yml:23",
+        "lib/insecurity.ts:21",
+        "routes/profileImageFileUpload.ts:16",
+        "routes/userProfile.ts:34",
+        "routes/vulnCodeFixes.ts:73",
+        "routes/chat.ts:149",
+        "routes/profileImageUrlUpload.ts:19",
+        "routes/dataErasure.ts:74",
+        "ci.yml:374",
+        ".github/workflows/rebase.yml:7",
+        "lib/insecurity.ts:53",
+        "routes/userProfile.ts:91",
+        "data/static/codefixes/chatbotGreedyInjectionChallenge_1.ts:23",
+        "routes/chat.ts:105"
+      ],
+      "unresolved_source_references": [
+        "server.ts:634",
+        "server.ts:486",
+        "server.ts:491",
+        "server.ts:493",
+        "server.ts:499",
+        "server.ts:635",
+        "server.ts:337",
+        "server.ts:338",
+        "server.ts:339",
+        "server.ts:423",
+        "server.ts:430",
+        "server.ts:626",
+        "server.ts:632",
+        "user.service.ts:68",
+        "frontend/src/assets/i18n/ar_SA.json:481",
+        "routes/nftMint.ts:18",
+        "routes/web3Wallet.ts:20",
+        "routes/chat.ts:110",
+        "lib/utils.ts:72\u201373",
+        ".github/workflows/codeql-analysis.yml:23",
+        "lib/insecurity.ts:21",
+        "routes/profileImageFileUpload.ts:16",
+        "routes/userProfile.ts:34",
+        "routes/vulnCodeFixes.ts:73",
+        "routes/chat.ts:149",
+        "routes/profileImageUrlUpload.ts:19",
+        "routes/dataErasure.ts:74",
+        "ci.yml:374",
+        ".github/workflows/rebase.yml:7",
+        "lib/insecurity.ts:53",
+        "routes/userProfile.ts:91",
+        "data/static/codefixes/chatbotGreedyInjectionChallenge_1.ts:23",
+        "routes/chat.ts:105"
+      ],
+      "source_reference_scope": "No captured snapshot spans supplied by the selected narrative prompt; live files are not consulted.",
+      "context_sha256": "41b058e57dc208e980d09506049c6886caecd2af0de95eb4cdde188c17fcc1c8",
+      "valid_references": [
+        "surface:1",
+        "surface:50",
+        "surface:46",
+        "surface:2",
+        "surface:3",
+        "surface:4",
+        "finding:1",
+        "path:1",
+        "control:mfa:multi-factor_authentication",
+        "control:absent:authentication",
+        "control:absent:csrf_protection",
+        "control:absent:rate_limiting",
+        "control:absent:encryption_at_rest",
+        "control:absent:audit_logging",
+        "insight:admin-without-auth",
+        "detect:insight:admin-without-auth",
+        "insight:asset-reachable:asset:credentials",
+        "insight:asset-reachable:asset:payment",
+        "insight:asset-reachable:asset:session",
+        "asset:credentials",
+        "asset:payment",
+        "asset:session",
+        "insight:asset-reachable:asset:user_pii",
+        "asset:user_pii",
+        "insight:defense-gap:1",
+        "detect:insight:defense-gap:1",
+        "asset:secret:label_private_key",
+        "asset:internal_secret",
+        "insight:audit-gap:global",
+        "insight:strength-mismatch:asset:credentials",
+        "insight:strength-mismatch:asset:payment",
+        "insight:strength-mismatch:asset:session",
+        "insight:strength-mismatch:asset:secret:label_private_key",
+        "detect:insight:asset-reachable:asset:credentials",
+        "finding:8",
+        "detect:insight:audit-gap:global",
+        "detect:insight:asymmetric:/api/BasketItems",
+        "finding:2",
+        "finding:11",
+        "finding:3",
+        "finding:10",
+        "insight:shared-secret:alchemy_api_key",
+        "finding:4",
+        "finding:5",
+        "finding:6",
+        "finding:15",
+        "finding:16",
+        "finding:7",
+        "finding:9",
+        "finding:12",
+        "finding:17",
+        "finding:14",
+        "finding:13",
+        "insight:asymmetric:/api/SecurityAnswers",
+        "insight:asymmetric:/api/BasketItems",
+        "finding:18",
+        "insight:asset-reachable:asset:internal_secret"
+      ],
+      "invalid_references": [
+        "insight:asymmetric:",
+        "asset:secret:"
+      ],
+      "allowed_reference_count": 125
+    }
+  },
+  "cloud_review_file": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\provider-render-20261024\\zai-frozen-juice-shop-600\\reports\\20261024T182640-a096fe465d1c499d9b09268e74816566\\defensive-review-llm.md",
+  "native_scan": {
+    "checks": {
+      "savedReportLoaded": true,
+      "nativeScanCompleted": true,
+      "scanControlsRestored": true,
+      "reviewPresent": true,
+      "navigationLabelsRetained": true
+    },
+    "passed": true,
+    "scanStatus": "18 of 18 engine findings  -  C:\\tmp\\juice-shop  -  validated broker generation e056166c2a4a42d88595b511ddb76daa; static analysis.. Engine completed; policy not_evaluated; artifacts ready",
+    "selectedReport": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\provider-render-20261024\\delivery-scan\\reports\\e056166c2a4a42d88595b511ddb76daa\\attackmap-report.json",
+    "providerCalls": 0,
+    "scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+  },
+  "delivery_captures_visually_read": [
+    "1600-Dark-Scan-options.png",
+    "1024-Light-Scan-options.png",
+    "1600-Dark-Settings.png",
+    "1600-Light-Reports.png"
+  ],
+  "cloud_ai_capture": {
+    "captures": [
+      {
+        "Width": 1008,
+        "Height": 661,
+        "Scale": 1,
+        "LogicalWidth": 1008,
+        "LogicalHeight": 661,
+        "Theme": "Light",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\provider-render-20261024\\cloud-review-capture\\1024x700-Light-Reports.png",
+        "Sha256": "9c0a36f4f7f01ec6c5b8c3c78429303bab28cf7ea6e516eb4ced4736798e33dd",
+        "CapturedAt": "2026-10-24T18:31:05.6974099+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      {
+        "Width": 1008,
+        "Height": 661,
+        "Scale": 1,
+        "LogicalWidth": 1008,
+        "LogicalHeight": 661,
+        "Theme": "Dark",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\provider-render-20261024\\cloud-review-capture\\1024x700-Dark-Reports.png",
+        "Sha256": "c2f15da0b5f2e596f618d467e33a0f8b793812cd40df7c5aff158af226029812",
+        "CapturedAt": "2026-10-24T18:31:06.3632244+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      {
+        "Width": 1584,
+        "Height": 961,
+        "Scale": 1,
+        "LogicalWidth": 1584,
+        "LogicalHeight": 961,
+        "Theme": "Light",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\provider-render-20261024\\cloud-review-capture\\1600x1000-Light-Reports.png",
+        "Sha256": "075c8f77c8df344305dc66f8909cca76b17aa2f03dce9a1b4d86e4708e8b5726",
+        "CapturedAt": "2026-10-24T18:31:07.1266738+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      },
+      {
+        "Width": 1584,
+        "Height": 961,
+        "Scale": 1,
+        "LogicalWidth": 1584,
+        "LogicalHeight": 961,
+        "Theme": "Dark",
+        "OutputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\provider-render-20261024\\cloud-review-capture\\1600x1000-Dark-Reports.png",
+        "Sha256": "075c8f77c8df344305dc66f8909cca76b17aa2f03dce9a1b4d86e4708e8b5726",
+        "CapturedAt": "2026-10-24T18:31:07.8288045+00:00",
+        "Scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance."
+      }
+    ],
+    "aiSummaryProofs": [
+      {
+        "filename": "1024x700-Light-Reports.png",
+        "selected": "Reports",
+        "Text": "Selected generation: 20261024T182640-a096fe465d1c499d9b09268e74816566\nreview \u00b7 available; completion unknown\nProvider: unknown (api); model: glm-5.3-flash\nUsage: reported (artifact metadata); input tokens: 75005; output tokens: 9863\nReference validity: invalid; Claim support: not assessed\nReference check scope: selected prompt producer evidence ids\nModel judgment only; valid references do not confirm claims. Unknown usage is not zero.",
+        "bounds": {
+          "BoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "ClippedBoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "FullyWithinClippedViewport": true
+        }
+      },
+      {
+        "filename": "1024x700-Dark-Reports.png",
+        "selected": "Reports",
+        "Text": "Selected generation: 20261024T182640-a096fe465d1c499d9b09268e74816566\nreview \u00b7 available; completion unknown\nProvider: unknown (api); model: glm-5.3-flash\nUsage: reported (artifact metadata); input tokens: 75005; output tokens: 9863\nReference validity: invalid; Claim support: not assessed\nReference check scope: selected prompt producer evidence ids\nModel judgment only; valid references do not confirm claims. Unknown usage is not zero.",
+        "bounds": {
+          "BoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "ClippedBoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "FullyWithinClippedViewport": true
+        }
+      },
+      {
+        "filename": "1600x1000-Light-Reports.png",
+        "selected": "Reports",
+        "Text": "Selected generation: 20261024T182640-a096fe465d1c499d9b09268e74816566\nreview \u00b7 available; completion unknown\nProvider: unknown (api); model: glm-5.3-flash\nUsage: reported (artifact metadata); input tokens: 75005; output tokens: 9863\nReference validity: invalid; Claim support: not assessed\nReference check scope: selected prompt producer evidence ids\nModel judgment only; valid references do not confirm claims. Unknown usage is not zero.",
+        "bounds": {
+          "BoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "ClippedBoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "FullyWithinClippedViewport": true
+        }
+      },
+      {
+        "filename": "1600x1000-Dark-Reports.png",
+        "selected": "Reports",
+        "Text": "Selected generation: 20261024T182640-a096fe465d1c499d9b09268e74816566\nreview \u00b7 available; completion unknown\nProvider: unknown (api); model: glm-5.3-flash\nUsage: reported (artifact metadata); input tokens: 75005; output tokens: 9863\nReference validity: invalid; Claim support: not assessed\nReference check scope: selected prompt producer evidence ids\nModel judgment only; valid references do not confirm claims. Unknown usage is not zero.",
+        "bounds": {
+          "BoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "ClippedBoundsRelativeRoot": {
+            "X": 267,
+            "Y": 197,
+            "Width": 625.1726684570312,
+            "Height": 133.05996704101562,
+            "Left": 267,
+            "Top": 197,
+            "Right": 892.1726684570312,
+            "Bottom": 330.0599670410156,
+            "IsEmpty": false
+          },
+          "FullyWithinClippedViewport": true
+        }
+      }
+    ],
+    "os": "Microsoft Windows NT 10.0.19045.0",
+    "expected": 4,
+    "completed": 4,
+    "aiMode": "review",
+    "selectedReportSha256": "e632257e44fa0e708bfdb84311e60b2622d1bfe3aabad7d17c713f45f93c1ab9",
+    "providerCalled": false,
+    "findingDetailState": "Production master/detail view with the first finding selected, inspector focused and scrolled toward the recommendation. No separate detail destination is invented.",
+    "scope": "In-process WinUI RenderTargetBitmap content after two rendering frames only. Composition-backed effects/surfaces, transparency, theme transitions and selection visuals may be omitted or differ from the displayed window; capture anomalies require independent live-window verification before being classified as UI defects. Excludes window chrome, other apps, desktop, popups outside this tree, Narrator and OS appearance/scaling acceptance. A PNG is visual review material, not C24/C25 acceptance.",
+    "acceptedC25": false
+  },
+  "cloud_capture_visual_acceptance": {
+    "passed_images": [
+      "1024x700-Light-Reports.png"
+    ],
+    "rejected_images": [
+      "1024x700-Dark-Reports.png",
+      "1600x1000-Light-Reports.png",
+      "1600x1000-Dark-Reports.png"
+    ],
+    "all_themes_sizes_passed": false,
+    "reason": "Three images were blank/transparent; only the first image visually shows the actual AI report and warnings. Not classified as live-desktop defect without OS capture."
+  },
+  "package": {
+    "archive": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\AttackMap-Windows-zai-20261024-final-verified.zip",
+    "bytes": 127532430,
+    "sha256": "e0041bdae24f0e7c59b79f90e0d62daa3b6af1c5cebae5fb824cc7e4212d11f3",
+    "manifest_verified": true,
+    "archive_crc_verified": true
+  },
+  "changed_source_hashes": {
+    "src/attackmap/llm_review.py": "dcee787e8b97ed3227dc1207b2cb72880f04963d053c4fa7c5b3483e05fe0389",
+    "src/attackmap/desktop_provider.py": "c0ce2fc5b8b3605bfaff202a73b355aaa771265b0594adaa907f354976b4efdc",
+    "tests/test_openai_compatible.py": "0414bb4e58556175c498c2156c5cff8e040779d31f7f44e71fa66caafc369f58",
+    "desktop/windows/AttackMap.NativeSpike/ProviderSettingsView.cs": "06778ae3c4b121721ad76a20a89fbce150a7ab743782f0e2a45649989808b2e6",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs": "e910eea3a9b2ecf1eda2e82fd0164b4165bc13ebe90d153b346550196970c12f",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs": "8cfab142dc35e3c5d1719cb699bfd1ec1050ff573df38efd82c027414a49dc57",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.ProviderRenderSmoke.cs": "95219791f4339a3be7a7fcce78e79e745a7caa35db3e567710eb807d2c941812"
+  },
+  "limitations": [
+    "In-process WinUI images exclude OS/window-composition acceptance.",
+    "Reported intermittent missing text remains unresolved.",
+    "Cloud scan uses frozen CLI; saved AI report is then loaded in actual native GUI.",
+    "Native scan-through-GUI proof has AI disabled; this is not a single continuous native cloud scan."
+  ]
+}

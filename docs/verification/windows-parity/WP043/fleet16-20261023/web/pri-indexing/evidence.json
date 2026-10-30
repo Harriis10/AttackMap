@@ -1,0 +1,69 @@
+{
+  "scope": "SDK PRI input task and csproj metadata only; no product build, makepri invocation or GUI",
+  "sdk_version": "Microsoft.Windows.SDK.BuildTools.MSIX/1.7.251221100",
+  "task": "Microsoft.Build.Msix.Pri.WinAppSdkGeneratePriConfigurationFiles",
+  "metadata": "ExcludeFromResourceIndex=true",
+  "results": {
+    "false": {
+      "filtered.layout.resfiles": [
+        "fixtures\\findings.json",
+        "GraphExplorer.Web\\asset-manifest.json",
+        "GraphExplorer.Web\\index.html",
+        "GraphExplorer.Web\\synthetic-fixture.js"
+      ],
+      "excluded.layout.resfiles": []
+    },
+    "true": {
+      "filtered.layout.resfiles": [
+        "fixtures\\findings.json"
+      ],
+      "excluded.layout.resfiles": [
+        "GraphExplorer.Web\\asset-manifest.json",
+        "GraphExplorer.Web\\index.html",
+        "GraphExplorer.Web\\synthetic-fixture.js"
+      ]
+    }
+  },
+  "web_content_items": [
+    {
+      "Include": "../GraphExplorer.Web/asset-manifest.json",
+      "Link": "GraphExplorer.Web/asset-manifest.json",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "ExcludeFromResourceIndex": "true"
+    },
+    {
+      "Include": "../GraphExplorer.Web/index.html;../GraphExplorer.Web/app.js;../GraphExplorer.Web/projection.js;../GraphExplorer.Web/styles.css;../GraphExplorer.Web/synthetic-fixture.js",
+      "Link": "GraphExplorer.Web/%(Filename)%(Extension)",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "ExcludeFromResourceIndex": "true"
+    },
+    {
+      "Include": "../GraphExplorer.Web/vendor/*",
+      "Link": "GraphExplorer.Web/vendor/%(Filename)%(Extension)",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "ExcludeFromResourceIndex": "true"
+    }
+  ],
+  "project_before_sha256": "a6053aad8737c120dec7fc814aadb9c2394dd1eb879818264b96c0818c44736c",
+  "project_after_sha256": "c6b59e62e7b52b6249ef4b7d5416c2d703e7fa4d1ede89b17cf92097fc7e6e98",
+  "host_copies_identical": true,
+  "host_sha256": "a780cf164c3d454f182dd5298d45f5077b26d871575f22fcda1bf81d0de626e3",
+  "deployed_asset_manifest_sha256": "922bf72227a16d03590df8d5589dda2c72c718fde13334c0699a27a656682888",
+  "sdk_files": [
+    {
+      "path": ".tools/nuget-packages/microsoft.windows.sdk.buildtools.msix/1.7.251221100/build/Microsoft.Windows.SDK.BuildTools.MSIX.Pri.targets",
+      "sha256": "43b594e9026356c03fb0e9bcb2be0d49621c163b2e007122dfb644688cd87d69"
+    },
+    {
+      "path": ".tools/nuget-packages/microsoft.windows.sdk.buildtools.msix/1.7.251221100/build/Microsoft.Windows.SDK.BuildTools.MSIX.MrtCore.PriGen.targets",
+      "sha256": "64642cbd52c2e5f194fe1a430ada7f0bb7f3ea56e10a1747aa4b84e5792d3943"
+    },
+    {
+      "path": ".tools/nuget-packages/microsoft.windows.sdk.buildtools.msix/1.7.251221100/tools/net6.0/Microsoft.Windows.SDK.BuildTools.MSIX.dll",
+      "sha256": "ba1e60f29b7b7527239241d17b34612f47bc180eaec5bd2058f16882e0d68fe9"
+    }
+  ]
+}

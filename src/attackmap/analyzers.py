@@ -16,6 +16,8 @@ import sys
 from typing import Callable, Protocol, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
+    from .analyzer_catalog import AnalyzerDiscoveryCollector
+    from .analyzer_run_ledger import AnalyzerRunPlan
     from .progress import ScanProgress
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -443,13 +445,23 @@ def _entry_point_distribution(analyzer_entry_point: object) -> str | None:
     return name.lower().replace("_", "-") if isinstance(name, str) else None
 
 
-def discover_installed_analyzers(group: str = ANALYZER_ENTRYPOINT_GROUP) -> list[Analyzer]:
+def discover_installed_analyzers(
+    group: str = ANALYZER_ENTRYPOINT_GROUP,
+    *,
+    catalog: AnalyzerDiscoveryCollector | None = None,
+) -> list[Analyzer]:
     discovered: list[Analyzer] = []
-    all_entry_points = entry_points()
-    if hasattr(all_entry_points, "select"):
-        candidates = list(all_entry_points.select(group=group))
-    else:
-        candidates = list(all_entry_points.get(group, ()))  # type: ignore[attr-defined]
+    try:
+        all_entry_points = entry_points()
+        if hasattr(all_entry_points, "select"):
+            candidates = list(all_entry_points.select(group=group))
+        else:
+            candidates = list(all_entry_points.get(group, ()))  # type: ignore[attr-defined]
+    except Exception as exc:
+        if catalog is None:
+            raise
+        catalog.errors.append({"stage": "entry_points", "error_type": _log_exception_type(exc)})
+        return discovered
 
     trusted_only = trusted_analyzers_only()
     for analyzer_entry_point in sorted(candidates, key=lambda candidate: candidate.name):
@@ -457,6 +469,7 @@ def discover_installed_analyzers(group: str = ANALYZER_ENTRYPOINT_GROUP) -> list
         # every scan (#237): flag ones that aren't official plugins, and skip
         # them entirely in trusted-only mode (the GitHub Action's default).
         distribution = _entry_point_distribution(analyzer_entry_point)
+        record = catalog.entry_point(analyzer_entry_point, distribution, group) if catalog is not None else None
         if distribution not in _OFFICIAL_BY_PACKAGE:
             entry_name = _log_identity(getattr(analyzer_entry_point, "name", None))
             if trusted_only:
@@ -464,36 +477,52 @@ def discover_installed_analyzers(group: str = ANALYZER_ENTRYPOINT_GROUP) -> list
                     "Skipping analyzer '%s' from '%s': not an official AttackMap plugin "
                     "(trusted-analyzers-only).", entry_name, _log_identity(distribution)
                 )
+                if record is not None:
+                    record["status"] = "skipped_policy"
                 continue
             logger.warning(
                 "Loading third-party analyzer '%s' from '%s' (not an official AttackMap plugin).",
                 entry_name, _log_identity(distribution),
             )
-        analyzer = _load_discovered_analyzer(analyzer_entry_point)
+        if catalog is None:
+            analyzer = _load_discovered_analyzer(analyzer_entry_point)
+        else:
+            analyzer = _load_discovered_analyzer(analyzer_entry_point, catalog=catalog, record=record)
         if analyzer is None:
             continue
         discovered.append(analyzer)
     return discovered
 
 
-def _load_discovered_analyzer(analyzer_entry_point: object) -> Analyzer | None:
+def _load_discovered_analyzer(
+    analyzer_entry_point: object,
+    *,
+    catalog: AnalyzerDiscoveryCollector | None = None,
+    record: dict[str, object] | None = None,
+) -> Analyzer | None:
     entry_name = _log_identity(getattr(analyzer_entry_point, "name", None))
     try:
         loaded_object = analyzer_entry_point.load()  # type: ignore[attr-defined]
     except Exception as exc:
         logger.warning("Failed to load analyzer entry point '%s' (%s).", entry_name, _log_exception_type(exc))
+        if catalog is not None and record is not None:
+            catalog.failed(record, "load", exc)
         return None
 
     try:
         analyzer = _coerce_analyzer_instance(loaded_object)
     except Exception as exc:
         logger.warning("Failed to initialize analyzer entry point '%s' (%s).", entry_name, _log_exception_type(exc))
+        if catalog is not None and record is not None:
+            catalog.failed(record, "initialization", exc)
         return None
 
     try:
         canonical_metadata = normalize_analyzer_metadata(getattr(analyzer, "metadata", None))
     except Exception as exc:
         logger.warning("Failed to normalize analyzer metadata for '%s' (%s).", entry_name, _log_exception_type(exc))
+        if catalog is not None and record is not None:
+            catalog.failed(record, "metadata", exc)
         return None
     try:
         setattr(analyzer, "metadata", canonical_metadata)
@@ -504,12 +533,19 @@ def _load_discovered_analyzer(analyzer_entry_point: object) -> Analyzer | None:
     # host (analyzer_host) can reload it in a subprocess the same way.
     try:
         setattr(analyzer, "_attackmap_entry_point_name", getattr(analyzer_entry_point, "name", None))
+        # Retain the exact discovery origin for a later run ledger without a
+        # second discovery/load or inferring provenance from a colliding name.
+        setattr(analyzer, "_attackmap_entry_point", analyzer_entry_point)
     except Exception:
         pass
 
     if not _is_valid_analyzer(analyzer):
         logger.warning("Skipping entry point '%s': loaded object is not a valid analyzer.", entry_name)
+        if catalog is not None and record is not None:
+            catalog.failed(record, "contract")
         return None
+    if catalog is not None and record is not None:
+        catalog.accepted(record, cast(Analyzer, analyzer), canonical_metadata)
     return cast(Analyzer, analyzer)
 
 
@@ -538,17 +574,31 @@ def _is_valid_analyzer(candidate: object) -> bool:
     return isinstance(metadata.name, str) and bool(metadata.name.strip())
 
 
-def get_registered_analyzers() -> list[Analyzer]:
-    analyzers = [*get_builtin_repository_analyzers(), *discover_installed_analyzers()]
+def get_registered_analyzers(*, catalog: AnalyzerDiscoveryCollector | None = None) -> list[Analyzer]:
+    builtins = get_builtin_repository_analyzers()
+    if catalog is None:
+        installed = discover_installed_analyzers()
+    else:
+        for analyzer in builtins:
+            catalog.builtin(analyzer, get_analyzer_metadata(analyzer))
+        installed = discover_installed_analyzers(catalog=catalog)
+    analyzers = [*builtins, *installed]
     deduplicated: list[Analyzer] = []
     seen_names: set[str] = set()
+    effective_records: dict[str, dict[str, object]] = {}
 
-    for analyzer in analyzers:
+    for index, analyzer in enumerate(analyzers):
+        record = catalog.loaded[index][1] if catalog is not None else None
         if analyzer.name in seen_names:
             logger.warning("Skipping duplicate analyzer name '%s'.", _log_identity(analyzer.name))
+            if record is not None:
+                record.update(status="shadowed", shadowed_by=effective_records[analyzer.name]["candidate_id"])
             continue
         seen_names.add(analyzer.name)
         deduplicated.append(analyzer)
+        if record is not None:
+            record["status"] = "effective"
+            effective_records[analyzer.name] = record
 
     return deduplicated
 
@@ -737,6 +787,7 @@ def analyze_repository(
     isolated_limits: "HostLimits | None" = None,
     incremental: bool | None = None,
     index: object | None = None,
+    run_plan: AnalyzerRunPlan | None = None,
 ) -> AnalyzerResult:
     """Run every active analyzer and merge their results.
 
@@ -755,10 +806,14 @@ def analyze_repository(
 
     repo_root = Path(root).resolve()
     if index is None:
-        index = RepoIndex.build(repo_root)
-    elif not isinstance(index, RepoIndex) or index.root != repo_root:
+        index = run_plan.index if run_plan is not None else RepoIndex.build(repo_root)
+    if not isinstance(index, RepoIndex) or index.root != repo_root:
         raise ValueError("Captured index does not belong to this repository")
-    active_analyzers = resolve_run_analyzers(repo_root, analyzers=analyzers)
+    if run_plan is not None and analyzers is not None:
+        raise ValueError("Pass an analyzer run plan or analyzer instances, not both")
+    plan = run_plan if run_plan is not None else resolve_analyzer_run(repo_root, analyzers=analyzers, index=index, progress=progress)
+    plan.claim(repo_root, index)
+    active_analyzers = plan.analyzers
     results: list[AnalyzerResult] = []
     errors: list[AnalyzerError] = []
     host_limitations: list[str] = []
@@ -769,14 +824,24 @@ def analyze_repository(
     except (SnapshotInputError, OSError) as exc:
         shared_input, input_error = nullcontext(None), exc
     with shared_input as input_bundle:
-        for analyzer in active_analyzers:
+        for analyzer, ledger_row in zip(active_analyzers, plan._selected_records):
+            analysis_started = None
             try:
                 if isolated_analyzers and not _is_builtin_analyzer(analyzer):
+                    ledger_row.execution_mode = "isolated"
+                    ledger_row.analysis_started = False if input_error is not None else None
+                    if input_error is None:
+                        analysis_started = plan.mark()
+                        plan.observe(ledger_row, "analysis", "requested")
+                        if progress is not None:
+                            progress.stage(f"Analyzer {_log_identity(analyzer.name)} isolated analysis requested")
                     outcome = (IsolatedOutcome(analyzer=analyzer.name, error_type=HOST_INPUT_INVALID,
                         message=str(input_error), limitation=f"Analyzer '{analyzer.name}' captured inputs unavailable; partial coverage.")
                         if input_error is not None else run_isolated_analyzer(analyzer, repo_root,
                             limits=isolated_limits, index=index, bundle=input_bundle))
                     if outcome.error_type is not None:
+                        ledger_row.failed("captured_input" if input_error is not None else "isolated_host", outcome.error_type)
+                        plan.observe(ledger_row, "analysis", "failed", error_type=outcome.error_type)
                         if strict:
                             raise AnalyzerHostError(
                                 f"isolated analyzer '{analyzer.name}': {outcome.error_type}: {outcome.message}"
@@ -795,8 +860,35 @@ def analyze_repository(
                         continue
                     result = outcome.result
                 else:
+                    ledger_row.execution_mode = "in_process"
+                    ledger_row.analysis_started = True
+                    analysis_started = plan.mark()
+                    plan.observe(ledger_row, "analysis", "started")
+                    if progress is not None:
+                        progress.stage(f"Analyzer {_log_identity(analyzer.name)} analysis started")
                     result = _coerce_result(_call_analyze(analyzer, repo_root, progress, recall, index, incremental), repo_root).model_copy(deep=True)
+                if (analyzer.name == "python" and _entry_point_distribution(
+                        getattr(analyzer, "_attackmap_entry_point", None)) == "attackmap-analyzer-python"):
+                    # The pinned comprehensive plugin predates AST-backed Django
+                    # extraction. Validate only its path/re_path route surfaces;
+                    # isolated and in-process results share this same boundary.
+                    from .python_django_routes import normalize_pinned_python_plugin_routes
+                    route_files = {route.file for route in result.routes}
+                    normalize_pinned_python_plugin_routes(result, {
+                        item.rel: item.text for item in index.files if item.rel in route_files
+                    })
+                metadata = get_analyzer_metadata(analyzer)
+                declared_version = metadata.version if "version" in metadata.model_fields_set else None
+                _stamp_provenance(result, analyzer.name)
+                from .signal_provenance import stamp_scan_provenance
+                stamp_scan_provenance(result, analyzer.name, declared_version)
+                from .analyzer_run_ledger import AnalyzerSignalCounts
+                ledger_row.signal_counts = AnalyzerSignalCounts(**{
+                    key: len(getattr(result, key)) for key in AnalyzerSignalCounts.model_fields})
             except Exception as exc:
+                if ledger_row.error is None:
+                    ledger_row.failed("analysis", _log_exception_type(exc))
+                    plan.observe(ledger_row, "analysis", "failed", error_type=_log_exception_type(exc))
                 if strict:
                     raise
                 error = AnalyzerError(
@@ -810,14 +902,19 @@ def analyze_repository(
                 if progress is not None:
                     progress.stage(f"Analyzer {_log_identity(analyzer.name)} failed ({_log_exception_type(exc)}); continuing")
                 continue
-            metadata = get_analyzer_metadata(analyzer)
-            declared_version = metadata.version if "version" in metadata.model_fields_set else None
-            _stamp_provenance(result, analyzer.name)
-            from .signal_provenance import stamp_scan_provenance
-            stamp_scan_provenance(result, analyzer.name, declared_version)
+            finally:
+                if analysis_started is not None:
+                    ledger_row.analysis_duration_ms = plan.duration_ms(analysis_started)
             results.append(result)
+            ledger_row.analysis_started = True
+            ledger_row.execution = "succeeded"
+            plan.observe(ledger_row, "analysis", "succeeded")
+            if progress is not None:
+                progress.stage(f"Analyzer {_log_identity(analyzer.name)} succeeded ({ledger_row.analysis_duration_ms:.1f} ms)")
     merged = merge_analyzer_results(results, root=repo_root) if results else AnalyzerResult(root=str(repo_root))
     merged.analyzer_errors = errors
+    plan.ledger.execution_complete = True
+    merged.analyzer_run_ledger = plan.ledger.model_copy(deep=True)
 
     def _append_notes(notes: list[str]) -> None:
         for note in notes:
@@ -923,6 +1020,9 @@ def resolve_run_analyzers(
     root: str | Path,
     analyzers: Iterable[Analyzer] | None = None,
     opt_in_matches: list[str] | None = None,
+    *,
+    run_plan: AnalyzerRunPlan | None = None,
+    progress: "ScanProgress | None" = None,
 ) -> list[Analyzer]:
     """The analyzers to run on ``root``, in ``(priority, name)`` order (#221).
 
@@ -941,28 +1041,105 @@ def resolve_run_analyzers(
     else:
         registered = sorted(get_registered_analyzers(), key=_run_order_key)
     selected: list[Analyzer] = []
+    selected_records = []
+    if run_plan is not None:
+        if run_plan.repository_root != repo_root or run_plan.ledger.resolution_complete:
+            raise ValueError("Analyzer run plan belongs to another repository or is already resolved")
+        from .analyzer_run_ledger import AnalyzerRunRecord, AnalyzerRunError, analyzer_run_identity
     for analyzer in registered:
-        if not _should_run_analyzer(analyzer, repo_root):
+        row = None
+        if run_plan is not None:
+            metadata = get_analyzer_metadata(analyzer)
+            row = AnalyzerRunRecord(name=analyzer.name,
+                version=metadata.version if "version" in metadata.model_fields_set else None,
+                priority=_run_order_key(analyzer)[0], **analyzer_run_identity(analyzer))
+            run_plan.ledger.entries.append(row)
+            run_plan.observe(row, "detect", "started")
+        if progress is not None:
+            progress.stage(f"Analyzer {_log_identity(analyzer.name)} detect started")
+        detect_started = run_plan.mark() if run_plan is not None else None
+        applicable, detection_error = _analyzer_applicability(analyzer, repo_root)
+        if row is not None:
+            row.detect_duration_ms = run_plan.duration_ms(detect_started)
+            row.applicability = "detect_error" if detection_error else "applicable" if applicable else "unmatched"
+            run_plan.observe(row, "detect", row.applicability, error_type=detection_error)
+        if progress is not None:
+            outcome = f"failed ({detection_error})" if detection_error else "applicable" if applicable else "unmatched"
+            progress.stage(f"Analyzer {_log_identity(analyzer.name)} detect {outcome}")
+        if not applicable:
+            if row is not None:
+                row.execution = "skipped"
+                row.skip_reason = "detect_error" if detection_error else "unmatched"
+                if detection_error:
+                    row.error = AnalyzerRunError(stage="detect", error_type=detection_error)
+                run_plan.observe(row, "selection", "skipped")
+            if progress is not None:
+                progress.stage(f"Analyzer {_log_identity(analyzer.name)} skipped ({'detect_error' if detection_error else 'unmatched'})")
             continue
         if not explicit and is_opt_in(analyzer):
             if opt_in_matches is not None:
                 opt_in_matches.append(analyzer.name)
+            if row is not None:
+                row.execution = "skipped"
+                row.skip_reason = "opt_in"
+                run_plan.observe(row, "selection", "skipped")
+            if progress is not None:
+                progress.stage(f"Analyzer {_log_identity(analyzer.name)} skipped (opt_in)")
             continue
         selected.append(analyzer)
+        if progress is not None:
+            progress.stage(f"Analyzer {_log_identity(analyzer.name)} selected")
+        if row is not None:
+            row.selection = "selected"
+            run_plan.observe(row, "selection", "selected")
+            selected_records.append(row)
+    if run_plan is not None:
+        run_plan.analyzers = tuple(selected)
+        run_plan._selected_records = tuple(selected_records)
+        run_plan.ledger.resolution_complete = True
     return selected
 
 
+def resolve_analyzer_run(
+    root: str | Path,
+    analyzers: Iterable[Analyzer] | None = None,
+    *,
+    index: object | None = None,
+    profile_id: str | None = None,
+    opt_in_matches: list[str] | None = None,
+    progress: "ScanProgress | None" = None,
+) -> AnalyzerRunPlan:
+    """Resolve once against one capture; the returned plan can execute once."""
+    from .analyzer_run_ledger import AnalyzerRunLedger, AnalyzerRunPlan
+    from .index import RepoIndex
+
+    repo_root = Path(root).resolve()
+    captured_index = index if index is not None else RepoIndex.build(repo_root)
+    if not isinstance(captured_index, RepoIndex) or captured_index.root != repo_root:
+        raise ValueError("Captured index does not belong to this repository")
+    plan = AnalyzerRunPlan(repo_root, captured_index, AnalyzerRunLedger(
+        selection_mode="automatic" if analyzers is None else "explicit",
+        inventory_scope="registered_candidates" if analyzers is None else "supplied_candidates",
+        profile_id=profile_id))
+    resolve_run_analyzers(repo_root, analyzers=analyzers, opt_in_matches=opt_in_matches, run_plan=plan, progress=progress)
+    return plan
+
+
 def _should_run_analyzer(analyzer: Analyzer, repo_root: Path) -> bool:
+    return _analyzer_applicability(analyzer, repo_root)[0]
+
+
+def _analyzer_applicability(analyzer: Analyzer, repo_root: Path) -> tuple[bool, str | None]:
     detect_fn = getattr(analyzer, "detect", None)
     if detect_fn is None:
-        return True
+        return True, None
     if not callable(detect_fn):
-        return True
+        return True, None
     try:
-        return bool(detect_fn(repo_root))
+        return bool(detect_fn(repo_root)), None
     except Exception as exc:
         logger.warning("Analyzer '%s' detect() failed (%s).", _log_identity(analyzer.name), _log_exception_type(exc))
-        return False
+        return False, _log_exception_type(exc)
 
 
 def _merge_resource_limits(target: AnalyzerResult, results: Iterable[AnalyzerResult]) -> None:

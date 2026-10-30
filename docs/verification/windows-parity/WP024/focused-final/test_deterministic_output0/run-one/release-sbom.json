@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "sbom_kind": "attackmap-windows-development-release",
+  "package_id": "dev-20260101200000-1a2b3c4d",
+  "channel": "unsigned-development",
+  "architecture": "win-x64",
+  "minimum_windows": "10.0.19041.0",
+  "signing": {
+    "status": "unsigned",
+    "note": "Unsigned development-channel package. No Authenticode signature, certificate, publisher identity or timestamp exists; SHA-256 values verify content integrity only and do not authenticate origin. Notarization is not applicable on Windows."
+  },
+  "native_runtime": {
+    "dotnet_self_contained": true,
+    "dotnet_frameworks": [
+      {
+        "name": "Microsoft.NETCore.App",
+        "version": "8.0.32"
+      }
+    ],
+    "windows_app_sdk_self_contained": true,
+    "windows_app_sdk": "2.4.0"
+  },
+  "engine": {
+    "bundled": false,
+    "required_modules": [
+      "attackmap.desktop_worker",
+      "attackmap.desktop_actions"
+    ],
+    "run_schema_range": "1.0-1.1"
+  },
+  "python_dependencies": {
+    "status": "unknown",
+    "reason": "Package does not bundle a frozen engine; no Python runtime ships with this package."
+  },
+  "files": [
+    {
+      "path": "AttackMap.NativeSpike.exe",
+      "size_bytes": 30,
+      "sha256": "b458a80fea5c9765913891516a13b13f36be4bcecb80fbb4a13342dc2deb485f"
+    },
+    {
+      "path": "AttackMap.NativeSpike.runtimeconfig.json",
+      "size_bytes": 100,
+      "sha256": "1b47e77e61b50d8efbdeacc4a4003cb5f5eda25ad53510385d601d09c0105ca5"
+    },
+    {
+      "path": "coreclr.dll",
+      "size_bytes": 19,
+      "sha256": "13bea79df4a22404395b032528e02501f9a0810ae504e32c094e4214ce7d619d"
+    }
+  ],
+  "file_count": 3,
+  "verification": {
+    "manifest_schema_version": 1,
+    "package_manifest_sha256": "8d30e4a4ede42ecb8e65dfe8156cfdc84252713cfd24f15af019af7a767c7f19",
+    "files_verified": 3,
+    "bytes_verified": 149,
+    "unexpected_files": [],
+    "installer_script": {
+      "path": "Install-AttackMap.ps1",
+      "size_bytes": 33,
+      "sha256": "b87d3b6aada970db43f45a6a526a16b130b07ca96e9cf9abae7a6a4260651389"
+    }
+  }
+}

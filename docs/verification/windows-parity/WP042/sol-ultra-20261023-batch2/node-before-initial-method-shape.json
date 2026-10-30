@@ -1,0 +1,981 @@
+{
+  "phase": "before",
+  "classification": "deterministic local fixture extraction only; no provider, network scan, or real target repository",
+  "interpreter": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+  "source_sha256": "8b2f3e131bf14e9b87145d6a12df77688841612b2570eb94c4322efaa9b6f0cc",
+  "selected_implementations": {
+    "javascript-web": {
+      "class": "attackmap.analyzers.BuiltinJavaScriptWebAnalyzer",
+      "priority": 20,
+      "source": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+      "source_sha256": "822bc89744028b5bee1c7431c3001abd711f2b9450152b7fa728596e306e295d"
+    },
+    "node-atproto": {
+      "class": "attackmap.analyzers.BuiltinNodeAtprotoAnalyzer",
+      "priority": 150,
+      "source": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+      "source_sha256": "822bc89744028b5bee1c7431c3001abd711f2b9450152b7fa728596e306e295d"
+    },
+    "atproto": {
+      "class": "attackmap_analyzer_atproto.analyzer.AtprotoAnalyzer",
+      "priority": 90,
+      "source": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_atproto\\analyzer.py",
+      "source_sha256": "8a49d7172201fc2c77bd9b7dbb21ce5ae788dc65e98e349e18013253ce0608c1"
+    },
+    "node-service": {
+      "class": "attackmap_analyzer_node_service.analyzer.NodeServiceAnalyzer",
+      "priority": 25,
+      "source": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_node_service\\analyzer.py",
+      "source_sha256": "1b193f1a5086843019cab1f318b8872e476e265ba44105545d0a3001008dce26"
+    }
+  },
+  "cases": {
+    "subscription_required": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\subscription_required",
+      "inputs": {
+        "lexicon": "{\n  \"lexicon\": 1,\n  \"id\": \"com.example.events.stream\",\n  \"defs\": {\n    \"main\": {\n      \"type\": \"subscription\"\n    }\n  }\n}\n",
+        "handler": "import { Server } from '@atproto/xrpc-server';\nconst server = new Server();\nserver.method('com.example.events.stream', { auth: authVerifier, handler: async () => ({}) });\n",
+        "unrelated": ""
+      },
+      "input_hashes": {
+        "package.json": "1866c35ded89c738b71b616fafe8233b61a2f051a82652f2456c2e75d99a74ba",
+        "lexicons/com.example.events.stream.json": "ae103607d79fe9c18d9589820c1b93a47461e6c8973471d53a29b9b55f811138",
+        "src/handler.ts": "4f752da25cf08c75cfa7eaa9a4d4d0775d853f8539bd5e4dbced3db4f25ef370",
+        "src/unrelated.ts": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "by_analyzer": {
+        "javascript-web": {
+          "routes": [],
+          "auth_hints": [],
+          "protocol_hints": []
+        },
+        "node-service": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "ANY",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: authVerifier, handler: async () => ({}) });",
+              "confidence": 0.8
+            }
+          ]
+        },
+        "node-atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "GET",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "authVerifier"
+              ],
+              "guard_evidence": "auth verifier 'authVerifier' in registration (src/handler.ts:3)"
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "xrpc_auth_verifier:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "auth verifier 'authVerifier' in registration (src/handler.ts:3)",
+              "confidence": 0.9
+            }
+          ],
+          "protocol_hints": []
+        },
+        "atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "atproto_auth:route_verifier:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: authVerifier, handler: async () => ({}) });",
+              "confidence": 0.7
+            }
+          ],
+          "protocol_hints": [
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_event_stream:subscription_lexicon",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "evidence_text": "\"type\": \"subscription\"",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: authVerifier, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_namespace_ref:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: authVerifier, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_protocol:xrpc",
+              "file": "src/handler.ts",
+              "line": 1,
+              "evidence_text": "import { Server } from '@atproto/xrpc-server';",
+              "confidence": 0.6
+            }
+          ]
+        }
+      },
+      "raw_merge_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "ANY",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "authVerifier"
+          ],
+          "guard_evidence": "auth verifier 'authVerifier' in registration (src/handler.ts:3)"
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ]
+    },
+    "subscription_null": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\subscription_null",
+      "inputs": {
+        "lexicon": "{\n  \"lexicon\": 1,\n  \"id\": \"com.example.events.stream\",\n  \"defs\": {\n    \"main\": {\n      \"type\": \"subscription\"\n    }\n  }\n}\n",
+        "handler": "import { Server } from '@atproto/xrpc-server';\nconst server = new Server();\nserver.method('com.example.events.stream', { auth: null, handler: async () => ({}) });\n",
+        "unrelated": ""
+      },
+      "input_hashes": {
+        "package.json": "1866c35ded89c738b71b616fafe8233b61a2f051a82652f2456c2e75d99a74ba",
+        "lexicons/com.example.events.stream.json": "ae103607d79fe9c18d9589820c1b93a47461e6c8973471d53a29b9b55f811138",
+        "src/handler.ts": "593dfa59858a7d47e28b8f46e5b6f8f2cff567061f1872a718bb0714b2520075",
+        "src/unrelated.ts": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "by_analyzer": {
+        "javascript-web": {
+          "routes": [],
+          "auth_hints": [],
+          "protocol_hints": []
+        },
+        "node-service": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "ANY",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.8
+            }
+          ]
+        },
+        "node-atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "GET",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "null"
+              ],
+              "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "xrpc_auth_verifier:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "auth verifier 'null' in registration (src/handler.ts:3)",
+              "confidence": 0.9
+            }
+          ],
+          "protocol_hints": []
+        },
+        "atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_event_stream:subscription_lexicon",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "evidence_text": "\"type\": \"subscription\"",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_namespace_ref:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_route_auth:anonymous:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.7
+            },
+            {
+              "hint": "atproto_protocol:xrpc",
+              "file": "src/handler.ts",
+              "line": 1,
+              "evidence_text": "import { Server } from '@atproto/xrpc-server';",
+              "confidence": 0.6
+            }
+          ]
+        }
+      },
+      "raw_merge_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "ANY",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "null"
+          ],
+          "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ]
+    },
+    "query_null_negative": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\query_null_negative",
+      "inputs": {
+        "lexicon": "{\n  \"lexicon\": 1,\n  \"id\": \"com.example.events.stream\",\n  \"defs\": {\n    \"main\": {\n      \"type\": \"query\"\n    }\n  }\n}\n",
+        "handler": "import { Server } from '@atproto/xrpc-server';\nconst server = new Server();\nserver.method('com.example.events.stream', { auth: null, handler: async () => ({}) });\n",
+        "unrelated": ""
+      },
+      "input_hashes": {
+        "package.json": "1866c35ded89c738b71b616fafe8233b61a2f051a82652f2456c2e75d99a74ba",
+        "lexicons/com.example.events.stream.json": "a0821974b2d5f38783b4b1e13a92b191c8afccb4ab04541e8e48b0ed18e61fb0",
+        "src/handler.ts": "593dfa59858a7d47e28b8f46e5b6f8f2cff567061f1872a718bb0714b2520075",
+        "src/unrelated.ts": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "by_analyzer": {
+        "javascript-web": {
+          "routes": [],
+          "auth_hints": [],
+          "protocol_hints": []
+        },
+        "node-service": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "ANY",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.8
+            }
+          ]
+        },
+        "node-atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "GET",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "null"
+              ],
+              "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "xrpc_auth_verifier:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "auth verifier 'null' in registration (src/handler.ts:3)",
+              "confidence": 0.9
+            }
+          ],
+          "protocol_hints": []
+        },
+        "atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "GET",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "GET",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_namespace_ref:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_route_auth:anonymous:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: null, handler: async () => ({}) });",
+              "confidence": 0.7
+            },
+            {
+              "hint": "atproto_protocol:xrpc",
+              "file": "src/handler.ts",
+              "line": 1,
+              "evidence_text": "import { Server } from '@atproto/xrpc-server';",
+              "confidence": 0.6
+            }
+          ]
+        }
+      },
+      "raw_merge_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "ANY",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "null"
+          ],
+          "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ]
+    },
+    "subscription_optional": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\subscription_optional",
+      "inputs": {
+        "lexicon": "{\n  \"lexicon\": 1,\n  \"id\": \"com.example.events.stream\",\n  \"defs\": {\n    \"main\": {\n      \"type\": \"subscription\"\n    }\n  }\n}\n",
+        "handler": "import { Server } from '@atproto/xrpc-server';\nconst server = new Server();\nserver.method('com.example.events.stream', { auth: ctx.authVerifier.readOptional, handler: async () => ({}) });\n",
+        "unrelated": ""
+      },
+      "input_hashes": {
+        "package.json": "1866c35ded89c738b71b616fafe8233b61a2f051a82652f2456c2e75d99a74ba",
+        "lexicons/com.example.events.stream.json": "ae103607d79fe9c18d9589820c1b93a47461e6c8973471d53a29b9b55f811138",
+        "src/handler.ts": "54c14011993ea08eccfb1f282dc4468740bb24a9ea8fb26c406a41ec4d612e38",
+        "src/unrelated.ts": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "by_analyzer": {
+        "javascript-web": {
+          "routes": [],
+          "auth_hints": [],
+          "protocol_hints": []
+        },
+        "node-service": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "ANY",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: ctx.authVerifier.readOptional, handler: async () => ({}) });",
+              "confidence": 0.8
+            }
+          ]
+        },
+        "node-atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "GET",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "ctx"
+              ],
+              "guard_evidence": "auth verifier 'ctx' in registration (src/handler.ts:3)"
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "xrpc_auth_verifier:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "auth verifier 'ctx' in registration (src/handler.ts:3)",
+              "confidence": 0.9
+            }
+          ],
+          "protocol_hints": []
+        },
+        "atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_event_stream:subscription_lexicon",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "evidence_text": "\"type\": \"subscription\"",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: ctx.authVerifier.readOptional, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_namespace_ref:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: ctx.authVerifier.readOptional, handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_route_auth:anonymous:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { auth: ctx.authVerifier.readOptional, handler: async () => ({}) });",
+              "confidence": 0.7
+            },
+            {
+              "hint": "atproto_protocol:xrpc",
+              "file": "src/handler.ts",
+              "line": 1,
+              "evidence_text": "import { Server } from '@atproto/xrpc-server';",
+              "confidence": 0.6
+            }
+          ]
+        }
+      },
+      "raw_merge_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "ANY",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "ctx"
+          ],
+          "guard_evidence": "auth verifier 'ctx' in registration (src/handler.ts:3)"
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ]
+    },
+    "subscription_unrelated_mount": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\subscription_unrelated_mount",
+      "inputs": {
+        "lexicon": "{\n  \"lexicon\": 1,\n  \"id\": \"com.example.events.stream\",\n  \"defs\": {\n    \"main\": {\n      \"type\": \"subscription\"\n    }\n  }\n}\n",
+        "handler": "import { Server } from '@atproto/xrpc-server';\nconst server = new Server();\nserver.method('com.example.events.stream', { handler: async () => ({}) });\n",
+        "unrelated": "const unrelatedApp = express();\nunrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);\n"
+      },
+      "input_hashes": {
+        "package.json": "1866c35ded89c738b71b616fafe8233b61a2f051a82652f2456c2e75d99a74ba",
+        "lexicons/com.example.events.stream.json": "ae103607d79fe9c18d9589820c1b93a47461e6c8973471d53a29b9b55f811138",
+        "src/handler.ts": "fcc4cf3fa425b27ffdcaf01b49a004ccaccd9125757f71f0fc06259e772920af",
+        "src/unrelated.ts": "61483c3e4a44dc52d9e9468b42e229e6a4653eaed39ab570f353a17e5cd6d29a"
+      },
+      "by_analyzer": {
+        "javascript-web": {
+          "routes": [],
+          "auth_hints": [],
+          "protocol_hints": []
+        },
+        "node-service": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "ANY",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { handler: async () => ({}) });",
+              "confidence": 0.8
+            }
+          ]
+        },
+        "node-atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "GET",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "unrelatedAuth"
+              ],
+              "guard_evidence": "inferred: middleware 'unrelatedAuth' mounted at '/xrpc/com.example.events.stream' (src/unrelated.ts:2)"
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "node:auth_middleware_mount:unrelatedAuth",
+              "file": "src/unrelated.ts",
+              "line": 2,
+              "evidence_text": "unrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);",
+              "confidence": 0.9
+            }
+          ],
+          "protocol_hints": []
+        },
+        "atproto": {
+          "routes": [
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "src/handler.ts",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/xrpc/com.example.events.stream",
+              "method": "WS",
+              "file": "src/unrelated.ts",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "auth_hints": [],
+          "protocol_hints": [
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_lexicon:com.example.events.stream",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 3,
+              "evidence_text": "\"id\": \"com.example.events.stream\",",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_event_stream:subscription_lexicon",
+              "file": "lexicons/com.example.events.stream.json",
+              "line": 6,
+              "evidence_text": "\"type\": \"subscription\"",
+              "confidence": 0.9
+            },
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_namespace_ref:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { handler: async () => ({}) });",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_route_auth:anonymous:com.example.events.stream",
+              "file": "src/handler.ts",
+              "line": 3,
+              "evidence_text": "server.method('com.example.events.stream', { handler: async () => ({}) });",
+              "confidence": 0.7
+            },
+            {
+              "hint": "atproto_protocol:xrpc",
+              "file": "src/handler.ts",
+              "line": 1,
+              "evidence_text": "import { Server } from '@atproto/xrpc-server';",
+              "confidence": 0.6
+            },
+            {
+              "hint": "atproto_namespace:com.example",
+              "file": "src/unrelated.ts",
+              "line": 2,
+              "evidence_text": "unrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_namespace_ref:com.example.events.stream",
+              "file": "src/unrelated.ts",
+              "line": 2,
+              "evidence_text": "unrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_xrpc_ref:com.example.events.stream",
+              "file": "src/unrelated.ts",
+              "line": 2,
+              "evidence_text": "unrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);",
+              "confidence": 0.8
+            },
+            {
+              "hint": "atproto_protocol:xrpc",
+              "file": "src/unrelated.ts",
+              "line": 2,
+              "evidence_text": "unrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);",
+              "confidence": 0.6
+            }
+          ]
+        }
+      },
+      "raw_merge_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "ANY",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "unrelatedAuth"
+          ],
+          "guard_evidence": "inferred: middleware 'unrelatedAuth' mounted at '/xrpc/com.example.events.stream' (src/unrelated.ts:2)"
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/unrelated.ts",
+          "line": 2,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ]
+    }
+  },
+  "limitation": "Initial diagnostic input used method() for subscription lexicons, which the current primary SDK rejects. Subscription rows are parser diagnostics only, not canonical SDK wiring or runtime validation. Canonical evidence uses streamMethod() in node-before.json."
+}

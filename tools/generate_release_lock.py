@@ -82,8 +82,10 @@ def canonical_source_checksums_bytes(mapping: dict) -> bytes:
 
 def release_inputs(repo: Path) -> dict:
     """Bind desktop and packaging inputs without changing the legacy engine digest."""
-    inventory = collect_source_checksums(repo)
-    for directory in ("desktop/windows/AttackMap.NativeSpike",):
+    source_inventory = collect_source_checksums(repo)
+    inventory = dict(source_inventory)
+    for directory in ("desktop/windows/AttackMap.NativeSpike", "desktop/windows/GraphExplorer.Core",
+                      "desktop/windows/GraphExplorer.NativeView", "desktop/windows/GraphExplorer.Web"):
         for path in sorted((repo / directory).rglob("*")):
             if any(part in {"bin", "obj", "__pycache__"} for part in path.parts):
                 continue
@@ -91,7 +93,8 @@ def release_inputs(repo: Path) -> dict:
                 raise ToolError(f"Redirected release input refused: {path}")
             if path.is_file():
                 inventory[path.relative_to(repo).as_posix()] = sha256_file(path)
-    for name in ("tools/package_native_windows.ps1", "tools/generate_release_lock.py", "tools/generate_release_sbom.py"):
+    for name in ("desktop/windows/fixtures/findings.json", "tools/package_native_windows.ps1",
+                 "tools/generate_release_lock.py", "tools/generate_release_sbom.py"):
         path = repo / name
         if path.is_file():
             inventory[name] = sha256_file(path)
@@ -102,8 +105,10 @@ def release_inputs(repo: Path) -> dict:
     for group in config.get("optional-dependencies", {}).values():
         requirements.extend(group)
     analyzers = sorted({item for item in requirements if item.lower().startswith("attackmap-analyzer-")})
+    if collect_source_checksums(repo) != source_inventory:
+        raise ToolError("Source inputs changed while capturing release inputs; retry after edits stop.")
     return {
-        "source_checksums_sha256": hashlib.sha256(canonical_source_checksums_bytes(collect_source_checksums(repo))).hexdigest(),
+        "source_checksums_sha256": hashlib.sha256(canonical_source_checksums_bytes(source_inventory)).hexdigest(),
         "release_inputs": dict(sorted(inventory.items())),
         "release_inputs_sha256": hashlib.sha256(canonical_source_checksums_bytes(inventory)).hexdigest(),
         "analyzer_requirements": analyzers,
@@ -179,7 +184,10 @@ def generate_lock(repo: Path, output_dir: Path, engine_venv: Path = DEFAULT_ENGI
             "source-checksums.json, so it can be compared directly with engine source_checksums_sha256 values.",
         ],
     }
-    lock.update(release_inputs(repo))
+    bound_inputs = release_inputs(repo)
+    if bound_inputs["source_checksums_sha256"] != lock["source_checksums_sha256"]:
+        raise ToolError("Source inputs changed during toolchain probing; release lock was not written.")
+    lock.update(bound_inputs)
     if reference_source_checksums is not None:
         reference = Path(reference_source_checksums)
         if reference.is_file():
@@ -190,6 +198,8 @@ def generate_lock(repo: Path, output_dir: Path, engine_venv: Path = DEFAULT_ENGI
             }
         else:
             lock["reference_comparison"] = {"path": str(reference), "error": "reference source-checksums file not found"}
+    if release_inputs(repo) != bound_inputs:
+        raise ToolError("Release inputs changed before writing the lock; retry after edits stop.")
     output_dir.mkdir(parents=True, exist_ok=True)
     target = output_dir / "release-lock.json"
     target.write_bytes((json.dumps(lock, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))

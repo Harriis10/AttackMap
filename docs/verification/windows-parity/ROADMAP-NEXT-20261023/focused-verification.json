@@ -1,0 +1,24 @@
+{
+  "graph_navigation": {
+    "command": ".tools/dotnet/dotnet.exe run --project desktop/windows/FleetGraphNavigation.Tests/FleetGraphNavigation.Tests.csproj --configuration Release --no-restore -p:UseSharedCompilation=false",
+    "exit_code": 0,
+    "assertions_passed": 128,
+    "stdout": "PASS 128 focused graph evidence/navigation checks. Synthetic semantics only; no filesystem open, GUI or provider calls.",
+    "source_sha256": {
+      "desktop/windows/FleetGraphNavigation.Tests/Program.cs": "d8f06f547ba1113519c971d7b566c7bc8db50541ef495bcd31dd669e368ab5d2",
+      "desktop/windows/AttackMap.NativeSpike/Fleet/FleetGraphEvidenceNavigation.cs": "93824a26ee8fb5a6afd1b9316e672c059522e46f6374e61b8003da210f374866"
+    }
+  },
+  "python_contract": {
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "104"
+  },
+  "native_options_consumer": {
+    "assertions_passed": 121,
+    "evidence": "startup/consumer-check.json"
+  },
+  "live_provider_calls": 0,
+  "broad_regression_repeated": false
+}

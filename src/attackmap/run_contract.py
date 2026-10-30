@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validat
 from .provider_options import ProviderOptions, ProviderOptionsV13
 
 CURRENT_SCHEMA_VERSION = "1.2"
-SUPPORTED_SCHEMA_VERSIONS = ("1.0", "1.1", "1.2", "1.3", "1.4")
+SUPPORTED_SCHEMA_VERSIONS = ("1.0", "1.1", "1.2", "1.3", "1.4", "1.5")
 RunState = Literal["queued", "running", "cancelling", "completed", "failed", "cancelled"]
 PolicyOutcome = Literal["not_evaluated", "passed", "failed"]
 ArtifactReadiness = Literal["pending", "ready", "unavailable"]
@@ -90,16 +90,28 @@ class ScanOptionsV13(ScanOptionsV12):
     provider: ProviderOptionsV13 = Field(default_factory=ProviderOptionsV13)
 
 
+class ScanOptionsV15(ScanOptionsV13):
+    """Schema 1.5 adds an explicit, offline versioned analyzer profile."""
+
+    analyzer_profile: str | None = Field(default=None, max_length=160,
+        pattern=r"^[a-z][a-z0-9-]*@[0-9]+\.[0-9]+$",
+        json_schema_extra={"network_impact": "none", "supported": True, "unit": "qualified_profile_name"})
+
+
 class RunRequest(RunEnvelope):
     kind: Literal["request"] = "request"
     repository_path: str = Field(min_length=1)
     output_path: str = Field(min_length=1)
     modules: list[str] = Field(default_factory=list)
-    options: ScanOptionsV13 | ScanOptionsV12 | ScanOptions = Field(default_factory=ScanOptions, validate_default=True)
+    options: ScanOptionsV15 | ScanOptionsV13 | ScanOptionsV12 | ScanOptions = Field(default_factory=ScanOptions, validate_default=True)
 
     @field_validator("options", mode="before")
     @classmethod
     def versioned_options(cls, value: Any, info: ValidationInfo) -> ScanOptions | ScanOptionsV12:
+        if info.data.get("schema_version") == "1.5":
+            return ScanOptionsV15.model_validate(value.model_dump() if isinstance(value, ScanOptions) else value)
+        if isinstance(value, ScanOptionsV15) or isinstance(value, dict) and "analyzer_profile" in value:
+            raise ValueError("Analyzer profiles require schema 1.5")
         if info.data.get("schema_version") == "1.3":
             return ScanOptionsV13.model_validate(value.model_dump() if isinstance(value, ScanOptions) else value)
         if info.data.get("schema_version") == "1.2":
@@ -108,6 +120,12 @@ class RunRequest(RunEnvelope):
         if isinstance(value, ScanOptionsV12) or isinstance(value, dict) and fields.intersection(value):
             raise ValueError("Extended desktop options require schema 1.2")
         return ScanOptions.model_validate(value)
+
+    @model_validator(mode="after")
+    def exclusive_analyzer_selection(self) -> RunRequest:
+        if getattr(self.options, "analyzer_profile", None) is not None and self.modules:
+            raise ValueError("Analyzer profiles cannot be combined with explicit modules")
+        return self
 
 
 

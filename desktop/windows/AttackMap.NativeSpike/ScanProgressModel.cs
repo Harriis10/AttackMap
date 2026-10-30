@@ -1,5 +1,7 @@
 namespace AttackMap.NativeSpike;
 
+public sealed record ScanActivity(TimeSpan Elapsed, string State, string Stage);
+
 /// <summary>Selected-run presentation only. Time input must be monotonic elapsed time, not wall clock.</summary>
 public sealed class ScanProgressModel
 {
@@ -8,6 +10,9 @@ public sealed class ScanProgressModel
     private TimeSpan lastTime, firstTime;
     private long firstCompleted;
     private int observations;
+    private readonly List<ScanActivity> activity = new();
+    public IReadOnlyList<ScanActivity> Activity => activity.AsReadOnly();
+    public int EarlierActivityCount { get; private set; }
     public string State { get; private set; } = "idle";
     public string Stage { get; private set; } = "";
     public long? Completed { get; private set; }
@@ -21,9 +26,10 @@ public sealed class ScanProgressModel
     {
         if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(repositoryId) || selectedGeneration < 1) throw new ArgumentException("Selected run identity required.");
         run = runId; repository = repositoryId; generation = selectedGeneration; revision = -1;
+        activity.Clear(); EarlierActivityCount = 0;
         State = "queued"; Stage = ""; Completed = Total = null; Terminal = false; ResetEstimate();
     }
-    public void ClearSelection() { run = repository = ""; generation = 0; revision = -1; State = "idle"; Stage = ""; Completed = Total = null; Terminal = false; ResetEstimate(); }
+    public void ClearSelection() { run = repository = ""; generation = 0; revision = -1; State = "idle"; Stage = ""; Completed = Total = null; Terminal = false; activity.Clear(); EarlierActivityCount = 0; ResetEstimate(); }
     public void RequestCancel() { if (!Terminal && State != "idle") { State = "cancelling"; ResetEstimate(); } }
     public bool Accept(EngineProgressSnapshot value, TimeSpan elapsed)
     {
@@ -46,6 +52,11 @@ public sealed class ScanProgressModel
                 double remaining = seconds * (value.Total.Value - value.Completed.Value) / delta;
                 EstimatedRemaining = remaining is >= 0 and <= 604800 ? TimeSpan.FromSeconds(remaining) : null;
             }
+        }
+        if (activity.Count == 0 || value.State != activity[^1].State || value.Stage != activity[^1].Stage)
+        {
+            if (activity.Count == 200) { activity.RemoveAt(0); EarlierActivityCount++; }
+            activity.Add(new(elapsed, value.State, value.Stage));
         }
         revision = value.Revision; State = value.State; Stage = value.Stage; Completed = value.Completed; Total = value.Total; Terminal = value.Terminal;
         return true;

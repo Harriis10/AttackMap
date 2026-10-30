@@ -169,7 +169,7 @@ def test_laminas_expected_routes() -> None:
     result = scan_php_laminas_repo(OMEKA)
     assert _routes(result) == {
         ("/admin/contact-board", "ANY", 40),
-        ("/item/:id", "ANY", 52),
+        ("/admin/contact-board/item/:id", "ANY", 52),
         ("/s/:site-slug/board", "ANY", 66),
         ("/s/:site-slug/board/submit", "ANY", 77),
     }
@@ -189,7 +189,7 @@ def test_laminas_on_non_omeka_laminas_app() -> None:
     assert ("laminas-module:Feedback (observed)", "module/Feedback/Module.php", 4) in _framework(result)
     assert {
         (r.path, r.line) for r in result.routes if r.file == "module/Feedback/config/module.config.php"
-    } == {("/feedback", 20), ("/submit", 31)}
+    } == {("/feedback", 20), ("/feedback/submit", 31)}
 
 
 # --- Layer 3: omeka-s ------------------------------------------------------------
@@ -209,8 +209,8 @@ def test_omeka_expected_signals() -> None:
     assert ("omeka-admin-route:/admin/contact-board (observed)", MODULE_CONFIG, 40) in entry
     assert ("omeka-site-route:/s/:site-slug/board (observed)", MODULE_CONFIG, 66) in entry
     assert ("omeka-site-route:/s/:site-slug/board/submit (observed)", MODULE_CONFIG, 77) in entry
-    # Child route without an Omeka prefix: generic classification, no parent resolution.
-    assert ("omeka-route:/item/:id (observed)", MODULE_CONFIG, 52) in entry
+    # The child inherits its admin prefix; composition is marked as inferred.
+    assert ("omeka-admin-route:/admin/contact-board/item/:id (inferred)", MODULE_CONFIG, 52) in entry
     # API classes and service markers.
     assert ("omeka-api-adapter-class:BoardItemAdapter (observed)", "module/ContactBoard/src/Api/Adapter/BoardItemAdapter.php", 13) in entry
     assert ("omeka-api-representation:BoardItemRepresentation (observed)", "module/ContactBoard/src/Api/Representation/BoardItemRepresentation.php", 9) in entry
@@ -227,7 +227,7 @@ def test_omeka_expected_signals() -> None:
     # Route records are emitted here too (deduped against php-laminas at merge).
     assert _routes(result) == {
         ("/admin/contact-board", "ANY", 40),
-        ("/item/:id", "ANY", 52),
+        ("/admin/contact-board/item/:id", "ANY", 52),
         ("/s/:site-slug/board", "ANY", 66),
         ("/s/:site-slug/board/submit", "ANY", 77),
     }

@@ -1,0 +1,173 @@
+[
+  {
+    "id": "a08854b5a26bd42f",
+    "identity_scheme": "rule-aggregate/v2",
+    "title": "Debug mode or unrestricted management endpoints enabled",
+    "severity": "medium",
+    "rule_id": "debug-enabled",
+    "entity_id": null,
+    "evidence": [
+      "app.py:7 \u2014 app.run(debug=True)"
+    ],
+    "locations": [
+      {
+        "file": "app.py",
+        "line": 7,
+        "fingerprint": "14220c815ef5e8f5"
+      }
+    ],
+    "mitigation": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE.",
+    "confidence": "medium",
+    "attack_techniques": [
+      {
+        "technique_id": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactic": "Initial Access",
+        "url": "https://attack.mitre.org/techniques/T1190/"
+      }
+    ],
+    "tags": [
+      "web-hardening"
+    ],
+    "score": 37,
+    "exploitability": null,
+    "exploitability_tier": null,
+    "exploitability_reference": null,
+    "code_flows": [],
+    "taxonomy": {
+      "cwe": [
+        "CWE-489",
+        "CWE-215"
+      ],
+      "owasp": [
+        "A05:2021",
+        "API8:2023"
+      ],
+      "asvs": [
+        "V14.3.2"
+      ],
+      "attack": [
+        "T1190"
+      ]
+    },
+    "context": {
+      "context_version": "1.0",
+      "finding_id": "a08854b5a26bd42f",
+      "claim": {
+        "kind": "heuristic_static_analysis",
+        "text": "Debug mode or unrestricted management endpoints enabled",
+        "evidence_kind": "heuristic_static_claim",
+        "runtime_verification": "unknown"
+      },
+      "priority": {
+        "severity": "medium",
+        "confidence": "medium",
+        "score": 37,
+        "exploitability_score": null,
+        "exploitability_tier": null,
+        "factors": [
+          {
+            "name": "severity",
+            "value": "medium",
+            "source": "finding.severity",
+            "points": null,
+            "kind": "ordering_band",
+            "note": "primary ranking band: high ranks above medium above low (threat_model severity rank)"
+          },
+          {
+            "name": "confidence",
+            "value": "medium",
+            "source": "finding.confidence",
+            "points": null,
+            "kind": "ordering_multiplier",
+            "note": "multiplies the severity weight (50) by 0.75 in threat_model.compute_finding_score; an ordering input, not a calibrated probability"
+          },
+          {
+            "name": "exploitability",
+            "points": null,
+            "kind": "not_applied",
+            "value": "none",
+            "source": "finding.exploitability",
+            "note": "no fused route-to-sink score is attached; exposure, auth-at-entry, reachability and chain-depth contributions are not decomposed for this finding"
+          },
+          {
+            "name": "source_quality",
+            "points": null,
+            "kind": "qualitative_filter",
+            "value": "unclassified",
+            "source": "attackmap.evidence.is_low_quality_source over finding.locations",
+            "note": "low-quality sources (tests/fixtures/mocks/examples) are excluded from runtime-surface and hotspot ranking; a filter, not a numeric multiplier"
+          },
+          {
+            "name": "trust_boundary_crossing",
+            "points": null,
+            "kind": "not_applied",
+            "value": "unknown",
+            "source": "engine ranking policy",
+            "note": "not currently a fused ranking factor; see trust_chain.trust_boundary_crossing"
+          }
+        ],
+        "point_contributions": "not_supplied",
+        "score_reference": {
+          "status": "not_applied",
+          "reference": null,
+          "scope": "repository_snapshot",
+          "meaning": "Producer identity within the selected scan; not runtime or publisher authentication."
+        },
+        "decomposition": [],
+        "unresolved_assumptions": [
+          "Scores order findings for triage; they are not calibrated probabilities.",
+          "Trust-boundary crossing is not a fused ranking factor; no per-finding trust-boundary evidence is attached.",
+          "Exposure, privilege sensitivity (auth at entry), reachability and chain depth are not decomposed for this finding: no fused exploitability score is attached."
+        ],
+        "meaning": "Heuristic prioritization; not verified exploitation. Scores order findings for triage; they are not calibrated probabilities."
+      },
+      "source": {
+        "role": "unclassified",
+        "locations": [
+          {
+            "file": "app.py",
+            "line": 7,
+            "fingerprint": "14220c815ef5e8f5",
+            "source_role": "unclassified",
+            "low_quality_source": false,
+            "evidence_kind": "structured_location_reference"
+          }
+        ],
+        "policy": "attackmap.evidence.is_low_quality_source"
+      },
+      "evidence": {
+        "text": [
+          "app.py:7 \u2014 app.run(debug=True)"
+        ],
+        "basis": "heuristic_static",
+        "observation_links": "unknown",
+        "candidates": [],
+        "candidates_truncated": false
+      },
+      "observed_controls": {
+        "status": "unknown",
+        "items": [],
+        "reason": "No stable finding-to-control association is supplied."
+      },
+      "trust_chain": {
+        "status": "unknown",
+        "source": "not_supplied",
+        "flows": [],
+        "trust_boundary_crossing": "unknown",
+        "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+      },
+      "recommendation": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE.",
+      "suppression": {
+        "state": "active",
+        "reason": null
+      },
+      "uncertainty": [
+        "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+        "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+        "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+        "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+      ]
+    }
+  }
+]

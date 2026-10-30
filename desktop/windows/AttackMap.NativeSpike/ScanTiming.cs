@@ -32,18 +32,25 @@ public sealed record ScanTiming(DateTimeOffset StartedAt, DateTimeOffset Finishe
             DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed) && parsed.Offset == TimeSpan.Zero;
     }
 
-    public static async Task<string> ReadLabel(ExportSelection selection)
+    public static async Task<string> ReadLabel(ExportSelection selection) => (await ReadLabelMeasured(selection)).Label;
+
+    internal static async Task<ScanTimingRead> ReadLabelMeasured(ExportSelection selection)
     {
-        if (!selection.Verified) return UnknownLabel;
+        if (!selection.Verified) return new(UnknownLabel, 0);
+        int reportIntegrityReads = 0;
         try
         {
             var records = await Task.Run(() => SelectedArtifacts.List(selection));
+            ++reportIntegrityReads;
             var record = records.SingleOrDefault(item => Path.GetFileName(item.FullPath) == "run-manifest.json" && item.Format == "json");
-            if (record == null) return UnknownLabel;
+            if (record == null) return new(UnknownLabel, reportIntegrityReads);
             string text = await SelectedArtifacts.ReadText(selection, record, 1024 * 1024);
-            return Parse(text)?.Label ?? UnknownLabel;
+            reportIntegrityReads += 2;
+            return new(Parse(text)?.Label ?? UnknownLabel, reportIntegrityReads);
         }
         catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or InvalidOperationException or ArgumentException)
-        { return UnknownLabel; }
+        { return new(UnknownLabel, reportIntegrityReads); }
     }
 }
+
+internal sealed record ScanTimingRead(string Label, int ReportIntegrityReadCount);

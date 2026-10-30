@@ -1,0 +1,108 @@
+{
+  "source_sha256": {
+    "src/attackmap/python_route_binding.py": "ee8e873b3b2087ed54cc00102f76dc2fa9962490ca799e2b6e50e4777aa3bd34",
+    "src/attackmap/ecosystem_python.py": "b5e4dfa35e463f2670131a62267506997268d8fdc5922d3a6e429f38157b7004",
+    "src/attackmap/scanner.py": "5be41db7b72246efe048b01267bac008ed14119e65f9d1f896aa725502ead8ff"
+  },
+  "probes": {
+    "missing-token-control": {
+      "source": "def verify(token=None):\n    if token is None:\n        raise HTTPException(status_code=401)\n",
+      "expected": true,
+      "actual": true,
+      "bound_dependency_guard": [
+        true
+      ]
+    },
+    "present-token-not-equal-none": {
+      "source": "def verify(token=None):\n    if token != None:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "present-token-negated-missing": {
+      "source": "def verify(token=None):\n    if not (token is None):\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "positive-authenticated-not-equal-false": {
+      "source": "def verify(token=None):\n    if user.is_authenticated != False:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "jwt-decode-dead-branch": {
+      "source": "def verify(token=None):\n    try:\n        if False:\n            jwt.decode(token)\n    except Exception:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "jwt-decode-optional-branch": {
+      "source": "def verify(token=None):\n    try:\n        if enable_auth:\n            jwt.decode(token)\n    except Exception:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "early-return-control": {
+      "source": "def verify(token=None):\n    return None\n    if not token:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "conditional-failure-control": {
+      "source": "def verify(token=None):\n    if not token:\n        if enable_auth:\n            raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "jwt-exception-swallowed-before-reject": {
+      "source": "def verify(token=None):\n    try:\n        jwt.decode(token)\n    except ValueError:\n        pass\n    except Exception:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": true,
+      "bound_dependency_guard": [
+        true
+      ]
+    },
+    "truthy-credential-default": {
+      "source": "def verify(token=None):\n    if not request.headers.get('Authorization', 'public'):\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": true,
+      "bound_dependency_guard": [
+        true
+      ]
+    },
+    "conflicting-mounts": {
+      "source": "router=APIRouter(prefix='/v1')\napp.include_router(router,prefix='/one')\napp.include_router(router,prefix='/two')\n",
+      "prefixes": {
+        "router": "/v1"
+      }
+    },
+    "two-node-cycle": {
+      "source": "a=APIRouter(prefix='/a')\nb=APIRouter(prefix='/b')\na.include_router(b,prefix='/x')\nb.include_router(a,prefix='/y')\n",
+      "prefixes": {
+        "a": "/a",
+        "b": "/b"
+      }
+    },
+    "self-cycle": {
+      "source": "a=APIRouter(prefix='/a')\na.include_router(a,prefix='/x')\n",
+      "prefixes": {
+        "a": "/a"
+      }
+    }
+  }
+}

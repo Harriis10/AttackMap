@@ -25,7 +25,7 @@ public static class ParityOverviewAdapter
         using var document=JsonDocument.Parse(bytes,new JsonDocumentOptions{MaxDepth=64});
         return Read(document.RootElement,ReportSectionAdapter.Read(document.RootElement,hash,generation));
     }
-    private static ParityOverview Read(JsonElement root,ReportSections report)
+    public static ParityOverview Read(JsonElement root,ReportSections report)
     {
         var counts=new List<OverviewCount>();
         void Count<T>(string name,ReportSection<T> section)=>counts.Add(new(name,section.SuppliedCount,section.Availability));

@@ -87,7 +87,7 @@ public sealed partial class MainWindow
             await Task.Delay(450);
             await ReadinessRenderBarrier();
             if (navigationIndex == 6) WatchOption.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
-            captures.Add(await NativeCaptureProbe.Capture(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-{name}.png")));
+            captures.Add(await CaptureStrict(root, Path.Combine(directory, $"{size.Width}x{size.Height}-{theme}-{name}.png")));
         }
         return captures;
     }

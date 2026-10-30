@@ -1,0 +1,92 @@
+{
+  "scope": "controlled-provider-fault-fixture",
+  "stage": "preflight-only",
+  "case": "unavailable",
+  "app": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\sol-ultra-20261023-integration02\\AttackMap.NativeSpike.exe",
+  "seed": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-long-budget-20261023\\runtime\\reports\\0f3638b4153b41f5bb4f766a7c3f9982\\attackmap-report.json",
+    "sha256": "919619d6ffe6a8ccdf153f83d9b127ae06aa46c1b68351ee770565edbeb5b8c9"
+  },
+  "engine": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\dist\\attackmap\\attackmap.exe",
+    "sha256": "574497f7c4ae3c8859edb5506c0538c8cba99dc70436f29857dbec6240aa81f5"
+  },
+  "output": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\provider-faults\\actual01-unavailable",
+  "package": {
+    "scope": "Current native source preview with hash-bound retained older frozen engine; no same-source/package acceptance",
+    "native_build_proof": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\native-build02\\native-build.json",
+      "sha256": "11c377d4fd239cf62e3dff137974e2a4494f19650d2119566907648f593c4e96"
+    },
+    "engine_build_proof": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\build-proof.json",
+      "sha256": "f39dbec796d8549af0c2314d69161fbe1a0368181237e548e9e9c4515b7ca9f8"
+    },
+    "engine_release_lock": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\release-lock.json",
+      "sha256": "56f6fca19411cba34addbd5440ef3bd906e772fcdee3e6b16da1d36e47aa2075"
+    },
+    "payload_files_verified": 265,
+    "engine": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\dist\\attackmap\\attackmap.exe",
+      "sha256": "574497f7c4ae3c8859edb5506c0538c8cba99dc70436f29857dbec6240aa81f5"
+    },
+    "native": {
+      "AttackMap.NativeSpike.exe": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\sol-ultra-20261023-integration02\\AttackMap.NativeSpike.exe",
+        "sha256": "e77a93879784f2d71d4ea7dfb2f4bc9300658c516beea38a1e7789b153635b49"
+      },
+      "AttackMap.NativeSpike.dll": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\sol-ultra-20261023-integration02\\AttackMap.NativeSpike.dll",
+        "sha256": "c4f4098253239efe9d04debc694c4540c8a42963866088654f212a337ad0ed03"
+      }
+    },
+    "accepted_wp017_live": false,
+    "accepted_manual_ui": false,
+    "accepted_release": false,
+    "completed_real_model_responses": 0
+  },
+  "preview_binding": {
+    "native_build_proof": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\native-build02\\native-build.json",
+    "native_build_proof_sha256": "11c377d4fd239cf62e3dff137974e2a4494f19650d2119566907648f593c4e96",
+    "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\dist\\attackmap\\attackmap.exe",
+    "engine_sha256": "574497f7c4ae3c8859edb5506c0538c8cba99dc70436f29857dbec6240aa81f5",
+    "engine_build_proof": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\build-proof.json",
+    "engine_build_proof_sha256": "f39dbec796d8549af0c2314d69161fbe1a0368181237e548e9e9c4515b7ca9f8"
+  },
+  "source": [
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ProviderFaultSmoke.cs",
+      "sha256": "23fe3b9aaa97f3890d66ad9a0ebb863baf844cfbecddcd4993c7f020545d23ab"
+    },
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.xaml.cs",
+      "sha256": "0293c5692a6ef9de998ec694649a59a452d1239835be30e0dd87447d3edf073a"
+    },
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.Parity.cs",
+      "sha256": "ee02f3257ad59f3da0ee03da5e7b7323944b87ee2972f4e9078fb129f6cd14db"
+    },
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tools\\run_wp017_native_modes.py",
+      "sha256": "63227037d32aa97005be22de30b026418942ef1db1960a848202399efab5018d"
+    },
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tools\\verify_wp017_live.py",
+      "sha256": "56ae3a48f4f7c540bdd27c04f8b572f8ba9bd6495f87370e2e6bdf3273f783f0"
+    },
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\provider-faults\\provider_fault_fixture.py",
+      "sha256": "f03b5331d3d815c6b4a941de536e217e8508e6cc06b43d39fa7f2010f0681440"
+    }
+  ],
+  "sockets_started": 0,
+  "processes_started": 0,
+  "provider_requests_started": 0,
+  "manifest_pin": null,
+  "release_lock": null,
+  "accepted_wp017_live": false,
+  "accepted_manual_ui": false,
+  "accepted_release": false,
+  "completed_real_model_responses": 0
+}

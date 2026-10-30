@@ -1,0 +1,641 @@
+{
+  "classification": "Actual fresh frozen engine static scans on two immutable local fixtures only; no provider, runtime SDK server, release or maturity acceptance",
+  "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+  "engine_sha256": "487e2f368bcb5323341fc96c9b2a2597cc97d431a4c5377790b60dd9bf7b445c",
+  "before_engine_sha256": "341ae7a9619bbf54b1d4207c468055ff540a2ff20b9295f4b9b1109bd6e6d0fa",
+  "frozen_node_source_sha256": "0a07ba2174996189cd2b5e4c4c817cccb6c2679f3d0d048001a22395eff9360d",
+  "build_proof": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\build-proof.json",
+  "build_proof_sha256": "ff59901ce70fc05916c40d4731bd8da57514e04b9b09cb8eca5e322b8b6d37e7",
+  "source_checksums": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\source-checksums.json",
+  "source_checksums_sha256": "4dcf19751268ffbcca2d1894a57ff09a8e4d13463e34cb734985eb7086c1a60e",
+  "cases": {
+    "subscription_null": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\subscription_null",
+      "input_hashes": {
+        "package.json": "1866c35ded89c738b71b616fafe8233b61a2f051a82652f2456c2e75d99a74ba",
+        "lexicons/com.example.events.stream.json": "ae103607d79fe9c18d9589820c1b93a47461e6c8973471d53a29b9b55f811138",
+        "src/handler.ts": "427e61e6ac383c881fe440b66b5381d789598652e2d017b1a2488652c3682e62",
+        "src/unrelated.ts": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "inputs_unchanged": true,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\subscription_null",
+        "--analyzer-profile",
+        "node-atproto",
+        "--format",
+        "json",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-subscription"
+      ],
+      "report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-subscription\\attackmap-report.json",
+      "report_sha256": "ee44358749689004fbb1ca7b47be0b8b3a66bd6e89d09e45c1b7d968da0a4d3b",
+      "run_manifest": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-subscription\\run-manifest.json",
+      "run_manifest_sha256": "aa85a454aa789282c030d594c2c495c0bcdf90c637ac02dd08daacb15395f358",
+      "canonical_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-subscription\\20261023T101706-45ae70075bb64cc3bf2882a8a34e5da6\\attackmap-report.json",
+      "compatibility_and_canonical_bytes_identical": true,
+      "before_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "after_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 6,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_route_count": 2,
+      "after_route_count": 2,
+      "report_ledger_equals_manifest_ledger": true,
+      "analyzer_ledger_sha256_canonical_json": "47bc04a63243b0984e31a8f833d1d5713c730e722ad620d934a7db7e1bff6d6e",
+      "analyzer_run_ledger": {
+        "schema_version": "1.0",
+        "scope": "analyzer_selection_and_execution",
+        "inventory_scope": "supplied_candidates",
+        "selection_mode": "explicit",
+        "profile_id": "node-atproto@1.0",
+        "resolution_complete": true,
+        "execution_complete": true,
+        "entries": [
+          {
+            "name": "javascript-web",
+            "version": "0.2.0",
+            "priority": 20,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinJavaScriptWebAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "6a67c473402b62eb5b7f8d57a6683b2e55da8c48ba8be3425372593265da2df5",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "node-service",
+            "version": "0.2.0",
+            "priority": 25,
+            "origin": "plugin",
+            "implementation": {
+              "module": "attackmap_analyzer_node_service.analyzer",
+              "qualname": "NodeServiceAnalyzer",
+              "source_sha256": "1b193f1a5086843019cab1f318b8872e476e265ba44105545d0a3001008dce26",
+              "source_status": "observed_file"
+            },
+            "implementation_sha256": "167f4ec24796e8b136936ea61b8920bf6a7cdbdac56674b6b3e5b33c7bca98f3",
+            "package": {
+              "name": "attackmap-analyzer-node-service",
+              "version": "0.2.0"
+            },
+            "entry_point": {
+              "name": "node_service",
+              "group": "attackmap.analyzers",
+              "value": "attackmap_analyzer_node_service:NodeServiceAnalyzer"
+            },
+            "provenance": {
+              "declared_pin": {
+                "repo": "attackmap-analyzer-node-service",
+                "package": "attackmap-analyzer-node-service",
+                "version": "0.2.0",
+                "git_sha": "8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+                "entry_points": [
+                  "node_service"
+                ]
+              },
+              "installed_source": {
+                "kind": "wheel",
+                "evidence": "distribution_direct_url"
+              },
+              "pin_status": "unverified",
+              "content_verified": false,
+              "errors": []
+            },
+            "selection": "skipped",
+            "applicability": "unmatched",
+            "execution": "skipped",
+            "analysis_started": false,
+            "execution_mode": null,
+            "skip_reason": "unmatched",
+            "error": null
+          },
+          {
+            "name": "config",
+            "version": "0.1.0",
+            "priority": 30,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinConfigAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "6e79503002967b8ba9bdb5f1b825fab9f0cc53555329e3219aa6321e159ab5cf",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "atproto",
+            "version": "0.1.0",
+            "priority": 90,
+            "origin": "plugin",
+            "implementation": {
+              "module": "attackmap_analyzer_atproto.analyzer",
+              "qualname": "AtprotoAnalyzer",
+              "source_sha256": "8a49d7172201fc2c77bd9b7dbb21ce5ae788dc65e98e349e18013253ce0608c1",
+              "source_status": "observed_file"
+            },
+            "implementation_sha256": "eb1dd5349d5b2fa6f36351b1a1d417206569f6afafc08837148a084a59734955",
+            "package": {
+              "name": "attackmap-analyzer-atproto",
+              "version": "0.1.0"
+            },
+            "entry_point": {
+              "name": "atproto",
+              "group": "attackmap.analyzers",
+              "value": "attackmap_analyzer_atproto:AtprotoAnalyzer"
+            },
+            "provenance": {
+              "declared_pin": {
+                "repo": "attackmap-analyzer-atproto",
+                "package": "attackmap-analyzer-atproto",
+                "version": "0.1.0",
+                "git_sha": "d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+                "entry_points": [
+                  "atproto"
+                ]
+              },
+              "installed_source": {
+                "kind": "wheel",
+                "evidence": "distribution_direct_url"
+              },
+              "pin_status": "unverified",
+              "content_verified": false,
+              "errors": []
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "default",
+            "version": "0.1.0",
+            "priority": 100,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "DefaultAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "5664998e7929cc9d74a520d449a6d17ced078f714dc923e48d1946fe5089dddd",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "node-atproto",
+            "version": "0.1.0",
+            "priority": 150,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinNodeAtprotoAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "0c823bf63a3294cd819237927803bab7a829156bce27a1b73e2a7fb8588e9109",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          }
+        ]
+      },
+      "executed_analyzers": [
+        "javascript-web",
+        "config",
+        "atproto",
+        "default",
+        "node-atproto"
+      ],
+      "node_service_skipped_unmatched": true,
+      "process_evidence": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP042\\sol-ultra-20261023-batch2\\node-frozen-after-subscription\\process.json",
+      "process": {
+        "pid": 28020,
+        "exit_code": 0,
+        "exited": true,
+        "seconds": 2.941232100012712,
+        "timed_out": false,
+        "timeout_seconds": 180,
+        "owned_job_assigned": true,
+        "owned_tree_cleanup_verified": true
+      },
+      "llm_usage": {}
+    },
+    "query_null_negative": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\query_null_negative",
+      "input_hashes": {
+        "package.json": "1866c35ded89c738b71b616fafe8233b61a2f051a82652f2456c2e75d99a74ba",
+        "lexicons/com.example.events.stream.json": "a0821974b2d5f38783b4b1e13a92b191c8afccb4ab04541e8e48b0ed18e61fb0",
+        "src/handler.ts": "593dfa59858a7d47e28b8f46e5b6f8f2cff567061f1872a718bb0714b2520075",
+        "src/unrelated.ts": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "inputs_unchanged": true,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023-batch2\\engine-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\paired\\query_null_negative",
+        "--analyzer-profile",
+        "node-atproto",
+        "--format",
+        "json",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-query"
+      ],
+      "report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-query\\attackmap-report.json",
+      "report_sha256": "a3138fbf90820215bdd66570181207c5d165406b5be191ed4cb928b5b1efcafa",
+      "run_manifest": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-query\\run-manifest.json",
+      "run_manifest_sha256": "a137240edc08b83271f686b24fb0b9bffff765fefcc86edaaa592f4e35076f1a",
+      "canonical_report": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-node-20261023-batch2\\node-frozen-after-query\\20261023T101710-123a9b15508448e29c763b24d2d7b383\\attackmap-report.json",
+      "compatibility_and_canonical_bytes_identical": true,
+      "before_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "null"
+          ],
+          "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+        }
+      ],
+      "after_routes": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        },
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_route_count": 2,
+      "after_route_count": 2,
+      "report_ledger_equals_manifest_ledger": true,
+      "analyzer_ledger_sha256_canonical_json": "47bc04a63243b0984e31a8f833d1d5713c730e722ad620d934a7db7e1bff6d6e",
+      "analyzer_run_ledger": {
+        "schema_version": "1.0",
+        "scope": "analyzer_selection_and_execution",
+        "inventory_scope": "supplied_candidates",
+        "selection_mode": "explicit",
+        "profile_id": "node-atproto@1.0",
+        "resolution_complete": true,
+        "execution_complete": true,
+        "entries": [
+          {
+            "name": "javascript-web",
+            "version": "0.2.0",
+            "priority": 20,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinJavaScriptWebAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "6a67c473402b62eb5b7f8d57a6683b2e55da8c48ba8be3425372593265da2df5",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "node-service",
+            "version": "0.2.0",
+            "priority": 25,
+            "origin": "plugin",
+            "implementation": {
+              "module": "attackmap_analyzer_node_service.analyzer",
+              "qualname": "NodeServiceAnalyzer",
+              "source_sha256": "1b193f1a5086843019cab1f318b8872e476e265ba44105545d0a3001008dce26",
+              "source_status": "observed_file"
+            },
+            "implementation_sha256": "167f4ec24796e8b136936ea61b8920bf6a7cdbdac56674b6b3e5b33c7bca98f3",
+            "package": {
+              "name": "attackmap-analyzer-node-service",
+              "version": "0.2.0"
+            },
+            "entry_point": {
+              "name": "node_service",
+              "group": "attackmap.analyzers",
+              "value": "attackmap_analyzer_node_service:NodeServiceAnalyzer"
+            },
+            "provenance": {
+              "declared_pin": {
+                "repo": "attackmap-analyzer-node-service",
+                "package": "attackmap-analyzer-node-service",
+                "version": "0.2.0",
+                "git_sha": "8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+                "entry_points": [
+                  "node_service"
+                ]
+              },
+              "installed_source": {
+                "kind": "wheel",
+                "evidence": "distribution_direct_url"
+              },
+              "pin_status": "unverified",
+              "content_verified": false,
+              "errors": []
+            },
+            "selection": "skipped",
+            "applicability": "unmatched",
+            "execution": "skipped",
+            "analysis_started": false,
+            "execution_mode": null,
+            "skip_reason": "unmatched",
+            "error": null
+          },
+          {
+            "name": "config",
+            "version": "0.1.0",
+            "priority": 30,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinConfigAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "6e79503002967b8ba9bdb5f1b825fab9f0cc53555329e3219aa6321e159ab5cf",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "atproto",
+            "version": "0.1.0",
+            "priority": 90,
+            "origin": "plugin",
+            "implementation": {
+              "module": "attackmap_analyzer_atproto.analyzer",
+              "qualname": "AtprotoAnalyzer",
+              "source_sha256": "8a49d7172201fc2c77bd9b7dbb21ce5ae788dc65e98e349e18013253ce0608c1",
+              "source_status": "observed_file"
+            },
+            "implementation_sha256": "eb1dd5349d5b2fa6f36351b1a1d417206569f6afafc08837148a084a59734955",
+            "package": {
+              "name": "attackmap-analyzer-atproto",
+              "version": "0.1.0"
+            },
+            "entry_point": {
+              "name": "atproto",
+              "group": "attackmap.analyzers",
+              "value": "attackmap_analyzer_atproto:AtprotoAnalyzer"
+            },
+            "provenance": {
+              "declared_pin": {
+                "repo": "attackmap-analyzer-atproto",
+                "package": "attackmap-analyzer-atproto",
+                "version": "0.1.0",
+                "git_sha": "d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+                "entry_points": [
+                  "atproto"
+                ]
+              },
+              "installed_source": {
+                "kind": "wheel",
+                "evidence": "distribution_direct_url"
+              },
+              "pin_status": "unverified",
+              "content_verified": false,
+              "errors": []
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "default",
+            "version": "0.1.0",
+            "priority": 100,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "DefaultAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "5664998e7929cc9d74a520d449a6d17ced078f714dc923e48d1946fe5089dddd",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          },
+          {
+            "name": "node-atproto",
+            "version": "0.1.0",
+            "priority": 150,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinNodeAtprotoAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "0c823bf63a3294cd819237927803bab7a829156bce27a1b73e2a7fb8588e9109",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null
+          }
+        ]
+      },
+      "executed_analyzers": [
+        "javascript-web",
+        "config",
+        "atproto",
+        "default",
+        "node-atproto"
+      ],
+      "node_service_skipped_unmatched": true,
+      "process_evidence": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP042\\sol-ultra-20261023-batch2\\node-frozen-after-query\\process.json",
+      "process": {
+        "pid": 31748,
+        "exit_code": 0,
+        "exited": true,
+        "seconds": 3.6545818999875337,
+        "timed_out": false,
+        "timeout_seconds": 180,
+        "owned_job_assigned": true,
+        "owned_tree_cleanup_verified": true
+      },
+      "llm_usage": {}
+    }
+  },
+  "whole_WP039_acceptance": false,
+  "whole_WP042_acceptance": false
+}

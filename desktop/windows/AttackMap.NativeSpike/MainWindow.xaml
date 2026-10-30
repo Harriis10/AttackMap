@@ -100,7 +100,7 @@
     <TextBlock x:Name="OverviewText" FontSize="16" LineHeight="25" Foreground="{ThemeResource AttackTextBrush}" Text="Choose a repository and start a scan, or open a saved report. AI and CVE lookup are off by default." TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
     <TextBlock Text="Results will appear in Findings, Architecture and Inventory. Read or export the review from Reports." TextWrapping="Wrap"/>
    </StackPanel></Border>
-   <Expander Header="Evidence overview and linked core records" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><local:OverviewView x:Name="EvidenceOverview" MaxHeight="620"/></Expander>
+   <Expander x:Name="EvidenceOverviewExpander" Header="Evidence overview and linked core records" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><local:OverviewView x:Name="EvidenceOverview" MaxHeight="620"/></Expander>
    <Border Style="{StaticResource AttackCardStyle}" MaxWidth="960" HorizontalAlignment="Left"><StackPanel Spacing="12">
     <TextBlock Text="RUN DETAILS AND COVERAGE" Style="{StaticResource AttackSectionLabelStyle}"/>
     <TextBlock x:Name="RunSummary" Text="Displayed report: none" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
@@ -131,8 +131,8 @@
      <CheckBox x:Name="NoSuppressOption" Content="Do not apply saved suppressions"/>
      <CheckBox x:Name="CveOption" Checked="NetworkOptionChanged" Unchecked="NetworkOptionChanged" Content="CVE lookup: contacts OSV and sends dependency names/versions"/>
      <TextBlock Text="CVE lookup is off by default. No analyzer auto-install. Configure optional AI explicitly in Settings." TextWrapping="Wrap"/>
-     <TextBox x:Name="ModulesOption" Header="Installed analyzer names (blank = automatic selection)" PlaceholderText="javascript-web, config"/>
-     <Expander Header="Choose installed analyzers" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><ContentControl x:Name="AnalyzerHost" MaxHeight="420"/></Expander>
+      <TextBox x:Name="ModulesOption" Header="Custom analyzer names (editing clears the selected profile)" PlaceholderText="Choose a profile below, or enter installed names"/>
+      <Expander x:Name="AnalyzerPicker" Header="Analyzer profile and modules" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"><ContentControl x:Name="AnalyzerHost" MaxHeight="420"/></Expander>
      <TextBox x:Name="BaselineOption" Header="Baseline report JSON (absolute local path; blank disables comparison)"/>
      <Button x:Name="BaselinePicker" Content="Choose baseline report" Click="ChooseScanBaseline"/>
      <TextBox x:Name="SuppressFileOption" Header="Suppression YAML (absolute local path; blank uses repository default)"/>
@@ -180,7 +180,7 @@
    <Border x:Name="ProviderPanel" Grid.Row="2" Visibility="Collapsed" Style="{StaticResource AttackCardStyle}" HorizontalAlignment="Left"><local:ProviderSettingsView x:Name="Provider" VerticalAlignment="Stretch"/></Border>
    <local:RiskPathsView x:Name="RiskPaths" Grid.Row="2" Visibility="Collapsed"/>
    <local:InventoryView x:Name="EvidenceInventory" Grid.Row="2" Visibility="Collapsed"/>
-   <local:DiagramView x:Name="Diagrams" Grid.Row="2" Visibility="Collapsed"/>
+   <local:DiagramWorkspaceView x:Name="Diagrams" Grid.Row="2" Visibility="Collapsed"/>
    <local:FleetView x:Name="Fleet" Grid.Row="2" Visibility="Collapsed"/>
    <local:SuppressionWorkspacePanel x:Name="SuppressionWorkspace" Grid.Row="2" Visibility="Collapsed"/>
    <Grid x:Name="StructurePanel" Grid.Row="2" Visibility="Collapsed" RowSpacing="8" ColumnSpacing="16" SizeChanged="ResponsivePanels">

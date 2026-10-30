@@ -1,0 +1,26 @@
+{
+  "started_at_utc": "2026-10-23T13:16:19.5904519Z",
+  "finished_at_utc": "2026-10-23T13:16:24.9000740Z",
+  "command": ".tools/dotnet/dotnet.exe run --project desktop/windows/FleetGraphNavigation.Tests/FleetGraphNavigation.Tests.csproj --configuration Release",
+  "exit_code": 0,
+  "output": "PASS 94 focused graph evidence/navigation checks. Synthetic semantics only; no filesystem open, GUI or provider calls.",
+  "scope": "Synthetic pure navigation semantics only. No GUI, filesystem source open, product build, provider request, or release acceptance.",
+  "source_files": [
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/Fleet/FleetGraphPane.cs",
+      "sha256": "98d7346448db6b93f45324ddc33ae934bd92412b0bb545112bc6d4166ff263d5"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/Fleet/FleetGraphEvidenceNavigation.cs",
+      "sha256": "c6435309f6fdc4188e6045337579416eebde1c87283d9ffce2648163f0282319"
+    },
+    {
+      "path": "desktop/windows/FleetGraphNavigation.Tests/Program.cs",
+      "sha256": "2db4ca43aeca84ccbaf9267b48acef9bdd2e6c56bc3e85ef6cf9d76ad4e8e259"
+    },
+    {
+      "path": "desktop/windows/FleetGraphNavigation.Tests/FleetGraphNavigation.Tests.csproj",
+      "sha256": "5aa6340323f3b9d69b3948b637fb129587b7404fc101dea5193d185193716216"
+    }
+  ]
+}

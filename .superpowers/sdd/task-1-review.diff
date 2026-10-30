@@ -1,0 +1,254 @@
+Task 1 review package
+Base/head Git revision: 507bddacd72a246a136ca2d46faad2aa661806c1 (unchanged; commits forbidden)
+Scope: reconstructed pre-task baseline versus current untracked files; exact added regions removed.
+
+--- a/desktop/windows/AttackMap.NativeSpike/MainWindow.RenderDiagnostics.cs
++++ b/desktop/windows/AttackMap.NativeSpike/MainWindow.RenderDiagnostics.cs
+@@ -14,20 +14,21 @@
+ namespace AttackMap.NativeSpike;
+ 
+ public sealed partial class MainWindow
+ {
+     private StreamWriter? renderDiagnosticsLog;
+     private readonly List<Action> renderDiagnosticsCleanup = new();
+     private readonly HashSet<WebView2> renderDiagnosticsBrowsers = new();
+     private readonly HashSet<CoreWebView2> renderDiagnosticsCores = new();
+     private bool renderDiagnosticsStopped, renderDiagnosticsBrushUsed, renderDiagnosticsSpacingUsed, renderDiagnosticsDetailSpacingUsed, renderDiagnosticsDetailBrushUsed;
+     private bool renderDiagnosticsDetailRenderActive;
++    private bool renderDiagnosticsDetailRootRenderActive;
+     private int renderDiagnosticsLostCount;
+     private int renderDiagnosticsLifecycleCount;
+     private readonly string renderDiagnosticsRunId = Guid.NewGuid().ToString("N");
+     private long renderDiagnosticsNavigationRevision;
+     private System.Diagnostics.Stopwatch? renderDiagnosticsReportClock;
+     private long renderDiagnosticsAwaitingDestination;
+ 
+     // Explicit opt-in only. JSONL excludes body/source text; F8 may capture Detail pixels. No provider/resource mutation.
+     private void InitializeRenderDiagnostics(string[] startup)
+     {
+@@ -119,20 +120,33 @@
+                 try
+                 {
+                     ++renderDiagnosticsLostCount;
+                     RenderDiagnosticsSnapshot("surface-contents-lost");
+                 }
+                 catch (Exception error) { RenderDiagnosticsError("surface-contents-lost", error); }
+             };
+             CompositionTarget.SurfaceContentsLost += lost;
+             renderDiagnosticsCleanup.Add(() => CompositionTarget.SurfaceContentsLost -= lost);
+ 
++            var detailRootRenderAccelerator = new KeyboardAccelerator { Key = VirtualKey.F7, ScopeOwner = root };
++            TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> detailRootRenderInvoked = async (_, args) =>
++            {
++                args.Handled = true;
++                await RenderDiagnosticsDetailRootRender();
++            };
++            detailRootRenderAccelerator.Invoked += detailRootRenderInvoked;
++            root.KeyboardAccelerators.Add(detailRootRenderAccelerator);
++            renderDiagnosticsCleanup.Add(() =>
++            {
++                detailRootRenderAccelerator.Invoked -= detailRootRenderInvoked;
++                root.KeyboardAccelerators.Remove(detailRootRenderAccelerator);
++            });
+             var detailRenderAccelerator = new KeyboardAccelerator { Key = VirtualKey.F8, ScopeOwner = root };
+             TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> detailRenderInvoked = async (_, args) =>
+             {
+                 args.Handled = true;
+                 await RenderDiagnosticsDetailRender();
+             };
+             detailRenderAccelerator.Invoked += detailRenderInvoked; root.KeyboardAccelerators.Add(detailRenderAccelerator);
+             renderDiagnosticsCleanup.Add(() => { detailRenderAccelerator.Invoked -= detailRenderInvoked; root.KeyboardAccelerators.Remove(detailRenderAccelerator); });
+             var accelerator = new KeyboardAccelerator { Key = VirtualKey.F9, ScopeOwner = root };
+             TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> invoked = async (_, args) =>
+@@ -249,21 +263,22 @@
+                             detail = RenderDiagnosticsText(Detail, root, includeText: false) });
+                 }
+                 catch (Exception error) { RenderDiagnosticsError("f12-detail-brush", error); }
+             };
+             detailBrushAccelerator.Invoked += detailBrushInvoked; root.KeyboardAccelerators.Add(detailBrushAccelerator);
+             renderDiagnosticsCleanup.Add(() => { detailBrushAccelerator.Invoked -= detailBrushInvoked; root.KeyboardAccelerators.Remove(detailBrushAccelerator); });
+             void closed(object sender, WindowEventArgs args) => StopRenderDiagnostics();
+             Closed += closed;
+             renderDiagnosticsCleanup.Add(() => Closed -= closed);
+             RenderDiagnosticsWrite("enabled", new { processId = Environment.ProcessId,
+-                scope = "Native heading/navigation/Detail state and WebView2 lifecycle; JSONL excludes body/source text; explicit F8 writes Detail PNG pixels",
++                scope = "Native heading/navigation/Detail state and WebView2 lifecycle; JSONL excludes body/source text; explicit F7 writes D/T PNG pixels; explicit F8 writes Detail PNG pixels",
++                f7 = "Non-mutating direct Detail and root RenderTargetBitmap pair; QA observation only",
+                 f8 = "Non-mutating direct Detail RenderTargetBitmap capture without layout or frame settling; QA observation only",
+                 f9 = "One-shot selected navigation label-local same-color fresh brush; Heading fallback if no rendered exact label",
+                 f10 = "Independent one-shot selected navigation label CharacterSpacing toggle 0/1; same target lookup and Heading fallback",
+                 f11 = "Independent one-shot Detail TextBlock CharacterSpacing toggle 0/1 with bounded before/after state",
+                 f12 = "Independent one-shot Detail TextBlock same-color fresh brush with bounded before/after state",
+                 detailLifecycle = "Non-mutating Loaded/Unloaded/SizeChanged/LayoutUpdated/EffectiveViewportChanged and inspector ViewChanged; bounded at 400 events" });
+         }
+         catch (Exception) { StopRenderDiagnostics(); } // Optional diagnostics never block startup.
+     }
+ 
+@@ -342,20 +357,125 @@
+         }
+         finally
+         {
+             CompositionTarget.Rendering -= rendering;
+             renderDiagnosticsDetailRenderActive = false;
+             if (temporary != null)
+                 try { if (File.Exists(temporary)) File.Delete(temporary); } catch (Exception) { }
+         }
+     }
+ 
++    private async Task RenderDiagnosticsDetailRootRender()
++    {
++        if (renderDiagnosticsStopped || renderDiagnosticsLog == null || renderDiagnosticsDetailRootRenderActive || actionLifetime.IsCancellationRequested) return;
++        renderDiagnosticsDetailRootRenderActive = true;
++        long currentGeneration = generation, currentFindingRevision = findingRevision;
++        string probeId = Guid.NewGuid().ToString("N");
++        int renderingFrames = 0;
++        EventHandler<object> rendering = (_, _) => ++renderingFrames;
++        var root = (FrameworkElement)Content;
++        double scale = Detail.XamlRoot?.RasterizationScale ?? 0;
++        string directory = "";
++        try
++        {
++            RenderDiagnosticsWrite("detail-root-render-capture-started", new { probeId,
++                generation = currentGeneration, displayedRun, displayedReadHash,
++                navigationRevision = renderDiagnosticsNavigationRevision, findingRevision = currentFindingRevision,
++                detailLoaded = Detail.IsLoaded, detailWidth = Detail.ActualWidth, detailHeight = Detail.ActualHeight,
++                rootLoaded = root.IsLoaded, rootWidth = root.ActualWidth, rootHeight = root.ActualHeight, scale });
++            CompositionTarget.Rendering += rendering;
++            if (!Detail.DispatcherQueue.HasThreadAccess || !Detail.IsLoaded || Detail.XamlRoot == null ||
++                !root.IsLoaded || root.XamlRoot == null || Detail.ActualWidth <= 0 || Detail.ActualHeight <= 0 ||
++                root.ActualWidth <= 0 || root.ActualHeight <= 0 || root.Visibility != Visibility.Visible ||
++                FindingsPanel.Visibility != Visibility.Visible || Findings.SelectedItem is not FixtureFinding ||
++                !double.IsFinite(scale) || scale <= 0)
++                throw new InvalidOperationException("Detail/root render requires loaded visible bound content on the owning dispatcher.");
++            directory = Path.GetDirectoryName(renderDiagnosticsLog.BaseStream is FileStream stream ? stream.Name : null)
++                ?? throw new InvalidOperationException("Diagnostics output directory is unavailable.");
++
++            void RequireContext()
++            {
++                if (generation != currentGeneration || findingRevision != currentFindingRevision || renderDiagnosticsStopped ||
++                    actionLifetime.IsCancellationRequested || !Detail.IsLoaded || Detail.XamlRoot == null || !root.IsLoaded || root.XamlRoot == null)
++                    throw new InvalidOperationException("Detail/root render context changed.");
++            }
++
++            async Task<(string FileName, int Width, int Height)> Capture(FrameworkElement target, string targetKind)
++            {
++                string? temporary = null;
++                try
++                {
++                    RequireContext();
++                    var bitmap = new RenderTargetBitmap();
++                    await bitmap.RenderAsync(target);
++                    int width = bitmap.PixelWidth, height = bitmap.PixelHeight;
++                    if (width <= 0 || height <= 0 || width > 16384 || height > 16384 ||
++                        (long)width * height * 4 > CaptureOracle.MaxBytes)
++                        throw new InvalidDataException("Rendered target is empty or exceeds the bounded capture size.");
++                    var pixels = await bitmap.GetPixelsAsync();
++                    if (pixels.Length != (long)width * height * 4) throw new InvalidDataException("Unexpected BGRA8 buffer size.");
++                    RequireContext();
++                    var raw = new byte[(int)pixels.Length];
++                    using (var reader = DataReader.FromBuffer(pixels)) reader.ReadBytes(raw);
++                    using var encoded = new InMemoryRandomAccessStream();
++                    var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, encoded);
++                    encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
++                        (uint)width, (uint)height, 96 * scale, 96 * scale, raw);
++                    await encoder.FlushAsync();
++                    if (encoded.Size > CaptureOracle.MaxBytes) throw new InvalidDataException("Encoded PNG exceeds the capture limit.");
++                    var png = new byte[(int)encoded.Size];
++                    using (var reader = new DataReader(encoded.GetInputStreamAt(0)))
++                    {
++                        if (await reader.LoadAsync((uint)png.Length) != png.Length) throw new IOException("Encoded PNG read was incomplete.");
++                        reader.ReadBytes(png);
++                    }
++                    RequireContext();
++                    string fileName = $"detail-root-render-{targetKind}-{probeId}.png";
++                    temporary = Path.Combine(directory, $".detail-root-render-{targetKind}-{probeId}.tmp");
++                    using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
++                    { await file.WriteAsync(png); file.Flush(flushToDisk: true); }
++                    File.Move(temporary, Path.Combine(directory, fileName), overwrite: false);
++                    temporary = null;
++                    return (fileName, width, height);
++                }
++                finally
++                {
++                    if (temporary != null)
++                        try { if (File.Exists(temporary)) File.Delete(temporary); } catch (Exception) { }
++                }
++            }
++
++            var detail = await Capture(Detail, "detail");
++            RequireContext();
++            var tree = await Capture(root, "root");
++            RequireContext();
++            RenderDiagnosticsWrite("detail-root-render-capture-completed", new { probeId,
++                generation = currentGeneration, displayedRun, displayedReadHash,
++                navigationRevision = renderDiagnosticsNavigationRevision, findingRevision = currentFindingRevision,
++                detailFileName = detail.FileName, rootFileName = tree.FileName,
++                detailWidth = detail.Width, detailHeight = detail.Height,
++                rootWidth = tree.Width, rootHeight = tree.Height, scale, renderingFrames });
++        }
++        catch (Exception error)
++        {
++            RenderDiagnosticsWrite("detail-root-render-capture-failed", new { probeId,
++                generation = currentGeneration, displayedRun, displayedReadHash,
++                navigationRevision = renderDiagnosticsNavigationRevision, findingRevision = currentFindingRevision,
++                errorType = error.GetType().Name, renderingFrames });
++        }
++        finally
++        {
++            CompositionTarget.Rendering -= rendering;
++            renderDiagnosticsDetailRootRenderActive = false;
++        }
++    }
++
+     private void RenderDiagnosticsSnapshot(string reason)
+     {
+         if (renderDiagnosticsStopped || renderDiagnosticsLog == null || actionLifetime.IsCancellationRequested) return;
+         try
+         {
+             var root = (FrameworkElement)Content;
+             RenderDiagnosticsAttachBrowsers(root);
+             var navigation = Navigation.MenuItems.OfType<NavigationViewItem>().Select(item => new {
+                 label = item.Content is string title ? title : "nontext menu item",
+                 selected = item.IsSelected,
+
+--- a/tests/test_wp043_live_capture.py
++++ b/tests/test_wp043_live_capture.py
+@@ -1037,20 +1037,37 @@
+         method = method.split("private void RenderDiagnosticsSnapshot", 1)[0]
+         self.assertIn("await bitmap.RenderAsync(Detail);", method)
+         self.assertIn("await bitmap.GetPixelsAsync();", method)
+         self.assertIn("CompositionTarget.Rendering -= rendering;", method)
+         self.assertNotIn("UpdateLayout", method)
+         self.assertNotIn("Task.Delay", method)
+         self.assertNotIn("Detail.Text =", method)
+         self.assertNotIn("Detail.Foreground =", method)
+         self.assertNotIn("Detail.CharacterSpacing =", method)
+ 
++    def test_detail_root_render_probe_rasterizes_both_targets_without_settling_or_mutation(self):
++        source = (Path(__file__).parents[1] / "desktop/windows/AttackMap.NativeSpike/MainWindow.RenderDiagnostics.cs").read_text(encoding="utf-8")
++        self.assertIn("private async Task RenderDiagnosticsDetailRootRender()", source)
++        method = source.split("private async Task RenderDiagnosticsDetailRootRender()", 1)[1]
++        method = method.split("private void RenderDiagnosticsSnapshot", 1)[0]
++        self.assertIn("await bitmap.RenderAsync(target);", method)
++        self.assertIn("await Capture(Detail, \"detail\");", method)
++        self.assertIn("await Capture(root, \"root\");", method)
++        self.assertEqual(method.count("await bitmap.GetPixelsAsync();"), 1)
++        self.assertIn("CompositionTarget.Rendering -= rendering;", method)
++        for forbidden in (
++            "UpdateLayout", "Task.Delay", "Detail.Text =", "Detail.Foreground =",
++            "Detail.CharacterSpacing =", "Detail.Visibility =", "Detail.Opacity =",
++            "root.Visibility =", "root.Opacity =", "ChangeView(",
++        ):
++            self.assertNotIn(forbidden, method)
++
+     def test_any_failed_dispatch_fails_run_without_erasing_prior_captures(self):
+         with tempfile.TemporaryDirectory() as temporary:
+             root = Path(temporary)
+             backend = FakeBackend()
+             backend.fail_dispatch_label = "Architecture"
+             args = self.make_args(root)
+             evidence = run(args, backend)
+             self.assertEqual(evidence["status"], "failed")
+             self.assertEqual(len(evidence["captures"]), 3)
+             self.assertTrue((args.output / "evidence.json").is_file())
+

@@ -1,0 +1,29 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RepoRoot>$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', 'pyproject.toml'))</RepoRoot>
+    <TaskAssembly>$(RepoRoot)\.tools\nuget-packages\microsoft.windows.sdk.buildtools.msix\1.7.251221100\tools\net6.0\Microsoft.Windows.SDK.BuildTools.MSIX.dll</TaskAssembly>
+    <ResultDirectory>$(MSBuildProjectDirectory)\result</ResultDirectory>
+    <ExcludeWeb Condition="'$(ExcludeWeb)' == ''">false</ExcludeWeb>
+  </PropertyGroup>
+  <UsingTask AssemblyFile="$(TaskAssembly)" TaskName="Microsoft.Build.Msix.Pri.WinAppSdkGeneratePriConfigurationFiles" />
+  <ItemGroup>
+    <Layout Include="$(RepoRoot)\desktop\windows\GraphExplorer.Web\asset-manifest.json;$(RepoRoot)\desktop\windows\GraphExplorer.Web\synthetic-fixture.js;$(RepoRoot)\desktop\windows\GraphExplorer.Web\index.html">
+      <TargetPath>GraphExplorer.Web\%(Filename)%(Extension)</TargetPath>
+      <ExcludeFromResourceIndex>$(ExcludeWeb)</ExcludeFromResourceIndex>
+    </Layout>
+    <Layout Include="$(RepoRoot)\desktop\windows\fixtures\findings.json">
+      <TargetPath>fixtures\findings.json</TargetPath>
+    </Layout>
+  </ItemGroup>
+  <Target Name="Verify">
+    <MakeDir Directories="$(ResultDirectory)\$(ExcludeWeb)" />
+    <WinAppSdkGeneratePriConfigurationFiles
+      UnfilteredLayoutResfilesPath="$(ResultDirectory)\$(ExcludeWeb)\unfiltered.layout.resfiles"
+      FilteredLayoutResfilesPath="$(ResultDirectory)\$(ExcludeWeb)\filtered.layout.resfiles"
+      ExcludedLayoutResfilesPath="$(ResultDirectory)\$(ExcludeWeb)\excluded.layout.resfiles"
+      ResourcesResfilesPath="$(ResultDirectory)\$(ExcludeWeb)\resources.resfiles"
+      PriResfilesPath="$(ResultDirectory)\$(ExcludeWeb)\pri.resfiles"
+      EmbedFileResfilePath="$(ResultDirectory)\$(ExcludeWeb)\embed.resfiles"
+      LayoutFiles="@(Layout)" PRIResourceFiles="" PriFiles="" EmbedFiles="" IntermediateExtension=".intermediate" />
+  </Target>
+</Project>

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "package_id": "dev-20260101200000-1a2b3c4d",
+  "channel": "unsigned-development",
+  "architecture": "win-x64",
+  "minimum_windows": "10.0.19041.0",
+  "native_runtime": {
+    "dotnet_self_contained": true,
+    "included_frameworks": [
+      {
+        "name": "Microsoft.NETCore.App",
+        "version": "8.0.32"
+      }
+    ],
+    "windows_app_sdk_self_contained": true,
+    "windows_app_sdk": "2.4.0"
+  },
+  "engine": {
+    "bundled": true,
+    "executable": "app/engine/attackmap.exe",
+    "runtime_kind": "Frozen",
+    "version": "attackmap 1.5.1",
+    "analyzer_count": 19,
+    "run_schema_range": "1.0-1.1",
+    "verification_sha256": "19084f26cf68a4209d0987ed60b508042dd2f678b1bd31171eab88818f60564d",
+    "source_checksums_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "limitations": [
+      "synthetic fixture engine"
+    ]
+  },
+  "files": [
+    {
+      "path": "AttackMap.NativeSpike.exe",
+      "size_bytes": 30,
+      "sha256": "b458a80fea5c9765913891516a13b13f36be4bcecb80fbb4a13342dc2deb485f"
+    },
+    {
+      "path": "coreclr.dll",
+      "size_bytes": 19,
+      "sha256": "13bea79df4a22404395b032528e02501f9a0810ae504e32c094e4214ce7d619d"
+    },
+    {
+      "path": "AttackMap.NativeSpike.runtimeconfig.json",
+      "size_bytes": 100,
+      "sha256": "1b47e77e61b50d8efbdeacc4a4003cb5f5eda25ad53510385d601d09c0105ca5"
+    },
+    {
+      "path": "engine/attackmap.exe",
+      "size_bytes": 29,
+      "sha256": "b7d5766ea3365e303ea0960c1649674d2ca876460e8b20466b04ccd874ff1a5c"
+    },
+    {
+      "path": "engine/engine-verification.json",
+      "size_bytes": 68,
+      "sha256": "19084f26cf68a4209d0987ed60b508042dd2f678b1bd31171eab88818f60564d"
+    }
+  ]
+}

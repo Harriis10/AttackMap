@@ -21,4 +21,7 @@ public sealed record ReportSections(
     ReportSection<EvidenceRow> Workflows, ReportSection<EvidenceRow> Taint,
     ReportSection<EvidenceRow> Analyzers, ReportSection<EvidenceRow> AnalyzerErrors,
     ReportSection<SuppressedRow> Suppressed, ReportSection<EvidenceRow> Fleet,
-    JsonElement? ResourceLimits, JsonElement? ResourceLimitScopes, JsonElement? ResourceLimitReporting, JsonElement? Limitations, string Notice);
+    JsonElement? ResourceLimits, JsonElement? ResourceLimitScopes, JsonElement? ResourceLimitReporting, JsonElement? Limitations, string Notice)
+{
+    public JsonElement? AnalyzerRunLedger { get; init; }
+}

@@ -1,0 +1,1009 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="11" time="5.301" timestamp="2026-10-23T13:01:15.167618+02:00" hostname="corpsec"><testcase classname="tests.test_ecosystem_python_django_integration" name="test_middleware_requires_unambiguous_ordered_framework_binding[['django.contrib.auth.middleware.LoginRequiredMiddleware']]" time="0.126"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_middleware_requires_unamb0')
+middleware = "['django.contrib.auth.middleware.LoginRequiredMiddleware']"
+
+    @pytest.mark.parametrize("middleware", [repr([LOGIN]), repr([LOGIN, AUTH]),
+        repr([AUTH, "example.LoginRequiredMiddleware"]),
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE.clear()",
+        repr([AUTH, LOGIN]) + "\nif DEBUG:\n    MIDDLEWARE = []",
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE[:] = []",
+    ])
+    def test_middleware_requires_unambiguous_ordered_framework_binding(tmp_path, middleware):
+        app(tmp_path, middleware)
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.LoginRequire...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...nticationMiddleware; auth unknown'], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x000001938147A480&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x000001938147A520&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_middleware_requires_unambiguous_ordered_framework_binding[['django.contrib.auth.middleware.LoginRequiredMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware']]" time="0.078"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_middleware_requires_unamb1')
+middleware = "['django.contrib.auth.middleware.LoginRequiredMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware']"
+
+    @pytest.mark.parametrize("middleware", [repr([LOGIN]), repr([LOGIN, AUTH]),
+        repr([AUTH, "example.LoginRequiredMiddleware"]),
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE.clear()",
+        repr([AUTH, LOGIN]) + "\nif DEBUG:\n    MIDDLEWARE = []",
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE[:] = []",
+    ])
+    def test_middleware_requires_unambiguous_ordered_framework_binding(tmp_path, middleware):
+        app(tmp_path, middleware)
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.LoginRequire...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...nticationMiddleware; auth unknown'], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814C8D60&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814C84A0&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_middleware_requires_unambiguous_ordered_framework_binding[['django.contrib.auth.middleware.AuthenticationMiddleware', 'example.LoginRequiredMiddleware']]" time="0.124"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_middleware_requires_unamb2')
+middleware = "['django.contrib.auth.middleware.AuthenticationMiddleware', 'example.LoginRequiredMiddleware']"
+
+    @pytest.mark.parametrize("middleware", [repr([LOGIN]), repr([LOGIN, AUTH]),
+        repr([AUTH, "example.LoginRequiredMiddleware"]),
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE.clear()",
+        repr([AUTH, LOGIN]) + "\nif DEBUG:\n    MIDDLEWARE = []",
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE[:] = []",
+    ])
+    def test_middleware_requires_unambiguous_ordered_framework_binding(tmp_path, middleware):
+        app(tmp_path, middleware)
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authenticati...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...ry=[], anomalies=[], limitations=[], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814C8860&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814C89A0&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_middleware_requires_unambiguous_ordered_framework_binding[['django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.auth.middleware.LoginRequiredMiddleware']\nMIDDLEWARE.clear()]" time="0.059"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_middleware_requires_unamb3')
+middleware = "['django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.auth.middleware.LoginRequiredMiddleware']\nMIDDLEWARE.clear()"
+
+    @pytest.mark.parametrize("middleware", [repr([LOGIN]), repr([LOGIN, AUTH]),
+        repr([AUTH, "example.LoginRequiredMiddleware"]),
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE.clear()",
+        repr([AUTH, LOGIN]) + "\nif DEBUG:\n    MIDDLEWARE = []",
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE[:] = []",
+    ])
+    def test_middleware_requires_unambiguous_ordered_framework_binding(tmp_path, middleware):
+        app(tmp_path, middleware)
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authenticati...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...EWARE; no settings auth inference'], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814C9260&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814C9300&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_middleware_requires_unambiguous_ordered_framework_binding[['django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.auth.middleware.LoginRequiredMiddleware']\nif DEBUG:\n    MIDDLEWARE = []]" time="0.044"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_middleware_requires_unamb4')
+middleware = "['django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.auth.middleware.LoginRequiredMiddleware']\nif DEBUG:\n    MIDDLEWARE = []"
+
+    @pytest.mark.parametrize("middleware", [repr([LOGIN]), repr([LOGIN, AUTH]),
+        repr([AUTH, "example.LoginRequiredMiddleware"]),
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE.clear()",
+        repr([AUTH, LOGIN]) + "\nif DEBUG:\n    MIDDLEWARE = []",
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE[:] = []",
+    ])
+    def test_middleware_requires_unambiguous_ordered_framework_binding(tmp_path, middleware):
+        app(tmp_path, middleware)
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authenticati...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...EWARE; no settings auth inference'], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814C8680&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814C9DA0&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_middleware_requires_unambiguous_ordered_framework_binding[['django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.auth.middleware.LoginRequiredMiddleware']\nMIDDLEWARE[:] = []]" time="0.047"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_middleware_requires_unamb5')
+middleware = "['django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.auth.middleware.LoginRequiredMiddleware']\nMIDDLEWARE[:] = []"
+
+    @pytest.mark.parametrize("middleware", [repr([LOGIN]), repr([LOGIN, AUTH]),
+        repr([AUTH, "example.LoginRequiredMiddleware"]),
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE.clear()",
+        repr([AUTH, LOGIN]) + "\nif DEBUG:\n    MIDDLEWARE = []",
+        repr([AUTH, LOGIN]) + "\nMIDDLEWARE[:] = []",
+    ])
+    def test_middleware_requires_unambiguous_ordered_framework_binding(tmp_path, middleware):
+        app(tmp_path, middleware)
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authenticati...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...EWARE; no settings auth inference'], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814CA3E0&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814CA480&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_ordered_middleware_has_root_settings_evidence" time="0.073"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_ordered_middleware_has_ro0')
+
+    def test_ordered_middleware_has_root_settings_evidence(tmp_path):
+        app(tmp_path, repr([AUTH, LOGIN]))
+&gt;       route = scan_python_services(tmp_path).routes[0]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authenticati...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...ry=[], anomalies=[], limitations=[], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814C9620&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814C9BC0&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = True, middleware_evidence = 'settings.py:2'
+walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_other_root_and_conflicting_settings_do_not_inherit_login" time="0.082"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_other_root_and_conflictin0')
+
+    def test_other_root_and_conflicting_settings_do_not_inherit_login(tmp_path):
+        app(tmp_path, repr([AUTH, LOGIN]))
+        write(tmp_path, {
+            "public/settings.py": "ROOT_URLCONF = 'public.urls'\nMIDDLEWARE = []\n",
+            "public/urls.py": "from django.urls import path\nfrom site.views import home\n"
+                              "urlpatterns = [path('public/', home)]\n",
+        })
+&gt;       routes = {route.path: route for route in scan_python_services(tmp_path).routes}
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authenticati...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...ry=[], anomalies=[], limitations=[], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=5, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814CB380&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814CB420&gt;, validated = {}
+module = 'public.urls', mount = '', visited = {'public.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_login_opt_out_and_unknown_wrappers_do_not_gain_global_auth" time="0.047"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_login_opt_out_and_unknown0')
+
+    def test_login_opt_out_and_unknown_wrappers_do_not_gain_global_auth(tmp_path):
+        app(tmp_path, repr([AUTH, LOGIN]))
+        for decoration in ("@login_not_required", "@foreign_decorator"):
+            write(tmp_path, {"site/views.py": "from django.contrib.auth.decorators import login_not_required\n"
+                   "from foreign import foreign_decorator\n" + decoration + "\ndef home(request):\n    return None\n"})
+&gt;           assert scan_python_services(tmp_path).routes[0].auth == "unknown"
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authenticati...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...ry=[], anomalies=[], limitations=[], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814C9080&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814C9EE0&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = True, middleware_evidence = 'settings.py:2'
+walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_repeat_include_mounts_and_cycle_are_bounded" time="0.095"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_repeat_include_mounts_and0')
+
+    def test_repeat_include_mounts_and_cycle_are_bounded(tmp_path):
+        write(tmp_path, {
+            "settings.py": "ROOT_URLCONF = 'site.urls'\n",
+            "site/urls.py": "from django.urls import path, include\nurlpatterns = ["
+                "path('a/', include('site.child')), path('b/', include(('site.child', 'app'), namespace='second'))]\n",
+            "site/child.py": "from django.urls import path, include\nfrom site.views import home\nurlpatterns = ["
+                "path('home/', home), path('loop/', include('site.urls'))]\n",
+            "site/views.py": "def home(request):\n    return None\n",
+        })
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+src\attackmap\ecosystem_python.py:1262: in _walk_urlconf
+    _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'site.urls'\n", 'site/child.py': "from django.urls import path, include...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...ry=[], anomalies=[], limitations=[], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=4, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814CAC00&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814CB2E0&gt;, validated = {}
+module = 'site.child', mount = '/a/', visited = {'site.child', 'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [2]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase><testcase classname="tests.test_ecosystem_python_django_integration" name="test_inferred_root_does_not_inherit_unresolved_settings_middleware" time="0.041"><failure message="TypeError: django_view_auth() got an unexpected keyword argument 'target_line'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/pytest-django-integration-02/test_inferred_root_does_not_in0')
+
+    def test_inferred_root_does_not_inherit_unresolved_settings_middleware(tmp_path):
+        app(tmp_path, repr([AUTH, LOGIN]))
+        write(tmp_path, {"settings.py": f"ROOT_URLCONF = 'missing.urls'\nMIDDLEWARE = {[AUTH, LOGIN]!r}\n"})
+&gt;       result = scan_python_services(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ecosystem_python_django_integration.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\attackmap\ecosystem_python.py:892: in scan_python_services
+    _emit(state, result)
+src\attackmap\ecosystem_python.py:1089: in _emit
+    _emit_django(state, result, route, hint, validated)
+src\attackmap\ecosystem_python.py:1208: in _emit_django
+    _walk_urlconf(state, result, route, hint, validated, module, "", set(), login_required_mw,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+state = _PyState(files={'settings.py': "ROOT_URLCONF = 'missing.urls'\nMIDDLEWARE = ['django.contrib.auth.middleware.Authentic...trypoints=[], pydantic_secrets=[], env_secrets=[], raw_sql=[], orm_scoped=[], orm_unscoped=[], auth_dependency_defs=[])
+result = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\pytest-django-integration-02\\test_...F module 'missing.urls' to a file"], analyzer_errors=[], analyzer_run_ledger=None, files_scanned=3, scan_snapshot=None)
+route = &lt;function _emit.&lt;locals&gt;.route at 0x00000193814C99E0&gt;
+hint = &lt;function _emit.&lt;locals&gt;.hint at 0x00000193814C94E0&gt;, validated = {}
+module = 'site.urls', mount = '', visited = {'site.urls'}
+login_required_mw = False, middleware_evidence = None, walk_budget = [1]
+
+    def _walk_urlconf(
+        state: _PyState,
+        result: ScanResult,
+        route,
+        hint,
+        validated: dict[str, tuple[str, int, str]],
+        module: str,
+        mount: str,
+        visited: set[str],
+        login_required_mw: bool,
+        middleware_evidence: str | None = None,
+        walk_budget: list[int] | None = None,
+    ) -&gt; None:
+        if walk_budget is None:
+            walk_budget = [0]
+        walk_budget[0] += 1
+        if walk_budget[0] &gt; 4096:
+            limitation = "ecosystem_python: Django URLconf expansion limit reached; partial route coverage"
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
+            return
+        if module in visited or len(visited) &gt;= 16:
+            result.limitations.append(f"ecosystem_python: Django URLconf cycle/depth limit at '{module}'")
+            return
+        visited = visited | {module}
+        urls_file = _resolve_module(state, module)
+        if urls_file is None:
+            result.limitations.append(f"ecosystem_python: could not resolve Django include module '{module}'")
+            return
+        symbols = state.symbol_imports.get(urls_file, {})
+    
+        for raw_route, target, line in state.url_entries.get(urls_file, []):
+            full_path = _join_route_parts(mount, _django_route_path(raw_route))
+            if target.startswith("include"):
+                inner = re.search(r"include\s*\(\s*(?:['\"]([\w.]+)['\"]|([\w.]+))", target)
+                if not inner:
+                    continue
+                child_module = inner.group(1) or None
+                if child_module is None:
+                    token = inner.group(2)
+                    head = token.split(".")[0]
+                    child_module = symbols.get(head, token)
+                hint(
+                    "framework",
+                    f"urlconf_include:{child_module}",
+                    urls_file,
+                    line,
+                    f"path({raw_route!r}, include({child_module}))",
+                    0.9,
+                )
+                _walk_urlconf(state, result, route, hint, validated, child_module, full_path, visited, login_required_mw,
+                              middleware_evidence, walk_budget)
+                continue
+            if "admin.site.urls" in target:
+                hint("framework", "django_admin_surface", urls_file, line,
+                     f"path({raw_route!r}, admin.site.urls)", 0.9)
+                continue
+            from .python_django_routes import django_view_auth
+&gt;           auth, guards, evidence, middleware_eligible = django_view_auth(state.files, urls_file, target, target_line=line)
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: django_view_auth() got an unexpected keyword argument 'target_line'
+
+src\attackmap\ecosystem_python.py:1270: TypeError</failure></testcase></testsuite></testsuites>

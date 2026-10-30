@@ -1,0 +1,79 @@
+{
+  "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "evidence": [
+    "tests-03.xml",
+    "verification.json",
+    "source-before.json",
+    "source-after.json",
+    "fleet16-before.json",
+    "fleet16-after.json",
+    "shared-datastore-declaration.schema.json",
+    "fixture-paired.json",
+    "fixture-different-port.json",
+    "fixture-ambiguous.json",
+    "README.md",
+    "../CONTRACT.md",
+    "READ-ONLY-GRAPH-REVIEW.md"
+  ],
+  "final_commit_or_diff_hash": "working-tree-content-sha256:b87f77a5a02cb615b78a41730d31a3ace03515ce1fa49fa7d5797b3ad2a893fe",
+  "lease_note": "Assigned source/test paths and own evidence only; root owns shared tracker changes.",
+  "leases_released": true,
+  "limitations": [
+    "Prepared extraction contract is not emitted by any existing scanner and is not integrated into the fleet pipeline.",
+    "Explicit declarations project undirected declared associations only; no observed/runtime or producer-consumer flow claim.",
+    "Identifier fields must contain non-secret public identities. Connection strings, credentials, raw snippets and unknown fields are forbidden.",
+    "Public projection exceptions are sanitized. Direct Pydantic ValidationError.errors/json can include input values; see CONTRACT.md.",
+    "Production non-HTTP connectivity stays unanalysed. Queue, RPC/protobuf/OpenAPI, representative fleet, native and release gates remain open.",
+    "Existing architecture/test files were untracked dirty inputs; no reset, commit or unrelated edit was performed."
+  ],
+  "live_provider_calls": 0,
+  "manual_checks": [],
+  "next_action": "Implement one extractor that emits exact qualified non-secret identity and operation with source provenance and child-snapshot binding; independently verify paired real repositories before integrating a fleet adapter or changing capability status.",
+  "owner": "/root/roadmap_nonhttp",
+  "package_id": null,
+  "paths_changed": [
+    "src/attackmap/fleet_resource_identity.py",
+    "src/attackmap/fleet_architecture.py",
+    "tests/test_fleet_resource_identity.py",
+    "tests/test_fleet_architecture.py",
+    "docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/"
+  ],
+  "previous_handoff": "../HANDOFF.json",
+  "read_only_review": {
+    "paths": [
+      "desktop/windows/AttackMap.NativeSpike/MainWindow.FleetGraph.cs",
+      "desktop/windows/AttackMap.NativeSpike/Fleet/FleetGraphEvidenceNavigation.cs",
+      "desktop/windows/AttackMap.NativeSpike/SourceLocation.cs"
+    ],
+    "result": "No additional launch/forged-request issue identified; analogous trailing-dot/space root uniqueness gap forwarded to native owner; no native changes or runtime checks by this agent"
+  },
+  "review_corrections": [
+    "Reject Windows root components ending dot/space before canonicalization so Win32 aliases cannot create a self association",
+    "Reject IPv4 limited broadcast and its mapped IPv6 form"
+  ],
+  "revision": "version02",
+  "run_ids": [],
+  "scanner_executions": 0,
+  "status": "prepared_contract_only",
+  "task_id": "WP044-shared-datastore-contract",
+  "tests_executed": [
+    {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_fleet_resource_identity.py tests/test_fleet_architecture.py -q -p no:cacheprovider --basetemp=.tmp/roadmap-next-20261023-nonhttp-v2-01 --junitxml=docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/version02/tests-03.xml",
+      "result": "104 PASS; zero failures/errors/skips/warnings"
+    },
+    {
+      "command": ".venv/Scripts/python.exe docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/version02/verify_contract.py",
+      "result": "PASS; entire fleet16 graph unchanged except additive coverage metadata"
+    }
+  ],
+  "tests_not_executed": [
+    "actual scanner extraction",
+    "real production fleet",
+    "native build/mapping",
+    "GUI visual/manual/accessibility",
+    "frozen/package/release/clean-host",
+    "macOS",
+    "broad regression suite"
+  ],
+  "whole_task_status": "IN_PROGRESS"
+}

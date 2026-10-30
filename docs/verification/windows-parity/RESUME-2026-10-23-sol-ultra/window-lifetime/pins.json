@@ -1,0 +1,26 @@
+{
+  "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "source": "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs",
+  "preimage_sha256": "caf33b7d20e835a70bf8c8e8fd4da5a3dd4f15e04586861d03227101972a2663",
+  "core_postimage_sha256": "47edb07de1053aba9637be3998db87ddc12a278576363eb50d1f96553c8971e4",
+  "optional_postimage_sha256": "16bdd6024d6dc58c09930a2f30e0c807fb8ab141ac3a5b6742c9ee194a0359ae",
+  "artifacts_sha256": {
+    "MainWindow.before.cs.txt": "caf33b7d20e835a70bf8c8e8fd4da5a3dd4f15e04586861d03227101972a2663",
+    "MainWindow.core.cs.txt": "47edb07de1053aba9637be3998db87ddc12a278576363eb50d1f96553c8971e4",
+    "MainWindow.core-plus-optional.cs.txt": "16bdd6024d6dc58c09930a2f30e0c807fb8ab141ac3a5b6742c9ee194a0359ae",
+    "core.patch": "5d753a1670d727e5876be76be222ad3d58d45023bba6a2df2cf474737ffb90d8",
+    "optional-after-core.patch": "66373f310aa8838538e98fa3e983335c7d51326bf0a11a6c175f19f6ca7b96de",
+    "harness/ExtractedWindows.cs": "2d7e2a38ce232b6fa8d4c62eb3996b15ee71adcd8f419d48bb45a0468b2da4ab",
+    "harness/Program.cs": "c9beef5751713be1351f42128526ab5893e8f33f2aa527058d773249035736b2",
+    "harness/NativeStandins.cs": "d8b630e8d2b606ee7817e346f13100c6b7d0955541f73d8bfd69ce9890ecdbfe",
+    "harness/LifetimeRegression.csproj": "ba279268a83f31f031a3363562188f129fbd78338706e4cc7411f84d9b20599f",
+    "harness/NuGet.Config": "9508cae5f76364f56e80eb97cb16493977243cf38e5cca6284e3d74f83b20a2c"
+  },
+  "other_inspected_sources_sha256": {
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs": "238cf2a1accb32c6059fba17597e9a51e2bcc220701098b865b42bda757c9cd2",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.Workspaces.cs": "07e125de45d8e76eefa944db7d78ec6eea391c83cd3a048df3bd6dc29bde033b",
+    "desktop/windows/AttackMap.NativeSpike/App.xaml.cs": "202a2ea6ba7e4f41086a54dd035eb33a492213506933d0c59234abe1c52ead52",
+    "desktop/windows/AttackMap.NativeSpike/NativeAccessibility.cs": "024a8fd178ad7f323383ba37c47b896b7e0d96c0304ac1cbb77f2fd7aaf1675c"
+  },
+  "scope": "Isolated compiled method-body regression with fake controls/read boundaries; no WinUI, provider, GUI, native build, or package acceptance"
+}

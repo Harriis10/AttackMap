@@ -1,0 +1,1181 @@
+{
+  "schema": 1,
+  "version": "1.5.1",
+  "commands": [
+    "analyze",
+    "bench",
+    "capabilities",
+    "desktop-action",
+    "desktop-worker",
+    "diagnostics",
+    "evaluate",
+    "modules",
+    "rules",
+    "suggest",
+    "ui"
+  ],
+  "analyze": {
+    "options": [
+      "--ai-max-calls",
+      "--ai-output-tokens",
+      "--ai-timeout-seconds",
+      "--allow-pr-suppressions",
+      "--analyzer-profile",
+      "--baseline",
+      "--cve",
+      "--diff-output",
+      "--direct-generation-output",
+      "--fail-on-new-high",
+      "--fail-on-new-suppression",
+      "--fleet-result",
+      "--fleet-workers",
+      "--format",
+      "--hunt",
+      "--hunt-budget",
+      "--hunt-lenses",
+      "--hunt-rounds",
+      "--incremental",
+      "--install-missing",
+      "--isolated-analyzers",
+      "--llm",
+      "--llm-backend",
+      "--llm-effort",
+      "--llm-model",
+      "--llm-provider",
+      "--llm-speed",
+      "--module",
+      "--no-progress",
+      "--no-suppress",
+      "--output",
+      "--pr-comment",
+      "--progress-format",
+      "--recall",
+      "--remediate",
+      "--run-id",
+      "--secrets-history",
+      "--service-alias",
+      "--service-dns-suffix",
+      "--service-port",
+      "--service-protocol",
+      "--strict-analyzers",
+      "--strict-suppressions",
+      "--suppress-file",
+      "--suppress-from-ref",
+      "--time-budget-seconds",
+      "--triage",
+      "--trusted-analyzers-only",
+      "--verify",
+      "--verify-votes",
+      "--via-proxy"
+    ],
+    "multi_repo": true
+  },
+  "progress_protocol": 1,
+  "engine_identity": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b",
+    "size_bytes": 255200,
+    "runtime_kind": "Python",
+    "source_sha256": "b8db55d4b5f4ef42af25d7e4e006fb95a032b6cb57b6d508e2f637a469cf2aad",
+    "modules_sha256": "41326d06728f7aa003cae6c9a9a91c241e075e644b1a7e4d75e82cab87883c35",
+    "analyzer_catalog_sha256": "a977d8bdff3005898665fb1a64ee98d9094208ea15c7d34e53276282fa43fe6c",
+    "analyzer_profiles_sha256": "dafb33314a3fa35b6eb3cc0e5465cc0e1fc4de57f3b47c3a4289aa4c80ba7fd7"
+  },
+  "modules": [
+    {
+      "name": "javascript-web",
+      "display_name": "JavaScript / TypeScript Web Analyzer",
+      "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+      "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "express",
+        "fastify",
+        "koa",
+        "node"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "php-web",
+      "display_name": "PHP Web Analyzer",
+      "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+      "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+      "ecosystems": [
+        "php"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "python-web",
+      "display_name": "Python Web Analyzer",
+      "description": "Built-in analyzer for Python web frameworks and related security signals.",
+      "scope": "Python source files handled by the current scanner-backed web heuristics.",
+      "ecosystems": [
+        "python",
+        "fastapi",
+        "flask"
+      ],
+      "enabled_by_default": true,
+      "priority": 20,
+      "experimental": false
+    },
+    {
+      "name": "config",
+      "display_name": "Config File Analyzer",
+      "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+      "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+      "ecosystems": [
+        "yaml",
+        "toml",
+        "json",
+        "ini",
+        "env"
+      ],
+      "enabled_by_default": true,
+      "priority": 30,
+      "experimental": false
+    },
+    {
+      "name": "python-service",
+      "display_name": "Python Services Ecosystem Analyzer",
+      "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+      "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+      "ecosystems": [
+        "python",
+        "fastapi",
+        "flask",
+        "django",
+        "celery"
+      ],
+      "enabled_by_default": true,
+      "priority": 50,
+      "experimental": true
+    },
+    {
+      "name": "php-laminas",
+      "display_name": "PHP Laminas (Zend MVC) Analyzer",
+      "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+      "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+      "ecosystems": [
+        "php",
+        "laminas",
+        "zend-mvc"
+      ],
+      "enabled_by_default": true,
+      "priority": 60,
+      "experimental": true
+    },
+    {
+      "name": "default",
+      "display_name": "Default Analyzer",
+      "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+      "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+      "ecosystems": [],
+      "enabled_by_default": true,
+      "priority": 100,
+      "experimental": false
+    },
+    {
+      "name": "node-atproto",
+      "display_name": "Node / ATProto Overlay Analyzer",
+      "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+      "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+      "ecosystems": [
+        "javascript",
+        "typescript",
+        "atproto",
+        "xrpc",
+        "node-service"
+      ],
+      "enabled_by_default": true,
+      "priority": 150,
+      "experimental": true
+    },
+    {
+      "name": "omeka-s",
+      "display_name": "Omeka S Analyzer",
+      "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+      "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+      "ecosystems": [
+        "php",
+        "omeka-s"
+      ],
+      "enabled_by_default": true,
+      "priority": 160,
+      "experimental": true
+    }
+  ],
+  "analyzer_catalog": {
+    "schema": 1,
+    "scope": "installed_discovery",
+    "policy": {
+      "registry_precedence": "builtin_first_seen_name",
+      "run_order": [
+        "priority",
+        "name"
+      ],
+      "trusted_only": false
+    },
+    "effective_order": [
+      "javascript-web",
+      "php-web",
+      "python-web",
+      "config",
+      "python-service",
+      "php-laminas",
+      "default",
+      "node-atproto",
+      "omeka-s"
+    ],
+    "candidates": [
+      {
+        "candidate_id": "builtin:python-web",
+        "name": "python-web",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonWebAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+          "source_sha256": "50e28db09f7b8efb08c7f667f7475b2ad531b12d212eb857af9c88e325d2188b",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "python-web",
+          "display_name": "Python Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for Python web frameworks and related security signals.",
+          "scope": "Python source files handled by the current scanner-backed web heuristics.",
+          "targets": [
+            "fastapi",
+            "flask"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:javascript-web",
+        "name": "javascript-web",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinJavaScriptWebAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+          "source_sha256": "50e28db09f7b8efb08c7f667f7475b2ad531b12d212eb857af9c88e325d2188b",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "javascript-web",
+          "display_name": "JavaScript / TypeScript Web Analyzer",
+          "version": "0.2.0",
+          "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+          "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+          "targets": [
+            "express",
+            "fastify",
+            "koa",
+            "node"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:php-web",
+        "name": "php-web",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.ecosystem_php",
+          "qualname": "PhpWebAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\ecosystem_php.py",
+          "source_sha256": "6b70741e058d4132d7d9a611fc2324a31ad64d0a278d2fb2d205fc27fe6a2161",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "php-web",
+          "display_name": "PHP Web Analyzer",
+          "version": "0.1.0",
+          "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+          "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+          "targets": [
+            "php"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 20,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:config",
+        "name": "config",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinConfigAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+          "source_sha256": "50e28db09f7b8efb08c7f667f7475b2ad531b12d212eb857af9c88e325d2188b",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "config",
+          "display_name": "Config File Analyzer",
+          "version": "0.1.0",
+          "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+          "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+          "targets": [
+            "yaml",
+            "toml",
+            "json",
+            "ini",
+            "env"
+          ],
+          "languages": [],
+          "priority": 30,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:php-laminas",
+        "name": "php-laminas",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.ecosystem_php",
+          "qualname": "PhpLaminasAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\ecosystem_php.py",
+          "source_sha256": "6b70741e058d4132d7d9a611fc2324a31ad64d0a278d2fb2d205fc27fe6a2161",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "php-laminas",
+          "display_name": "PHP Laminas (Zend MVC) Analyzer",
+          "version": "0.1.0",
+          "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+          "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+          "targets": [
+            "laminas",
+            "zend-mvc"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 60,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:omeka-s",
+        "name": "omeka-s",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.ecosystem_php",
+          "qualname": "OmekaSAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\ecosystem_php.py",
+          "source_sha256": "6b70741e058d4132d7d9a611fc2324a31ad64d0a278d2fb2d205fc27fe6a2161",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "omeka-s",
+          "display_name": "Omeka S Analyzer",
+          "version": "0.1.0",
+          "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+          "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+          "targets": [
+            "omeka-s"
+          ],
+          "languages": [
+            "php"
+          ],
+          "priority": 160,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:node-atproto",
+        "name": "node-atproto",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinNodeAtprotoAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+          "source_sha256": "50e28db09f7b8efb08c7f667f7475b2ad531b12d212eb857af9c88e325d2188b",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "node-atproto",
+          "display_name": "Node / ATProto Overlay Analyzer",
+          "version": "0.1.0",
+          "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+          "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+          "targets": [
+            "atproto",
+            "xrpc",
+            "node-service"
+          ],
+          "languages": [
+            "javascript",
+            "typescript"
+          ],
+          "priority": 150,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:python-service",
+        "name": "python-service",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonServiceAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+          "source_sha256": "50e28db09f7b8efb08c7f667f7475b2ad531b12d212eb857af9c88e325d2188b",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "python-service",
+          "display_name": "Python Services Ecosystem Analyzer",
+          "version": "0.1.0",
+          "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+          "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+          "targets": [
+            "fastapi",
+            "flask",
+            "django",
+            "celery"
+          ],
+          "languages": [
+            "python"
+          ],
+          "priority": 50,
+          "experimental": true,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      },
+      {
+        "candidate_id": "builtin:default",
+        "name": "default",
+        "origin": "builtin",
+        "status": "effective",
+        "package": {
+          "name": "attackmap",
+          "version": "1.5.1"
+        },
+        "official_package": null,
+        "entry_point": null,
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "DefaultAnalyzer",
+          "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\analyzers.py",
+          "source_sha256": "50e28db09f7b8efb08c7f667f7475b2ad531b12d212eb857af9c88e325d2188b",
+          "source_status": "observed_file"
+        },
+        "metadata": {
+          "name": "default",
+          "display_name": "Default Analyzer",
+          "version": "0.1.0",
+          "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+          "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+          "targets": [],
+          "languages": [],
+          "priority": 100,
+          "experimental": false,
+          "enabled_by_default": true
+        },
+        "provenance": {
+          "declared_pin": null,
+          "installed_source": {
+            "kind": "builtin"
+          },
+          "pin_status": "not_applicable",
+          "content_verified": false,
+          "errors": []
+        },
+        "shadowed_by": null,
+        "error": null
+      }
+    ],
+    "discovery_errors": [],
+    "undiscovered_official_packages": [
+      "attackmap-analyzer-python",
+      "attackmap-analyzer-rust",
+      "attackmap-analyzer-go",
+      "attackmap-analyzer-java-spring",
+      "attackmap-analyzer-dotnet",
+      "attackmap-analyzer-terraform",
+      "attackmap-analyzer-c",
+      "attackmap-analyzer-cpp",
+      "attackmap-analyzer-swift",
+      "attackmap-analyzer-node-service",
+      "attackmap-analyzer-atproto",
+      "attackmap-analyzer-php-web",
+      "attackmap-analyzer-php-laminas",
+      "attackmap-analyzer-omeka-s",
+      "attackmap-analyzer-iac"
+    ]
+  },
+  "analyzer_profiles": {
+    "schema_version": "1.0",
+    "profiles": [
+      {
+        "name": "automatic",
+        "display_name": "Automatic",
+        "version": "1.0",
+        "qualified_name": "automatic@1.0",
+        "description": "Use installed default-enabled analyzers, each subject to runtime detection.",
+        "selection_mode": "automatic",
+        "module_names": [],
+        "experimental_module_names": [],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "javascript-web",
+          "php-web",
+          "python-web",
+          "config",
+          "python-service",
+          "php-laminas",
+          "default",
+          "node-atproto",
+          "omeka-s"
+        ],
+        "installed_experimental_module_names": [
+          "python-service",
+          "php-laminas",
+          "node-atproto",
+          "omeka-s"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "node-atproto",
+        "display_name": "Node / ATProto",
+        "version": "1.0",
+        "qualified_name": "node-atproto@1.0",
+        "description": "JavaScript base, config, fallback, Node service and ATProto layers; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "javascript-web",
+          "node-service",
+          "config",
+          "atproto",
+          "default",
+          "node-atproto"
+        ],
+        "experimental_module_names": [
+          "node-service",
+          "atproto",
+          "node-atproto"
+        ],
+        "available": false,
+        "missing_module_names": [
+          "node-service",
+          "atproto"
+        ],
+        "expanded_module_names": [
+          "javascript-web",
+          "node-service",
+          "config",
+          "atproto",
+          "default",
+          "node-atproto"
+        ],
+        "installed_experimental_module_names": [
+          "node-atproto"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "php-laminas-omeka",
+        "display_name": "PHP / Laminas / Omeka S",
+        "version": "1.0",
+        "qualified_name": "php-laminas-omeka@1.0",
+        "description": "PHP base, config, fallback, Laminas and Omeka S layers; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "php-web",
+          "config",
+          "php-laminas",
+          "default",
+          "omeka-s"
+        ],
+        "experimental_module_names": [
+          "php-laminas",
+          "omeka-s"
+        ],
+        "available": true,
+        "missing_module_names": [],
+        "expanded_module_names": [
+          "php-web",
+          "config",
+          "php-laminas",
+          "default",
+          "omeka-s"
+        ],
+        "installed_experimental_module_names": [
+          "php-laminas",
+          "omeka-s"
+        ],
+        "opt_in_module_names": []
+      },
+      {
+        "name": "python",
+        "display_name": "Python",
+        "version": "1.0",
+        "qualified_name": "python@1.0",
+        "description": "Python plugin, web base, config, fallback and service overlay; includes experimental modules.",
+        "selection_mode": "explicit",
+        "module_names": [
+          "python",
+          "python-web",
+          "config",
+          "python-service",
+          "default"
+        ],
+        "experimental_module_names": [
+          "python-service"
+        ],
+        "available": false,
+        "missing_module_names": [
+          "python"
+        ],
+        "expanded_module_names": [
+          "python",
+          "python-web",
+          "config",
+          "python-service",
+          "default"
+        ],
+        "installed_experimental_module_names": [
+          "python-service"
+        ],
+        "opt_in_module_names": []
+      }
+    ]
+  },
+  "desktop": {
+    "schema_versions": [
+      "1.0",
+      "1.1",
+      "1.2",
+      "1.3",
+      "1.4",
+      "1.5"
+    ],
+    "actions_schema_versions": [
+      "1.1"
+    ],
+    "operations": [
+      "capabilities",
+      "preflight"
+    ],
+    "scan_options": [
+      "baseline",
+      "cve",
+      "fail_on_new_high",
+      "fail_on_new_suppression",
+      "isolated_analyzers",
+      "no_suppress",
+      "provider",
+      "recall",
+      "secrets_history",
+      "strict_analyzers",
+      "strict_suppressions",
+      "suppress_file",
+      "time_budget_seconds",
+      "timeout_seconds"
+    ],
+    "scan_options_by_schema": {
+      "1.0": [
+        "cve",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "timeout_seconds"
+      ],
+      "1.1": [
+        "cve",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "timeout_seconds"
+      ],
+      "1.2": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.3": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.4": [
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ],
+      "1.5": [
+        "analyzer_profile",
+        "baseline",
+        "cve",
+        "fail_on_new_high",
+        "fail_on_new_suppression",
+        "isolated_analyzers",
+        "no_suppress",
+        "provider",
+        "recall",
+        "secrets_history",
+        "strict_analyzers",
+        "strict_suppressions",
+        "suppress_file",
+        "time_budget_seconds",
+        "timeout_seconds"
+      ]
+    },
+    "scan_option_metadata": {
+      "baseline": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "absolute_file_path"
+      },
+      "suppress_file": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "absolute_file_path"
+      },
+      "fail_on_new_high": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "fail_on_new_suppression": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "strict_suppressions": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "isolated_analyzers": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "boolean"
+      },
+      "time_budget_seconds": {
+        "network_impact": "none",
+        "supported": true,
+        "unit": "seconds",
+        "scope": "deterministic_between_stages"
+      }
+    },
+    "provider_options": [
+      "backend",
+      "effort",
+      "enable_ai",
+      "endpoint",
+      "jury_votes",
+      "max_calls",
+      "mode",
+      "model",
+      "output_token_limit",
+      "provider",
+      "speed",
+      "timeout_seconds"
+    ],
+    "provider_options_by_schema": {
+      "1.0": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.1": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.2": [
+        "enable_ai",
+        "endpoint",
+        "max_calls",
+        "model",
+        "output_token_limit",
+        "provider",
+        "timeout_seconds"
+      ],
+      "1.3": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ],
+      "1.4": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ],
+      "1.5": [
+        "backend",
+        "effort",
+        "enable_ai",
+        "endpoint",
+        "jury_votes",
+        "max_calls",
+        "mode",
+        "model",
+        "output_token_limit",
+        "provider",
+        "speed",
+        "timeout_seconds"
+      ]
+    },
+    "modes": [
+      "none",
+      "review",
+      "hunt",
+      "hunt_verify",
+      "remediate",
+      "triage"
+    ],
+    "modes_by_schema": {
+      "1.0": [
+        "none",
+        "review"
+      ],
+      "1.1": [
+        "none",
+        "review"
+      ],
+      "1.2": [
+        "none",
+        "review"
+      ],
+      "1.3": [
+        "none",
+        "review",
+        "hunt",
+        "hunt_verify",
+        "remediate",
+        "triage"
+      ],
+      "1.4": [
+        "none",
+        "review"
+      ],
+      "1.5": [
+        "none",
+        "review",
+        "hunt",
+        "hunt_verify",
+        "remediate",
+        "triage"
+      ]
+    },
+    "provider_tuning": {
+      "minimum_schema": "1.3",
+      "backends": [
+        "api"
+      ],
+      "jury_votes": {
+        "minimum": 1,
+        "maximum": 7,
+        "mode": "hunt_verify",
+        "default": 3
+      },
+      "effort": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "openai_effort_mapping": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "high",
+        "max": "high"
+      },
+      "speed": [
+        "standard",
+        "fast"
+      ],
+      "fast_speed": {
+        "provider": "claude",
+        "backend": "api",
+        "models": [
+          "claude-opus-4-7",
+          "claude-opus-4-8"
+        ]
+      }
+    },
+    "providers": [
+      "openai",
+      "claude"
+    ],
+    "provider_backend": "api",
+    "multi_repo": false,
+    "fleet_by_schema": {
+      "1.4": {
+        "kind": "fleet_request",
+        "multi_repo": true,
+        "minimum_repositories": 2,
+        "maximum_repositories": 16,
+        "maximum_workers": 4,
+        "modes": [
+          "none"
+        ],
+        "request_fields": [
+          "repositories",
+          "max_workers"
+        ],
+        "events": [
+          "fleet_child",
+          "fleet_terminal"
+        ],
+        "unsupported": [
+          "AI",
+          "baseline",
+          "baseline_policies",
+          "suppress_file",
+          "secrets_history"
+        ]
+      }
+    },
+    "limitations": [
+      "Installed analyzers are not a repository applicability result.",
+      "No provider connectivity or model response is tested by discovery.",
+      "Fleet AI is unsupported. Strict output caps prevent CLI backend execution.",
+      "Discovery proves option mapping, not provider/model availability or completed responses.",
+      "Identity supports cache invalidation, not publisher authentication."
+    ]
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "scope": "Frozen python@1.0 merged static extraction, no AI or fixture runtime execution",
+  "cyclic_fixture_scope": "Unsupported cyclic configuration derived from retained unit specimen; termination/local-prefix test, no valid app runtime claim",
+  "cycle_unit_source": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_python_route_prefixes.py",
+    "sha256": "4eafc26f2503bc1b917b028160183d015d4c2047ba70a53e8139cd6821b135ce"
+  },
+  "cases": {
+    "fastapi-bound-siblings": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\fastapi-siblings",
+      "sha256": {
+        "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b",
+        "main.py": "d592c285ca6e375f557aadfeed401a49c5be6bb729eabb7da07203838b2dfc43",
+        "routers.py": "0871768ceca4f534c64f117c31e9761b974d476c2e51095a5d05b182d8e53288"
+      },
+      "expected_paths_auth": {
+        "/private/item": "required",
+        "/public/item": "unknown"
+      },
+      "expected_mount_hints": [
+        "fastapi_router_mount:/api/private"
+      ]
+    },
+    "flask-bound-siblings": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\flask-siblings",
+      "sha256": {
+        "main.py": "156c2d9678fcdccc6a92f5ac3ac6d8809f5f9d213d82b5c287c56a9e3ac0a50c",
+        "views.py": "f8f3a88f6864ba4922c21bd26ccfc596cde7cf3443919a7effb48ce34a923e73"
+      },
+      "expected_paths_auth": {
+        "/v1/item": "required",
+        "/public/item": "unknown"
+      },
+      "expected_mount_hints": [
+        "flask_blueprint_mount:/api"
+      ]
+    },
+    "alias-mount-control": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-sol-ultra-20261023-python\\upstream-qualification\\routing-fixtures\\fastapi-import-alias",
+      "sha256": {
+        "main.py": "fcc5e78e498753f56d8ce299c6146798c86dff4c228451e488af42aab1bc28d4",
+        "pyproject.toml": "519dc8a5aee7a457a63e3dad9b6f0d9fb114fef084a3dd1510498ed0a088b156",
+        "routes.py": "45de58c67b4f893733d23762bac9e53355ae930424cc3afac36a79c075624bb1"
+      },
+      "expected_paths_auth": {
+        "/v1/users": "unknown"
+      },
+      "expected_mount_hints": [
+        "fastapi_router_mount:/api/v1"
+      ]
+    },
+    "shadowed-known-decorator": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-profile-fixtures\\shadowed-known-route-decorator",
+      "sha256": {
+        "views.py": "66c3cef132bd9bba8e39c59e15b9e658f1b22422ff344aa620b2406775f49bdc"
+      },
+      "expected_paths_auth": {
+        "/public": "unknown"
+      },
+      "expected_mount_hints": []
+    },
+    "foreign-custom-decorator": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-profile-fixtures\\foreign-custom-decorator-collision",
+      "sha256": {
+        "local_wrappers.py": "ae7f56418f02b57b13809bcbbbed40cf08f5811f0cfc39b9639afbb431bea099",
+        "unrelated.py": "f6ca6fd51ea5c003600eb9b66d10a2eb351ad1c40bbc61c92d0252776d083e43",
+        "views.py": "f3e4706a785653c4600d44d96e09eb9d2c7486e66254037ed07a465c87f72f08"
+      },
+      "expected_paths_auth": {
+        "/public": "unknown"
+      },
+      "expected_mount_hints": []
+    },
+    "constant-credential": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\mount-independent\\constant-credential",
+      "sha256": {
+        "main.py": "bb6213934ebd9a4eefc433e4765f09e89b641ebcc4ab342b51a1b1b535b3404a"
+      },
+      "expected_paths_auth": {
+        "/public": "unknown"
+      },
+      "expected_mount_hints": []
+    },
+    "mixed-repeated-mount": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\fastapi-mixed-mounts",
+      "sha256": {
+        "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b",
+        "main.py": "1da620be930878a8bd95442ea4717251112a23edc278041d455ca886a110f72e",
+        "routers.py": "2c7c4005d8afb23e8dff77f8cf424b74a4e798a00d9ea2df38a8de42d0802241"
+      },
+      "expected_paths_auth": {
+        "/items/item": "unknown"
+      },
+      "expected_mount_hints": [
+        "fastapi_router_mount:/private/items",
+        "fastapi_router_mount:/public/items"
+      ]
+    },
+    "cyclic-prefix": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-frozen-fixtures\\cyclic-prefix",
+      "sha256": {
+        "main.py": "761bf6528cf92582065d1c7b79752285db3276d0627f9fe1b193103556b9442d"
+      },
+      "expected_paths_auth": {
+        "/a/item": "unknown",
+        "/b/item": "unknown",
+        "/c/item": "unknown"
+      },
+      "expected_mount_hints": []
+    }
+  }
+}

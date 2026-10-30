@@ -47,7 +47,8 @@ public static class ReportSectionAdapter
             Rows(scan,"analyzers",Evidence), Rows(scan,"analyzer_errors",Evidence),
             Rows(root,"suppressed_findings",(r,i) => new SuppressedRow(Evidence(r,i),Text(r,"title"),Text(r,"reason"),Clone(r,"suppressed_by"),Text(r,"expiry"))),
             new ReportSection<EvidenceRow>(SectionAvailability.Missing,null,Array.Empty<EvidenceRow>(),"Fleet summary is a separate core index; use ReadFleet. No fleet result inferred from a single-repo report."), Clone(scan,"resource_limit_events"), Clone(scan,"resource_limit_scopes"), Clone(scan,"resource_limit_reporting"), Clone(scan,"limitations"),
-            "Supplied static records only. Missing fields remain unknown. Generation identity is caller-supplied and is not proof of manifest integrity.");
+            "Supplied static records only. Missing fields remain unknown. Generation identity is caller-supplied and is not proof of manifest integrity.")
+            { AnalyzerRunLedger = Clone(scan, "analyzer_run_ledger") };
     }
     private static ReportSection<T> Rows<T>(JsonElement parent,string key,Func<JsonElement,int,T> project)
     {

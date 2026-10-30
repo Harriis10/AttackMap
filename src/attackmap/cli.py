@@ -67,6 +67,45 @@ def _select_modules(module: list[str], install_missing: bool) -> list:
         raise typer.BadParameter(str(exc)) from exc
 
 
+def _select_analyzer_profile(profile_name: str, module: list[str] | None, install_missing: bool) -> list | None:
+    """Expand an offline profile without entering the interactive install path."""
+    from .analyzer_profiles import get_analyzer_profiles, resolve_analyzer_profile
+    from .analyzers import get_registered_analyzers, get_analyzer_metadata
+
+    if install_missing:
+        raise typer.BadParameter("--install-missing cannot be combined with --analyzer-profile.")
+    if module:
+        raise typer.BadParameter("--module cannot be combined with --analyzer-profile.")
+    definition = next((item for item in get_analyzer_profiles()
+                       if profile_name in (item.name, item.qualified_name)), None)
+    if definition is None or definition.selection_mode == "automatic":
+        try:
+            resolve_analyzer_profile(profile_name, [])
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc)) from exc
+        return None
+    registered = get_registered_analyzers()
+    try:
+        metadata = [get_analyzer_metadata(a) for a in registered]
+        if any(a.name != meta.name for a, meta in zip(registered, metadata)):
+            raise ValueError("Analyzer runtime names do not match their declared metadata; profile unavailable.")
+        selection = resolve_analyzer_profile(profile_name, metadata)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    if selection.module_names is None:
+        return None
+    by_name = {analyzer.name: analyzer for analyzer in registered}
+    typer.echo(
+        f"Analyzer profile {selection.qualified_name}: {', '.join(selection.module_names)}. "
+        "Repository detection still applies.", err=True,
+    )
+    if selection.experimental_module_names:
+        typer.echo(f"Experimental modules selected: {', '.join(selection.experimental_module_names)}.", err=True)
+    if selection.opt_in_module_names:
+        typer.echo(f"Opt-in modules selected: {', '.join(selection.opt_in_module_names)}.", err=True)
+    return [by_name[name] for name in selection.module_names]
+
+
 
 def _select_modules_for_output(module: list[str], install_missing: bool, output: Path,
                                run_id: str | None, *, diagnostics: bool = True) -> list:
@@ -257,14 +296,15 @@ def _run_fleet(
     strict_analyzers: bool = False,
     max_workers: int = 1,
     startup_diagnostics: bool = True,
+    resolved_analyzers: list | None = None,
     deployment_aliases=None,
     **single_repo_kwargs: Any,
 ) -> None:
     """Multi-repo fleet scan adapter around the shared ``execute_scan_request``."""
     _validate_fleet_options(fleet_incompatible)
 
-    selected_analyzers = None
-    if module:
+    selected_analyzers = resolved_analyzers
+    if selected_analyzers is None and module:
         selected_analyzers = _select_modules_for_output(
             module, install_missing, Path(output), single_repo_kwargs.get("run_id"),
             diagnostics=startup_diagnostics)
@@ -316,6 +356,11 @@ def analyze(
         "--module",
         "-m",
         help="Analyzer module(s) to run. Repeat to select multiple. A missing official analyzer is installed (at its pinned commit) only with --install-missing or after an interactive confirmation.",
+    ),
+    analyzer_profile: str | None = typer.Option(
+        None, "--analyzer-profile",
+        help="Versioned analyzer selection: automatic, node-atproto, php-laminas-omeka, or python. "
+        "Preserves base layers; missing modules fail without installation. Cannot be combined with --module or --install-missing.",
     ),
     install_missing: bool = typer.Option(
         False,
@@ -577,6 +622,7 @@ def analyze(
         "--triage": triage,
         "--secrets-history": secrets_history > 0,
     }
+    profile_analyzers = None
     try:
         repo_paths = [Path(p).resolve() for p in (paths or ["."])]
         for rp in repo_paths:
@@ -625,6 +671,8 @@ def analyze(
             )
         if len(repo_paths) > 1:
             _validate_fleet_options(fleet_incompatible)
+        if analyzer_profile is not None:
+            profile_analyzers = _select_analyzer_profile(analyzer_profile, module, install_missing)
     except typer.BadParameter:
         validation_duration = round((time.perf_counter() - validation_started) * 1000)
         if not direct_generation_output:
@@ -647,6 +695,8 @@ def analyze(
             repo_paths,
             output=output,
             module=module,
+            resolved_analyzers=profile_analyzers,
+            analyzer_profile_id=analyzer_profile,
             recall=recall,
             cve=cve,
             no_suppress=no_suppress,
@@ -671,8 +721,8 @@ def analyze(
         )
         return
 
-    selected_analyzers = None
-    if module:
+    selected_analyzers = profile_analyzers
+    if selected_analyzers is None and module:
         selected_analyzers = _select_modules_for_output(
             module, install_missing, Path(output), run_id, diagnostics=not direct_generation_output)
     request = ScanRequest(
@@ -680,6 +730,7 @@ def analyze(
         output=Path(output),
         output_format=format,
         analyzers=selected_analyzers,
+        analyzer_profile_id=analyzer_profile,
         recall=recall,
         cve=cve,
         no_suppress=no_suppress,
@@ -753,7 +804,25 @@ def modules(
         "Network-free — the remote module-repository section is omitted. "
         "Intended for tool / GUI front-ends that offer analyzer selection.",
     ),
+    catalog_json: bool = typer.Option(
+        False, "--catalog-json",
+        help="Emit an offline engine-bound catalog including effective and shadowed implementations, load errors and selection profiles.",
+    ),
+    profiles_json: bool = typer.Option(
+        False, "--profiles-json",
+        help="Emit offline versioned profiles with missing, experimental and opt-in modules from this engine's inventory.",
+    ),
 ) -> None:
+    if sum((json_output, catalog_json, profiles_json)) > 1:
+        raise typer.BadParameter("Choose only one of --json, --catalog-json or --profiles-json.")
+    if catalog_json or profiles_json:
+        from .desktop_capabilities import build_analyzer_catalog_payload
+        payload = build_analyzer_catalog_payload()
+        if profiles_json:
+            payload = {"schema": 1, "engine_identity": payload["engine_identity"],
+                       "analyzer_profiles": payload["analyzer_profiles"]}
+        typer.echo(json.dumps(payload, indent=2))
+        return
     available_modules = get_available_modules()
     if json_output:
         from .desktop_capabilities import module_inventory

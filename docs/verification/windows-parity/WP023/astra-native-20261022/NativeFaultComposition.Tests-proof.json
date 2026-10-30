@@ -1,0 +1,146 @@
+{
+  "scope": "Actual process fault composition; plain report import callback equivalent validation, no MainWindow/UI automation claim",
+  "output": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-native-20261022\\temp\\attackmap-native-fault-2ae2b933b1eb43feb48528d44fa223bb",
+  "sources": {
+    "EngineSession.cs": "6324C07533B878655E88144502EB0AD18833C8ECF2B149873CC9DDDA92B966C3",
+    "DesktopActionRunner.cs": "7A12A394D813B63A586EE8F9E99867AD90E70EEB561667843AA5F22DE0A2DB21",
+    "ReportAdapter.cs": "A6BC546D512742B4072AEB7E1821D454FF24819F4ECF5A45042CE21315F6E77D",
+    "ExportSelection.cs": "E567E9456D26A3FEBC474111AA415C6D2BE7330725A00D1159B86B8C2DDAD479"
+  },
+  "results": [
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "malformed_message",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": true
+    },
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "oversized_message",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": true
+    },
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "exit_no_terminal",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": false
+    },
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "missing_artifact",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": false
+    },
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "malformed_artifact",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": false
+    },
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "missing_manifest",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": false
+    },
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "malformed_manifest",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": false
+    },
+    {
+      "runner": "EngineSession\u002BReportAdapter\u002BExportSelection",
+      "mode": "completed_exit7",
+      "passed": true,
+      "rejected": true,
+      "acceptedAsSuccess": false,
+      "displayed": "previous-valid-report",
+      "admissionReleased": true,
+      "eofObserved": false
+    },
+    {
+      "runner": "DesktopActionRunner",
+      "mode": "malformed_message",
+      "passed": true,
+      "rejected": true,
+      "delivered": false,
+      "admissionReleased": true
+    },
+    {
+      "runner": "DesktopActionRunner",
+      "mode": "oversized_message",
+      "passed": true,
+      "rejected": true,
+      "delivered": false,
+      "admissionReleased": true
+    },
+    {
+      "runner": "DesktopActionRunner",
+      "mode": "exit_no_terminal",
+      "passed": true,
+      "rejected": true,
+      "delivered": false,
+      "admissionReleased": true
+    },
+    {
+      "runner": "DesktopActionRunner",
+      "mode": "missing_artifact",
+      "passed": true,
+      "rejected": true,
+      "delivered": false,
+      "admissionReleased": true
+    },
+    {
+      "runner": "DesktopActionRunner",
+      "mode": "malformed_artifact",
+      "passed": true,
+      "rejected": true,
+      "delivered": false,
+      "admissionReleased": true
+    },
+    {
+      "runner": "DesktopActionRunner",
+      "mode": "completed_exit7",
+      "passed": true,
+      "rejected": true,
+      "delivered": false,
+      "admissionReleased": true
+    }
+  ],
+  "gaps": [],
+  "limitations": [
+    "Previous-report retention is test host state; native UI fault task completion remains unproven",
+    "Cleanup timeout/admission latch already tested separately, not repeated here",
+    "No broker descendants or network"
+  ]
+}

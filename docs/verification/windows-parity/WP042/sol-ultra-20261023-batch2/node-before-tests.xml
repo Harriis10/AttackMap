@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="17" skipped="0" tests="19" time="2.074" timestamp="2026-10-23T11:58:41.314404+02:00" hostname="corpsec"><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_declared_transport_is_specific_but_does_not_imply_auth[subscription-WS]" time="0.026"><failure message="AssertionError: assert ('/xrpc/com.e...'unknown', []) == ('/xrpc/com.e...'unknown', [])&#10;  &#10;  At index 1 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_declared_transport_is_spe0')
+kind = 'subscription', method = 'WS'
+
+    @pytest.mark.parametrize("kind,method", [("subscription", "WS"), ("query", "GET"), ("procedure", "POST")])
+    def test_declared_transport_is_specific_but_does_not_imply_auth(tmp_path, kind, method):
+        route = _one(_repo(tmp_path, kind=kind))
+&gt;       assert (route.path, route.method, route.auth, route.guards) == (PATH, method, "unknown", [])
+E       AssertionError: assert ('/xrpc/com.e...'unknown', []) == ('/xrpc/com.e...'unknown', [])
+E         
+E         At index 1 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:42: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_declared_transport_is_specific_but_does_not_imply_auth[query-GET]" time="0.026" /><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_declared_transport_is_specific_but_does_not_imply_auth[procedure-POST]" time="0.018" /><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[streamMethod-subscription-WS-null]" time="0.019"><failure message="AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)&#10;  &#10;  At index 0 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_0')
+value = 'null', registrar = 'streamMethod', kind = 'subscription', method = 'WS'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)
+E         
+E         At index 0 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[streamMethod-subscription-WS-undefined]" time="0.022"><failure message="AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)&#10;  &#10;  At index 0 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_1')
+value = 'undefined', registrar = 'streamMethod', kind = 'subscription'
+method = 'WS'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)
+E         
+E         At index 0 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[streamMethod-subscription-WS-false]" time="0.021"><failure message="AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)&#10;  &#10;  At index 0 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_2')
+value = 'false', registrar = 'streamMethod', kind = 'subscription'
+method = 'WS'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)
+E         
+E         At index 0 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[streamMethod-subscription-WS-nullCreds]" time="0.022"><failure message="AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)&#10;  &#10;  At index 0 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_3')
+value = 'nullCreds', registrar = 'streamMethod', kind = 'subscription'
+method = 'WS'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)
+E         
+E         At index 0 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[streamMethod-subscription-WS-authVerifierOptional]" time="0.018"><failure message="AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)&#10;  &#10;  At index 0 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_4')
+value = 'authVerifierOptional', registrar = 'streamMethod'
+kind = 'subscription', method = 'WS'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)
+E         
+E         At index 0 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[streamMethod-subscription-WS-ctx.authVerifier.readOptional]" time="0.018"><failure message="AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)&#10;  &#10;  At index 0 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_5')
+value = 'ctx.authVerifier.readOptional', registrar = 'streamMethod'
+kind = 'subscription', method = 'WS'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)
+E         
+E         At index 0 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[streamMethod-subscription-WS-ctx.authVerifier.unauthenticated]" time="0.020"><failure message="AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)&#10;  &#10;  At index 0 diff: 'GET' != 'WS'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_6')
+value = 'ctx.authVerifier.unauthenticated', registrar = 'streamMethod'
+kind = 'subscription', method = 'WS'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'unknown', [], None) == ('WS', 'unknown', [], None)
+E         
+E         At index 0 diff: 'GET' != 'WS'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[method-query-GET-null]" time="0.016"><failure message="AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)&#10;  &#10;  At index 1 diff: 'required' != 'unknown'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_7')
+value = 'null', registrar = 'method', kind = 'query', method = 'GET'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)
+E         
+E         At index 1 diff: 'required' != 'unknown'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[method-query-GET-undefined]" time="0.031"><failure message="AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)&#10;  &#10;  At index 1 diff: 'required' != 'unknown'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_8')
+value = 'undefined', registrar = 'method', kind = 'query', method = 'GET'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)
+E         
+E         At index 1 diff: 'required' != 'unknown'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[method-query-GET-false]" time="0.032"><failure message="AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)&#10;  &#10;  At index 1 diff: 'required' != 'unknown'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_9')
+value = 'false', registrar = 'method', kind = 'query', method = 'GET'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)
+E         
+E         At index 1 diff: 'required' != 'unknown'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[method-query-GET-nullCreds]" time="0.034"><failure message="AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)&#10;  &#10;  At index 1 diff: 'required' != 'unknown'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_10')
+value = 'nullCreds', registrar = 'method', kind = 'query', method = 'GET'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)
+E         
+E         At index 1 diff: 'required' != 'unknown'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[method-query-GET-authVerifierOptional]" time="0.039"><failure message="AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)&#10;  &#10;  At index 1 diff: 'required' != 'unknown'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_11')
+value = 'authVerifierOptional', registrar = 'method', kind = 'query'
+method = 'GET'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)
+E         
+E         At index 1 diff: 'required' != 'unknown'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[method-query-GET-ctx.authVerifier.readOptional]" time="0.020"><failure message="AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)&#10;  &#10;  At index 1 diff: 'required' != 'unknown'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_12')
+value = 'ctx.authVerifier.readOptional', registrar = 'method', kind = 'query'
+method = 'GET'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)
+E         
+E         At index 1 diff: 'required' != 'unknown'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_optional_empty_verifiers_do_not_become_required_or_anonymous[method-query-GET-ctx.authVerifier.unauthenticated]" time="0.035"><failure message="AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)&#10;  &#10;  At index 1 diff: 'required' != 'unknown'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_optional_empty_verifiers_13')
+value = 'ctx.authVerifier.unauthenticated', registrar = 'method', kind = 'query'
+method = 'GET'
+
+    @pytest.mark.parametrize("value", ["null", "undefined", "false", "nullCreds", "authVerifierOptional", "ctx.authVerifier.readOptional", "ctx.authVerifier.unauthenticated"])
+    @pytest.mark.parametrize("registrar,kind,method", [("streamMethod", "subscription", "WS"), ("method", "query", "GET")])
+    def test_optional_empty_verifiers_do_not_become_required_or_anonymous(tmp_path, value, registrar, kind, method):
+        result = _repo(tmp_path, _call("{ auth: " + value + ", handler: async () =&gt; ({}) }", kind=registrar), kind=kind)
+        route = _one(result)
+&gt;       assert (route.method, route.auth, route.guards, route.guard_evidence) == (method, "unknown", [], None)
+E       AssertionError: assert ('GET', 'requ...andler.ts:3)') == ('GET', 'unknown', [], None)
+E         
+E         At index 1 diff: 'required' != 'unknown'
+E         Use -v to get more diff
+
+tests\test_ecosystem_node_atproto_routes.py:60: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_unbound_middleware_mount_remains_an_observation[False]" time="0.037"><failure message="AssertionError: assert 'required' == 'unknown'&#10;  &#10;  - unknown&#10;  + required">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_unbound_middleware_mount_0')
+cross_file = False
+
+    @pytest.mark.parametrize("cross_file", [False, True])
+    def test_unbound_middleware_mount_remains_an_observation(tmp_path, cross_file):
+        mount = "const unrelatedApp = express();\nunrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);\n"
+        source = _call("{ handler: async () =&gt; ({}) }", kind="method")
+        result = _repo(tmp_path, source if cross_file else mount + source, kind="query", extra=mount if cross_file else "")
+&gt;       assert _one(result).auth == "unknown"
+E       AssertionError: assert 'required' == 'unknown'
+E         
+E         - unknown
+E         + required
+
+tests\test_ecosystem_node_atproto_routes.py:98: AssertionError</failure></testcase><testcase classname="tests.test_ecosystem_node_atproto_routes" name="test_unbound_middleware_mount_remains_an_observation[True]" time="0.032"><failure message="AssertionError: assert 'required' == 'unknown'&#10;  &#10;  - unknown&#10;  + required">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-node-20261023-batch2/before-tests-canonical/test_unbound_middleware_mount_1')
+cross_file = True
+
+    @pytest.mark.parametrize("cross_file", [False, True])
+    def test_unbound_middleware_mount_remains_an_observation(tmp_path, cross_file):
+        mount = "const unrelatedApp = express();\nunrelatedApp.use('/xrpc/com.example.events.stream', unrelatedAuth);\n"
+        source = _call("{ handler: async () =&gt; ({}) }", kind="method")
+        result = _repo(tmp_path, source if cross_file else mount + source, kind="query", extra=mount if cross_file else "")
+&gt;       assert _one(result).auth == "unknown"
+E       AssertionError: assert 'required' == 'unknown'
+E         
+E         - unknown
+E         + required
+
+tests\test_ecosystem_node_atproto_routes.py:98: AssertionError</failure></testcase></testsuite></testsuites>

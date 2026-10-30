@@ -54,6 +54,10 @@ public sealed partial class MainWindow
         RiskPaths.SourceRequested += async source => await InspectParitySource(source.File, source.Line);
         EvidenceInventory.SourceRequested += async source => await InspectParitySource(source.File, source.Line);
         Diagrams.ExportTextRequested += async text => await ExportDiagramText(text);
+        Diagrams.GraphLoader = LoadReportGraph;
+        Diagrams.GraphExportRequested += async request => await ExportReportGraph(request);
+        Diagrams.GraphSourceRequested += async request => await InspectReportGraphSource(request);
+        Diagrams.FleetRequested += () => Navigation.SelectedItem = Navigation.MenuItems.OfType<NavigationViewItem>().Single(item => item.Content?.ToString() == "Fleet");
         ApplyOptionCapabilities(null);
         Closed += (_, _) => { Diagrams.Stop(); AiArtifacts.Stop(); };
     }
@@ -72,7 +76,7 @@ public sealed partial class MainWindow
         string selected = EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory);
         capabilityCache.SelectEngine(selected);
         if (capabilityCache.Current != null) return;
-        var result = await DesktopActionRunner.Run(selected, "capabilities", new { }, cancellationToken: cancellationToken.CanBeCanceled ? cancellationToken : actionLifetime.Token);
+        var result = await DesktopActionRunner.Run(selected, "capabilities", new { }, outputBase: providerFaultQa?.ActionDirectory ?? providerRenderActionDirectory, cancellationToken: cancellationToken.CanBeCanceled ? cancellationToken : actionLifetime.Token);
         if (actionLifetime.IsCancellationRequested || EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory) != selected) throw new InvalidDataException("Engine selection changed during discovery. Retry explicitly.");
         var capabilities = EngineCapabilities.Parse(result.GetRawText());
         capabilityCache.Store(selected, capabilities);
@@ -121,6 +125,8 @@ public sealed partial class MainWindow
     private void BindParityReport(ReportSections sections, ParityOverview overview, ExportSelection selected)
     {
         paritySections = sections;
+        analyzerSelection.SetRunLedger(sections.AnalyzerRunLedger, sections.Repository + " · " + (sections.GenerationId ?? "legacy import"));
+        analyzerView?.Refresh();
         suppressionWorkspace = new SuppressionWorkspaceModel(sections) { NoSuppress = NoSuppressOption.IsChecked == true };
         SuppressionWorkspace.SetModel(suppressionWorkspace);
         RiskPaths.SetReport(sections); EvidenceInventory.SetReport(sections); EvidenceOverview.SetOverview(overview);

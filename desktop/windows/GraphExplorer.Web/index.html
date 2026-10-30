@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>AttackMap · Fleet architecture</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/cytoscape-3.34.4.min.js"></script>
+  <script defer src="vendor/layout-base-2.0.1.js"></script>
+  <script defer src="vendor/cose-base-2.2.0.js"></script>
+  <script defer src="vendor/cytoscape-fcose-2.2.0.js"></script>
+  <script defer src="projection.js"></script>
+  <script defer src="synthetic-fixture.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <div><p class="eyebrow">ATTACKMAP / ARCHITECTURE</p><h1>Fleet explorer <span id="mode" class="badge">No graph loaded</span></h1></div>
+    <div class="header-actions"><button id="theme" type="button">Dark theme</button><label class="button" for="file">Open graph JSON</label><input id="file" class="file-input" type="file" accept=".json,application/json"><button id="demo" type="button">Synthetic example</button></div>
+  </header>
+  <nav aria-label="Graph controls" class="toolbar">
+    <label class="search">Search <input id="search" type="search" placeholder="Repository, service, or ID" autocomplete="off"></label>
+    <label>Relation <select id="kind"><option value="">All kinds</option></select></label>
+    <label>Resolution <select id="resolution"><option value="">All resolutions</option></select></label>
+    <label class="checkbox"><input id="cross" type="checkbox"> Between repositories</label>
+    <label>Neighborhood <select id="neighborhood"><option value="all">All</option><option value="upstream">Upstream of selection</option><option value="downstream">Downstream of selection</option></select></label>
+  </nav>
+  <main>
+    <section class="workspace" aria-label="Fleet architecture diagram">
+      <div class="canvas-toolbar"><div><button id="collapse" type="button">Collapse repos</button><button id="expand" type="button">Expand repos</button><button id="fit" type="button">Fit</button><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button></div><div><label>Layout <select id="layout"><option value="preset">Grouped preset</option><option value="fcose">Compound fCoSE</option></select></label><button id="arrange" type="button">Arrange</button><button id="png" type="button">Export overview PNG</button><button id="json" type="button">Export full JSON</button></div></div>
+      <div id="graph" role="img" aria-label="Interactive architecture diagram. Use the synchronized text view for keyboard navigation."></div>
+      <div id="empty" class="empty"><strong>Explore the whole fleet.</strong><span id="empty-help">Open a schema 1.0 fleet graph, or load the labelled synthetic example.</span><span>Evidence and relationships come from the captured graph.</span></div>
+      <div class="legend" aria-label="Graph legend"><span><i class="legend-repo"></i>Repository group</span><span><i class="legend-service"></i>Service / component</span><span><i class="legend-proxy"></i>Proxy step</span><span>Solid: observed / resolved</span><span>Dashed: candidate / unknown</span></div>
+    </section>
+    <aside id="inspector" aria-label="Graph selection and text alternative">
+      <h2>Selection</h2><p id="selection-summary" class="muted">Select a group, component, or relationship.</p>
+      <div id="selection-detail"></div><div class="selection-actions"><button id="toggle" type="button" disabled>Expand / collapse</button><button id="evidence" type="button" disabled>Inspect evidence</button><button id="back" type="button" disabled>Back</button></div>
+      <p class="notice">Repository overview paths are summaries. They do not prove a continuous flow between services.</p>
+      <details open><summary>Keyboard text view <span id="list-count"></span></summary><p class="muted small">Same canonical IDs as the diagram. Tab to a row and press Enter to select. All original relationships remain in JSON.</p><div id="text-list" role="list" aria-label="Graph nodes and relationships"></div><button id="more" type="button" hidden>Show more rows</button></details>
+    </aside>
+  </main>
+  <footer><p id="status" role="status" aria-live="polite">Waiting for graph data.</p><details id="coverage-details"><summary>Coverage and limits</summary><pre id="coverage">No graph loaded.</pre></details></footer>
+</body>
+</html>

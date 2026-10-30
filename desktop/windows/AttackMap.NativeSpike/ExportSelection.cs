@@ -20,6 +20,14 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
         if (identity == null) return new(path,readHash,null,null,null,null,null);
         return CaptureManifest(path, readHash, identity.Repository, identity.RunId);
     }
+    internal static ExportSelection Capture(string path, byte[] capturedReport, RunIdentity? identity)
+    {
+        path = Path.GetFullPath(path);
+        if (capturedReport.Length > 64 * 1024 * 1024) throw new InvalidDataException("Report exceeds the 64 MiB preview limit.");
+        string readHash = Hash(capturedReport);
+        if (identity == null) return new(path,readHash,null,null,null,null,null);
+        return CaptureManifest(path, readHash, identity.Repository, identity.RunId, capturedReport: capturedReport);
+    }
     public static ExportSelection CaptureSavedGeneration(string path, string readHash, string repository)
     {
         path = Path.GetFullPath(path);
@@ -28,7 +36,17 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
         catch (FileNotFoundException) { return new(path,readHash,null,null,null,null,null); }
         return CaptureManifest(path, readHash, repository, null, manifest);
     }
-    private static ExportSelection CaptureManifest(string path, string readHash, string repository, string? expectedRun, byte[]? capturedManifest = null)
+    internal static ExportSelection CaptureSavedGeneration(string path, byte[] capturedReport, string repository)
+    {
+        path = Path.GetFullPath(path);
+        if (capturedReport.Length > 64 * 1024 * 1024) throw new InvalidDataException("Report exceeds the 64 MiB preview limit.");
+        string readHash = Hash(capturedReport);
+        byte[] manifest;
+        try { manifest = ReadBounded(Path.Combine(Path.GetDirectoryName(path)!, "artifact-manifest.json"),1024 * 1024); }
+        catch (FileNotFoundException) { return new(path,readHash,null,null,null,null,null); }
+        return CaptureManifest(path, readHash, repository, null, manifest, capturedReport);
+    }
+    private static ExportSelection CaptureManifest(string path, string readHash, string repository, string? expectedRun, byte[]? capturedManifest = null, byte[]? capturedReport = null)
     {
         string directory = Path.GetDirectoryName(path)!;
         string manifestPath = Path.Combine(directory,"artifact-manifest.json");
@@ -41,7 +59,7 @@ public sealed record ExportSelection(string ReportPath, string ReportHash, strin
         if (string.IsNullOrWhiteSpace(run) || run.Length > 256 || run.Any(char.IsControl) || string.IsNullOrWhiteSpace(repository) ||
             (expectedRun != null && run != expectedRun) || root.GetProperty("run_identity").GetProperty("repo_root").GetString() != repository)
             throw new InvalidDataException("Displayed report identity does not match its manifest.");
-        if (Hash(ReadBounded(path,64 * 1024 * 1024)) != readHash)
+        if (capturedReport == null && Hash(ReadBounded(path,64 * 1024 * 1024)) != readHash)
             throw new InvalidDataException("Displayed report changed while opening its saved generation.");
         var entries = root.GetProperty("compatibility_exports").EnumerateArray().ToList();
         var jsonEntries = entries.Where(entry => entry.GetProperty("path").GetString() == Path.GetFileName(path)).ToArray();

@@ -115,6 +115,20 @@ try
     bool invalidSettings = false;
     try { store.Save(saved with { Options = new NativeScanOptions(TimeoutSeconds: 0) }); } catch (InvalidDataException) { invalidSettings = true; }
     Check(invalidSettings && await File.ReadAllTextAsync(path) == beforeInvalid, "invalid options preserve existing settings");
+    var profileOptions = new NativeScanOptions(AnalyzerProfile: "php-laminas-omeka@1.0");
+    store.Save(saved with { Options = profileOptions, Modules = "php-web,config,php-laminas,default,omeka-s" });
+    var profileSaved = store.Load();
+    Check(profileSaved.EffectiveOptions.AnalyzerProfile == profileOptions.AnalyzerProfile && profileSaved.Modules.Contains("php-web"), "named profile and base expansion survive settings roundtrip");
+    using (var profileWire = System.Text.Json.JsonDocument.Parse(NativeScanRequest.Serialize("run", absoluteRepo, absolutePython, 1, profileOptions, "")))
+        Check(profileWire.RootElement.GetProperty("schema_version").GetString() == "1.5" && profileWire.RootElement.GetProperty("modules").GetArrayLength() == 0 && profileWire.RootElement.GetProperty("options").GetProperty("analyzer_profile").GetString() == profileOptions.AnalyzerProfile, "named profile uses schema 1.5 without overriding modules");
+    bool mixedProfile = false;
+    try { NativeScanRequest.Serialize("run", absoluteRepo, absolutePython, 1, profileOptions, "config"); } catch (InvalidDataException) { mixedProfile = true; }
+    Check(mixedProfile, "profile plus explicit modules rejected before launch");
+    bool invalidProfile = false;
+    try { (profileOptions with { AnalyzerProfile = "python@1.0\n" }).Validate(); } catch (InvalidDataException) { invalidProfile = true; }
+    Check(invalidProfile, "profile identity cannot contain trailing control characters");
+    store.Save(saved with { Options = new NativeScanOptions(), Modules = "config" });
+    Check(store.Load().EffectiveOptions.AnalyzerProfile == null && store.Load().Modules == "config", "clearing named profile cannot revive through settings merge");
     var golden = await ReportAdapter.Load(Path.Combine(AppContext.BaseDirectory,"fixtures","structure-golden.json"));
     Check(golden.Structure.Architecture.Count == 7 && golden.Structure.Inventory.Count == 4, "only supplied architecture/inventory records emitted");
     var service = golden.Structure.Architecture.Single(row => row.Kind == "Service hint");

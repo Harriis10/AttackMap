@@ -1,0 +1,443 @@
+{
+  "passed": true,
+  "process": {
+    "pid": 33912,
+    "exit_code": 0,
+    "exited": true,
+    "seconds": 7.095198699971661,
+    "timed_out": false,
+    "timeout_seconds": 90,
+    "owned_job_assigned": true,
+    "owned_tree_cleanup_verified": true
+  },
+  "output": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-frozen-output-final\\fastapi-bound-siblings",
+  "generation": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-frozen-output-final\\fastapi-bound-siblings\\20261023T113929-4683f432b12444058eaef1d8993dea1a",
+  "routes": [
+    {
+      "path": "/private/item",
+      "method": "GET",
+      "file": "routers.py",
+      "line": 4,
+      "auth": "required",
+      "guards": [
+        "include_router dependencies (main.py:5)"
+      ],
+      "guard_evidence": "bound router auth dependencies at include site main.py:5"
+    },
+    {
+      "path": "/public/item",
+      "method": "GET",
+      "file": "routers.py",
+      "line": 6,
+      "auth": "unknown",
+      "guards": [],
+      "guard_evidence": null
+    }
+  ],
+  "framework_hints": [
+    {
+      "hint": "fastapi",
+      "file": "guards.py",
+      "line": 1,
+      "evidence_text": "from fastapi import HTTPException",
+      "confidence": 0.7
+    },
+    {
+      "hint": "fastapi",
+      "file": "main.py",
+      "line": 1,
+      "evidence_text": "from fastapi import FastAPI, Depends",
+      "confidence": 0.7
+    },
+    {
+      "hint": "fastapi",
+      "file": "routers.py",
+      "line": 1,
+      "evidence_text": "from fastapi import APIRouter",
+      "confidence": 0.7
+    },
+    {
+      "hint": "asgi_app:fastapi",
+      "file": "main.py",
+      "line": 4,
+      "evidence_text": "FastAPI() application object",
+      "confidence": 0.9
+    },
+    {
+      "hint": "fastapi_router_mount:/api/private",
+      "file": "main.py",
+      "line": 5,
+      "evidence_text": "router 'private' mounted at /api/private (defined in routers.py:2; route paths retain per-file extraction; declared wiring only)",
+      "confidence": 0.85
+    }
+  ],
+  "limitations": [
+    "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+  ],
+  "report_sha256": "df0735b7fddd56ad8c6ecfada182a93c3fae9bf5d3ee0c34549455e64ce60bba",
+  "run_manifest_sha256": "1c65c26db63650cf718fa66413e1e9d8e51216d7df24b350681f7377712242cb",
+  "artifact_manifest_sha256": "3614d8687fa6238959d31edfb81b307553bc8611654f324a55c10da37f022a99",
+  "report_run_ledger_equal": true,
+  "ledger": {
+    "schema_version": "1.1",
+    "scope": "analyzer_selection_and_execution",
+    "inventory_scope": "supplied_candidates",
+    "selection_mode": "explicit",
+    "profile_id": "python@1.0",
+    "resolution_complete": true,
+    "execution_complete": true,
+    "entries": [
+      {
+        "name": "python",
+        "version": "0.1.0",
+        "priority": 10,
+        "origin": "plugin",
+        "implementation": {
+          "module": "attackmap_analyzer_python.analyzer",
+          "qualname": "PythonAnalyzer",
+          "source_sha256": "6f66ded3d25f21d24d2414e02084d60c8da6a8f2ede24adaf5bd75ee931a31ea",
+          "source_status": "observed_file"
+        },
+        "implementation_sha256": "2405f8ef35d663e54d3230e0f9447b174b766014517f480494488f5c34acc1aa",
+        "package": {
+          "name": "attackmap-analyzer-python",
+          "version": "0.1.0"
+        },
+        "entry_point": {
+          "name": "python",
+          "group": "attackmap.analyzers",
+          "value": "attackmap_analyzer_python:PythonAnalyzer"
+        },
+        "provenance": {
+          "declared_pin": {
+            "repo": "attackmap-analyzer-python",
+            "package": "attackmap-analyzer-python",
+            "version": "0.1.0",
+            "git_sha": "1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+            "entry_points": [
+              "python"
+            ]
+          },
+          "installed_source": {
+            "kind": "wheel",
+            "evidence": "distribution_direct_url"
+          },
+          "pin_status": "unverified",
+          "content_verified": false,
+          "errors": []
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 5.174399993848056,
+        "analysis_duration_ms": 49.79049996472895,
+        "signal_counts": {
+          "routes": 0,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 0,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 14.566000027116388,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 19.901600026059896,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 19.975500006694347,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 141.45799999823794,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 190.67109999014065,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "python-web",
+        "version": "0.1.0",
+        "priority": 20,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonWebAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "29772ec771b6a77bdcfa8d51abd64ba82eafcddf17d77d3572089dfea1f73fff",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 1.3494000304490328,
+        "analysis_duration_ms": 106.31980001926422,
+        "signal_counts": {
+          "routes": 2,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 1,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 20.39580000564456,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 21.820800029672682,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 21.89049997832626,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 190.73670002399012,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 297.14789998251945,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "config",
+        "version": "0.1.0",
+        "priority": 30,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinConfigAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "6e79503002967b8ba9bdb5f1b825fab9f0cc53555329e3219aa6321e159ab5cf",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "skipped",
+        "applicability": "unmatched",
+        "execution": "skipped",
+        "analysis_started": false,
+        "execution_mode": null,
+        "skip_reason": "unmatched",
+        "error": null,
+        "detect_duration_ms": 7.158400025218725,
+        "analysis_duration_ms": null,
+        "signal_counts": null,
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 22.225300024729222,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "unmatched",
+            "elapsed_ms": 29.416100005619228,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "skipped",
+            "elapsed_ms": 29.512999986764044,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "python-service",
+        "version": "0.1.0",
+        "priority": 50,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "BuiltinPythonServiceAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "098489bad2a1a3ec283e31b4d45c10ca3c9c84d852712469f7fff816559a0e29",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 97.2619999665767,
+        "analysis_duration_ms": 52.39119997713715,
+        "signal_counts": {
+          "routes": 1,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 1,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 29.914700018707663,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 127.23089999053627,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 127.65320000471547,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 297.586600005161,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 349.9776999815367,
+            "error_type": null
+          }
+        ]
+      },
+      {
+        "name": "default",
+        "version": "0.1.0",
+        "priority": 100,
+        "origin": "builtin",
+        "implementation": {
+          "module": "attackmap.analyzers",
+          "qualname": "DefaultAnalyzer",
+          "source_sha256": null,
+          "source_status": "unavailable"
+        },
+        "implementation_sha256": "5664998e7929cc9d74a520d449a6d17ced078f714dc923e48d1946fe5089dddd",
+        "package": {
+          "name": "attackmap",
+          "version": null
+        },
+        "entry_point": null,
+        "provenance": {
+          "pin_status": "not_applicable",
+          "content_verified": false
+        },
+        "selection": "selected",
+        "applicability": "applicable",
+        "execution": "succeeded",
+        "analysis_started": true,
+        "execution_mode": "in_process",
+        "skip_reason": null,
+        "error": null,
+        "detect_duration_ms": 1.394700026139617,
+        "analysis_duration_ms": 1.4412999735213816,
+        "signal_counts": {
+          "routes": 0,
+          "external_calls": 0,
+          "databases": 0,
+          "auth_hints": 0,
+          "secret_hints": 0
+        },
+        "lifecycle_events": [
+          {
+            "stage": "detect",
+            "state": "started",
+            "elapsed_ms": 129.5242999913171,
+            "error_type": null
+          },
+          {
+            "stage": "detect",
+            "state": "applicable",
+            "elapsed_ms": 131.3279999885708,
+            "error_type": null
+          },
+          {
+            "stage": "selection",
+            "state": "selected",
+            "elapsed_ms": 131.39709999086335,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "started",
+            "elapsed_ms": 350.1902000280097,
+            "error_type": null
+          },
+          {
+            "stage": "analysis",
+            "state": "succeeded",
+            "elapsed_ms": 351.6340000205673,
+            "error_type": null
+          }
+        ]
+      }
+    ]
+  },
+  "fixture_hashes_unchanged": true
+}

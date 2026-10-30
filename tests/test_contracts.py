@@ -629,6 +629,71 @@ def test_ported_call_to_proxy_host_stays_candidate() -> None:
     assert links[0].resolution_reason == "unresolved_host"
 
 
+def test_port_binding_does_not_turn_proxy_host_into_direct_edge() -> None:
+    # A proxy declaration and a direct host:port binding describe conflicting
+    # topologies. The port-specific declaration must not bypass the proxy and
+    # manufacture a direct observed service-to-service edge.
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://edge.internal:8080/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(
+            proxies={"edge.internal": "auth-api"},
+            host_ports={"edge.internal:8080": "auth-api"},
+        ),
+    )
+    assert len(links) == 1
+    assert links[0].resolution == "candidate"
+    assert links[0].resolution_reason == "ambiguous_identity"
+    assert links[0].destination == "edge.internal:8080"
+    assert links[0].alias_provenance is None
+    assert links[0].proxy_host is None
+
+
+def test_proxy_port_conflict_keeps_unrelated_server_unresolved() -> None:
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://edge.internal:8080/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+            ("feed-generator", _server("feed-generator", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(
+            proxies={"edge.internal": "auth-api"},
+            host_ports={"edge.internal:8080": "auth-api"},
+        ),
+    )
+    by_server = {link.server_repo: link for link in links}
+    assert by_server["auth-api"].resolution == "candidate"
+    assert by_server["auth-api"].resolution_reason == "ambiguous_identity"
+    assert by_server["feed-generator"].resolution == "candidate"
+    assert by_server["feed-generator"].resolution_reason == "unresolved_host"
+    assert all(link.destination == "edge.internal:8080" for link in links)
+    assert all(link.alias_provenance is None for link in links)
+
+
+def test_proxy_port_conflict_marks_each_declared_backend_ambiguous() -> None:
+    links = link_contracts(
+        [
+            ("web", _client("web", "http://edge.internal:8080/users/5")),
+            ("auth-api", _server("auth-api", "/users/{id}")),
+            ("feed-generator", _server("feed-generator", "/users/{id}")),
+            ("billing", _server("billing", "/users/{id}")),
+        ],
+        aliases=DeploymentAliases(
+            proxies={"edge.internal": "auth-api"},
+            host_ports={"edge.internal:8080": "feed-generator"},
+        ),
+    )
+    by_server = {link.server_repo: link for link in links}
+    assert by_server["auth-api"].resolution_reason == "ambiguous_identity"
+    assert by_server["feed-generator"].resolution_reason == "ambiguous_identity"
+    assert by_server["billing"].resolution_reason == "unresolved_host"
+    assert all(link.resolution == "candidate" for link in links)
+    assert all(link.destination == "edge.internal:8080" for link in links)
+    assert all(link.alias_provenance is None for link in links)
+
+
 # ---------------------------------------------------------------------------
 # server-declared listen ports (C28)
 # ---------------------------------------------------------------------------

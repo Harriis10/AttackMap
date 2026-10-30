@@ -1,0 +1,1041 @@
+{
+  "scope": "Deterministic extraction only on identical inert fixtures. No Django server/framework execution, provider, installation or release acceptance.",
+  "interpreter": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+  "overlay_source": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\ecosystem_python.py",
+  "overlay_source_sha256": "b5e4dfa35e463f2670131a62267506997268d8fdc5922d3a6e429f38157b7004",
+  "plugin_source": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\attackmap_analyzer_python\\analyzer.py",
+  "plugin_source_sha256": "6f66ded3d25f21d24d2414e02084d60c8da6a8f2ede24adaf5bd75ee931a31ea",
+  "plugin_pin_verification": "See upstream qualification evidence; installed wheel metadata alone is not a Git attestation.",
+  "profile": {
+    "name": "python",
+    "profile_version": "1.0",
+    "qualified_name": "python@1.0",
+    "selection_mode": "explicit",
+    "module_names": [
+      "python",
+      "python-web",
+      "config",
+      "python-service",
+      "default"
+    ],
+    "candidate_module_names": [
+      "python",
+      "python-web",
+      "config",
+      "python-service",
+      "default"
+    ],
+    "experimental_module_names": [
+      "python-service"
+    ],
+    "opt_in_module_names": []
+  },
+  "profile_impl": [
+    {
+      "name": "python",
+      "module": "attackmap_analyzer_python.analyzer",
+      "class": "PythonAnalyzer"
+    },
+    {
+      "name": "python-web",
+      "module": "attackmap.analyzers",
+      "class": "BuiltinPythonWebAnalyzer"
+    },
+    {
+      "name": "config",
+      "module": "attackmap.analyzers",
+      "class": "BuiltinConfigAnalyzer"
+    },
+    {
+      "name": "python-service",
+      "module": "attackmap.analyzers",
+      "class": "BuiltinPythonServiceAnalyzer"
+    },
+    {
+      "name": "default",
+      "module": "attackmap.analyzers",
+      "class": "DefaultAnalyzer"
+    }
+  ],
+  "case_count": 17,
+  "overlay_oracle_pass_count": 17,
+  "cases": [
+    {
+      "name": "module-function-control",
+      "expected_overlay_auth": {
+        "/private/": "required"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/private/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "@login_required (app/views.py:4)"
+              ],
+              "guard_evidence": "validated Django login_required for app/views.py:5"
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/private/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/private/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "@login_required (app/views.py:4)"
+              ],
+              "guard_evidence": "validated Django login_required for app/views.py:5"
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "direct-function-import",
+      "expected_overlay_auth": {
+        "/private/": "required"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/private/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "@login_required (app/views.py:4)"
+              ],
+              "guard_evidence": "validated Django login_required for app/views.py:5"
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/private/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/private/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "required",
+              "guards": [
+                "@login_required (app/views.py:4)"
+              ],
+              "guard_evidence": "validated Django login_required for app/views.py:5"
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "imported-class-view",
+      "expected_overlay_auth": {
+        "/detail/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/detail/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/detail/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/detail/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "literal-re-path",
+      "expected_overlay_auth": {
+        "/literal/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/literal/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "^literal/$",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "^literal/$",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/literal/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "unsupported-regex",
+      "expected_overlay_auth": {},
+      "forbidden_overlay_paths": [
+        "/items/{pk}/"
+      ],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [],
+          "limitations": [
+            "ecosystem_python: Django regex route is unsupported beyond exact anchored literals in project/urls.py:3"
+          ]
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "^items/(?P<pk>[0-9]+)/$",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "^items/(?P<pk>[0-9]+)/$",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "ecosystem_python: Django regex route is unsupported beyond exact anchored literals in project/urls.py:3",
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "dynamic-path-concatenation",
+      "expected_overlay_auth": {},
+      "forbidden_overlay_paths": [
+        "/admin/"
+      ],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [],
+          "limitations": [
+            "ecosystem_python: Django non-literal URL path is unsupported in project/urls.py:4"
+          ]
+        },
+        "official_plugin": {
+          "routes": [],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [],
+          "limitations": [
+            "ecosystem_python: Django non-literal URL path is unsupported in project/urls.py:4",
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "commented-path",
+      "expected_overlay_auth": {},
+      "forbidden_overlay_paths": [
+        "/not-registered/"
+      ],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/not-registered/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/not-registered/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "foreign-path-function",
+      "expected_overlay_auth": {},
+      "forbidden_overlay_paths": [
+        "/not-django/"
+      ],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [],
+          "limitations": [
+            "ecosystem_python: Django unresolved or non-Django path factory in project/urls.py:3"
+          ]
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/not-django/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/not-django/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "ecosystem_python: Django unresolved or non-Django path factory in project/urls.py:3",
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "shadowed-auth-decorator",
+      "expected_overlay_auth": {
+        "/public/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "spoof-middleware-name",
+      "expected_overlay_auth": {
+        "/public/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "include-two-mounts",
+      "expected_overlay_auth": {
+        "/v1/item/": "unknown",
+        "/v2/item/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/v1/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/v2/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/v1/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/v2/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/v1/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/v2/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/v1/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/v2/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "include-literal-tuple",
+      "expected_overlay_auth": {
+        "/api/item/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/api/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/api/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/api/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/api/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "include-import-alias",
+      "expected_overlay_auth": {
+        "/api/item/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/api/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            },
+            {
+              "path": "/api/item/",
+              "method": "ANY",
+              "file": "app/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "dynamic-include-expression",
+      "expected_overlay_auth": {},
+      "forbidden_overlay_paths": [
+        "/api/item/"
+      ],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [],
+          "limitations": [
+            "ecosystem_python: Django dynamic include or namespace is unsupported in project/urls.py:2"
+          ]
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/api/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/api/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 2,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "ecosystem_python: Django dynamic include or namespace is unsupported in project/urls.py:2",
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "foreign-auth-wrapper",
+      "expected_overlay_auth": {
+        "/public/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "fake-public-wrapper",
+      "expected_overlay_auth": {
+        "/public/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 5,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 5,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 5,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    },
+    {
+      "name": "canonical-public-wrapper",
+      "expected_overlay_auth": {
+        "/public/": "unknown"
+      },
+      "forbidden_overlay_paths": [],
+      "overlay_mismatches": [],
+      "lanes": {
+        "builtin_overlay": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "official_plugin": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": []
+        },
+        "python_profile": {
+          "routes": [
+            {
+              "path": "/public/",
+              "method": "ANY",
+              "file": "project/urls.py",
+              "line": 4,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ]
+        }
+      }
+    }
+  ]
+}

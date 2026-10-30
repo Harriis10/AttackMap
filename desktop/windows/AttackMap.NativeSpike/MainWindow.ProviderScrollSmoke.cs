@@ -71,7 +71,7 @@ public sealed partial class MainWindow
                 var fieldBounds = ProviderPreviewBounds(budget, root);
                 if (!labelBounds.FullyWithinClippedViewport || !fieldBounds.FullyWithinClippedViewport)
                     throw new InvalidOperationException("The actual budget label and field are not fully visible in the clipped Settings viewport.");
-                capture = await NativeCaptureProbe.Capture(root, capturePath);
+                capture = await CaptureStrict(root, capturePath);
                 budgetLabel = new { text = label.Text, value = budget.Text, labelBounds, fieldBounds,
                     innerOffset = inner.VerticalOffset, source = "Actual provider TextBox and realized header; no synthetic content" };
             }

@@ -1,5 +1,21 @@
 # AttackMap Windows parity — podrobné TODO pro paralelní agenty
 
+**Scoped integrace 27. 10. 2026:** Nezávisle reviewované řezy WP032/WP039/WP044 jsou integrované; integrátor ověřil 207 PASS pro WP032, 328 PASS + 2 SKIP pro WP039 a 160 PASS pro WP044. WP043 candidate-07 nově dokládá pět skutečných A/R/B trojic bez property mutací: kolo 4 je A blank → R complete → B blank, kolo 2 naopak dokazuje, že RTB není spolehlivý live-presentation oracle, a kolo 5 je pouze korelace recovery. Harness má 49 PASS + 8 subtestů; rendering acceptance zůstává FAILED a root cause není prokázán. Všechny čtyři WP zůstávají IN_PROGRESS; chybí zejména reálný WP044 emitter/fleet runtime, WP039 installed-plugin a maturity gates a WP043 V01–V03. [Vizuální review WP043](../artifacts/diagram-integration-20261024/wp043-continuation-20261025/detail-render-probe-live-27-retry-03/visual-review/manual-review.json). Starší checkpointy níže jsou historické.
+
+**Aktuální scoped checkpoint 23. 10. 2026:** [dávka tří Sol 6.1 / ultra agentů](verification/windows-parity/ROADMAP-NEXT-20261023/FINAL-HANDOFF.md) dokončila přípravu datastore extraction kontraktu WP044, graf/evidence/source/back řez WP043 a startup smoke opravu WP023. 104 Python testů, 128 navigačních kontrol, 94 native kontrol / 16 dokončených test-repo dětí a čtyři compiled startup scénáře PASS; obě témata a dvě velikosti inspektoru vizuálně prohlédnuté. Whole-task statusy se nemění: WP023/WP043/WP044 IN_PROGRESS; nový extractor, reprezentativní produkční fleet, manual/clean-host/macOS a společný fresh package zůstávají dalšími branami. Předchozí portable ZIP zachovaný. Leases této dávky uvolněné; starší odstavce níže nejsou aktivní běhový stav.
+
+**Fleet16 integrován 23. 10. 2026:** WP043/WP044 jsou IN_PROGRESS. Společný model všech 16 roots, interaktivní Cytoscape přehled, nativní Canvas/MSAGL a úplné JSON/SVG exporty jsou začleněné do Fleet. Skutečné source běhy 16 testovacích repozitářů a Juice Shop + 15 fixtures prošly; řízený partial zachoval 15 child výsledků a failed skupinu. Společný source-bound kandidát02 prošel 75 skutečnými native kontrolami, 16 child manifesty, oběma renderery a frozen Juice Shop+compare; kompaktní lišta je opravená. Plný portable ZIP je uložený v `C:\Projects\AttackMap-Windows-x64-fleet16-20261023.zip`; lokální Git checkpoint `f5247d0`. Vlastní lease je uvolněný, další úkoly se nezahajují. Neuzavírá se non-HTTP, reprezentativních 16 produkčních repos, manual/clean-host ani macOS acceptance. [Důkazy a zbývající brány](verification/windows-parity/WP043/fleet16-20261023/README.md). Starší checkpointy níže zůstávají datované. Aktuální součet WP001–WP044: 7 DONE, 5 MANUAL_PENDING, 6 IMPLEMENTED, 16 IN_PROGRESS, 8 OPEN, 2 DEFERRED.
+
+**Druhá implementační dávka ověřena 23. 10. 2026:** Druhá dávka Sol 6.1 ultra ověřena: native profily/request 1.5, per-run ledger, bounded Node/ATProto WS/auth fix; 508 PASS + 2 SKIP, 597 native kontrol, source/frozen/native Juice Shop a scoped vizuální review. WP042/WP039 zůstávají IN_PROGRESS; whole-task/manual/package/maturity brány otevřené. [Výsledky a další krok](verification/windows-parity/WP042/sol-ultra-20261023-batch2/README.md). Leases této dávky jsou uvolněné. Starší checkpointy níže zůstávají datované.
+
+**Povinné upřesnění 23. 10.:** [celkové schéma 16 repozitářů](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/fleet16-requirements.md). WP043 zahrnuje fleet jako povinnou acceptance; nový WP044 vlastní architektonická data/vztahy, WP018/WP019 explicitní scheduling/budget/identity. Aktuální rozsah WP001–WP044: 7 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 15 IN_PROGRESS, 10 OPEN, 2 DEFERRED. Starší počty níže jsou předchozí checkpointy; nový runtime nebo hotový 16-repo graf se netvrdí.
+
+**První implementační dávka ověřena 23. 10. 2026:** WP042 a přípravný PHP řez WP039 zůstávají IN_PROGRESS. Tři agenti GPT-6.1 Sol / ultra dodali katalog kolizí, verzované CLI profily a parent/child routování Laminas/Omeka; 266 cílených testů PASS, 2 SKIP, nový frozen engine s 15 pluginy / 21 účinnými analyzéry a tři shodná celá JSON porovnání Juice Shopu. [Výsledky a zbývající brány](verification/windows-parity/WP042/sol-ultra-20261023/README.md). Celkem 43 úkolů: 7 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 15 IN_PROGRESS, 9 OPEN, 2 DEFERRED. Nativní UI, ledger a whole-task/release acceptance zůstávají otevřené; leases dávky jsou uvolněné.
+
+**Rozšíření 23. 10. 2026:** [výzkum analyzérů a grafů](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/README.md) přidává WP042/WP043 jako OPEN a doplňuje WP039. Aktuálně 43 úkolů: 7 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 13 IN_PROGRESS, 11 OPEN, 2 DEFERRED. Stavy původních 41 úkolů se tím nemění. Nejnovější výzkumní agenti: GPT-6.1 Sol / ultra; níže jsou zachované starší checkpointy.
+
+**Aktuálně znovu obnoveno 23. 10. na výslovný pokyn uživatele:** [dávka GPT-6.1 Sol ultra](verification/windows-parity/RESUME-2026-10-23-sol-ultra/README.md). Scoped řezy WP016 metadata, WP023 window lifetime a WP017 controlled provider faults jsou integrované a cíleně ověřené; whole-task brány zůstávají otevřené. Předchozí pokyn po portable skončit je tímto novým zadáním odvolán; starší odstavce níže jsou datované checkpointy. Žádná nová release/ruční acceptance se tím nepřiznává.
+
 **Závěrečný checkpoint 23. 10.:** [výsledky 7200s kandidáta](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md) obsahují nové runtime/package/installed důkazy, všechny čtyři Hunt+verify HTTP odpovědi (partial kvůli abstenci), Triage scoped PASS a otevřené GUI/obsahové brány. Po požadovaném lokálním Git uložení a full portable buildu se další úkoly nezahajují. Následující starší odstavce jsou předchozí checkpoint, nikoli aktuální běhový stav.
 
 **Nejnovější běh AKTIVNÍ na výslovný pokyn uživatele:**
@@ -16,7 +32,7 @@ je přes HTTP 200/pre-close parity true celkově FAIL (`0xC000027B`). Freeze 01 
 interim, finální freeze 02 se připravuje; nový kandidát nemá přenesený runtime
 nebo live PASS. WP017/WP023 acceptance zůstává otevřená.
 
-**Baseline 20. 10. 2026; integrační revize 22. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Aktuální stav: 7 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 13 IN_PROGRESS, 9 OPEN, 2 DEFERRED. Přidělení ani component testy neuzavírají integraci nebo acceptance. Produktem je původní celé MainWindow; viz [rozhodnutí](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). WP021 zůstává volitelné rozšíření.
+**Baseline 20. 10. 2026; integrační revize 23. 10. 2026.** Číst spolu s [auditem](windows-parity-audit-2026-10-20.md) a [roadmapou/checkpointy](roadmap-windows-parity-2026-10-20.md). JSON protějšek: [windows-parity-backlog.json](windows-parity-backlog.json). Aktuální stav: 7 DONE, 5 MANUAL_PENDING, 5 IMPLEMENTED, 13 IN_PROGRESS, 11 OPEN, 2 DEFERRED. Přidělení ani component testy neuzavírají integraci nebo acceptance. Produktem je původní celé MainWindow; viz [rozhodnutí](verification/windows-parity/RECONCILE-2026-10-21/product-basis.md). WP021 zůstává volitelné rozšíření.
 
 **Obnovený běh:** [rozdělení práce a zbývající brány](verification/windows-parity/RESUME-2026-10-22/README.md). Nejnovější pokyn uživatele nastavuje navazující subagenty na GPT-6.1 Sol s reasoning effort `medium`; [aktuální checkpoint](verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md). Předchozí Astra/high a Sol/ultra výsledky zůstávají zachované. Příprava runneru sama neuzavírá pět skutečných režimů ani finální package.
 
@@ -199,6 +215,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - DoD: bez CDN/network; embedded HTML/script/URL se neprovádějí, malformed/large diagram má poctivý fallback. Hrany nepřibývají vlastní heuristikou UI.
 - Ověření: hostile diagram fixtures, síť vypnutá, render běžné/empty/large fixture, keyboard/text alternativa a skutečný vizuální review.
 - Důkaz: `docs/verification/windows-parity/WP010/README.md`; agent i root 20 parser/manifest/security PASS, test i standalone WinUI preview build bez warning/error. Native Canvas renderer je offline a používá jen inertní bounded subset s kompletní textovou alternativou. Preview startup neprokázal viditelné okno; visual/keyboard/Narrator/network-disabled runtime a shell/export integrace zůstávají otevřené. Všechny tři diagnostické procesy byly ověřeně ukončené.
+- Upřesnění podle zdrojového auditu 23. 10.: shell již `DiagramView` připojuje, ale výchozí `architecture.md` neobsahuje Mermaid blok. Dokončení původního řezu zahrne výchozí dostupný diagram cest/topologie a oddělený slovní souhrn; viditelný runtime důkaz tím nevzniká. Nový strukturovaný explorer/layout má vlastní WP043; tento podklad neuzavírá WP010.
 
 <a id="wp011"></a>
 
@@ -322,6 +339,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - DoD: source/frozen serial≡parallel ve všech výstupních formátech; Unicode/spaces/duplicate basename; failed child zachová sibling results a zjevný fleet partial stav. Žádný frozen exe spuštěný jako Python.
 - Ověření: `test_fleet_parallelism.py`, `test_fleet_publication.py`, `test_unreadable_and_fleet_failures.py`, nové native broker fixtures a procesová kontrola.
 - Důkaz: `docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md`; root schválil odstranění dvou nadbytečných fixture `mkdir`, produkční kód se nezměnil. **38 focused + 29 regression PASS, 1 explicit Windows chmod skip**. Source-worker serial/parallel parita prošla pro all/json/markdown s mezerami a Unicode; fresh frozen parita a reálné owned-process cancellation/cleanup acceptance chybí, proto WP018 není DONE.
+- Rozsah fleet16: ověřit celý běh 16 roots při concurrency 1/2/4, explicitní overall/per-child budget a status všech 16 požadovaných children. Dnešní UI default 1 worker/600 s není 16-repo kvalifikace; bounded admission a skutečný memory peak koordinovat s WP034. Selhání/cancel zachová správné sibling artefakty a ověřeně ukončí vlastněné procesy.
 
 <a id="wp019"></a>
 
@@ -335,6 +353,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: přidat/odebrat repos, duplicates validation, rollup + jednotlivý repo, linked contract detail/provenance, flows/gaps/anomalies a graph. Native folder picker lze opakovat, nemusí kopírovat Mac multi-select.
 - DoD: uživatel pozná skipped/failed repo a candidate edge; cross-repo link neotevře nesouvisející source; single→fleet→single nezamění generaci. Nepodporované AI/baseline ovládání vysvětlené.
 - Ověření: dva/tři repos, host/port ambiguity fixture, actual native fleet scan se zachyceným výstupem.
+- Rozsah fleet16: picker → jeden společný běh → přehled všech 16 identit → detail a graf WP043 → evidence → back. Reprodukovat a opravit GUID child ID ↔ summary slug ↔ canonical root mapování, včetně stejných basename. UI ukáže effective concurrency/budget, child partial/failure a časy snapshotů; žádné tvrzení o společném atomickém snapshotu 16 pracovních stromů.
 
 <a id="wp020"></a>
 
@@ -591,14 +610,19 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP039 — Kvalifikovat tři ekosystémové vrstvy
 
-- Priorita: P2; lane: ECOSYSTEM; checkpoint: K8; stav: OPEN.
-- Závislosti: WP031, WP032, WP035.
+- Priorita: P2; lane: ECOSYSTEM; checkpoint: K8; stav: IN_PROGRESS.
+- Závislosti: WP031, WP032, WP035, WP042.
 - Kritéria: C27, C38; původní úkoly: AM052; funkce: F03, F05, F08, F19.
 - Zápis: `ecosystem_node_atproto.py`, `ecosystem_php.py`, `ecosystem_python.py`, fixtures a `docs/ecosystem/`.
 - Lease: `analyzers.py` registry, core linking pouze samostatný schválený řez.
 - Kroky: rozšířit reference coverage Node/ATProto, PHP/Laminas/Omeka S, Python; dořešit deklarované mezery bez přenosu globálního reasoningu do analyzerů. Ověřit kolize jmen plugin/builtin a provenance actual selected analyzer.
 - DoD: původní C38 production-like fixtures a capability matrix, unsupported cases explicitní; high-priority maturity až po C27; každá vrstva evidence-backed, general language layer před thin overlay.
 - Ověření: contract suites a labeled reference reviews, Juice Shop non-regression; marker applicability nesmí přidat falešné ekosystémy do nesouvisejícího repo.
+- Rozšíření 23. 10. podle [auditu](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/analyzers.md): prioritně Python cross-file mount/Django class-view/re_path, rodičovské prefixy Laminas a vztah Node/ATProto subscription/auth. Každou mezeru nejdřív reprodukovat proti efektivní připnuté implementaci; část Go/.NET oprav je již v připnutých verzích a není novým úkolem. Profily a provenienci vlastní WP042, paired detector FP/FN a maturity zůstávají WP031/WP039.
+- Dávka 23. 10. Sol / ultra: Statické parent/child Laminas/Omeka routy a default evidence jsou implementované a ověřené; 90 PHP PASS, negativní alias/namespace případy a nový frozen PHP profil. Python/Node auth a maturity/závislosti zůstávají otevřené. [Důkazy a handoff](verification/windows-parity/WP042/sol-ultra-20261023/README.md).
+- Druhá dávka 23. 10. Sol / ultra: Node/ATProto streamMethod/WS a konzervativní per-route auth jsou implementované; paired i actual frozen before/after PASS, bez tvrzení úplné deduplikace nebo maturity. [Důkazy](verification/windows-parity/WP042/sol-ultra-20261023-batch2/README.md).
+- Třetí dávka 23. 10. Sol / ultra: Bounded Python mount/auth a Django URLconf rozšíření, 17 + 8 actual frozen případů PASS; C27/C38 a unsupported scope otevřené. [Důkazy a balíček](verification/windows-parity/WP039/sol-ultra-20261023-python/README.md).
+
 
 <a id="wp040"></a>
 
@@ -612,6 +636,51 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: skutečný clean-runner install stage, tři noví contributors, core ≤30 min / desktop ≤90 min bez prerequisite downloads, osm týdnů lead-time/flaky záznamů.
 - DoD: doložené trial/CI výsledky; scaffold a YAML nejsou hotový onboarding; recurring flakes mají opravy, nikoli blanket retry.
 - Ověření: reálný setup podle docs a cílený test, anonymizované human records; osm týdnů nelze nahradit syntetickým souborem.
+
+## Rozšíření podle výzkumu 23. 10. 2026
+
+<a id="wp042"></a>
+
+### WP042 — Efektivní katalog analyzérů, profily a aktualizace
+
+- Priorita: P1; lane: ANALYZER_CATALOG; checkpoint: K8; stav: IMPLEMENTED.
+- Závislosti: WP003, WP006, WP007.
+- Kritéria: C11, C20, C22, C38; původní úkoly: rozšíření na výslovný pokyn uživatele 23. 10.; funkce: F03, F10.
+- Zápis: nový capability/catalog přehled a profile fixtures/tests, návrh přesně vybraných plugin update diffů a `docs/ecosystem/` capability matrix. Výzkumný podklad: [analyzers.md](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/analyzers.md).
+- Lease: `analyzers.py`, plugin catalog/lock, capabilities/scan options, `AnalyzerSelectionView`, packaging/SBOM; shell a shared kontrakty pouze přes integrátora. Zámky: analyzer_registry, analyzer_catalog, engine_contract, native_analyzer_selection, package_inventory.
+- Kroky: inventář zvoleného executable (ne host Pythonu), pinned commit/version a efektivní provenance včetně tří kolidujících jmen; přesné `(priority, name)` a first-seen chování včetně místní výjimky doplnění unknown route auth. Definovat Automatic a explicitní Node/ATProto, PHP/Laminas/Omeka S, Python profily jako verzovaný výběr včetně potřebných base modulů; rozlišit installed/missing/shadowed/applicable/opt-in/selected/executed/failed i load/detect error oproti unmatched. Zachovat kompatibilní výchozí politiku nebo její změnu výslovně zdokumentovat. Vybrat první upstream aktualizaci až po source diffu a reprodukované extraction mezeře. Hlubší Kubernetes posture a protobuf/gRPC/OpenAPI vést v capability matrix jako kandidáty s unsupported scope a vlastním go/no-go, ne jako hotovou detekci.
+- DoD: source/frozen inventáře a rozdíly jsou reprodukovatelné a svázané s engine identity; UI ukáže účinnou implementaci a skutečný důvod vynechání. Explicitní profil neztratí base coverage a nezamění experimentální/pouze instalovaný modul za proběhlý. Kolize nemá tichý dopad na tvrzení o schopnostech; změna precedence/defaultu je samostatně přezkoumaná. Alespoň jedna vybraná aktualizace prokáže novou structured extraction na paired případech bez regrese, případně je doložené no-go a konkrétní implementační alternativa pod WP039. Žádné automatické síťové instalace; pluginy zůstávají extraction-only.
+- Ověření: registry collision/merge-order a profile contract testy, unknown/missing/opt-in/failure i engine-switch cache invalidace; původní vs aktualizovaný commit a pozitivní/negativní extraction diff. Actual source a frozen `modules --json`, packaged inventory/SBOM + real scan s coverage a Juice Shop non-regression; nové UI vizuálně v Light/Dark a dvou velikostech. Testy a předchozí ZIP samy neprokazují nový kandidát. C27/C38 maturity dále podléhá WP030/WP031/WP039.
+- Dávka 23. 10. Sol / ultra: Efektivní katalog/provenance a CLI profily implementované; 266 společných PASS, 2 SKIP, nový engine 15 pluginů / 21 účinných / 3 shadowed; tři whole-report Juice Shop porovnání shodná. Native picker a per-run ledger/profil persistence/package-SBOM zůstávají otevřené. [Důkazy a handoff](verification/windows-parity/WP042/sol-ultra-20261023/README.md).
+- Druhá dávka 23. 10. Sol / ultra: Native profile picker/persistence/request1.5, aktuální původ/kolize a reportový execution ledger jsou implementované a ověřené; package/SBOM a whole-task/manual brány zůstávají otevřené. [Důkazy](verification/windows-parity/WP042/sol-ultra-20261023-batch2/README.md).
+- Třetí dávka 23. 10. Sol / ultra: Podrobný ledger/live activity a native discovery chyby dokončené; stejný engine/UI kandidát prošel runtime, osmi vizuálními kontrolami a package/SBOM inventářem. Stav IMPLEMENTED, závislosti a ruční/release brány otevřené. [Důkazy a balíček](verification/windows-parity/WP039/sol-ultra-20261023-python/README.md).
+
+
+<a id="wp043"></a>
+
+### WP043 — Strukturovaný graf závislostí a průzkum evidence
+
+- Priorita: P1; lane: GRAPH_EXPLORER; checkpoint: K2; stav: IN_PROGRESS.
+- Závislosti: WP002, WP003, WP007, WP010, WP018, WP044.
+- Kritéria: C06, C11, C12, C21, C23, C24, C25, C28; původní úkoly: rozšíření na výslovný pokyn uživatele 23. 10.; funkce: F07, F11, F19.
+- Zápis: additive graph contract/fixtures a typed C# projekce, oddělené renderer spike controls/ADR, produkční graph control a focused tests. Podklady: [aktuální grafy](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/current-graphs.md), [renderer research](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/graph-renderers.md), [praktické porovnání Canvas/MSAGL a Cytoscape](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/renderer-comparison.md).
+- Lease: `models.py`, `report.py`, schemas/capabilities a report adapter; WP032 vlastní změny významu service identity. `Diagram/`, projekt/resources a MainWindow integruje jeden owner. Zámky: engine_contract, engine_models, report_writer, service_graph, native_report_adapter, native_diagrams, native_project, native_fleet.
+- Kroky: nejdřív zmrazit renderer-independent graf emitovaný core: version, stabilní node/edge IDs, druh/směr, evidence basis/confidence/provenance a evidence references; run/generation/snapshot/report hash z existujícího envelope. V1 povinně zahrne jeden fleet 16 repozitářů, celkové repo skupiny → služby/komponenty → konkrétní evidence a modelované risk paths; UI nevytváří hrany z textu ani skóre. Zachovat legacy Mermaid/text fallback. Poté stejná data porovnat v cluster-aware Canvas + MSAGL a Cytoscape.js s compound layoutem (fCoSE, Dagre jen pro vhodnou plochou projekci); obě větve stejně prioritně, ELK pouze po cíleném ověření. ADR zvolí verze/licence/transitive closure/offline payload a podporované limity. Archify jen volitelný kurátorovaný export ze stejných faktů, bez instalační závislosti aplikace na agent skillu/Node.js. Fleet je povinný, data vztahů vlastní WP044. Collapse/expand a agregace zachovají underlying IDs/counts, kind/direction/resolution i proxy a neprokážou novou cestu. Package dependency graf až s opravdovými resolver edges, ne s textem `via`. Celý zachycený model má JSON a grafický export celého přehledu; velký výstup má prověřený vektorový nebo stránkovaný způsob, ne jen screenshot viewportu.
+- DoD: celý 16-repo fleet přehled s viditelnou identitou/stavem všech požadovaných roots, hierarchií a drill-down; shodné ID/count/direction/evidence mezi core DTO, grafem a text/list alternativou; layout podle hran, fit/zoom/pan, search, filtry s viditelnými skrytými počty a výběr node/edge → evidence → back. Unknown/empty/malformed/partial/oversized nejsou zaměnitelné. Generace/report hash i cancel/stale callback brání cizímu výsledku. Offline běh bez CDN/nepovolených requestů, inertní labels/URL/HTML a keyboard/Narrator alternativa. Pokud vyhraje WebView2, bounded origin/message bridge a skutečná offline runtime distribuce/clean-host brána. Žádná domnělá runtime/exploit reachability ani nové observed hrany; původní CLI/report artefakty zůstávají kompatibilní.
+- Ověření: deterministický 16-repo corpus a skutečný reprezentativní 16-repo scan se všemi child manifests nebo explicitní partial/failure skupinou; stejné basename, multi-service/library repo, collapsed overview → dvě rozbalené propojené repo skupiny → edge → evidence obou stran → back a úplný export. Golden source/contract/adapter parity; cykly, multiedges, disconnected, ambiguity, dangling IDs, dlouhé/hostile labels a wrong-generation. Spike změří layout/interakce/paměť/payload pro 100/300 a 1000/3000 node/edge fixtures a 10000/30000 stress na stejném 16-repo členění, včetně collapse/expand, s poctivým fallbackem; limity se zveřejní podle výsledku, nejde o návrat Windows C26. Finální source-bound build: finding/path → graf → zdroj → back, síť vypnutá, keyboard/Narrator, Light/Dark a dvě skutečné velikosti s vizuální kontrolou. Compilation/unit tests neuzavírají GUI ani Mac acceptance; WP022/WP023/WP024 ověří změněné exporty/integraci/distribuci při začlenění do kandidáta.
+
+<a id="wp044"></a>
+
+### WP044 — Architektonická data a vztahy pro fleet 16 repozitářů
+
+- Priorita: P1; lane: CORE_FLEET_GRAPH; checkpoint: K8; stav: IN_PROGRESS.
+- Závislosti: WP002, WP003, WP007, WP032.
+- Kritéria: C06, C11, C12, C28; původní úkoly: výslovné upřesnění uživatele 23. 10.; funkce: F07, F19.
+- Zápis: additive fleet architecture DTO/fixtures, producer/serialization adapters v `fleet.py`, `contracts.py`, `topology.py` a focused tests; extraction-only fields jen při doložené potřebě. Podklad: [fleet16 requirements](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/fleet16-requirements.md).
+- Lease: `models.py`, schemas/capabilities, `report.py`, `crossrepo.py` a linker; WP032 vlastní sémantiku identity. Zámky: engine_contract, engine_models, service_graph, fleet_graph, report_writer, analyzer_sdk.
+- Kroky: explicitní repository/child identity map a containment repo→service→component, stabilní node/edge IDs a typed observation/source references. Zachovat existující HTTP/proxy resolution; oddělit containment, deployment, call a dependency vztahy. První non-HTTP řezy: prokazatelný producer/consumer a shared datastore podle qualified identity, source evidence a scope, s explicitní ambiguity. Pokud dosavadní signály nestačí, nejprve additive extraction contract a paired fixtures; nerozšiřovat UI heuristiky. RPC/protobuf/OpenAPI a další nepodporované druhy uvést v capability matrix jako unanalysed, dokud nejsou zvlášť kvalifikované. Zahrnout orphan/library repos, externí komponenty a partial/failed children; per-child snapshoty navázat na jeden fleet manifest bez tvrzení globální atomické konzistence.
+- DoD: deterministická projekce celých 16 repo identit a dostupných vztahů bez slučování stejného basename/názvu služby nebo rozdílných namespace/port/protocol. Evidence na obou stranách vazby, unknown/ambiguous nepostoupí na observed; proxy se nezmění v přímou hranu. Sbalená prezentační hrana má úplná underlying edge IDs a oddělené kind/direction/resolution counts; cesta v agregovaném repo grafu se nevydává za souvislý detailní tok. Žádná smyšlená queue/datastore/RPC konektivita, secret values v grafech ani maturity claim z pouhé deklarace. JSON/manifest kontrakt dostupný bez Markdown a legacy fallback kompatibilní.
+- Ověření: 16-repo oracle corpus, stejné basename, multi-service/library repo, external/shared component, cycle/proxy/candidate/unresolved a negativní queue/datastore identity případy. Přesná ID/count/endpoints/provenance parity mezi core a serializací, žádné dangling refs nebo unsupported observed edges; serial/parallel normalizované facts shodné. Skutečný reprezentativní fleet běh a native mapping ověří WP018/WP019/WP043 na zapečetěném kandidátu; schema/unit PASS tento runtime nenahrazuje.
 
 ## Podmíněná budoucnost
 

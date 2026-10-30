@@ -28,6 +28,7 @@ from .analyzers import (
     get_analyzer_metadata,
     resolve_run_analyzers,
 )
+from .analyzer_run_ledger import AnalyzerRunLedger, AnalyzerRunPlan
 from .cve import query_vulnerabilities
 from .defensive_review import render_defensive_review
 from .diff import (
@@ -153,6 +154,7 @@ class AnalyzeOptions:
     output_format: str = "all"
     atomic_output: bool = True
     analyzers: list | None = None
+    analyzer_profile_id: str | None = None
     recall: bool = False
     incremental: bool | None = None
     cve: bool = False
@@ -206,6 +208,7 @@ def _engine_utc_now() -> str:
 class RunState:
     options: AnalyzeOptions
     analyzers: list = field(default_factory=list)
+    analyzer_run_plan: AnalyzerRunPlan | None = None
     scan: ScanResult | None = None
     surfaces: list[AttackSurface] = field(default_factory=list)
     findings: list[Finding] = field(default_factory=list)
@@ -312,6 +315,10 @@ def write_run_manifest(state: RunState, output: Path) -> None:
         },
         "llm_usage": dict(state.llm_usage),
     }
+    analyzer_ledger = scan.analyzer_run_ledger if scan is not None else None
+    if analyzer_ledger is None and state.analyzer_run_plan is not None:
+        analyzer_ledger = state.analyzer_run_plan.ledger
+    payload["analyzer_run_ledger"] = analyzer_ledger.model_dump(mode="json") if analyzer_ledger is not None else None
     if state.options.llm or state.options.hunt or state.options.remediate or state.options.triage:
         ledger = current_budget()
         if ledger is not None:
@@ -401,17 +408,27 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
     captured_index: RepoIndex | None = None
     budget = TimeBudget(resolve_time_budget_seconds(options.time_budget_seconds))
     state.time_budget = budget
+    scan_progress = create_progress(options.progress_format, no_progress=options.no_progress)
 
     def _select() -> None:
         nonlocal captured_index
         captured_index = RepoIndex.build(repo_path)
+        state.analyzer_run_plan = AnalyzerRunPlan(Path(repo_path).resolve(), captured_index, AnalyzerRunLedger(
+            selection_mode="automatic" if options.analyzers is None else "explicit",
+            inventory_scope="registered_candidates" if options.analyzers is None else "supplied_candidates",
+            profile_id=options.analyzer_profile_id))
         state.analyzers = resolve_run_analyzers(
-            repo_path, analyzers=options.analyzers, opt_in_matches=opt_in_matches
+            repo_path, analyzers=options.analyzers, opt_in_matches=opt_in_matches,
+            run_plan=state.analyzer_run_plan,
+            progress=scan_progress,
         )
 
-    _timed(state, "select_analyzers", _select)
-    _echo_opt_in_hint(opt_in_matches, echo)
-    scan_progress = create_progress(options.progress_format, no_progress=options.no_progress)
+    try:
+        _timed(state, "select_analyzers", _select)
+        _echo_opt_in_hint(opt_in_matches, echo)
+    except BaseException:
+        scan_progress.done()
+        raise
 
     # C35 elapsed-time budget: one cheap perf_counter read per stage boundary.
     # A breach skips later optional stages and still publishes, so the run ends
@@ -423,6 +440,9 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
         if state.scan is None:
             state.scan = ScanResult(root=str(repo_path))
         scan_now = state.scan
+        if state.analyzer_run_plan is not None and not state.analyzer_run_plan.ledger.execution_complete:
+            state.analyzer_run_plan.skip_for_deadline()
+            scan_now.analyzer_run_ledger = state.analyzer_run_plan.ledger.model_copy(deep=True)
         note = (
             f"elapsed-time budget of {budget.seconds}s expired before {skipped_stage}; "
             "the remaining optional stages were skipped — ANALYSIS IS PARTIAL, not "
@@ -448,7 +468,7 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
         def _scan() -> None:
             state.scan = analyze_repository(
                 repo_path,
-                analyzers=state.analyzers,
+                run_plan=state.analyzer_run_plan,
                 progress=scan_progress,
                 recall=options.recall,
                 strict=options.strict_analyzers,
@@ -457,7 +477,13 @@ def _run_scan(options: AnalyzeOptions, *, state: RunState | None = None) -> RunS
                 index=captured_index,
             )
 
-        _timed(state, "scan_and_merge", _scan)
+        try:
+            _timed(state, "scan_and_merge", _scan)
+        except BaseException:
+            scan_progress.done()
+            raise
+    else:
+        scan_progress.done()
     scan = state.scan
     assert scan is not None
 

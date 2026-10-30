@@ -647,7 +647,7 @@ def _run_via_claude_cli(
     )
 
 
-# ---------- OpenAI SDK backend (Responses API) ----------
+# ---------- OpenAI SDK backend ----------
 
 
 def _resolve_openai_client(api_key: str | None, client: Any | None) -> Any:
@@ -706,6 +706,18 @@ def _openai_usage(usage: Any) -> dict[str, int]:
     return out
 
 
+def _openai_uses_chat_completions(client: Any) -> bool:
+    """Custom remote OpenAI-compatible endpoints default to Chat Completions.
+
+    Keep the established OpenAI and local LM Studio Responses API behavior.
+    Select before sending; never retry evidence through a second API or host.
+    """
+    endpoint = str(getattr(client, "base_url", "") or os.environ.get("OPENAI_BASE_URL", ""))
+    if not endpoint or _literal_loopback_url(endpoint):
+        return False
+    return urlsplit(endpoint).hostname != "api.openai.com"
+
+
 def _run_via_openai_sdk(
     rendered_system: str,
     rendered_user: str,
@@ -722,25 +734,45 @@ def _run_via_openai_sdk(
     reasoning_effort = OPENAI_EFFORT_MAP.get(effort, "high")
 
     try:
-        response = oi.responses.create(
-            model=model,
-            instructions=rendered_system,
-            input=rendered_user,
-            reasoning={"effort": reasoning_effort},
-            max_output_tokens=max_tokens,
-            timeout=_provider_timeout(timeout),
-        )
+        chat = _openai_uses_chat_completions(resolved)
+        if chat:
+            response = oi.chat.completions.create(
+                model=model,
+                messages=[{"role": "system", "content": rendered_system},
+                          {"role": "user", "content": rendered_user}],
+                max_tokens=max_tokens,
+                timeout=_provider_timeout(timeout),
+            )
+        else:
+            response = oi.responses.create(
+                model=model,
+                instructions=rendered_system,
+                input=rendered_user,
+                reasoning={"effort": reasoning_effort},
+                max_output_tokens=max_tokens,
+                timeout=_provider_timeout(timeout),
+            )
     except LlmReviewError:
         raise
     except Exception as exc:  # pragma: no cover - surface SDK errors verbatim
         raise LlmReviewError(f"OpenAI API call failed: {exc}") from exc
 
-    markdown = _openai_output_text(response)
+    choice = next(iter(getattr(response, "choices", None) or []), None) if chat else None
+    content = getattr(getattr(choice, "message", None), "content", None)
+    markdown = content.strip() if chat and isinstance(content, str) else "" if chat else _openai_output_text(response)
     if not markdown:
         raise LlmReviewError("OpenAI returned no text content for the review.")
 
-    status = getattr(response, "status", None)
-    usage = _openai_usage(getattr(response, "usage", None))
+    status = getattr(choice, "finish_reason", None) if chat else getattr(response, "status", None)
+    reported_usage = getattr(response, "usage", None)
+    if chat:
+        usage = {}
+        for source, target in (("prompt_tokens", "input_tokens"), ("completion_tokens", "output_tokens")):
+            value = getattr(reported_usage, source, None)
+            if type(value) is int and value >= 0:
+                usage[target] = value
+    else:
+        usage = _openai_usage(reported_usage)
     if '"scope": "partial selected evidence review"' in rendered_user:
         notice = "> Partial selected-evidence review. Omitted evidence and controls are unknown, not absent. Provider completion does not establish review completeness."
         if usage.get("output_tokens", 0) >= max_tokens * 0.95:

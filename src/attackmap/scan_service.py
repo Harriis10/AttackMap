@@ -58,6 +58,7 @@ class ScanRequest:
     output_format: str = "all"
     modules: list[str] = field(default_factory=list)
     analyzers: list | None = None
+    analyzer_profile_id: str | None = None
     install_missing: bool = False
     recall: bool = False
     cve: bool = False
@@ -135,6 +136,7 @@ def scan_request_from_run(request: RunRequest, *, echo: Callable[..., None] = em
                              "strict_suppressions", "isolated_analyzers", "time_budget_seconds")}
     return ScanRequest(repo_paths=[Path(request.repository_path)], output=Path(request.output_path),
         output_format="all", modules=list(request.modules), install_missing=False,
+        analyzer_profile_id=getattr(options, "analyzer_profile", None),
         recall=options.recall, cve=options.cve, no_suppress=options.no_suppress,
         strict_analyzers=options.strict_analyzers, secrets_history=options.secrets_history,
         run_id=request.run_id, progress_format="json", atomic_output=False,
@@ -182,6 +184,7 @@ def _analyze_options(
         output_format=request.output_format,
         atomic_output=request.atomic_output,
         analyzers=analyzers,
+        analyzer_profile_id=request.analyzer_profile_id,
         recall=request.recall,
         cve=request.cve,
         no_suppress=request.no_suppress,
@@ -346,10 +349,13 @@ def _run_fleet_repo_argv(
                  "--ai-timeout-seconds", str(request.ai_limits.timeout_seconds)])
     if request.run_id is not None:
         argv.extend(["--run-id", request.run_id])
-    for name in analyzer_names:
-        argv.extend(["--module", name])
-    for module in request.modules:
-        argv.extend(["--module", module])
+    if request.analyzer_profile_id is not None:
+        argv.extend(["--analyzer-profile", request.analyzer_profile_id])
+    else:
+        for name in analyzer_names:
+            argv.extend(["--module", name])
+        for module in request.modules:
+            argv.extend(["--module", module])
     if request.install_missing:
         argv.append("--install-missing")
     if request.recall:
@@ -932,6 +938,27 @@ def execute_scan_request(request: ScanRequest) -> RunSummary:
     selection_started = time.perf_counter()
     try:
         analyzers = request.analyzers
+        if request.analyzer_profile_id is not None:
+            from .analyzer_profiles import get_analyzer_profiles, resolve_analyzer_profile
+            from .analyzers import get_registered_analyzers, get_analyzer_metadata
+            if request.modules or request.install_missing:
+                raise ValueError("Analyzer profiles cannot be combined with explicit modules or installation")
+            definition = next((p for p in get_analyzer_profiles()
+                               if request.analyzer_profile_id in (p.name, p.qualified_name)), None)
+            if definition is None:
+                raise ValueError("Unknown analyzer profile")
+            request.analyzer_profile_id = definition.qualified_name
+            if definition.selection_mode == "automatic":
+                if analyzers is not None:
+                    raise ValueError("Automatic profile cannot override an explicit analyzer list")
+            else:
+                registered = analyzers if analyzers is not None else get_registered_analyzers()
+                metadata = [get_analyzer_metadata(a) for a in registered]
+                if any(a.name != meta.name for a, meta in zip(registered, metadata)):
+                    raise ValueError("Analyzer runtime names do not match their declared metadata; profile unavailable.")
+                selection = resolve_analyzer_profile(definition.qualified_name, metadata)
+                by_name = {a.name: a for a in registered}
+                analyzers = [by_name[name] for name in selection.module_names]
         if analyzers is None and request.modules:
             analyzers = select_requested_analyzers(
                 request.modules,

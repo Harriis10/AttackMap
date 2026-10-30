@@ -6,11 +6,33 @@ public sealed partial class OverviewView:UserControl
 {
     private readonly StackPanel panel=new(){Spacing=12,Padding=new Thickness(16)};
     private ParityOverview? current;
+    private bool dirty;
+    private bool activated;
+    internal long BuildCount { get; private set; }
+    internal ParityOverview? Current => current;
     public event Action<OverviewLink>? NavigationRequested;
-    public OverviewView(){Content=new ScrollViewer{Content=panel};}
+    public OverviewView()
+    {
+        MinHeight=1;
+        Content=new ScrollViewer{Content=panel};
+        LayoutUpdated+=OnLayoutUpdated;
+    }
+    private void OnLayoutUpdated(object? sender,object args)
+    {
+        bool visible=UiActivation.IsEffectivelyVisible(this);
+        if(visible==activated&&!(visible&&dirty))return;
+        activated=visible;
+        if(visible&&dirty)Build();
+    }
     public void SetOverview(ParityOverview overview)
     {
-        current=overview;panel.Children.Clear();Text("Evidence overview",24);Text(overview.Repository,18);Text(overview.Coverage);
+        current=overview;panel.Children.Clear();dirty=true;
+        if(UiActivation.IsEffectivelyVisible(this))Build();
+    }
+    private void Build()
+    {
+        if(!dirty||current is not { } overview)return;
+        dirty=false;++BuildCount;Text("Evidence overview",24);Text(overview.Repository,18);Text(overview.Coverage);
         foreach(var count in overview.Counts)Text($"{count.Name}: {count.Value?.ToString()??"unknown"} ({count.Availability})");
         void Section(string title,OverviewList list)
         {

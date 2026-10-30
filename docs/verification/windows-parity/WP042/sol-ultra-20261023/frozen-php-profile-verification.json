@@ -1,0 +1,61 @@
+{
+  "classification": "Actual fresh frozen CLI profile scan of unchanged synthetic PHP/Omeka fixture; not real-repository accuracy or native UI acceptance",
+  "profile": "php-laminas-omeka@1.0",
+  "report_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp042-sol-ultra-20261023\\frozen-php-profile-scan\\20261023T092905-8705e801f40e4c0a9ad0c88241f726a8\\attackmap-report.json",
+  "report_sha256": "e6ec76db168b7b39377b865a7ca56a3c734d5bf024977c30beabad2456277dbb",
+  "routes": [
+    {
+      "path": "/admin/contact-board",
+      "method": "ANY",
+      "file": "module/ContactBoard/config/module.config.php",
+      "line": 40,
+      "auth": "unknown",
+      "guards": [],
+      "guard_evidence": null
+    },
+    {
+      "path": "/admin/contact-board/item/:id",
+      "method": "ANY",
+      "file": "module/ContactBoard/config/module.config.php",
+      "line": 52,
+      "auth": "unknown",
+      "guards": [],
+      "guard_evidence": null
+    },
+    {
+      "path": "/s/:site-slug/board",
+      "method": "ANY",
+      "file": "module/ContactBoard/config/module.config.php",
+      "line": 66,
+      "auth": "unknown",
+      "guards": [],
+      "guard_evidence": null
+    },
+    {
+      "path": "/s/:site-slug/board/submit",
+      "method": "ANY",
+      "file": "module/ContactBoard/config/module.config.php",
+      "line": 77,
+      "auth": "unknown",
+      "guards": [],
+      "guard_evidence": null
+    }
+  ],
+  "selected_modules": [
+    "php-web",
+    "config",
+    "php-laminas",
+    "default",
+    "omeka-s"
+  ],
+  "executed_modules": [
+    "php-web",
+    "config",
+    "php-laminas",
+    "default",
+    "omeka-s"
+  ],
+  "analyzer_errors": [],
+  "provider_calls": 0,
+  "checks_passed": true
+}

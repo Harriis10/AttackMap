@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "checks": 75,
+  "failed_checks": [],
+  "result_scope": "actual native RunFleet broker workflow with caller-selected frozen engine",
+  "active": {
+    "RunId": "0d47ee86d5d646048945e6b475ef4c0e",
+    "RepositorySetId": "fleet:ef0e893b25007d6e2699938f68f9c6195f58041db6e5f64ddd27d059a928332c",
+    "Generation": 1
+  },
+  "context": {
+    "RunId": "0d47ee86d5d646048945e6b475ef4c0e",
+    "GenerationId": "0d47ee86d5d646048945e6b475ef4c0e",
+    "ReportHash": "ff52019cafda7d618879466bd67eee0b144e1d550a98e75e2e4e7cc1da9b60dc",
+    "SelectionRevision": 1
+  },
+  "execution": {
+    "TimeoutSeconds": 1200,
+    "MaxWorkers": 2,
+    "Notice": "Fleet allowance: 1200 s total; at most 2 repository worker(s). Each child has its own captured snapshot. Count admission does not prove an OS memory cap."
+  },
+  "children": 16,
+  "opened": 2,
+  "captures": 8,
+  "capture_retries": [],
+  "vector_navigation_checks": [
+    {
+      "name": "vector_navigation_regression_context_before_child",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:14.4775308+00:00"
+    },
+    {
+      "name": "vector_navigation_regression_child_opened",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:15.7059075+00:00"
+    },
+    {
+      "name": "vector_navigation_regression_back_targets_fleet",
+      "passed": true,
+      "detail": null,
+      "at": "2026-10-23T11:51:15.7059087+00:00"
+    },
+    {
+      "name": "vector_navigation_regression_current_layout_settled",
+      "passed": true,
+      "detail": {
+        "vectorWasPending": true,
+        "source": "Pending surface transition plus real host child navigation/back; current layout polled after old task."
+      },
+      "at": "2026-10-23T11:51:18.5764464+00:00"
+    }
+  ],
+  "visual_acceptance": "FAIL compact vector graph below fold; first candidate preserved, responsive correction pending",
+  "interactive_pixels_proven": false,
+  "manual_accepted": false,
+  "os_capture": "Sky window capture timed out; no OS screenshot proof"
+}

@@ -1,0 +1,41 @@
+{
+  "status": "PASS_SOURCE_FIXTURE_PHP_DEPENDENCY_FOLLOWUP",
+  "tests_passed": 2,
+  "skipped": 0,
+  "failed": 0,
+  "pytest_seconds": 1.25,
+  "result": {
+    "exit_code": 0,
+    "elapsed_seconds": 2.281433600001037,
+    "started_utc": "2026-10-22T11:12:05.229445+00:00",
+    "finished_utc": "2026-10-22T11:12:07.599507+00:00",
+    "source_equal": true,
+    "scope": "Existing freeze venv dependencies with current source core; no frozen executable, GUI or provider calls."
+  },
+  "testcases": [
+    {
+      "class": "tests.test_analyzers",
+      "name": "test_discover_installed_analyzers_includes_php_web_when_installed",
+      "time_seconds": 0.234,
+      "passed": true
+    },
+    {
+      "class": "tests.test_analyzers",
+      "name": "test_analyze_repository_uses_installed_php_web_analyzer_for_php_routes",
+      "time_seconds": 0.164,
+      "passed": true
+    }
+  ],
+  "php_dependency_hashes_unchanged_since_preflight": true,
+  "broad_result_unchanged": "4423 passed,7 skipped,20 subtests; these two original dependency skips supplemented separately",
+  "still_unexecuted_skip_gates": [
+    "Claude CLI live opt-in",
+    "5000-file cancellation stress opt-in",
+    "two Windows chmod unreadable-file cases",
+    "Windows symlink export case"
+  ],
+  "limitations": [
+    "Uses source core plus existing freeze venv dependencies; does not execute frozen package.",
+    "No native GUI, live provider, manual, signing, clean-host or release acceptance."
+  ]
+}

@@ -6,6 +6,7 @@ from typing import Literal, get_args
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from .redact import redact_list, redact_text
+from .analyzer_run_ledger import AnalyzerRunLedger
 
 
 # Provenance field. Present on every analyzer-emitted signal so downstream
@@ -1068,6 +1069,8 @@ class ScanResult(BaseModel):
     limitations: list[str] = Field(default_factory=list)
     # Analyzers that failed and were skipped (#220).
     analyzer_errors: list[AnalyzerError] = Field(default_factory=list)
+    # Selection and observed invocation outcomes; absence means legacy/unknown.
+    analyzer_run_ledger: AnalyzerRunLedger | None = None
     files_scanned: int = 0
     # Content identity of the analyzed file snapshot (C33/AM047): set by the
     # index; the artifact manifest verifies the working tree against it at

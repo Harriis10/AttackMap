@@ -57,6 +57,8 @@ public sealed partial class MainWindow
         Fleet.ScanRequested += async repositories => await RunFleet(repositories);
         Fleet.CancelRequested += () => { StopFleetWatch(); fleetSession.Cancel(); };
         Fleet.OpenRepositoryRequested += async request => await OpenFleetChild(request);
+        Fleet.GraphExportRequested += async request => await ExportFleetGraph(request);
+        Fleet.GraphSourceRequested += async request => await InspectFleetGraphSource(request);
         SuppressionWorkspace.SetSelectionOnly(true);
         SuppressionWorkspace.ChooseBaselineRequested += async ticket => {
             var model = suppressionWorkspace;
@@ -77,7 +79,7 @@ public sealed partial class MainWindow
             if (value) { SuppressFileOption.Text = ""; StrictSuppressionsOption.IsChecked = false; }
             else if (suppressionWorkspace?.Baseline is { } baseline) SuppressFileOption.Text = baseline.Path;
         };
-        Closed += (_, _) => { scanAdmission?.Cancel(); repositoryWatch.Dispose(); fleetWatch.Dispose(); fleetSession.Disconnect(); };
+        Closed += (_, _) => { scanAdmission?.Cancel(); repositoryWatch.Dispose(); fleetWatch.Dispose(); fleetSession.Disconnect(); _ = Fleet.DisposeGraphAsync(); };
     }
 
     private void SelectRepositoryPath(string path)
@@ -206,6 +208,8 @@ public sealed partial class MainWindow
         FleetGeneration? identity = null;
         try
         {
+            var fleetExecution = Fleet.ExecutionOptions;
+            fleetGraphSource = null;
             string executable = EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory);
             await DiscoverEngineCapabilities(admission.Token);
             admission.Token.ThrowIfCancellationRequested();
@@ -230,7 +234,7 @@ public sealed partial class MainWindow
                         if (result.IndexPath != null) await LoadFleetSummary(result);
                     }
                     completedFullFleet = result.Outcome == "succeeded";
-                });
+                }, timeoutSeconds: fleetExecution.TimeoutSeconds, maxWorkers: fleetExecution.MaxWorkers);
         }
         catch (Exception error)
         {
@@ -259,6 +263,7 @@ public sealed partial class MainWindow
 
     private async Task LoadFleetSummary(FleetSessionResult result)
     {
+        if (result.Outcome == "partial") { await LoadPartialFleetSummary(result); return; }
         string folder = Path.GetDirectoryName(result.IndexPath!)!;
         string manifest = Path.Combine(folder, "artifact-manifest.json");
         if (!File.Exists(manifest)) return; // Partial generations can lack a complete rollup.
@@ -283,7 +288,11 @@ public sealed partial class MainWindow
         byte[] bytes = await ReadFleetBytes(Path.Combine(folder, relative), 64 * 1024 * 1024);
         if (ExportSelection.Hash(bytes) != entry.GetProperty("checksum").GetString() || ExportSelection.Hash(await ReadFleetBytes(manifest, 1024 * 1024)) != ExportSelection.Hash(manifestBytes)) throw new InvalidDataException("Fleet summary or manifest changed.");
         using var summary = JsonDocument.Parse(bytes);
-        if (!actionLifetime.IsCancellationRequested && Fleet.Workspace.Active == result.Generation) Fleet.ShowSummary(result.Generation, FleetAdapter.Read(summary.RootElement));
+        if (!actionLifetime.IsCancellationRequested && Fleet.Workspace.Active == result.Generation)
+        {
+            Fleet.ShowSummary(result.Generation, FleetAdapter.Read(summary.RootElement));
+            await BindFleetGraph(result, summary.RootElement, bytes, Path.Combine(folder, relative), manifest, ExportSelection.Hash(manifestBytes));
+        }
     }
     private async Task OpenFleetChild(FleetOpenRepository request)
     {

@@ -43,7 +43,7 @@ public sealed class EngineProtocol
     {
         if (message.ValueKind != JsonValueKind.Object) throw Invalid("Engine message must be an object.");
         string schema = Text(message, "schema_version");
-        if (schema is not ("1.0" or "1.1" or "1.2" or "1.3")) throw Invalid("Unsupported engine schema; supported range is 1.0–1.3. Upgrade the engine or desktop.");
+        if (schema is not ("1.0" or "1.1" or "1.2" or "1.3" or "1.5")) throw Invalid("Unsupported engine schema; supported single-run versions are 1.0, 1.1, 1.2, 1.3 and 1.5. Upgrade the engine or desktop.");
         if (Text(message, "run_id") != runId || Text(message, "repository_id") != repository || Integer(message, "generation") != generation)
             throw Invalid("Engine message does not match the selected run, repository and generation.");
         long incoming = Integer(message, "revision");

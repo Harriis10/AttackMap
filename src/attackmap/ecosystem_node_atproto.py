@@ -18,8 +18,8 @@ time, so it structurally cannot see the things this overlay adds:
   (``#atproto_pds``, ``BskyFeedGenerator``, …), service URL identifiers,
   inter-service HTTP calls to ``/xrpc/`` endpoints, repo event stream
   (``subscribeRepos`` firehose) subscriptions, and blob upload endpoints.
-- **Cross-file framework wiring.** Express auth middleware mounted under
-  one file and applied to routes defined elsewhere.
+- **Framework wiring evidence.** Express auth middleware mounts remain
+  observations; without application identity they do not certify XRPC auth.
 
 Analyzer-contract rules this module obeys (see docs/external-analyzers.md):
 
@@ -58,6 +58,8 @@ atproto:blob_upload                    protocol blob upload endpoint usage
 atproto:app_bsky_namespace             protocol app.bsky.* namespace usage
 atproto:xrpc_unwired:<nsid>            protocol lexicon declared but never wired (inferred)
 atproto:xrpc_no_lexicon:<nsid>         protocol wired method with no lexicon file (inferred)
+atproto:xrpc_auth_optional:<nsid>      protocol optional/empty auth expression; auth stays unknown
+atproto:xrpc_auth_unresolved:<nsid>    protocol unsupported auth expression; auth stays unknown
 =====================================  ======  =========================================
 
 Maturity: detectors are experimental pending the C27 labeled-corpus
@@ -220,16 +222,9 @@ class _WiredMethod:
     file: str
     line: int
     guard: str | None = None  # auth token observed in the registration config
-
-
-@dataclass
-class _MiddlewareMount:
-    """An express middleware mounted at a path prefix (observed)."""
-
-    mount: str
-    middleware: str
-    file: str
-    line: int
+    kind: str = "method"
+    auth_resolution: str | None = None
+    auth_expression: str = ""
 
 
 @dataclass
@@ -240,7 +235,6 @@ class _Overlay:
     sources: dict[str, str] = field(default_factory=dict)  # rel -> text (JS/TS)
     lexicons: dict[str, _LexiconMethod] = field(default_factory=dict)
     wired: dict[str, _WiredMethod] = field(default_factory=dict)
-    mounts: list[_MiddlewareMount] = field(default_factory=list)
     files: dict[str, str] = field(default_factory=dict)  # every file read
 
 
@@ -355,12 +349,11 @@ def _collect_files(repo: Path, index: object | None, overlay: _Overlay) -> None:
 # `server.method('com.example.foo', cfg, handler)` — the @atproto/xrpc-server
 # registration call. The NSID is validated afterwards.
 _XRPC_REGISTRATION_RE = re.compile(
-    r"\.\s*(?:method|xrpcMethod)\s*\(\s*['\"]([a-zA-Z0-9][a-zA-Z0-9.-]{2,200})['\"]"
+    r"\.\s*(?P<kind>method|xrpcMethod|streamMethod)\s*\(\s*['\"](?P<nsid>[a-zA-Z0-9][a-zA-Z0-9.-]{2,200})['\"]"
 )
 
 # Auth tokens inside a registration's *config object*: `auth: authVerifier`
 # (the @atproto/xrpc-server convention) or a standalone verifier token.
-_AUTH_KEY_VALUE_RE = re.compile(r"\bauth\s*:\s*([A-Za-z_]\w*)")
 _AUTH_COMPOUND_TOKEN_RE = re.compile(
     r"\b(?:authVerifier|verifyAuth|verifyServiceAuth|verifyAccessJwt|verifyRefreshJwt"
     r"|requireAuth|authenticate)\b"
@@ -463,14 +456,6 @@ _LINE_VERB_RE = re.compile(r"\.\s*(get|post|put|delete|patch)\s*\(", re.IGNORECA
 _ATPROTO_IMPORT_RE = re.compile(r"['\"]@atproto/([a-z0-9-]+)['\"]")
 
 
-def _mount_covers(mount: str, path: str) -> bool:
-    """Express-style segment-boundary prefix match of a mount against a path."""
-    trimmed = mount.rstrip("/") or "/"
-    if trimmed == "/":
-        return True
-    return path == trimmed or path.startswith(trimmed + "/")
-
-
 def _append_auth_hint(overlay: _Overlay, hint: str, rel: str, line: int, snippet: str,
                       confidence: float) -> None:
     key = (hint, rel)
@@ -481,70 +466,169 @@ def _append_auth_hint(overlay: _Overlay, hint: str, rel: str, line: int, snippet
     )
 
 
-def _registration_config(text: str, match: "re.Match[str]") -> str:
-    """The config-object argument of a ``.method(nsid, cfg, handler)`` call.
+def _registration_code(text: str) -> str:
+    """Blank literals/comments, conservatively hiding opaque slash expressions.
 
-    Bounded balanced-paren scan from the call's opening paren; the config is
-    the text between the first and second *top-level* comma (absent in the
-    two-argument ``method(nsid, handler)`` form, which returns ""). Keeping
-    the scan inside the call — and to the config argument only — stops the
-    next registration, or auth tokens inside the handler body, from leaking
-    into this registration's auth resolution.
+    NUL marks unsupported regex/division regions through the end of their
+    line. This is intentionally not a JavaScript regex/division parser.
     """
+    masked = list(text)
+    pos = 0
+    while pos < len(text):
+        start = pos
+        blank = " "
+        if text.startswith("//", pos):
+            end = text.find("\n", pos + 2)
+            pos = len(text) if end < 0 else end
+        elif text.startswith("/*", pos):
+            end = text.find("*/", pos + 2)
+            pos = len(text) if end < 0 else end + 2
+        elif text[pos] in {"'", '"', "`"}:
+            quote = text[pos]
+            pos += 1
+            while pos < len(text):
+                if text[pos] == "\\":
+                    pos += 2
+                elif text[pos] == quote:
+                    pos += 1
+                    break
+                else:
+                    pos += 1
+        elif text[pos] == "/":
+            end = text.find("\n", pos + 1)
+            pos = len(text) if end < 0 else end
+            blank = "\0"
+        else:
+            pos += 1
+            continue
+        for offset in range(start, min(pos, len(text))):
+            if text[offset] not in "\r\n":
+                masked[offset] = blank
+    return "".join(masked)
+
+
+def _registration_parts(text: str) -> tuple[list[tuple[int, int]], int] | None:
+    """Bounded direct comma-separated spans in one call or config object."""
+    code = _registration_code(text)
+    stack: list[str] = []
+    parts: list[tuple[int, int]] = []
+    start = 1
+    for pos, char in enumerate(code):
+        if char == "\0":
+            return None  # Opaque syntax may hide delimiters or auth overrides.
+        if char in "([{":
+            stack.append(char)
+            if len(stack) > 64:
+                return None
+        elif char in ")]}":
+            if not stack or stack.pop() != {")": "(", "]": "[", "}": "{"}[char]:
+                return None
+            if not stack:
+                parts.append((start, pos))
+                return parts, pos
+        elif char == "," and len(stack) == 1:
+            parts.append((start, pos))
+            start = pos + 1
+    return None
+
+
+def _registration_config(text: str, match: "re.Match[str]") -> str | None:
+    """The second argument of one complete literal registration, never its handler."""
     open_paren = text.find("(", match.start(), match.end())
     if open_paren < 0:
-        return ""
-    limit = min(len(text), open_paren + _REGISTRATION_MAX_CHARS)
-    depth = 0
-    commas: list[int] = []
-    for i in range(open_paren, limit):
-        ch = text[i]
-        if ch == "(":
-            depth += 1
-        elif ch == ")":
-            depth -= 1
-            if depth <= 0:
-                break
-        elif ch == "," and depth == 1:
-            commas.append(i)
-    if len(commas) < 2:
-        return ""
-    return text[commas[0] + 1: commas[1]]
+        return None
+    call = text[open_paren:open_paren + _REGISTRATION_MAX_CHARS]
+    parsed = _registration_parts(call)
+    if parsed is None or len(parsed[0]) not in {2, 3}:
+        return None
+    start, end = parsed[0][1]
+    return call[start:end].strip()
 
 
-def _guard_from_config(cfg: str) -> str | None:
-    """The auth verifier named in a registration config, if any."""
-    keyed = _AUTH_KEY_VALUE_RE.search(cfg)
-    if keyed is not None:
-        return keyed.group(1)
-    compound = _AUTH_COMPOUND_TOKEN_RE.search(cfg)
-    if compound is not None:
-        return compound.group(0)
-    return None
+def _guard_from_config(cfg: str) -> tuple[str | None, str | None, str]:
+    """Resolve only an explicit top-level auth field and supported verifier symbol.
+
+    Optional/empty and opaque expressions are observations, never proof that
+    credentials are required or that anonymous access is guaranteed.
+    """
+    if not cfg.startswith("{"):
+        return None, "unresolved", "unsupported config argument"
+    parsed = _registration_parts(cfg)
+    if parsed is None or cfg[parsed[1] + 1:].strip():
+        return None, "unresolved", "unsupported config object"
+    values: list[str] = []
+    for start, end in parsed[0]:
+        prop = cfg[start:end].strip()
+        if not prop:
+            continue
+        key = re.match(r"(?:([A-Za-z_$][\w$]*)|['\"]([^'\"]+)['\"])\s*:\s*", prop)
+        if key is None:
+            if re.fullmatch(r"[A-Za-z_$][\w$]*", prop) and prop != "auth":
+                continue  # ordinary handler shorthand cannot replace auth
+            return None, "unresolved", "opaque config property"
+        if key.group(2) is not None and "\\" in key.group(2):
+            return None, "unresolved", "escaped config property name"
+        if (key.group(1) or key.group(2)) == "auth":
+            values.append(prop[key.end():].strip())
+    if not values:
+        return None, None, ""
+    if len(values) != 1:
+        return None, "unresolved", "duplicate auth property"
+    expression = values[0]
+    reference = re.fullmatch(r"[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*", expression)
+    if expression in {"null", "undefined", "false"} or (reference and re.search(r"optional|nullCreds|unauthenticated", expression, re.IGNORECASE)):
+        return None, "optional", expression
+    if _AUTH_COMPOUND_TOKEN_RE.fullmatch(expression):
+        return expression, None, expression
+    return None, "unresolved", "unsupported auth expression"
 
 
 def _extract_wiring(rel: str, text: str, overlay: _Overlay) -> None:
     """XRPC method registrations and auth middleware mounts in one source file."""
     index = _LineIndex(text)
+    code = _registration_code(text)
     for match in _XRPC_REGISTRATION_RE.finditer(text):
-        nsid = match.group(1)
+        if code[match.start()] != ".":
+            if code[match.start()] == "\0":
+                note = f"{_PRODUCER}: registration candidates in regex/division expressions unsupported in {rel}; line skipped"
+                if note not in overlay.result.limitations:
+                    overlay.result.limitations.append(note)
+            continue
+        nsid = match.group("nsid")
         if not _is_nsid(nsid):
             continue
         if nsid in overlay.wired:
             continue  # first registration wins; later ones are re-exports
-        guard = _guard_from_config(_registration_config(text, match))
+        kind = match.group("kind")
+        lexicon = overlay.lexicons.get(nsid)
+        if lexicon is not None and ((kind == "streamMethod") != (lexicon.type == "subscription")):
+            overlay.result.protocol_hints.append(ProtocolHint(
+                hint=f"atproto:xrpc_registration_kind_mismatch:{nsid}", file=rel,
+                line=index.line_of(match.start()), confidence=0.85,
+                evidence_text=f"{kind} registration does not match lexicon type '{lexicon.type}'; wiring unresolved",
+            ))
+            continue
+        config = _registration_config(text, match)
+        if config is None:
+            overlay.result.protocol_hints.append(ProtocolHint(
+                hint=f"atproto:xrpc_registration_unresolved:{nsid}", file=rel,
+                line=index.line_of(match.start()), confidence=0.7,
+                evidence_text="registration is incomplete or outside the bounded supported syntax; wiring unresolved",
+            ))
+            continue
+        guard, auth_resolution, auth_expression = _guard_from_config(config)
         overlay.wired[nsid] = _WiredMethod(
-            nsid=nsid, file=rel, line=index.line_of(match.start()), guard=guard
+            nsid=nsid, file=rel, line=index.line_of(match.start()), guard=guard,
+            kind=kind, auth_resolution=auth_resolution, auth_expression=auth_expression,
         )
 
     for match in _MIDDLEWARE_MOUNT_RE.finditer(text):
+        if code[match.start()] != text[match.start()]:
+            continue
         middleware = match.group("mw")
         if not _AUTHISH_NAME_RE.search(middleware):
             continue  # body parsers, xrpc handlers, loggers: not auth chains
         line = index.line_of(match.start())
-        overlay.mounts.append(
-            _MiddlewareMount(mount=match.group("mount"), middleware=middleware, file=rel, line=line)
-        )
         # The observed chain itself is a signal (a strength), independent of
         # whether any XRPC route later resolves against it.
         _append_auth_hint(
@@ -647,7 +731,7 @@ def _extract_source_signals(rel: str, text: str, overlay: _Overlay) -> None:
 
 # --- Route assembly -----------------------------------------------------------
 
-_LEXICON_TYPE_TO_METHOD = {"query": "GET", "procedure": "POST", "subscription": "GET"}
+_LEXICON_TYPE_TO_METHOD = {"query": "GET", "procedure": "POST", "subscription": "WS"}
 
 
 def _emit_routes(overlay: _Overlay) -> None:
@@ -658,8 +742,8 @@ def _emit_routes(overlay: _Overlay) -> None:
     without wiring still emits its declared route plus an unwired inference;
     a wired method without a lexicon emits its route plus a no-lexicon
     inference. Auth is only marked ``required`` when an auth token was
-    observed in the registration config or an auth middleware mount covers
-    the path; otherwise the route stays ``unknown`` and an
+    observed in the registration config; unbound middleware mounts cannot
+    certify the handler. Otherwise the route stays ``unknown`` and an
     ``xrpc_no_auth_observed`` inference is emitted for core to weigh.
     """
     result = overlay.result
@@ -667,7 +751,7 @@ def _emit_routes(overlay: _Overlay) -> None:
     for nsid, wired in sorted(overlay.wired.items()):
         path = f"/xrpc/{nsid}"
         method = _LEXICON_TYPE_TO_METHOD.get(overlay.lexicons[nsid].type, "ANY") \
-            if nsid in overlay.lexicons else "ANY"
+            if nsid in overlay.lexicons else ("WS" if wired.kind == "streamMethod" else "ANY")
         guards: list[str] = []
         guard_evidence: str | None = None
         auth = "unknown"
@@ -679,23 +763,17 @@ def _emit_routes(overlay: _Overlay) -> None:
             _append_auth_hint(overlay, f"xrpc_auth_verifier:{nsid}", wired.file, wired.line,
                               guard_evidence, 0.9)
         else:
-            covering = next(
-                (m for m in overlay.mounts if _mount_covers(m.mount, path)), None
+            _append_auth_hint(
+                overlay, f"xrpc_no_auth_observed:{nsid}", wired.file, wired.line,
+                f"XRPC handler '{nsid}' registered with no supported required-auth verifier "
+                f"({wired.file}:{wired.line})", 0.6,
             )
-            if covering is not None:
-                auth = "required"
-                guards = [covering.middleware]
-                guard_evidence = (
-                    f"inferred: middleware '{covering.middleware}' mounted at "
-                    f"'{covering.mount}' ({covering.file}:{covering.line})"
-                )
-            else:
-                _append_auth_hint(
-                    overlay, f"xrpc_no_auth_observed:{nsid}", wired.file, wired.line,
-                    f"XRPC handler '{nsid}' registered with no observed auth verifier "
-                    f"({wired.file}:{wired.line})",
-                    0.6,
-                )
+            if wired.auth_resolution:
+                result.protocol_hints.append(ProtocolHint(
+                    hint=f"atproto:xrpc_auth_{wired.auth_resolution}:{nsid}", file=wired.file,
+                    line=wired.line, confidence=0.7,
+                    evidence_text=f"auth {wired.auth_resolution}: {wired.auth_expression[:500] or 'config unavailable'}; route auth remains unknown",
+                ))
 
         if nsid not in overlay.lexicons:
             result.protocol_hints.append(
