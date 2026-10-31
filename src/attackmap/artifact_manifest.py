@@ -121,12 +121,14 @@ def _analyzer_identity(analyzer_metadata: list[dict[str, Any]]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def _captured_sources(out: Path, snapshot_id: str) -> list[dict[str, str]]:
-    """AI-excerpt source spans this run captured, recorded under one snapshot id.
+def _captured_sources(
+    out: Path, snapshot_id: str, raw_files: dict[str, str]
+) -> list[dict[str, str]]:
+    """Bind excerpt sources only when their raw hashes match the snapshot.
 
     Spans are content-addressed and immutable (they never re-read the live
-    file); recording the snapshot id they were captured under ties every AI
-    excerpt in the published run to one analyzed revision (C33/AM047).
+    file). A normalized text hash cannot establish original-byte identity;
+    missing raw hashes and mismatches remain explicitly unbound (C33/AM047).
     """
     sources: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()
@@ -143,8 +145,10 @@ def _captured_sources(out: Path, snapshot_id: str) -> list[dict[str, str]]:
             if not isinstance(path, str) or not isinstance(sha, str) or (path, sha) in seen:
                 continue
             seen.add((path, sha))
-            sources.append({"path": path, "source_sha256": sha,
-                            "captured_under_snapshot_id": snapshot_id})
+            source = {"path": path, "source_sha256": sha}
+            if raw_files.get(path) == sha:
+                source["captured_under_snapshot_id"] = snapshot_id
+            sources.append(source)
     return sources
 
 
@@ -185,9 +189,27 @@ def _snapshot_publication_block(
     if limitation is not None:
         block["incomplete"] = True
         block["limitation"] = limitation
-    captured = _captured_sources(out, snapshot.snapshot_id)
+    captured = _captured_sources(out, snapshot.snapshot_id, dict(snapshot.raw_files))
     if captured:
         block["sources_captured"] = captured
+        unbound = sorted({source["path"] for source in captured
+                          if "captured_under_snapshot_id" not in source})
+        block["source_capture_verification"] = {
+            "state": "unverified" if unbound else "verified",
+            "unbound_paths": unbound,
+            "basis": "sha256 of original captured bytes",
+        }
+        if unbound:
+            note = "AI excerpt sources do not match captured raw snapshot: " + ", ".join(unbound)
+            # Tree verification alone cannot validate an excerpt captured from
+            # a transient revision that was restored before publication.
+            if block["verification"]["state"] == "verified":
+                block["verification"]["state"] = "unverified"
+            block["verification"]["note"] = note
+            block["incomplete"] = True
+            block["limitation"] = ((limitation + " ") if limitation else "") + (
+                "incomplete snapshot: " + note + ". Re-run for a consistent report."
+            )
     return block
 
 

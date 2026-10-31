@@ -105,7 +105,8 @@ public sealed class FleetSession
         return s.Append('"').ToString();
     }
     public async Task Run(string engine, IReadOnlyList<FleetRoot> repositories,string output,long generation,
-        Action<FleetGeneration> started,Action<FleetChildStatus> child,Func<FleetSessionResult,Task> completed,int timeoutSeconds = 600,int maxWorkers = 1)
+        Action<FleetGeneration> started,Action<FleetChildStatus> child,Func<FleetSessionResult,Task> completed,int timeoutSeconds = 600,int maxWorkers = 1,
+        FleetScanOptions? options = null, string modules = "")
     {
         if (CleanupBlocked || Interlocked.CompareExchange(ref admitted,1,0) != 0) throw new InvalidOperationException("Fleet active or cleanup unverified.");
         try
@@ -114,10 +115,13 @@ public sealed class FleetSession
             var roots = validation.Repositories.ToArray();
             if (roots.Length < 2 || generation < 1 || timeoutSeconds is < 1 or > 86400 || maxWorkers is < 1 or > 4 || !Path.IsPathFullyQualified(output)) throw new InvalidDataException("Invalid fleet request limits or paths.");
             var identity = new FleetGeneration(Guid.NewGuid().ToString("N"),RepositorySetId(roots),generation);
-            string runFolder = Path.Combine(output,"native-fleet-" + identity.RunId); Directory.CreateDirectory(runFolder);
+            options ??= new FleetScanOptions(TimeoutSeconds: timeoutSeconds);
+            if (options.TimeoutSeconds != timeoutSeconds) throw new InvalidDataException("Fleet transport and supervisor allowance disagree.");
+            string runFolder = Path.Combine(output,"native-fleet-" + identity.RunId);
+            string payload = NativeFleetRequest.Serialize(identity, roots, runFolder, options, maxWorkers, modules);
+            Directory.CreateDirectory(runFolder);
             string request = Path.Combine(runFolder,"native-request.json");
-            File.WriteAllText(request,JsonSerializer.Serialize(new { schema_version="1.4",kind="fleet_request",run_id=identity.RunId,repository_id=identity.RepositorySetId,generation,revision=0,
-                repositories=roots.Select(r => new { repository_id=r.RepositoryId,repository_path=r.RepositoryPath }),output_path=runFolder,max_workers=maxWorkers,options=new { timeout_seconds=timeoutSeconds } }));
+            File.WriteAllText(request,payload);
             var start = new EngineLaunchSpec(engine).CreateStartInfo(EngineBrokerKind.Worker,request);
             foreach (string key in new[]{"OPENAI_API_KEY","ANTHROPIC_API_KEY","ANTHROPIC_AUTH_TOKEN","OPENAI_BASE_URL","ANTHROPIC_BASE_URL","OPENAI_ORG_ID","OPENAI_PROJECT_ID","ATTACKMAP_ACTION_CREDENTIAL"}) start.Environment.Remove(key);
             var protocol = new FleetProtocol(identity,roots); started(identity);

@@ -90,6 +90,14 @@ public sealed partial class MainWindow : Window
             placementStore = new WindowPlacementStore(Path.Combine(qaFolder, "window.json"));
             recentStore = new HistoryPrep.RecentRepositoriesStore(Path.Combine(qaFolder, "recent.json"));
         }
+        fleetTransportQaDirectory = ReadFleetTransportSmokeDirectory(startup);
+        if (fleetTransportQaDirectory is { } fleetTransportQa)
+        {
+            settings = new LocalSettingsStore(Path.Combine(fleetTransportQa, "settings.json"));
+            placementStore = new WindowPlacementStore(Path.Combine(fleetTransportQa, "window.json"));
+            recentStore = new HistoryPrep.RecentRepositoriesStore(Path.Combine(fleetTransportQa, "recent.json"));
+            providerRenderActionDirectory = Path.Combine(fleetTransportQa, "actions");
+        }
         InitializeComponent();
         Closed += (_, _) => { ready = false; ++generation; };
         InitializeParityWorkspace();
@@ -126,6 +134,8 @@ public sealed partial class MainWindow : Window
             ((FrameworkElement)Content).Loaded += NavigationRenderSmokeLoaded;
         else if (startup.Contains("--fleet-graph-smoke"))
             ((FrameworkElement)Content).Loaded += FleetGraphSmokeLoaded;
+        else if (startup.Contains("--fleet-transport-smoke"))
+            ((FrameworkElement)Content).Loaded += FleetTransportSmokeLoaded;
         else if (startup.Contains("--analyzer-smoke"))
             ((FrameworkElement)Content).Loaded += AnalyzerSmokeLoaded;
         else if (startup.Contains("--parity-smoke"))
@@ -488,7 +498,7 @@ public sealed partial class MainWindow : Window
                 RenderDiagnosticsWrite("report-bind-completed", new { generation = current, displayedRun, displayedReadHash,
                     elapsedMilliseconds = reportClock.Elapsed.TotalMilliseconds, initialReportReadCount = 1,
                     laterReportIntegrityReadCount = timing.ReportIntegrityReadCount, findingCount = all.Count,
-                    reviewCharacters = ReviewText.Text.Length, overviewCount = overview.Counts.Count,
+                    reviewCharacters = ReviewText.Text.Length, overviewCharacters = OverviewText.Text.Length, overviewCount = overview.Counts.Count,
                     hiddenWorkCounters = new { graphLoads = Diagrams.GraphLoadCount, legacySelectionLoads = Diagrams.LegacySelectionLoadCount,
                         interactiveInitializationAttempts = Diagrams.InteractiveInitializationAttemptCount,
                         markdownBuilds = ReviewText.RenderCount + AiReviewText.RenderCount, overviewBuilds = EvidenceOverview.BuildCount },

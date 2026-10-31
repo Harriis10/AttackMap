@@ -97,6 +97,24 @@ def test_dns_case_and_final_dot_are_canonical_but_no_alias_or_default_port_is_in
         project_shared_datastores([left, right])
 
 
+@pytest.mark.parametrize("prefix", ["sk-proj-", "SK-PROJ-"])
+def test_secret_shaped_dns_labels_are_rejected_before_and_after_canonicalization(prefix):
+    from attackmap.fleet_resource_identity import QualifiedDatastoreIdentity
+    from attackmap.redact import redact_text
+
+    host = prefix + "a" * 30 + ".example.internal"
+    assert redact_text(host.lower()) != host.lower()
+    record = declaration()
+    record["identity"]["host"] = host
+    with pytest.raises(ValidationError):
+        QualifiedDatastoreIdentity.model_validate(record["identity"])
+    with pytest.raises(ValueError) as error:
+        project_shared_datastores([record, declaration("C:/repos/writer")])
+    assert type(error.value) is ValueError
+    assert host not in str(error.value) and host.lower() not in str(error.value)
+    assert error.value.__context__ is None and error.value.__cause__ is None
+
+
 @pytest.mark.parametrize(("section", "field", "value"), [
     ("identity", "host", "postgresql://user:verysecret@db.example.internal:5432/catalog"),
     ("identity", "host", "db.example.internal?token=verysecret"),

@@ -1,7 +1,7 @@
 <Window x:Class="AttackMap.NativeSpike.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:AttackMap.NativeSpike" xmlns:history="using:AttackMap.NativeSpike.HistoryPrep" Title="AttackMap">
- <Grid Background="{ThemeResource AttackCanvasBrush}">
+ <Grid Background="{ThemeResource AttackCanvasBrush}" KeyboardAcceleratorPlacementMode="Hidden">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <MenuBar x:Name="CommandMenu" Padding="12,0" AutomationProperties.Name="Application commands">
    <MenuBarItem Title="File">
@@ -64,17 +64,19 @@
     <Grid RowSpacing="8">
      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <TextBox x:Name="Search" PlaceholderText="Filter findings" TextChanged="Filter" AutomationProperties.Name="Filter findings by title severity or source"/>
-     <ListView x:Name="Findings" Grid.Row="1" Background="{ThemeResource AttackSurfaceBrush}" BorderBrush="{ThemeResource AttackStrokeBrush}" BorderThickness="1" CornerRadius="10" Padding="6" SelectionChanged="SelectFinding" AutomationProperties.Name="Findings">
+     <ListView x:Name="Findings" Grid.Row="1" Background="{ThemeResource AttackSurfaceBrush}" BorderBrush="{ThemeResource AttackStrokeBrush}" BorderThickness="1" CornerRadius="10" Padding="6" SelectionChanged="SelectFinding" AutomationProperties.Name="Findings" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
       <ListView.ItemsPanel><ItemsPanelTemplate><ItemsStackPanel/></ItemsPanelTemplate></ListView.ItemsPanel>
-      <ListView.ItemTemplate><DataTemplate><StackPanel Orientation="Horizontal" Spacing="10" Padding="10,12">
+      <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style></ListView.ItemContainerStyle>
+      <ListView.ItemTemplate><DataTemplate><Grid ColumnSpacing="10" Padding="10,12">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
        <Border Background="{Binding SeverityBrush}" CornerRadius="4" Padding="9,3" VerticalAlignment="Top" MinWidth="64">
         <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center"/>
        </Border>
-       <StackPanel Spacing="4" VerticalAlignment="Top">
+       <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Top">
         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis"/>
         <TextBlock Text="{Binding Summary}" Foreground="{ThemeResource AttackMutedBrush}" FontSize="12" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"/>
        </StackPanel>
-      </StackPanel></DataTemplate></ListView.ItemTemplate>
+      </Grid></DataTemplate></ListView.ItemTemplate>
      </ListView>
     </Grid>
     <ScrollViewer x:Name="FindingInspector" Grid.Column="1" Background="{ThemeResource AttackSurfaceBrush}" BorderBrush="{ThemeResource AttackStrokeBrush}" BorderThickness="1" CornerRadius="10" Padding="20" HorizontalScrollBarVisibility="Disabled"><StackPanel Spacing="12">

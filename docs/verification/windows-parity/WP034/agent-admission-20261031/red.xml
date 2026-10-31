@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="12" time="3.161" timestamp="2026-10-31T10:03:37.043479+01:00" hostname="corpsec"><testcase classname="tests.test_fleet_input_budget" name="test_fixed_quotas_and_child_environment_do_not_mutate_parent" time="0.007"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:43: in test_fixed_quotas_and_child_environment_do_not_mutate_parent
+    req = request(tmp_path, 11, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_zero_quota_is_typed_failure_and_successful_sibling_survives" time="0.006"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:59: in test_zero_quota_is_typed_failure_and_successful_sibling_survives
+    req = request(tmp_path, 1, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_invalid_opt_in_budget_fails_before_dispatch[0]" time="0.004"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_invalid_opt_in_budget_fails_before_dispatch[-1]" time="0.005"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_invalid_opt_in_budget_fails_before_dispatch[True]" time="0.004"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_invalid_opt_in_budget_fails_before_dispatch[1.5]" time="0.004"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_invalid_opt_in_budget_fails_before_dispatch[10]" time="0.004"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_no_opt_in_preserves_existing_worker_signature_and_manifest" time="0.004" /><testcase classname="tests.test_fleet_input_budget" name="test_unbound_or_excess_worker_capture_is_typed_failure[missing]" time="0.003"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:105: in test_unbound_or_excess_worker_capture_is_typed_failure
+    req = request(tmp_path, 10, count=1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_unbound_or_excess_worker_capture_is_typed_failure[over_budget]" time="0.005"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:105: in test_unbound_or_excess_worker_capture_is_typed_failure
+    req = request(tmp_path, 10, count=1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_unbound_or_excess_worker_capture_is_typed_failure[wrong_budget]" time="0.005"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:105: in test_unbound_or_excess_worker_capture_is_typed_failure
+    req = request(tmp_path, 10, count=1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase><testcase classname="tests.test_fleet_input_budget" name="test_actual_subprocess_capture_preserves_skip_events_and_partial_scope" time="0.003"><failure message="TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'">tests\test_fleet_input_budget.py:126: in test_actual_subprocess_capture_preserves_skip_events_and_partial_scope
+    req = request(tmp_path, 11, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'</failure></testcase></testsuite></testsuites>

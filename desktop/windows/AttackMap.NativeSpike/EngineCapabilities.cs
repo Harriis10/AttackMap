@@ -177,6 +177,30 @@ public sealed class EngineCapabilities
         var installed = Analyzers.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
         if (NativeScanOptions.ParseModules(modules).Any(name => !installed.Contains(name))) throw new InvalidDataException("An explicitly selected analyzer is unavailable in this engine. No automatic replacement was chosen.");
     }
+    public void RequireFleetSupport(JsonElement options, string modules, int maxWorkers)
+    {
+        if (!Compatible || !SchemaVersions.Contains("1.4")) throw new InvalidDataException("Selected engine does not support fleet schema 1.4.");
+        try
+        {
+            var fleet = document.GetProperty("desktop").GetProperty("fleet_by_schema").GetProperty("1.4");
+            if (!fleet.GetProperty("multi_repo").GetBoolean() || maxWorkers > fleet.GetProperty("maximum_workers").GetInt32()) throw new InvalidDataException();
+            var supported = fleet.TryGetProperty("scan_options", out var fields) ? Strings(fields) :
+                optionsBySchema["1.4"].Where(name => name != "analyzer_profile").ToHashSet(StringComparer.Ordinal);
+            if (options.EnumerateObject().Any(field => !supported.Contains(field.Name))) throw new InvalidDataException();
+            var installed = Analyzers.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
+            if (NativeScanOptions.ParseModules(modules).Any(name => !installed.Contains(name))) throw new InvalidDataException();
+            if (options.TryGetProperty("analyzer_profile", out var profile))
+            {
+                if (NativeScanOptions.ParseModules(modules).Length != 0) throw new InvalidDataException();
+                var catalog = document.GetProperty("analyzer_profiles");
+                if (catalog.GetProperty("schema_version").GetString() != "1.0") throw new InvalidDataException();
+                var matches = catalog.GetProperty("profiles").EnumerateArray().Where(item => item.GetProperty("qualified_name").GetString() == profile.GetString()).ToArray();
+                if (matches.Length != 1 || !matches[0].GetProperty("available").GetBoolean()) throw new InvalidDataException();
+            }
+        }
+        catch (Exception error) when (error is InvalidDataException or InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
+        { throw new InvalidDataException("Selected engine does not advertise the requested fleet options or analyzer selection. Settings are preserved; no fleet was started."); }
+    }
     public static string RestoreEngineSelection(string savedPath, string applicationDirectory)
     {
         string bundled = Path.Combine(applicationDirectory, "engine", "attackmap.exe");

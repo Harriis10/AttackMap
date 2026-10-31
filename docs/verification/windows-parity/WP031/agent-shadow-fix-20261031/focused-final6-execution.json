@@ -1,0 +1,29 @@
+{
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "-B",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP031\\agent-shadow-fix-20261031\\run_checks.py",
+    "focused-final6"
+  ],
+  "pytest_arguments": [
+    "tests/test_authz_bound_handlers.py",
+    "tests/test_authz.py",
+    "tests/test_route_auth_fusion.py",
+    "tests/test_recall.py",
+    "tests/test_snapshot_consistency.py",
+    "tests/test_evaluation.py",
+    "tests/test_evaluation_increment.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP031\\agent-shadow-fix-20261031\\pytest-focused-final6-qualified-01",
+    "--junitxml",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP031\\agent-shadow-fix-20261031\\focused-final6-qualified-final.xml"
+  ],
+  "scope_guard_disabled_in_process": false,
+  "directory_mode_workaround_in_process": "os.mkdir mode=0777; no source/harness changes",
+  "exit_code": 0,
+  "seconds": 32.782,
+  "provider_calls": 0
+}

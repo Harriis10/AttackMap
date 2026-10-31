@@ -1,0 +1,39 @@
+{
+  "runs": [
+    {
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "attackmap",
+        "evaluate",
+        "--corpus",
+        "fixtures/evaluation/increment-20261031/corpus.json",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP031\\agent-shadow-fix-20261031\\final-binder-guard\\evaluation-increment"
+      ],
+      "exit_code": 0,
+      "seconds": 5.209,
+      "exact_json_equal_to_pre_correction_report": false
+    },
+    {
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "attackmap",
+        "evaluate",
+        "--corpus",
+        "fixtures/evaluation/corpus.json",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP031\\agent-shadow-fix-20261031\\final-binder-guard\\evaluation-baseline"
+      ],
+      "exit_code": 0,
+      "seconds": 6.921,
+      "exact_json_equal_to_pre_correction_report": true
+    }
+  ],
+  "inputs_and_sources_unchanged_during_runs": true,
+  "original_frozen_increment_exactly_unchanged": true,
+  "provider_calls": 0
+}

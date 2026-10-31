@@ -18,6 +18,14 @@ def configure_redirected_stdio() -> None:
 
 def main() -> None:
     configure_redirected_stdio()
+    # The isolated analyzer supervisor uses this fixed Python-style worker
+    # invocation. A frozen executable has no interpreter -m dispatcher.
+    if getattr(sys, "frozen", False) and sys.argv[1:4] == [
+        "-m", "attackmap.analyzer_host", "--worker",
+    ]:
+        from attackmap.analyzer_host import _main
+
+        raise SystemExit(_main(sys.argv[3:]))
     from attackmap.cli import app
 
     app()

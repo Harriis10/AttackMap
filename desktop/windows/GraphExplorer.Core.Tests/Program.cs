@@ -193,9 +193,17 @@ Check(observedFilter.Edges.SelectMany(x => x.UnderlyingEdgeIds).Concat(observedF
 var candidates = GraphProjection.Create(filterDoc, null, new(GraphResolutionFilter.Candidate));
 Check(candidates.Edges.Length == 1 && candidates.Edges[0].UnderlyingEdgeIds[0] == "edge:candidate", "Exact candidate bucket");
 var upstream = GraphProjection.Create(filterDoc, filterDoc.Repositories.Select(x => x.Id), new(Neighborhood: GraphNeighborhood.Upstream, FocusNodeId: "repo:1"));
-Check(upstream.Edges.All(e => e.Target == "repo:1"), "Upstream is an explicit one-hop modeled neighborhood");
+Check(upstream.Edges.All(e => e.Directed ? e.Target == "repo:1" : e.Source == "repo:1" || e.Target == "repo:1"), "Upstream preserves directed targets and either undirected endpoint");
 var downstream = GraphProjection.Create(filterDoc, filterDoc.Repositories.Select(x => x.Id), new(Neighborhood: GraphNeighborhood.Downstream, FocusNodeId: "repo:1"));
-Check(downstream.Edges.All(e => e.Source == "repo:1"), "Downstream uses original endpoint membership");
+Check(downstream.Edges.All(e => e.Directed ? e.Source == "repo:1" : e.Source == "repo:1" || e.Target == "repo:1"), "Downstream preserves directed sources and either undirected endpoint");
+foreach (string focus in new[] { "repo:0", "repo:1" })
+    foreach (var direction in new[] { GraphNeighborhood.Upstream, GraphNeighborhood.Downstream })
+    {
+        var neighbors = GraphProjection.Create(filterDoc, filterDoc.Repositories.Select(x => x.Id), new(Neighborhood: direction, FocusNodeId: focus));
+        var undirected = neighbors.Edges.Single(edge => edge.UnderlyingEdgeIds.Contains("edge:undirected"));
+        Check(!undirected.Directed && undirected.Source == "repo:0" && undirected.Target == "repo:1", "Undirected neighbors are symmetric without rewriting canonical endpoint order");
+        Check(!neighbors.IsContinuousCanonicalPath(["edge:undirected"]), "Undirected neighbor is never a directed path");
+    }
 Check(observedFilter.Document.Edges.Length == document.Edges.Length && observedFilter.Nodes.Length == overview.Nodes.Length, "All repository identity and canonical facts survive filtering");
 var exportedFilter = JsonNode.Parse(GraphExporter.JsonWithMetadata(filterDoc, observedFilter))!;
 Check(exportedFilter["edges"]!.AsArray().Count == filterDoc.Edges.Length && exportedFilter["export_metadata"]!["resolution_filter"]!.GetValue<string>() == "Observed", "Full JSON includes excluded facts and explicit filter metadata");

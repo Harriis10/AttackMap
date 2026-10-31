@@ -6,10 +6,16 @@ from pathlib import Path
 import tempfile
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from tools.capture_wp043_live import (
     LiveBackend,
     WindowsLiveBackend,
+    FrameSafetyError,
+    ClientModalInspectionError,
+    NativeWindowSafetyError,
+    NavigationFocusError,
+    WindowEnumerationError,
     WindowInfo,
     choose_owned_window,
     diagram_activation_acknowledged,
@@ -22,6 +28,13 @@ from tools.capture_wp043_live import (
     run,
     validate_capture_name,
     validate_new_output,
+    _png_quality,
+    _detail_root_png,
+    _require_safe,
+    _error_details,
+    _native_window_snapshot,
+    _owned_transient_only,
+    _window_details,
 )
 
 
@@ -81,6 +94,7 @@ class FakeBackend(LiveBackend):
         self.operations = []
         self.kill_calls = []
         self.pending_label = None
+        self.focused_navigation = None
         self.selected_label = "Findings"
         self.navigation_revision = 0
         self.finding_revision = 0
@@ -158,6 +172,12 @@ class FakeBackend(LiveBackend):
     def focus_navigation(self, window, label):
         self.operations.append(("focus", label))
         self.pending_label = label
+        self.focused_navigation = (window.hwnd, label)
+
+    def require_navigation_focus(self, window, label):
+        self.operations.append(("verify-focus", label))
+        if self.focused_navigation != (window.hwnd, label):
+            raise NavigationFocusError({"api": "UIAutomation", "failureStage": "navigation-keyboard-focus"})
 
     def select_first_finding(self, window):
         self.operations.append("select-first-finding")
@@ -227,7 +247,7 @@ class FakeBackend(LiveBackend):
             self._append("f12-before-detail-brush")
             self._append("f12-detail-brush-replaced", targetName="Detail", mutationApplied=True)
             self._append("f12-after-detail-brush")
-        elif key == "F7":
+        elif key == "CTRL+ALT+SHIFT+R":
             context = dict(
                 probeId=f"root-probe-{self.finding_revision}", generation=1,
                 displayedReadHash=self.report_hash, navigationRevision=self.navigation_revision,
@@ -237,7 +257,13 @@ class FakeBackend(LiveBackend):
             if self.detail_root_render_probe_failed is not None:
                 self._append("detail-root-render-capture-failed", **context, errorType="IOException")
                 return
-            png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=")
+            from PIL import Image
+            import io
+            raster = Image.new("RGBA", (2, 1), (255, 255, 255, 255))
+            raster.putpixel((1, 0), (255, 255, 255, 128))
+            stream = io.BytesIO()
+            raster.save(stream, format="PNG")
+            png = stream.getvalue()
             detail_name = f"detail-root-render-detail-r{self.finding_revision:02d}.png"
             root_name = f"detail-root-render-root-r{self.finding_revision:02d}.png"
             (self.diagnostics_dir / detail_name).write_bytes(png)
@@ -245,7 +271,7 @@ class FakeBackend(LiveBackend):
             self._append(
                 "detail-root-render-capture-completed", **context,
                 detailFileName=detail_name, rootFileName=root_name,
-                detailWidth=1, detailHeight=1, rootWidth=1, rootHeight=1, scale=1.0,
+                detailWidth=2, detailHeight=1, rootWidth=2, rootHeight=1, scale=1.0,
             )
         elif key == "F8":
             context = dict(
@@ -276,6 +302,9 @@ class FakeBackend(LiveBackend):
         self.capture_count += 1
         return FakeImage(f"print-window-{self.capture_count}".encode("ascii"))
 
+    def client_modal_details(self, window):
+        return []
+
     def save_image(self, image, path):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         Path(path).write_bytes(image.payload)
@@ -294,10 +323,64 @@ class FakeBackend(LiveBackend):
 
 
 class WP043LiveCaptureTests(unittest.TestCase):
+    def test_diagram_activation_before_navigation_ack_is_bound_to_dispatch(self):
+        for failed in (False, True):
+            with self.subTest(failed=failed), tempfile.TemporaryDirectory() as temporary:
+                class EarlyActivationBackend(FakeBackend):
+                    def _navigate(self, label):
+                        super()._navigate(label)
+                        if label == "Diagrams":
+                            activation = self.events.pop()
+                            if failed:
+                                activation["kind"] = "activation-failed"
+                                activation["detail"].update(
+                                    errorType="InvalidDataException", errorMessage="engine unavailable",
+                                )
+                            self.events.insert(len(self.events) - 1, activation)
+                            for index, event in enumerate(self.events, 1):
+                                event["sequence"] = index
+
+                evidence = run(self.make_args(Path(temporary)), EarlyActivationBackend())
+                if failed:
+                    self.assertEqual(evidence["status"], "failed")
+                    self.assertIn("engine unavailable", str(evidence["error"]))
+                    self.assertNotIn("Timed out", str(evidence["error"]))
+                else:
+                    self.assertEqual(evidence["status"], "independent-live-window-captured")
+
+    def test_explicit_engine_is_seeded_only_in_isolated_profile_before_launch(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            args = self.make_args(root)
+            args.engine = Path(__file__).resolve()
+            backend = FakeBackend()
+            original_launch = backend.launch
+
+            def launch(command, environment, *other):
+                settings_path = Path(environment["LOCALAPPDATA"]) / "AttackMap" / "NativePreview" / "settings.json"
+                self.assertTrue(settings_path.is_relative_to(args.output))
+                self.assertEqual(json.loads(settings_path.read_text()), {
+                    "SchemaVersion": 1, "PythonPath": str(args.engine),
+                })
+                return original_launch(command, environment, *other)
+
+            backend.launch = launch
+            evidence = run(args, backend)
+            self.assertEqual(evidence["status"], "independent-live-window-captured")
+            self.assertEqual(evidence["inputs"]["engine"]["sha256"], hashlib.sha256(args.engine.read_bytes()).hexdigest())
+
+    def test_relative_engine_is_rejected_before_output_creation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.make_args(Path(temporary))
+            args.engine = Path("engine.exe")
+            with self.assertRaisesRegex(ValueError, "absolute"):
+                run(args, FakeBackend())
+            self.assertFalse(args.output.exists())
+
     def make_args(self, root, backend=None):
-        executable = root / "AttackMap.NativeSpike.exe"
+        # FakeBackend never executes this file; the harness only resolves and hashes it.
+        executable = Path(__file__).resolve()
         report = root / "attackmap-report.json"
-        executable.write_bytes(b"fake executable")
         report.write_bytes(b'{"findings": [{"id": "finding-1", "title": "First finding"}]}')
         return argparse.Namespace(
             executable=executable,
@@ -423,6 +506,150 @@ class WP043LiveCaptureTests(unittest.TestCase):
             self.assertEqual(len(evidence["captures"]), 75)
             self.assertEqual(evidence["captures"][0]["name"], "r01-01-Overview-after-transient")
             self.assertEqual(backend.operations.count("close-owned-transient"), 1)
+
+    def _transient_recovery_race(self, phase, original_failure, recovery_change=None):
+        def changed_target(change):
+            target = owned_window()
+            if change == "geometry":
+                target.rect = (60, 40, 1660, 1040)
+            elif change == "identity":
+                target.hwnd = 101
+            return target
+
+        class LaterTransientBackend(FakeBackend):
+            def __init__(self):
+                super().__init__()
+                self.recovery_reads = None
+                self.recursive_blocker_observations = 0
+
+            def list_windows(self):
+                windows = super().list_windows()
+                if self.recovery_reads is not None:
+                    self.recovery_reads += 1
+                    # The first read confirms the allowed close cleared. The
+                    # next is the recursive entry precheck; this blocker has
+                    # disappeared before the following full safety inspection.
+                    if self.recovery_reads == 2:
+                        self.recursive_blocker_observations += 1
+                        windows.append(owned_window(hwnd=200, pid=777, title="External", z_order=1))
+                        if recovery_change == "mixed-recursive-precheck":
+                            windows.append(owned_window(
+                                hwnd=202, title="Hostitel místní nabídky", z_order=0))
+                return windows
+
+            def close(self, window):
+                if window.title == "Hostitel místní nabídky":
+                    self.operations.append("close-owned-transient")
+                    self.windows = [self.window]
+                    if recovery_change in {"external-recursive-precheck", "mixed-recursive-precheck"}:
+                        self.recovery_reads = 0
+                    if recovery_change and recovery_change.endswith("-after-close"):
+                        change = recovery_change.removesuffix("-after-close")
+                        self.windows = [changed_target(change)]
+                        if change == "foreground":
+                            self.foreground = 200
+                    return
+                super().close(window)
+
+        backend = LaterTransientBackend()
+        injected = False
+
+        def inspect(current_backend, current, run_id, report_hash, *, inspection_context=None):
+            nonlocal injected
+            if injected or inspection_context["actionPhase"] != phase:
+                return _require_safe(current_backend, current, run_id, report_hash,
+                                     inspection_context=inspection_context)
+            injected = True
+            transient = owned_window(hwnd=201, title="Hostitel místní nabídky", z_order=0)
+            external = owned_window(hwnd=200, pid=777, title="External", z_order=1)
+            target = owned_window()
+            if original_failure == "geometry":
+                # A same-size position change is not rejected by the first native
+                # check, but must never qualify that occlusion for recovery.
+                target.rect = (60, 40, 1660, 1040)
+            elif original_failure == "identity":
+                target.hwnd = 101
+            elif original_failure == "foreground":
+                backend.foreground = external.hwnd
+            blockers = [external] if original_failure in {"external", "mixed"} else [transient]
+            if original_failure == "mixed":
+                blockers.append(transient)
+            backend.windows = [target, *blockers]
+            try:
+                if original_failure == "generic":
+                    raise FrameSafetyError("Unclassified safety failure")
+                if original_failure == "unknown":
+                    raise NativeWindowSafetyError("Incomplete native safety provenance", {
+                        "failureStage": "occlusion", "occlusion": {
+                            "status": "blocked", "blockers": [_window_details(transient)]},
+                    })
+                return _require_safe(current_backend, current, run_id, report_hash,
+                                     inspection_context=inspection_context)
+            finally:
+                # The original blocker/error has disappeared before recovery
+                # sees a different, valid owned transient. It cannot erase it.
+                backend.windows = [backend.window, transient]
+                backend.foreground = backend.window.hwnd
+                if recovery_change in {"geometry", "identity"}:
+                    backend.windows[0] = changed_target(recovery_change)
+                elif recovery_change == "foreground":
+                    backend.foreground = 200
+                elif recovery_change == "external":
+                    backend.windows.append(external)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            with patch("tools.capture_wp043_live._require_safe", side_effect=inspect):
+                evidence = run(self.make_args(Path(temporary)), backend)
+        self.assertTrue(injected)
+        return evidence, backend
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+                    self.assertEqual(evidence["status"], "failed")
+                    self.assertEqual(evidence["captures"], [])
+                    self.assertEqual(len(evidence["discardedCaptures"]), int(phase == "capture-after-grab"))
+                    self.assertNotIn("close-owned-transient", backend.operations)
+                    if failure in {"external", "mixed"}:
+                        source = (evidence["discardedCaptures"][0]["error"]
+                                  if phase == "capture-after-grab" else evidence["error"])
+                        self.assertEqual(source["failureStage"], "occlusion")
+                        self.assertEqual(len(source["occlusion"]["blockers"]), 2 if failure == "mixed" else 1)
+                        self.assertEqual(source["occlusion"]["blockers"][0]["pid"], 777)
+
+    def test_original_owned_transient_recovers_all_safety_branches(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            with self.subTest(phase=phase):
+                evidence, backend = self._transient_recovery_race(phase, "owned")
+                self.assertEqual(evidence["status"], "independent-live-window-captured")
+                self.assertEqual(len(evidence["captures"]), 75)
+                self.assertEqual(backend.operations.count("close-owned-transient"), 1)
+                self.assertEqual(len(evidence["discardedCaptures"]), int(phase == "capture-after-grab"))
+
+    def test_owned_transient_recovery_rejects_changed_target_or_new_external_blocker(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for change in ("geometry", "identity", "foreground", "external",
+                           "geometry-after-close", "identity-after-close", "foreground-after-close"):
+                with self.subTest(phase=phase, change=change):
+                    evidence, backend = self._transient_recovery_race(phase, "owned", change)
+                    self.assertEqual(evidence["status"], "failed")
+                    self.assertEqual(evidence["captures"], [])
+                    self.assertEqual(len(evidence["discardedCaptures"]), int(phase == "capture-after-grab"))
+                    self.assertEqual(backend.operations.count("close-owned-transient"), int(change.endswith("-after-close")))
+
+    def test_recursive_recovery_precheck_rejects_a_fleeting_external_or_mixed_blocker(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for change in ("external-recursive-precheck", "mixed-recursive-precheck"):
+                with self.subTest(phase=phase, change=change):
+                    evidence, backend = self._transient_recovery_race(phase, "owned", change)
+                    self.assertEqual(backend.recursive_blocker_observations, 1)
+                    self.assertEqual(backend.operations.count("close-owned-transient"), 1)
+                    self.assertEqual(evidence["status"], "failed")
+                    self.assertIn("external or mixed occlusion", evidence["error"]["message"])
+                    self.assertEqual(evidence["captures"], [])
+                    self.assertEqual(len(evidence["discardedCaptures"]), int(phase == "capture-after-grab"))
 
     def test_repeated_owned_transients_get_bounded_safe_capture_retries(self):
         class RepeatedTransientBackend(FakeBackend):
@@ -561,24 +788,230 @@ class WP043LiveCaptureTests(unittest.TestCase):
             self.assertEqual(backend.operations.count("close-owned-transient"), 1)
 
     def test_settings_navigation_uses_localization_independent_automation_id(self):
-        from types import SimpleNamespace
-        from tools.capture_wp043_live import WindowsLiveBackend
-
-        item = SimpleNamespace(
-            element_info=SimpleNamespace(
-                name="Nastavení",
-                automation_id="SettingsItem",
-                class_name="Microsoft.UI.Xaml.Controls.NavigationViewItem",
-                control_type="ListItem",
-            ),
-            focused=False,
-        )
-        item.set_focus = lambda: setattr(item, "focused", True)
-        native_window = SimpleNamespace(descendants=lambda: [item])
-        backend = WindowsLiveBackend.__new__(WindowsLiveBackend)
-        backend._uia_window = lambda window: native_window
+        item = self._navigation_item(name="Nastavení", automation_id="SettingsItem")
+        backend = self._navigation_backend([item])
         backend.focus_navigation(owned_window(), "Settings")
         self.assertTrue(item.focused)
+        backend.require_navigation_focus(owned_window(), "Settings")
+
+    @staticmethod
+    def _navigation_item(*, name="Overview", automation_id="", focus_error=None, keyboard_value=True):
+        item = SimpleNamespace(
+            CurrentName=name, CurrentAutomationId=automation_id,
+            CurrentClassName="Microsoft.UI.Xaml.Controls.NavigationViewItem", CurrentControlType=50007,
+            focused=False,
+        )
+
+        def focus():
+            if focus_error is not None:
+                raise focus_error
+            item.focused = True
+
+        def keyboard_focus(property_id):
+            if property_id != 30008:
+                raise AssertionError("Read the direct HasKeyboardFocus property")
+            if isinstance(keyboard_value, Exception):
+                raise keyboard_value
+            return keyboard_value
+
+        item.SetFocus = focus
+        item.GetCurrentPropertyValue = keyboard_focus
+        return item
+
+    def _navigation_backend(self, items):
+        return self._modal_backend([items])
+
+    def test_navigation_set_focus_errors_are_fatal_and_keep_hresult(self):
+        failure = self._uia_error(0x80070005)
+        backend = self._navigation_backend([self._navigation_item(focus_error=failure)])
+        with self.assertRaises(NavigationFocusError) as raised:
+            backend.focus_navigation(owned_window(), "Overview")
+        details = _error_details(raised.exception)
+        self.assertEqual(details["failureStage"], "navigation-set-focus")
+        self.assertEqual(details["cause"]["hresultHex"], "0x80070005")
+        self.assertIsNone(backend._navigation_focus)
+
+    def test_navigation_keyboard_focus_false_invalid_or_unreadable_is_fatal(self):
+        for value in (False, 2, self._uia_error(0x80040201)):
+            with self.subTest(value=value):
+                backend = self._navigation_backend([self._navigation_item(keyboard_value=value)])
+                with self.assertRaises(NavigationFocusError) as raised:
+                    backend.focus_navigation(owned_window(), "Overview")
+                self.assertEqual(raised.exception.diagnostics["failureStage"], "navigation-keyboard-focus")
+                self.assertEqual(raised.exception.diagnostics["propertyId"], 30008)
+                self.assertEqual(backend.scan_count, 1)
+
+    def test_keyboard_focus_loss_after_transient_dismissal_prevents_global_enter(self):
+        class FocusLostAfterDismissal(FakeBackend):
+            injected = False
+
+            def client_modal_details(self, window):
+                if self.pending_label == "Overview" and not self.injected:
+                    self.injected = True
+                    self.windows.append(owned_window(hwnd=200, title="Hostitel místní nabídky", z_order=1))
+                return []
+
+            def close(self, window):
+                if window.hwnd == 200:
+                    self.windows = [item for item in self.windows if item.hwnd != 200]
+                    self.focused_navigation = None
+                    self.operations.append("close-owned-transient")
+                    return
+                super().close(window)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = FocusLostAfterDismissal()
+            evidence = run(self.make_args(Path(temporary)), backend)
+        self.assertEqual(evidence["status"], "failed")
+        self.assertEqual(evidence["error"]["failureStage"], "navigation-keyboard-focus")
+        self.assertEqual(backend.keys, [])
+        self.assertEqual(backend.operations.count("close-owned-transient"), 1)
+        self.assertEqual(evidence["captures"], [])
+
+    def test_native_snapshot_uses_one_enumeration_for_target_and_blocker_z_order(self):
+        backend = FakeBackend()
+        backend.alive, backend.foreground = True, 100
+        target = owned_window(z_order=30, class_name="ActualTargetClass")
+        blocker = owned_window(hwnd=200, pid=777, title="External", z_order=20, class_name="ActualBlockerClass")
+        # A second enumeration would reverse the relationship. It must remain unused.
+        with patch.object(backend, "list_windows", side_effect=[[target, blocker],
+                          [owned_window(z_order=10), blocker]]) as enumerate_windows:
+            with self.assertRaises(NativeWindowSafetyError) as raised:
+                _native_window_snapshot(backend, owned_window(), "test")
+        enumerate_windows.assert_called_once_with()
+        details = _error_details(raised.exception)
+        self.assertEqual(details["failureStage"], "occlusion")
+        self.assertEqual(details["targetAfter"]["zOrder"], 30)
+        self.assertEqual(details["occlusion"]["blockers"][0]["zOrder"], 20)
+        self.assertEqual(details["targetAfter"]["className"], "ActualTargetClass")
+        self.assertEqual(details["occlusion"]["blockers"][0]["className"], "ActualBlockerClass")
+
+    def test_native_snapshot_distinguishes_geometry_foreground_identity_and_occlusion(self):
+        for failure in ("geometry", "foreground", "identity"):
+            backend = FakeBackend()
+            backend.alive, backend.foreground = True, 100
+            current = owned_window(rect=(60, 40, 1660, 1040) if failure == "geometry" else (40, 40, 1640, 1040),
+                                   cloaked=failure == "identity")
+            backend.windows = [current]
+            if failure == "foreground":
+                backend.foreground = 200
+                backend.windows.append(owned_window(hwnd=200, pid=777, title="Elsewhere", z_order=20))
+            with self.subTest(failure=failure), self.assertRaises(NativeWindowSafetyError) as raised:
+                _native_window_snapshot(backend, owned_window(), "test", require_same_rect=True)
+            details = raised.exception.diagnostics
+            self.assertEqual(details["failureStage"], failure)
+            self.assertEqual(details[failure]["status"], "failed")
+            self.assertEqual(details["occlusion"]["status"], "clear")
+            self.assertEqual(details["geometry"]["beforeRect"], [40, 40, 1640, 1040])
+            self.assertEqual(details["foreground"]["beforeHwnd"], backend.foreground)
+            self.assertEqual(details["foreground"]["afterHwnd"], backend.foreground)
+
+    def test_uia_retry_external_and_mixed_occlusion_is_fatal_with_context_and_one_snapshot(self):
+        for mixed in (False, True):
+            with self.subTest(mixed=mixed):
+                stale = self._modal_item(fail_property=30174, error=self._uia_error(0x80040201))
+                backend = self._modal_backend([[self._modal_item(), stale], []])
+                backend.modal_inspection_context = {"actionPhase": "navigation-before-enter",
+                    "destination": "Overview", "diagnosticsSequence": 42}
+                target = owned_window(z_order=30)
+                blockers = [owned_window(hwnd=200, pid=777, title="External", z_order=20)]
+                if mixed:
+                    blockers.append(owned_window(hwnd=201, title="Hostitel místní nabídky", z_order=10))
+                with patch.object(backend, "list_windows", return_value=[target, *blockers]) as enumeration:
+                    with self.assertRaises(ClientModalInspectionError) as raised:
+                        backend.client_modal_details(owned_window())
+                enumeration.assert_called_once_with()
+                details = _error_details(raised.exception)
+                self.assertEqual(details["inspectionInvocationId"], 1)
+                self.assertEqual(details["actionPhase"], "navigation-before-enter")
+                self.assertEqual(details["destination"], "Overview")
+                self.assertEqual(details["diagnosticsSequence"], 42)
+                self.assertEqual(details["attempt"], 2)
+                self.assertEqual(details["attempts"][0]["descendantCount"], 2)
+                self.assertEqual(details["failureStage"], "owned-target-recheck")
+                safety = details["cause"]["nativeWindowSafety"]
+                self.assertEqual(safety["failureStage"], "occlusion")
+                self.assertEqual(len(safety["occlusion"]["blockers"]), 2 if mixed else 1)
+                self.assertEqual(backend.scan_count, 1)
+
+    def test_wrapped_uia_retry_recovers_only_the_exact_owned_native_snapshot(self):
+        class WrappedRetryTransientBackend(FakeBackend):
+            def __init__(self, blocker_pid=4242, blocker_title="Hostitel místní nabídky"):
+                super().__init__()
+                self.blocker_pid = blocker_pid
+                self.blocker_title = blocker_title
+                self.injected = False
+
+            def client_modal_details(self, window):
+                if self.injected:
+                    return []
+                self.injected = True
+                self.windows = [self.window, owned_window(
+                    hwnd=200, pid=self.blocker_pid, title=self.blocker_title, z_order=1)]
+                try:
+                    _native_window_snapshot(
+                        self, window, "uia-retry-after-descendants", require_same_rect=True
+                    )
+                except NativeWindowSafetyError as native_error:
+                    raise ClientModalInspectionError({
+                        "api": "UIAutomation", "failureStage": "owned-target-recheck",
+                        "attempt": 2, "classification": "inspection-failure", "status": "failed",
+                    }) from native_error
+                raise AssertionError("The injected popup must block the native target recheck")
+
+            def close(self, window):
+                if window.hwnd == 200:
+                    self.operations.append("close-owned-transient")
+                    self.windows = [self.window]
+                    return
+                super().close(window)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = WrappedRetryTransientBackend()
+            evidence = run(self.make_args(Path(temporary)), backend)
+        self.assertEqual(evidence["status"], "independent-live-window-captured")
+        self.assertEqual(len(evidence["captures"]), 75)
+        self.assertEqual(backend.operations.count("close-owned-transient"), 1)
+
+        for blocker_pid, blocker_title in ((777, "External"), (777, "Hostitel místní nabídky")):
+            with self.subTest(blocker_pid=blocker_pid, blocker_title=blocker_title), tempfile.TemporaryDirectory() as temporary:
+                backend = WrappedRetryTransientBackend(blocker_pid, blocker_title)
+                evidence = run(self.make_args(Path(temporary)), backend)
+            self.assertEqual(evidence["status"], "failed")
+            self.assertNotIn("close-owned-transient", backend.operations)
+            self.assertEqual(evidence["error"]["failureStage"], "owned-target-recheck")
+
+    def test_wrapped_uia_retry_requires_direct_second_attempt_native_provenance(self):
+        backend = FakeBackend()
+        target = owned_window()
+        backend.alive = True
+        backend.foreground = target.hwnd
+        backend.windows = [target, owned_window(hwnd=200, title="Hostitel místní nabídky", z_order=1)]
+        with self.assertRaises(NativeWindowSafetyError) as raised:
+            _native_window_snapshot(backend, target, "uia-retry-after-descendants", require_same_rect=True)
+        native_error = raised.exception
+
+        for stage, attempt, modal_confirmed, phase in (
+            ("owned-target-recheck", 2, False, "uia-retry-after-descendants"),
+            ("descendants", 2, False, "uia-retry-after-descendants"),
+            ("owned-target-recheck", 1, False, "uia-retry-after-descendants"),
+            ("owned-target-recheck", 2, True, "uia-retry-after-descendants"),
+            ("owned-target-recheck", 2, False, "after-client-inspection"),
+        ):
+            with self.subTest(stage=stage, attempt=attempt, modal_confirmed=modal_confirmed, phase=phase):
+                candidate = NativeWindowSafetyError(
+                    str(native_error), {**native_error.diagnostics, "phase": phase}
+                )
+                wrapped = ClientModalInspectionError({
+                    "api": "UIAutomation", "failureStage": stage, "attempt": attempt,
+                    "modalConfirmed": modal_confirmed,
+                })
+                wrapped.__cause__ = candidate
+                self.assertEqual(
+                    _owned_transient_only(wrapped, target),
+                    stage == "owned-target-recheck" and attempt == 2 and not modal_confirmed
+                    and phase == "uia-retry-after-descendants",
+                )
 
     @unittest.skipUnless(__import__("os").name == "nt", "Windows HWND signatures")
     def test_windows_foreground_api_preserves_native_hwnd_width(self):
@@ -588,6 +1021,160 @@ class WP043LiveCaptureTests(unittest.TestCase):
         user32 = WindowsLiveBackend._user32()
         self.assertEqual(user32.GetForegroundWindow.restype, wintypes.HWND)
         self.assertEqual(user32.GetForegroundWindow.argtypes, [])
+        for name in ("GetWindowTextLengthW", "GetWindowTextW", "IsWindowVisible", "IsIconic"):
+            self.assertEqual(getattr(user32, name).argtypes[0], wintypes.HWND)
+
+    def _enumerate_test_windows(self, *, callback_error=None, completed=True, winerror=0):
+        import ctypes
+
+        handles = (0x123456789, 0x23456789A)
+
+        def process_id(hwnd, pid):
+            pid._obj.value = 4242
+            return 1
+
+        def text_length(hwnd):
+            if hwnd == handles[1] and callback_error is not None:
+                raise callback_error
+            return 9
+
+        def text(hwnd, buffer, length):
+            buffer.value = "AttackMap"
+            return 9
+
+        def rectangle(hwnd, rect):
+            rect._obj.left, rect._obj.top = 40, 40
+            rect._obj.right, rect._obj.bottom = 1640, 1040
+            return True
+
+        def enumerate_windows(callback, parameter):
+            self.assertEqual(parameter, 0)
+            self.assertEqual(ctypes.get_last_error(), 0)
+            for hwnd in handles:
+                if not callback(hwnd, parameter):
+                    ctypes.set_last_error(winerror)
+                    return False
+            ctypes.set_last_error(winerror)
+            return completed
+
+        user32 = SimpleNamespace(
+            GetWindowThreadProcessId=process_id, GetWindowTextLengthW=text_length,
+            GetWindowTextW=text, GetClassNameW=text, GetWindowRect=rectangle,
+            IsWindowVisible=lambda hwnd: True, IsIconic=lambda hwnd: False,
+        )
+        backend = WindowsLiveBackend.__new__(WindowsLiveBackend)
+        backend._user32 = lambda: user32
+        last_error = [999]
+        with (
+            patch.object(ctypes, "WinDLL", return_value=SimpleNamespace(EnumWindows=enumerate_windows), create=True) as loader,
+            patch.object(ctypes, "WINFUNCTYPE", getattr(ctypes, "WINFUNCTYPE", ctypes.CFUNCTYPE), create=True),
+            patch.object(ctypes, "set_last_error", lambda error: last_error.__setitem__(0, error), create=True),
+            patch.object(ctypes, "get_last_error", lambda: last_error[0], create=True),
+        ):
+            windows = backend.list_windows()
+            loader.assert_called_once_with("user32", use_last_error=True)
+        return windows
+
+    def test_window_enumeration_preserves_pointer_width_and_z_order(self):
+        windows = self._enumerate_test_windows()
+        self.assertEqual([window.hwnd for window in windows], [0x123456789, 0x23456789A])
+        self.assertEqual([window.z_order for window in windows], [0, 1])
+        self.assertEqual([window.class_name for window in windows], ["AttackMap", "AttackMap"])
+
+    def test_window_enumeration_callback_exception_rejects_partial_list(self):
+        original = ValueError("callback inspection failed")
+        with self.assertRaises(WindowEnumerationError) as raised:
+            self._enumerate_test_windows(callback_error=original, winerror=5)
+        self.assertEqual(raised.exception.stage, "callback")
+        self.assertEqual(raised.exception.hwnd, 0x23456789A)
+        self.assertIs(raised.exception.__cause__, original)
+        self.assertIn("ValueError: callback inspection failed", str(raised.exception))
+
+    def test_window_enumeration_os_failure_rejects_partial_list_and_preserves_error(self):
+        for code in (0, 5):
+            with self.subTest(winerror=code), self.assertRaises(WindowEnumerationError) as raised:
+                self._enumerate_test_windows(completed=False, winerror=code)
+            self.assertEqual(raised.exception.stage, "OS call")
+            self.assertEqual(raised.exception.winerror, code)
+            self.assertIsNone(raised.exception.__cause__)
+            self.assertIn(f"GetLastError={code}", str(raised.exception))
+
+    def test_window_enumeration_failure_is_structured_failed_live_evidence(self):
+        class EnumerationFailureBackend(FakeBackend):
+            def list_windows(self):
+                cause = ValueError("callback inspection failed")
+                raise WindowEnumerationError("callback", 0, hwnd=123, cause=cause) from cause
+
+        with tempfile.TemporaryDirectory() as temporary:
+            evidence = run(self.make_args(Path(temporary)), EnumerationFailureBackend())
+        self.assertEqual(evidence["status"], "failed")
+        self.assertEqual(evidence["captures"], [])
+        self.assertEqual(evidence["error"]["api"], "EnumWindows")
+        self.assertEqual(evidence["error"]["failureStage"], "callback")
+        self.assertEqual(evidence["error"]["winerror"], 0)
+        self.assertEqual(evidence["error"]["cause"]["type"], "ValueError")
+
+    def test_window_enumeration_safety_failure_retains_structured_evidence(self):
+        for fail_after_grab in (False, True):
+            with self.subTest(fail_after_grab=fail_after_grab), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                args = self.make_args(root)
+                backend = FakeBackend()
+                cause = ValueError("callback inspection failed during safety check")
+                failure = WindowEnumerationError("callback", 5, hwnd=123, cause=cause)
+                failure.__cause__ = cause
+
+                def check_safety(*arguments, **keywords):
+                    if backend.capture_count == int(fail_after_grab):
+                        with patch.object(backend, "list_windows", side_effect=failure):
+                            return _require_safe(*arguments, **keywords)
+                    return _require_safe(*arguments, **keywords)
+
+                with patch("tools.capture_wp043_live._require_safe", side_effect=check_safety):
+                    evidence = run(args, backend)
+
+                self.assertEqual(evidence["status"], "failed")
+                self.assertEqual(evidence["captures"], [])
+                self.assertEqual(backend.capture_count, int(fail_after_grab))
+                self.assertEqual(len(evidence["discardedCaptures"]), int(fail_after_grab))
+                self.assertEqual(evidence["error"]["api"], "EnumWindows")
+                self.assertEqual(evidence["error"]["failureStage"], "callback")
+                self.assertEqual(evidence["error"]["winerror"], 5)
+                self.assertEqual(evidence["error"]["hwnd"], 123)
+                self.assertEqual(evidence["error"]["cause"], {
+                    "type": "ValueError", "message": str(cause),
+                })
+                self.assertEqual(
+                    json.loads((args.output / "evidence.json").read_text(encoding="utf-8"))["error"],
+                    evidence["error"],
+                )
+
+    def test_error_details_terminates_explicit_cause_cycles_and_ignores_context(self):
+        for chain in ("self-cycle", "mutual-cycle", "unrelated"):
+            with self.subTest(chain=chain):
+                outer = RuntimeError("outer failure")
+                inner = ValueError("unrelated cause")
+                outer.__cause__ = outer if chain == "self-cycle" else inner
+                if chain == "mutual-cycle":
+                    inner.__cause__ = outer
+                outer.__context__ = WindowEnumerationError("OS call", 5)
+                self.assertEqual(_error_details(outer), {
+                    "type": "RuntimeError", "message": "outer failure",
+                })
+
+    def test_error_details_retains_outer_failure_and_wrapped_enumeration_fields(self):
+        cause = ValueError("callback inspection failed")
+        enumeration = WindowEnumerationError("callback", 5, hwnd=123, cause=cause)
+        enumeration.__cause__ = cause
+        wrapper = RuntimeError("safety wrapper")
+        wrapper.__cause__ = enumeration
+        outer = RuntimeError("discarded frame")
+        outer.__cause__ = wrapper
+        self.assertEqual(_error_details(outer), {
+            "type": "RuntimeError", "message": "discarded frame",
+            "api": "EnumWindows", "failureStage": "callback", "winerror": 5, "hwnd": 123,
+            "cause": {"type": "ValueError", "message": "callback inspection failed"},
+        })
 
     def test_windows_process_id_reads_unenumerated_window_directly(self):
         from types import SimpleNamespace
@@ -649,6 +1236,26 @@ class WP043LiveCaptureTests(unittest.TestCase):
         self.assertFalse(diagram_activation_acknowledged([event], 7, RUN_ID, REPORT_HASH, 5))
         stale = make_event(9, "activation-completed", displayedReadHash="stale", navigationRevision=4)
         self.assertFalse(diagram_activation_acknowledged([stale], 7, RUN_ID, REPORT_HASH, 4))
+
+    def test_bound_diagram_failure_reports_cause_without_waiting_for_timeout(self):
+        event = make_event(
+            8, "activation-failed", displayedReadHash=REPORT_HASH,
+            navigationRevision=4, viewKind="interactive",
+            errorType="InvalidDataException",
+            errorMessage="Choose an existing absolute engine executable path.",
+        )
+        with self.assertRaisesRegex(RuntimeError, "InvalidDataException: Choose an existing absolute engine"):
+            diagram_activation_acknowledged([event], 7, RUN_ID, REPORT_HASH, 4)
+        for change in (
+            {"runId": "other"}, {"sequence": 7},
+            {"detail": {**event["detail"], "displayedReadHash": "stale"}},
+            {"detail": {**event["detail"], "navigationRevision": 3}},
+            {"detail": {**event["detail"], "viewKind": "legacy"}},
+        ):
+            with self.subTest(change=change):
+                self.assertFalse(diagram_activation_acknowledged(
+                    [{**event, **change}], 7, RUN_ID, REPORT_HASH, 4,
+                ))
 
     def test_diagram_inner_content_must_be_loaded_not_merely_selected(self):
         interactive = {
@@ -933,6 +1540,576 @@ class WP043LiveCaptureTests(unittest.TestCase):
             self.assertIn("finding revision", evidence["error"]["message"])
             self.assertFalse(evidence["detailRenderProbe"])
 
+    def test_diagnostic_raster_quality_ignores_hidden_rgb_and_accepts_alpha_glyphs(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "raster.png"
+            raster = Image.new("RGBA", (2, 1), (0, 0, 0, 0))
+            raster.putpixel((1, 0), (255, 30, 80, 0))
+            raster.save(path)
+            self.assertEqual(_png_quality(path)["classification"], "empty")
+            raster = Image.new("RGBA", (2, 1), (255, 255, 255, 255))
+            raster.save(path)
+            self.assertEqual(_png_quality(path)["classification"], "uniform")
+            raster.putpixel((1, 0), (255, 255, 255, 128))
+            raster.save(path)
+            self.assertEqual(_png_quality(path)["classification"], "nonuniform")
+            raster.putpixel((1, 0), (20, 40, 60, 0))
+            raster.save(path)
+            self.assertEqual(_png_quality(path)["classification"], "nonuniform")
+
+    def test_root_quality_rejection_prevents_b_and_preserves_pngs(self):
+        from PIL import Image
+        for rgba in ((0, 0, 0, 0), (15, 15, 15, 255)):
+            class BlankRoot(FakeBackend):
+                def send_key(self, key):
+                    super().send_key(key)
+                    if key == "CTRL+ALT+SHIFT+R":
+                        Image.new("RGBA", (2, 1), rgba).save(
+                            self.diagnostics_dir / self.events[-1]["detail"]["rootFileName"])
+            with self.subTest(rgba=rgba), tempfile.TemporaryDirectory() as temporary:
+                args = self.make_args(Path(temporary))
+                args.detail_root_render_probe = True
+                evidence = run(args, BlankRoot())
+                self.assertEqual(evidence["status"], "failed")
+                self.assertTrue(evidence["rejectedDetailRootRenderProbes"])
+                self.assertFalse(evidence["detailRootRenderProbe"])
+                self.assertFalse(any(item["destination"] == "FindingDetailRootRenderAfter" for item in evidence["captures"]))
+                self.assertTrue(list((args.output / "diagnostics").glob("*.png")))
+
+    def test_transparent_detail_with_meaningful_root_remains_negative_observation(self):
+        from PIL import Image
+        class EmptyDetail(FakeBackend):
+            def send_key(self, key):
+                super().send_key(key)
+                if key == "CTRL+ALT+SHIFT+R":
+                    Image.new("RGBA", (2, 1)).save(self.diagnostics_dir / self.events[-1]["detail"]["detailFileName"])
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.make_args(Path(temporary))
+            args.detail_root_render_probe = True
+            evidence = run(args, EmptyDetail())
+            self.assertEqual(evidence["status"], "independent-live-window-captured")
+            self.assertTrue(all(p["detailQuality"]["classification"] == "empty" for p in evidence["detailRootRenderProbe"]))
+
+    def test_startup_restore_finishes_before_harness_placement(self):
+        class DelayedRestore(FakeBackend):
+            restored = False
+
+            def read_events(self):
+                if not self.restored:
+                    self.window.rect = (320, 120, 1600, 920)
+                    self.operations.append("startup-restore-at-report-ready")
+                    self.restored = True
+                return super().read_events()
+
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = DelayedRestore()
+            evidence = run(self.make_args(Path(temporary)), backend)
+            self.assertEqual(evidence["status"], "independent-live-window-captured")
+            self.assertLess(backend.operations.index("startup-restore-at-report-ready"), backend.operations.index("resize"))
+            self.assertEqual(backend.operations.count("resize"), 1)
+            self.assertTrue(all(frame["rect"] == [40, 40, 1640, 1040] for frame in evidence["captures"]))
+
+    def test_successful_move_without_observed_geometry_never_navigates(self):
+        class IgnoredResize(FakeBackend):
+            def move_resize(self, window, width, height):
+                self.operations.append("resize")
+                self.window.rect = (320, 120, 1600, 920)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = IgnoredResize()
+            evidence = run(self.make_args(Path(temporary)), backend)
+            self.assertEqual(evidence["status"], "failed")
+            self.assertFalse(evidence["captures"])
+            self.assertFalse(backend.keys)
+            self.assertFalse(any(isinstance(op, tuple) and op[0] == "focus" for op in backend.operations))
+            self.assertEqual(backend.operations.count("resize"), 1)
+
+    def test_client_modal_and_geometry_fail_before_accepted_capture(self):
+        for condition in ("modal", "inspection", "geometry"):
+            class UnsafeClient(FakeBackend):
+                def client_modal_details(self, window):
+                    if condition == "inspection":
+                        raise RuntimeError("UIA unavailable")
+                    return [{"className": "ContentDialog"}] if condition == "modal" else []
+                def move_resize(self, window, width, height):
+                    super().move_resize(window, width, height)
+                    if condition == "geometry":
+                        self.window = owned_window(rect=(40, 40, 1320, 840))
+                        self.windows = [self.window]
+            with self.subTest(condition=condition), tempfile.TemporaryDirectory() as temporary:
+                evidence = run(self.make_args(Path(temporary)), UnsafeClient())
+                self.assertEqual(evidence["status"], "failed")
+                self.assertFalse(evidence["captures"])
+
+    @staticmethod
+    def _modal_item(*, class_name="TextBlock", visible=True, properties=None, fail_property=None, error=None):
+        queries = []
+        values = {30022: not visible, 30174: False, 30044: False, 30077: False, **(properties or {})}
+
+        def read_property(property_id):
+            queries.append(property_id)
+            if property_id == fail_property:
+                raise error
+            return values[property_id]
+
+        return SimpleNamespace(
+            CurrentClassName=class_name, CurrentAutomationId="dialog-id", CurrentName="Dialog",
+            CurrentControlType=50032, GetCurrentPropertyValue=read_property, queries=queries,
+        )
+
+    @staticmethod
+    def _modal_backend(scans):
+        backend = WindowsLiveBackend()
+        remaining = iter(scans)
+        backend.scan_count = 0
+
+        def find_all(scope, condition):
+            backend.scan_count += 1
+            if scope != 4 or condition is not true_condition:
+                raise AssertionError("Require all descendants without a filtering condition")
+            value = next(remaining)
+            if isinstance(value, Exception):
+                raise value
+            value = value() if callable(value) else value
+            if isinstance(value, list):
+                return SimpleNamespace(Length=len(value), GetElement=value.__getitem__)
+            return value
+
+        true_condition = object()
+        root = SimpleNamespace(FindAll=find_all)
+        backend._uia_automation = lambda: SimpleNamespace(
+            iuia=SimpleNamespace(ElementFromHandle=lambda hwnd: root), tree_scope={"descendants": 4},
+            true_condition=true_condition, known_control_type_ids={50032: "Window"},
+        )
+        backend._user32 = lambda: SimpleNamespace(IsWindow=lambda hwnd: True, IsWindowVisible=lambda hwnd: True,
+                                                  IsIconic=lambda hwnd: False)
+        backend.process_alive = lambda: True
+        backend.window_process_id = lambda hwnd: 4242
+        backend.foreground_hwnd = lambda: 100
+        backend.list_windows = lambda: [owned_window()]
+        return backend
+
+    @staticmethod
+    def _uia_error(hresult):
+        from _ctypes import COMError
+
+        return COMError(hresult, "UIA provider property failed", None)
+
+    def test_modal_inspection_uses_availability_without_masking_pattern_errors(self):
+        ordinary = self._modal_item()
+        hidden = self._modal_item(visible=False, fail_property=30174, error=RuntimeError("must not inspect"))
+        backend = self._modal_backend([[ordinary, hidden]])
+        self.assertEqual(backend.client_modal_details(owned_window()), [])
+        self.assertEqual(ordinary.queries, [30022, 30174, 30044])
+        self.assertEqual(hidden.queries, [30022])
+        self.assertEqual(backend.modal_inspection_diagnostics, [])
+
+    def test_modal_inspection_recognizes_all_three_positive_signals(self):
+        for signal in ("class", "is-dialog", "window-pattern"):
+            with self.subTest(signal=signal):
+                item = self._modal_item(
+                    class_name="ContentDialog" if signal == "class" else "CustomPanel",
+                    properties={30174: signal == "is-dialog", 30044: True, 30077: signal == "window-pattern"},
+                )
+                backend = self._modal_backend([[item]])
+                details = backend.client_modal_details(owned_window())
+                self.assertEqual(len(details), 1)
+                self.assertEqual(details[0]["automationId"], "dialog-id")
+                self.assertEqual(backend.modal_inspection_diagnostics[0]["status"], "modal-present")
+
+    def test_stale_modal_element_requires_complete_fresh_scan_and_finds_new_modal(self):
+        for second_scan_modal in (False, True):
+            with self.subTest(second_scan_modal=second_scan_modal):
+                stale = self._modal_item(fail_property=30174, error=self._uia_error(-2147220991))
+                fresh = self._modal_item(class_name="ContentDialog" if second_scan_modal else "TextBlock")
+                backend = self._modal_backend([[self._modal_item(), stale], [fresh]])
+                details = backend.client_modal_details(owned_window())
+                self.assertEqual(bool(details), second_scan_modal)
+                self.assertEqual(backend.scan_count, 2)
+                diagnostic = backend.modal_inspection_diagnostics[0]
+                self.assertEqual(diagnostic["failureStage"], "is-dialog")
+                self.assertEqual(diagnostic["elementIndex"], 1)
+                self.assertEqual(diagnostic["cause"]["hresultHex"], "0x80040201")
+                self.assertEqual(diagnostic["status"], "retry-fresh-scan")
+                self.assertEqual(backend.modal_inspection_diagnostics[-1]["status"],
+                                 "modal-present" if second_scan_modal else "recovered-fresh-scan")
+
+    def test_exhausted_stale_modal_scan_is_fatal_with_original_hresult(self):
+        failure = self._uia_error(0x80040201)
+        stale = self._modal_item(fail_property=30174, error=failure)
+        backend = self._modal_backend([[stale], [stale]])
+        with self.assertRaises(ClientModalInspectionError) as raised:
+            backend.client_modal_details(owned_window())
+        self.assertIs(raised.exception.__cause__, failure)
+        self.assertEqual(backend.scan_count, 2)
+        details = _error_details(raised.exception)
+        self.assertEqual(details["status"], "failed")
+        self.assertEqual(details["classification"], "stale-element-race")
+        self.assertEqual(len(details["attempts"]), 2)
+        self.assertEqual(details["cause"]["hresultHex"], "0x80040201")
+
+    def test_unknown_modal_inspection_errors_are_fatal_without_retry(self):
+        for property_id, stage in ((30174, "is-dialog"), (30044, "window-pattern-available"), (30077, "window-is-modal")):
+            for hresult in (0x80070005, 0x80010108, 0x80040204):
+                with self.subTest(property_id=property_id, hresult=hresult):
+                    error = self._uia_error(hresult)
+                    item = self._modal_item(properties={30044: True}, fail_property=property_id, error=error)
+                    backend = self._modal_backend([[item]])
+                    with self.assertRaises(ClientModalInspectionError) as raised:
+                        backend.client_modal_details(owned_window())
+                    self.assertEqual(backend.scan_count, 1)
+                    details = _error_details(raised.exception)
+                    self.assertEqual(details["failureStage"], stage)
+                    self.assertEqual(details["cause"]["hresult"], hresult)
+                    self.assertEqual(details["classification"], "inspection-failure")
+
+    def test_modal_scan_invalid_property_and_enumeration_failure_remain_fatal(self):
+        for scan, stage in (([self._modal_item(properties={30174: object()})], "is-dialog"),
+                            (RuntimeError("provider enumeration unavailable"), "descendants")):
+            with self.subTest(stage=stage):
+                backend = self._modal_backend([scan])
+                with self.assertRaises(ClientModalInspectionError) as raised:
+                    backend.client_modal_details(owned_window())
+                self.assertEqual(_error_details(raised.exception)["failureStage"], stage)
+                self.assertEqual(backend.scan_count, 1)
+
+    def test_invalid_hwnd_race_rechecks_owned_target_before_and_after_rescan(self):
+        for invalid_phase in (None, "before", "after"):
+            with self.subTest(invalid_phase=invalid_phase):
+                invalid_handle = OSError("Window already destroyed")
+                invalid_handle.winerror = 1400
+                checks = []
+                backend = self._modal_backend([invalid_handle, [self._modal_item()]])
+
+                def is_window(hwnd):
+                    checks.append(hwnd)
+                    return not ((invalid_phase == "before" and len(checks) == 1)
+                                or (invalid_phase == "after" and len(checks) == 2))
+
+                backend._user32 = lambda: SimpleNamespace(IsWindow=is_window, IsWindowVisible=lambda hwnd: True,
+                                                          IsIconic=lambda hwnd: False)
+                if invalid_phase is None:
+                    self.assertEqual(backend.client_modal_details(owned_window()), [])
+                    self.assertEqual(len(checks), 2)
+                else:
+                    with self.assertRaises(ClientModalInspectionError) as raised:
+                        backend.client_modal_details(owned_window())
+                    self.assertEqual(_error_details(raised.exception)["failureStage"], "owned-target-recheck")
+                self.assertEqual(backend.scan_count, 1 if invalid_phase == "before" else 2)
+                self.assertEqual(backend.modal_inspection_diagnostics[0]["cause"]["winerror"], 1400)
+
+    def test_modal_inspection_failure_is_structured_in_persisted_live_evidence(self):
+        failure = self._uia_error(0x80070005)
+        inspector = self._modal_backend([[self._modal_item(fail_property=30044, error=failure)]])
+        backend = FakeBackend()
+        backend.client_modal_details = inspector.client_modal_details
+        backend.modal_inspection_diagnostics = inspector.modal_inspection_diagnostics
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.make_args(Path(temporary))
+            evidence = run(args, backend)
+            retained = json.loads((args.output / "evidence.json").read_text(encoding="utf-8"))
+        self.assertEqual(evidence["status"], "failed")
+        self.assertEqual(evidence["captures"], [])
+        self.assertEqual(evidence["error"]["failureStage"], "window-pattern-available")
+        self.assertEqual(evidence["error"]["cause"]["hresultHex"], "0x80070005")
+        self.assertEqual(evidence["error"]["propertyId"], 30044)
+        self.assertEqual(evidence["failureSnapshot"]["status"], "rejected-diagnostic-only")
+        self.assertEqual(retained["error"], evidence["error"])
+        self.assertEqual(retained["clientModalInspections"], inspector.modal_inspection_diagnostics)
+
+    def test_direct_enumeration_and_visibility_failures_never_accept_a_capture(self):
+        for stage in ("descendants", "visibility"):
+            for failure in (self._uia_error(0x80070005), self._uia_error(0x80010108),
+                            self._uia_error(0x80004005), ValueError("Invalid UIA provider result")):
+                with self.subTest(stage=stage, failure=failure):
+                    scan = failure if stage == "descendants" else [
+                        self._modal_item(), self._modal_item(fail_property=30022, error=failure),
+                    ]
+                    inspector = self._modal_backend([scan])
+                    backend = FakeBackend()
+                    backend.client_modal_details = inspector.client_modal_details
+                    backend.modal_inspection_diagnostics = inspector.modal_inspection_diagnostics
+                    with tempfile.TemporaryDirectory() as temporary:
+                        args = self.make_args(Path(temporary))
+                        evidence = run(args, backend)
+                        retained = json.loads((args.output / "evidence.json").read_text(encoding="utf-8"))
+                    self.assertEqual(evidence["status"], "failed")
+                    self.assertEqual(evidence["captures"], [])
+                    self.assertEqual(evidence["error"]["failureStage"], stage)
+                    self.assertEqual(evidence["error"]["classification"], "inspection-failure")
+                    self.assertEqual(evidence["error"]["cause"]["type"], type(failure).__name__)
+                    self.assertEqual(inspector.scan_count, 1)
+                    if stage == "visibility":
+                        self.assertEqual(evidence["error"]["elementIndex"], 1)
+                        self.assertEqual(evidence["error"]["propertyId"], 30022)
+                    if hasattr(failure, "hresult"):
+                        self.assertEqual(evidence["error"]["cause"]["hresult"], failure.hresult)
+                    self.assertEqual(retained["error"], evidence["error"])
+                    self.assertEqual(retained["clientModalInspections"], inspector.modal_inspection_diagnostics)
+
+    def test_direct_enumeration_and_visibility_stale_failures_get_one_complete_rescan(self):
+        invalid_handle = OSError("Window already destroyed")
+        invalid_handle.winerror = 1400
+        for stage in ("descendants", "visibility"):
+            for failure in (self._uia_error(0x80040201), self._uia_error(0x80070578), invalid_handle):
+                for fresh_modal in (False, True):
+                    with self.subTest(stage=stage, failure=failure, fresh_modal=fresh_modal):
+                        scan = failure if stage == "descendants" else [
+                            self._modal_item(), self._modal_item(fail_property=30022, error=failure),
+                        ]
+                        fresh = self._modal_item(class_name="ContentDialog" if fresh_modal else "TextBlock")
+                        inspector = self._modal_backend([scan, [fresh]])
+                        details = inspector.client_modal_details(owned_window())
+                        self.assertEqual(bool(details), fresh_modal)
+                        self.assertEqual(inspector.scan_count, 2)
+                        diagnostic = inspector.modal_inspection_diagnostics[0]
+                        self.assertEqual(diagnostic["failureStage"], stage)
+                        self.assertEqual(diagnostic["status"], "retry-fresh-scan")
+                        self.assertEqual(inspector.modal_inspection_diagnostics[-1]["status"],
+                                         "modal-present" if fresh_modal else "recovered-fresh-scan")
+
+    def test_direct_stale_retry_exhaustion_fails_before_any_capture(self):
+        for stage in ("descendants", "visibility"):
+            with self.subTest(stage=stage):
+                failure = self._uia_error(0x80040201)
+                scan = failure if stage == "descendants" else [self._modal_item(fail_property=30022, error=failure)]
+                inspector = self._modal_backend([scan, scan, []])
+                backend = FakeBackend()
+                backend.client_modal_details = inspector.client_modal_details
+                backend.modal_inspection_diagnostics = inspector.modal_inspection_diagnostics
+                with tempfile.TemporaryDirectory() as temporary:
+                    evidence = run(self.make_args(Path(temporary)), backend)
+                self.assertEqual(evidence["status"], "failed")
+                self.assertEqual(evidence["captures"], [])
+                self.assertEqual(inspector.scan_count, 2)
+                self.assertEqual(len(evidence["error"]["attempts"]), 2)
+                self.assertEqual(evidence["error"]["cause"]["hresultHex"], "0x80040201")
+                self.assertEqual(evidence["error"]["status"], "failed")
+
+    def test_direct_root_and_array_failures_remain_structured(self):
+        for boundary in ("root", "length", "element"):
+            with self.subTest(boundary=boundary):
+                failure = self._uia_error(0x80070005)
+
+                class UnreadableArray:
+                    @property
+                    def Length(self):
+                        if boundary == "length":
+                            raise failure
+                        return 1
+
+                    def GetElement(self, index):
+                        raise failure
+
+                inspector = self._modal_backend([UnreadableArray()])
+                if boundary == "root":
+                    def element_from_handle(hwnd):
+                        raise failure
+                    automation = inspector._uia_automation()
+                    automation.iuia.ElementFromHandle = element_from_handle
+                    inspector._uia_automation = lambda: automation
+                with self.assertRaises(ClientModalInspectionError) as raised:
+                    inspector.client_modal_details(owned_window())
+                self.assertIs(raised.exception.__cause__, failure)
+                self.assertEqual(raised.exception.diagnostics["failureStage"],
+                                 "element-info" if boundary == "element" else "descendants")
+                self.assertEqual(inspector.scan_count, 0 if boundary == "root" else 1)
+
+    def test_direct_class_and_confirmed_modal_metadata_failures_never_clear_modality(self):
+        for attribute in ("CurrentClassName", "CurrentAutomationId", "CurrentName", "CurrentControlType"):
+            for hresult in (0x80070005, 0x80040201):
+                with self.subTest(attribute=attribute, hresult=hresult):
+                    failure = self._uia_error(hresult)
+                    item = self._modal_item(class_name="ContentDialog")
+
+                    class UnreadableElement:
+                        def __getattr__(self, name):
+                            if name == attribute:
+                                raise failure
+                            return getattr(item, name)
+
+                    inspector = self._modal_backend([[UnreadableElement()], []])
+                    if attribute == "CurrentClassName" and hresult == 0x80040201:
+                        self.assertEqual(inspector.client_modal_details(owned_window()), [])
+                        self.assertEqual(inspector.scan_count, 2)
+                        continue
+                    with self.assertRaises(ClientModalInspectionError) as raised:
+                        inspector.client_modal_details(owned_window())
+                    self.assertIs(raised.exception.__cause__, failure)
+                    diagnostic = raised.exception.diagnostics
+                    self.assertEqual(diagnostic["failureStage"],
+                                     "class-name" if attribute == "CurrentClassName" else "modal-metadata")
+                    self.assertEqual(inspector.scan_count, 1)
+                    if attribute != "CurrentClassName":
+                        self.assertTrue(diagnostic["modalConfirmed"])
+
+    def test_modal_failures_do_not_enter_owned_transient_recovery(self):
+        for inspection_failure in (False, True):
+            for after_grab in (False, True):
+                with self.subTest(inspection_failure=inspection_failure, after_grab=after_grab):
+                    class ModalWithTransient(FakeBackend):
+                        def client_modal_details(self, window):
+                            if self.capture_count < int(after_grab):
+                                return []
+                            self.windows = [self.window, owned_window(
+                                hwnd=200, title="Hostitel místní nabídky", z_order=0)]
+                            if inspection_failure:
+                                raise RuntimeError("UIA unavailable")
+                            return [{"className": "ContentDialog"}]
+
+                        def close(self, window):
+                            if window.hwnd == 200:
+                                self.windows = [self.window]
+                                return
+                            super().close(window)
+
+                    backend = ModalWithTransient()
+                    with tempfile.TemporaryDirectory() as temporary:
+                        evidence = run(self.make_args(Path(temporary)), backend)
+                    self.assertEqual(evidence["status"], "failed")
+                    self.assertEqual(evidence["captures"], [])
+                    self.assertEqual(len(evidence["discardedCaptures"]), int(after_grab))
+                    self.assertFalse(any(action["type"] == "dismiss-owned-transient" for action in evidence["actions"]))
+                    self.assertEqual(evidence["failureSnapshot"]["status"], "not-captured")
+
+    def test_modal_appearing_during_grab_is_discarded(self):
+        class ModalDuringGrab(FakeBackend):
+            def client_modal_details(self, window):
+                return [{"className": "ContentDialog"}] if self.capture_count else []
+        with tempfile.TemporaryDirectory() as temporary:
+            evidence = run(self.make_args(Path(temporary)), ModalDuringGrab())
+            self.assertEqual(evidence["status"], "failed")
+            self.assertFalse(evidence["captures"])
+            self.assertTrue(evidence["discardedCaptures"])
+
+    def test_probe_chord_has_no_bare_f7_runner_mapping(self):
+        import inspect
+        source = inspect.getsource(WindowsLiveBackend.send_key)
+        self.assertIn('"CTRL+ALT+SHIFT+R": "^%+r"', source)
+        self.assertNotIn("{F7}", source)
+        self.assertNotIn('"F7":', source)
+
+    def test_root_hides_global_accelerator_tooltips_from_uia_focus(self):
+        source = (
+            Path(__file__).resolve().parents[1]
+            / "desktop" / "windows" / "AttackMap.NativeSpike" / "MainWindow.xaml"
+        ).read_text(encoding="utf-8")
+        root_grid = source.split("<Grid", 1)[1].split(">", 1)[0]
+        self.assertIn('KeyboardAcceleratorPlacementMode="Hidden"', root_grid)
+
+    def test_modal_after_probe_prevents_b_without_dismissal(self):
+        class ModalAfterProbe(FakeBackend):
+            def client_modal_details(self, window):
+                return [{"className": "ContentDialog"}] if "CTRL+ALT+SHIFT+R" in self.keys else []
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.make_args(Path(temporary))
+            args.detail_root_render_probe = True
+            backend = ModalAfterProbe()
+            evidence = run(args, backend)
+            self.assertEqual(evidence["status"], "failed")
+            self.assertEqual(evidence["failureSnapshot"]["status"], "rejected-diagnostic-only")
+            self.assertTrue((args.output / evidence["failureSnapshot"]["path"]).is_file())
+            self.assertEqual(len(evidence["captures"]), 3)
+            self.assertFalse(evidence["detailRootRenderProbe"])
+            self.assertFalse(any(c["destination"] == "FindingDetailRootRenderAfter" for c in evidence["captures"]))
+            self.assertNotIn("ESC", backend.keys)
+
+    def test_modal_failure_snapshot_rejects_external_occluder_without_grab(self):
+        class ModalWithOccluder(FakeBackend):
+            def client_modal_details(self, window):
+                self.windows.append(owned_window(pid=777, hwnd=200, z_order=0))
+                return [{"className": "ContentDialog"}]
+
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = ModalWithOccluder()
+            evidence = run(self.make_args(Path(temporary)), backend)
+            self.assertEqual(evidence["failureSnapshot"]["status"], "not-captured")
+            self.assertIn("occluder", evidence["failureSnapshot"]["reason"])
+            self.assertEqual(backend.capture_count, 0)
+            self.assertFalse(evidence["captures"])
+
+    def test_failure_review_keeps_target_and_external_blocker_in_one_snapshot(self):
+        class ModalWithChangedZ(FakeBackend):
+            review_enumerations = 0
+            review = False
+
+            def client_modal_details(self, window):
+                self.review = True
+                return [{"className": "ContentDialog"}]
+
+            def list_windows(self):
+                if not self.review:
+                    return super().list_windows()
+                self.review_enumerations += 1
+                return [owned_window(z_order=30, class_name="TargetNativeClass"),
+                        owned_window(hwnd=200, pid=777, title="External", z_order=20,
+                                     class_name="ExternalNativeClass")]
+
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = ModalWithChangedZ()
+            args = self.make_args(Path(temporary))
+            evidence = run(args, backend)
+            retained = json.loads((args.output / "evidence.json").read_text(encoding="utf-8"))
+        self.assertEqual(backend.review_enumerations, 1)
+        self.assertEqual(backend.capture_count, 0)
+        safety = evidence["failureSnapshot"]["safetyError"]
+        self.assertEqual(safety["failureStage"], "occlusion")
+        self.assertEqual(safety["targetAfter"]["zOrder"], 30)
+        blocker = safety["occlusion"]["blockers"][0]
+        self.assertEqual((blocker["hwnd"], blocker["pid"], blocker["title"], blocker["className"], blocker["zOrder"]),
+                         (200, 777, "External", "ExternalNativeClass", 20))
+        self.assertEqual(retained["failureSnapshot"], evidence["failureSnapshot"])
+
+    def test_failure_review_geometry_change_keeps_before_and_after_observations(self):
+        class ModalThenMoved(FakeBackend):
+            def client_modal_details(self, window):
+                return [{"className": "ContentDialog"}]
+
+            def grab(self, window):
+                image = super().grab(window)
+                self.windows = [owned_window(rect=(60, 40, 1660, 1040))]
+                return image
+
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = ModalThenMoved()
+            evidence = run(self.make_args(Path(temporary)), backend)
+        snapshot = evidence["failureSnapshot"]
+        self.assertEqual(snapshot["status"], "not-captured")
+        self.assertEqual(snapshot["nativeChecks"][0]["geometry"]["afterRect"], [40, 40, 1640, 1040])
+        self.assertEqual(snapshot["safetyError"]["failureStage"], "geometry")
+        self.assertEqual(snapshot["safetyError"]["geometry"]["afterRect"], [60, 40, 1660, 1040])
+        self.assertNotEqual(snapshot["nativeChecks"][0]["snapshotId"], snapshot["safetyError"]["snapshotId"])
+        self.assertFalse(evidence["captures"])
+
+    def test_valid_idat_payload_with_bad_crc_is_rejected(self):
+        from PIL import Image
+        import struct
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "crc.png"
+            Image.new("RGBA", (2, 1), "white").save(path)
+            raw = bytearray(path.read_bytes())
+            offset = raw.index(b"IDAT")
+            length = struct.unpack(">I", raw[offset - 4:offset])[0]
+            raw[offset + 4 + length] ^= 1  # CRC only; compressed pixels unchanged.
+            path.write_bytes(raw)
+            with Image.open(path) as image:
+                image.load()  # Demonstrate that load alone does not enforce CRC.
+            with self.assertRaises(Exception):
+                _png_quality(path)
+
+    def test_decoded_corrupt_png_is_rejected(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            path = directory / "bad.png"
+            Image.new("RGBA", (2, 1), "white").save(path)
+            raw = bytearray(path.read_bytes())
+            raw[raw.index(b"IDAT") + 5] ^= 255
+            path.write_bytes(raw)
+            with self.assertRaises(Exception):
+                _png_quality(path)
+
     def test_detail_root_render_probe_retains_five_a_d_t_b_sets(self):
         with tempfile.TemporaryDirectory() as temporary:
             args = self.make_args(Path(temporary))
@@ -941,7 +2118,7 @@ class WP043LiveCaptureTests(unittest.TestCase):
             evidence = run(args, backend)
             self.assertEqual(evidence["status"], "independent-live-window-captured")
             self.assertEqual(len(evidence["captures"]), 80)
-            self.assertEqual(backend.keys.count("F7"), 5)
+            self.assertEqual(backend.keys.count("CTRL+ALT+SHIFT+R"), 5)
             self.assertEqual(backend.keys.count("F8"), 0)
             self.assertEqual(len(evidence["detailRootRenderProbe"]), 5)
             for round_number, probe in enumerate(evidence["detailRootRenderProbe"], 1):
@@ -951,7 +2128,7 @@ class WP043LiveCaptureTests(unittest.TestCase):
                 for key in ("detailRenderCapture", "rootRenderCapture"):
                     item = probe[key]
                     path = args.output / item["path"]
-                    self.assertEqual((item["width"], item["height"]), (1, 1))
+                    self.assertEqual((item["width"], item["height"]), (2, 1))
                     self.assertEqual(item["sha256"], hashlib.sha256(path.read_bytes()).hexdigest())
                 self.assertGreater(probe["terminalSequence"], probe["afterSequence"])
             self.assertFalse(evidence["diagnosticInterventions"])
@@ -986,12 +2163,12 @@ class WP043LiveCaptureTests(unittest.TestCase):
     def test_stale_detail_root_ack_cannot_release_after_capture(self):
         class StaleAckBackend(FakeBackend):
             def send_key(self, key):
-                if key == "F7" and self.keys.count("F7") == 0:
+                if key == "CTRL+ALT+SHIFT+R" and self.keys.count("CTRL+ALT+SHIFT+R") == 0:
                     self._append(
                         "detail-root-render-capture-completed", probeId="stale", generation=1,
                         displayedReadHash=self.report_hash, navigationRevision=self.navigation_revision,
                         findingRevision=self.finding_revision, detailFileName="d.png", rootFileName="t.png",
-                        detailWidth=1, detailHeight=1, rootWidth=1, rootHeight=1, scale=1.0,
+                        detailWidth=2, detailHeight=1, rootWidth=2, rootHeight=1, scale=1.0,
                     )
                     self.keys.append(key)
                     return
@@ -1012,7 +2189,7 @@ class WP043LiveCaptureTests(unittest.TestCase):
         class CompletedBeforeStartedBackend(FakeBackend):
             def send_key(self, key):
                 super().send_key(key)
-                if key == "F7" and self.keys.count("F7") == 1:
+                if key == "CTRL+ALT+SHIFT+R" and self.keys.count("CTRL+ALT+SHIFT+R") == 1:
                     started, completed = self.events[-2:]
                     self.events[-2] = {**completed, "sequence": started["sequence"]}
                     self.events[-1] = {**started, "sequence": completed["sequence"]}
@@ -1049,11 +2226,42 @@ class WP043LiveCaptureTests(unittest.TestCase):
             self.assertIn("finding revision", evidence["error"]["message"])
             self.assertFalse(evidence["detailRootRenderProbe"])
 
+    def test_context_change_failure_keeps_original_ack_identity_and_never_releases_b(self):
+        class ContextChangedBackend(FakeBackend):
+            def send_key(self, key):
+                if key != "CTRL+ALT+SHIFT+R":
+                    return super().send_key(key)
+                self.keys.append(key)
+                context = dict(
+                    probeId="changed-context", generation=1, displayedReadHash=self.report_hash,
+                    navigationRevision=self.navigation_revision, findingRevision=self.finding_revision,
+                )
+                self._append("detail-root-render-capture-started", **context)
+                self.navigation_revision += 1
+                self._append(
+                    "detail-root-render-capture-failed", **context,
+                    failureReason="capture-context-changed", captureTarget="detail", captureStage="after-render",
+                    observation={"navigationRevision": self.navigation_revision, "hostVisible": False},
+                )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.make_args(Path(temporary))
+            args.detail_root_render_probe = True
+            backend = ContextChangedBackend()
+            evidence = run(args, backend)
+            self.assertEqual(evidence["status"], "failed")
+            self.assertIn("capture-context-changed", evidence["error"]["message"])
+            rejection = evidence["rejectedDetailRootRenderProbes"][0]
+            self.assertEqual(rejection["terminal"]["detail"]["captureStage"], "after-render")
+            self.assertEqual(backend.keys.count("CTRL+ALT+SHIFT+R"), 1)
+            self.assertFalse(evidence["detailRootRenderProbe"])
+            self.assertFalse(any(item["destination"] == "FindingDetailRootRenderAfter" for item in evidence["captures"]))
+
     def test_malformed_detail_root_png_never_claims_after_capture(self):
         class MalformedPngBackend(FakeBackend):
             def send_key(self, key):
                 super().send_key(key)
-                if key == "F7" and self.keys.count("F7") == 1:
+                if key == "CTRL+ALT+SHIFT+R" and self.keys.count("CTRL+ALT+SHIFT+R") == 1:
                     detail_name = f"detail-root-render-detail-r{self.finding_revision:02d}.png"
                     with (self.diagnostics_dir / detail_name).open("ab") as stream:
                         stream.write(b"broken")
@@ -1148,7 +2356,10 @@ class WP043LiveCaptureTests(unittest.TestCase):
             self.assertEqual(discarded["sha256"], hashlib.sha256(image.read_bytes()).hexdigest())
             self.assertEqual(discarded["bytes"], image.stat().st_size)
             self.assertTrue(discarded["reason"])
-            self.assertEqual(len(evidence["inputs"]["executable"]["sha256"]), 64)
+            self.assertEqual(evidence["inputs"]["executable"], {
+                "path": str(Path(__file__).resolve()),
+                "sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            })
             self.assertEqual(len(evidence["inputs"]["report"]["sha256"]), 64)
 
     def test_process_timeout_kills_only_owned_tree(self):
@@ -1189,6 +2400,15 @@ class WP043LiveCaptureTests(unittest.TestCase):
         self.assertIn("FindingsPanel.Visibility != Visibility.Visible", prologue)
         self.assertIn("Findings.SelectedItem is not FixtureFinding", prologue)
 
+    def test_navigation_snapshot_records_overview_text_and_scroll_state_without_body_text(self):
+        source = (Path(__file__).parents[1] / "desktop/windows/AttackMap.NativeSpike/MainWindow.RenderDiagnostics.cs").read_text(encoding="utf-8")
+        snapshot = source.split("private void RenderDiagnosticsSnapshot", 1)[1].split("private TextBlock RenderDiagnosticsTarget", 1)[0]
+        self.assertIn("overview = RenderDiagnosticsText(OverviewText, root, includeText: false)", snapshot)
+        self.assertIn("overviewPanel = new", snapshot)
+        self.assertIn("OverviewPanel.ExtentHeight", snapshot)
+        self.assertIn("OverviewPanel.ViewportHeight", snapshot)
+        self.assertNotIn("RenderDiagnosticsText(OverviewText, root)", snapshot)
+
     def test_detail_render_probe_directly_rasterizes_without_settling_or_mutation(self):
         source = (Path(__file__).parents[1] / "desktop/windows/AttackMap.NativeSpike/MainWindow.RenderDiagnostics.cs").read_text(encoding="utf-8")
         self.assertIn("private async Task RenderDiagnosticsDetailRender()", source)
@@ -1206,13 +2426,32 @@ class WP043LiveCaptureTests(unittest.TestCase):
     def test_detail_root_render_probe_rasterizes_both_targets_without_settling_or_mutation(self):
         source = (Path(__file__).parents[1] / "desktop/windows/AttackMap.NativeSpike/MainWindow.RenderDiagnostics.cs").read_text(encoding="utf-8")
         self.assertIn("private async Task RenderDiagnosticsDetailRootRender()", source)
+        accelerator = source.split("var detailRootRenderAccelerator =", 1)[1].split("var detailRenderAccelerator =", 1)[0]
+        self.assertIn("Key = VirtualKey.R", accelerator)
+        self.assertNotIn("VirtualKey.F7", source)
+        self.assertIn("Modifiers = VirtualKeyModifiers.Control | VirtualKeyModifiers.Menu | VirtualKeyModifiers.Shift", accelerator)
+        self.assertLess(accelerator.index("args.Handled = true;"), accelerator.index("await RenderDiagnosticsDetailRootRender();"))
         method = source.split("private async Task RenderDiagnosticsDetailRootRender()", 1)[1]
         method = method.split("private void RenderDiagnosticsSnapshot", 1)[0]
         self.assertIn("await bitmap.RenderAsync(target);", method)
+        write = method.index("await file.WriteAsync(png);")
+        commit = method.index("File.Move(temporary,")
+        self.assertIn("RequireContext();", method[write:commit])
         self.assertIn("await Capture(Detail, \"detail\");", method)
         self.assertIn("await Capture(root, \"root\");", method)
         self.assertEqual(method.count("await bitmap.GetPixelsAsync();"), 1)
         self.assertIn("CompositionTarget.Rendering -= rendering;", method)
+        # Async RTB work must fail under the invocation identity, even if the
+        # currently selected destination, host, dimensions or scale have changed.
+        self.assertIn("renderDiagnosticsNavigationRevision != currentNavigationRevision", method)
+        self.assertIn("!ReferenceEquals(Findings.SelectedItem, currentFinding)", method)
+        self.assertIn("!xamlRoot.IsHostVisible || !AppWindow.IsVisible", method)
+        self.assertIn("xamlRoot.RasterizationScale != scale", method)
+        self.assertIn('failureReason = "capture-context-changed";', method)
+        self.assertIn('TargetStage("after-render");\n                    RequireContext();', method)
+        terminal = method.split('RenderDiagnosticsWrite("detail-root-render-capture-failed"', 1)[1]
+        self.assertIn("navigationRevision = currentNavigationRevision", terminal)
+        self.assertIn("observation = Observation()", terminal)
         for forbidden in (
             "UpdateLayout", "Task.Delay", "Detail.Text =", "Detail.Foreground =",
             "Detail.CharacterSpacing =", "Detail.Visibility =", "Detail.Opacity =",

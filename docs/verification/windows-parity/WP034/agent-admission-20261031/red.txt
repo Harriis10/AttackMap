@@ -1,0 +1,92 @@
+FFFFFFF.FFFF                                                             [100%]
+================================== FAILURES ===================================
+________ test_fixed_quotas_and_child_environment_do_not_mutate_parent _________
+tests\test_fleet_input_budget.py:43: in test_fixed_quotas_and_child_environment_do_not_mutate_parent
+    req = request(tmp_path, 11, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+______ test_zero_quota_is_typed_failure_and_successful_sibling_survives _______
+tests\test_fleet_input_budget.py:59: in test_zero_quota_is_typed_failure_and_successful_sibling_survives
+    req = request(tmp_path, 1, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+_____________ test_invalid_opt_in_budget_fails_before_dispatch[0] _____________
+tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+____________ test_invalid_opt_in_budget_fails_before_dispatch[-1] _____________
+tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+___________ test_invalid_opt_in_budget_fails_before_dispatch[True] ____________
+tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+____________ test_invalid_opt_in_budget_fails_before_dispatch[1.5] ____________
+tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+____________ test_invalid_opt_in_budget_fails_before_dispatch[10] _____________
+tests\test_fleet_input_budget.py:73: in test_invalid_opt_in_budget_fails_before_dispatch
+    req = request(tmp_path, budget, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+_______ test_unbound_or_excess_worker_capture_is_typed_failure[missing] _______
+tests\test_fleet_input_budget.py:105: in test_unbound_or_excess_worker_capture_is_typed_failure
+    req = request(tmp_path, 10, count=1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+_____ test_unbound_or_excess_worker_capture_is_typed_failure[over_budget] _____
+tests\test_fleet_input_budget.py:105: in test_unbound_or_excess_worker_capture_is_typed_failure
+    req = request(tmp_path, 10, count=1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+____ test_unbound_or_excess_worker_capture_is_typed_failure[wrong_budget] _____
+tests\test_fleet_input_budget.py:105: in test_unbound_or_excess_worker_capture_is_typed_failure
+    req = request(tmp_path, 10, count=1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+___ test_actual_subprocess_capture_preserves_skip_events_and_partial_scope ____
+tests\test_fleet_input_budget.py:126: in test_actual_subprocess_capture_preserves_skip_events_and_partial_scope
+    req = request(tmp_path, 11, max_workers=2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_fleet_input_budget.py:16: in request
+    return service.ScanRequest(
+E   TypeError: ScanRequest.__init__() got an unexpected keyword argument 'fleet_input_byte_budget'
+=========================== short test summary info ===========================
+FAILED tests/test_fleet_input_budget.py::test_fixed_quotas_and_child_environment_do_not_mutate_parent
+FAILED tests/test_fleet_input_budget.py::test_zero_quota_is_typed_failure_and_successful_sibling_survives
+FAILED tests/test_fleet_input_budget.py::test_invalid_opt_in_budget_fails_before_dispatch[0]
+FAILED tests/test_fleet_input_budget.py::test_invalid_opt_in_budget_fails_before_dispatch[-1]
+FAILED tests/test_fleet_input_budget.py::test_invalid_opt_in_budget_fails_before_dispatch[True]
+FAILED tests/test_fleet_input_budget.py::test_invalid_opt_in_budget_fails_before_dispatch[1.5]
+FAILED tests/test_fleet_input_budget.py::test_invalid_opt_in_budget_fails_before_dispatch[10]
+FAILED tests/test_fleet_input_budget.py::test_unbound_or_excess_worker_capture_is_typed_failure[missing]
+FAILED tests/test_fleet_input_budget.py::test_unbound_or_excess_worker_capture_is_typed_failure[over_budget]
+FAILED tests/test_fleet_input_budget.py::test_unbound_or_excess_worker_capture_is_typed_failure[wrong_budget]
+FAILED tests/test_fleet_input_budget.py::test_actual_subprocess_capture_preserves_skip_events_and_partial_scope
+11 failed, 1 passed in 3.22s

@@ -190,6 +190,49 @@ def test_engine_reuses_neutral_mapping_without_real_scan(tmp_path, monkeypatch):
     assert fleet.run_engine(run) == 0
 
 
+def test_named_profile_isolation_and_allowance_reach_fleet_service(tmp_path, monkeypatch):
+    run = request(tmp_path, max_workers=3, options={"analyzer_profile": "node-atproto@1.0",
+        "isolated_analyzers": True, "timeout_seconds": 900, "time_budget_seconds": 120})
+    def execute(mapped):
+        assert mapped.analyzer_profile_id == "node-atproto@1.0" and not mapped.modules
+        assert mapped.isolated_analyzers and mapped.time_budget_seconds == 120
+        assert mapped.max_workers == 3 and mapped.fleet_timeout_seconds == 900
+        argv = service._run_fleet_repo_argv(mapped, mapped.repo_paths[0], tmp_path / "child", [])
+        assert argv[argv.index("--analyzer-profile") + 1] == "node-atproto@1.0"
+        assert "--isolated-analyzers" in argv
+        return service.RunSummary(exit_code=0)
+    monkeypatch.setattr(service, "execute_scan_request", execute)
+    assert fleet.run_engine(validate_desktop_request(run.model_dump(mode="json"))) == 0
+
+
+@pytest.mark.parametrize("changes", [
+    {"options": {"analyzer_profile": "unknown@1.0"}},
+    {"options": {"analyzer_profile": "node-atproto@1.0"}, "modules": ["config"]},
+    {"options": {"future_knob": True}},
+    {"options": {"fleet_input_byte_budget": 100}},
+])
+def test_fleet_never_silently_discards_selection_or_unwired_admission(tmp_path, changes):
+    with pytest.raises(ValueError):
+        request(tmp_path, **changes)
+
+
+def test_profile_requires_explicit_fleet_capability(tmp_path):
+    from attackmap.cli import app
+    from attackmap.analyzer_contracts import AnalyzerMetadata
+    from attackmap.analyzer_profiles import get_analyzer_profiles
+    from attackmap.desktop_capabilities import build_capabilities, preflight_capabilities
+    definition = next(item for item in get_analyzer_profiles() if item.name == "node-atproto")
+    caps = build_capabilities(app, metadata=[AnalyzerMetadata(name=name) for name in definition.module_names])
+    raw = request(tmp_path, options={"analyzer_profile": "node-atproto@1.0"}).model_dump(mode="json")
+    assert preflight_capabilities(caps, request=raw)["supported"]
+    assert "analyzer_profile" in caps["desktop"]["fleet_by_schema"]["1.4"]["scan_options"]
+    del caps["desktop"]["fleet_by_schema"]["1.4"]["scan_options"]
+    assert not preflight_capabilities(caps, request=raw)["supported"]
+    assert preflight_capabilities(caps, request=request(tmp_path).model_dump(mode="json"))["supported"]
+    raw["options"]["analyzer_profile"] = "python@1.0"
+    assert not preflight_capabilities(caps, request=raw)["supported"]
+
+
 @pytest.mark.parametrize("version", ["1.0", "1.1", "1.2", "1.3"])
 def test_existing_request_defaults_and_bytes_unchanged(version):
     from attackmap.run_contract import CURRENT_SCHEMA_VERSION, RunRequest

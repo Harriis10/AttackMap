@@ -16,12 +16,15 @@ invalidate the entry, so each of those is part of the key.
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
+import marshal
 import os
 import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from types import CodeType
 
 # Bump when the cache file layout or key material changes: existing files
 # with a different schema string are discarded wholesale (safe recompute).
@@ -106,13 +109,30 @@ def _sha256(text: str) -> str:
 
 
 def engine_identity() -> str:
-    """Content hash of every module that contributes per-file results."""
+    """Content hash of the source or frozen code producing per-file results."""
     import attackmap
     import pydantic
 
     parts: list[str] = [CACHE_SCHEMA, f"python:{sys.version}", f"pydantic:{pydantic.__version__}"]
     package = Path(attackmap.__file__).parent
     for name in _ENGINE_MODULES:
+        if getattr(sys, "frozen", False):
+            # PyInstaller's active loader reads the bundled PYZ code, even when
+            # no physical .py exists. Hash that code (including nested constants),
+            # never an adjacent manifest or a version-only upgrade placeholder.
+            module = "attackmap." + name.replace("/", ".")
+            try:
+                spec = importlib.util.find_spec(module)
+                loader = spec.loader if spec is not None else None
+                get_code = getattr(loader, "get_code", None)
+                code = get_code(module) if get_code is not None else None
+                if not isinstance(code, CodeType):
+                    raise ValueError("loader did not provide Python code")
+                digest = hashlib.sha256(marshal.dumps(code)).hexdigest()
+            except Exception as exc:
+                raise OSError(f"Cannot prove incremental extractor identity: {name}") from exc
+            parts.append(f"frozen-code:{name}:{digest}")
+            continue
         path = package / f"{name}.py"
         try:
             parts.append(f"{name}:{hashlib.sha256(path.read_bytes()).hexdigest()}")

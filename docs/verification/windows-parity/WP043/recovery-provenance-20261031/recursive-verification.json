@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUtc": "2026-10-31T12:33:55.804Z",
+  "scope": "WP043 strict recovery provenance across recursive entry prechecks",
+  "status": "scoped-deterministic-pass-independent-review-pending",
+  "shell": "C:/Windows/System32/cmd.exe",
+  "login": false,
+  "execution": "require_escalated",
+  "workingDirectory": "C:/Projects/INPROGRESS/AttackMap",
+  "preFix": {
+    "command": ".venv\\Scripts\\python.exe -m pytest tests\\test_wp043_live_capture.py -q -k recursive_recovery_precheck --junitxml=docs\\verification\\windows-parity\\WP043\\recovery-provenance-20261031\\recursive-before-regression.xml",
+    "exitCode": 1,
+    "testsPassed": 1,
+    "subtestsFailed": 6,
+    "deselected": 101,
+    "seconds": 2.87
+  },
+  "final": {
+    "command": ".venv\\Scripts\\python.exe -m pytest tests\\test_wp043_live_capture.py -q --junitxml=docs\\verification\\windows-parity\\WP043\\recovery-provenance-20261031\\recursive-harness.xml",
+    "exitCode": 0,
+    "testsPassed": 102,
+    "subtestsPassed": 142,
+    "junitCases": 244,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 9.89
+  },
+  "diffCheck": {
+    "command": "git diff --check -- tools/capture_wp043_live.py tests/test_wp043_live_capture.py",
+    "exitCode": 0
+  },
+  "liveCapturesRun": 0,
+  "modelHttpCalls": 0,
+  "files": [
+    {
+      "path": "tools/capture_wp043_live.py",
+      "bytes": 106533,
+      "sha256": "12ea8aebff07ab0275c9287e7a5cfe6b708f49501c72bc23847cbf7fc4a2661d"
+    },
+    {
+      "path": "tests/test_wp043_live_capture.py",
+      "bytes": 125421,
+      "sha256": "e1ac48a79bcc1775fb49bc0c4d80a40513766785dda4eb0633dd85c1233c9754"
+    },
+    {
+      "path": "docs/verification/windows-parity/WP043/recovery-provenance-20261031/recursive-before-regression.xml",
+      "bytes": 7638,
+      "sha256": "5473bfed960569dc5fb23c3cd8cefdbac0d7e2e0d12eb8682bf0093b2bf16ac8"
+    },
+    {
+      "path": "docs/verification/windows-parity/WP043/recovery-provenance-20261031/recursive-harness.xml",
+      "bytes": 16497,
+      "sha256": "84a7cc48e3105953c67cff72d64c5921a63fc052db77232b78206bd8a92e9a76"
+    }
+  ]
+}

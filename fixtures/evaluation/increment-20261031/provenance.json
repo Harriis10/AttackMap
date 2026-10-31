@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "source_id": "dvwa",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "lineage": "https://github.com/digininja/DVWA",
+      "kind": "upstream-training-application-source-slice",
+      "source_revision": "d45ba3c4e7efa7f023f25f58ab4af9912c887057",
+      "source_url": "https://github.com/digininja/DVWA",
+      "local_acquisition_path": "C:\\tmp\\DVWA",
+      "origin": "https://github.com/digininja/DVWA.git",
+      "tracked_worktree_clean_at_acquisition": true,
+      "acquisition": "git show REV:PATH; exact committed bytes, no source edits",
+      "license": "GPL-3.0-or-later",
+      "license_evidence": [
+        "README.md",
+        "COPYING.txt"
+      ],
+      "redistribution": "Separate unmodified source fixture data with upstream license and notices retained; not a runtime dependency",
+      "files": [
+        {
+          "file": "COPYING.txt",
+          "sha256": "6fdb4bcc182a526d6496c7adf24a82a01cc7e9727e5b2d0418a478bffe1f94a4",
+          "git_blob": "534990816c076f648e2399da638e58e7fa7e6836",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/COPYING.txt"
+        },
+        {
+          "file": "README.md",
+          "sha256": "d898a4133bc708eceaf086accf0f488c8320fec59689267f5ea51c7896f33584",
+          "git_blob": "c0626532850ad54bb9799e46c7f3d89019cd8759",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/README.md"
+        },
+        {
+          "file": "vulnerabilities/api/src/Token.php",
+          "sha256": "31c24b3e9061392ed4aded3cae241ac005d9a423ce5546c54c7d67f4477d330a",
+          "git_blob": "e9a2bd9f33d3a42530381d9c100851d94e9014a9",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/api/src/Token.php"
+        },
+        {
+          "file": "vulnerabilities/exec/source/low.php",
+          "sha256": "399a0d5dd28436a952a5bb0d14390eb421e57ab2e7add68813b6ce283cc70f28",
+          "git_blob": "121362f59b1263df937a26de2fbee663fdde8838",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/exec/source/low.php"
+        },
+        {
+          "file": "vulnerabilities/open_redirect/source/high.php",
+          "sha256": "2d6d53feca779f9c93303a2e0a975882a033ab42ba545acd457555580fe05072",
+          "git_blob": "349e673c1d1c6e23868c4062f34277a073681e60",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/open_redirect/source/high.php"
+        },
+        {
+          "file": "vulnerabilities/open_redirect/source/impossible.php",
+          "sha256": "82c04f35908168ad2d4f948006c89a5fd6586cf335b771963ed839a7d06dd22a",
+          "git_blob": "28f245fe94c921ad4492c5b54ac42a0016d62fcd",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/open_redirect/source/impossible.php"
+        },
+        {
+          "file": "vulnerabilities/open_redirect/source/low.php",
+          "sha256": "d9839b61e112df946429ec3b8f2de8a3e4f0ac741842fcd34cce0a1ab3363861",
+          "git_blob": "6c4836cabe92c13c2fac80cb722a8589c8123eab",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/open_redirect/source/low.php"
+        },
+        {
+          "file": "vulnerabilities/open_redirect/source/medium.php",
+          "sha256": "634fdfb18bea35460f920bc4e22a5501975f61eb361886f093edf715895cbd17",
+          "git_blob": "b27ac5beb4a3664f62cef184d782ce1badbba57f",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/open_redirect/source/medium.php"
+        },
+        {
+          "file": "vulnerabilities/sqli/source/impossible.php",
+          "sha256": "f4dcc92946933a31b0e93362a184ff776da9736036e99bec79f119cc2128aa8c",
+          "git_blob": "7ef0b8d280ae7dcf57fae812ffc94964849e1cd5",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/sqli/source/impossible.php"
+        },
+        {
+          "file": "vulnerabilities/sqli/source/low.php",
+          "sha256": "652bb44d14a9d81c9245f05ed8440beecf7977e982e00d3ddb916126a72e85bf",
+          "git_blob": "88217957370cf8641b0798e79b4b0d23837eaa98",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/sqli/source/low.php"
+        },
+        {
+          "file": "vulnerabilities/sqli/source/medium.php",
+          "sha256": "dd81afdddf5817294f2eea11ffaf21b2aad90cb768cc3d57ef9b6d0f96020db4",
+          "git_blob": "dffc2119baeae8b1e54896e4a7757755e9014215",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/sqli/source/medium.php"
+        },
+        {
+          "file": "vulnerabilities/sqli_blind/source/high.php",
+          "sha256": "35165a2b85a80880b566a4605d2b23af5eefa5fff12e5b13961789dc4fafdc82",
+          "git_blob": "576ecae8b1757c875334059c8f749034b538db29",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/sqli_blind/source/high.php"
+        },
+        {
+          "file": "vulnerabilities/sqli_blind/source/impossible.php",
+          "sha256": "ccd72dcc781d921f3acbc02da2609018f2d604921a51e74d6b097624ddc18f83",
+          "git_blob": "4bc880395b70fb8ee6ffbf382e94ed91f42daf0e",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/sqli_blind/source/impossible.php"
+        },
+        {
+          "file": "vulnerabilities/sqli_blind/source/low.php",
+          "sha256": "28e34b5f7f4dd2ae1a38b1fae4c1bf67aaf3b98791c4a6c7560e322d1079f73a",
+          "git_blob": "a4472b01ec9f037d39a4de62d1132b3721d9233a",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/sqli_blind/source/low.php"
+        },
+        {
+          "file": "vulnerabilities/sqli_blind/source/medium.php",
+          "sha256": "6d2e04fab2e805f39629f6a8cc77e42671ebd13c0cba1bf3c00a9baa920efa4d",
+          "git_blob": "3cdf6eb06f9f8bb7ccf4669a76c9ba14d0db878a",
+          "source_url": "https://github.com/digininja/DVWA/blob/d45ba3c4e7efa7f023f25f58ab4af9912c887057/vulnerabilities/sqli_blind/source/medium.php"
+        }
+      ]
+    },
+    {
+      "source_id": "juice-shop",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "lineage": "https://github.com/juice-shop/juice-shop",
+      "kind": "upstream-training-application-source-slice",
+      "source_revision": "e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4",
+      "source_url": "https://github.com/juice-shop/juice-shop",
+      "local_acquisition_path": "C:\\tmp\\juice-shop",
+      "origin": "https://github.com/juice-shop/juice-shop.git",
+      "tracked_worktree_clean_at_acquisition": true,
+      "acquisition": "git show REV:PATH; exact committed bytes, no source edits",
+      "license": "MIT",
+      "license_evidence": [
+        "LICENSE"
+      ],
+      "redistribution": "Separate unmodified source fixture data with upstream license and notices retained; not a runtime dependency",
+      "files": [
+        {
+          "file": "LICENSE",
+          "sha256": "fa4ca6d61009e537c953f1c0b8455dd66d69f810888546c48db8ea05f0713093",
+          "git_blob": "9b58d99826cf72b2f7a2d04f27fd0e461e3c80ad",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/LICENSE"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "sha256": "c3496760cac6a5fde403bf739a8ab5e2536d2bbc57a6e3b6a0ac50b01a6e8b8d",
+          "git_blob": "b6039a86c17b02cdf026a6d3353765be9beb801c",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/lib/insecurity.ts"
+        },
+        {
+          "file": "routes/address.ts",
+          "sha256": "99413492a060638771636237a5c178a6a5907948f17cb8bf50dda648386d2084",
+          "git_blob": "26405cb3627fc1e1fac19de8f0cac7f930614047",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/routes/address.ts"
+        },
+        {
+          "file": "routes/basket.ts",
+          "sha256": "e7caa72828db41ba24d88677cd83a0a62301aadf3abd93fdfefa134300eb8306",
+          "git_blob": "18dd069143042949b476e212cd759a684ce010d7",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/routes/basket.ts"
+        },
+        {
+          "file": "routes/changePassword.ts",
+          "sha256": "8856fd47ef909e64924def8f29c9bf282881aea3658bd7bb94f177aadee422a4",
+          "git_blob": "bef4d8e10d44451555079f46794a38a6c9903f92",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/routes/changePassword.ts"
+        },
+        {
+          "file": "routes/login.ts",
+          "sha256": "cf11d682edff6744bcb54339bce4b2dd6da5e80f9038facd7605df857b0a0b7b",
+          "git_blob": "fb9fce357d272a497b77aa66e973b5d130946bb9",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/routes/login.ts"
+        },
+        {
+          "file": "routes/redirect.ts",
+          "sha256": "f1345c3bb3a276a4e80db74f5d1eee04cd62013e8d4d7730ef92153154484607",
+          "git_blob": "591f388daaaf30638ef860f9bad29a9111873243",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/routes/redirect.ts"
+        },
+        {
+          "file": "routes/search.ts",
+          "sha256": "6e3272ef4065d080295d995a04964e8c5e6b1e06c4b4c8ebed3234286686ee5f",
+          "git_blob": "52e1a60a3083a420cf00d5ffb2167e3e76b5b8dd",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/routes/search.ts"
+        },
+        {
+          "file": "server.ts",
+          "sha256": "1aef4d60cbdfb3458a25610d017a678ab4d69fc835bb8b592db9a13aceb20cb1",
+          "git_blob": "a8b429c39188bd468d202b2f18d028a7c86bf686",
+          "source_url": "https://github.com/juice-shop/juice-shop/blob/e39a3bdb8c61295c31fa4e0a03485e68a8ca12a4/server.ts"
+        }
+      ]
+    },
+    {
+      "source_id": "clean-catalog",
+      "repository": "attackmap-clean-catalog",
+      "path": "fixtures/evaluation/increment-20261031/repos/clean-catalog",
+      "lineage": "attackmap-authored-evaluation-fixtures",
+      "kind": "synthetic",
+      "source_revision": "content-addressed-local-authorship-20261031",
+      "source_url": null,
+      "license": "MIT",
+      "license_evidence": [
+        "LICENSE"
+      ],
+      "acquisition": "Authored by Codex for this bounded evaluation slice before running any detector",
+      "redistribution": "Project-authored synthetic fixture under repository MIT license",
+      "files": [
+        {
+          "file": "app.py",
+          "sha256": "f1bbf88d068cb8274c431b81c91b098611834b43e5c5f12f51069f3eeec94eb9"
+        },
+        {
+          "file": "LICENSE",
+          "sha256": "2db9ee189bde33b4f1659cd5bcf0fdce89485346107f954c6fe7c3297da2f1fb"
+        }
+      ]
+    }
+  ],
+  "label_author": "Codex agent /root/wp030_eval_corpus, source inspection before detector evaluation",
+  "independent_human_review": {
+    "status": "pending",
+    "reviewer": null,
+    "reviewed_at": null
+  },
+  "limitations": [
+    "Both upstreams are intentionally vulnerable training applications, not production-diverse repositories",
+    "Slices omit dependencies; scanning them does not prove full-application behavior",
+    "Near-twins from one upstream remain on the same split side; labels are correlated",
+    "Juice Shop was a prior integration target; this is a frozen future regression split, not a previously unseen blind benchmark"
+  ]
+}

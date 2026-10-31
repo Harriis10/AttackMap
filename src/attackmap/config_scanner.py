@@ -12,7 +12,9 @@ Deliberately no YAML / TOML / JSON *parsers* — the goal is broad,
 resilient extraction that works on malformed files too. Callers who
 want structural analysis can extend on top; this layer stays regex-only.
 
-The one structural exception is deployment-seam extraction (C28):
+Structural exceptions include opt-in versioned AttackMap datastore declarations
+(`config_datastores`), narrowly qualified literal Rails datastore candidates,
+and deployment-seam extraction (C28):
 `extract_deployment_aliases` reads k8s / docker-compose / nginx configs
 with a real YAML parse and brace-matched nginx blocks, because port, scheme,
 and upstream declarations must be exact — a regex guess would either miss
@@ -27,6 +29,7 @@ import re
 from pathlib import Path
 
 from .srcpaths import SKIP_DIRS, in_skipped_dir, is_skipped_dir
+from .config_datastores import extract_config_datastores, extract_config_messaging
 from .redact import mask_secret
 from .safe_fs import max_file_bytes, walk_repo
 from .models import DatabaseHint, ExternalCall, ResourceLimitEvent, ScanResult, SecretHint
@@ -243,6 +246,9 @@ def scan_config_repo(root: str | Path, index: object | None = None) -> ScanResul
             result.files_scanned += 1
             relative = rel_path.as_posix()
             result.scanned_files.append(relative)
+            extract_config_datastores(content, relative, result)
+            extract_config_messaging(content, relative, result)
+            _extract_rails_datastores(content, relative, result)
             _extract_db_urls(content, relative, result)
             _extract_http_targets(content, relative, result)
             _extract_secret_kvs(content, relative, result)
@@ -272,6 +278,9 @@ def scan_config_repo(root: str | Path, index: object | None = None) -> ScanResul
         result.files_scanned += 1
         relative = str(path.relative_to(repo)).replace("\\", "/")
         result.scanned_files.append(relative)
+        extract_config_datastores(content, relative, result)
+        extract_config_messaging(content, relative, result)
+        _extract_rails_datastores(content, relative, result)
         _extract_db_urls(content, relative, result)
         _extract_http_targets(content, relative, result)
         _extract_secret_kvs(content, relative, result)
@@ -284,6 +293,80 @@ def scan_config_repo(root: str | Path, index: object | None = None) -> ScanResul
     result.scanned_files = sorted(set(result.scanned_files))
     result.files_scanned = len(result.scanned_files)
     return result
+
+
+def _extract_rails_datastores(content: str, relative: str, result: ScanResult) -> None:
+    """Read a narrow literal Rails configuration; never evaluate ERB or YAML aliases.
+
+    Environment, database and single schema explicitly qualify identity. Replica
+    is required to qualify the configured access mode, not observed database IO.
+    Defaults, multi-database layouts and search paths require separate support.
+    """
+    if relative != "config/database.yml":
+        return
+    import hashlib
+    import yaml
+    from yaml.nodes import ScalarNode
+    from .config_datastores import _literal, _mapping
+    from .fleet_resource_identity import DatastoreDeclaration
+    from .models import Signal, SignalOrigin
+
+    try:
+        if len(content.encode("utf-8")) > 256_000 or "<%" in content:
+            raise ValueError("Unsupported Rails configuration")
+        depth = 0
+        for count, event in enumerate(yaml.parse(content, Loader=yaml.SafeLoader), 1):
+            if count > 8192 or isinstance(event, yaml.events.AliasEvent):
+                raise ValueError("Ambiguous configuration")
+            if isinstance(event, (yaml.events.MappingStartEvent, yaml.events.SequenceStartEvent)):
+                depth += 1
+                if depth > 32:
+                    raise ValueError("Oversized configuration")
+            elif isinstance(event, (yaml.events.MappingEndEvent, yaml.events.SequenceEndEvent)):
+                depth -= 1
+        environments = _mapping(yaml.compose(content, Loader=yaml.SafeLoader))
+        pending = []
+        for environment, node in environments.items():
+            if environment == "default":
+                raise ValueError("Defaults are unsupported")
+            fields = _mapping(node)
+            required = {"adapter", "host", "port", "database", "schema_search_path", "replica"}
+            optional = {"username", "password", "pool", "timeout", "checkout_timeout",
+                        "encoding", "prepared_statements", "advisory_locks"}
+            if not required <= fields.keys() or not fields.keys() <= required | optional:
+                raise ValueError("Incomplete or overridden configuration")
+            if _literal(fields["adapter"]) != "postgresql":
+                raise ValueError("Unsupported adapter")
+            replica = fields["replica"]
+            if (not isinstance(replica, ScalarNode) or replica.tag != "tag:yaml.org,2002:bool"
+                    or replica.value not in {"true", "false"}):
+                raise ValueError("Explicit replica boolean required")
+            line = node.start_mark.line + 1
+            observation = "obs-" + hashlib.sha256(f"{relative}:{line}:rails:{environment}".encode()).hexdigest()
+            record = DatastoreDeclaration.model_validate({
+                "schema_version": "1.0",
+                "identity": {"scope": environment, "protocol": "postgresql",
+                    "host": _literal(fields["host"]), "port": _literal(fields["port"], port=True),
+                    "namespace": _literal(fields["schema_search_path"]),
+                    "resource": _literal(fields["database"])},
+                "operation": "read" if replica.value == "true" else "read_write",
+                "source": {"repository_root": result.root, "file": relative, "line": line,
+                    "observation_id": observation, "source_analyzer": "config"}})
+            properties = {"framework_datastore_candidate": "1.0", "operation": record.operation,
+                "config_format": "rails_database_yml", "access_basis": "explicit_replica_setting",
+                **{key: str(value) for key, value in record.identity.model_dump().items()}}
+            classification = dict(classification_version="1.0", source_role="unknown",
+                evidence_kind="static_extraction", classification_basis="unknown")
+            pending.append(Signal(kind="database", label=f"rails_datastore:{line}", file=relative,
+                line=line, confidence=1.0, observation_id=observation, properties=properties,
+                evidence_text="Literal Rails database configuration; access mode is configured, runtime connectivity and IO unverified.",
+                origins=[SignalOrigin(analyzer="config", file=relative, line=line,
+                    properties=dict(properties), **classification)], **classification))
+        result.signals.extend(pending)
+    except (ValueError, yaml.YAMLError, RecursionError):
+        note = "Rails datastore configuration was not qualified: incomplete, ambiguous, unsupported, secret-bearing, or beyond extraction bounds."
+        if note not in result.limitations:
+            result.limitations.append(note)
 
 
 def _extract_netrc(content: str, relative: str, result: ScanResult) -> None:
@@ -551,6 +634,18 @@ def _declare_protocol(
         declared[name] = (scheme, provenance, rank)
 
 
+def _drop_proxy(
+    host: str,
+    proxies: dict[str, str],
+    proxy_sources: dict[str, str],
+    dropped: set[str],
+) -> None:
+    """Keep an unmodeled host unresolved regardless of declaration order."""
+    proxies.pop(host, None)
+    proxy_sources.pop(host, None)
+    dropped.add(host)
+
+
 def _declare_proxy(
     host: str,
     backend: str,
@@ -566,9 +661,8 @@ def _declare_proxy(
     if host in dropped:
         return
     if host in proxies and proxies[host] != backend:
-        prior = proxies.pop(host)
-        proxy_sources.pop(host, None)
-        dropped.add(host)
+        prior = proxies[host]
+        _drop_proxy(host, proxies, proxy_sources, dropped)
         notes.append(
             f"dropped proxy {host!r}: fronting multiple backends across configs "
             f"({prior}, {backend})"
@@ -683,19 +777,23 @@ def _k8s_ingress_declarations(
     service; the nginx ingress ``backend-protocol`` annotation declares the
     protocol the controller uses toward every backend of the ingress. Hosts
     routing to several backends (path-split routing) are multi-backend —
-    noted and skipped. ``spec.tls`` describes the client→ingress leg, which
-    no consumer models, and is never extracted."""
+    noted and invalidate any host-wide proxy declaration, as do unresolved
+    backend branches. ``spec.tls`` describes the client→ingress leg, which no
+    consumer models, and is never extracted."""
     name = str((doc.get("metadata") or {}).get("name") or "").strip().lower() or "ingress"
     rules = (doc.get("spec") or {}).get("rules") or []
     by_host: dict[str, set[str]] = {}
+    unmodeled_hosts: set[str] = set()
     hostless = False
     for rule in rules if isinstance(rules, list) else []:
         if not isinstance(rule, dict):
             continue
         paths = ((rule.get("http") or {}).get("paths")) or []
         backends: set[str] = set()
+        unmodeled = False
         for p in paths if isinstance(paths, list) else []:
             if not isinstance(p, dict):
+                unmodeled = True
                 continue
             service = (p.get("backend") or {}).get("service")
             svc_name = (
@@ -704,19 +802,24 @@ def _k8s_ingress_declarations(
             )
             if svc_name and _HOST_TOKEN.match(svc_name):
                 backends.add(svc_name)
-        if not backends:
+            else:
+                unmodeled = True  # resource, variable or unsupported backend
+        if not backends and not unmodeled:
             continue
         host = str(rule.get("host") or "").strip().lower().rstrip(".")
         if host and _HOST_TOKEN.match(host):
             by_host.setdefault(host, set()).update(backends)
+            if unmodeled:
+                unmodeled_hosts.add(host)
         else:
             hostless = True  # a catch-all rule has no identity to declare
     for host in sorted(by_host):
         backends = by_host[host]
-        if len(backends) != 1:
+        if len(backends) != 1 or host in unmodeled_hosts:
+            _drop_proxy(host, proxies, proxy_sources, dropped_proxies)
             notes.append(
                 f"skipped host {host!r} in Ingress {name!r} ({provenance}): routes to "
-                f"{len(backends)} backend services; multi-backend routing is not modeled"
+                f"{len(backends)} backend services; multi-backend or unresolved routing is not modeled"
             )
             continue
         _declare_proxy(
@@ -844,7 +947,9 @@ def _extract_nginx_proxies(
     ``server`` host of the upstream it ``proxy_pass``es to. Multi-server
     upstreams route to more than one backend — unmodeled (recorded and
     skipped, never guessed), as are proxy_pass targets that are not a defined
-    single-backend upstream. A ``proxy_pass`` scheme (``http``/``https``)
+    single-backend upstream. Such a branch invalidates the whole proxy host:
+    a known branch cannot vouch for an unmodeled location on that host.
+    A ``proxy_pass`` scheme (``http``/``https``)
     declares the protocol that edge dials the backend with."""
     upstreams: dict[str, str] = {}
     blank = list(text)
@@ -878,10 +983,17 @@ def _extract_nginx_proxies(
         # even when the block has no usable server_name (the protocol fact
         # does not depend on naming the proxy host).
         backends = set()
-        for scheme, target in re.findall(r"(?<![\w.-])proxy_pass\s+(\w+)://([^/;\s]+)", body):
+        unmodeled_target = False
+        for raw_target in re.findall(r"(?<![\w.-])proxy_pass\s+([^;{}]+);", body):
+            match = re.match(r"(\w+)://([^/;\s]+)", raw_target.strip())
+            if match is None:
+                unmodeled_target = True
+                continue
+            scheme, target = match.groups()
             host = target.split(":")[0].strip().lower()
             backend = upstreams.get(host)
             if backend is None:
+                unmodeled_target = True
                 continue  # not a defined single-backend upstream: out of scope
             backends.add(backend)
             if scheme.lower() in _MODELED_SCHEMES:
@@ -896,7 +1008,7 @@ def _extract_nginx_proxies(
                 )
         name_m = re.search(r"(?<![\w.-])server_name\s+([^;]+);", body)
         if not name_m:
-            if backends:
+            if backends or unmodeled_target:
                 notes.append(f"skipped server block in {provenance}: no concrete server_name")
             continue
         hosts = {n.strip().lower().rstrip(".") for n in name_m.group(1).split()}
@@ -904,14 +1016,16 @@ def _extract_nginx_proxies(
         if not valid:
             notes.append(f"skipped server block in {provenance}: no concrete server_name")
             continue
-        if not backends:
-            continue  # not upstream-backed (or a skipped upstream): out of scope
-        if len(backends) > 1:
+        if unmodeled_target or len(backends) > 1:
+            for host in valid:
+                _drop_proxy(host, proxies, proxy_sources, dropped)
             notes.append(
                 f"skipped proxy {sorted(valid)[0]!r} in {provenance}: proxy_pass targets "
-                "multiple backends"
+                "multiple or unresolved backends; host-wide proxy routing is not modeled"
             )
             continue
+        if not backends:
+            continue  # not a proxy-backed server block
         backend = backends.pop()
         for host in sorted(valid):
             _declare_proxy(host, backend, provenance, proxies, proxy_sources, dropped, notes)
@@ -1014,6 +1128,7 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
         service_protocols={name: scheme for name, (scheme, _p, _r) in protocols.items()},
         proxies=proxies,
         source_files=source_files,
+        unresolved_proxies=tuple(sorted(dropped_proxies)),
     )
     return aliases, notes
 

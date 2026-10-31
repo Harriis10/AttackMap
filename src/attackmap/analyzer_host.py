@@ -49,6 +49,7 @@ import importlib
 import importlib.util
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -161,13 +162,19 @@ def _analyzer_name(analyzer: object) -> str:
 def _analyzer_load_spec(analyzer: object) -> dict[str, str | None]:
     """How a worker can reconstruct this analyzer in a subprocess.
 
-    Entry-point name is preferred (registered plugins load exactly the way
-    core loads them); module and file paths are fallbacks for objects the
+    The discovered entry point's distribution, version and target preserve
+    core's selected origin across name collisions. Module and file paths are fallbacks for objects the
     test fixtures construct directly.
     """
     entry_point = getattr(analyzer, "_attackmap_entry_point_name", None)
     if isinstance(entry_point, str) and entry_point:
-        return {"entry_point": entry_point, "module": None, "file": None, "qualname": None}
+        origin = getattr(analyzer, "_attackmap_entry_point", None)
+        distribution = getattr(origin, "dist", None)
+        return {"entry_point": entry_point,
+            "entry_point_value": getattr(origin, "value", None),
+            "distribution": getattr(distribution, "name", None),
+            "distribution_version": getattr(distribution, "version", None),
+            "module": None, "file": None, "qualname": None}
     import inspect
 
     cls = type(analyzer)
@@ -245,6 +252,9 @@ def run_isolated_analyzer(
         ]
         if spec.get("entry_point"):
             argv += ["--entry-point", str(spec["entry_point"])]
+            for key in ("entry_point_value", "distribution", "distribution_version"):
+                if spec.get(key) is not None:
+                    argv += ["--" + key.replace("_", "-"), str(spec[key])]
         if spec.get("module"):
             argv += ["--analyzer-module", str(spec["module"])]
         if spec.get("file"):
@@ -523,11 +533,27 @@ def _load_analyzer(args: "argparse.Namespace") -> object:
     if args.entry_point:
         try:
             matches = [ep for ep in entry_points(group="attackmap.analyzers") if ep.name == args.entry_point]
-            if not matches:
-                raise ImportError(f"entry point {args.entry_point!r} not found")
+            target = getattr(args, "entry_point_value", None)
+            distribution = getattr(args, "distribution", None)
+            version = getattr(args, "distribution_version", None)
+            if target is not None:
+                matches = [ep for ep in matches if ep.value == target]
+            if distribution is not None:
+                canonical = lambda name: re.sub(r"[-_.]+", "-", name).lower()
+                matches = [ep for ep in matches if isinstance(getattr(ep.dist, "name", None), str)
+                    and canonical(ep.dist.name) == canonical(distribution)]
+            if version is not None:
+                matches = [ep for ep in matches if getattr(ep.dist, "version", None) == version]
+            if len(matches) != 1:
+                raise ImportError(f"entry point {args.entry_point!r} selected origin has {len(matches)} matches")
             return matches[0].load()
         except Exception as exc:
             attempts.append(f"entry-point: {type(exc).__name__}: {exc}")
+            # A recorded discovery origin must never fall through to a different
+            # module/file implementation when that origin cannot be reconstructed.
+            if any(getattr(args, key, None) is not None for key in
+                   ("entry_point_value", "distribution", "distribution_version")):
+                raise RuntimeError("could not load analyzer in worker (" + attempts[-1] + ")") from exc
 
     if args.analyzer_module:
         try:
@@ -636,6 +662,9 @@ def _main(argv: list[str]) -> int:
     parser.add_argument("--stream-bytes", type=int, default=0)
     parser.add_argument("--result-bytes", type=int, default=0)
     parser.add_argument("--entry-point")
+    parser.add_argument("--entry-point-value")
+    parser.add_argument("--distribution")
+    parser.add_argument("--distribution-version")
     parser.add_argument("--analyzer-module")
     parser.add_argument("--analyzer-file")
     parser.add_argument("--analyzer-attr")

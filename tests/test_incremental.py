@@ -355,6 +355,70 @@ def test_policy_identity_tracks_env_knobs(monkeypatch) -> None:
     assert source_policy_identity() != base
 
 
+def test_frozen_code_identity_reuses_cache_and_invalidates_upgrade(monkeypatch, tmp_path):
+    """Source-less frozen layout must actually replay, then miss on code change."""
+    import sys
+    from types import SimpleNamespace
+    import attackmap
+    import attackmap.incremental as incremental_mod
+    import attackmap.scanner as scanner_mod
+
+    package = tmp_path / "bundle" / "attackmap"
+    monkeypatch.setattr(attackmap, "__file__", str(package / "__init__.py"))
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    codes = {"attackmap." + name.replace("/", "."): compile(
+        "def extractor():\n    return 1\n", name, "exec"
+    ) for name in incremental_mod._ENGINE_MODULES}
+    loader = SimpleNamespace(get_code=lambda module: codes[module])
+    monkeypatch.setattr(incremental_mod.importlib.util, "find_spec",
+                        lambda module: SimpleNamespace(loader=loader))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _seed_repo(repo)
+    cache_dir = tmp_path / "cache"
+    calls = []
+    original = scanner_mod._analyze_indexed_file
+
+    def counted(item):
+        calls.append(item.rel)
+        return original(item)
+
+    monkeypatch.setattr(scanner_mod, "_analyze_indexed_file", counted)
+    cold = scan_files(repo, incremental=True, cache_dir=cache_dir)
+    cold_calls = list(calls)
+    assert cold_calls
+    identity = engine_identity()
+    calls.clear()
+    warm = scan_files(repo, incremental=True, cache_dir=cache_dir)
+    assert calls == [], "equality alone does not prove warm reuse"
+    assert _normalized(cold) == _normalized(warm)
+    codes["attackmap.scanner"] = compile("def extractor():\n    return 2\n", "scanner", "exec")
+    assert engine_identity() != identity
+    upgraded = scan_files(repo, incremental=True, cache_dir=cache_dir)
+    assert calls == cold_calls
+    assert _normalized(upgraded) == _normalized(cold)
+
+
+def test_frozen_identity_missing_code_disables_cache_safely(monkeypatch, tmp_path):
+    import sys
+    from types import SimpleNamespace
+    import pytest
+    import attackmap.incremental as incremental_mod
+
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(incremental_mod.importlib.util, "find_spec",
+                        lambda module: SimpleNamespace(loader=SimpleNamespace(get_code=lambda name: None)))
+    with pytest.raises(OSError, match="Cannot prove incremental extractor identity"):
+        engine_identity()
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _seed_repo(repo)
+    cache_dir = tmp_path / "cache"
+    result = scan_files(repo, incremental=True, cache_dir=cache_dir)
+    assert _normalized(result) == _normalized(scan_files(repo))
+    assert not cache_dir.exists()
+
+
 # --- behavior preservation ------------------------------------------------------
 
 def test_incremental_default_off_creates_no_cache(tmp_path: Path) -> None:

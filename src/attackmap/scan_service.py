@@ -113,6 +113,9 @@ class ScanRequest:
     # Explicit deployment alias declarations for cross-repo link resolution
     # (C28): positive host→repo mappings; never inferred by similarity.
     deployment_aliases: DeploymentAliases | None = None
+    # Append new options after legacy fields to preserve positional callers.
+    # Optional aggregate captured-input limit; distinct from working-set memory.
+    fleet_input_byte_budget: int | None = None
 
 
 @dataclass
@@ -374,7 +377,7 @@ def _run_fleet_repo_argv(
         argv.append("--strict-suppressions")
     if request.strict_analyzers:
         argv.append("--strict-analyzers")
-    if request.fleet_supervised and request.isolated_analyzers:
+    if request.isolated_analyzers:
         argv.append("--isolated-analyzers")
     if request.fleet_supervised and request.time_budget_seconds is not None:
         argv.extend(["--time-budget-seconds", str(request.time_budget_seconds)])
@@ -401,12 +404,22 @@ def _read_fleet_payload(report_path: Path, max_bytes: int | None = None):
     return data
 
 
-def _load_repo_scan(report_path: Path, *, max_bytes: int | None = None) -> tuple[ScanResult, list[Finding], list[AttackPath], int]:
+def _load_repo_scan(report_path: Path, *, max_bytes: int | None = None,
+                    index_byte_budget: int | None = None) -> tuple[ScanResult, list[Finding], list[AttackPath], int]:
     """Load a single repo's result from its worker-written JSON report."""
     data = _read_fleet_payload(report_path, max_bytes)
     # The canonical report wraps the scan under "scan"; fall back to treating
     # the top-level object as the scan for compact fixtures / test reports.
     scan_data = data.get("scan", data)
+    if index_byte_budget is not None:
+        snapshot = scan_data.get("scan_snapshot")
+        config = snapshot.get("index_config") if isinstance(snapshot, dict) else None
+        size = snapshot.get("total_size") if isinstance(snapshot, dict) else None
+        if (type(size) is not int or not 0 <= size <= index_byte_budget
+                or not isinstance(config, dict) or type(config.get("index_byte_budget")) is not int
+                or config["index_byte_budget"] != index_byte_budget):
+            raise FleetAdmissionError("fleet_input_budget_unverified",
+                "Worker result does not bind captured input bytes to its assigned quota")
     scan = ScanResult.model_validate(scan_data)
     findings = [Finding.model_validate(f) for f in data.get("findings", [])]
     attack_paths = [AttackPath.model_validate(p) for p in data.get("attack_paths", [])]
@@ -417,6 +430,7 @@ def _load_repo_scan(report_path: Path, *, max_bytes: int | None = None) -> tuple
 def _run_supervised_worker(
     argv: list[str], cancel_check: Callable[[], bool] | None = None,
     *, on_progress: Callable[[dict], None] | None = None, timeout: int = 600,
+    env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Wait for a bounded-output worker, including verified cancellation cleanup."""
     from .execution import ProcessSupervisor
@@ -438,6 +452,8 @@ def _run_supervised_worker(
         result.append(terminal(130 if supervisor.cancelled else code, tail))
 
     extra = {"on_progress": on_progress} if on_progress is not None else {}
+    if env is not None:
+        extra["env"] = env
     started = supervisor.start(argv, on_done=complete, timeout=timeout, **extra)
     if not started and not supervisor.running:
         return result[0] if result else terminal(1, supervisor.stderr_tail)
@@ -471,12 +487,23 @@ def _run_fleet_repo_worker(
     repo_path: Path,
     output_root: Path,
     analyzer_names: list[str],
+    *, index_byte_budget: int | None = None,
 ) -> FleetRepoResult:
     """Run one repository in a subprocess and load its JSON report."""
     repo_out = output_root / repo_id
     if repo_id in request.fleet_child_run_ids:
         request = replace(request, run_id=request.fleet_child_run_ids[repo_id])
     argv = _run_fleet_repo_argv(request, repo_path, repo_out, analyzer_names)
+    worker_options = {}
+    if index_byte_budget is not None:
+        try:
+            inherited_limit = int(os.environ.get("ATTACKMAP_INDEX_BYTE_BUDGET", "0") or "0")
+        except ValueError as exc:
+            raise ScanRequestError("ATTACKMAP_INDEX_BYTE_BUDGET must be an integer") from exc
+        if inherited_limit > 0:
+            index_byte_budget = min(index_byte_budget, inherited_limit)
+        # Never change process-global environment while siblings are launching.
+        worker_options["env"] = {**os.environ, "ATTACKMAP_INDEX_BYTE_BUDGET": str(index_byte_budget)}
     # Interchange lives outside report/source directories and is removed even
     # when a child fails. Presentation format never controls this payload.
     with tempfile.TemporaryDirectory(prefix="attackmap-fleet-") as worker_dir:
@@ -490,10 +517,10 @@ def _run_fleet_repo_worker(
             completed = _run_supervised_worker(argv, cancel_check=request.cancel_check,
                 on_progress=lambda event: request.fleet_event({"repo_id": repo_id,
                     "state": "running", "progress": event}),
-                timeout=request.fleet_timeout_seconds)
+                timeout=request.fleet_timeout_seconds, **worker_options)
         else:
             completed = _run_supervised_worker(argv, cancel_check=request.cancel_check,
-                                               timeout=request.fleet_timeout_seconds)
+                                               timeout=request.fleet_timeout_seconds, **worker_options)
         if reservation is not None:
             reservation.process_cleanup_verified = getattr(completed, "cleanup_verified", False) is True
             if not reservation.process_cleanup_verified:
@@ -518,7 +545,8 @@ def _run_fleet_repo_worker(
             )
         try:
             scan, findings, attack_paths, suppressed_count = _load_repo_scan(result_path,
-                **({"max_bytes": reservation.estimate.result_bytes_limit} if reservation is not None else {}))
+                **({"max_bytes": reservation.estimate.result_bytes_limit} if reservation is not None else {}),
+                **({"index_byte_budget": index_byte_budget} if index_byte_budget is not None else {}))
         except FleetAdmissionError:
             raise
         except Exception as exc:  # noqa: BLE001 — surface parse/load errors as a repo failure
@@ -574,6 +602,19 @@ def _run_fleet_serial(
             fleet.failed.append({"repo_id": repo_id, "root": str(repo_path), "error": message})
 
 
+def _fleet_input_quotas(total: int | None, repo_ids: list[str]) -> dict[str, int] | None:
+    if total is None:
+        return None
+    if type(total) is not int or total <= 0:
+        raise ScanRequestError("Fleet input byte budget must be a positive integer")
+    if not repo_ids:
+        return {}
+    share, remainder = divmod(total, len(repo_ids))
+    # Reserve every quota for the whole run. Completion, failure and cancellation
+    # do not redistribute it, so scheduling cannot alter source acceptance.
+    return {repo_id: share + int(index < remainder) for index, repo_id in enumerate(repo_ids)}
+
+
 def _run_fleet_parallel(
     request: ScanRequest,
     analyzer_names: list[str],
@@ -583,6 +624,7 @@ def _run_fleet_parallel(
     """Bounded pool of per-repo subprocess workers."""
     max_workers = _effective_max_workers(request)
     repo_ids = fleet_repo_ids(request.repo_paths)
+    input_quotas = _fleet_input_quotas(request.fleet_input_byte_budget, repo_ids)
     pending: list[tuple[str, Path]] = [
         (repo_id, repo_path) for repo_id, repo_path in zip(repo_ids, request.repo_paths)
     ]
@@ -608,7 +650,8 @@ def _run_fleet_parallel(
                 with reservation_scope(reservation):
                     if request.cancel_check is not None and request.cancel_check():
                         raise FleetAdmissionError("fleet_admission_cancelled", "Child cancelled before dispatch")
-                    result = _run_fleet_repo_worker(request, repo_id, repo_path, output_root, analyzer_names)
+                    result = _run_fleet_repo_worker(request, repo_id, repo_path, output_root, analyzer_names,
+                        **({"index_byte_budget": input_quotas[repo_id]} if input_quotas is not None else {}))
                     keep_result = True
                     return result
             finally:
@@ -628,6 +671,9 @@ def _run_fleet_parallel(
             while remaining:
                 repo_id, repo_path = remaining[0]
                 try:
+                    if input_quotas is not None and input_quotas[repo_id] == 0:
+                        raise FleetAdmissionError("fleet_input_capacity",
+                            "Repository not started because its aggregate input quota is zero bytes")
                     reservation = ledger.reserve(repo_id) if ledger is not None else None
                 except FleetAdmissionError as exc:
                     remaining.popleft()
@@ -695,6 +741,16 @@ def _run_fleet_parallel(
         "policy": "count_only", "memory_qualification": "unknown", "os_enforced": False,
         "limitation": "Worker count and deadlines do not bound fleet or retained-parent memory"}
     admission.update(worker_limit=max_workers, hard_worker_timeout_seconds=request.fleet_timeout_seconds)
+    if input_quotas is not None:
+        admission["input_bytes"] = {
+            "policy": "fixed_per_repository_quotas", "total_bytes": request.fleet_input_byte_budget,
+            "allocated_bytes": sum(input_quotas.values()), "repository_quotas": input_quotas,
+            "verified_captured_bytes": sum(result.scan.scan_snapshot.total_size for result in fleet.results),
+            "capture_status": "partial" if fleet.failed or any(
+                event.category == "index_bytes" for result in fleet.results
+                for event in result.scan.resource_limit_events) else "within_quotas",
+            "limitation": "Captured input bytes do not bound worker or retained-parent working-set memory",
+        }
     return admission
 
 
@@ -708,7 +764,9 @@ def _effective_deployment_aliases(
     and CLI declarations override config entries with the same key — an
     operator flag beats a file. If the two sources claim conflicting
     topologies for one host (e.g. a CLI host alias vs a config proxy), the CLI
-    set alone is used: it is authoritative and was validated at parse time.
+    positive set alone is used: it is authoritative and was validated at parse
+    time. Unresolved proxy evidence survives either path: a positive alias
+    cannot establish host-wide routing that the extractor could not model.
     Returns the effective aliases (``None`` when nothing declares anything)
     plus user-facing notes about skipped or conflicting extractions.
     """
@@ -717,9 +775,11 @@ def _effective_deployment_aliases(
     extracted, notes = extract_deployment_aliases(request.repo_paths)
     cli = request.deployment_aliases
     if cli is None:
-        if not extracted.service_ports and not extracted.proxies:
+        if not extracted.service_ports and not extracted.proxies and not extracted.unresolved_proxies:
             return None, notes
         return extracted, notes
+
+    unresolved = tuple(sorted(set(extracted.unresolved_proxies) | set(cli.unresolved_proxies)))
 
     def overridden(key: str) -> bool:
         # A CLI re-declaration must not keep the config file's provenance.
@@ -743,13 +803,14 @@ def _effective_deployment_aliases(
             source_files={
                 key: path for key, path in extracted.source_files.items() if not overridden(key)
             },
+            unresolved_proxies=unresolved,
         )
     except ValueError as exc:
         notes.append(
             "config-extracted declarations conflicted with CLI declarations "
-            f"({exc}); using CLI declarations only"
+            f"({exc}); using CLI declarations only; retaining unresolved proxy evidence"
         )
-        return cli, notes
+        return replace(cli, unresolved_proxies=unresolved), notes
     return merged, notes
 
 
@@ -816,7 +877,7 @@ def _run_fleet_generation(request: ScanRequest, analyzers: list | None) -> RunSu
     # always need independently verified, manifest-bound generations.
     child_request = replace(request, atomic_output=True)
     if (_effective_max_workers(request) == 1 and not request.fleet_supervised
-            and request.fleet_memory_policy is None):
+            and request.fleet_memory_policy is None and request.fleet_input_byte_budget is None):
         _run_fleet_serial(child_request, analyzers, fleet, output_root)
         admission = {"policy": "in_process_serial", "memory_qualification": "unknown", "os_enforced": False,
                      "limitation": "No current-scope measured memory reservation or hard worker deadline"}
@@ -925,6 +986,11 @@ def execute_scan_request(request: ScanRequest) -> RunSummary:
             except (OSError, ValueError):
                 pass  # Diagnostic storage cannot mask the typed request error.
         raise ScanRequestError("At least one repository path is required.")
+
+    if request.fleet_input_byte_budget is not None:
+        _fleet_input_quotas(request.fleet_input_byte_budget, fleet_repo_ids(request.repo_paths))
+        if len(request.repo_paths) < 2:
+            raise ScanRequestError("Fleet input byte budget requires at least two repository paths")
 
     try:
         if request.atomic_output:

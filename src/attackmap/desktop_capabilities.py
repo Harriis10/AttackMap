@@ -24,6 +24,9 @@ _UNWIRED_FIELDS = frozenset({
 
 
 def _options_model(version: str):
+    if version == "1.4":
+        from .desktop_fleet import FleetScanOptions
+        return FleetScanOptions
     if version == "1.5":
         return ScanOptionsV15
     return ScanOptionsV13 if version in {"1.3", "1.4"} else ScanOptionsV12 if version == "1.2" else ScanOptions
@@ -140,6 +143,7 @@ def build_capabilities(app: Any, *, metadata: list[Any] | None = None) -> dict:
                             "minimum_repositories": 2, "maximum_repositories": 16,
                             "maximum_workers": 4, "modes": ["none"],
                             "request_fields": ["repositories", "max_workers"],
+                            "scan_options": sorted(_options_model("1.4").model_fields),
                             "events": ["fleet_child", "fleet_terminal"],
                             "unsupported": ["AI", "baseline", "baseline_policies", "suppress_file", "secrets_history"]}},
                         "limitations": ["Installed analyzers are not a repository applicability result.",
@@ -221,7 +225,15 @@ def preflight_capabilities(document: Any, *, request: Any = None,
                 return result("unsupported_request")
             raw_options = request.get("options", {})
             supported_options = desktop.get("scan_options_by_schema", {}).get(validated.schema_version, desktop.get("scan_options", []))
-            if set(raw_options) - set(supported_options):
+            if validated.kind == "fleet_request":
+                fleet_options = desktop.get("fleet_by_schema", {}).get("1.4", {}).get("scan_options")
+                # Old 1.4 engines never proved profile transport. Keep their
+                # existing options compatible, but require explicit opt-in for profiles.
+                supported_options = fleet_options if fleet_options is not None else [name for name in supported_options if name != "analyzer_profile"]
+            requested_options = set(raw_options)
+            if validated.kind == "fleet_request" and raw_options.get("analyzer_profile") is None:
+                requested_options.discard("analyzer_profile")
+            if requested_options - set(supported_options):
                 return result("unsupported_request")
             provider = raw_options.get("provider", {})
             if set(provider) - set(desktop.get("provider_options", [])):

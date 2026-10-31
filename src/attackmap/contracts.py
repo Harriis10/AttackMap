@@ -100,7 +100,7 @@ class ContractLink:
     # target when one is present; ``None`` for relative/variable targets.
     destination: str | None = None
     resolution: str = "observed"  # "observed" | "observed_via_proxy" | "candidate"
-    resolution_reason: str = ""  # "" | no_destination | unresolved_host | ambiguous_identity | explicit_port | scheme_mismatch
+    resolution_reason: str = ""  # "" | no_destination | unresolved_host | ambiguous_identity | explicit_port | scheme_mismatch | unsupported_protocol
     # The call target's URL scheme (``http``/``https``/…) when it carries one;
     # `None` for scheme-less authorities and relative targets (C28 protocol
     # modeling).
@@ -149,6 +149,9 @@ class DeploymentAliases:
       (config-file extraction, C28), e.g. ``service_ports:auth-api:8443`` →
       ``auth-api/k8s/service.yaml``. Surfaced by appending the file to the
       link's ``alias_provenance``; CLI declarations carry none.
+    - ``unresolved_proxies``: normalized hosts with unmodeled/conflicting proxy
+      routing. These negative facts prevent any direct or proxy identity
+      fallback from claiming an observed contract for that host.
 
     Alias values address a repo by any of its identities (fleet id or root
     directory name, case-insensitive) and may name repos outside the current
@@ -164,6 +167,9 @@ class DeploymentAliases:
     service_ports: Mapping[str, int] = field(default_factory=dict)
     service_protocols: Mapping[str, str] = field(default_factory=dict)
     source_files: Mapping[str, str] = field(default_factory=dict)
+    # Negative config evidence must survive alias merges: removing a proxy
+    # alone could expose an unsupported direct repo-identity/alias fallback.
+    unresolved_proxies: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         hosts = _declared_hosts(self.hosts)
@@ -174,6 +180,9 @@ class DeploymentAliases:
         object.__setattr__(self, "service_ports", _declared_service_ports(self.service_ports))
         object.__setattr__(self, "service_protocols", _declared_service_protocols(self.service_protocols))
         object.__setattr__(self, "source_files", _declared_sources(self.source_files))
+        unresolved = _declared_hosts({str(host).strip().rstrip("."): "unresolved"
+                                      for host in self.unresolved_proxies})
+        object.__setattr__(self, "unresolved_proxies", tuple(sorted(unresolved)))
 
 
 def _declared_hosts(mapping: Mapping[str, str]) -> dict[str, str]:
@@ -515,7 +524,9 @@ def link_contracts(
     declared protocol; a call to a declared proxy fronting B resolves as
     **observed_via_proxy** (logical seam, no direct edge); otherwise the match
     survives as a **candidate** — inspectable, but never an observed trust
-    path. ``aliases`` defaults to no declarations (identity-only resolution).
+    path. Explicit non-HTTP(S) schemes remain candidates: matching an HTTP
+    route does not establish another protocol's contract. ``aliases`` defaults
+    to no declarations (identity-only resolution).
     Deterministic; deduped on the full link identity.
     """
     aliases = aliases or DeploymentAliases()
@@ -561,6 +572,16 @@ def link_contracts(
         scheme = _target_scheme(call_target)
         host_repos, host_provenance = _host_repos(host, identities, aliases)
 
+        if host.rstrip(".") in aliases.unresolved_proxies:
+            # Unmodeled proxy routing cannot become a direct observed edge
+            # merely because a repo identity or another alias also names it.
+            # Compare DNS root-dot equivalents to the normalized negative fact,
+            # while preserving destination spelling and positive alias origins.
+            declared = aliases.host_ports.get(destination) if explicit_port else aliases.proxies.get(host)
+            implicated = server_id in host_repos or declared in identities[server_id]
+            reason = "ambiguous_identity" if implicated else "unresolved_host"
+            return destination, "candidate", reason, None, None
+
         # Declared proxy (C28): the call dials the proxy, which positively
         # fronts exactly one repo. The logical seam is observed, but never as a
         # direct service-to-service edge and never a trust-path finding — the
@@ -586,6 +607,8 @@ def link_contracts(
                 return destination, "candidate", "unresolved_host", None, None
             if len(backend_repos) > 1:
                 return destination, "candidate", "ambiguous_identity", None, None
+            if scheme is not None and scheme not in {"http", "https"}:
+                return destination, "candidate", "unsupported_protocol", None, None
             return destination, "observed_via_proxy", "", _sourced(aliases, f"proxies:{host}"), host
 
         if explicit_port:
@@ -635,6 +658,8 @@ def link_contracts(
         contradiction = scheme_contradiction(scheme, server_id)
         if contradiction is not None:
             return destination, "candidate", "scheme_mismatch", _sourced(aliases, contradiction) or None, None
+        if scheme is not None and scheme not in {"http", "https"}:
+            return destination, "candidate", "unsupported_protocol", None, None
         return destination, "observed", "", _sourced(aliases, provenance), None
 
     links: list[ContractLink] = []

@@ -1,0 +1,38 @@
+[
+  {
+    "category": "injection",
+    "title": "Request input flows into a filesystem path (path traversal)",
+    "evidence": [
+      "route OPTIONS /* in server.ts",
+      "sink at server.ts:277 (filesystem path)",
+      "import path: server.ts (0 hop(s))",
+      "flow: OPTIONS /* \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: GET /api/Deliverys \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: GET /api/Deliverys/:id \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: POST /api/Feedbacks \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: GET /api/Recycles \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: GET /api/Recycles/:id \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: POST /api/Users \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: POST /b2b/v2/orders \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: POST /file-upload \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "flow: GET /profile \u2014 path_param source at server.ts:272 \u2192 sink at server.ts:277",
+      "+44 more traced flow(s)"
+    ],
+    "tags": [
+      "taint-chain",
+      "taint-flow",
+      "input-handling",
+      "data-risk"
+    ]
+  },
+  {
+    "category": "crypto",
+    "title": "Insecure randomness for a security value",
+    "evidence": [
+      "lib/insecurity.ts:53 \u2014 export const denyAll = () => expressJwt({ secret: '' + Math.random() } as any)"
+    ],
+    "tags": [
+      "insecure-crypto"
+    ]
+  }
+]

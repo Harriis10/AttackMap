@@ -4,6 +4,52 @@
 
 # Resource limits (C35 / AM049)
 
+## WP034 bounded aggregate-input policy — 2026-10-31
+
+Core API fleet callers may explicitly set `ScanRequest.fleet_input_byte_budget`
+to a positive integer. The default remains `None`: ordinary serial/count-only
+fleets retain their existing behavior, and the single-repository aggregate
+default remains uncapped. No new qualified numeric default is claimed. A public
+single-repository request rejects this fleet-only option instead of ignoring it.
+There is no CLI, wire-protocol or native setting for the option in this slice.
+
+For `B` bytes across `N` requested repository IDs, the coordinator reserves
+`B // N` bytes per repository and one additional byte for the first `B % N`
+repositories in input order. The quotas sum to `B`; scheduling and completion
+order cannot change them. Quotas remain reserved for the whole run, including
+failure and cancellation. Unused capacity is not transferred between siblings.
+A zero-byte quota produces the typed `fleet_input_capacity` failed row without
+dispatch; successful siblings remain available. Invalid budgets fail before
+dispatch. Opting in uses supervised children even with a worker count of one.
+
+Each child receives its quota through its own copied environment, without any
+parent/global environment mutation. A positive inherited
+`ATTACKMAP_INDEX_BYTE_BUDGET` remains an additional ceiling: the effective child
+limit is the smaller of that ceiling and its fleet quota. Existing capture gates
+continue to emit `ResourceLimitEvent(category="index_bytes")`, limitations and
+partial fleet-architecture repository status for skipped files. The parent
+requires the returned snapshot's `index_byte_budget` to match the effective
+limit and its `total_size` to fit that limit; an absent, mismatched or excessive
+snapshot produces `fleet_input_budget_unverified` and is not retained as success.
+This is consistency checking of the owned worker result, not authentication of
+an untrusted analyzer or proof of actual physical memory use.
+
+`run-manifest.json` adds `fleet_resource_admission.input_bytes` only when opted
+in. It records `total_bytes`, `allocated_bytes`, `repository_quotas`, and
+`verified_captured_bytes` (successful bound snapshot totals only). Its explicit
+`capture_status` is `partial` if any requested child fails/is not admitted or
+any successful child emits an `index_bytes` skip; otherwise it is `within_quotas`.
+`within_quotas` describes this policy only, never language/rule/runtime coverage.
+Existing fleet diagnostic coverage remains scoped to accepted-path enumeration;
+child byte-limit events and limitations carry the skipped-source evidence.
+
+Input-byte quotas compose with the existing opt-in `FleetMemoryPolicy`; they
+do not replace live/retained-result reservations or enforce an OS memory limit.
+Capture read buffers, decoded text, analyzer signals, models, graphs and parent
+retention can exceed captured input bytes. This bounded policy does not close
+WP034/C35, qualify 10k/50k/100k scans, prove a peak below 2 GiB, or qualify a
+native/package/release build. [Reproduction, tests and limits](verification/windows-parity/WP034/agent-admission-20261031/README.md).
+
 ## WP034 implementation checkpoint — 2026-10-21
 
 The following describes the current narrow fleet-policy patch. Measurements below

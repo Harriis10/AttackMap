@@ -3,7 +3,22 @@
   "baseline_date": "2026-10-20",
   "baseline_timezone": "Europe/Prague",
   "baseline_commit": "d45997653970929f5f477c6e2dcd70913cb17fe3",
-  "planning_status": "2026-10-27 scoped integration review COMPLETE: WP032/WP039/WP044 regressions retained; WP043 candidate07 live A/R/B evidence includes round4 A blank/R complete/B blank without property mutations, while RTB is not a live-presentation oracle and rendering acceptance remains FAILED. Whole-task statuses and release/manual/dependency gates unchanged; run_state remains PAUSED and prior portable is preserved.",
+  "current_integration_checkpoint_2026_10_31": {
+    "tasks": ["WP017", "WP019", "WP034", "WP035", "WP043"],
+    "status": "SCOPED_EVIDENCE_ONLY_WHOLE_TASK_GATES_OPEN",
+    "summary": "One real local LM Studio CLI review completed. Bounded native fleet transport, semantic ledger comparator and CLI isolation forwarding checks passed. WP043 recovery/probes passed 106 tests and 149 subtests, but live-05/live-06 were invalid startup attempts with no captures. The runtime overlay is rejected; no runtime installation occurred. Current self-contained build remains blocked in the SDK inline-task host before application compilation. Historical checkpoint records below remain preserved.",
+    "evidence": [
+      "docs/verification/windows-parity/WP017/lm-studio-review-20261031/README.md",
+      "docs/verification/windows-parity/WP019/native-fleet-transport-20261031/README.md",
+      "docs/verification/windows-parity/WP034/ledger-semantic-parity-20261031/README.md",
+      "docs/verification/windows-parity/WP035/cli-fleet-isolation-20261031/README.md",
+      "docs/verification/windows-parity/WP043/popup-tooltip-recovery-20261031/README.md"
+    ],
+    "whole_task_acceptance": false,
+    "rendering_acceptance": "FAILED_UNCHANGED",
+    "task_statuses_unchanged": true
+  },
+  "planning_status": "2026-10-31: Three bounded roadmap slices were independently reviewed and jointly source-verified (948 PASS, 1 SKIP, 0 failures/errors; three known raw-ledger parity cases explicitly deselected and separately still failing). WP031 conservative static binding is fail-closed on lexical shadowing and has no claimed held-out improvement; WP032 preserves unresolved multi-backend proxy evidence through merge/fallback and blocks root-dot identity bypasses; WP034 adds opt-in deterministic fleet input quotas with preserved positional API compatibility. WP031/WP032/WP034 remain IN_PROGRESS; WP043 global rendering FAILED and V01-V03 blocked. Whole-task C27/C28/C35, production-fleet, native/frozen/UI, manual and release gates remain open. Current batch leases released; prior evidence preserved.",
   "roadmap": "roadmap-windows-parity-2026-10-20.md",
   "audit": "windows-parity-audit-2026-10-20.md",
   "task_definition_authority": "windows-parity-todo.md; synchronize this JSON when changing dependencies or definitions",
@@ -928,8 +943,10 @@
         "docs/verification/windows-parity/WP017/long-local-20261022/newlong-native-tests-01/README.md",
         "docs/verification/windows-parity/WP017/sol-long-local-20261023-hunt-verify-02/failure.json",
         "docs/verification/windows-parity/WP017/sol-long-local-20261023-remediate/summary.json",
-        "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage-teardown-diagnosis.md"
+        "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage-teardown-diagnosis.md",
+        "docs/verification/windows-parity/WP017/lm-studio-review-20261031/README.md"
       ],
+      "current_checkpoint_2026_10_31": "One actual CLI review over C:/tmp/juice-shop completed exit 0 through local LM Studio http://127.0.0.1:1234/v1 using cyberstag-security-26b-a4b-v1; completed API response reports 6306 input and 5933 output tokens. This selected-evidence partial review does not establish claim support or source-location validity. Other AI modes, native/packaged/UI journey and whole-task acceptance remain open; IN_PROGRESS unchanged.",
       "execution_scope": "2026-10-23 Sol6.1 ultra scoped batch COMPLETE: WP016 metadata projection86offline assertions; WP023 v2lifetime603assertions/132cases and fullnative integration02; focused4AI summary frames source/pixel/bounds+rootvisual reviewPASS after preserved preview01initialLightFAIL; WP017controller21tests and actualnative controlledHTTP503/malformed/pendingcancel each1POST/exit0/ownedcleanup/threadsjoinedPASS. Sourcepreview uses hash-bound retained olderengine, not newpackage/live/same-source acceptance. Realmodelresponses0; wholeWP016/017/023 IN_PROGRESS, semantic/manual/GUI/signing/cleanhost/Mac gates open."
     },
     {
@@ -1028,8 +1045,10 @@
       "condition": null,
       "evidence": [
         "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
-        "docs/verification/windows-parity/WP019/agent-fleet-verification-2026-10-21.json"
+        "docs/verification/windows-parity/WP019/agent-fleet-verification-2026-10-21.json",
+        "docs/verification/windows-parity/WP019/native-fleet-transport-20261031/README.md"
       ],
+      "current_checkpoint_2026_10_31": "Native fleet transport live-01: actual preflight and persisted worker request config/isolation=true/time_budget_seconds=30/timeout_seconds=180/max_workers=1; two synthetic reader/writer children completed, independently hash-verified manifests, 9/9 PASS, exit 0, fixtures unchanged, Job active0 and external census clear. Native diagnostic build exit0 0 warnings/errors 1:14.59 and 19 guard tests PASS are session-output evidence. Frozen engine SHA256 38632471645e82c5f20a0e05a413763c4573bf0006b695d2f00668c34d47746c is immutable snapshot-bound diagnostic: whole-current-source gate failed on four native QA files during freeze, no engine/Python/schema input changed. Not same-source release. PASS only one worker/two fixtures transport; ordinary parallel CLI path, OS sandbox, named profiles, summary UI/pixels, representative production16, resource/manual/release gates remain open; IN_PROGRESS unchanged. Raw links and freeze proof: docs/verification/windows-parity/WP019/native-fleet-transport-20261031/live01.md.",
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
       "execution_scope": "Retained full native L/frozenB-J run04 actual fleet+watch runtime PASS, four Fleet frames reviewed. Finalsame-source package and complete native/manual gates remainopen; no newruntime today.",
       "fleet16_scope_extension": "picker → jeden společný běh → přehled všech 16 identit → detail a graf WP043 → evidence → back. Reprodukovat a opravit GUID child ID ↔ summary slug ↔ canonical root mapování, včetně stejných basename. UI ukáže effective concurrency/budget, child partial/failure a časy snapshotů; žádné tvrzení o společném atomickém snapshotu 16 pracovních stromů."
@@ -1325,6 +1344,7 @@
       "conditional": false,
       "condition": null,
       "evidence": [
+        "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
         "docs/verification/windows-parity/WP024/implementation-verification.json",
         "23 focused Python release tests PASS",
         "24 EngineLaunchSpec checks PASS",
@@ -1342,7 +1362,7 @@
         "docs/verification/windows-parity/WP017/astra-review-20261022/profile-fix/README.md",
         "docs/verification/windows-parity/RESUME-2026-10-22/checkpoint-2026-10-23.md"
       ],
-      "execution_scope": "Historical unsigned acceptance retained; later507bdda fullportable actual package/SBOM/ZIP779/installednative19 scopedPASS in WP024/sol-portable-507bdda-20261023. No signing/cleanhost/manual/live acceptance transfer."
+      "execution_scope": "Historical unsigned acceptance retained. Common-source04 RequiredBundled self-contained native/frozen package and all 796 installed files verified; final installed native journey 71 checks / 16 synthetic children with bundled engine and no Python on PATH. Separate external SBOM. Signing, clean-host, ordinary personal-settings startup, macOS and release/manual acceptance not transferred."
     },
     {
       "id": "WP025",
@@ -1637,11 +1657,11 @@
     {
       "id": "WP031",
       "title": "Opravit slabé rodiny podle holdoutu",
-      "status": "OPEN",
+    "status": "IN_PROGRESS",
       "priority": "P1",
       "lane": "DETECTORS",
       "checkpoint": "K8",
-      "owner": null,
+    "owner": "/root",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP030"
@@ -1774,11 +1794,13 @@
       "conditional": false,
       "condition": null,
       "evidence": [
+        "artifacts/roadmap-closeout-20261030/snapshot/WP033-GAP.md",
         "docs/verification/windows-parity/RECONCILE-2026-10-21/product-basis.md",
         "docs/verification/windows-parity/WP033/implementation-2026-10-21.md"
       ],
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
-      "execution_scope": "Captured enumeration/rawSDK/cache/incremental implementation plus later sealed SDKsnapshot transport retained. Finalsource/frozen/native equivalence and remaining livepath/unsupportedOS qualification open;100edit source tests do not qualify finalpackage or C34 performance."
+      "execution_scope": "Captured enumeration/rawSDK/cache/incremental implementation plus later sealed SDKsnapshot transport retained. Finalsource/frozen/native equivalence and remaining livepath/unsupportedOS qualification open;100edit source tests do not qualify finalpackage or C34 performance.",
+      "frozen_cache_gap_2026_10_30": "Physical-source engine identity fails in frozen layout; scanner disables incremental cache. Output equality does not prove warm reuse. Recorded only; no fix/performance acceptance."
     },
     {
       "id": "WP034",
@@ -1827,8 +1849,10 @@
         "docs/verification/windows-parity/WP034/repaired-harness-preflight-2026-10-21.json",
         "docs/verification/windows-parity/WP034/10k-repaired-2026-10-21.json",
         "docs/verification/windows-parity/WP034/representative-copy-integration-2026-10-21.json",
-        "docs/verification/windows-parity/WP034/resume-r4-20261022/README.md"
+        "docs/verification/windows-parity/WP034/resume-r4-20261022/README.md",
+        "docs/verification/windows-parity/WP034/ledger-semantic-parity-20261031/README.md"
       ],
+      "current_checkpoint_2026_10_31": "Semantic comparator correction only: normalize three verified ledger clock paths while preserving missing/None, cardinality, nonnegative finite values, monotonic lifecycle validation and every other ledger/scan field. Production ledger behavior unchanged. 94 PASS; overlapping eight-file fleet suite 175 PASS / 1 Windows chmod SKIP includes all three formerly failing formats without deselection. Counts overlap and must not be added. C35 measured defaults/memory/load, 10k/50k/100k, OS enforcement, native/package and whole-task acceptance remain open; historical raw failures retained; IN_PROGRESS unchanged.",
       "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
       "execution_scope": "Historical10k terminal peak1721356288B but600s softbudget exhausted/laterstages skipped, so C35open. R4provenance verification completed22Oct5PASS. No50k/100k qualification; no active profile job claimed."
     },
@@ -1871,8 +1895,10 @@
       "conditional": false,
       "condition": null,
       "evidence": [
-        "docs/verification/windows-parity/WP035/provenance-2026-10-21.md"
+        "docs/verification/windows-parity/WP035/provenance-2026-10-21.md",
+        "docs/verification/windows-parity/WP035/cli-fleet-isolation-20261031/README.md"
       ],
+      "current_checkpoint_2026_10_31": "Frozen ordinary parallel external-plugin follow-up: two Python fixture repos, workers2; OS observer captured both repository children with isolation flag and two analyzer_host workers for PythonAnalyzer 0.1.0. Both raw ledgers plugin succeeded/isolated, exit0, owned Job active0, fixture fingerprints unchanged. Independent reviewer verified raw evidence and hashes. Prior config-only in_process observation is explained by deliberate builtin policy; external plugins were unmatched/skipped, no flag loss. Wheel attestation is not verified Git pin: pin_status=unverified/content_verified=false retained. Snapshot-bound diagnostic engine 38632471645e82c5f20a0e05a413763c4573bf0006b695d2f00668c34d47746c, not whole-current-source release. Earlier failed permission/harness/focused attempts preserved. OS sandbox, crash/hang containment, resource limits, native UI, whole WP035/C36 and release remain open; IN_PROGRESS unchanged. Evidence/raw/hash links: docs/verification/windows-parity/WP035/frozen-plugin-isolation-20261031/README.md. Prior argument-only fixture run and focused60PASS/3deselected retained.",
       "execution_scope": "Windows OS caps/recovery, sealed SDKsnapshot transport and parent-authoritative attribution implemented in prior checkpoint. Prior broad suite terminal failed then scopedfixes; no active broadjob. Filesystem/network unrestricted; finalfrozen/supportedOS/resource gates remainopen."
     },
     {
@@ -2103,6 +2129,8 @@
       "conditional": false,
       "condition": null,
       "evidence": [
+        "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+        "docs/verification/windows-parity/ROADMAP-BATCH-20261030/README.md",
         "docs/verification/windows-parity/WP042/sol-ultra-20261023/baseline.json",
         "docs/verification/windows-parity/WP042/sol-ultra-20261023/php-routes-handoff.md",
         "docs/verification/windows-parity/WP042/sol-ultra-20261023/php-routes-result.json",
@@ -2115,7 +2143,16 @@
       ],
       "scope_extension_2026_10_23": "Rozšíření 23. 10. podle [auditu](verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/analyzers.md): prioritně Python cross-file mount/Django class-view/re_path, rodičovské prefixy Laminas a vztah Node/ATProto subscription/auth. Každou mezeru nejdřív reprodukovat proti efektivní připnuté implementaci; část Go/.NET oprav je již v připnutých verzích a není novým úkolem. Profily a provenienci vlastní WP042, paired detector FP/FN a maturity zůstávají WP031/WP039.",
       "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
-      "execution_scope": "Prior PHP/Node/Python slices preserved. Scoped pinned-plugin Django route normalization reviewed; retained pinned source and328focusedPASS+2SKIP. False commented/foreign/include/unsupported-regex surfaces removed and literal route identity aligned; no installed-plugin isolated run. General dynamic routing,class/DRF auth,C27/C38 and dependency gates remain open."
+      "execution_scope": "Exact selected installed origins retained through isolated workers. Frozen exact worker dispatch repaired; stale owned generic Django route observations/origins reconciled with typed normalization while independent producer origins survive. 335 affected tests, 5 actual installed-plugin tests, actual final frozen04 four-mode whole-report parity/catalog/broker and byte-bound source/frozen Juice evidence; overlap and unchanged-source carry-forward explicit. Core-to-frozen-to-native/package function completed. C27/C38 maturity, broader dynamic/class/DRF/framework/dependency/manual gates remain open.",
+      "scoped_checkpoints": [
+        {
+          "date": "2026-10-30",
+          "batch": "ROADMAP-BATCH-20261030",
+          "result": "Exact selected installed entrypoint distribution/version/target preserved across isolated workers; missing/ambiguous/changed origins fail without fallback. Actual offline pinned Python installation,Django routes/negative controls,collision ledger and real JuiceShop21-family execution-mode parity verified.69affectedPASS;finalsharedcore320PASS;independent reviewclear. Bounded source installed isolation gate closed;C27/C38,otherframeworks,frozen/dependency/whole-task acceptance open.",
+          "whole_task_acceptance": false,
+          "evidence": "docs/verification/windows-parity/ROADMAP-BATCH-20261030/README.md"
+        }
+      ]
     },
     {
       "id": "WP040",
@@ -2300,6 +2337,8 @@
       "conditional": false,
       "condition": null,
       "evidence": [
+        "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+        "docs/verification/windows-parity/ROADMAP-BATCH-20261030/README.md",
         "docs/verification/windows-parity/WP043/fleet16-20261023/README.md",
         "docs/verification/windows-parity/WP043/fleet16-20261023/native/README.md",
         "docs/fleet-architecture.md",
@@ -2309,8 +2348,22 @@
         "docs/verification/windows-parity/ROADMAP-NEXT-20261023/FINAL-HANDOFF.md",
         "artifacts/diagram-integration-20261024/wp043-continuation-20261025/lifecycle-capture-live-26/visual-review/manual-review.json",
         "artifacts/diagram-integration-20261024/wp043-continuation-20261025/detail-render-probe-live-27-retry-03/visual-review/manual-review.json",
-        "artifacts/coordination-20261027/integration-review.md"
+        "artifacts/coordination-20261027/integration-review.md",
+        "artifacts/diagram-integration-20261024/wp043-continuation-20261025/detail-root-render-probe-live-28-retry-01/visual-review/manual-review.json",
+        "artifacts/diagram-integration-20261024/wp043-continuation-20261025/probe-hardening-20261030/candidate09.json",
+        "docs/verification/windows-parity/WP043/popup-tooltip-recovery-20261031/README.md",
+        "docs/verification/windows-parity/WP043/popup-tooltip-recovery-20261031/harness-evidence-agent.xml",
+        "artifacts/wp043-context-diagnostics-20261031/live-05/evidence.json",
+        "artifacts/wp043-context-diagnostics-20261031/live-06/evidence.json",
+        "artifacts/wp043-context-diagnostics-20261031/manifest-task-precompiled/README.md",
+        "artifacts/wp043-context-diagnostics-20261031/live-07/evidence.json",
+        "docs/verification/windows-parity/WP043/live09-visual-review-20261031/README.md",
+        "artifacts/wp043-context-diagnostics-20261031/live-08/evidence.json",
+        "artifacts/wp043-context-diagnostics-20261031/live-09/evidence.json",
+        "docs/verification/windows-parity/WP043/live10-fit-wrapping-20261031/README.md",
+        "artifacts/wp043-context-diagnostics-20261031/live-10/evidence.json"
       ],
+      "current_checkpoint_2026_10_31": "live-10 follow-up: GraphExplorerView deferred automatic Fit and Findings Grid wrapping independently source-reviewed clear; source-bound diagnostic self-contained taskoverride build exit 0, 0 warnings/errors, 1:46.70 (session output). 75 valid captures, 0 discarded, 5 complete rounds, 5 diagram activations, clean close; PID 28972 absent afterward. All 75 visually reviewed (live07 agent rounds1-2, reviewer rounds3-4, runner round5, root additional round1/5 targets). First two titles fully wrapped, long metadata ellipsis; full graph fits this viewport but labels small, zoom/manual Fit untested. Automatic Fit only established; ordinary non-capture/manual/other themes/sizes/release and root cause remain open, WP043 IN_PROGRESS/general rendering FAILED. Prior checkpoint retained: Exact UIA recovery and root tooltip mitigation retain 106 tests + 149 subtests PASS. A precompiled unchanged SDK manifest task via UsingTask Override built native-candidate-selfcontained-taskoverride with exit 0, 0 warnings/errors; ordinary SDK inline task still stalls. Invalid live-05/06 overlays and live-07 foreground safety failure retained. live-08: 10 captures, 0 rounds, diagram activation failed without engine. live-09 explicitly selected retained frozen ordinary-candidate-10 engine: 75 captures, 0 discarded, 5 complete rounds, 5 diagram activations, clean close, runId 293803d9a5a541369d81f042a986caad. All 75 images visually reviewed in session (agents rounds 1-4, root round 5); no disappearing text or popup observed, Overview/detail readable. Follow-up --engine and timing/fail-fast harness: 110 unittest PASS in reported session output, independent review; later persisted pytest JUnit harness-engine-activation.xml records exit 0, 110 tests + 156 subtests PASS in 29.75s. Scope: one Dark 1600x1000 saved report, source-bound diagnostic native build with retained frozen engine, not release. Small/clipped diagram, truncated Findings, unsupported offline diagram fallback and unverified scroll remain; root cause unproven. WP043 IN_PROGRESS/global rendering FAILED, V01-V03 and common-source engine/package/release gates remain open.",
       "planning_evidence": [
         "docs/verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/README.md",
         "docs/verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/current-graphs.md",
@@ -2343,8 +2396,30 @@
         "scoped_actual_native_16_generated_repositories_verified": true
       },
       "implementation_reasoning_effort": "ultra",
-      "execution_scope": "Prior fleet16 graph/integration evidence preserved. Candidate07 completed five non-mutating A/ImageGrab-R/immediateRTB-B/ImageGrab triplets with80accepted captures and15targeted visual reviews; round4 is A blank/R complete/B blank, round2 shows the reverse divergence and round5 only recovery correlation. Rendering acceptance FAILED and root cause not established;V01/V02/V03 and whole-task gates remain open.",
+      "execution_scope": "Native Declared filter, symmetric undirected one-hop semantics and undirected inspector/list presentation verified. Final common-source04 local installed pair passed 71 real RunFleet/evidence/source/back/export checks with 16 synthetic children and 6 actually reviewed client RTB images. Diagnostic QA lookup and dialog required-text regions corrected without changing main-window capture oracle or renderer properties. OS-window pixel capture timed out; no OS/manual/whole-renderer acceptance. Prior candidate10 non-F7 live31/four completed sets retained; global text-loss rendering FAILED, root cause/five-round/V01-V03 blocked.",
       "scoped_checkpoints": [
+        {
+          "date": "2026-10-30",
+          "batch": "ROADMAP-BATCH-20261030",
+          "result": "Readiness precedes acknowledged1600x1000placement;strictmodal/CRC/decode/rootquality and quarantinedfailures retained. Actual live30 disproved CtrlShiftF7. Candidate10 CtrlAltShiftR live31 PID37112 runa6fcfaec890e414ca6cd389a5646df30:67accepted/1discarded,4completeADTBsets,round5emptyroot rejected beforeB;all19targets actually reviewed,root7frame subset. R2/3liveblank,D/Tcomplete;R4Dempty,Tmeaningful. No modal observed in targets.68fakePASS20subtests,offlinepublishPASS,source reviewclear. Rootcauseunproved,renderingFAILED,five-round/V01-V03 blocked;no production repair/promotion.",
+          "whole_task_acceptance": false,
+          "evidence": "docs/verification/windows-parity/ROADMAP-BATCH-20261030/README.md"
+        },
+        {
+          "date": "2026-10-30",
+          "batch": "probe-hardening-20261030",
+          "result": "Candidate09 diagnostic hardening:Ctrl+Shift+F7 replaces bareF7;read-only modal and exact1600x1000 outer-window guards;native pixel metadata plus independent PNG CRC/decode quality. Empty Detail remains an observation with meaningful root;empty/uniform root rejects beforeB while preserving artifacts/failure metadata.65fakePASS+20subtests,independent source review clear,offline publish PASS;all308retained engine files match candidate08. Retained-raster replay rejects both prior empty root PNGs. No new live run/provider call in this batch;runtime shortcut isolation,UIA compatibility,geometry and meaningful new pixels remain unverified. WP043 IN_PROGRESS/rendering FAILED,V01-V03 blocked;no production repair or promotion.",
+          "evidence": "artifacts/diagram-integration-20261024/wp043-continuation-20261025/probe-hardening-20261030/candidate09.json",
+          "whole_task_acceptance": false,
+          "new_live_runs": 0
+        },
+        {
+          "date": "2026-10-30",
+          "batch": "detail-root-render-probe-live-28-retry-01",
+          "result": "Candidate08 F7 partial diagnostic failure, independently reviewed by root and visual agent.20 accepted ordinary+5 discarded captures;two A/D/T/B sets,4 fully transparent RTB PNGs;caret modal contaminates from round1 B. Timeout Architecture ACK round2;PID38136 absent after cleanup,raw closedCleanly=false preserved. Focused fake harness56PASS+15subtests. No repair,mechanism,promotion or five-round acceptance. Next gate:explain F7/modal interaction and qualify modal-free/nonempty diagnostic evidence before a separately controlled run.",
+          "evidence": "artifacts/diagram-integration-20261024/wp043-continuation-20261025/detail-root-render-probe-live-28-retry-01/visual-review/manual-review.json",
+          "whole_task_acceptance": false
+        },
         {
           "date": "2026-10-23",
           "batch": "ROADMAP-NEXT-20261023",
@@ -2409,6 +2484,8 @@
       "conditional": false,
       "condition": null,
       "evidence": [
+        "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+        "docs/verification/windows-parity/ROADMAP-BATCH-20261030/README.md",
         "docs/verification/windows-parity/WP043/fleet16-20261023/README.md",
         "docs/verification/windows-parity/WP043/fleet16-20261023/core/README.md",
         "docs/fleet-architecture.md",
@@ -2423,8 +2500,15 @@
         "docs/verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/fleet16-requirements.md"
       ],
       "implementation_reasoning_effort": "ultra",
-      "execution_scope": "Production adapter/fleet consumer now projects strict qualified shared-datastore declarations as declared undirected associations with evidence. Independent review fixes reject test/fixture/mock/example roles and preserve all non-datastore architecture above prepared limits with bounded unresolved/limitation.160focusedPASS. No real emitter or representative16repo runtime;producer/consumer/RPC and whole-task gates remain open.",
+      "execution_scope": "Explicit owner declarations now qualified across unchanged captured core, fresh frozen04, native Declared projection, two real source-location/live-hash inspections, back and canonical JSON/SVG exports, plus exact local package installation. Eight synthetic declarations yield one undirected declared association, 15 completed+1 partial architecture coverage and all 16 child scans complete. Final frozen04 serial facts match source02; frozen03 parallel evidence carried explicitly. Ordinary-settings inference, producer/consumer/RPC and representative production fleet/whole-task gates remain open.",
       "scoped_checkpoints": [
+        {
+          "date": "2026-10-30",
+          "batch": "ROADMAP-BATCH-20261030",
+          "result": "Explicit owner-asserted YAML/JSON declarations now emit through config/provenance/merge into production fleet graphs. Syntheticphysical16repo serial/subprocess parity:8declarations/7resources/1undirected declared association/exactendpoint evidence;32childmanifestchecks;coverage15completed1partial. JuiceShopnegative zeroedges. Raw+canonicalcredentialhost rejection centrallyfixed and independentlycleared.251finalaffectedPASS,sharedcore320PASS,freshfinal16root facts. Genericframeworkinference,representativeproductionfleet,native/frozen/whole-task gates open.",
+          "whole_task_acceptance": false,
+          "evidence": "docs/verification/windows-parity/ROADMAP-BATCH-20261030/README.md"
+        },
         {
           "date": "2026-10-23",
           "batch": "ROADMAP-NEXT-20261023",
@@ -2440,9 +2524,60 @@
       ]
     }
   ],
-  "run_state": "PAUSED",
-  "resume_note": "docs/verification/windows-parity/WP043/diagram-integration-20261024/PAUSE-20261025.md",
+  "run_state": "IDLE",
+  "resume_note": "docs/verification/windows-parity/HANDOFF-20261031-ISOLATION-RENDER-FLEET/README.md",
   "active_execution_leases": [],
+  "roadmap_batch_2026_10_30": {
+    "date": "2026-10-30",
+    "status": "SCOPED_IMPLEMENTATION_VERIFIED",
+    "tasks": [
+      "WP039",
+      "WP043",
+      "WP044"
+    ],
+    "evidence": "docs/verification/windows-parity/ROADMAP-BATCH-20261030/README.md",
+    "base_commit": "4ea5e49ade229fc0432d68ce0f7e99bcf87b545d",
+    "final_integrated_core_tests": 320,
+    "harness_tests": 68,
+    "harness_subtests": 20,
+    "live_runs": 3,
+    "live_outcome": "two candidate09 modal failures;candidate10 four complete pairs then emptyroot rejection",
+    "provider_calls": 0,
+    "whole_task_acceptance": false,
+    "rendering_acceptance": "FAILED",
+    "current_leases_released": true,
+    "native_candidate_engine": "retained prior engine;no newly frozen core integration"
+  },
+  "wp043_probe_hardening_2026_10_30": {
+    "date": "2026-10-30",
+    "status": "DIAGNOSTIC_HARDENING_SOURCE_OFFLINE_VERIFIED",
+    "candidate": "artifacts/diagram-integration-20261024/wp043-continuation-20261025/probe-hardening-20261030/candidate09.json",
+    "independent_review": "artifacts/diagram-integration-20261024/wp043-continuation-20261025/probe-hardening-20261030/independent-review.json",
+    "focused_tests": "65 passed,20 subtests passed",
+    "new_live_runs": 0,
+    "provider_calls": 0,
+    "leases_released": true,
+    "runtime_verified": false,
+    "whole_task_acceptance": false,
+    "next_gate": "Controlled candidate09 runtime validation of modified shortcut,modal inspection,exactgeometry and meaningful root raster;no blind retry or rendering promotion."
+  },
+  "wp043_execution_2026_10_30": {
+    "date": "2026-10-30",
+    "owner": "/root",
+    "tasks": [
+      "WP043"
+    ],
+    "authority": "User explicitly requested reading HANDOFF-2026-10-30.md then parallel continuation.",
+    "base_commit": "4ea5e49ade229fc0432d68ce0f7e99bcf87b545d",
+    "status": "DIAGNOSTIC_FAILED_PARTIAL_EVIDENCE_REVIEWED",
+    "live_attempts": 1,
+    "run_id": "27bc5cc262cd4185840c61f7c45dd57f",
+    "pid": 38136,
+    "evidence": "artifacts/diagram-integration-20261024/wp043-continuation-20261025/detail-root-render-probe-live-28-retry-01/visual-review/manual-review.json",
+    "current_leases_released": true,
+    "whole_task_acceptance": false,
+    "next_gate": "Explain F7/caret-modal interaction and qualify modal-free,nonempty diagnostic evidence before another separately controlled live attempt. No speculative rendering mutations or blind retries."
+  },
   "paused_execution_leases": [
     {
       "owner": "/root",
@@ -2532,13 +2667,14 @@
     "live_provider_calls": 0
   },
   "latest_execution_update": {
-    "date": "2026-10-23",
+    "date": "2026-10-31",
     "tasks": [
-      "WP042",
-      "WP039"
+      "WP031",
+      "WP032",
+      "WP034"
     ],
-    "status": "ANALYZER_IMPLEMENTATION_AND_SCOPED_PACKAGE_VERIFIED",
-    "evidence": "docs/verification/windows-parity/WP039/sol-ultra-20261023-python/README.md",
+    "status": "SCOPED_THREE_SLICE_INTEGRATION_VERIFIED",
+    "evidence": "docs/verification/windows-parity/ROADMAP-THREE-SLICES-20261031/README.md",
     "whole_task_acceptance": false
   },
   "fleet16_scope_update": {
@@ -2634,5 +2770,313 @@
     "accepted_same_source_package": false,
     "accepted_manual_ui": false,
     "accepted_macos": false
+  },
+  "released_execution_leases": [
+    {
+      "owner": "/root",
+      "tasks": [
+        "WP024",
+        "WP039",
+        "WP043",
+        "WP044"
+      ],
+      "scope": [
+        "artifacts/roadmap-closeout-20261030/common-source/",
+        "artifacts/roadmap-closeout-20261030/native-integration/",
+        "docs/README.md",
+        "docs/roadmap-windows-parity-2026-10-20.md",
+        "docs/windows-parity-todo.md",
+        "docs/windows-parity-backlog.json",
+        "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/",
+        "desktop/windows/AttackMap.NativeSpike/MainWindow* integration ifrequired",
+        "artifacts/roadmap-closeout-20261030/common-source-02/"
+      ],
+      "note": "User requested larger completed packages; root owns immutable common capture, nativepublish and visibleGUI, main docs. No renderingrepair/releaseacceptance inferred.",
+      "started_utc": "2026-10-30T21:43:22.545171+00:00",
+      "released_utc": "2026-10-30T22:44:37.221700+00:00",
+      "completion_evidence": "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+      "final_source_capture": "artifacts/roadmap-closeout-20261030/common-source-04",
+      "status": "RELEASED"
+    },
+    {
+      "owner": "/root/frozen_integration",
+      "tasks": [
+        "WP024",
+        "WP039",
+        "WP042",
+        "WP044"
+      ],
+      "scope": [
+        "artifacts/roadmap-closeout-20261030/frozen/",
+        "installer/entry.py",
+        "tests/test_frozen_worker_dispatch.py",
+        "src/attackmap/python_django_routes.py",
+        "tests/test_ecosystem_python_plugin_routes.py",
+        "tests/test_wp039_installed_python.py"
+      ],
+      "note": "All15officialcachedwheels attested;isolatedcopiedfreezeenv;freshcaptured-source engine+actual frozen sourceparity. Noactiveenvmutation/network.",
+      "started_utc": "2026-10-30T21:43:22.545171+00:00",
+      "released_utc": "2026-10-30T22:44:37.221700+00:00",
+      "completion_evidence": "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+      "final_source_capture": "artifacts/roadmap-closeout-20261030/common-source-04",
+      "status": "RELEASED"
+    },
+    {
+      "owner": "/root/native_datastore_mapping",
+      "tasks": [
+        "WP043",
+        "WP044"
+      ],
+      "scope": [
+        "desktop/windows/GraphExplorer.Core/GraphProjection.cs",
+        "desktop/windows/GraphExplorer.NativeView/GraphExplorerView.cs",
+        "desktop/windows/AttackMap.NativeSpike/Fleet/FleetGraphPane.cs",
+        "desktop/windows/FleetDatastoreMapping.Tests/",
+        "artifacts/roadmap-closeout-20261030/native/",
+        "desktop/windows/GraphExplorer.NativeView/GraphExplorerView.cs",
+        "desktop/windows/GraphExplorer.Core.Tests/Program.cs"
+      ],
+      "note": "Declaredfilter,undirectedsemantics,productionJSON mapping+two-sidedsource/export/backharness. RootexclusiveactualGUI.",
+      "started_utc": "2026-10-30T21:43:22.545171+00:00",
+      "released_utc": "2026-10-30T22:44:37.221700+00:00",
+      "completion_evidence": "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+      "final_source_capture": "artifacts/roadmap-closeout-20261030/common-source-04",
+      "status": "RELEASED"
+    },
+    {
+      "owner": "/root/snapshot_closeout",
+      "tasks": [
+        "WP039",
+        "WP044"
+      ],
+      "scope": [
+        "tools/qualify_roadmap_closeout_source.py",
+        "tests/test_roadmap_closeout_qualification.py",
+        "artifacts/roadmap-closeout-20261030/snapshot/"
+      ],
+      "note": "Singleexactfinalsource campaign installedpin/fleet16/manifest+Juice proof;WP033 frozen-cache gap recordedonly,notclaimedfixed.",
+      "started_utc": "2026-10-30T21:43:22.545171+00:00",
+      "released_utc": "2026-10-30T22:44:37.221700+00:00",
+      "completion_evidence": "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+      "final_source_capture": "artifacts/roadmap-closeout-20261030/common-source-04",
+      "status": "RELEASED"
+    },
+    {
+      "owner": "/root",
+      "tasks": ["WP033", "WP039", "WP044"],
+      "scope": [
+        "src/attackmap/incremental.py",
+        "src/attackmap/python_django_routes.py",
+        "src/attackmap/ecosystem_python.py",
+        "src/attackmap/config_scanner.py",
+        "src/attackmap/fleet_resource_identity.py",
+        "src/attackmap/fleet_architecture.py",
+        "directly-related focused tests and continuation evidence"
+      ],
+      "note": "Three disjoint larger core slices integrated. Frozen probe proves actual source-less cold/warm reuse; Django and Rails support remain explicitly bounded. No native/package/release or WP043 rendering acceptance inferred.",
+      "started_utc": "2026-10-30T22:53:39.1081256Z",
+      "released_utc": "2026-10-31T00:00:00Z",
+      "completion_evidence": "docs/verification/windows-parity/ROADMAP-CONTINUATION-20261031/README.md",
+      "status": "RELEASED"
+    },
+    {
+      "owner": "/root",
+      "tasks": ["WP033", "WP039", "WP044"],
+      "scope": [
+        "tests/helpers/qualify_frozen_incremental_ab.py",
+        "tests/helpers/frozen_incremental_probe.py",
+        "src/attackmap/python_django_routes.py",
+        "src/attackmap/ecosystem_python.py",
+        "src/attackmap/config_datastores.py",
+        "src/attackmap/config_scanner.py",
+        "src/attackmap/fleet_resource_identity.py",
+        "src/attackmap/fleet_architecture.py",
+        "directly-related tests, fixtures, evidence and roadmap documentation"
+      ],
+      "note": "Bounded A/B frozen invalidation, fail-closed Django package-binding auth, and explicit declared Kafka producer/consumer slices independently reviewed and jointly source-verified. No whole-task, native/package/release or WP043 rendering acceptance inferred.",
+      "released_utc": "2026-10-31T08:13:14.8638916Z",
+      "completion_evidence": "docs/verification/windows-parity/ROADMAP-NEXT-20261031/README.md",
+      "status": "RELEASED"
+    },
+    {
+      "owner": "/root",
+      "tasks": ["WP031", "WP032", "WP034"],
+      "scope": [
+        "src/attackmap/authz.py",
+        "src/attackmap/authz_js_handlers.py",
+        "src/attackmap/config_scanner.py",
+        "src/attackmap/contracts.py",
+        "src/attackmap/scan_service.py",
+        "focused tests, fixtures, evidence and roadmap documentation"
+      ],
+      "note": "Three bounded core slices independently reviewed and jointly source-verified. Conservative WP031 binding has no claimed holdout improvement; WP032 stays fail-closed for multi-backend/root-dot aliases; WP034 remains opt-in without C35 qualification.",
+      "started_utc": "2026-10-31T09:00:18.6000276Z",
+      "released_utc": "2026-10-31T09:58:38.9569277Z",
+      "completion_evidence": "docs/verification/windows-parity/ROADMAP-THREE-SLICES-20261031/README.md",
+      "status": "RELEASED"
+    }
+  ],
+  "roadmap_closeout_2026_10_30": {
+    "date": "2026-10-30",
+    "status": "SCOPED_FUNCTIONS_AND_LOCAL_PACKAGE_COMPLETED",
+    "evidence": "docs/verification/windows-parity/ROADMAP-CLOSEOUT-20261030/README.md",
+    "summary": "artifacts/roadmap-closeout-20261030/completion.json",
+    "source_capture": "artifacts/roadmap-closeout-20261030/common-source-04",
+    "source_manifest_sha256": "afa756e576f1f6b857d023fc490e279b777744377660d4ff8950d9b3b3b7bbca",
+    "affected_tests": 335,
+    "captured_source_tests": 325,
+    "actual_installed_plugin_tests": 5,
+    "test_overlap_disclosed": true,
+    "new_regression_rerun_for_qa_only_changes": false,
+    "actual_final_native_checks": 71,
+    "actual_final_native_children": 16,
+    "final_images_actually_reviewed": 6,
+    "final_frozen_actual_serial_children": 16,
+    "final_frozen_actual_parallel_children": 0,
+    "carried_frozen03_parallel_children": 16,
+    "package_id": "dev-20261030223619-c17f53b0",
+    "zip_sha256": "f0d39791c810bda71e97484fe21495f29877b2e9713295f0459ac527486ba9b7",
+    "verified_installed_files": 796,
+    "provider_calls": 0,
+    "rendering_acceptance": "FAILED",
+    "accepted_os_appearance": false,
+    "whole_task_acceptance": false,
+    "current_leases_released": true,
+    "scope": "Completed bounded core/frozen/native/local-package functions, not whole roadmap or release."
+  },
+  "roadmap_continuation_2026_10_31": {
+    "date": "2026-10-31",
+    "status": "SCOPED_CORE_CONTINUATION_VERIFIED",
+    "tasks": ["WP033", "WP039", "WP044"],
+    "evidence": "docs/verification/windows-parity/ROADMAP-CONTINUATION-20261031/README.md",
+    "shared_source_tests": {
+      "passed": 487,
+      "skipped": 7,
+      "seconds": 50.15,
+      "test_overlap_disclosed": true
+    },
+    "wp033_frozen_probe": {
+      "evidence": "artifacts/roadmap-continuation-20261031/wp033-frozen-probe-data-02/qualification.json",
+      "actual_repository": "C:/tmp/juice-shop",
+      "cold_extractor_calls": 658,
+      "warm_extractor_calls": 0,
+      "source_less": true,
+      "same_engine_result_and_coverage": true
+    },
+    "provider_calls": 0,
+    "native_package_or_release": false,
+    "rendering_acceptance": "FAILED_UNCHANGED",
+    "whole_task_acceptance": false,
+    "current_leases_released": true,
+    "scope": "Bounded frozen-cache, Django route and Rails static-candidate functions only; maturity, production fleet, renderer and release gates remain open."
+  },
+  "roadmap_next_2026_10_31": {
+    "date": "2026-10-31",
+    "status": "SCOPED_ROADMAP_ADVANCEMENT_VERIFIED",
+    "tasks": ["WP033", "WP039", "WP044"],
+    "evidence": "docs/verification/windows-parity/ROADMAP-NEXT-20261031/README.md",
+    "summary": "artifacts/roadmap-next-20261031/completion.json",
+    "shared_source_tests": {
+      "passed": 620,
+      "skipped": 13,
+      "errors": 0,
+      "failures": 0,
+      "seconds": 56.9,
+      "junit": "artifacts/roadmap-next-20261031/root-shared-source-suite-junit-final/results.xml"
+    },
+    "wp033_frozen_build_invalidation": {
+      "actual_repository": "C:/tmp/juice-shop",
+      "a_cold_extractor_calls": 658,
+      "a_warm_extractor_calls": 0,
+      "b_upgrade_extractor_calls": 658,
+      "b_warm_extractor_calls": 0,
+      "evidence": "artifacts/roadmap-next-20261031/wp033-frozen-ab/qualification.json"
+    },
+    "wp039_decorator_binding": {
+      "source_tests_passed": 316,
+      "actual_installed_tests_passed": 13,
+      "independent_import_checks_passed": 36,
+      "reviewed_source_sha256": "7a495222378aa6667342e3138e9510ca1524b26b8d5826186775c2d853ec8369",
+      "evidence": "artifacts/roadmap-next-20261031/wp039-decorator-auth/qualification.json"
+    },
+    "wp044_messaging": {
+      "physical_repositories": 16,
+      "valid_declarations": 8,
+      "topic_resources": 7,
+      "declared_edges": 1,
+      "unmatched": 6,
+      "child_manifests_verified": 32,
+      "evidence": "artifacts/wp044-messaging-20261031-final/qualification.json"
+    },
+    "provider_calls": 0,
+    "native_package_or_release": false,
+    "rendering_acceptance": "FAILED_UNCHANGED",
+    "whole_task_acceptance": false,
+    "current_leases_released": true,
+    "scope": "Bounded frozen cache invalidation, Django import binding and explicit Kafka declaration functions only; whole-task maturity, production fleet, renderer and release gates remain open."
+  },
+  "roadmap_campaign_2026_10_31": {
+    "date": "2026-10-31",
+    "status": "SCOPED_CORE_QUALITY_CAMPAIGN_VERIFIED",
+    "tasks": ["WP030", "WP032", "WP033"],
+    "evidence": "docs/verification/windows-parity/ROADMAP-CAMPAIGN-20261031/README.md",
+    "summary": "artifacts/roadmap-campaign-20261031/completion.json",
+    "shared_source_tests": {
+      "passed": 439,
+      "skipped": 0,
+      "errors": 0,
+      "failures": 0,
+      "seconds": 129.048,
+      "junit": "artifacts/roadmap-campaign-20261031/root-final-source-suite/results.xml"
+    },
+    "wp030_increment": {
+      "new_expectations": {"positive": 16, "negative": 10, "clean": 1},
+      "evaluate": {"true_positives": 0, "false_positives": 0, "false_negatives": 16},
+      "evidence": "docs/verification/windows-parity/WP030/agent-20261031/verification-summary.json"
+    },
+    "wp032_protocol_safety": {
+      "non_http_schemes": ["grpc", "kafka", "wss", "ftp"],
+      "evidence": "docs/verification/windows-parity/WP032/agent-20261031/qualification.json"
+    },
+    "wp033_mutation_and_excerpt": {
+      "sequences": 100,
+      "mutations": 300,
+      "comparisons": 600,
+      "warm_checkpoints": 200,
+      "evidence": "docs/verification/windows-parity/WP033/agent-excerpt-20261031/summary.json"
+    },
+    "provider_calls": 0,
+    "native_package_or_release": false,
+    "rendering_acceptance": "FAILED_UNCHANGED",
+    "whole_task_acceptance": false,
+    "current_leases_released": true,
+    "scope": "Bounded corpus integrity, protocol safety, mutation parity and snapshot-excerpt binding only; no whole-task, native, package, release, production-fleet or renderer acceptance."
+  },
+  "roadmap_three_slices_2026_10_31": {
+    "date": "2026-10-31",
+    "status": "SCOPED_THREE_SLICE_INTEGRATION_VERIFIED",
+    "tasks": ["WP031", "WP032", "WP034"],
+    "evidence": "docs/verification/windows-parity/ROADMAP-THREE-SLICES-20261031/README.md",
+    "summary": "artifacts/roadmap-three-slices-20261031/completion.json",
+    "shared_source_tests": {
+      "passed": 948,
+      "skipped": 1,
+      "errors": 0,
+      "failures": 0,
+      "deselected_known_ledger_cases": 3,
+      "seconds": 99.14,
+      "junit": "artifacts/roadmap-three-slices-20261031/root-final-source-suite-child-temp/results.xml"
+    },
+    "known_current_ledger_gate": {
+      "passed": 0,
+      "failures": 3,
+      "junit": "artifacts/roadmap-three-slices-20261031/root-known-ledger-baseline/results.xml"
+    },
+    "provider_calls": 0,
+    "native_package_or_release": false,
+    "rendering_acceptance": "FAILED_UNCHANGED",
+    "whole_task_acceptance": false,
+    "current_leases_released": true,
+    "scope": "Bounded WP031 resolver safety, WP032 service-identity safety and WP034 opt-in fleet-input admission only; no whole-task, C27/C28/C35, native, package, release, production-fleet or renderer acceptance."
   }
 }

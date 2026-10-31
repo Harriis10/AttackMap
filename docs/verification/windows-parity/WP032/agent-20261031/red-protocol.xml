@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="1.804" timestamp="2026-10-31T09:30:29.889621+01:00" hostname="corpsec"><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[grpc-worker:9000]" time="0.081"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup0/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker:9000', scheme = 'grpc'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[grpc-worker-edge.internal]" time="0.055"><failure message="AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed_via_proxy' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup1/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker-edge.internal', scheme = 'grpc'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed_via_proxy' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[kafka-worker:9000]" time="0.054"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup2/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker:9000', scheme = 'kafka'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[kafka-worker-edge.internal]" time="0.052"><failure message="AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed_via_proxy' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup3/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker-edge.internal', scheme = 'kafka'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed_via_proxy' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[wss-worker:9000]" time="0.052"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup4/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker:9000', scheme = 'wss'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[wss-worker-edge.internal]" time="0.055"><failure message="AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed_via_proxy' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup5/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker-edge.internal', scheme = 'wss'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed_via_proxy' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[ftp-worker:9000]" time="0.041"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup6/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker:9000', scheme = 'ftp'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[ftp-worker-edge.internal]" time="0.072"><failure message="AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')&#10;  &#10;  At index 0 diff: 'observed_via_proxy' != 'candidate'&#10;  Use -v to get more diff">corpus = (WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-02/test_non_http_scheme_never_sup7/fle...deled)", "skipped upstream 'two_ports' in caller/nginx.conf: 2 backends (multi-backend proxy routing is not modeled)"])
+host = 'worker-edge.internal', scheme = 'ftp'
+
+    @pytest.mark.parametrize("host", ["worker:9000", "worker-edge.internal"])
+    @pytest.mark.parametrize("scheme", ["grpc", "kafka", "wss", "ftp"])
+    def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host, scheme):
+        _, scans, aliases, _ = corpus
+        # Remove the proxy_pass protocol declaration to also cover an unknown backend.
+        aliases = DeploymentAliases(service_ports=aliases.service_ports, proxies=aliases.proxies,
+                                    source_files={key: value for key, value in aliases.source_files.items()
+                                                  if not key.startswith("service_protocols:")})
+        links = linked(scans, aliases, f"{scheme}://{host}/Api/Items/42")
+        assert len(links) == 2
+        worker = next(link for link in links if link.server_repo == "worker")
+&gt;       assert (worker.resolution, worker.resolution_reason) == ("candidate", "unsupported_protocol")
+E       AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ted_protocol')
+E         
+E         At index 0 diff: 'observed_via_proxy' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_protocol_fleet.py:69: AssertionError</failure></testcase></testsuite></testsuites>

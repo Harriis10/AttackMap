@@ -23,8 +23,11 @@ Cross-repository HTTP relationships reuse the core contract linker. Candidate
 relationships remain candidates. An observed declared-proxy seam has an explicit
 intermediary and two legs; it never becomes a direct service edge. Matching queue
 names or database dialects does not establish shared infrastructure. General
-cross-repository producer/consumer, datastore and RPC/schema relationships remain
-**unanalysed**. Captured data is not complete discovery or runtime reachability.
+cross-repository producer/consumer, datastore and RPC/schema discovery remains
+**unanalysed**. Separate opt-in [datastore declarations](fleet-datastore-declarations.md)
+and [Kafka topic declarations](fleet-messaging-declarations.md) can record only
+qualified static relationships with both endpoint sources. Captured data is not
+complete discovery or runtime reachability.
 
 The Windows host verifies the summary and manifest or broker diagnostic index,
 then binds exact roots to transport children. Child snapshot IDs, capture times
@@ -95,13 +98,14 @@ child identities/manifests, summary hash and exact requested roots again.
 separates synthetic fixtures, source scans, renderer checks, native runtime and
 release/manual gates. WP043 and WP044 acceptance is tracked by the active roadmap.
 
-## Prepared shared-datastore extraction contract
+## Shared-datastore extraction contract
 
-`attackmap.fleet_resource_identity.project_shared_datastores` prepares an additive
-contract for future analyzers. Existing scanners do not emit it, and the current
-fleet pipeline does not call this projection. Production datastore, queue and RPC
-coverage remains **unanalysed**. Coverage metadata advertises this preparation
-without changing a production relationship or upgrading its resolution.
+`attackmap.fleet_resource_identity.project_shared_datastores` implements the bounded
+static owner declaration contract. The built-in config scanner emits opt-in
+`attackmap_datastores` declarations and fleet architecture calls the projection.
+Literal Rails database configuration is a separate candidate ID domain and never
+promotes to an owner declaration. See the [current format and limits](fleet-datastore-declarations.md).
+General datastore discovery and RPC connectivity remain unanalysed.
 
 Each declaration requires an explicit operation (`read`, `write`, `read_write`),
 the exact six-part identity (`scope`, `protocol`, `host`, explicit `port`,
@@ -119,5 +123,5 @@ The bounded pure projection accepts at most 256 declarations and 16 canonical
 repository roots. Duplicate source-observation conflicts are quarantined.
 An association is undirected and explicitly `declared`, retains evidence from
 both repositories, and proves neither a producer/consumer flow nor runtime
-connectivity. Integrating a real extractor, snapshot binding and independently
-verified repository cases is a separate required step.
+connectivity. Physical synthetic source qualification does not replace native,
+frozen, representative production fleet or whole-WP044 acceptance.

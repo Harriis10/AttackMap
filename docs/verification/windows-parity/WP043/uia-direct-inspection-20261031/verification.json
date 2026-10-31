@@ -1,0 +1,26 @@
+{
+  "scope": "WP043 raw UIA modal-inspection fail-closed correction",
+  "date": "2026-10-31",
+  "status": "source-harness-pass-independent-review-pending",
+  "command": "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe -m pytest tests/test_wp043_live_capture.py -q -p no:cacheprovider --junitxml=docs/verification/windows-parity/WP043/uia-direct-inspection-20261031/harness-tests.xml",
+  "shell": "cmd.exe",
+  "execution": "elevated normal filesystem access",
+  "exitCode": 0,
+  "pytest": {
+    "passed": 90,
+    "subtestsPassed": 83,
+    "durationSeconds": 8.22
+  },
+  "sourceAndJUnitSha256": {
+    "tools/capture_wp043_live.py": "59f83192df4f979a31fe0e2e922b87daa4c03d9fb97cc3bea38974c3f0000411",
+    "tests/test_wp043_live_capture.py": "ed7f4fd55ff324ca7cec9be9fc8fb2fd8754bd71698d0aa3a29c36d09ee1a3ba",
+    "docs/verification/windows-parity/WP043/uia-direct-inspection-20261031/harness-tests.xml": "5b85ea814d737aef8680a8ff83021a9c742f1f6bf39e216120813e6384fb2f7f"
+  },
+  "liveCaptureRun": false,
+  "nativeChanges": false,
+  "limitations": [
+    "Deterministic raw-API fakes; no actual UIA provider calls or live pixels validated.",
+    "Independent final source/test review is required before any new live capture.",
+    "WP043 remains IN_PROGRESS, rendering acceptance FAILED and V01–V03 blocked."
+  ]
+}

@@ -253,7 +253,8 @@ public sealed class FleetGraphPane : UserControl, IAsyncDisposable
         openSource.IsEnabled = false;
         if (document is not { } current || CurrentSelection() is not { } selection ||
             !FleetGraphEvidenceNavigation.TryDescribe(current, current.Context, selection, out var detail, out string reason)) return;
-        string facts = string.Join("\n\n", detail!.Edges.Select(edge => $"Original relationship: {edge.Id}\n{edge.Source} → {edge.Target}\n{edge.Kind}; directed {edge.Directed}; resolution {edge.Resolution}; basis {edge.Basis}; confidence {edge.Confidence ?? "unknown"}; proxy {edge.Proxy}"));
+        string facts = string.Join("\n\n", detail!.Edges.Select(edge => $"Original relationship: {edge.Id}\n{edge.Source} {(edge.Directed ? "→" : "—")} {edge.Target}\n{edge.Kind}; directed {edge.Directed}; resolution {edge.Resolution}; basis {edge.Basis}; confidence {edge.Confidence ?? "unknown"}; proxy {edge.Proxy}" +
+            (edge.Kind == "shared_datastore" && edge.Resolution == "declared" ? "\nMatching repository-owner declarations; an undirected association, not observed runtime access or a directed data flow." : "")));
         if (evidencePicker.SelectedItem is not FleetGraphEvidenceItem item)
         { evidence.Text = facts + "\n\nNo evidence references were supplied for this selection."; sourceNotice.Text = "Source location unknown."; return; }
         evidence.Text = facts + $"\n\nEvidence: {item.Id}\n{item.Side}\n{item.RepositoryLabel}\n" +

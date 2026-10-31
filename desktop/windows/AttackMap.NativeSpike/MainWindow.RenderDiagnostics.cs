@@ -29,7 +29,7 @@ public sealed partial class MainWindow
     private System.Diagnostics.Stopwatch? renderDiagnosticsReportClock;
     private long renderDiagnosticsAwaitingDestination;
 
-    // Explicit opt-in only. JSONL excludes body/source text; F8 may capture Detail pixels. No provider/resource mutation.
+    // Explicit opt-in only. JSONL excludes body/source text; explicit shortcuts may capture pixels. No provider/resource mutation.
     private void InitializeRenderDiagnostics(string[] startup)
     {
         int position = Array.IndexOf(startup, "--render-diagnostics");
@@ -127,7 +127,8 @@ public sealed partial class MainWindow
             CompositionTarget.SurfaceContentsLost += lost;
             renderDiagnosticsCleanup.Add(() => CompositionTarget.SurfaceContentsLost -= lost);
 
-            var detailRootRenderAccelerator = new KeyboardAccelerator { Key = VirtualKey.F7, ScopeOwner = root };
+            var detailRootRenderAccelerator = new KeyboardAccelerator { Key = VirtualKey.R,
+                Modifiers = VirtualKeyModifiers.Control | VirtualKeyModifiers.Menu | VirtualKeyModifiers.Shift, ScopeOwner = root };
             TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> detailRootRenderInvoked = async (_, args) =>
             {
                 args.Handled = true;
@@ -270,8 +271,9 @@ public sealed partial class MainWindow
             Closed += closed;
             renderDiagnosticsCleanup.Add(() => Closed -= closed);
             RenderDiagnosticsWrite("enabled", new { processId = Environment.ProcessId,
-                scope = "Native heading/navigation/Detail state and WebView2 lifecycle; JSONL excludes body/source text; explicit F7 writes D/T PNG pixels; explicit F8 writes Detail PNG pixels",
-                f7 = "Non-mutating direct Detail and root RenderTargetBitmap pair; QA observation only",
+                scope = "Native heading/navigation/Detail state and WebView2 lifecycle; JSONL excludes body/source text; explicit Ctrl+Alt+Shift+R writes D/T PNG pixels; explicit F8 writes Detail PNG pixels",
+                detailRootRenderShortcut = "Ctrl+Alt+Shift+R: non-mutating direct Detail and root RenderTargetBitmap pair; QA observation only; F7 is not bound",
+                detailRootRenderContext = "Invocation-bound report/navigation/finding identity, host visibility, geometry and scale; per-target stage/frame observations; concurrent F8/pair probes excluded",
                 f8 = "Non-mutating direct Detail RenderTargetBitmap capture without layout or frame settling; QA observation only",
                 f9 = "One-shot selected navigation label-local same-color fresh brush; Heading fallback if no rendered exact label",
                 f10 = "Independent one-shot selected navigation label CharacterSpacing toggle 0/1; same target lookup and Heading fallback",
@@ -284,7 +286,7 @@ public sealed partial class MainWindow
 
     private async Task RenderDiagnosticsDetailRender()
     {
-        if (renderDiagnosticsStopped || renderDiagnosticsLog == null || renderDiagnosticsDetailRenderActive || actionLifetime.IsCancellationRequested) return;
+        if (renderDiagnosticsStopped || renderDiagnosticsLog == null || renderDiagnosticsDetailRenderActive || renderDiagnosticsDetailRootRenderActive || actionLifetime.IsCancellationRequested) return;
         renderDiagnosticsDetailRenderActive = true;
         long currentGeneration = generation, currentFindingRevision = findingRevision;
         string probeId = Guid.NewGuid().ToString("N");
@@ -366,22 +368,58 @@ public sealed partial class MainWindow
 
     private async Task RenderDiagnosticsDetailRootRender()
     {
-        if (renderDiagnosticsStopped || renderDiagnosticsLog == null || renderDiagnosticsDetailRootRenderActive || actionLifetime.IsCancellationRequested) return;
+        if (renderDiagnosticsStopped || renderDiagnosticsLog == null || renderDiagnosticsDetailRootRenderActive || renderDiagnosticsDetailRenderActive || actionLifetime.IsCancellationRequested) return;
         renderDiagnosticsDetailRootRenderActive = true;
-        long currentGeneration = generation, currentFindingRevision = findingRevision;
+        long currentGeneration = generation, currentFindingRevision = findingRevision, currentNavigationRevision = renderDiagnosticsNavigationRevision;
+        string currentRun = displayedRun, currentReadHash = displayedReadHash;
+        object? currentFinding = Findings.SelectedItem;
         string probeId = Guid.NewGuid().ToString("N");
         int renderingFrames = 0;
         EventHandler<object> rendering = (_, _) => ++renderingFrames;
         var root = (FrameworkElement)Content;
+        var xamlRoot = root.XamlRoot;
         double scale = Detail.XamlRoot?.RasterizationScale ?? 0;
+        double expectedRootWidth = root.ActualWidth, expectedRootHeight = root.ActualHeight;
+        double expectedDetailWidth = Detail.ActualWidth, expectedDetailHeight = Detail.ActualHeight;
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        string captureTarget = "pair", captureStage = "started";
         string directory = "";
+        string? detailFileName = null, rootFileName = null, failureReason = null;
+        int? detailWidth = null, detailHeight = null, rootWidth = null, rootHeight = null;
+        object? detailQuality = null, rootQuality = null;
+
+        object Observation()
+        {
+            try
+            {
+                return new { navigationRevision = renderDiagnosticsNavigationRevision,
+                    findingRevision, sameFinding = ReferenceEquals(Findings.SelectedItem, currentFinding),
+                    findingsVisible = FindingsPanel.Visibility == Visibility.Visible, rootLoaded = root.IsLoaded,
+                    detailLoaded = Detail.IsLoaded, hostVisible = root.XamlRoot?.IsHostVisible,
+                    appWindowVisible = AppWindow.IsVisible, rootWidth = root.ActualWidth, rootHeight = root.ActualHeight,
+                    detailWidth = Detail.ActualWidth, detailHeight = Detail.ActualHeight,
+                    scale = root.XamlRoot?.RasterizationScale };
+            }
+            catch (Exception error) { return new { unavailable = true, errorType = error.GetType().Name }; }
+        }
+
+        void TargetStage(string stage)
+        {
+            captureStage = stage;
+            RenderDiagnosticsWrite("detail-root-render-target-stage", new { probeId,
+                generation = currentGeneration, displayedRun = currentRun, displayedReadHash = currentReadHash,
+                navigationRevision = currentNavigationRevision, findingRevision = currentFindingRevision,
+                target = captureTarget, stage, elapsedMilliseconds = clock.Elapsed.TotalMilliseconds,
+                renderingFrames, observation = Observation() });
+        }
         try
         {
             RenderDiagnosticsWrite("detail-root-render-capture-started", new { probeId,
-                generation = currentGeneration, displayedRun, displayedReadHash,
-                navigationRevision = renderDiagnosticsNavigationRevision, findingRevision = currentFindingRevision,
+                generation = currentGeneration, displayedRun = currentRun, displayedReadHash = currentReadHash,
+                navigationRevision = currentNavigationRevision, findingRevision = currentFindingRevision,
                 detailLoaded = Detail.IsLoaded, detailWidth = Detail.ActualWidth, detailHeight = Detail.ActualHeight,
-                rootLoaded = root.IsLoaded, rootWidth = root.ActualWidth, rootHeight = root.ActualHeight, scale });
+                rootLoaded = root.IsLoaded, rootWidth = root.ActualWidth, rootHeight = root.ActualHeight, scale,
+                observation = Observation() });
             CompositionTarget.Rendering += rendering;
             if (!Detail.DispatcherQueue.HasThreadAccess || !Detail.IsLoaded || Detail.XamlRoot == null ||
                 !root.IsLoaded || root.XamlRoot == null || Detail.ActualWidth <= 0 || Detail.ActualHeight <= 0 ||
@@ -394,28 +432,59 @@ public sealed partial class MainWindow
 
             void RequireContext()
             {
-                if (generation != currentGeneration || findingRevision != currentFindingRevision || renderDiagnosticsStopped ||
-                    actionLifetime.IsCancellationRequested || !Detail.IsLoaded || Detail.XamlRoot == null || !root.IsLoaded || root.XamlRoot == null)
+                if (generation != currentGeneration || findingRevision != currentFindingRevision ||
+                    renderDiagnosticsNavigationRevision != currentNavigationRevision || displayedRun != currentRun || displayedReadHash != currentReadHash ||
+                    !ReferenceEquals(Findings.SelectedItem, currentFinding) || FindingsPanel.Visibility != Visibility.Visible ||
+                    renderDiagnosticsStopped || actionLifetime.IsCancellationRequested || !Detail.IsLoaded || !root.IsLoaded ||
+                    xamlRoot == null || !ReferenceEquals(root.XamlRoot, xamlRoot) || !ReferenceEquals(Detail.XamlRoot, xamlRoot) ||
+                    !xamlRoot.IsHostVisible || !AppWindow.IsVisible || root.Visibility != Visibility.Visible ||
+                    xamlRoot.RasterizationScale != scale || root.ActualWidth != expectedRootWidth || root.ActualHeight != expectedRootHeight ||
+                    Detail.ActualWidth != expectedDetailWidth || Detail.ActualHeight != expectedDetailHeight)
+                {
+                    failureReason = "capture-context-changed";
                     throw new InvalidOperationException("Detail/root render context changed.");
+                }
             }
 
-            async Task<(string FileName, int Width, int Height)> Capture(FrameworkElement target, string targetKind)
+            async Task<(string FileName, int Width, int Height, object Quality, bool Transparent, bool HasVisibleVariation)> Capture(FrameworkElement target, string targetKind)
             {
                 string? temporary = null;
                 try
                 {
+                    captureTarget = targetKind;
                     RequireContext();
+                    TargetStage("before-render");
                     var bitmap = new RenderTargetBitmap();
                     await bitmap.RenderAsync(target);
+                    TargetStage("after-render");
+                    RequireContext();
                     int width = bitmap.PixelWidth, height = bitmap.PixelHeight;
                     if (width <= 0 || height <= 0 || width > 16384 || height > 16384 ||
                         (long)width * height * 4 > CaptureOracle.MaxBytes)
                         throw new InvalidDataException("Rendered target is empty or exceeds the bounded capture size.");
                     var pixels = await bitmap.GetPixelsAsync();
+                    TargetStage("after-pixels");
                     if (pixels.Length != (long)width * height * 4) throw new InvalidDataException("Unexpected BGRA8 buffer size.");
                     RequireContext();
                     var raw = new byte[(int)pixels.Length];
                     using (var reader = DataReader.FromBuffer(pixels)) reader.ReadBytes(raw);
+                    long visiblePixels = 0, pixelCount = (long)width * height;
+                    uint? firstVisiblePixel = null;
+                    bool hasVisibleVariation = false;
+                    for (int offset = 0; offset < raw.Length; offset += 4)
+                    {
+                        // Hidden RGB bytes do not contribute to visible raster support.
+                        if (raw[offset + 3] == 0) continue;
+                        ++visiblePixels;
+                        uint pixel = (uint)raw[offset] | ((uint)raw[offset + 1] << 8) |
+                            ((uint)raw[offset + 2] << 16) | ((uint)raw[offset + 3] << 24);
+                        if (firstVisiblePixel is null) firstVisiblePixel = pixel;
+                        else if (pixel != firstVisiblePixel.Value) hasVisibleVariation = true;
+                    }
+                    bool transparent = visiblePixels == 0;
+                    if (visiblePixels > 0 && visiblePixels < pixelCount) hasVisibleVariation = true;
+                    var quality = new { visiblePixels, pixelCount, transparent, hasVisibleVariation,
+                        classification = transparent ? "transparent" : hasVisibleVariation ? "varied" : "uniform" };
                     using var encoded = new InMemoryRandomAccessStream();
                     var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, encoded);
                     encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
@@ -433,9 +502,11 @@ public sealed partial class MainWindow
                     temporary = Path.Combine(directory, $".detail-root-render-{targetKind}-{probeId}.tmp");
                     using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                     { await file.WriteAsync(png); file.Flush(flushToDisk: true); }
+                    RequireContext();
                     File.Move(temporary, Path.Combine(directory, fileName), overwrite: false);
                     temporary = null;
-                    return (fileName, width, height);
+                    TargetStage("committed");
+                    return (fileName, width, height, quality, transparent, hasVisibleVariation);
                 }
                 finally
                 {
@@ -445,22 +516,38 @@ public sealed partial class MainWindow
             }
 
             var detail = await Capture(Detail, "detail");
+            detailFileName = detail.FileName;
+            detailQuality = detail.Quality;
+            detailWidth = detail.Width; detailHeight = detail.Height;
             RequireContext();
             var tree = await Capture(root, "root");
+            rootFileName = tree.FileName;
+            rootQuality = tree.Quality;
+            rootWidth = tree.Width; rootHeight = tree.Height;
             RequireContext();
+            // Preserve blank Detail observations, but a root without visible scene
+            // variation cannot qualify this pair as a useful diagnostic capture.
+            if (tree.Transparent || !tree.HasVisibleVariation)
+            {
+                failureReason = tree.Transparent ? "root-raster-empty" : "root-raster-uniform";
+                throw new InvalidDataException("Root raster has no usable visible scene.");
+            }
             RenderDiagnosticsWrite("detail-root-render-capture-completed", new { probeId,
-                generation = currentGeneration, displayedRun, displayedReadHash,
-                navigationRevision = renderDiagnosticsNavigationRevision, findingRevision = currentFindingRevision,
+                generation = currentGeneration, displayedRun = currentRun, displayedReadHash = currentReadHash,
+                navigationRevision = currentNavigationRevision, findingRevision = currentFindingRevision,
                 detailFileName = detail.FileName, rootFileName = tree.FileName,
                 detailWidth = detail.Width, detailHeight = detail.Height,
-                rootWidth = tree.Width, rootHeight = tree.Height, scale, renderingFrames });
+                rootWidth = tree.Width, rootHeight = tree.Height, detailQuality, rootQuality, scale, renderingFrames,
+                elapsedMilliseconds = clock.Elapsed.TotalMilliseconds, observation = Observation() });
         }
         catch (Exception error)
         {
             RenderDiagnosticsWrite("detail-root-render-capture-failed", new { probeId,
-                generation = currentGeneration, displayedRun, displayedReadHash,
-                navigationRevision = renderDiagnosticsNavigationRevision, findingRevision = currentFindingRevision,
-                errorType = error.GetType().Name, renderingFrames });
+                generation = currentGeneration, displayedRun = currentRun, displayedReadHash = currentReadHash,
+                navigationRevision = currentNavigationRevision, findingRevision = currentFindingRevision,
+                errorType = error.GetType().Name, failureReason, detailFileName, rootFileName,
+                detailWidth, detailHeight, rootWidth, rootHeight, detailQuality, rootQuality, scale, renderingFrames,
+                captureTarget, captureStage, elapsedMilliseconds = clock.Elapsed.TotalMilliseconds, observation = Observation() });
         }
         finally
         {
@@ -485,6 +572,12 @@ public sealed partial class MainWindow
                 ? "Settings"
                 : (Navigation.SelectedItem as NavigationViewItem)?.Content?.ToString() ?? "";
             RenderDiagnosticsWrite(reason, new { heading = RenderDiagnosticsText(Heading, root), headingText = Heading.Text,
+                overview = RenderDiagnosticsText(OverviewText, root, includeText: false),
+                overviewPanel = new { loaded = OverviewPanel.IsLoaded, visibility = OverviewPanel.Visibility.ToString(),
+                    width = OverviewPanel.ActualWidth, height = OverviewPanel.ActualHeight,
+                    horizontalOffset = OverviewPanel.HorizontalOffset, verticalOffset = OverviewPanel.VerticalOffset,
+                    extentHeight = OverviewPanel.ExtentHeight, viewportHeight = OverviewPanel.ViewportHeight,
+                    scrollableHeight = OverviewPanel.ScrollableHeight },
                 navigation, selectedDestination, generation, displayedRun, displayedReadHash,
                 navigationRevision = renderDiagnosticsNavigationRevision,
                 browserControls = renderDiagnosticsBrowsers.Count, initializedBrowserCores = renderDiagnosticsCores.Count,

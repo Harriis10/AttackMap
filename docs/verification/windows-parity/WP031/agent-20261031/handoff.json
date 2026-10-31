@@ -1,0 +1,58 @@
+{
+  "task_id": "WP031",
+  "owner": "wp031_bola_slice",
+  "base_commit": "4ea5e49ade229fc0432d68ce0f7e99bcf87b545d",
+  "final_commit_or_diff_hash": "563a755890bd64467a4c84fb0aad9a4cf9aeeab3fe8c6bb925145368765e7460",
+  "hash_contract": "sha256 of sorted JSON source/test path to SHA-256 mapping",
+  "source_hashes": {
+    "src/attackmap/authz.py": "2115ba8ae8a6b959826e0136c7f63206a575f566ff72465b1efd59f6ea65ae1d",
+    "src/attackmap/authz_js_handlers.py": "39fe74338e3ec0a464d117b6341a263d929a7470189a5a3e0c3f31f3f1fa0d69",
+    "tests/test_authz_bound_handlers.py": "4ae95675d848baa524519336a141e6971436cd886616ca71cf5ff477fcfcb023"
+  },
+  "paths_changed": [
+    "src/attackmap/authz.py",
+    "src/attackmap/authz_js_handlers.py",
+    "tests/test_authz_bound_handlers.py",
+    "docs/verification/windows-parity/WP031/agent-20261031/"
+  ],
+  "leases_released": true,
+  "tests_executed": {
+    "final_junit": "docs/verification/windows-parity/WP031/agent-20261031/focused-location-final.xml",
+    "passed": 169,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "decisive_red_junit": "docs/verification/windows-parity/WP031/agent-20261031/red-corrected.xml",
+    "red_failed": 8,
+    "red_passed": 8
+  },
+  "tests_not_executed": [
+    "native GUI",
+    "live provider",
+    "frozen package",
+    "performance campaign",
+    "production acceptance"
+  ],
+  "live_provider_calls": 0,
+  "manual_checks": "Source/diff review only; no GUI or independent human label review",
+  "package_id": null,
+  "run_ids": "offline CLI execution command/output paths in evaluation-execution.json",
+  "evidence": [
+    "docs/verification/windows-parity/WP031/agent-20261031/evaluation-execution.json",
+    "docs/verification/windows-parity/WP031/agent-20261031/evaluation-increment-qualified/evaluation-report.json",
+    "docs/verification/windows-parity/WP031/agent-20261031/evaluation-baseline-qualified/evaluation-report.json"
+  ],
+  "baseline_exact_json_equal_to_wp030": true,
+  "limitations": [
+    "single known-gap BOLA holdout case; experimental",
+    "no upstream BOLA tuning cases",
+    "not unseen blind holdout",
+    "15 increment FN remain",
+    "wrapper/datastore semantics remain bounded conventions"
+  ],
+  "next_action": "Independent review and integrate bounded source slice; continue production-diverse independently adjudicated corpus acquisition",
+  "runtime": {
+    "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.19045-SP0"
+  }
+}

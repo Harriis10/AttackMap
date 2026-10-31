@@ -94,14 +94,18 @@ class SourceSpan:
 def capture_source_spans(root: str | Path, locations: Iterable[tuple[str, int]], *,
                          redact_line: Callable[[str], str], context_lines: int = 3,
                          max_locations: int = 24, max_file_bytes: int = 1_000_000) -> tuple[SourceSpan, ...]:
-    """Read each selected file once; retain only hashes and bounded redacted spans.
+    """Capture selected snapshot bytes, or read each file once without a pin.
 
-    These are captured file contents, not a whole-repository atomic snapshot.
+    A pinned index owns both source content and membership; missing captured
+    bytes never fall back to the live tree. Without a pin these are captured
+    file contents, not a whole-repository atomic snapshot.
     No validation later rereads the live filesystem or guesses line positions.
     """
     if context_lines < 0 or max_locations < 0 or max_file_bytes < 1:
         raise ValueError("Source capture limits must be nonnegative and bounded")
     root = Path(root)
+    from .index import active_index_for
+    index = active_index_for(root)
     cache: dict[str, tuple[str, list[str]]] = {}
     spans = []
     seen = set()
@@ -115,19 +119,25 @@ def capture_source_spans(root: str | Path, locations: Iterable[tuple[str, int]],
         if rel not in cache:
             cache[rel] = ("", [])
             try:
-                path = contained_file(root, rel)
-                if path is None:
-                    continue
-                parts = [path, *path.parents]
-                if any(part.is_symlink() or (hasattr(part, "is_junction") and part.is_junction())
-                       for part in parts if part != root and part.is_relative_to(root)):
-                    continue
-                descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
-                with os.fdopen(descriptor, "rb") as stream:
-                    raw = stream.read(max_file_bytes + 1)
+                if index is not None:
+                    source = index.sources_by_rel.get(rel)
+                    if source is None:
+                        continue
+                    raw = source.raw
+                else:
+                    path = contained_file(root, rel)
+                    if path is None:
+                        continue
+                    parts = [path, *path.parents]
+                    if any(part.is_symlink() or (hasattr(part, "is_junction") and part.is_junction())
+                           for part in parts if part != root and part.is_relative_to(root)):
+                        continue
+                    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+                    with os.fdopen(descriptor, "rb") as stream:
+                        raw = stream.read(max_file_bytes + 1)
+                    if contained_file(root, rel) != path or path.is_symlink():
+                        continue
                 if len(raw) > max_file_bytes:
-                    continue
-                if contained_file(root, rel) != path or path.is_symlink():
                     continue
                 cache[rel] = (_digest(raw), raw.decode("utf-8", errors="replace").splitlines())
             except (OSError, ValueError):

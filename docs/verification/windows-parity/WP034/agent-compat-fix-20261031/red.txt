@@ -1,0 +1,14 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+________ test_legacy_positional_request_keeps_final_deployment_aliases ________
+tests\test_fleet_input_budget.py:181: in test_legacy_positional_request_keeps_final_deployment_aliases
+    assert service.execute_scan_request(legacy_request).exit_code == 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\attackmap\scan_service.py:990: in execute_scan_request
+    _fleet_input_quotas(request.fleet_input_byte_budget, fleet_repo_ids(request.repo_paths))
+src\attackmap\scan_service.py:608: in _fleet_input_quotas
+    raise ScanRequestError("Fleet input byte budget must be a positive integer")
+E   attackmap.scan_service.ScanRequestError: Fleet input byte budget must be a positive integer
+=========================== short test summary info ===========================
+FAILED tests/test_fleet_input_budget.py::test_legacy_positional_request_keeps_final_deployment_aliases
+1 failed in 1.83s

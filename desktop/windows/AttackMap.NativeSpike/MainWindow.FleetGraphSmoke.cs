@@ -93,6 +93,25 @@ public sealed partial class MainWindow
                 repository.RequestedId == selected.RepositoryId && !string.IsNullOrWhiteSpace(repository.SnapshotId) &&
                 string.Equals(Path.GetFullPath(repository.Root), selected.RepositoryPath, StringComparison.OrdinalIgnoreCase)) == 1));
             IReadOnlyList<object>? evidenceJourney = arguments.Contains("--evidence-journey") ? await RunFleetEvidenceJourney(directory, Check) : null;
+            if (arguments.Contains("--shared-datastore-journey"))
+            {
+                Check("shared_datastore_evidence_journey_completed", evidenceJourney?.Count >= 6);
+                var explorer = FleetGraphSmokeChildren<AttackMap.GraphExplorer.Native.GraphExplorerView>(Fleet).Single();
+                var projection = explorer.CurrentProjection ?? throw new InvalidDataException("Missing declared projection for export.");
+                var layout = explorer.Snapshot ?? throw new InvalidDataException("Missing current native layout for export.");
+                string jsonPath = Path.Combine(directory, "shared-datastore-graph.json");
+                string svgPath = Path.Combine(directory, "shared-datastore-graph.svg");
+                await File.WriteAllTextAsync(jsonPath, AttackMap.GraphExplorer.GraphExporter.JsonWithMetadata(fleetGraphSource!.Graph, projection));
+                await File.WriteAllTextAsync(svgPath, AttackMap.GraphExplorer.GraphExporter.Svg(projection, layout));
+                Check("declared_graph_exports_written", File.Exists(jsonPath) && File.Exists(svgPath));
+                result = new { passed = true, source = "actual native RunFleet broker and declared datastore evidence journey",
+                    engine = enginePath, rootsManifest = rootsPath, rootsManifestSha256 = ExportSelection.Hash(manifestBytes),
+                    selectedRoots, active, context, children = Fleet.Workspace.Children, evidenceJourney,
+                    exports = new { jsonPath, svgPath }, automaticAvailableAnalyzers = true,
+                    liveProviderCalls = 0, acceptedManualUi = false, acceptedOsAppearance = false,
+                    scope = "Declared-filter native mapping, both source locations, back and exports; no observed runtime connectivity or whole-renderer qualification" };
+                return;
+            }
             var opened = new List<object>();
             foreach (var selected in new[] { selectedRoots[0], selectedRoots[^1] })
             {

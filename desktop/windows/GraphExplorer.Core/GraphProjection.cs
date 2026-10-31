@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AttackMap.GraphExplorer;
 
-public enum GraphResolutionFilter { All, Observed, Candidate, Inferred }
+public enum GraphResolutionFilter { All, Observed, Candidate, Inferred, Declared }
 public enum GraphNeighborhood { All, Upstream, Downstream }
 public sealed record GraphFilter(GraphResolutionFilter Resolution = GraphResolutionFilter.All,
     bool InterRepositoryOnly = false, GraphNeighborhood Neighborhood = GraphNeighborhood.All, string? FocusNodeId = null);
@@ -63,12 +63,14 @@ public sealed record GraphProjection(GraphDocument Document, ImmutableArray<Proj
                 GraphResolutionFilter.Observed => edge.Resolution is "observed" or "observed_via_proxy",
                 GraphResolutionFilter.Candidate => edge.Resolution == "candidate",
                 GraphResolutionFilter.Inferred => edge.Resolution == "inferred",
+                GraphResolutionFilter.Declared => edge.Resolution == "declared",
                 _ => true };
             bool interRepository = edge.Metadata.TryGetProperty("scope", out var scope) && scope.ValueKind == System.Text.Json.JsonValueKind.String && scope.GetString() == "cross_repository"
                 || byId[edge.Source].RepoId is { } sourceRepo && byId[edge.Target].RepoId is { } targetRepo && sourceRepo != targetRepo;
             bool neighborhoodMatches = filter.Neighborhood == GraphNeighborhood.All
                 || edge.Kind is not ("containment" or "ownership" or "deployment") &&
-                (filter.Neighborhood == GraphNeighborhood.Upstream ? focusNodes.Contains(edge.Target) : focusNodes.Contains(edge.Source));
+                (!edge.Directed ? focusNodes.Contains(edge.Source) || focusNodes.Contains(edge.Target)
+                    : filter.Neighborhood == GraphNeighborhood.Upstream ? focusNodes.Contains(edge.Target) : focusNodes.Contains(edge.Source));
             if (!resolutionMatches || filter.InterRepositoryOnly && !interRepository || !neighborhoodMatches)
             { filtered.Add(edge.Id); continue; }
             string source = visible[edge.Source], target = visible[edge.Target];

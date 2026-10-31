@@ -41,7 +41,7 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
     private LayoutSnapshot? snapshot;
     private GraphSelection? selection;
     private long requestVersion;
-    private bool disposed, syncing, unloaded, resumeLayoutOnLoad;
+    private bool disposed, syncing, unloaded, resumeLayoutOnLoad, fitPending;
 
     public event EventHandler<GraphSelection>? SelectionChanged;
     public event EventHandler<EvidenceRequest>? OpenEvidenceRequested;
@@ -65,7 +65,7 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
         toolbar.PrimaryCommands.Add(Command("Collapse all", async () => { if (document is null) return; collapsed.Clear(); foreach (var repo in document.Repositories) collapsed.Add(repo.Id); await ArrangeAsync(); }, Symbol.BackToWindow));
         toolbar.PrimaryCommands.Add(Command("Expand all", async () => { collapsed.Clear(); await ArrangeAsync(); }, Symbol.FullScreen));
         root.Children.Add(toolbar);
-        foreach (string option in new[] { "All resolutions", "Observed (+ proxy)", "Candidate", "Inferred" }) resolutions.Items.Add(option);
+        foreach (string option in new[] { "All resolutions", "Observed (+ proxy)", "Candidate", "Inferred", "Declared" }) resolutions.Items.Add(option);
         resolutions.SelectedIndex = 0; AutomationProperties.SetName(resolutions, "Relationship resolution filter");
         var filterbar = new CommandBar { IsDynamicOverflowEnabled = true, DefaultLabelPosition = CommandBarDefaultLabelPosition.Right, Content = resolutions, Margin = new Thickness(8, 0, 8, 0) };
         filterbar.PrimaryCommands.Add(interRepository);
@@ -99,8 +99,10 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
         toggle.Click += async (_, _) => { if (selection is not { IsEdge: false } current) return; if (!collapsed.Remove(current.PresentationId)) collapsed.Add(current.PresentationId); await ArrangeAsync(); };
         evidence.Click += (_, _) => { if (selection is { EvidenceIds.Length: > 0 } current) OpenEvidenceRequested?.Invoke(this, new(current.Context, current.EvidenceIds)); };
         ActualThemeChanged += (_, _) => { if (snapshot is not null) Render(); };
+        LayoutUpdated += (_, _) => ApplyPendingFit();
         Unloaded += (_, _) =>
         {
+            fitPending = false;
             unloaded = true;
             resumeLayoutOnLoad = document != null && snapshot == null;
             requestVersion++; layouts.CancelPending();
@@ -135,6 +137,7 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
 
     public void Clear()
     {
+        fitPending = false;
         requestVersion++; layouts.CancelPending(); document = null; projection = null; snapshot = null; selection = null;
         resumeLayoutOnLoad = false;
         collapsed.Clear(); canvas.Children.Clear(); canvas.Width = canvas.Height = 0; nodeButtons.Clear(); edgePaths.Clear();
@@ -147,6 +150,7 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
     private async Task ArrangeAsync(CancellationToken cancellationToken = default)
     {
         if (document is null || disposed) return;
+        fitPending = false;
         if (unloaded) { resumeLayoutOnLoad = true; return; }
         long version = ++requestVersion;
         var current = GraphProjection.Create(document, collapsed, new((GraphResolutionFilter)resolutions.SelectedIndex, interRepository.IsChecked == true, neighborhood, focusNodeId));
@@ -250,7 +254,7 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
         if (projection is null) return;
         string query = search.Text.Trim();
         var items = projection.Nodes.Select(n => new Item(n.Id, false, $"{n.Original.Label} · {document?.Repositories.FirstOrDefault(x => x.Id == n.Id)?.Status ?? n.Original.Kind}"))
-            .Concat(projection.Edges.Select(e => new Item(e.Id, true, $"{Label(e.Source)} → {Label(e.Target)} · {e.Kind} · {e.Resolution} · {e.Count}")))
+            .Concat(projection.Edges.Select(e => new Item(e.Id, true, $"{Label(e.Source)} {(e.Directed ? "→" : "—")} {Label(e.Target)} · {e.Kind} · {e.Resolution} · {e.Count}")))
             .Where(x => query.Length == 0 || x.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || x.Id.Contains(query, StringComparison.OrdinalIgnoreCase)).ToArray();
         syncing = true; alternatives.ItemsSource = items; alternatives.SelectedItem = items.FirstOrDefault(x => x.Id == selection?.PresentationId); syncing = false;
         AutomationProperties.SetName(alternatives, $"Architecture nodes and relationships. {items.Length} search matches. Search filters this list; graph shows the full selected projection.");
@@ -272,7 +276,7 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
         var refs = document.Nodes.Where(n => nodeIds.Contains(n.Id)).SelectMany(n => n.EvidenceRefs)
             .Concat(document.Edges.Where(e => edgeIds.Contains(e.Id)).SelectMany(e => e.EvidenceRefs)).Distinct(StringComparer.Ordinal).ToImmutableArray();
         selection = new(document.Context, id, isEdge, nodeIds, edgeIds, refs);
-        var facts = document.Edges.Where(e => edgeIds.Contains(e.Id)).Select(e => $"{e.Id}\n{e.Source} → {e.Target}\n{e.Kind}; {e.Resolution}; {e.Basis}; confidence {e.Confidence ?? "unknown"}");
+        var facts = document.Edges.Where(e => edgeIds.Contains(e.Id)).Select(e => $"{e.Id}\n{e.Source} {(e.Directed ? "→" : "—")} {e.Target}\n{e.Kind}; {e.Resolution}; {e.Basis}; confidence {e.Confidence ?? "unknown"}");
         details.Text = $"{(isEdge ? "Relationship" : "Node")}: {id}\nRun: {document.Context.RunId}\nGeneration: {document.Context.GenerationId}\nOriginal nodes: {nodeIds.Length}; original edges: {edgeIds.Length}\n" + string.Join("\n\n", facts)
             + $"\n\nEvidence IDs ({refs.Length}):\n" + string.Join("\n", refs) + "\n\n" + GraphDocument.AggregatePathWarning;
         toggle.IsEnabled = !isEdge && document.Nodes.Any(n => n.ParentId == id);
@@ -284,11 +288,27 @@ public sealed class GraphExplorerView : UserControl, IAsyncDisposable
 
     public void Fit()
     {
+        // Notice wrapping and the new canvas extent can change the viewport in
+        // this same turn. Fit against the completed layout, not its old size.
+        fitPending = snapshot is not null;
+        InvalidateArrange();
+    }
+
+    private void ApplyPendingFit()
+    {
+        if (!fitPending || disposed || unloaded) return;
         if (snapshot is null || viewport.ViewportWidth <= 0 || viewport.ViewportHeight <= 0) return;
         float scale = (float)Math.Clamp(Math.Min(viewport.ViewportWidth / snapshot.Bounds.Width, viewport.ViewportHeight / snapshot.Bounds.Height), 0.1, 1);
+        // ChangeView can cause another layout notification. Consume first so a
+        // reentrant notification cannot issue the same request again.
+        fitPending = false;
         viewport.ChangeView(0, 0, scale, true);
     }
-    public void Zoom(float factor) => viewport.ChangeView(null, null, Math.Clamp(viewport.ZoomFactor * factor, viewport.MinZoomFactor, viewport.MaxZoomFactor), true);
+    public void Zoom(float factor)
+    {
+        fitPending = false;
+        viewport.ChangeView(null, null, Math.Clamp(viewport.ZoomFactor * factor, viewport.MinZoomFactor, viewport.MaxZoomFactor), true);
+    }
     private string Label(string id) => projection?.Nodes.FirstOrDefault(x => x.Id == id)?.Original.Label ?? id;
     private int Depth(string id)
     {

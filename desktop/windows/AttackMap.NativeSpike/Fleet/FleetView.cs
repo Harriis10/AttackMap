@@ -82,6 +82,7 @@ public sealed class FleetView : UserControl
         var panel = new StackPanel { Spacing = 12, Padding = new Thickness(16) };
         panel.Children.Add(new TextBlock { Text = "Fleet workspace", FontSize = 26 });
         panel.Children.Add(new TextBlock { Text = "Explicitly select 2–16 local repositories. Fleet AI, baselines, custom suppressions and secret history are unsupported. Partial runs remain diagnostic and never replace a current analysis.", TextWrapping = TextWrapping.Wrap });
+        panel.Children.Add(new TextBlock { Text = "Fleet uses the analyzer profile or module selection, isolation, recall, analyzer strictness, CVE and suppression switches from Scan options. Its soft budget applies per repository; the allowance below covers the whole fleet. Memory reservations and input-byte admission have no native control and remain unavailable.", TextWrapping = TextWrapping.Wrap });
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         Button Add(string title, Action action) { var b = new Button { Content = title }; b.Click += (_,_) => action(); buttons.Children.Add(b); return b; }
         Add("Add repository…", () => AddRepositoryRequested?.Invoke());

@@ -17,7 +17,7 @@ from typing import Literal, TextIO
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .run_contract import RunEnvelope, RunProgress, RunTerminal, ScanOptionsV13
+from .run_contract import RunEnvelope, RunProgress, RunTerminal, ScanOptionsV15
 
 
 def normalized_root(value: str) -> str:
@@ -46,6 +46,12 @@ def repository_set_id(repositories: list[FleetRepository]) -> str:
     return "fleet:" + hashlib.sha256(raw).hexdigest()
 
 
+class FleetScanOptions(ScanOptionsV15):
+    """Fleet-supported scan options; unknown options must never disappear."""
+
+    model_config = ConfigDict(strict=True, frozen=True, extra="forbid", hide_input_in_errors=True)
+
+
 class FleetRunRequest(RunEnvelope):
     model_config = ConfigDict(strict=True, frozen=True, extra="forbid", hide_input_in_errors=True)
     schema_version: Literal["1.4"] = "1.4"
@@ -54,7 +60,7 @@ class FleetRunRequest(RunEnvelope):
     output_path: str = Field(min_length=1)
     modules: list[str] = Field(default_factory=list)
     max_workers: int = Field(default=1, ge=1, le=4)
-    options: ScanOptionsV13 = Field(default_factory=ScanOptionsV13)
+    options: FleetScanOptions = Field(default_factory=FleetScanOptions)
 
     @model_validator(mode="after")
     def admitted(self) -> FleetRunRequest:
@@ -65,6 +71,10 @@ class FleetRunRequest(RunEnvelope):
         if self.repository_id != repository_set_id(self.repositories):
             raise ValueError("Repository-set identity mismatch")
         o = self.options
+        if o.analyzer_profile is not None:
+            from .analyzer_profiles import get_analyzer_profiles
+            if self.modules or not any(p.qualified_name == o.analyzer_profile for p in get_analyzer_profiles()):
+                raise ValueError("Fleet analyzer profile is unsupported or conflicts with explicit modules")
         if (o.provider.effective_mode != "none" or o.baseline is not None
                 or o.fail_on_new_high or o.fail_on_new_suppression or o.secrets_history
                 or o.suppress_file is not None):
@@ -249,9 +259,10 @@ def run_engine(request: FleetRunRequest) -> int:
     validate_roots(request)
     selected = select_requested_analyzers(request.modules, auto_install=False) if request.modules else None
     # Reuse the neutral option mapping; the synthetic request is never dispatched.
-    single = RunRequest(schema_version="1.3", run_id=request.run_id, repository_id=request.repositories[0].repository_id,
+    single = RunRequest(schema_version="1.5" if request.options.analyzer_profile else "1.3", run_id=request.run_id, repository_id=request.repositories[0].repository_id,
         generation=request.generation, revision=0, repository_path=request.repositories[0].repository_path,
-        output_path=request.output_path, modules=request.modules, options=request.options)
+        output_path=request.output_path, modules=request.modules,
+        options=request.options.model_dump(exclude={"analyzer_profile"}) if request.options.analyzer_profile is None else request.options.model_dump())
     service = scan_request_from_run(single, echo=lambda *args, **kwargs: None)
     service.repo_paths = [Path(item.repository_path) for item in request.repositories]
     service.max_workers = request.max_workers

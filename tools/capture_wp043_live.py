@@ -57,6 +57,7 @@ class WindowInfo:
     rect: tuple[int, int, int, int]
     # EnumWindows order: zero is the highest Z-order window.
     z_order: int = 0
+    class_name: str | None = None
 
 
 class MissingLiveDependency(RuntimeError):
@@ -65,6 +66,42 @@ class MissingLiveDependency(RuntimeError):
 
 class FrameSafetyError(RuntimeError):
     pass
+
+
+class NativeWindowSafetyError(FrameSafetyError):
+    def __init__(self, message, diagnostics):
+        self.diagnostics = diagnostics
+        super().__init__(message)
+
+
+class NavigationFocusError(FrameSafetyError):
+    def __init__(self, diagnostics):
+        self.diagnostics = diagnostics
+        super().__init__(f"Navigation focus failed at {diagnostics['failureStage']}")
+
+
+class WindowEnumerationError(FrameSafetyError):
+    def __init__(self, stage, winerror, *, hwnd=None, cause=None):
+        self.stage = stage
+        self.winerror = winerror
+        self.hwnd = hwnd
+        detail = f"GetLastError={winerror}"
+        if cause is not None:
+            detail += f"; HWND={hwnd}; {type(cause).__name__}: {cause}"
+        super().__init__(f"EnumWindows {stage} failed ({detail})")
+
+
+class ClientModalError(FrameSafetyError):
+    def __init__(self, details, diagnostics=None):
+        self.details = details
+        self.diagnostics = diagnostics or {}
+        super().__init__(f"Visible in-client modal: {details!r}")
+
+
+class ClientModalInspectionError(FrameSafetyError):
+    def __init__(self, diagnostics):
+        self.diagnostics = diagnostics
+        super().__init__(f"Client modal inspection failed at {diagnostics['failureStage']}")
 
 
 class LiveBackend(ABC):
@@ -112,6 +149,11 @@ class LiveBackend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def require_navigation_focus(self, window: WindowInfo, label: str) -> None:
+        """Verify the intended item's keyboard focus immediately before Enter."""
+        raise NotImplementedError
+
+    @abstractmethod
     def select_first_finding(self, window: WindowInfo) -> None:
         raise NotImplementedError
 
@@ -137,6 +179,11 @@ class LiveBackend(ABC):
 
     @abstractmethod
     def grab_print_window(self, window: WindowInfo):
+        raise NotImplementedError
+
+    @abstractmethod
+    def client_modal_details(self, window: WindowInfo) -> list[dict]:
+        """Read visible client dialogs; inspection failures must raise."""
         raise NotImplementedError
 
     @abstractmethod
@@ -228,6 +275,122 @@ def intersecting_occluders(windows: list[WindowInfo], target: WindowInfo) -> lis
     ]
 
 
+def _window_details(window: WindowInfo | None) -> dict | None:
+    if window is None:
+        return None
+    return {
+        "hwnd": window.hwnd, "pid": window.pid, "title": window.title,
+        "className": window.class_name, "rect": list(window.rect), "zOrder": window.z_order,
+        "visible": window.visible, "minimized": window.minimized, "cloaked": window.cloaked,
+    }
+
+
+def _native_window_snapshot(backend: LiveBackend, target: WindowInfo, phase: str, *,
+                            require_same_rect: bool = False, require_native_handle: bool = False):
+    """Assess identity and Z ordering only within one EnumWindows result."""
+    alive = backend.process_alive()
+    foreground_before = backend.foreground_hwnd()
+    windows = backend.list_windows()
+    foreground_after = backend.foreground_hwnd()
+    snapshot_id = getattr(backend, "_native_snapshot_sequence", 0) + 1
+    backend._native_snapshot_sequence = snapshot_id
+    matches = [item for item in windows if item.pid == target.pid
+               and item.title == "AttackMap" and item.visible]
+    current = matches[0] if len(matches) == 1 else None
+    valid_handle = direct_pid = None
+    if require_native_handle:
+        valid_handle = bool(backend._user32().IsWindow(target.hwnd))
+        direct_pid = backend.window_process_id(target.hwnd)
+    identity_ok = (alive and current is not None and current.hwnd == target.hwnd
+                   and not current.minimized and not current.cloaked
+                   and (not require_native_handle or (valid_handle and direct_pid == target.pid)))
+    foreground_ok = foreground_before == target.hwnd == foreground_after
+    geometry_ok = current is not None and (
+        current.rect[2] - current.rect[0], current.rect[3] - current.rect[1]
+    ) == (1600, 1000) and (not require_same_rect or current.rect == target.rect)
+    blockers = intersecting_occluders(windows, current) if current is not None else []
+    details = {
+        "api": "Win32", "snapshotId": snapshot_id, "phase": phase,
+        "targetBefore": _window_details(target), "targetAfter": _window_details(current),
+        "observedTargetHwnd": _window_details(next((item for item in windows if item.hwnd == target.hwnd), None)),
+        "identity": {"status": "safe" if identity_ok else "failed", "processAlive": alive,
+                     "ownedVisibleCount": len(matches), "nativeHandleValid": valid_handle,
+                     "directPid": direct_pid, "candidates": [_window_details(item) for item in matches]},
+        "foreground": {"status": "safe" if foreground_ok else "failed",
+                       "beforeHwnd": foreground_before, "afterHwnd": foreground_after,
+                       "before": _window_details(next((item for item in windows if item.hwnd == foreground_before), None)),
+                       "after": _window_details(next((item for item in windows if item.hwnd == foreground_after), None))},
+        "geometry": {"status": "safe" if geometry_ok else "failed", "expectedSize": [1600, 1000],
+                     "requireUnchanged": require_same_rect, "beforeRect": list(target.rect),
+                     "afterRect": list(current.rect) if current is not None else None},
+        "occlusion": {"status": "blocked" if blockers else "clear" if current is not None else "unknown",
+                      "blockers": [_window_details(item) for item in blockers]},
+    }
+    if not identity_ok:
+        failure, message = "identity", "Owned live visible non-minimized HWND identity changed"
+    elif not foreground_ok:
+        failure, message = "foreground", "Owned foreground HWND is required"
+    elif not geometry_ok:
+        failure, message = "geometry", "Environment outer-window geometry mismatch: expected unchanged 1600x1000"
+    elif blockers:
+        failure = "occlusion"
+        message = f"Visible higher-Z-order occluder intersects target: {_window_details(blockers[0])!r}"
+    else:
+        return current, details
+    details["failureStage"] = failure
+    raise NativeWindowSafetyError(message, details)
+
+
+def _owned_transient_only(error: Exception, target: WindowInfo) -> bool:
+    """Qualify recovery from the originating native snapshot, never a later close."""
+    if isinstance(error, ClientModalInspectionError):
+        # The raw UIA retry performs a native target recheck after its fresh
+        # descendants scan. Preserve that exact native provenance when it is
+        # wrapped for the UIA diagnostic; do not treat generic UIA failures as
+        # recoverable or walk an arbitrary exception chain.
+        details = error.diagnostics
+        cause = error.__cause__
+        if not (
+            details.get("api") == "UIAutomation"
+            and details.get("failureStage") == "owned-target-recheck"
+            and details.get("attempt") == 2
+            and not details.get("modalConfirmed")
+            and isinstance(cause, NativeWindowSafetyError)
+            and cause.diagnostics.get("phase") in {
+                "uia-retry-before-descendants",
+                "uia-retry-after-descendants",
+            }
+        ):
+            return False
+        return _owned_transient_only(cause, target)
+    if not isinstance(error, NativeWindowSafetyError):
+        return False
+    try:
+        details = error.diagnostics
+        identity, foreground, geometry = (details[key] for key in ("identity", "foreground", "geometry"))
+        before, after = details["targetBefore"], details["targetAfter"]
+        blockers = details["occlusion"]["blockers"]
+        stable_target = all(
+            item["hwnd"] == target.hwnd and item["pid"] == target.pid and item["title"] == "AttackMap"
+            and item["visible"] is True and item["minimized"] is False and item["cloaked"] is False
+            and item["rect"] == list(target.rect)
+            for item in (before, after)
+        )
+        return (
+            details["api"] == "Win32" and type(details["snapshotId"]) is int and details["snapshotId"] > 0
+            and details["failureStage"] == "occlusion" and stable_target
+            and identity["status"] == "safe" and identity["processAlive"] is True
+            and identity["ownedVisibleCount"] == 1
+            and foreground["status"] == "safe" and foreground["beforeHwnd"] == target.hwnd == foreground["afterHwnd"]
+            and geometry["status"] == "safe" and geometry["expectedSize"] == [1600, 1000]
+            and geometry["beforeRect"] == geometry["afterRect"] == list(target.rect)
+            and details["occlusion"]["status"] == "blocked" and isinstance(blockers, list) and bool(blockers)
+            and all(item["pid"] == target.pid and item["title"] == "Hostitel místní nabídky" for item in blockers)
+        )
+    except (KeyError, TypeError, AttributeError):
+        return False
+
+
 def _sequence(event: dict) -> int:
     sequence = event.get("sequence", 0)
     return sequence if isinstance(sequence, int) else 0
@@ -317,7 +480,7 @@ def diagram_activation_acknowledged(
     for event in events:
         if (
             _sequence(event) <= after_sequence
-            or event.get("kind") != "activation-completed"
+            or event.get("kind") not in {"activation-completed", "activation-failed"}
             or event.get("runId") != expected_run_id
         ):
             continue
@@ -328,6 +491,11 @@ def diagram_activation_acknowledged(
             and detail.get("navigationRevision") == navigation_revision
             and detail.get("viewKind") == "interactive"
         ):
+            if event.get("kind") == "activation-failed":
+                raise RuntimeError(
+                    "Bound interactive diagram activation failed: "
+                    f"{detail.get('errorType')}: {detail.get('errorMessage')}"
+                )
             return True
     return False
 
@@ -493,10 +661,10 @@ def _detail_root_png(diagnostics_dir: Path, event: dict, prefix: str) -> tuple[P
         or not isinstance(scale, (int, float)) or isinstance(scale, bool)
         or not 0 < scale < float("inf")
     ):
-        raise ValueError("F7 Detail/root render metadata exceeds capture bounds")
-    path = _strict_file(diagnostics_dir / file_name, "F7 Detail/root render PNG")
+        raise ValueError("Detail/root render metadata exceeds capture bounds")
+    path = _strict_file(diagnostics_dir / file_name, "Detail/root render PNG")
     if path.parent != diagnostics_dir.resolve() or not 24 <= path.stat().st_size <= 128 * 1024 * 1024:
-        raise ValueError("F7 Detail/root render PNG escaped its directory or exceeds capture bounds")
+        raise ValueError("Detail/root render PNG escaped its directory or exceeds capture bounds")
     with path.open("rb") as stream:
         header = stream.read(24)
         stream.seek(-12, os.SEEK_END)
@@ -506,8 +674,37 @@ def _detail_root_png(diagnostics_dir: Path, event: dict, prefix: str) -> tuple[P
         or struct.unpack(">II", header[16:24]) != (width, height)
         or iend != b"\x00\x00\x00\x00IEND\xaeB\x60\x82"
     ):
-        raise ValueError("F7 Detail/root render PNG header, dimensions, or IEND are invalid")
+        raise ValueError("Detail/root render PNG header, dimensions, or IEND are invalid")
     return path, width, height, float(scale)
+
+
+def _png_quality(path: Path) -> dict:
+    # Decode independently of native metadata. Hidden RGB is not visible evidence.
+    from PIL import Image
+    with Image.open(path) as source:
+        if source.format != "PNG" or source.width * source.height * 4 > 128 * 1024 * 1024:
+            raise ValueError("Diagnostic PNG decode exceeds capture bounds")
+        source.verify()  # PNG chunk CRCs, including IDAT, must be valid.
+    with Image.open(path) as source:
+        source.load()
+        rgba = source.convert("RGBA")
+        first = None
+        visible = 0
+        variation = False
+        transparent = False
+        for red, green, blue, alpha in (rgba.get_flattened_data() if hasattr(rgba, "get_flattened_data") else rgba.getdata()):
+            if not alpha:
+                transparent = True
+                continue
+            visible += 1
+            value = (red * alpha, green * alpha, blue * alpha, alpha)
+            if first is None:
+                first = value
+            elif value != first:
+                variation = True
+        variation = variation or (visible > 0 and transparent)
+        return {"visiblePixels": visible, "hasVisibleVariation": variation,
+                "classification": "empty" if not visible else "nonuniform" if variation else "uniform"}
 
 
 def intervention_acknowledged(
@@ -668,27 +865,42 @@ def _require_safe(
     target: WindowInfo,
     run_id: str,
     report_hash: str,
+    *, inspection_context: dict | None = None,
 ) -> tuple[WindowInfo, list[dict]]:
-    if not backend.process_alive():
-        raise FrameSafetyError("Owned process is not live")
-    if backend.foreground_hwnd() != target.hwnd:
-        raise FrameSafetyError("Owned foreground HWND is required")
+    context = {"actionPhase": None, "destination": None, "diagnosticsSequence": None,
+               **(inspection_context or {})}
+    backend.modal_inspection_context = context
     try:
-        current = choose_owned_window(backend.list_windows(), target.pid)
-    except RuntimeError as error:
-        raise FrameSafetyError(str(error)) from error
-    if current.hwnd != target.hwnd or current.minimized:
-        raise FrameSafetyError("Owned visible non-minimized window is required")
+        current, before = _native_window_snapshot(backend, target, "before-client-inspection")
+    except NativeWindowSafetyError as error:
+        error.diagnostics.update(context)
+        raise
+    try:
+        modals = backend.client_modal_details(current)
+    except ClientModalInspectionError as error:
+        error.diagnostics.update({key: error.diagnostics.get(key) or value for key, value in context.items()})
+        error.diagnostics["nativeBeforeInspection"] = before
+        raise
+    except Exception as error:
+        raise ClientModalInspectionError({
+            "api": "UIAutomation", "failureStage": "backend", "hwnd": current.hwnd,
+            "pid": current.pid, **context, "classification": "inspection-failure", "cause": _inspection_cause(error),
+            "nativeBeforeInspection": before,
+        }) from error
+    if modals:
+        inspections = getattr(backend, "modal_inspection_diagnostics", [])
+        modal_diagnostic = inspections[-1] if inspections and inspections[-1].get("status") == "modal-present" else {}
+        raise ClientModalError(modals, {**context, "inspectionInvocationId":
+                              getattr(backend, "_modal_inspection_sequence", None), **modal_diagnostic})
     events, _ = _events_and_run_id(backend, run_id)
     if not diagnostics_snapshot_ready(events, run_id, report_hash):
         raise FrameSafetyError("Expected report hash and Dark diagnostics snapshot are required")
-    occluders = intersecting_occluders(backend.list_windows(), current)
-    if occluders:
-        blocker = occluders[0]
-        raise FrameSafetyError(
-            f"Visible higher-Z-order occluder intersects target: title={blocker.title!r}, "
-            f"hwnd={blocker.hwnd}, pid={blocker.pid}, rect={blocker.rect}, z={blocker.z_order}, targetZ={current.z_order}"
-        )
+    try:
+        current, _ = _native_window_snapshot(backend, current, "after-client-inspection", require_same_rect=True)
+    except NativeWindowSafetyError as error:
+        error.diagnostics["beforeInspection"] = before
+        error.diagnostics.update(context)
+        raise
     return current, events
 
 
@@ -698,9 +910,56 @@ def _write_evidence(output: Path, evidence: dict) -> None:
     )
 
 
+def _error_details(error: Exception) -> dict:
+    details = {"type": type(error).__name__, "message": str(error)}
+    enumeration_error = error
+    seen = set()
+    while enumeration_error is not None and id(enumeration_error) not in seen:
+        seen.add(id(enumeration_error))
+        if isinstance(enumeration_error, ClientModalInspectionError):
+            details.update(enumeration_error.diagnostics)
+            break
+        if isinstance(enumeration_error, (NativeWindowSafetyError, NavigationFocusError)):
+            details.update(enumeration_error.diagnostics)
+            break
+        if isinstance(enumeration_error, ClientModalError):
+            details.update(enumeration_error.diagnostics)
+            details["clientModals"] = enumeration_error.details
+            break
+        if isinstance(enumeration_error, WindowEnumerationError):
+            details.update(
+                api="EnumWindows", failureStage=enumeration_error.stage,
+                winerror=enumeration_error.winerror, hwnd=enumeration_error.hwnd,
+            )
+            if enumeration_error.__cause__ is not None:
+                details["cause"] = {
+                    "type": type(enumeration_error.__cause__).__name__, "message": str(enumeration_error.__cause__),
+                }
+            break
+        enumeration_error = enumeration_error.__cause__
+    return details
+
+
+def _inspection_cause(error: Exception) -> dict:
+    details = {"type": type(error).__name__, "message": str(error)[:1024]}
+    hresult = getattr(error, "hresult", None)
+    if isinstance(hresult, int):
+        details.update(hresult=hresult, hresultHex=f"0x{hresult & 0xffffffff:08X}")
+    winerror = getattr(error, "winerror", None)
+    if isinstance(winerror, int):
+        details["winerror"] = winerror
+    if isinstance(error, NativeWindowSafetyError):
+        details["nativeWindowSafety"] = error.diagnostics
+    return details
+
+
 def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
     executable = _strict_file(args.executable, "executable")
     report = _strict_file(args.report, "report")
+    engine_argument = getattr(args, "engine", None)
+    if engine_argument is not None and not engine_argument.is_absolute():
+        raise ValueError("engine must be an absolute executable path")
+    engine = _strict_file(engine_argument, "engine") if engine_argument is not None else None
     output = validate_new_output(args.output)
     if not args.native_only or args.theme != "dark":
         raise ValueError("WP043 live capture requires --native-only --theme dark")
@@ -730,6 +989,10 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
     theme_path = local_app_data / "AttackMap" / "NativePreview" / "theme.json"
     theme_path.parent.mkdir(parents=True)
     theme_path.write_text('{"theme":"dark"}', encoding="utf-8")
+    if engine is not None:
+        (theme_path.parent / "settings.json").write_text(
+            json.dumps({"SchemaVersion": 1, "PythonPath": str(engine)}), encoding="utf-8",
+        )
     webview_profile = output / "webview-profile"
     webview_profile.mkdir()
     stdout_path = output / "stdout.log"
@@ -765,6 +1028,7 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
         "inputs": {
             "executable": {"path": str(executable), "sha256": _sha256(executable)},
             "report": {"path": str(report), "sha256": report_hash},
+            **({"engine": {"path": str(engine), "sha256": _sha256(engine)}} if engine is not None else {}),
         },
         "isolation": {
             "USERPROFILE": str(profile),
@@ -799,19 +1063,30 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
     poll_interval = getattr(args, "poll_interval", 0.1)
     layout_delay = getattr(args, "layout_delay", 0.5)
     placement_delay = getattr(args, "placement_delay", 1.0)
+    action_context = {"actionPhase": "startup-safety", "destination": "Findings"}
 
     def fresh_events(run_id: str) -> list[dict]:
         return _events_and_run_id(backend, run_id)[0]
 
-    def dispatch_navigation(current: WindowInfo, label: str, run_id: str) -> tuple[WindowInfo, dict]:
+    def inspect_safe(current, run_id, *, phase=None, attempt=0):
+        if phase is not None:
+            action_context["actionPhase"] = phase
+        context = {**action_context, "diagnosticsSequence": _latest_sequence(fresh_events(run_id)),
+                   "safetyAttempt": attempt + 1}
+        return _require_safe(backend, current, run_id, report_hash, inspection_context=context)
+
+    def dispatch_navigation(current: WindowInfo, label: str, run_id: str) -> tuple[WindowInfo, dict, int]:
+        action_context.update(actionPhase="navigation-before-focus", destination=label)
         current, events = require_safe_after_transient(current, run_id)
         backend.focus_navigation(current, label)
+        action_context["actionPhase"] = "navigation-before-enter"
         current, events = require_safe_after_transient(current, run_id)
         after = _latest_sequence(events)
         previous_revision = _latest_navigation_revision(events)
         action = {"type": "navigation", "label": label, "afterSequence": after, "status": "dispatched"}
         evidence["actions"].append(action)
         try:
+            backend.require_navigation_focus(current, label)
             backend.send_key("ENTER")
 
             def acknowledged():
@@ -833,9 +1108,18 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
             raise
         action["status"] = "acknowledged"
         action["acknowledgmentSequence"] = _sequence(acknowledgment)
-        return current, acknowledgment
+        return current, acknowledgment, after
 
-    def dismiss_owned_transient(current: WindowInfo) -> WindowInfo:
+    def dismiss_owned_transient(current: WindowInfo, *, recovering: bool = False) -> WindowInfo:
+        expected_pid, expected_hwnd, expected_rect = current.pid, current.hwnd, current.rect
+
+        def unchanged_target(windows):
+            latest = choose_owned_window(windows, expected_pid)
+            if (latest.hwnd != expected_hwnd or latest.rect != expected_rect
+                    or latest.minimized or latest.cloaked):
+                raise FrameSafetyError("Owned target identity or geometry changed during transient dismissal")
+            return latest
+
         if not backend.process_alive():
             raise FrameSafetyError("Owned process is not live before transient dismissal")
         foreground = backend.foreground_hwnd()
@@ -847,11 +1131,16 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
             else:
                 identity = f"hwnd={actual.hwnd}, pid={actual.pid}, title={actual.title!r}"
             raise FrameSafetyError(f"Owned foreground process is required before transient dismissal; actual {identity}")
-        current = choose_owned_window(backend.list_windows(), current.pid)
-        blockers = intersecting_occluders(backend.list_windows(), current)
+        windows = backend.list_windows()
+        current = unchanged_target(windows)
+        if backend.foreground_hwnd() != expected_hwnd:
+            raise FrameSafetyError("Owned foreground HWND changed during transient dismissal")
+        blockers = intersecting_occluders(windows, current)
         if not blockers:
             return current
         if any(blocker.pid != current.pid or blocker.title != "Hostitel místní nabídky" for blocker in blockers):
+            if recovering:
+                raise FrameSafetyError("Unexpected external or mixed occlusion during owned transient recovery")
             return current
         action = {"type": "dismiss-owned-transient", "title": blockers[0].title, "method": "wm-close", "status": "dispatched"}
         evidence["actions"].append(action)
@@ -859,8 +1148,14 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
             backend.close(blockers[0])
 
             def cleared():
-                latest = choose_owned_window(backend.list_windows(), current.pid)
-                return latest if not intersecting_occluders(backend.list_windows(), latest) else None
+                if not backend.process_alive() or backend.foreground_hwnd() != expected_hwnd:
+                    raise FrameSafetyError("Owned process or foreground changed during transient dismissal")
+                windows = backend.list_windows()
+                latest = unchanged_target(windows)
+                remaining = intersecting_occluders(windows, latest)
+                if recovering and any(item.pid != latest.pid or item.title != "Hostitel místní nabídky" for item in remaining):
+                    raise FrameSafetyError("Unexpected external or mixed occlusion during owned transient recovery")
+                return latest if not remaining else None
 
             current = _wait_for(cleared, args.action_timeout, poll_interval, "owned transient dismissal")
         except Exception:
@@ -870,40 +1165,33 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
         return current
 
     def require_safe_after_transient(current: WindowInfo, run_id: str, attempt: int = 0) -> tuple[WindowInfo, list[dict]]:
-        current = dismiss_owned_transient(current)
+        current = dismiss_owned_transient(current, recovering=attempt > 0)
         try:
-            return _require_safe(backend, current, run_id, report_hash)
+            return inspect_safe(current, run_id, attempt=attempt)
         except FrameSafetyError as error:
-            if attempt >= 2:
+            if attempt >= 2 or not _owned_transient_only(error, current):
                 raise
-            action_count = len(evidence["actions"])
-            current = dismiss_owned_transient(current)
-            dismissed = len(evidence["actions"]) > action_count and evidence["actions"][-1]["status"] == "dismissed"
-            if dismissed or "title='Hostitel místní nabídky'" in str(error):
-                return require_safe_after_transient(current, run_id, attempt + 1)
-            raise
+            current = dismiss_owned_transient(current, recovering=True)
+            return require_safe_after_transient(current, run_id, attempt + 1)
 
     def capture(current: WindowInfo, name: str, round_number: int, destination: str, run_id: str, attempt: int = 0, capture_method: str = "ImageGrab", expected_finding_revision: int | None = None) -> WindowInfo:
+        action_context.update(actionPhase="capture-before-grab", destination=destination)
         validate_capture_name(name, capture_names)
         time.sleep(layout_delay)
-        current = dismiss_owned_transient(current)
+        current = dismiss_owned_transient(current, recovering=attempt > 0)
         try:
-            current, events = _require_safe(backend, current, run_id, report_hash)
+            current, events = inspect_safe(current, run_id, attempt=attempt)
             if expected_finding_revision is not None:
                 _require_finding_revision(events, expected_finding_revision)
         except FrameSafetyError as error:
-            if attempt >= 2:
+            if attempt >= 2 or not _owned_transient_only(error, current):
                 raise
-            action_count = len(evidence["actions"])
-            current = dismiss_owned_transient(current)
-            dismissed = len(evidence["actions"]) > action_count and evidence["actions"][-1]["status"] == "dismissed"
-            if dismissed or "title='Hostitel místní nabídky'" in str(error):
-                return capture(current, name + "-after-transient", round_number, destination, run_id, attempt + 1, capture_method, expected_finding_revision)
-            raise
+            current = dismiss_owned_transient(current, recovering=True)
+            return capture(current, name + "-after-transient", round_number, destination, run_id, attempt + 1, capture_method, expected_finding_revision)
         diagnostics_before = _latest_sequence(events)
         image = backend.grab_print_window(current) if capture_method == "PrintWindow" else backend.grab(current)
         try:
-            current, events = _require_safe(backend, current, run_id, report_hash)
+            current, events = inspect_safe(current, run_id, phase="capture-after-grab", attempt=attempt)
             if expected_finding_revision is not None:
                 _require_finding_revision(events, expected_finding_revision)
             if backend.foreground_hwnd() != current.hwnd:
@@ -918,6 +1206,7 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
                     "destination": destination,
                     "status": "discarded-invalid",
                     "reason": str(error),
+                    "error": _error_details(error),
                     "path": path.relative_to(output).as_posix(),
                     "rect": list(current.rect),
                     "bytes": path.stat().st_size,
@@ -928,12 +1217,9 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
                     "diagnosticsSequence": _latest_sequence(events),
                 }
             )
-            if attempt < 2:
-                action_count = len(evidence["actions"])
-                current = dismiss_owned_transient(current)
-                dismissed = len(evidence["actions"]) > action_count and evidence["actions"][-1]["status"] == "dismissed"
-                if dismissed or "title='Hostitel místní nabídky'" in str(error):
-                    return capture(current, name + "-after-transient", round_number, destination, run_id, attempt + 1, capture_method)
+            if attempt < 2 and _owned_transient_only(error, current):
+                current = dismiss_owned_transient(current, recovering=True)
+                return capture(current, name + "-after-transient", round_number, destination, run_id, attempt + 1, capture_method, expected_finding_revision)
             raise FrameSafetyError(f"Discarded invalid capture {name}: {error}") from error
         path = captures_dir / f"{name}.png"
         backend.save_image(image, path)
@@ -973,8 +1259,6 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
             backend.restore(window)
             window = choose_owned_window(backend.list_windows(), pid)
         backend.activate(window)
-        backend.move_resize(window, args.width, args.height)
-        time.sleep(placement_delay)
 
         def initial_run_id():
             try:
@@ -994,18 +1278,39 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
             poll_interval,
             "Dark Findings snapshot with expected report hash",
         )
+        # HWND creation precedes the application's Loaded placement restore.
+        # Size only after the report is ready so startup cannot overwrite it.
+        placement = {"type": "window-placement", "status": "dispatched", "beforeRect": list(window.rect)}
+        evidence["actions"].append(placement)
+        backend.move_resize(window, args.width, args.height)
+
+        def placement_acknowledged():
+            if not backend.process_alive():
+                raise FrameSafetyError("Owned process exited during window placement")
+            current = choose_owned_window(backend.list_windows(), pid)
+            if current.hwnd != window.hwnd or current.minimized:
+                raise FrameSafetyError("Owned visible non-minimized HWND changed during window placement")
+            placement["observedRect"] = list(current.rect)
+            return current if (current.rect[2] - current.rect[0], current.rect[3] - current.rect[1]) == (args.width, args.height) else None
+
+        window = _wait_for(
+            placement_acknowledged, args.window_timeout, poll_interval,
+            "environment outer-window geometry acknowledgment: expected 1600x1000",
+        )
+        placement["status"] = "acknowledged"
+        time.sleep(placement_delay)
         window, _ = require_safe_after_transient(window, run_id)
 
         for round_number in range(1, 6):
             for position, label in enumerate(DESTINATIONS, start=1):
-                window, acknowledgment = dispatch_navigation(window, label, run_id)
+                window, acknowledgment, navigation_after = dispatch_navigation(window, label, run_id)
                 slug = label.replace(" ", "-")
                 if label == "Diagrams":
                     navigation_revision = acknowledgment["detail"]["navigationRevision"]
                     if round_number == 1:
                         _wait_for(
                             lambda: diagram_activation_acknowledged(
-                                fresh_events(run_id), _sequence(acknowledgment), run_id,
+                                fresh_events(run_id), navigation_after, run_id,
                                 report_hash, navigation_revision,
                             ) or None,
                             args.action_timeout,
@@ -1045,6 +1350,7 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
                 else:
                     window = capture(window, f"r{round_number:02d}-{position:02d}-{slug}", round_number, label, run_id)
                 if label == "Findings":
+                    action_context.update(actionPhase="finding-selection-before-input", destination="Findings")
                     window, events = require_safe_after_transient(window, run_id)
                     after = _latest_sequence(events)
                     navigation_revision = acknowledgment["detail"]["navigationRevision"]
@@ -1101,6 +1407,7 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
                     )
                     detail_capture = evidence["captures"][-1]["name"]
                     if args.detail_render_probe:
+                        action_context.update(actionPhase="detail-render-before-input", destination="FindingDetail")
                         window, events = require_safe_after_transient(window, run_id)
                         _require_finding_revision(events, finding_revision)
                         after = _latest_sequence(events)
@@ -1160,28 +1467,44 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
                             "status": "captured-awaiting-visual-review",
                         })
                     if args.detail_root_render_probe:
+                        action_context.update(actionPhase="detail-root-render-before-input", destination="FindingDetail")
                         window, events = require_safe_after_transient(window, run_id)
                         _require_finding_revision(events, finding_revision)
                         after = _latest_sequence(events)
+                        probe_record = {"round": round_number, "status": "rejected"}
                         try:
-                            backend.send_key("F7")
+                            backend.send_key("CTRL+ALT+SHIFT+R")
                             terminal = _wait_for(
                                 lambda: _detail_root_render_terminal(
                                     fresh_events(run_id), after, run_id, report_hash,
                                     navigation_revision, finding_revision,
                                 ),
-                                args.action_timeout, poll_interval, "F7 Detail/root render terminal acknowledgment",
+                                args.action_timeout, poll_interval, "Detail/root render terminal acknowledgment",
                             )
+                            probe_record = {"round": round_number, "status": "rejected", "terminal": terminal}
                             if terminal.get("kind") != "detail-root-render-capture-completed":
-                                raise RuntimeError("F7 Detail/root render failed before after-capture")
+                                # Native quality rejection preserves files. Decode those too,
+                                # independently, without allowing this failed ACK to release B.
+                                for prefix in ("detail", "root"):
+                                    if terminal["detail"].get(prefix + "FileName"):
+                                        rejected_path, _, _, _ = _detail_root_png(diagnostics_dir, terminal["detail"], prefix)
+                                        probe_record[prefix + "Quality"] = _png_quality(rejected_path)
+                                raise RuntimeError(terminal["detail"].get("failureReason") or "Detail/root render failed before after-capture")
                             detail_path, detail_width, detail_height, scale = _detail_root_png(
                                 diagnostics_dir, terminal["detail"], "detail")
                             root_path, root_width, root_height, root_scale = _detail_root_png(
                                 diagnostics_dir, terminal["detail"], "root")
+                            detail_quality = _png_quality(detail_path)
+                            root_quality = _png_quality(root_path)
+                            probe_record.update(detailQuality=detail_quality, rootQuality=root_quality)
+                            if root_quality["classification"] != "nonuniform":
+                                raise ValueError("root-raster-" + root_quality["classification"])
                             if root_scale != scale:
-                                raise ValueError("F7 Detail/root render scales differ")
-                        except Exception:
-                            raise RuntimeError("F7 Detail/root render did not produce valid bound PNGs") from None
+                                raise ValueError("Detail/root render scales differ")
+                        except Exception as error:
+                            probe_record["failureReason"] = str(error)
+                            evidence.setdefault("rejectedDetailRootRenderProbes", []).append(probe_record)
+                            raise RuntimeError(f"Detail/root render rejected: {error}") from error
                         window = capture(
                             window, detail_capture + "-root-render-after", round_number,
                             "FindingDetailRootRenderAfter", run_id,
@@ -1191,6 +1514,7 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
                             "round": round_number,
                             "findingRevision": finding_revision,
                             "beforeCapture": detail_capture,
+                            "detailQuality": detail_quality, "rootQuality": root_quality,
                             "detailRenderCapture": {
                                 "name": detail_path.stem, "path": (Path("diagnostics") / detail_path.name).as_posix(),
                                 "bytes": detail_path.stat().st_size, "sha256": _sha256(detail_path),
@@ -1272,6 +1596,7 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
             evidence["completedRounds"] = round_number
 
         for key, label in (("CTRL+H", "History"), ("CTRL+COMMA", "Settings")):
+            action_context.update(actionPhase="shortcut-before-input", destination=label)
             window, events = require_safe_after_transient(window, run_id)
             after = _latest_sequence(events)
             previous_revision = _latest_navigation_revision(events)
@@ -1298,6 +1623,7 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
 
         if args.diagnostic_interventions:
             for key in ("F9", "F10"):
+                action_context.update(actionPhase="diagnostic-intervention-before-input", destination="Settings")
                 window, events = require_safe_after_transient(window, run_id)
                 after = _latest_sequence(events)
                 try:
@@ -1327,8 +1653,40 @@ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
         evidence["error"] = {"type": type(error).__name__, "message": str(error)}
     except Exception as error:
         evidence["status"] = "failed"
-        evidence["error"] = {"type": type(error).__name__, "message": str(error)}
+        evidence["error"] = _error_details(error)
+        if "clientModals" in evidence["error"] or evidence["error"].get("api") == "UIAutomation":
+            snapshot = {"status": "not-captured", "error": evidence["error"]}
+            if "clientModals" in evidence["error"]:
+                snapshot["modalDetails"] = evidence["error"]["clientModals"]
+            evidence["failureSnapshot"] = snapshot
+            try:
+                def diagnostic_window():
+                    if window is None:
+                        raise FrameSafetyError("Owned process is not live for failure review")
+                    phase = "failure-review-after-grab" if snapshot.get("nativeChecks") else "failure-review-before-grab"
+                    current, check = _native_window_snapshot(backend, window, phase, require_same_rect=True)
+                    snapshot.setdefault("nativeChecks", []).append(check)
+                    return current
+
+                current = diagnostic_window()
+                image = backend.grab(current)
+                after = diagnostic_window()
+                if after.rect != current.rect:
+                    raise FrameSafetyError("Window moved during failure review")
+                filename = "client-modal-inspection.png" if evidence["error"].get("api") == "UIAutomation" else "client-modal.png"
+                path = output / "failure-review" / filename
+                path.parent.mkdir()
+                backend.save_image(image, path)
+                snapshot.update(status="rejected-diagnostic-only", path=path.relative_to(output).as_posix(),
+                                rect=list(current.rect), width=1600, height=1000,
+                                bytes=path.stat().st_size, sha256=_sha256(path), captureMethod="ImageGrab")
+            except Exception as snapshot_error:
+                snapshot["reason"] = str(snapshot_error)
+                snapshot["safetyError"] = _error_details(snapshot_error)
     finally:
+        modal_inspections = getattr(backend, "modal_inspection_diagnostics", None)
+        if modal_inspections:
+            evidence["clientModalInspections"] = modal_inspections
         if launched and backend.process_alive():
             try:
                 if window is not None and not close_attempted:
@@ -1358,6 +1716,7 @@ class WindowsLiveBackend(LiveBackend):
         self.stdout = None
         self.stderr = None
         self._pywinauto = None
+        self.modal_inspection_diagnostics = []
 
     @staticmethod
     def _require_live_dependencies():
@@ -1410,6 +1769,18 @@ class WindowsLiveBackend(LiveBackend):
             user32.GetWindowThreadProcessId.restype = wintypes.DWORD
             user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
             user32.GetWindowRect.restype = wintypes.BOOL
+            user32.GetWindowTextLengthW.argtypes = [wintypes.HWND]
+            user32.GetWindowTextLengthW.restype = ctypes.c_int
+            user32.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+            user32.GetWindowTextW.restype = ctypes.c_int
+            user32.GetClassNameW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+            user32.GetClassNameW.restype = ctypes.c_int
+            user32.IsWindowVisible.argtypes = [wintypes.HWND]
+            user32.IsWindowVisible.restype = wintypes.BOOL
+            user32.IsWindow.argtypes = [wintypes.HWND]
+            user32.IsWindow.restype = wintypes.BOOL
+            user32.IsIconic.argtypes = [wintypes.HWND]
+            user32.IsIconic.restype = wintypes.BOOL
             user32.PrintWindow.argtypes = [wintypes.HWND, wintypes.HDC, wintypes.UINT]
             user32.PrintWindow.restype = wintypes.BOOL
             user32.MoveWindow.argtypes = [
@@ -1440,13 +1811,16 @@ class WindowsLiveBackend(LiveBackend):
         user32 = self._user32()
         windows = []
         callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        callback_error = None
 
-        def visit(hwnd, _):
+        def inspect_window(hwnd):
             pid = wintypes.DWORD()
             user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
             length = user32.GetWindowTextLengthW(hwnd)
             title_buffer = ctypes.create_unicode_buffer(length + 1)
             user32.GetWindowTextW(hwnd, title_buffer, length + 1)
+            class_buffer = ctypes.create_unicode_buffer(256)
+            class_name = class_buffer.value if user32.GetClassNameW(hwnd, class_buffer, len(class_buffer)) else None
             rect = wintypes.RECT()
             if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
                 return True
@@ -1467,13 +1841,35 @@ class WindowsLiveBackend(LiveBackend):
                     cloaked=bool(cloaked.value),
                     rect=(rect.left, rect.top, rect.right, rect.bottom),
                     z_order=len(windows),
+                    class_name=class_name,
                 )
             )
             return True
 
+        def visit(hwnd, _):
+            nonlocal callback_error
+            try:
+                return inspect_window(hwnd)
+            except BaseException as error:
+                # ctypes cannot propagate Python exceptions across a native callback.
+                # Stop enumeration and re-raise outside the callback, never return a partial list.
+                callback_error = (hwnd, error)
+                return False
+
         callback = callback_type(visit)
-        if not user32.EnumWindows(callback, 0):
-            raise RuntimeError("EnumWindows failed")
+        # Keep a private, explicitly typed binding: shared windll functions do not
+        # preserve GetLastError and may have been configured by another UI library.
+        enum_windows = ctypes.WinDLL("user32", use_last_error=True).EnumWindows
+        enum_windows.argtypes = [callback_type, wintypes.LPARAM]
+        enum_windows.restype = wintypes.BOOL
+        ctypes.set_last_error(0)
+        completed = enum_windows(callback, 0)
+        winerror = ctypes.get_last_error()
+        if callback_error is not None:
+            hwnd, error = callback_error
+            raise WindowEnumerationError("callback", winerror, hwnd=hwnd, cause=error) from error
+        if not completed:
+            raise WindowEnumerationError("OS call", winerror)
         return windows
 
     def wait_for_window(self, pid, timeout):
@@ -1530,21 +1926,66 @@ class WindowsLiveBackend(LiveBackend):
         desktop = self._pywinauto.Desktop(backend="uia")
         return desktop.window(handle=window.hwnd)
 
+    @staticmethod
+    def _uia_automation():
+        from pywinauto.uia_defines import IUIA
+
+        return IUIA()
+
     def focus_navigation(self, window, label):
-        candidates = []
-        for item in self._uia_window(window).descendants():
-            info = item.element_info
-            if info.name != label and not (label == "Settings" and info.automation_id == "SettingsItem"):
-                continue
-            if "NavigationViewItem" in (info.class_name or "") or info.control_type in {
-                "ListItem",
-                "TreeItem",
-                "TabItem",
-            }:
-                candidates.append(item)
-        if len(candidates) != 1:
-            raise RuntimeError(f"Expected one UIA navigation item for {label!r}; found {len(candidates)}")
-        candidates[0].set_focus()
+        self._navigation_focus = None
+        stage = "navigation-descendants"
+        count = None
+        try:
+            uia = self._uia_automation()
+            root = uia.iuia.ElementFromHandle(window.hwnd)
+            descendants = root.FindAll(uia.tree_scope["descendants"], uia.true_condition)
+            count = descendants.Length
+            candidates = []
+            for index in range(count):
+                stage = "navigation-element-info"
+                item = descendants.GetElement(index)
+                name, automation_id = item.CurrentName, item.CurrentAutomationId
+                if name != label and not (label == "Settings" and automation_id == "SettingsItem"):
+                    continue
+                if "NavigationViewItem" in (item.CurrentClassName or "") or item.CurrentControlType in {
+                    50007, 50024, 50019,  # ListItem, TreeItem, TabItem
+                }:
+                    candidates.append(item)
+            stage = "navigation-unique-item"
+            if len(candidates) != 1:
+                raise ValueError(f"Expected one UIA navigation item for {label!r}; found {len(candidates)}")
+            stage = "navigation-set-focus"
+            candidates[0].SetFocus()
+            self._navigation_focus = (window.hwnd, label, candidates[0])
+            self.require_navigation_focus(window, label)
+        except NavigationFocusError:
+            raise
+        except Exception as error:
+            raise NavigationFocusError({
+                **getattr(self, "modal_inspection_context", {}),
+                "api": "UIAutomation", "failureStage": stage, "hwnd": window.hwnd,
+                "pid": window.pid, "destination": label, "descendantCount": count,
+                "cause": _inspection_cause(error),
+            }) from error
+
+    def require_navigation_focus(self, window, label):
+        try:
+            focused = getattr(self, "_navigation_focus", None)
+            if focused is None or focused[:2] != (window.hwnd, label):
+                raise ValueError("No matching directly focused navigation element")
+            value = focused[2].GetCurrentPropertyValue(30008)  # UIA_HasKeyboardFocusPropertyId
+            if not isinstance(value, (bool, int)) or value not in (False, True):
+                raise ValueError("UIA keyboard-focus property did not return a Boolean")
+            if not value:
+                raise ValueError("Intended navigation item does not have keyboard focus")
+        except Exception as error:
+            raise NavigationFocusError({
+                **getattr(self, "modal_inspection_context", {}),
+                "api": "UIAutomation", "failureStage": "navigation-keyboard-focus", "hwnd": window.hwnd,
+                "pid": window.pid, "destination": label, "propertyId": 30008,
+                "cause": _inspection_cause(error),
+            }) from error
 
     def select_first_finding(self, window):
         native_window = self._uia_window(window)
@@ -1629,7 +2070,7 @@ class WindowsLiveBackend(LiveBackend):
             "ESC": "{ESC}",
             "CTRL+H": "^h",
             "CTRL+COMMA": "^,",
-            "F7": "{F7}",
+            "CTRL+ALT+SHIFT+R": "^%+r",
             "F8": "{F8}",
             "F9": "{F9}",
             "F10": "{F10}",
@@ -1685,6 +2126,119 @@ class WindowsLiveBackend(LiveBackend):
             if window_dc is not None:
                 win32gui.ReleaseDC(window.hwnd, window_dc)
 
+    def client_modal_details(self, window):
+        invocation_id = getattr(self, "_modal_inspection_sequence", 0) + 1
+        self._modal_inspection_sequence = invocation_id
+        context = {"inspectionInvocationId": invocation_id, "actionPhase": None,
+                   "destination": None, "diagnosticsSequence": None,
+                   **getattr(self, "modal_inspection_context", {})}
+        native_rechecks = []
+
+        def require_current_target(phase):
+            _, details = _native_window_snapshot(self, window, phase, require_same_rect=True,
+                                                  require_native_handle=True)
+            native_rechecks.append(details)
+
+        def boolean_property(element, property_id):
+            value = element.GetCurrentPropertyValue(property_id)
+            if not isinstance(value, (bool, int)) or value not in (False, True):
+                raise ValueError(f"UIA property {property_id} did not return a Boolean")
+            return bool(value)
+
+        # pywinauto masks provider errors in descendants, visibility and metadata
+        # readers. Use raw UIA calls: only a complete readable scan establishes safety.
+        failures = []
+        for attempt in (1, 2):
+            stage = "owned-target-recheck" if attempt > 1 else "descendants"
+            metadata = {}
+            modal_confirmed = False
+            descendant_count = None
+            try:
+                if attempt > 1:
+                    require_current_target("uia-retry-before-descendants")
+                stage = "descendants"
+                uia = self._uia_automation()
+                root = uia.iuia.ElementFromHandle(window.hwnd)
+                descendants = root.FindAll(uia.tree_scope["descendants"], uia.true_condition)
+                descendant_count = descendants.Length
+                for index in range(descendant_count):
+                    metadata = {"elementIndex": index}
+                    stage = "element-info"
+                    element = descendants.GetElement(index)
+                    stage = "visibility"
+                    if boolean_property(element, 30022):  # UIA_IsOffscreenPropertyId
+                        continue
+                    stage = "class-name"
+                    metadata["className"] = element.CurrentClassName or ""
+                    modal = "ContentDialog" in metadata["className"]
+                    is_dialog = window_pattern_is_modal = None
+                    if not modal:
+                        stage = "is-dialog"
+                        is_dialog = boolean_property(element, 30174)  # UIA_IsDialogPropertyId
+                        modal = is_dialog
+                        if not modal:
+                            # iface_window masks *all* COMError as unsupported in
+                            # pywinauto. Query availability and the modal property
+                            # directly so access/provider failures retain their HRESULT.
+                            stage = "window-pattern-available"
+                            available = boolean_property(element, 30044)
+                            if available:
+                                stage = "window-is-modal"
+                                window_pattern_is_modal = boolean_property(element, 30077)
+                                modal = window_pattern_is_modal
+                    if modal:
+                        modal_confirmed = True
+                        stage = "modal-metadata"
+                        result = [{**metadata, "automationId": element.CurrentAutomationId,
+                                   "name": (element.CurrentName or "")[:256],
+                                   "controlType": uia.known_control_type_ids[element.CurrentControlType],
+                                   "isDialog": is_dialog, "windowPatternIsModal": window_pattern_is_modal}]
+                        self.modal_inspection_diagnostics.append({
+                            **context,
+                            "status": "modal-present", "hwnd": window.hwnd, "attempt": attempt,
+                            "descendantCount": descendant_count, "nativeRechecks": list(native_rechecks),
+                            "clientModals": result,
+                        })
+                        return result
+                if attempt > 1:
+                    stage = "owned-target-recheck"
+                    require_current_target("uia-retry-after-descendants")
+            except Exception as error:
+                cause = _inspection_cause(error)
+                # UIA_E_ELEMENTNOTAVAILABLE and an invalid HWND are the only
+                # recognized disappearance races. Access denied, RPC failure,
+                # unsupported/invalid properties and unknown failures stay fatal.
+                stale = (cause.get("hresultHex") in {"0x80040201", "0x80070578"}
+                         or cause.get("winerror") == 1400)
+                retry = stale and attempt == 1 and not modal_confirmed
+                diagnostic = {
+                    **context,
+                    "api": "UIAutomation", "failureStage": stage, "hwnd": window.hwnd,
+                    "pid": window.pid, "attempt": attempt, **metadata, "cause": cause,
+                    "descendantCount": descendant_count, "nativeRechecks": list(native_rechecks),
+                    "classification": "stale-element-race" if stale else "inspection-failure",
+                    "status": "retry-fresh-scan" if retry else "failed",
+                }
+                property_id = {"visibility": 30022, "is-dialog": 30174,
+                               "window-pattern-available": 30044, "window-is-modal": 30077}.get(stage)
+                if property_id is not None:
+                    diagnostic["propertyId"] = property_id
+                if modal_confirmed:
+                    diagnostic["modalConfirmed"] = True
+                failures.append(diagnostic)
+                self.modal_inspection_diagnostics.append(diagnostic)
+                if retry:
+                    continue
+                raise ClientModalInspectionError({**diagnostic, "attempts": failures}) from error
+            if failures:
+                self.modal_inspection_diagnostics.append({
+                    **context,
+                    "status": "recovered-fresh-scan", "hwnd": window.hwnd, "attempt": attempt,
+                    "inspectedDescendants": descendant_count, "descendantCount": descendant_count,
+                    "nativeRechecks": list(native_rechecks),
+                })
+            return []
+
     def save_image(self, image, path):
         image.save(path)
 
@@ -1719,6 +2273,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--engine", type=Path,
+        help="Explicit engine executable seeded only into the new isolated profile")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--native-only", action="store_true", required=True)
     parser.add_argument("--theme", choices=["dark"], required=True)

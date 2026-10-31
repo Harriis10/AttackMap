@@ -16,7 +16,10 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any
 
 from .fleet_resource_identity import (MAX_DATASTORE_DECLARATIONS, MAX_DATASTORE_REPOSITORIES,
-                                      extract_shared_datastore_declarations, project_shared_datastores)
+                                      extract_shared_datastore_declarations, project_shared_datastores,
+                                      extract_framework_datastore_candidates, project_framework_datastore_candidates,
+                                      MAX_MESSAGING_DECLARATIONS, MAX_MESSAGING_REPOSITORIES,
+                                      extract_messaging_declarations, project_producer_consumer)
 from .redact import redact_text
 from .topology import _file_service_names, _infer_from_layout, build_service_graph
 
@@ -150,8 +153,12 @@ def build_fleet_architecture(
     edges: dict[str, dict] = {}
     by_slug: dict[str, list[dict]] = defaultdict(list)
     contexts: dict[str, dict] = {}
+    framework_candidates = []
+    rejected_framework_candidates = 0
     datastore_declarations: list[dict] = []
     rejected_datastore_declarations = 0
+    messaging_declarations = []
+    rejected_messaging_declarations = 0
     limitations = {
         "Static analysis does not establish runtime reachability or control enforcement.",
         "Child snapshots are independent; fleet capture is not a globally atomic snapshot.",
@@ -257,9 +264,15 @@ def build_fleet_architecture(
             node(component_id, repository_id, "datastore", database.kind, refs, parent_id=parent,
                  basis="static_database_hint", qualified_identity=None)
             contains(parent, component_id, refs, "database_hint_source_scope")
+        framework = extract_framework_datastore_candidates(scan.signals, scan.root)
+        framework_candidates.extend(framework["candidates"])
+        rejected_framework_candidates += framework["rejected"]
         extracted = extract_shared_datastore_declarations(scan.signals, scan.root)
         datastore_declarations.extend(extracted["declarations"])
         rejected_datastore_declarations += extracted["rejected"]
+        messaging = extract_messaging_declarations(scan.signals, scan.root)
+        messaging_declarations.extend(messaging["declarations"])
+        rejected_messaging_declarations += messaging["rejected"]
         contexts[repository_id] = {"evidence": evidence, "owner": owner,
                                    "owner_basis": owner_basis, "root": root,
                                    "repository": repository, "service_ids": service_ids}
@@ -324,12 +337,25 @@ def build_fleet_architecture(
     elif len({record["source"]["repository_root"] for record in datastore_declarations}) > MAX_DATASTORE_REPOSITORIES:
         shared_limit_reason = "repository_count_exceeds_prepared_limit"
     shared = project_shared_datastores([] if shared_limit_reason else datastore_declarations)
+    candidate_limit = (len(framework_candidates) > MAX_DATASTORE_DECLARATIONS
+        or len({item["source"]["repository_root"] for item in framework_candidates}) > MAX_DATASTORE_REPOSITORIES)
+    framework = project_framework_datastore_candidates([] if candidate_limit else framework_candidates)
+    owner_shared_counts = {name: len(shared[name]) for name in ("resources", "associations", "unmatched", "ambiguous")}
+    framework_evidence_ids = {item["id"] for item in framework["evidence"]}
+    if framework_candidates or rejected_framework_candidates:
+        limitations.update(framework["limitations"])
+    if candidate_limit:
+        limitations.add("Framework datastore candidate input exceeds a prepared contract limit; candidate projection was omitted.")
+    if rejected_framework_candidates:
+        limitations.add("Invalid framework datastore candidates were omitted without an association.")
+    for collection in ("resources", "associations", "evidence", "unmatched", "ambiguous"):
+        shared[collection].extend(framework[collection])
     contexts_by_root = {context["root"]: context for context in contexts.values()}
     shared_evidence = {}
     for item in shared["evidence"]:
         context = contexts_by_root[item["repository_root"]]
         shared_evidence[item["id"]] = context["evidence"].ref(
-            "shared_datastore_declaration", item["file"], item["line"],
+            "framework_datastore_candidate" if item["id"] in framework_evidence_ids else "shared_datastore_declaration", item["file"], item["line"],
             item["observation_id"], item["source_analyzer"])
 
     resource_evidence: dict[str, set[str]] = defaultdict(set)
@@ -365,15 +391,73 @@ def build_fleet_architecture(
             "kind": "shared_datastore", "reason": item["reason"],
             "resource_id": item.get("resource_id"),
             "evidence_refs": [shared_evidence[ref] for ref in item["evidence_refs"]]})
-    if shared["unmatched"]:
+    if owner_shared_counts["unmatched"]:
         limitations.add("A qualified datastore declared by only one repository remains unmatched; no association was created.")
-    if shared["ambiguous"]:
+    if owner_shared_counts["ambiguous"]:
         limitations.add("Conflicting datastore declarations for one source observation were quarantined as ambiguous.")
     if rejected_datastore_declarations:
         limitations.add("Invalid, incomplete, conflicting or non-production normalized datastore declarations were omitted without an association.")
 
+    producer_consumer_unresolved = []
+    messaging_limit_reason = None
+    messaging_coverage = None
+    if messaging_declarations or rejected_messaging_declarations:
+        if len(messaging_declarations) > MAX_MESSAGING_DECLARATIONS:
+            messaging_limit_reason = "declaration_count_exceeds_prepared_limit"
+        elif len({record["source"]["repository_root"] for record in messaging_declarations}) > MAX_MESSAGING_REPOSITORIES:
+            messaging_limit_reason = "repository_count_exceeds_prepared_limit"
+        messaging = project_producer_consumer([] if messaging_limit_reason else messaging_declarations)
+        limitations.discard("Cross-repository producer/consumer identities are unanalysed: existing hints lack qualified endpoint, namespace and operation identity.")
+        limitations.update(messaging["limitations"])
+        messaging_evidence = {}
+        for item in messaging["evidence"]:
+            context = contexts_by_root[item["repository_root"]]
+            messaging_evidence[item["id"]] = context["evidence"].ref(
+                "producer_consumer_declaration", item["file"], item["line"],
+                item["observation_id"], item["source_analyzer"])
+        messaging_resource_refs = defaultdict(set)
+        for item in [*messaging["associations"], *messaging["unmatched"]]:
+            messaging_resource_refs[item["resource_id"]].update(item["evidence_refs"])
+        for resource in messaging["resources"]:
+            identity = resource["identity"]
+            refs = [messaging_evidence[ref] for ref in sorted(messaging_resource_refs[resource["id"]])]
+            node(resource["id"], None, "component",
+                 f'{identity["host"]}:{identity["port"]}/{identity["namespace"]}/{identity["channel"]}',
+                 refs, component_role="messaging_topic", basis=resource["basis"],
+                 resolution="declared", qualified_identity=identity,
+                 repository_count=resource["repository_count"])
+        for association in messaging["associations"]:
+            endpoints = [{"repository_id": contexts_by_root[item["repository_root"]]["repository"]["id"],
+                          "operation": item["operation"],
+                          "evidence_refs": sorted(_id("evidence", messaging_evidence[ref]) for ref in item["evidence_refs"])}
+                         for item in association["endpoints"]]
+            edge(endpoints[0]["repository_id"], endpoints[1]["repository_id"],
+                 "producer_consumer", association["id"],
+                 [messaging_evidence[ref] for ref in association["evidence_refs"]], "declared",
+                 directed=True, relation_id=association["id"], resource_id=association["resource_id"],
+                 basis=association["basis"], confidence=None, scope="cross_repository",
+                 direction_basis="declared_publish_to_consume", endpoints=endpoints)
+        for item in [*messaging["unmatched"], *messaging["ambiguous"]]:
+            producer_consumer_unresolved.append({
+                "id": item["id"], "kind": "producer_consumer", "reason": item["reason"],
+                "resource_id": item.get("resource_id"),
+                "evidence_refs": [messaging_evidence[ref] for ref in item["evidence_refs"]]})
+        if messaging_limit_reason:
+            producer_consumer_unresolved.append({
+                "id": _id("messaging-unresolved", messaging_limit_reason), "kind": "producer_consumer",
+                "reason": messaging_limit_reason, "resource_id": None, "evidence_refs": []})
+            limitations.add("Messaging input exceeds a prepared contract limit; messaging projection was omitted and other architecture was preserved.")
+        if rejected_messaging_declarations:
+            limitations.add("Invalid, incomplete, conflicting or non-production normalized messaging declarations were omitted without a relationship.")
+        messaging_coverage = {"status": "supported", "basis": "explicit_qualified_static_declarations",
+            "analysis_status": "explicit_normalized_kafka_topic_signals_only", "resolution": "declared",
+            "declaration_count": len(messaging_declarations), "rejected_declaration_count": rejected_messaging_declarations,
+            "projection_omitted": bool(messaging_limit_reason),
+            **{name + "_count": len(messaging[plural]) for name, plural in (
+                ("resource", "resources"), ("association", "associations"), ("unmatched", "unmatched"), ("ambiguous", "ambiguous"))}}
+
     evidence_registry: dict[str, dict] = {}
-    for item in [*nodes.values(), *edges.values(), *shared_datastore_unresolved]:
+    for item in [*nodes.values(), *edges.values(), *shared_datastore_unresolved, *producer_consumer_unresolved]:
         refs = []
         for reference in item["evidence_refs"]:
             evidence_id = _id("evidence", reference)
@@ -387,6 +471,8 @@ def build_fleet_architecture(
             "edges": sorted(edges.values(), key=lambda item: item["id"]),
             "evidence": sorted(evidence_registry.values(), key=lambda item: item["id"]),
             "shared_datastore_unresolved": sorted(shared_datastore_unresolved, key=lambda item: item["id"]),
+            **({"producer_consumer_unresolved": sorted(producer_consumer_unresolved, key=lambda item: item["id"])}
+               if messaging_coverage is not None else {}),
             "coverage": {"requested_repositories": len(requested) if requested_repos is not None else len(repositories),
                          "available_repositories": len(results), "repository_statuses": dict(sorted(statuses.items())),
                          "completed_repositories": statuses["completed"], "failed_repositories": statuses["failed"],
@@ -395,15 +481,24 @@ def build_fleet_architecture(
                          "complete": False,
                          "atomic_snapshot": False,
                          "protocols": {"http": {"status": "supported", "basis": "supplied_core_contract_links", "analysis_status": "supplied_links_only"},
-                                       "producer_consumer": {"status": "unanalysed", "reason": "missing_qualified_identity_and_operation"},
+                                       "producer_consumer": messaging_coverage or {"status": "unanalysed", "reason": "missing_qualified_identity_and_operation"},
                                        "shared_datastore": {"status": "supported", "basis": "explicit_qualified_static_declarations",
                                                             "analysis_status": "explicit_normalized_signals_only",
+                                                            **({"framework_static_candidates": {
+                                                                "format": "rails_database_yml", "resolution": "candidate",
+                                                                "scope_basis": "configuration_environment_not_deployment",
+                                                                "candidate_count": len(framework_candidates),
+                                                                "rejected_count": rejected_framework_candidates,
+                                                                "projection_omitted": candidate_limit,
+                                                                "resource_count": len(framework["resources"]),
+                                                                "association_count": len(framework["associations"])}}
+                                                               if framework_candidates or rejected_framework_candidates else {}),
                                                             "declaration_count": len(datastore_declarations),
                                                             "rejected_declaration_count": rejected_datastore_declarations,
-                                                            "resource_count": len(shared["resources"]),
-                                                            "association_count": len(shared["associations"]),
-                                                            "unmatched_count": len(shared["unmatched"]),
-                                                            "ambiguous_count": len(shared["ambiguous"]),
+                                                            "resource_count": owner_shared_counts["resources"],
+                                                            "association_count": owner_shared_counts["associations"],
+                                                            "unmatched_count": owner_shared_counts["unmatched"],
+                                                            "ambiguous_count": owner_shared_counts["ambiguous"],
                                                             "extraction_contract": {"kind": "shared_datastore_declaration", "schema_version": "1.0",
                                                                                     "status": "supported", "production_extraction": shared["production_extraction"]}},
                                        "rpc_schema": {"status": "unanalysed", "reason": "no_qualified_cross_repository_contract"}}},

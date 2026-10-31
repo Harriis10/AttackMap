@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["corpus", "provenance", "freeze"],
+  "additionalProperties": false,
+  "properties": {
+    "corpus": {
+      "type": "object",
+      "required": ["schema_version", "corpus_name", "corpus_version", "split_seed", "holdout_fraction", "line_window", "description", "notes", "cases"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "corpus_name": {"type": "string", "minLength": 1},
+        "corpus_version": {"type": "string", "minLength": 1},
+        "split_seed": {"type": "integer"},
+        "holdout_fraction": {"type": "number", "minimum": 0.2, "exclusiveMaximum": 1},
+        "line_window": {"type": "integer", "minimum": 0},
+        "description": {"type": "string", "minLength": 1},
+        "notes": {"type": "string", "minLength": 1},
+        "cases": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/case"}}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["schema_version", "sources", "label_author", "independent_human_review", "limitations"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "label_author": {"type": "string", "minLength": 1},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+        "limitations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "independent_human_review": {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "reviewer", "reviewed_at"],
+          "properties": {"status": {"const": "pending"}, "reviewer": {"type": "null"}, "reviewed_at": {"type": "null"}}
+        }
+      }
+    },
+    "freeze": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "frozen_before_first_increment_evaluation", "frozen_at", "manifest_sha256", "provenance_sha256", "baseline_manifest_sha256", "split_seed", "holdout_fraction", "tuning_repositories", "holdout_repositories", "policy"],
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "frozen_before_first_increment_evaluation": {"const": true},
+        "frozen_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "provenance_sha256": {"$ref": "#/$defs/sha256"},
+        "baseline_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "split_seed": {"type": "integer"},
+        "holdout_fraction": {"type": "number", "minimum": 0.2, "exclusiveMaximum": 1},
+        "tuning_repositories": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "holdout_repositories": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "policy": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+$"},
+    "anchor": {
+      "type": "object", "additionalProperties": false, "required": ["file", "line", "text_sha256"],
+      "properties": {"file": {"$ref": "#/$defs/relativePath"}, "line": {"type": "integer", "minimum": 1}, "text_sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "case": {
+      "type": "object", "additionalProperties": false,
+      "required": ["case_id", "repository", "path", "expectation", "rationale", "source_id", "label_review"],
+      "properties": {
+        "case_id": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "expectation": {"enum": ["positive", "negative", "clean"]},
+        "family": {"enum": ["injection", "bola", "unauth_state_change", "webhook_exposure", "crypto"]},
+        "file": {"$ref": "#/$defs/relativePath"},
+        "line": {"type": "integer", "minimum": 1},
+        "route": {"type": "string", "pattern": "^/"},
+        "method": {"enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "ANY"]},
+        "rationale": {"type": "string", "minLength": 1},
+        "source_id": {"type": "string", "minLength": 1},
+        "source_anchors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/anchor"}},
+        "label_review": {"const": "pending_independent_human_review"}
+      },
+      "allOf": [
+        {"if": {"properties": {"expectation": {"const": "clean"}}}, "then": {"not": {"anyOf": [{"required": ["family"]}, {"required": ["file"]}, {"required": ["line"]}, {"required": ["route"]}, {"required": ["method"]}, {"required": ["source_anchors"]}]}}, "else": {"required": ["family", "file", "line", "source_anchors"]}},
+        {"if": {"required": ["route"]}, "then": {"required": ["method"]}}
+      ]
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_id", "repository", "path", "lineage", "kind", "source_revision", "source_url", "license", "license_evidence", "acquisition", "redistribution", "files"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "lineage": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["synthetic", "upstream-training-application-source-slice"]},
+        "source_revision": {"type": "string", "minLength": 1},
+        "source_url": {"type": ["string", "null"]},
+        "local_acquisition_path": {"type": "string", "minLength": 1},
+        "origin": {"type": "string", "minLength": 1},
+        "tracked_worktree_clean_at_acquisition": {"const": true},
+        "acquisition": {"type": "string", "minLength": 1},
+        "license": {"enum": ["MIT", "GPL-3.0-or-later"]},
+        "license_evidence": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/relativePath"}},
+        "redistribution": {"type": "string", "minLength": 1},
+        "files": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["file", "sha256"], "properties": {"file": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/sha256"}, "git_blob": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "source_url": {"type": "string", "pattern": "^https://github.com/"}}}}
+      },
+      "allOf": [{"if": {"properties": {"kind": {"const": "upstream-training-application-source-slice"}}}, "then": {"required": ["local_acquisition_path", "origin", "tracked_worktree_clean_at_acquisition"], "properties": {"source_revision": {"pattern": "^[0-9a-f]{40}$"}, "source_url": {"type": "string", "pattern": "^https://github.com/"}, "files": {"items": {"required": ["git_blob", "source_url"]}}}}}]
+    }
+  }
+}

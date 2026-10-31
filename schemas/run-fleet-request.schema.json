@@ -23,6 +23,151 @@
       "title": "FleetRepository",
       "type": "object"
     },
+    "FleetScanOptions": {
+      "additionalProperties": false,
+      "description": "Fleet-supported scan options; unknown options must never disappear.",
+      "properties": {
+        "recall": {
+          "default": false,
+          "title": "Recall",
+          "type": "boolean"
+        },
+        "strict_analyzers": {
+          "default": false,
+          "title": "Strict Analyzers",
+          "type": "boolean"
+        },
+        "no_suppress": {
+          "default": false,
+          "title": "No Suppress",
+          "type": "boolean"
+        },
+        "cve": {
+          "default": false,
+          "title": "Cve",
+          "type": "boolean"
+        },
+        "secrets_history": {
+          "default": 0,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Secrets History",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 600,
+          "maximum": 86400,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        },
+        "provider": {
+          "$ref": "#/$defs/ProviderOptionsV13"
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Absolute local baseline report file.",
+          "network_impact": "none",
+          "supported": true,
+          "title": "Baseline",
+          "unit": "absolute_file_path"
+        },
+        "suppress_file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Absolute local suppression file.",
+          "network_impact": "none",
+          "supported": true,
+          "title": "Suppress File",
+          "unit": "absolute_file_path"
+        },
+        "fail_on_new_high": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Fail On New High",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "fail_on_new_suppression": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Fail On New Suppression",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "strict_suppressions": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Strict Suppressions",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "isolated_analyzers": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Isolated Analyzers",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "time_budget_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Soft deterministic between-stage ceiling; must be below the hard supervisor timeout.",
+          "network_impact": "none",
+          "scope": "deterministic_between_stages",
+          "supported": true,
+          "title": "Time Budget Seconds",
+          "unit": "seconds"
+        },
+        "analyzer_profile": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "pattern": "^[a-z][a-z0-9-]*@[0-9]+\\.[0-9]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Analyzer Profile",
+          "unit": "qualified_profile_name"
+        }
+      },
+      "title": "FleetScanOptions",
+      "type": "object"
+    },
     "ProviderOptionsV13": {
       "additionalProperties": false,
       "description": "Additive AI controls; the legacy provider payload and defaults stay unchanged.",
@@ -160,133 +305,6 @@
       },
       "title": "ProviderOptionsV13",
       "type": "object"
-    },
-    "ScanOptionsV13": {
-      "description": "Schema 1.3 adds only provider controls with existing service mappings.",
-      "properties": {
-        "recall": {
-          "default": false,
-          "title": "Recall",
-          "type": "boolean"
-        },
-        "strict_analyzers": {
-          "default": false,
-          "title": "Strict Analyzers",
-          "type": "boolean"
-        },
-        "no_suppress": {
-          "default": false,
-          "title": "No Suppress",
-          "type": "boolean"
-        },
-        "cve": {
-          "default": false,
-          "title": "Cve",
-          "type": "boolean"
-        },
-        "secrets_history": {
-          "default": 0,
-          "maximum": 10000,
-          "minimum": 0,
-          "title": "Secrets History",
-          "type": "integer"
-        },
-        "timeout_seconds": {
-          "default": 600,
-          "maximum": 86400,
-          "minimum": 1,
-          "title": "Timeout Seconds",
-          "type": "integer"
-        },
-        "provider": {
-          "$ref": "#/$defs/ProviderOptionsV13"
-        },
-        "baseline": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Absolute local baseline report file.",
-          "network_impact": "none",
-          "supported": true,
-          "title": "Baseline",
-          "unit": "absolute_file_path"
-        },
-        "suppress_file": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Absolute local suppression file.",
-          "network_impact": "none",
-          "supported": true,
-          "title": "Suppress File",
-          "unit": "absolute_file_path"
-        },
-        "fail_on_new_high": {
-          "default": false,
-          "network_impact": "none",
-          "supported": true,
-          "title": "Fail On New High",
-          "type": "boolean",
-          "unit": "boolean"
-        },
-        "fail_on_new_suppression": {
-          "default": false,
-          "network_impact": "none",
-          "supported": true,
-          "title": "Fail On New Suppression",
-          "type": "boolean",
-          "unit": "boolean"
-        },
-        "strict_suppressions": {
-          "default": false,
-          "network_impact": "none",
-          "supported": true,
-          "title": "Strict Suppressions",
-          "type": "boolean",
-          "unit": "boolean"
-        },
-        "isolated_analyzers": {
-          "default": false,
-          "network_impact": "none",
-          "supported": true,
-          "title": "Isolated Analyzers",
-          "type": "boolean",
-          "unit": "boolean"
-        },
-        "time_budget_seconds": {
-          "anyOf": [
-            {
-              "maximum": 86400,
-              "minimum": 1,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Soft deterministic between-stage ceiling; must be below the hard supervisor timeout.",
-          "network_impact": "none",
-          "scope": "deterministic_between_stages",
-          "supported": true,
-          "title": "Time Budget Seconds",
-          "unit": "seconds"
-        }
-      },
-      "title": "ScanOptionsV13",
-      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -352,7 +370,7 @@
       "type": "integer"
     },
     "options": {
-      "$ref": "#/$defs/ScanOptionsV13"
+      "$ref": "#/$defs/FleetScanOptions"
     }
   },
   "required": [

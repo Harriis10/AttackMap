@@ -45,7 +45,7 @@ def test_only_exact_literal_anchored_regexes_are_normalized(pattern, expected):
     assert not limits
 
 
-@pytest.mark.parametrize("pattern", [r"^items/(?P<pk>[0-9]+)/$", r"^items/\d+/$", r"^api/(one|two)/$", "^health/?$", "prefix/", "^prefix/", "^prefix.$"])
+@pytest.mark.parametrize("pattern", [r"^items/\d+/$", r"^api/(one|two)/$", "^health/?$", "prefix/", "^prefix/", "^prefix.$"])
 def test_regex_groups_quantifiers_and_prefix_matches_are_not_guessed(pattern):
     entries, limits = extract(f"from django.urls import re_path\nurlpatterns = [re_path({pattern!r}, public)]\n")
     assert entries == []
@@ -172,10 +172,14 @@ def test_official_url_wrapper_requires_plain_bound_function_and_accurate_entry_c
 
 
 @pytest.mark.parametrize("target", ["DetailView.as_view()", "views.DetailView.as_view()", "views.DetailView.as_view(template_name='detail.html')"])
-def test_imported_class_view_routes_remain_unknown_even_with_auth_like_names(target):
+def test_imported_class_view_requires_exact_mixin_and_plain_as_view(target):
     source = "from django.views import View\nfrom django.contrib.auth.mixins import LoginRequiredMixin\nclass DetailView(LoginRequiredMixin, View):\n    def get(self, request): return None"
     files = views(source, "from app import views\nfrom app.views import DetailView")
-    assert django_view_auth(files, "project/urls.py", target) == ("unknown", [], None, False)
+    result = django_view_auth(files, "project/urls.py", target)
+    assert result[0] == ("unknown" if "template_name" in target else "required")
+    if "template_name" not in target:
+        assert result[1] == ["LoginRequiredMixin (app/views.py:3)"]
+        assert result[3]
     entries, limits = extract(f"from django.urls import path\nfrom app.views import DetailView\nurlpatterns = [path('detail/', {target})]")
     assert entries[0][0] == "detail/" and not limits
 

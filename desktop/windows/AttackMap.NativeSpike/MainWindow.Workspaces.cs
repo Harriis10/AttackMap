@@ -209,6 +209,15 @@ public sealed partial class MainWindow
         try
         {
             var fleetExecution = Fleet.ExecutionOptions;
+            var preferences = ReadScanOptions();
+            if (preferences.AdditionalProperties?.Count > 0 || preferences.UnrecognizedProviderFields?.Count > 0)
+                throw new InvalidDataException("Saved settings contain unsupported fields. Clear them explicitly or use a compatible client.");
+            var fleetOptions = new FleetScanOptions(TimeoutSeconds: fleetExecution.TimeoutSeconds, Recall: preferences.Recall,
+                StrictAnalyzers: preferences.StrictAnalyzers, NoSuppress: preferences.NoSuppress, Cve: preferences.Cve,
+                StrictSuppressions: preferences.StrictSuppressions, IsolatedAnalyzers: preferences.IsolatedAnalyzers,
+                TimeBudgetSeconds: preferences.TimeBudgetSeconds, AnalyzerProfile: preferences.AnalyzerProfile);
+            fleetOptions.Validate();
+            string fleetModules = analyzerSelection.RequestModules;
             fleetGraphSource = null;
             string executable = EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory);
             await DiscoverEngineCapabilities(admission.Token);
@@ -216,8 +225,18 @@ public sealed partial class MainWindow
             if (generation != requestedGeneration || EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory) != executable) throw new OperationCanceledException("Fleet selection changed before launch.");
             if (watchRequest != null && (!fleetWatch.IsCurrent(watchRequest) || !Fleet.WatchRequested)) throw new OperationCanceledException("Fleet watch selection changed before launch.");
             if (!Fleet.SelectedRoots.SequenceEqual(repositories)) throw new OperationCanceledException("Selected fleet repositories changed before launch.");
-            if (!capabilityCache.Current!.SchemaVersions.Contains("1.4")) throw new InvalidDataException("Selected engine does not support fleet schema 1.4.");
+            analyzerSelection.ValidateForScan();
+            capabilityCache.Current!.RequireFleetSupport(JsonSerializer.SerializeToElement(fleetOptions), fleetModules, fleetExecution.MaxWorkers);
             string output = verificationOutput ?? fleetWatchVerificationOutput ?? FleetOutputBase;
+            var preflightIdentity = new FleetGeneration("native_fleet_preflight", FleetSession.RepositorySetId(repositories), requestedGeneration);
+            using var preflightRequest = JsonDocument.Parse(NativeFleetRequest.Serialize(preflightIdentity, repositories, output, fleetOptions, fleetExecution.MaxWorkers, fleetModules));
+            var preflight = await DesktopActionRunner.Run(executable, "preflight", new { request = preflightRequest.RootElement, expected_identity = capabilityCache.Current.ExpectedIdentity }, outputBase: fleetTransportQaDirectory == null ? null : Path.Combine(fleetTransportQaDirectory, "actions"), cancellationToken: admission.Token);
+            CaptureFleetTransportPreflight(preflightRequest.RootElement, preflight);
+            admission.Token.ThrowIfCancellationRequested();
+            if (generation != requestedGeneration || EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory) != executable || !Fleet.SelectedRoots.SequenceEqual(repositories))
+                throw new OperationCanceledException("Fleet selection changed during preflight.");
+            if (watchRequest != null && (!fleetWatch.IsCurrent(watchRequest) || !Fleet.WatchRequested)) throw new OperationCanceledException("Fleet watch selection changed during preflight.");
+            if (!preflight.GetProperty("supported").GetBoolean()) throw new InvalidDataException("Selected engine or fleet options changed since discovery. No fleet was started.");
             await fleetSession.Run(executable, repositories, output, requestedGeneration,
                 run => { identity = run; Fleet.Workspace.Begin(run); Fleet.IsEnabled = true; Fleet.Refresh(); },
                 child => { if (!actionLifetime.IsCancellationRequested && identity != null) { Fleet.Workspace.ApplyChild(identity, child); Fleet.Refresh(); } },
@@ -234,7 +253,7 @@ public sealed partial class MainWindow
                         if (result.IndexPath != null) await LoadFleetSummary(result);
                     }
                     completedFullFleet = result.Outcome == "succeeded";
-                }, timeoutSeconds: fleetExecution.TimeoutSeconds, maxWorkers: fleetExecution.MaxWorkers);
+                }, timeoutSeconds: fleetExecution.TimeoutSeconds, maxWorkers: fleetExecution.MaxWorkers, options: fleetOptions, modules: fleetModules);
         }
         catch (Exception error)
         {

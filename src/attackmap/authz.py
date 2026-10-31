@@ -192,6 +192,19 @@ def analyze_authz(
             continue
         surface_kind, id_param = surface
 
+        # Literal imports carry datastore evidence in the handler file.
+        # Keep this bounded read slice separate from missing-auth write claims.
+        if (
+            route.method == "GET" and content and surface_kind == "path_param"
+            and Path(route.file).suffix.lower() in JS_TS_SUFFIXES
+        ):
+            from .authz_js_handlers import bound_lookup_candidate
+
+            bound = bound_lookup_candidate(route, content, id_param, sources)
+            if bound is not None:
+                candidates.append(bound)
+                continue
+
         # RPC methods are object-access operations by definition — they read/
         # write a specific object by id — so the "reaches a datastore" condition
         # is satisfied intrinsically. HTTP path/query surfaces still require an

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.764" timestamp="2026-10-31T10:21:57.267514+01:00" hostname="corpsec"><testcase classname="tests.test_fleet_input_budget" name="test_legacy_positional_request_keeps_final_deployment_aliases" time="0.008"><failure message="attackmap.scan_service.ScanRequestError: Fleet input byte budget must be a positive integer">tests\test_fleet_input_budget.py:181: in test_legacy_positional_request_keeps_final_deployment_aliases
+    assert service.execute_scan_request(legacy_request).exit_code == 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\attackmap\scan_service.py:990: in execute_scan_request
+    _fleet_input_quotas(request.fleet_input_byte_budget, fleet_repo_ids(request.repo_paths))
+src\attackmap\scan_service.py:608: in _fleet_input_quotas
+    raise ScanRequestError("Fleet input byte budget must be a positive integer")
+E   attackmap.scan_service.ScanRequestError: Fleet input byte budget must be a positive integer</failure></testcase></testsuite></testsuites>

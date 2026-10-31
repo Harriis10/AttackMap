@@ -14,10 +14,31 @@ public sealed partial class MainWindow
         await Fleet.SelectGraphSurface(true);
         var pane = FleetGraphSmokeChildren<FleetGraphPane>(Fleet).Single();
         var explorer = FleetGraphSmokeChildren<GraphExplorerView>(pane).Single();
+        bool datastoreJourney = Environment.GetCommandLineArgs().Contains("--shared-datastore-journey");
+        if (datastoreJourney)
+        {
+            var filter = FleetGraphSmokeChildren<CommandBar>(explorer)
+                .Select(bar => bar.Content).OfType<ComboBox>().Single(control =>
+                Microsoft.UI.Xaml.Automation.AutomationProperties.GetName(control) == "Relationship resolution filter");
+            check("declared_filter_available", filter.Items.Contains("Declared"), null);
+            filter.SelectedItem = "Declared";
+            await ReadinessRenderBarrier();
+            DateTimeOffset expires = DateTimeOffset.UtcNow.AddSeconds(20);
+            bool CurrentDeclaredProjection() => explorer.Snapshot?.Context == source.Context &&
+                explorer.CurrentProjection is { } current && ReferenceEquals(current.Document, source.Graph) &&
+                current.Filter.Resolution == GraphResolutionFilter.Declared && current.Edges.Length > 0 &&
+                current.Edges.All(edge => edge.Resolution == "declared");
+            while (!CurrentDeclaredProjection() && DateTimeOffset.UtcNow < expires)
+                await Task.Delay(50);
+            check("declared_filter_current_projection", filter.SelectedItem?.ToString() == "Declared" &&
+                CurrentDeclaredProjection(), null);
+        }
         var projection = explorer.CurrentProjection ?? throw new InvalidDataException("Missing current graph projection.");
         var context = source.Context;
         var edge = projection.Edges.FirstOrDefault(candidate =>
         {
+            if (datastoreJourney && (candidate.Kind != "shared_datastore" || candidate.Resolution != "declared" || candidate.Directed))
+                return false;
             var selection = new FleetGraphSelection(context, candidate.Id, true, [], candidate.UnderlyingEdgeIds);
             return FleetGraphEvidenceNavigation.TryDescribe(source.Graph, context, selection, out var detail, out _) &&
                 detail!.Items.Where(item => item.Record?.File != null && !item.EndpointOnly &&
@@ -25,6 +46,9 @@ public sealed partial class MainWindow
                     .Select(item => item.RepositoryId).Distinct().Count() >= 2;
         }) ?? throw new InvalidDataException("The actual fleet has no relationship with source evidence in two repositories.");
         explorer.Select(edge.Id, true);
+        if (datastoreJourney)
+            check("selected_datastore_is_declared_undirected", edge.Kind == "shared_datastore" &&
+                edge.Resolution == "declared" && !edge.Directed, edge.UnderlyingEdgeIds);
         check("evidence_selected_original_relationship", pane.InspectSelectedEvidence(), edge.UnderlyingEdgeIds);
         var canonicalSelection = new FleetGraphSelection(context, edge.Id, true, [], edge.UnderlyingEdgeIds);
         FleetGraphEvidenceNavigation.TryDescribe(source.Graph, context, canonicalSelection, out var details, out _);
@@ -55,7 +79,14 @@ public sealed partial class MainWindow
                     fleetInspectedSource.RelativePath == request.RelativePath && fleetInspectedSource.Line == request.Line, fleetInspectedSource);
                 check("evidence_dialog_returns_to_graph", dialog.CloseButtonText == "Back to graph" && pane.VerifySourceRequest(request), null);
                 string image = Path.Combine(captures, $"source-{results.Count + 1}.png");
-                var capture = await CaptureFleetGraphSmoke(dialog, image, retries);
+                var content = (dialog.Content as ScrollViewer)?.Content as StackPanel
+                    ?? throw new InvalidDataException("Source dialog has no evidence text panel.");
+                var requiredText = content.Children.OfType<TextBlock>().Select((text, index) =>
+                    NativeCaptureProbe.RequireTextRegion(dialog, text, $"source-detail-{index}")).ToArray();
+                check("evidence_capture_requires_all_source_details", requiredText.Length == 4, requiredText.Length);
+                Activate();
+                await Task.Delay(650);
+                var capture = await CaptureWithDiagnostics(dialog, image, requiredText);
                 results.Add(new { request, inspection = fleetInspectedSource, capture,
                     sourceScope = "Current file location/hash inspection; no editor, source-content display, Explorer launch or runtime connectivity proof" });
             }

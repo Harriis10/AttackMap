@@ -1,0 +1,122 @@
+{
+  "status": "bounded_source_guard_corrected",
+  "work_package": "WP032",
+  "whole_work_package_status": "IN_PROGRESS",
+  "base_commit": "4ea5e49ade229fc0432d68ce0f7e99bcf87b545d",
+  "provider_calls": 0,
+  "runtime_native_frozen_package_release_claim": false,
+  "checkout": "pre-existing dirty checkout preserved; no commit/reset/checkout",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+  "production_delta": "One guard comparison normalizes trailing root dots; two explanatory comment lines",
+  "source_test_files": [
+    "src/attackmap/contracts.py",
+    "tests/test_wp032_multibackend_proxy.py"
+  ],
+  "pre_fix_evidence": {
+    "prior_guarded_passes": 430,
+    "independent_review_reported_passes": 283,
+    "current_acceptance": false
+  },
+  "junit": {
+    "affected.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "2",
+      "skipped": "0",
+      "tests": "327",
+      "time": "22.400",
+      "timestamp": "2026-10-31T10:29:10.249303+01:00",
+      "hostname": "corpsec"
+    },
+    "final-guarded.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "451",
+      "time": "60.104",
+      "timestamp": "2026-10-31T10:30:06.508011+01:00",
+      "hostname": "corpsec"
+    },
+    "focused.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "21",
+      "time": "3.479",
+      "timestamp": "2026-10-31T10:28:47.493435+01:00",
+      "hostname": "corpsec"
+    },
+    "red-acl.xml": {
+      "name": "pytest",
+      "errors": "21",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "21",
+      "time": "21.375",
+      "timestamp": "2026-10-31T10:26:26.819704+01:00",
+      "hostname": "corpsec"
+    },
+    "red-initial-fixture.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "15",
+      "skipped": "0",
+      "tests": "21",
+      "time": "4.748",
+      "timestamp": "2026-10-31T10:27:25.957306+01:00",
+      "hostname": "corpsec"
+    },
+    "red-route-fixture.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "15",
+      "skipped": "0",
+      "tests": "21",
+      "time": "3.894",
+      "timestamp": "2026-10-31T10:28:13.211116+01:00",
+      "hostname": "corpsec"
+    },
+    "red.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "12",
+      "skipped": "0",
+      "tests": "21",
+      "time": "3.979",
+      "timestamp": "2026-10-31T10:28:32.372163+01:00",
+      "hostname": "corpsec"
+    },
+    "scanner-prefix-pre-fix-guard.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "2",
+      "skipped": "0",
+      "tests": "2",
+      "time": "1.071",
+      "timestamp": "2026-10-31T10:30:07.274627+01:00",
+      "hostname": "corpsec"
+    }
+  },
+  "source_evidence_sha256": {
+    "src/attackmap/contracts.py": "4b0c4ff4c0aca511d347f80a2c8ab7c19baef8486f62635dc43a8d85e4961bf2",
+    "tests/test_wp032_multibackend_proxy.py": "9c56ce2e7e5965faf38706b43440dee64321847eb7493c31e5af9dd5c5c93467",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/README.md": "2fc60c0a8773934eaeceeaf2eb02046e7bca29ed0cd1d772fbe35ea50e6d80bc",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/affected.xml": "da01c619487635cd21240c398474f1bb810722de2f4208025a72482ec6e58e72",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/final-guarded.xml": "905fa9f1a3d954838c00923a9738209c33727b7e426b3f6c465c05cce20f5172",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/focused.xml": "7e9f5816c4120631fd01235d7916de4a717d39fc2de0046a73a01ff689786fc3",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/red-acl.xml": "08d43a6ec0f1713947671474cf3d7fbe38960ee52ded44fe964db6689c2c54ae",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/red-initial-fixture.xml": "e8a4fd3c471b2cc82e92e6832160254a7215ce6b1a74a910fc5477c4a075aef5",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/red-route-fixture.xml": "347e5620d4b62b4df53076160201a126565a99c57d7b42abc82e5543aa8731d2",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/red.xml": "11f9805fb7a2eee2f50cedf23eed849018c063f6bf9a8e2e258ef8cc3e1590c0",
+    "docs/verification/windows-parity/WP032/agent-dot-host-fix-20261031/scanner-prefix-pre-fix-guard.xml": "94ff1a1d2ac7ba9da9dcb0a79c7b7be079224f80b95e2e7975adeb0ceb1c05d0"
+  },
+  "remaining_failures": [
+    "tests/test_scanner.py::test_scan_repo_detects_flask_blueprint_routes",
+    "tests/test_scanner.py::test_scan_repo_normalizes_paths_without_leading_slash"
+  ],
+  "failure_baseline": "Both scanner failures reproduced with old guard restored in process memory; source files untouched",
+  "temp_workaround": "Process-local Path.mkdir mode 0o700 to 0o777 only; unique .tmp paths"
+}

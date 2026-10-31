@@ -1,0 +1,184 @@
+{
+  "task_id": "WP034",
+  "owner": "/root/ledger_parity_fix",
+  "base_commit": "4ea5e49ade229fc0432d68ce0f7e99bcf87b545d",
+  "final_commit_or_diff_hash": "65a52c50984a6aa8237a1a926afc79f622da2cc5d7925663c3bef44675234338",
+  "paths_changed": [
+    "tests/test_fleet_parallelism.py",
+    "docs\\verification\\windows-parity\\WP034\\ledger-semantic-parity-20261031"
+  ],
+  "leases_released": true,
+  "tests_executed": {
+    "baseline": {
+      "exit_code": 1,
+      "seconds": 22.445,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "test_file_sha256_before": "94b37601f9c76ff0520e977399108ca806e5daa24f176795a0d8eacd26bcaa68",
+      "test_file_sha256_after": "94b37601f9c76ff0520e977399108ca806e5daa24f176795a0d8eacd26bcaa68"
+    },
+    "focused": {
+      "exit_code": 0,
+      "seconds": 34.702,
+      "counts": {
+        "tests": 94,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 94
+      },
+      "test_file_sha256_before": "d81cc21c3674a24e09cff12a13d3be2f3d3d1928302703ccef813565f609223e",
+      "test_file_sha256_after": "d81cc21c3674a24e09cff12a13d3be2f3d3d1928302703ccef813565f609223e"
+    },
+    "fleet-regression": {
+      "exit_code": 0,
+      "seconds": 72.66,
+      "counts": {
+        "tests": 176,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1,
+        "passed": 175
+      },
+      "test_file_sha256_before": "d81cc21c3674a24e09cff12a13d3be2f3d3d1928302703ccef813565f609223e",
+      "test_file_sha256_after": "d81cc21c3674a24e09cff12a13d3be2f3d3d1928302703ccef813565f609223e"
+    }
+  },
+  "tests_not_executed": [
+    "live provider",
+    "Juice Shop",
+    "C35 10k/50k/100k memory",
+    "native/UI",
+    "frozen/package",
+    "cross-platform",
+    "release"
+  ],
+  "live_provider_calls": 0,
+  "manual_checks": "No GUI/manual acceptance performed",
+  "package_id": null,
+  "run_ids": [
+    "baseline",
+    "focused",
+    "fleet-regression"
+  ],
+  "evidence": [
+    "baseline.xml",
+    "focused.xml",
+    "fleet-regression.xml",
+    "baseline-projection-audit.json"
+  ],
+  "limitations": [
+    "Test-only semantic parity correction; WP034 and C35 remain IN_PROGRESS/open",
+    "Existing WP035 changes preserved; no production changes",
+    "Host-only pytest mkdir 0o700 -> 0o777 ACL workaround"
+  ],
+  "next_action": "Independent review, then root updates shared planning documents",
+  "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "test_file_sha256": "d81cc21c3674a24e09cff12a13d3be2f3d3d1928302703ccef813565f609223e",
+  "source_sha256": {
+    "src\\attackmap\\analyzer_run_ledger.py": "f817d9051644c97c5dc7cbe35139802ca4073c23a09794c787d592d3cc0fd5f5",
+    "src\\attackmap\\analyzers.py": "37324c6e94c5a405ff3764effd2c7ea6633e919007f25251b0901c62e4b8be00",
+    "src\\attackmap\\models.py": "8d1aa70592a010039ea5e8746622307386b247999801fd901672e3805bf502cd",
+    "src\\attackmap\\pipeline.py": "54cb1fb4083b83eaf8ab4b02bae465325945d6a4d3ca45b4cf2a8d1ab69cc5b6",
+    "src\\attackmap\\scan_service.py": "f78bef2ac5ef85424cd35932e61ab9c31711c12ec3eb7f27e2d19bbce4fed573"
+  },
+  "wp035_hunk_unchanged": true,
+  "baseline_comparisons": [
+    {
+      "format": "all",
+      "repo_id": "service-one",
+      "reports": [
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_0\\out-1\\20261031T104326-0499d7c40d4348fca06a0ca42a0d4a1f\\service-one\\20261031T104326-0499d7c40d4348fca06a0ca42a0d4a1f\\attackmap-report.json",
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_0\\out-2\\20261031T104329-c7e5fb2063f2459db4a7f34f4a42077d\\service-one\\20261031T104329-c7e5fb2063f2459db4a7f34f4a42077d\\attackmap-report.json"
+      ],
+      "raw_difference_count": 45,
+      "raw_difference_fields": {
+        "detect_duration_ms": 9,
+        "elapsed_ms": 33,
+        "analysis_duration_ms": 3
+      },
+      "semantic_difference_count": 0
+    },
+    {
+      "format": "all",
+      "repo_id": "slu-ba-dv",
+      "reports": [
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_0\\out-1\\20261031T104326-0499d7c40d4348fca06a0ca42a0d4a1f\\slu-ba-dv\\20261031T104326-0499d7c40d4348fca06a0ca42a0d4a1f\\attackmap-report.json",
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_0\\out-2\\20261031T104329-c7e5fb2063f2459db4a7f34f4a42077d\\slu-ba-dv\\20261031T104329-c7e5fb2063f2459db4a7f34f4a42077d\\attackmap-report.json"
+      ],
+      "raw_difference_count": 45,
+      "raw_difference_fields": {
+        "detect_duration_ms": 9,
+        "elapsed_ms": 33,
+        "analysis_duration_ms": 3
+      },
+      "semantic_difference_count": 0
+    },
+    {
+      "format": "json",
+      "repo_id": "service-one",
+      "reports": [
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_1\\out-1\\20261031T104334-288b7f415e1044569ef91cc72e1f6204\\service-one\\20261031T104334-288b7f415e1044569ef91cc72e1f6204\\attackmap-report.json",
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_1\\out-2\\20261031T104336-13dbcb2e80a7470c8bee54366e244e17\\service-one\\20261031T104336-13dbcb2e80a7470c8bee54366e244e17\\attackmap-report.json"
+      ],
+      "raw_difference_count": 45,
+      "raw_difference_fields": {
+        "detect_duration_ms": 9,
+        "elapsed_ms": 33,
+        "analysis_duration_ms": 3
+      },
+      "semantic_difference_count": 0
+    },
+    {
+      "format": "json",
+      "repo_id": "slu-ba-dv",
+      "reports": [
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_1\\out-1\\20261031T104334-288b7f415e1044569ef91cc72e1f6204\\slu-ba-dv\\20261031T104334-288b7f415e1044569ef91cc72e1f6204\\attackmap-report.json",
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_1\\out-2\\20261031T104336-13dbcb2e80a7470c8bee54366e244e17\\slu-ba-dv\\20261031T104336-13dbcb2e80a7470c8bee54366e244e17\\attackmap-report.json"
+      ],
+      "raw_difference_count": 45,
+      "raw_difference_fields": {
+        "detect_duration_ms": 9,
+        "elapsed_ms": 33,
+        "analysis_duration_ms": 3
+      },
+      "semantic_difference_count": 0
+    },
+    {
+      "format": "markdown",
+      "repo_id": "service-one",
+      "reports": [
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_2\\out-1\\20261031T104340-3b56c17a401f4fbba36f67557ec0b809\\service-one\\20261031T104340-3b56c17a401f4fbba36f67557ec0b809\\attackmap-report.json",
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_2\\out-2\\20261031T104342-395f13b6ae9f45ccbc9103baad7e585d\\service-one\\20261031T104342-395f13b6ae9f45ccbc9103baad7e585d\\attackmap-report.json"
+      ],
+      "raw_difference_count": 45,
+      "raw_difference_fields": {
+        "detect_duration_ms": 9,
+        "elapsed_ms": 33,
+        "analysis_duration_ms": 3
+      },
+      "semantic_difference_count": 0
+    },
+    {
+      "format": "markdown",
+      "repo_id": "slu-ba-dv",
+      "reports": [
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_2\\out-1\\20261031T104340-3b56c17a401f4fbba36f67557ec0b809\\slu-ba-dv\\20261031T104340-3b56c17a401f4fbba36f67557ec0b809\\attackmap-report.json",
+        "artifacts\\wp034-ledger-semantic-parity-20261031\\baseline-temp\\test_fleet_real_workers_match_2\\out-2\\20261031T104342-395f13b6ae9f45ccbc9103baad7e585d\\slu-ba-dv\\20261031T104342-395f13b6ae9f45ccbc9103baad7e585d\\attackmap-report.json"
+      ],
+      "raw_difference_count": 45,
+      "raw_difference_fields": {
+        "detect_duration_ms": 9,
+        "elapsed_ms": 33,
+        "analysis_duration_ms": 3
+      },
+      "semantic_difference_count": 0
+    }
+  ]
+}

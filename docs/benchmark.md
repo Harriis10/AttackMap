@@ -138,3 +138,33 @@ false-positive signal the small bench corpus cannot express.
 attackmap evaluate                                # print the report
 attackmap evaluate --corpus fixtures/evaluation/corpus.json --output reports/eval
 ```
+
+## WP030 bounded source increment — 2026-10-31
+
+The active WP030 work adds a separate frozen corpus at
+[`fixtures/evaluation/increment-20261031/corpus.json`](../fixtures/evaluation/increment-20261031/corpus.json):
+27 machine-authored source-justified expectations (16 positive, 10 negative,
+one synthetic clean) over two immutable upstream training-app source slices
+(DVWA GPL-3.0-or-later and Juice Shop MIT) and an authored clean catalog.
+Exact Git objects, immutable source URLs, file/line hashes, license evidence,
+explicit repository membership and a JSON schema are included. The original
+v0.2.0 corpus now has 46 expectations / 13 identities; its labels and split
+remain unchanged. The new manifest is separate so adding data does not
+silently reshuffle that baseline.
+
+The new actual offline CLI result is TP=0 / FP=0 / FN=16; ten explicit
+negatives are unviolated and the clean label passes. Precision is undefined,
+not 100%, and zero matched positives is a coverage gap. All families remain
+experimental. Source-slice dependencies are incomplete, both upstreams are
+intentionally vulnerable training applications, Juice Shop was a known
+integration target, and independent human review remains pending.
+
+The arithmetic union is 73 expectations / 16 logical source identities
+(41 positive / 29 negative / three clean); this is not a merged evaluation,
+production-diversity acceptance or C27 completion. See the
+[source/provenance and freeze description](../fixtures/evaluation/increment-20261031/README.md)
+and [integrity audit, raw reports, tests and limitations](verification/windows-parity/WP030/agent-20261031/README.md).
+
+```powershell
+.\.venv\Scripts\python.exe -B -m attackmap evaluate --corpus fixtures/evaluation/increment-20261031/corpus.json --output artifacts/wp030-evaluation
+```

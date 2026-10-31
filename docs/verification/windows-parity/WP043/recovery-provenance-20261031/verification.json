@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUtc": "2026-10-31T12:24:52.468Z",
+  "scope": "WP043 originating native safety error recovery",
+  "status": "scoped-deterministic-pass-independent-review-pending",
+  "shell": "C:/Windows/System32/cmd.exe",
+  "login": false,
+  "execution": "require_escalated",
+  "workingDirectory": "C:/Projects/INPROGRESS/AttackMap",
+  "preFix": {
+    "command": ".venv\\Scripts\\python.exe -m pytest tests\\test_wp043_live_capture.py -q -k later_owned_transient --junitxml=docs\\verification\\windows-parity\\WP043\\recovery-provenance-20261031\\before-regression.xml",
+    "exitCode": 1,
+    "testsPassed": 1,
+    "subtestsFailed": 21,
+    "deselected": 99,
+    "seconds": 9.51
+  },
+  "final": {
+    "command": ".venv\\Scripts\\python.exe -m pytest tests\\test_wp043_live_capture.py -q --junitxml=docs\\verification\\windows-parity\\WP043\\recovery-provenance-20261031\\harness.xml",
+    "exitCode": 0,
+    "testsPassed": 101,
+    "subtestsPassed": 136,
+    "junitCases": 237,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 12.57
+  },
+  "diffCheck": {
+    "command": "git diff --check -- tools/capture_wp043_live.py tests/test_wp043_live_capture.py",
+    "exitCode": 0
+  },
+  "liveCapturesRun": 0,
+  "modelHttpCalls": 0,
+  "files": [
+    {
+      "path": "tools/capture_wp043_live.py",
+      "bytes": 106485,
+      "sha256": "99ee3189fbd6d1ed689199a604504e9a0813fda31ad57005fed4b02e1bc82a4d"
+    },
+    {
+      "path": "tests/test_wp043_live_capture.py",
+      "bytes": 123248,
+      "sha256": "a6799700b3243380871a5ce3d160f7c05f700a4b83b3773136b07a6ccaed8901"
+    },
+    {
+      "path": "docs/verification/windows-parity/WP043/recovery-provenance-20261031/before-regression.xml",
+      "bytes": 21878,
+      "sha256": "ce8dd93a79326242e3fbf9550183635f939ddb8b9c6e14367d80d701173093e5"
+    },
+    {
+      "path": "docs/verification/windows-parity/WP043/recovery-provenance-20261031/harness.xml",
+      "bytes": 16324,
+      "sha256": "a6e33bf6408752dff17a5a197b61887d2e90e1eb05d56d3113c0f0233436442b"
+    }
+  ]
+}

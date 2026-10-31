@@ -1,0 +1,767 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="24" skipped="0" tests="26" time="4.866" timestamp="2026-10-31T10:39:52.724945+01:00" hostname="corpsec"><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-function mount(LOCAL, registrar = (\nREGISTER\n)) {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.030"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nfunction mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr0')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'function mount(LOCAL, registrar = (\nREGISTER\n)) {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nfunction mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-function mount(LOCAL, registrar = (\nREGISTER\n)) {}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.029"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nfunction mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr1')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL, registrar = (\nREGISTER\n)) {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nfunction mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-function mount(LOCAL, registrar = (\nREGISTER\n)) {}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.029"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nfunction mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr2')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount(LOCAL, registrar = (\nREGISTER\n)) {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nfunction mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.020"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nconst mount = (loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) =&gt; {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr3')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nconst mount = (loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) =&gt; {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.010"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nconst mount = (handler, registrar = (\napp.get('/orders/:id', handler())\n)) =&gt; {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr4')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nconst mount = (handler, registrar = (\napp.get('/orders/:id', handler())\n)) =&gt; {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.029"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nconst mount = (orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) =&gt; {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr5')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nconst mount = (orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) =&gt; {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nconst mounts = { mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {} }&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr6')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nconst mounts = { mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {} }")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.035"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nconst mounts = { mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {} }&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr7')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nconst mounts = { mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {} }")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.023"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nconst mounts = { mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {} }&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr8')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nconst mounts = { mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {} }")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.019"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nfunction mount(loadOrder, registrar = (() =&gt; {\napp.get('/orders/:id', loadOrder())\n})()) {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr9')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nfunction mount(loadOrder, registrar = (() =&gt; {\napp.get('/orders/:id', loadOrder())\n})()) {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.013"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nfunction mount(handler, registrar = (() =&gt; {\napp.get('/orders/:id', handler())\n})()) {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr10')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nfunction mount(handler, registrar = (() =&gt; {\napp.get('/orders/:id', handler())\n})()) {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[True-function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.033"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nfunction mount(orders, registrar = (() =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n})()) {}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr11')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nfunction mount(orders, registrar = (() =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n})()) {}")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-function mount(LOCAL, registrar = (\nREGISTER\n)) {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr12')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'function mount(LOCAL, registrar = (\nREGISTER\n)) {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-function mount(LOCAL, registrar = (\nREGISTER\n)) {}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.029"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr13')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL, registrar = (\nREGISTER\n)) {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-function mount(LOCAL, registrar = (\nREGISTER\n)) {}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.037"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr14')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount(LOCAL, registrar = (\nREGISTER\n)) {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.015"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) =&gt; {}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr15')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) =&gt; {}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.035"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (handler, registrar = (\napp.get('/orders/:id', handler())\n)) =&gt; {}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr16')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (handler, registrar = (\napp.get('/orders/:id', handler())\n)) =&gt; {}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.022"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) =&gt; {}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr17')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) =&gt; {}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.015"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mounts = { mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {} }\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr18')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mounts = { mount(loadOrder, registrar = (\napp.get('/orders/:id', loadOrder())\n)) {} }\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mounts = { mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {} }\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr19')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mounts = { mount(handler, registrar = (\napp.get('/orders/:id', handler())\n)) {} }\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.013"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mounts = { mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {} }\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr20')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mounts = { mount(orders, registrar = (\napp.get('/orders/:id', orders.loadOrder())\n)) {} }\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.013"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(loadOrder, registrar = (() =&gt; {\napp.get('/orders/:id', loadOrder())\n})()) {}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr21')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(loadOrder, registrar = (() =&gt; {\napp.get('/orders/:id', loadOrder())\n})()) {}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.010"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(handler, registrar = (() =&gt; {\napp.get('/orders/:id', handler())\n})()) {}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr22')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(handler, registrar = (() =&gt; {\napp.get('/orders/:id', handler())\n})()) {}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_default_parameter_registration_is_not_a_resolved_import[False-function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.037"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(orders, registrar = (() =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n})()) {}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-parameter-red-qualified-01/test_default_parameter_registr23')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL, registrar = (\nREGISTER\n)) {}",
+        "const mount = (LOCAL, registrar = (\nREGISTER\n)) =&gt; {}",
+        "const mounts = { mount(LOCAL, registrar = (\nREGISTER\n)) {} }",
+        "function mount(LOCAL, registrar = (() =&gt; {\nREGISTER\n})()) {}",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_default_parameter_registration_is_not_a_resolved_import(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(orders, registrar = (() =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n})()) {}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:302: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_multiline_registration_ignores_its_own_argument_parentheses[]" time="0.136" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_multiline_registration_ignores_its_own_argument_parentheses[function mount(other, registrar = setup()) {\n]" time="0.188" /></testsuite></testsuites>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="6.328" timestamp="2026-10-31T11:26:42.641328+01:00" hostname="corpsec"><testcase classname="tests.test_fleet_parallelism" name="test_cli_fleet_workers_spawns_parallel_subprocesses[False]" time="0.005"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'&quot;">self = WindowsPath('C:/Projects/INPROGRESS/AttackMap/artifacts/wp035-cli-isolation-20261031/baseline-temp')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'
+
+C:\Program Files\Python313\Lib\pathlib\_local.py:722: FileNotFoundError</error></testcase><testcase classname="tests.test_fleet_parallelism" name="test_cli_fleet_workers_spawns_parallel_subprocesses[True]" time="0.002"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'&quot;">self = WindowsPath('C:/Projects/INPROGRESS/AttackMap/artifacts/wp035-cli-isolation-20261031/baseline-temp')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'
+
+C:\Program Files\Python313\Lib\pathlib\_local.py:722: FileNotFoundError</error></testcase><testcase classname="tests.test_fleet_parallelism" name="test_cli_serial_fleet_preserves_isolation_policy[False]" time="0.002"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'&quot;">self = WindowsPath('C:/Projects/INPROGRESS/AttackMap/artifacts/wp035-cli-isolation-20261031/baseline-temp')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'
+
+C:\Program Files\Python313\Lib\pathlib\_local.py:722: FileNotFoundError</error></testcase><testcase classname="tests.test_fleet_parallelism" name="test_cli_serial_fleet_preserves_isolation_policy[True]" time="0.003"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'&quot;">self = WindowsPath('C:/Projects/INPROGRESS/AttackMap/artifacts/wp035-cli-isolation-20261031/baseline-temp')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] Systém nemůže nalézt uvedenou cestu: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\baseline-temp'
+
+C:\Program Files\Python313\Lib\pathlib\_local.py:722: FileNotFoundError</error></testcase></testsuite></testsuites>

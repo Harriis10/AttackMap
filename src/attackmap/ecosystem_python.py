@@ -1299,6 +1299,18 @@ def _walk_urlconf(
                  f"path({raw_route!r}, admin.site.urls)", 0.9)
             continue
         auth, guards, evidence, middleware_eligible = auth_resolver.resolve(urls_file, target, target_line=line)
+        if auth == "unknown" and not middleware_eligible and ".as_view(" in target:
+            result.limitations.append(
+                f"ecosystem_python: Django class-view authentication unresolved in {urls_file}:{line}; "
+                "custom inheritance, dispatch or configuration is not attested"
+            )
+        elif auth == "unknown" and not middleware_eligible:
+            limitation = (
+                f"ecosystem_python: Django function-view authentication unresolved in {urls_file}:{line}; "
+                "only exact import-backed Django auth decorators and literal configuration are attested"
+            )
+            if limitation not in result.limitations:
+                result.limitations.append(limitation)
         if login_required_mw and middleware_eligible and auth != "required":
             auth = "required"
             guards = ["LoginRequiredMiddleware (settings MIDDLEWARE)"]
