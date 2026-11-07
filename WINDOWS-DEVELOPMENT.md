@@ -5,9 +5,9 @@ Branch: **`codex/windows-build-development`**. Status as of **7 November 2026**.
 Contribution source: [Mipam/AttackMap fork](https://github.com/Mipam/AttackMap).
 Pull request target: `Harriis10/AttackMap:main`.
 
-[Windows GUI screenshots with descriptions](docs/screenshots/windows-development-20261107/README.md)
-show actual user-provided images of settings and reports from the manual
-verification described here.
+[Windows GUI screenshots with descriptions](docs/screenshots/windows-completed-scan-20261107/README.md)
+show nine user-provided views of a completed Juice Shop scan: overview,
+findings, architecture, inventory, reports, history, evidence and diagrams.
 
 This branch contains development of the native Windows application, its
 integration with the AttackMap engine, and a portable Windows distribution.
@@ -103,10 +103,10 @@ Release asset requires its own publication.
 
 ## Remaining acceptance gaps
 
-The package is an unsigned development distribution. The latest portable GUI
-was not launched or deployed over the user's open application. Headless tests
-do not replace visual, keyboard or Narrator checks, clean-host/installation
-acceptance, or complete renderer qualification.
+The package is an unsigned development distribution. The supplied screenshots
+document the displayed Windows workflows with an imported completed report.
+Complete rendering, keyboard and Narrator checks, clean-host/installation
+acceptance and deployment qualification remain separate.
 
 Of the 44 active tasks, 9 are DONE, 5 IMPLEMENTED, 5 MANUAL_PENDING,
 16 IN_PROGRESS, 7 OPEN and 2 DEFERRED. For example, WP005 remains MANUAL_PENDING,
