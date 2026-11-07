@@ -5,6 +5,10 @@ Větev: **`codex/windows-build-development`**. Stav popsaný k **7. 11. 2026**.
 Zdroj příspěvku: [fork Mipam/AttackMap](https://github.com/Mipam/AttackMap).
 Cílová větev pull requestu: `Harriis10/AttackMap:main`.
 
+[Windows GUI screenshots with descriptions](docs/screenshots/windows-development-20261107/README.md)
+ukazují skutečné uživatelské snímky nastavení a reportu ze zde popsaného
+manuálního ověřování.
+
 Tato větev obsahuje vývoj nativní Windows aplikace, její propojení s enginem
 AttackMap a sestavení přenosné Windows distribuce. Jde o vývojový checkpoint
 s doloženými dílčími výsledky; celkové přijetí produktu řídí
