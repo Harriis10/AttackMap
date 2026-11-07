@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "scope": "WP022 canonical SARIF version metadata only",
+  "whole_wp022_done": false,
+  "runs": [
+    {
+      "run": "source01",
+      "cli": "attackmap 1.5.1",
+      "sarif_driver_version": "1.5.1",
+      "findings": 1,
+      "sarif_results": 2,
+      "version_and_scan_natural_job_active": 0,
+      "verification": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\verification.json"
+    },
+    {
+      "run": "frozen01",
+      "cli": "attackmap 1.5.1",
+      "sarif_driver_version": "1.5.1",
+      "findings": 1,
+      "sarif_results": 2,
+      "version_and_scan_natural_job_active": 0,
+      "verification": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\verification.json"
+    }
+  ],
+  "raw_sarif_bytes_equal": true,
+  "sarif_sha256": "3a154cae58cf4e0811b14b97f35bb92bf7c4b7e386b9d09db299021e6b394caa",
+  "version_normalization_performed": false,
+  "pre_runtime_pins": {
+    "verifier_path": "C:\\Projects\\INPROGRESS\\AttackMap\\tools\\verify_wp022_sarif_version.py",
+    "verifier_sha256": "e1acc61414bce898dfcd17bc27b77efff1e8c9b97736edff0a6603138875af96",
+    "executed_copy": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\executed-verifier.py",
+    "fixture_path": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\fixture\\config.yaml",
+    "fixture_sha256": "b64bcd7fd6f35a8b9596602520eeef7def26b0141054f76f8edf10e4173b9867",
+    "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp022-metadata-freeze-20261107-01\\dist\\attackmap\\attackmap.exe",
+    "engine_sha256": "562d6b7a02836607eec0a203d7f08198d7892aa9d58bbd866317b3847b8ad5d5",
+    "build_proof": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp022-metadata-freeze-20261107-01\\build-proof.json",
+    "build_proof_sha256": "fa28bafa20ba1847c1274f9e8834d917970e7a77ca128ed870ed80a9c50aa8f0"
+  },
+  "bound_evidence_sha256": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\version\\process.json": "449ca78072e251b1ad1d1d3177a48f3e953f3faa7713fcc4c21aa72932dd1ac6",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\scan\\process.json": "f0933bf23288f4f1b53b6df8546b436ee5904556b2f48692500323ed63f957c8",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\verification.json": "f426d6b79c6df3c5de7a0f666097757f48c4584cbe75ce749a92696b192b4278",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\inputs-before.json": "38c67cc1c0aa951087c4bd976af3236a5a582af73c3fc0b36dd22bf76f8d400c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\inputs-after.json": "0da94749a14d8fda6b0943e84bf621001996856ee43718b86a66c64db3a9fbb3",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\scan\\reports\\20261107T085414-3736abbc486b40878e7e7aee1a1ae47a\\attackmap-report.sarif": "3a154cae58cf4e0811b14b97f35bb92bf7c4b7e386b9d09db299021e6b394caa",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\source01\\scan\\reports\\20261107T085414-3736abbc486b40878e7e7aee1a1ae47a\\artifact-manifest.json": "81fa8a82c0fce9093dcbdc766e290c7d521cddfcbea5bc90906d076b403b6d61",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\version\\process.json": "0d2cfac555d294debbc520c8ff3fcc2de62da9621e92e08461ad1bce739861ba",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\scan\\process.json": "1b108f63b93294a678bf3e412c7fbe3cfee142af2f4bd51e5bd8cf6f3055829b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\verification.json": "c581c298b6fcef09699f0bfc32cde17ac04801faefe96206151e4add05a4a72f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\inputs-before.json": "b2c0b6bba1511bb5d57a4840d9de355bab5e10ea40f88eab7f8f0fb79ecc045c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\inputs-after.json": "42ad7542f77cdfab00d79cc8fced75b3e58c6a45dd4f70d0430ea05ea2147265",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\scan\\reports\\20261107T085429-62ac5b6e0d5c4ad98b4327078e5f5721\\attackmap-report.sarif": "3a154cae58cf4e0811b14b97f35bb92bf7c4b7e386b9d09db299021e6b394caa",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\frozen01\\scan\\reports\\20261107T085429-62ac5b6e0d5c4ad98b4327078e5f5721\\artifact-manifest.json": "b912479c9de3bd1eb07ad2fa22a05851ccffdcb6bc71169665a9991faa27cb69"
+  },
+  "native134_unchanged": true,
+  "existing_user_engine_sha256": "e5de74f18990a0b4d7b37740f219cbc6c9bad03265031d2b8fa4f237ff4bff4c",
+  "limits": [
+    "Does not assert all core distribution metadata bundled.",
+    "No selected-artifact export workflow, picker, clipboard, reveal/open/PDF, GUI or whole WP022 acceptance.",
+    "No whole report/provenance parity; exact byte equality is established only for this actual SARIF fixture export.",
+    "Retained old 0.0.0-dev SARIF outputs and failed build/test attempts remain unchanged."
+  ]
+}

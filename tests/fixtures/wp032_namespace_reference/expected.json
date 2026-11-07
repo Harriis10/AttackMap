@@ -1,0 +1,23 @@
+{
+  "scope": "Static source-extraction oracle, pinned before namespace resolver qualification. No supplied normalized observations.",
+  "roots": ["client", "prod/auth-api", "dev/auth-api"],
+  "repository_ids": ["client", "auth-api", "auth-api-2"],
+  "server_route": "/Api/Users/<id>",
+  "server_file": "app.py",
+  "server_line": 5,
+  "method": "GET",
+  "backend_port": 8080,
+  "backend_protocol": "http",
+  "client_file": "client.js",
+  "calls": [
+    {"line": 2, "target": "http://prod-api.example/Api/Users/42", "resolved": {"auth-api": "observed_via_proxy"}, "namespace": "prod", "candidate_reasons": {"auth-api-2": "unresolved_host"}},
+    {"line": 3, "target": "http://dev-api.example/Api/Users/42", "resolved": {"auth-api-2": "observed_via_proxy"}, "namespace": "dev", "candidate_reasons": {"auth-api": "unresolved_host"}},
+    {"line": 4, "target": "http://unknown-api.example/Api/Users/42", "resolved": {}, "candidate_reasons": {"auth-api": "unresolved_host", "auth-api-2": "unresolved_host"}},
+    {"line": 5, "target": "http://auth-api/Api/Users/42", "resolved": {}, "candidate_reasons": {"auth-api": "ambiguous_identity", "auth-api-2": "ambiguous_identity"}},
+    {"line": 6, "target": "http://prod-api.example/api/users/42", "resolved": {}, "no_links": true},
+    {"line": 7, "target": "grpc://prod-api.example/Api/Users/42", "resolved": {}, "namespace": "prod", "known_scope": ["auth-api"], "candidate_reasons": {"auth-api": "unsupported_protocol", "auth-api-2": "unresolved_host"}},
+    {"line": 8, "target": "http://multi.example/Api/Users/42", "resolved": {}, "candidate_reasons": {"auth-api": "unresolved_host", "auth-api-2": "unresolved_host"}},
+    {"line": 9, "target": "http://auth-api.prod.svc.cluster.local/Api/Users/42", "resolved": {}, "candidate_reasons": {"auth-api": "unresolved_host", "auth-api-2": "unresolved_host"}},
+    {"line": 10, "target": "http://cross.example/Api/Users/42", "resolved": {}, "candidate_reasons": {"auth-api": "unresolved_host", "auth-api-2": "unresolved_host"}}
+  ]
+}

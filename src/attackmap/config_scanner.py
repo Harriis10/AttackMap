@@ -531,6 +531,19 @@ _RANK_SERVICE, _RANK_COMPOSE, _RANK_DEPLOYMENT = 2, 1, 0
 _RANK_APP_PROTOCOL, _RANK_PROXY_PASS, _RANK_INGRESS_ANNOTATION = 2, 1, 0
 _HOST_TOKEN = re.compile(r"^[a-zA-Z0-9._-]+$")
 _MODELED_SCHEMES = frozenset({"http", "https"})
+_K8S_LABEL = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
+
+
+def _k8s_namespace(doc: dict, provenance: str, notes: list[str]) -> str | None:
+    """None is an absent namespace; empty string is an invalid explicit one."""
+    metadata = doc.get("metadata")
+    if not isinstance(metadata, dict) or "namespace" not in metadata:
+        return None
+    value = metadata["namespace"]
+    if not isinstance(value, str) or not _K8S_LABEL.fullmatch(value):
+        notes.append(f"skipped {provenance}: invalid explicit Kubernetes namespace")
+        return ""
+    return value
 
 
 def _deployment_config_kind(path: Path) -> str | None:
@@ -771,6 +784,8 @@ def _k8s_ingress_declarations(
     protocols: dict[str, tuple[str, str, int]],
     dropped_protocols: set[str],
     notes: list[str],
+    *, strict_service_names: bool = False,
+    backend_ports: dict[str, tuple[int, frozenset[str]]] | None = None,
 ) -> None:
     """kind: Ingress → proxy and protocol declarations (C28). A rule host that
     routes to exactly one backend service declares that host a proxy for the
@@ -779,7 +794,9 @@ def _k8s_ingress_declarations(
     routing to several backends (path-split routing) are multi-backend —
     noted and invalidate any host-wide proxy declaration, as do unresolved
     backend branches. ``spec.tls`` describes the client→ingress leg, which no
-    consumer models, and is never extracted."""
+    consumer models, and is never extracted. ``backend_ports`` qualifies every
+    scoped path against an actual Service dial port; legacy unscoped parsing
+    keeps its existing abstract-seam rules when that mapping is absent."""
     name = str((doc.get("metadata") or {}).get("name") or "").strip().lower() or "ingress"
     rules = (doc.get("spec") or {}).get("rules") or []
     by_host: dict[str, set[str]] = {}
@@ -800,7 +817,24 @@ def _k8s_ingress_declarations(
                 str(service.get("name") or "").strip().lower()
                 if isinstance(service, dict) else ""
             )
-            if svc_name and _HOST_TOKEN.match(svc_name):
+            if (svc_name and _HOST_TOKEN.match(svc_name) and isinstance(service, dict)
+                    and "namespace" not in service
+                    and (not strict_service_names or (isinstance(service.get("name"), str)
+                         and _K8S_LABEL.fullmatch(service["name"])))):
+                if backend_ports is not None:
+                    declared_port = backend_ports.get(svc_name)
+                    port = service.get("port")
+                    valid_port = False
+                    if declared_port is not None and isinstance(port, dict):
+                        if set(port) == {"number"}:
+                            number = port["number"]
+                            valid_port = type(number) is int and 1 <= number <= 65535 and number == declared_port[0]
+                        elif set(port) == {"name"}:
+                            valid_port = isinstance(port["name"], str) and port["name"] in declared_port[1]
+                    if not valid_port:
+                        unmodeled = True
+                        notes.append(f"unresolved Ingress backend {svc_name!r} in {provenance}: missing or mismatched Service port")
+                        continue
                 backends.add(svc_name)
             else:
                 unmodeled = True  # resource, variable or unsupported backend
@@ -1002,6 +1036,8 @@ def _extract_nginx_proxies(
                     _RANK_PROXY_PASS, "nginx proxy_pass", notes,
                 )
             else:
+                dropped_protocols.add(backend)
+                protocols.pop(backend, None)
                 notes.append(
                     f"skipped proxy_pass {scheme}:// in {provenance}: "
                     "only http/https backends are modeled"
@@ -1044,7 +1080,7 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
     ``proxy_pass`` scheme, an Ingress ``backend-protocol`` annotation — never a
     port *name*). No host aliases are guessed.
     """
-    from .contracts import DeploymentAliases
+    from .contracts import DeclarationSource, DeploymentAliases, ScopedServiceBinding
     import yaml  # type: ignore[import-untyped]  # core dependency (suppress.py et al.)
 
     declared: dict[str, tuple[int, str, int]] = {}
@@ -1055,8 +1091,20 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
     proxy_sources: dict[str, str] = {}
     dropped_proxies: set[str] = set()
     notes: list[str] = []
+    unresolved_service_protocols: set[str] = set()
+    unresolved_protocol_sources: dict[str, str] = {}
+    declaration_sources: dict[str, list[DeclarationSource]] = {}
+    protocol_declaration_sources: dict[str, list[DeclarationSource]] = {}
 
-    for root in repo_roots:
+    def remember(destination: dict[str, list[DeclarationSource]], key: str, repo: Path, relative_file: str) -> None:
+        source = DeclarationSource(repository_root=str(repo), file=relative_file)
+        if source not in destination.setdefault(key, []):
+            destination[key].append(source)
+    k8s_documents: list[tuple[dict, str, Path, str, str]] = []
+    from .fleet import fleet_repo_ids
+    root_ids = fleet_repo_ids([Path(root) for root in repo_roots])
+
+    for root, root_id in zip(repo_roots, root_ids):
         repo = Path(root).resolve()
         from .index import PassSources
         sources = PassSources.for_root(repo)
@@ -1077,10 +1125,14 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
                 continue
             provenance = f"{label}/{path.relative_to(repo).as_posix()}"
             if kind == "nginx":
+                before_dropped_protocols = set(dropped_protocols)
                 _extract_nginx_proxies(
                     text, provenance, proxies, proxy_sources, dropped_proxies,
                     protocols, dropped_protocols, notes,
                 )
+                unresolved_protocol_sources.update({name: provenance for name in dropped_protocols - before_dropped_protocols})
+                for name in {name for name, value in protocols.items() if value[1] == provenance} | (dropped_protocols - before_dropped_protocols):
+                    remember(protocol_declaration_sources, name, repo, path.relative_to(repo).as_posix())
                 continue
             if kind == "k8s" and "kind:" not in text:
                 continue  # cheap pre-filter: ordinary YAML is not a k8s manifest
@@ -1093,26 +1145,193 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
                 if docs:
                     _extract_compose_ports(docs[0], provenance, declared, dropped_ports, notes)
                 continue
-            for doc in docs:
-                if str(doc.get("kind", "")).strip() == "Ingress":
-                    _k8s_ingress_declarations(
-                        doc, provenance, proxies, proxy_sources, dropped_proxies,
-                        protocols, dropped_protocols, notes,
-                    )
-                    continue
-                parsed = _k8s_manifest_port(doc, provenance, notes)
-                if parsed is None:
-                    continue
-                name, port, rank, kind_label, protocol = parsed
-                if not 1 <= port <= 65535:
-                    notes.append(f"skipped {provenance}: {kind_label} {name} port {port} out of range")
-                    continue
-                _declare_port(declared, dropped_ports, name, port, provenance, rank, kind_label, notes)
-                if protocol is not None:
-                    _declare_protocol(
-                        protocols, dropped_protocols, name, protocol, provenance,
-                        _RANK_APP_PROTOCOL, f"{kind_label} appProtocol", notes,
-                    )
+            k8s_documents.extend((doc, provenance, repo, root_id, path.relative_to(repo).as_posix()) for doc in docs)
+
+    scoped_ports: dict[str, tuple[int, str, int]] = {}
+    scoped_protocols: dict[str, tuple[str, str, int]] = {}
+    dropped_scoped_ports: set[str] = set()
+    dropped_scoped_protocols: set[str] = set()
+    scoped_owners: dict[str, str] = {}
+    scoped_port_names: dict[str, frozenset[str]] = {}
+    invalid_scopes: set[str] = set()
+    scoped_names: set[str] = set()
+    ingresses: list[tuple[dict, str, str | None, Path, str]] = []
+    for doc, provenance, repo, root_id, relative_file in k8s_documents:
+        kind_label = str(doc.get("kind", "")).strip()
+        if kind_label not in {"Service", "Deployment", "Ingress"}:
+            continue
+        metadata = doc.get("metadata")
+        if not isinstance(metadata, dict):
+            notes.append(f"skipped {provenance}: {kind_label} without metadata mapping")
+            continue
+        namespace = _k8s_namespace(doc, provenance, notes)
+        if kind_label == "Ingress":
+            ingresses.append((doc, provenance, namespace, repo, relative_file))
+            continue
+        raw_name = metadata.get("name")
+        if namespace is not None and (not isinstance(raw_name, str) or not _K8S_LABEL.fullmatch(raw_name)):
+            notes.append(f"skipped {provenance}: invalid scoped Kubernetes service name")
+            continue
+        name = str(raw_name or "").strip().lower()
+        entries = (doc.get("spec") or {}).get("ports") or []
+        unsupported_protocol = kind_label == "Service" and isinstance(entries, list) and any(
+            isinstance(entry, dict) and entry.get("appProtocol") is not None
+            and str(entry["appProtocol"]).strip().lower() not in _MODELED_SCHEMES for entry in entries)
+        conflicting_protocols = kind_label == "Service" and isinstance(entries, list) and len({
+            str(entry["appProtocol"]).strip().lower() for entry in entries
+            if isinstance(entry, dict) and entry.get("appProtocol") is not None}) > 1
+        protocol_identity = f"{namespace}/{name}" if namespace else name
+        if name and kind_label == "Service" and isinstance(entries, list) and any(
+                isinstance(entry, dict) and entry.get("appProtocol") is not None for entry in entries):
+            remember(protocol_declaration_sources, protocol_identity, repo, relative_file)
+        if name and (unsupported_protocol or conflicting_protocols) and (namespace is None or namespace):
+            unresolved_service_protocols.add(protocol_identity)
+            unresolved_protocol_sources[protocol_identity] = provenance
+            if conflicting_protocols:
+                notes.append(f"unresolved Service protocol {protocol_identity!r} in {provenance}: conflicting appProtocol declarations")
+        if namespace is not None:
+            if kind_label == "Service":
+                scoped_names.add(name)
+            if not namespace:
+                continue
+            scope = f"{namespace}/{name}"
+            # A pod workload does not establish a Kubernetes Service DNS seam.
+            if kind_label == "Deployment":
+                _k8s_manifest_port(doc, provenance, notes)
+                notes.append(f"skipped scoped Service binding {scope!r} in {provenance}: Deployment is not a Service")
+                continue
+            if name not in {repo.name, root_id}:
+                notes.append(f"skipped scoped Service binding {scope!r} in {provenance}: no exact repository identity ownership")
+                continue
+            owner = str(repo)
+            remember(declaration_sources, f"scoped_services:{scope}", repo, relative_file)
+            spec = doc.get("spec") or {}
+            if (str(spec.get("type", "")).strip().lower() == "externalname" or "externalName" in spec):
+                invalid_scopes.add(scope)
+                notes.append(f"skipped scoped Service binding {scope!r} in {provenance}: ExternalName DNS redirection is not modeled")
+                continue
+            if scope in scoped_owners and scoped_owners[scope] != owner:
+                invalid_scopes.add(scope)
+                notes.append(f"dropped scoped Service binding {scope!r}: conflicting repository owners")
+            scoped_owners[scope] = owner
+            if unsupported_protocol:
+                notes.append(f"unresolved scoped Service protocol {scope!r} in {provenance}: unsupported explicit appProtocol")
+            if not isinstance(entries, list) or any(not isinstance(entry, dict)
+                    or type(entry.get("port")) is not int or not 1 <= entry["port"] <= 65535 for entry in entries):
+                invalid_scopes.add(scope)
+                notes.append(f"skipped scoped Service binding {scope!r} in {provenance}: invalid numeric Service port")
+                continue
+            parsed = _k8s_manifest_port(doc, provenance, notes)
+            if parsed is None:
+                invalid_scopes.add(scope)
+                continue
+            _, port, rank, kind_label, protocol = parsed
+            if not 1 <= port <= 65535:
+                invalid_scopes.add(scope)
+                notes.append(f"skipped {provenance}: {kind_label} {scope} port {port} out of range")
+                continue
+            _declare_port(scoped_ports, dropped_scoped_ports, scope, port, provenance, rank, kind_label, notes)
+            names = frozenset(entry["name"] for entry in entries if isinstance(entry, dict)
+                              and isinstance(entry.get("name"), str) and _K8S_LABEL.fullmatch(entry["name"])
+                              and type(entry.get("port")) is int and entry["port"] == port)
+            scoped_port_names[scope] = scoped_port_names.get(scope, names) & names
+            if protocol is not None:
+                unresolved_protocol_sources[scope] = provenance
+                _declare_protocol(scoped_protocols, dropped_scoped_protocols, scope, protocol, provenance,
+                                  _RANK_APP_PROTOCOL, "Service appProtocol", notes)
+            continue
+        parsed = _k8s_manifest_port(doc, provenance, notes)
+        if parsed is None:
+            continue
+        name, port, rank, kind_label, protocol = parsed
+        if not 1 <= port <= 65535:
+            notes.append(f"skipped {provenance}: {kind_label} {name} port {port} out of range")
+            continue
+        _declare_port(declared, dropped_ports, name, port, provenance, rank, kind_label, notes)
+        if protocol is not None:
+            unresolved_protocol_sources[name] = provenance
+            _declare_protocol(protocols, dropped_protocols, name, protocol, provenance,
+                              _RANK_APP_PROTOCOL, f"{kind_label} appProtocol", notes)
+
+    scoped_proxies: dict[str, str] = {}
+    scoped_proxy_sources: dict[str, str] = {}
+    for doc, provenance, namespace, repo, relative_file in ingresses:
+        local_proxies: dict[str, str] = {}
+        local_sources: dict[str, str] = {}
+        local_dropped: set[str] = set()
+        local_protocols: dict[str, tuple[str, str, int]] = {}
+        local_dropped_protocols: set[str] = set()
+        _k8s_ingress_declarations(doc, provenance, local_proxies, local_sources, local_dropped,
+            local_protocols, local_dropped_protocols, notes, strict_service_names=namespace is not None,
+            backend_ports={scope.split("/", 1)[1]: (value[0], scoped_port_names.get(scope, frozenset()))
+                           for scope, value in scoped_ports.items()
+                           if scope.startswith(f"{namespace}/") and scope not in invalid_scopes
+                           and scope not in dropped_scoped_ports} if namespace is not None else None)
+        annotations = doc["metadata"].get("annotations")
+        if isinstance(annotations, dict) and "nginx.ingress.kubernetes.io/backend-protocol" in annotations:
+            raw_protocol = annotations["nginx.ingress.kubernetes.io/backend-protocol"]
+            unsupported_annotation = not isinstance(raw_protocol, str) or raw_protocol.strip().lower() not in _MODELED_SCHEMES
+            if unsupported_annotation:
+                notes.append(f"unresolved backend protocol in {provenance}: explicit Ingress annotation is not modeled HTTP/HTTPS")
+            rules = (doc.get("spec") or {}).get("rules") or []
+            for rule in rules if isinstance(rules, list) else []:
+                paths = (rule.get("http") or {}).get("paths") or [] if isinstance(rule, dict) else []
+                for path in paths if isinstance(paths, list) else []:
+                    backend = ((path.get("backend") or {}).get("service") or {}) if isinstance(path, dict) else {}
+                    name = backend.get("name") if isinstance(backend, dict) else None
+                    if not isinstance(name, str) or not _K8S_LABEL.fullmatch(name):
+                        continue
+                    identity = f"{namespace}/{name}" if namespace else name
+                    if namespace or (namespace is None and name not in scoped_names):
+                        remember(protocol_declaration_sources, identity, repo, relative_file)
+                        if unsupported_annotation:
+                            unresolved_service_protocols.add(identity)
+                            unresolved_protocol_sources[identity] = provenance
+        for host in local_dropped:
+            _drop_proxy(host, proxies, proxy_sources, dropped_proxies)
+            _drop_proxy(host, scoped_proxies, scoped_proxy_sources, dropped_proxies)
+        for host, backend in local_proxies.items():
+            scope = f"{namespace}/{backend}" if namespace else ""
+            if namespace is None and backend not in scoped_names:
+                _declare_proxy(host, backend, provenance, proxies, proxy_sources, dropped_proxies, notes)
+                continue
+            if (not namespace or scope not in scoped_ports or scope in invalid_scopes
+                    or scope in dropped_scoped_ports):
+                _drop_proxy(host, proxies, proxy_sources, dropped_proxies)
+                _drop_proxy(host, scoped_proxies, scoped_proxy_sources, dropped_proxies)
+                notes.append(f"unresolved Ingress host {host!r} in {provenance}: no valid Service binding in explicit same namespace")
+                continue
+            if host in proxies:
+                _drop_proxy(host, proxies, proxy_sources, dropped_proxies)
+            _declare_proxy(host, scope, provenance, scoped_proxies, scoped_proxy_sources, dropped_proxies, notes)
+            remember(declaration_sources, f"scoped_proxies:{host}", repo, relative_file)
+        for backend, (scheme, source, rank) in local_protocols.items():
+            if namespace is None and backend not in scoped_names:
+                unresolved_protocol_sources[backend] = source
+                if backend in protocols and protocols[backend][0] != scheme:
+                    unresolved_service_protocols.add(backend)
+                    notes.append(f"unresolved backend protocol for {backend!r}: Ingress annotation contradicts its Service declaration")
+                _declare_protocol(protocols, dropped_protocols, backend, scheme, source, rank, "Ingress annotation", notes)
+            elif namespace:
+                scope = f"{namespace}/{backend}"
+                if scope in scoped_ports and scope not in invalid_scopes:
+                    unresolved_protocol_sources[scope] = source
+                    remember(declaration_sources, f"scoped_services:{scope}", repo, relative_file)
+                    if scope in scoped_protocols and scoped_protocols[scope][0] != scheme:
+                        unresolved_service_protocols.add(scope)
+                        notes.append(f"unresolved backend protocol for {scope!r}: Ingress annotation contradicts its Service declaration")
+                    _declare_protocol(scoped_protocols, dropped_scoped_protocols, scope, scheme, source, rank, "Ingress annotation", notes)
+
+    unresolved_service_protocols.update(dropped_protocols | dropped_scoped_protocols)
+    for identity in unresolved_service_protocols:
+        declaration_sources[f"unresolved_service_protocols:{identity}"] = protocol_declaration_sources.get(identity, [])
+    invalid_scopes.update(dropped_scoped_ports)
+    scoped_services = {scope: ScopedServiceBinding(repository_root=scoped_owners[scope], port=port,
+        protocol=scoped_protocols[scope][0] if scope in scoped_protocols and scope not in unresolved_service_protocols else None)
+        for scope, (port, _source, _rank) in scoped_ports.items() if scope not in invalid_scopes}
+    for host, scope in list(scoped_proxies.items()):
+        if scope not in scoped_services:
+            _drop_proxy(host, scoped_proxies, scoped_proxy_sources, dropped_proxies)
 
     source_files = {
         f"service_ports:{name}:{port}": provenance
@@ -1123,12 +1342,21 @@ def extract_deployment_aliases(repo_roots: list[Path]) -> tuple["DeploymentAlias
         for name, (scheme, provenance, _rank) in protocols.items()
     })
     source_files.update({f"proxies:{host}": proxy_sources[host] for host in proxies})
+    source_files.update({f"scoped_services:{scope}": scoped_ports[scope][1] for scope in scoped_services})
+    source_files.update({f"scoped_proxies:{host}": scoped_proxy_sources[host] for host in scoped_proxies})
+    source_files.update({f"unresolved_service_protocols:{name}": unresolved_protocol_sources[name]
+                         for name in unresolved_service_protocols if name in unresolved_protocol_sources})
     aliases = DeploymentAliases(
         service_ports={name: port for name, (port, _p, _r) in declared.items()},
         service_protocols={name: scheme for name, (scheme, _p, _r) in protocols.items()},
         proxies=proxies,
         source_files=source_files,
         unresolved_proxies=tuple(sorted(dropped_proxies)),
+        scoped_services=scoped_services,
+        scoped_proxies=scoped_proxies,
+        unresolved_service_protocols=tuple(sorted(unresolved_service_protocols)),
+        declaration_sources={key: tuple(sorted(sources, key=lambda source: (source.repository_root, source.file)))
+                             for key, sources in declaration_sources.items()},
     )
     return aliases, notes
 

@@ -1,0 +1,149 @@
+{
+  "scope": "Physical source extraction and graph oracle; no normalized observations injected. No runtime delivery claim.",
+  "roots": [
+    "client",
+    "prod/auth-api",
+    "dev/auth-api",
+    "publisher",
+    "consumer",
+    "queue-other-scope",
+    "queue-other-port",
+    "queue-other-protocol",
+    "db-reader",
+    "db-writer",
+    "db-other-namespace",
+    "library",
+    "orphan",
+    "multi-service",
+    "external-config",
+    "partial-child"
+  ],
+  "repository_ids": [
+    "client",
+    "auth-api",
+    "auth-api-2",
+    "publisher",
+    "consumer",
+    "queue-other-scope",
+    "queue-other-port",
+    "queue-other-protocol",
+    "db-reader",
+    "db-writer",
+    "db-other-namespace",
+    "library",
+    "orphan",
+    "multi-service",
+    "external-config",
+    "partial-child"
+  ],
+  "http_calls": [
+    {
+      "target": "http://prod-api.example/Items/42",
+      "owner": "auth-api",
+      "resolution": "observed_via_proxy",
+      "reason": "",
+      "line": 2
+    },
+    {
+      "target": "https://dev-api.example:9443/Items/42",
+      "owner": "auth-api-2",
+      "resolution": "candidate",
+      "reason": "explicit_port",
+      "line": 3
+    },
+    {
+      "target": "http://unknown.example/Items/42",
+      "owner": null,
+      "resolution": "candidate",
+      "reason": "unresolved_host",
+      "line": 4
+    },
+    {
+      "target": "http://auth-api/Items/42",
+      "owner": null,
+      "resolution": "candidate",
+      "reason": "ambiguous_identity",
+      "line": 5
+    },
+    {
+      "target": "grpc://prod-api.example/Items/42",
+      "owner": "auth-api",
+      "resolution": "candidate",
+      "reason": "unsupported_protocol",
+      "line": 6
+    },
+    {
+      "target": "http://wrong-port.example/Items/42",
+      "owner": null,
+      "resolution": "candidate",
+      "reason": "unresolved_host",
+      "line": 7
+    },
+    {
+      "target": "http://auth-api.prod.svc.cluster.local/Items/42",
+      "owner": null,
+      "resolution": "candidate",
+      "reason": "unresolved_host",
+      "line": 8
+    },
+    {
+      "target": "https://dev-api.example/Items/42",
+      "owner": "auth-api-2",
+      "resolution": "observed_via_proxy",
+      "reason": "",
+      "line": 9
+    }
+  ],
+  "method": "GET",
+  "server_route_path": "/Items/<id>",
+  "server_location": "app.py:3",
+  "client_file": "client.js",
+  "backend_declarations": {
+    "auth-api": [
+      "service.yaml",
+      "ingress.yaml"
+    ],
+    "auth-api-2": [
+      "service.yaml",
+      "ingress.yaml"
+    ]
+  },
+  "http_link_count": 16,
+  "proxy_observed_count": 2,
+  "backend": {
+    "auth-api": [
+      "prod",
+      8080,
+      "http"
+    ],
+    "auth-api-2": [
+      "dev",
+      8443,
+      "https"
+    ]
+  },
+  "messaging_pairs": [
+    [
+      "publisher",
+      "consumer"
+    ]
+  ],
+  "datastore_pairs": [
+    [
+      "db-reader",
+      "db-writer"
+    ]
+  ],
+  "projection_only_faults": "partial-child limitations and orphan missing/failed snapshot, never claimed as actual runtime faults",
+  "http_graph_edge_count": 18,
+  "revision": "construction-contract-alignment-v2",
+  "external_nodes": [
+    "prod-api.example",
+    "dev-api.example"
+  ],
+  "unmatched_telemetry_target": "https://telemetry.external.example/Telemetry",
+  "multi_service_nodes": [
+    "alpha",
+    "beta"
+  ]
+}

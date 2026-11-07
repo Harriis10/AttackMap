@@ -1,0 +1,19 @@
+{
+  "attackmap_messaging": {
+    "schema_version": "1.0",
+    "declarations": [
+      {
+        "identity": {
+          "scope": "production-eu",
+          "protocol": "kafka",
+          "transport": "tls",
+          "host": "broker.example.internal",
+          "port": 9093,
+          "namespace": "orders-cluster",
+          "channel": "orders.created"
+        },
+        "operation": "consume"
+      }
+    ]
+  }
+}

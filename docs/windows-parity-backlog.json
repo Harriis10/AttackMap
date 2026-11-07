@@ -18,7 +18,7 @@
     "rendering_acceptance": "FAILED_UNCHANGED",
     "task_statuses_unchanged": true
   },
-  "planning_status": "2026-10-31: Three bounded roadmap slices were independently reviewed and jointly source-verified (948 PASS, 1 SKIP, 0 failures/errors; three known raw-ledger parity cases explicitly deselected and separately still failing). WP031 conservative static binding is fail-closed on lexical shadowing and has no claimed held-out improvement; WP032 preserves unresolved multi-backend proxy evidence through merge/fallback and blocks root-dot identity bypasses; WP034 adds opt-in deterministic fleet input quotas with preserved positional API compatibility. WP031/WP032/WP034 remain IN_PROGRESS; WP043 global rendering FAILED and V01-V03 blocked. Whole-task C27/C28/C35, production-fleet, native/frozen/UI, manual and release gates remain open. Current batch leases released; prior evidence preserved.",
+  "planning_status": "2026-11-07:9DONE,5IMPLEMENTED,5MANUAL_PENDING,16IN_PROGRESS,7OPEN,2DEFERRED. WP018/WP032DONEpreserved. WP005userfullAutomatic+localFlintAIcompleted(421s,18findings,1path), manualacceptancegates remain. WP044physicalfleet16/API/CLI/nativeheadless/controlledfault boundedqualificationcomplete,representativefleet/GUI/maturity remain. WP022SARIFversionfixactualsource/frozenPASS; WP017citationformat100tests+actualofflineproof includedcandidate7885,notdeployed. AllComputerUseforbidden; userappmuststayopen. HistoricalWP043rendering/releasegates unchanged.",
   "roadmap": "roadmap-windows-parity-2026-10-20.md",
   "audit": "windows-parity-audit-2026-10-20.md",
   "task_definition_authority": "windows-parity-todo.md; synchronize this JSON when changing dependencies or definitions",
@@ -339,8 +339,22 @@
         "54 NativeOptions checks PASS by agent and root; 71 ReportAdapter and 24 EngineLaunchSpec regressions PASS",
         "root visually reviewed corrected light supported and unsupported previews after contrast and clipping fixes",
         "shell integration keyboard Narrator dark theme and second size remain pending",
-        "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json"
-      ]
+        "docs/verification/windows-parity/RECONCILE-2026-10-21/full-shell-smoke-d/parity-smoke.json",
+        "docs/verification/windows-parity/WP005/closeout-20261107/README.md",
+        "docs/verification/windows-parity/WP005/closeout-20261107/verification.json"
+      ],
+      "manual_checkpoint_2026_11_07": {
+        "status": "MANUAL_PENDING",
+        "whole_task_acceptance": false,
+        "scope": "Source/build/model checks plus user-only save/reopen,fullAutomaticJuiceShop+localFlintresponse,coreMarkdownexport and screenshots. ComputerUsestopped by user, appstaysopen.",
+        "full_run": "f2a53980402a46558303d30828cf7287",
+        "remaining": [
+          "keyboard/focus",
+          "Narrator",
+          "unsupportedenginejourney",
+          "DarkOptions/secondactualoptionsviewport whereunobserved"
+        ]
+      }
     },
     {
       "id": "WP006",
@@ -944,19 +958,31 @@
         "docs/verification/windows-parity/WP017/sol-long-local-20261023-hunt-verify-02/failure.json",
         "docs/verification/windows-parity/WP017/sol-long-local-20261023-remediate/summary.json",
         "docs/verification/windows-parity/WP017/sol-long-local-20261023-triage-02/triage-teardown-diagnosis.md",
-        "docs/verification/windows-parity/WP017/lm-studio-review-20261031/README.md"
+        "docs/verification/windows-parity/WP017/lm-studio-review-20261031/README.md",
+        "docs/verification/windows-parity/WP017/citation-label-20261107/README.md",
+        "docs/verification/windows-parity/WP017/citation-label-20261107/verification.json"
       ],
       "current_checkpoint_2026_10_31": "One actual CLI review over C:/tmp/juice-shop completed exit 0 through local LM Studio http://127.0.0.1:1234/v1 using cyberstag-security-26b-a4b-v1; completed API response reports 6306 input and 5933 output tokens. This selected-evidence partial review does not establish claim support or source-location validity. Other AI modes, native/packaged/UI journey and whole-task acceptance remain open; IN_PROGRESS unchanged.",
-      "execution_scope": "2026-10-23 Sol6.1 ultra scoped batch COMPLETE: WP016 metadata projection86offline assertions; WP023 v2lifetime603assertions/132cases and fullnative integration02; focused4AI summary frames source/pixel/bounds+rootvisual reviewPASS after preserved preview01initialLightFAIL; WP017controller21tests and actualnative controlledHTTP503/malformed/pendingcancel each1POST/exit0/ownedcleanup/threadsjoinedPASS. Sourcepreview uses hash-bound retained olderengine, not newpackage/live/same-source acceptance. Realmodelresponses0; wholeWP016/017/023 IN_PROGRESS, semantic/manual/GUI/signing/cleanhost/Mac gates open."
+      "execution_scope": "2026-10-23 Sol6.1 ultra scoped batch COMPLETE: WP016 metadata projection86offline assertions; WP023 v2lifetime603assertions/132cases and fullnative integration02; focused4AI summary frames source/pixel/bounds+rootvisual reviewPASS after preserved preview01initialLightFAIL; WP017controller21tests and actualnative controlledHTTP503/malformed/pendingcancel each1POST/exit0/ownedcleanup/threadsjoinedPASS. Sourcepreview uses hash-bound retained olderengine, not newpackage/live/same-source acceptance. Realmodelresponses0; wholeWP016/017/023 IN_PROGRESS, semantic/manual/GUI/signing/cleanhost/Mac gates open.",
+      "citation_label_fix_2026_11_07": {
+        "status": "SOURCE_VALIDATED_INCLUDED_IN_CANDIDATE",
+        "source_tests_passed": 100,
+        "actual_model_text_replayed_offline": true,
+        "frozen_citation_functional_validation_performed": false,
+        "candidate_engine_sha256": "788572853653643fcab399c1ab8457071f32753d7d87594b9bc0f98bf29e387a",
+        "candidate_deployed": false,
+        "whole_task_acceptance": false,
+        "scope": "Exact-known-ID singlecolon boldlabel formatting only; claim/source validity notpromoted; originalmodelartifacts unchanged."
+      }
     },
     {
       "id": "WP018",
       "title": "Fleet přes desktop kontrakt a supervisor",
-      "status": "IMPLEMENTED",
+      "status": "DONE",
       "priority": "P1",
       "lane": "CORE_FLEET",
       "checkpoint": "K4",
-      "owner": "/root/wp018_resume",
+      "owner": "/root/wp018_closeout_20261106",
       "implementation_model": "gpt-6.1-sol",
       "depends_on": [
         "WP004"
@@ -997,9 +1023,17 @@
         "docs/verification/windows-parity/WP018/implementation.md",
         "docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md",
         "root-reviewed fixture repair: 38 focused tests PASS; fleet regressions 29 PASS and one explicit Windows chmod skip; production source unchanged",
-        "source-worker all/json/markdown serial-parallel parity passed for spaces and Unicode; fresh frozen parity and real process cleanup acceptance remain pending"
+        "Historical 2026-10-20: source-worker all/json/markdown parity passed; fresh frozen and actual cleanup were pending at that checkpoint.",
+        "docs/verification/windows-parity/WP018/closeout-20261106/README.md",
+        "docs/verification/windows-parity/WP018/closeout-20261106/verification.json",
+        "2026-11-07 final:114 source PASS/1 Windows chmod SKIP;19 verifier PASS;73+17 native model checks;source/frozen12 CLI,6 desktop16,8 fault,2 actual CSharp and2 nonexpired Automatic JuiceShop pair runs. All natural Job0; valid previous generations preserved. Independent acceptance DONE."
       ],
-      "fleet16_scope_extension": "ověřit celý běh 16 roots při concurrency 1/2/4, explicitní overall/per-child budget a status všech 16 požadovaných children. Dnešní UI default 1 worker/600 s není 16-repo kvalifikace; bounded admission a skutečný memory peak koordinovat s WP034. Selhání/cancel zachová správné sibling artefakty a ověřeně ukončí vlastněné procesy."
+      "fleet16_scope_extension": "ověřit celý běh 16 roots při concurrency 1/2/4, explicitní overall/per-child budget a status všech 16 požadovaných children. Dnešní UI default 1 worker/600 s není 16-repo kvalifikace; bounded admission a skutečný memory peak koordinovat s WP034. Selhání/cancel zachová správné sibling artefakty a ověřeně ukončí vlastněné procesy.",
+      "base_commit": "9b8e12d40d8d19ed5e9d07b7ec4d04b643513796",
+      "completion_date": "2026-11-07",
+      "completion_evidence": "docs/verification/windows-parity/WP018/closeout-20261106/verification.json",
+      "acceptance_scope": "WP018 desktop fleet contract/supervisor including synthetic16 at workers1/2/4; no GUI, production16 maturity, C27/C35/C36 or release acceptance.",
+      "independent_reviewer": "/root/audit_core"
     },
     {
       "id": "WP019",
@@ -1189,8 +1223,28 @@
         "docs/verification/windows-parity/WP022/preparation-2026-10-20.md",
         "43 bounded selected export and SARIF checks PASS by agent and root",
         "no actual export PDF clipboard open reveal or full external SARIF consumer validation; shell and WP013 integration remain open",
-        "docs/verification/windows-parity/WP022/agent-export-verification-2026-10-21.json"
-      ]
+        "docs/verification/windows-parity/WP022/agent-export-verification-2026-10-21.json",
+        "docs/verification/windows-parity/WP022/sarif-version-20261107/README.md",
+        "docs/verification/windows-parity/WP022/sarif-version-20261107/verification.json"
+      ],
+      "open_issues_2026_11_07": [
+        {
+          "status": "RESOLVED_IN_SOURCE_AND_NEW_FROZEN_CANDIDATE",
+          "issue": "Frozen SARIF driver.version falls back to0.0.0-dev while source and both CLI versions are1.5.1; distribution metadata missing. Preserve raw versions and add source/frozen export metadata gate.",
+          "evidence": "docs/verification/windows-parity/WP022/sarif-version-20261107/verification.json",
+          "resolved_date": "2026-11-07",
+          "resolution": "Canonicalrunningcodeversion sharedwithCLI; actualsource/frozenCLI+SARIF1.5.1 byteparity onsharedphysicalfixture. No all-distribution-metadata orwholeWP022claim."
+        }
+      ],
+      "sarif_version_qualification_2026_11_07": {
+        "status": "PASS",
+        "source_tests_passed": 23,
+        "actual_source_frozen_version": "1.5.1",
+        "raw_sarif_bytes_equal": true,
+        "whole_task_acceptance": false,
+        "candidate_deployed": false,
+        "scope": "Metadata-onlyfix; WP013/history and selectedartifact/exportworkflow gates remainopen."
+      }
     },
     {
       "id": "WP023",
@@ -1701,7 +1755,7 @@
     {
       "id": "WP032",
       "title": "Dokončit service identity a evidence links",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "priority": "P1",
       "lane": "CORE_GRAPH",
       "checkpoint": "K8",
@@ -1748,10 +1802,14 @@
         "docs/verification/windows-parity/WP032/ultra-owner-20261022/README.md",
         "docs/verification/windows-parity/WP032/ultra-owner-review-20261022.md",
         "artifacts/coordination-20261027/wp032-report.md",
-        "artifacts/coordination-20261027/integration-review.md"
+        "artifacts/coordination-20261027/integration-review.md",
+        "docs/verification/windows-parity/WP032/closeout-20261107/README.md",
+        "docs/verification/windows-parity/WP032/closeout-20261107/verification.json",
+        "artifacts/wp032-closeout-20261107/independent-acceptance-review.json"
       ],
-      "base_commit": "620210ed52dc1f20b72d4da91a6594fd45a1e6a9",
-      "execution_scope": "Prior canonical topology evidence preserved. Scoped proxy plus exact host:port conflict stays candidate/ambiguous only for declaration-implicated repos; unrelated same-route servers remain unresolved_host. Independent review and207focusedPASS. Full protocol/namespace/multi-backend/reference,C28 and runtime/package gates remain open."
+      "base_commit": "9b8e12d40d8d19ed5e9d07b7ec4d04b643513796",
+      "execution_scope": "C11/C12/C28 accepted: exact explicit root/namespace/service and backend port/protocol, typed declaration refs, persistent negative facts.609PASS,source/frozen9+9CLI,native4+4,2real Automatic JuiceShop runs. Static bounded subset; no GUI, runtime connectivity,C27,C33 or release acceptance.",
+      "completed_date": "2026-11-07"
     },
     {
       "id": "WP033",
@@ -2494,7 +2552,9 @@
         "docs/verification/windows-parity/WP043/fleet16-20261023/FINAL-HANDOFF.md",
         "docs/verification/windows-parity/ROADMAP-NEXT-20261023/FINAL-HANDOFF.md",
         "artifacts/coordination-20261027/wp044-report.md",
-        "artifacts/coordination-20261027/integration-review.md"
+        "artifacts/coordination-20261027/integration-review.md",
+        "docs/verification/windows-parity/WP044/qualification-20261107/README.md",
+        "docs/verification/windows-parity/WP044/qualification-20261107/verification.json"
       ],
       "planning_evidence": [
         "docs/verification/windows-parity/RESEARCH-2026-10-23-analyzers-graphs/fleet16-requirements.md"
@@ -2521,11 +2581,17 @@
           "result": "Production normalized-signal adapter and fleet consumption reviewed; non-production roles excluded and over-limit datastore input degrades without losing existing HTTP/proxy architecture.160focusedPASS. Static declared associations only; no real emitter or16repo acceptance.",
           "whole_task_acceptance": false
         }
-      ]
+      ],
+      "qualification_2026_11_07": {
+        "status": "BOUNDED_QUALIFICATION_COMPLETE",
+        "whole_task_acceptance": false,
+        "scope": "Physical16root source/API+source/frozenCLI+actualheadlessconsumer+onecontrolledsourcefault; representativeproductionfleet,GUI,maturityremainopen.",
+        "oracle_sha256": "8b63fb1a97184459015969299330058565435177f6e611c7f28e1d4bd609a08b"
+      }
     }
   ],
-  "run_state": "IDLE",
-  "resume_note": "docs/verification/windows-parity/HANDOFF-20261031-ISOLATION-RENDER-FLEET/README.md",
+  "run_state": "BOUNDED_BATCH_VERIFIED_WP005_MANUAL_GATES_2026_11_07",
+  "resume_note": "docs/verification/windows-parity/WP005/closeout-20261107/README.md",
   "active_execution_leases": [],
   "roadmap_batch_2026_10_30": {
     "date": "2026-10-30",
@@ -2667,15 +2733,19 @@
     "live_provider_calls": 0
   },
   "latest_execution_update": {
-    "date": "2026-10-31",
+    "date": "2026-11-07",
     "tasks": [
-      "WP031",
-      "WP032",
-      "WP034"
+      "WP005",
+      "WP017",
+      "WP022",
+      "WP044"
     ],
-    "status": "SCOPED_THREE_SLICE_INTEGRATION_VERIFIED",
-    "evidence": "docs/verification/windows-parity/ROADMAP-THREE-SLICES-20261031/README.md",
-    "whole_task_acceptance": false
+    "status": "BOUNDED_BATCH_VERIFIED_MANUAL_GATES_OPEN",
+    "scope": "Allauthorizedcurrentcodefixesandqualification complete withinrecordedbounds. Source/candidateproofs separatedfromactualuserolde5deengine. No currentappreplacement, provider rerun, GUIautomation or release acceptance.",
+    "whole_task_acceptance": false,
+    "release_acceptance": false,
+    "candidate_engine_sha256": "788572853653643fcab399c1ab8457071f32753d7d87594b9bc0f98bf29e387a",
+    "candidate_deployed": false
   },
   "fleet16_scope_update": {
     "date": "2026-10-23",

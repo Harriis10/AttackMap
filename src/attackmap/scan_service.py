@@ -765,7 +765,7 @@ def _effective_deployment_aliases(
     operator flag beats a file. If the two sources claim conflicting
     topologies for one host (e.g. a CLI host alias vs a config proxy), the CLI
     positive set alone is used: it is authoritative and was validated at parse
-    time. Unresolved proxy evidence survives either path: a positive alias
+    time. Unresolved proxy/protocol evidence survives either path: a positive alias
     cannot establish host-wide routing that the extractor could not model.
     Returns the effective aliases (``None`` when nothing declares anything)
     plus user-facing notes about skipped or conflicting extractions.
@@ -775,11 +775,18 @@ def _effective_deployment_aliases(
     extracted, notes = extract_deployment_aliases(request.repo_paths)
     cli = request.deployment_aliases
     if cli is None:
-        if not extracted.service_ports and not extracted.proxies and not extracted.unresolved_proxies:
+        if not any((extracted.hosts, extracted.host_ports, extracted.dns_suffixes,
+                    extracted.service_ports, extracted.service_protocols, extracted.proxies,
+                    extracted.scoped_services, extracted.scoped_proxies,
+                    extracted.unresolved_proxies, extracted.unresolved_service_protocols)):
             return None, notes
         return extracted, notes
 
     unresolved = tuple(sorted(set(extracted.unresolved_proxies) | set(cli.unresolved_proxies)))
+    unresolved_protocols = tuple(sorted(set(extracted.unresolved_service_protocols)
+                                       | set(cli.unresolved_service_protocols)))
+    scoped_overrides = (set(cli.hosts) | set(cli.proxies) | set(cli.scoped_proxies)
+                        | {binding.rpartition(":")[0] for binding in cli.host_ports})
 
     def overridden(key: str) -> bool:
         # A CLI re-declaration must not keep the config file's provenance.
@@ -787,9 +794,23 @@ def _effective_deployment_aliases(
             (key.startswith("hosts:") and key[len("hosts:"):] in cli.hosts)
             or (key.startswith("host_ports:") and key[len("host_ports:"):] in cli.host_ports)
             or (key.startswith("proxies:") and key[len("proxies:"):] in cli.proxies)
+            or (key.startswith("scoped_proxies:") and key[len("scoped_proxies:"):] in scoped_overrides)
+            or (key.startswith("scoped_services:") and key[len("scoped_services:"):] in cli.scoped_services)
             or any(key.startswith(f"service_ports:{name}:") for name in cli.service_ports)
             or any(key.startswith(f"service_protocols:{name}:") for name in cli.service_protocols)
         )
+
+    def merged_declaration_sources(include_config: bool) -> dict:
+        sources = {key: value for key, value in extracted.declaration_sources.items()
+                   if include_config and not overridden(key)}
+        sources.update(cli.declaration_sources)
+        for name in unresolved_protocols:
+            key = f"unresolved_service_protocols:{name}"
+            retained = set(extracted.declaration_sources.get(key, ())) | set(sources.get(key, ()))
+            if retained:
+                sources[key] = tuple(sorted(retained, key=lambda source: (
+                    source.repository_root, source.file, source.line or 0)))
+        return sources
 
     try:
         merged = DeploymentAliases(
@@ -801,16 +822,28 @@ def _effective_deployment_aliases(
             service_ports={**extracted.service_ports, **cli.service_ports},
             service_protocols={**extracted.service_protocols, **cli.service_protocols},
             source_files={
-                key: path for key, path in extracted.source_files.items() if not overridden(key)
+                **{key: path for key, path in extracted.source_files.items() if not overridden(key)},
+                **cli.source_files,
             },
+            declaration_sources=merged_declaration_sources(include_config=True),
             unresolved_proxies=unresolved,
+            scoped_services={**extracted.scoped_services, **cli.scoped_services},
+            scoped_proxies={**{host: scope for host, scope in extracted.scoped_proxies.items()
+                              if host not in scoped_overrides}, **cli.scoped_proxies},
+            unresolved_service_protocols=unresolved_protocols,
         )
     except ValueError as exc:
         notes.append(
             "config-extracted declarations conflicted with CLI declarations "
-            f"({exc}); using CLI declarations only; retaining unresolved proxy evidence"
+            f"({exc}); using CLI declarations only; retaining unresolved proxy/protocol evidence"
         )
-        return replace(cli, unresolved_proxies=unresolved), notes
+        negative_keys = {f"unresolved_service_protocols:{name}" for name in unresolved_protocols}
+        negative_sources = {key: value for key, value in extracted.source_files.items()
+                            if key in negative_keys}
+        return replace(cli, unresolved_proxies=unresolved,
+                       unresolved_service_protocols=unresolved_protocols,
+                       source_files={**cli.source_files, **negative_sources},
+                       declaration_sources=merged_declaration_sources(include_config=False)), notes
     return merged, notes
 
 

@@ -1,4 +1,4 @@
-"""Config extraction + supplied normalized signals; no runtime/fleet UI claim."""
+"""Explicit legacy operator seams + real nginx config; normalized app fixtures."""
 from __future__ import annotations
 
 import json
@@ -47,7 +47,20 @@ def corpus(tmp_path):
     shutil.copytree(FIXTURE, root)
     scans = fixture_scans(root)
     aliases, notes = extract_deployment_aliases([root / name for name in scans])
-    return root, scans, aliases, notes
+    return root, scans, legacy_operator_aliases(aliases), notes
+
+
+def legacy_operator_aliases(extracted):
+    """Namespaces in retained YAML must not leak into this legacy bare-host matrix.
+
+    Its dial ports/protocols are explicit operator declarations. Only proxy
+    provenance comes from the real nginx file; scoped config-only matching has
+    its own namespace corpus and physical fleet qualification.
+    """
+    return DeploymentAliases(hosts={"api": "api", "worker": "worker"}, service_ports={"api": 8443, "worker": 9000},
+        service_protocols={"api": "https", "worker": "http"}, proxies=extracted.proxies,
+        unresolved_proxies=extracted.unresolved_proxies,
+        source_files={key: value for key, value in extracted.source_files.items() if key.startswith("proxies:")})
 
 
 def linked(scans, aliases, target):
@@ -76,15 +89,18 @@ def test_non_http_scheme_never_supports_http_contract_or_trust_path(corpus, host
 
 
 def test_config_alias_origins_and_negative_multi_backend_controls(corpus):
-    _, _, aliases, notes = corpus
+    root, scans, _, _ = corpus
+    aliases, notes = extract_deployment_aliases([root / name for name in scans])
     assert aliases.hosts == {} and aliases.host_ports == {} and aliases.dns_suffixes == ()
-    assert aliases.service_ports == {"api": 8443, "worker": 9000}
+    assert aliases.service_ports == {}
+    assert {key: (binding.port, binding.protocol) for key, binding in aliases.scoped_services.items()} == {
+        "production/api": (8443, "https"), "preview/worker": (9000, None)}
     assert aliases.service_protocols == {"api": "https", "worker": "http"}
     assert aliases.proxies == {"api-edge.internal": "api", "worker-edge.internal": "worker"}
     assert aliases.source_files == {
-        "service_ports:api:8443": "api/service.yaml",
-        "service_ports:worker:9000": "worker/service.yaml",
-        "service_protocols:api:https": "api/service.yaml",
+        "scoped_services:production/api": "api/service.yaml",
+        "scoped_services:preview/worker": "worker/service.yaml",
+        "service_protocols:api:https": "caller/nginx.conf",
         "service_protocols:worker:http": "caller/nginx.conf",
         "proxies:api-edge.internal": "caller/nginx.conf",
         "proxies:worker-edge.internal": "caller/nginx.conf",
@@ -107,11 +123,11 @@ def test_http_schemes_keep_existing_matching_without_backend_protocol(corpus, ho
 
 
 @pytest.mark.parametrize("target,server,resolution,reason,provenance", [
-    ("https://API:08443/Api/Items/42", "api", "observed", "", "service_ports:api:8443 (api/service.yaml)"),
-    ("http://api:8443/Api/Items/42", "api", "candidate", "scheme_mismatch", "service_protocols:api:https (api/service.yaml)"),
-    ("grpc://api:8443/Api/Items/42", "api", "candidate", "scheme_mismatch", "service_protocols:api:https (api/service.yaml)"),
-    ("http://worker:9000/Api/Items/42", "worker", "observed", "", "service_ports:worker:9000 (worker/service.yaml)"),
-    ("https://worker:9000/Api/Items/42", "worker", "candidate", "scheme_mismatch", "service_protocols:worker:http (caller/nginx.conf)"),
+    ("https://API:08443/Api/Items/42", "api", "observed", "", "service_ports:api:8443"),
+    ("http://api:8443/Api/Items/42", "api", "candidate", "scheme_mismatch", "service_protocols:api:https"),
+    ("grpc://api:8443/Api/Items/42", "api", "candidate", "scheme_mismatch", "service_protocols:api:https"),
+    ("http://worker:9000/Api/Items/42", "worker", "observed", "", "service_ports:worker:9000"),
+    ("https://worker:9000/Api/Items/42", "worker", "candidate", "scheme_mismatch", "service_protocols:worker:http"),
     ("http://api-edge.internal/Api/Items/42", "api", "observed_via_proxy", "", "proxies:api-edge.internal (caller/nginx.conf)"),
     ("https://worker-edge.internal/Api/Items/42", "worker", "observed_via_proxy", "", "proxies:worker-edge.internal (caller/nginx.conf)"),
     ("grpc://api-edge.internal/Api/Items/42", "api", "candidate", "unsupported_protocol", None),
@@ -122,7 +138,7 @@ def test_http_schemes_keep_existing_matching_without_backend_protocol(corpus, ho
     ("http://worker:9001/Api/Items/42", "worker", "candidate", "explicit_port", None),
     ("/Api/Items/42", "api", "candidate", "no_destination", None),
 ])
-def test_config_only_three_repository_identity_matrix(corpus, target, server, resolution, reason, provenance):
+def test_explicit_operator_three_repository_identity_matrix(corpus, target, server, resolution, reason, provenance):
     _, scans, aliases, _ = corpus
     links = linked(scans, aliases, target)
     assert len(links) == 2
@@ -149,7 +165,7 @@ def test_route_case_survives_dns_normalization_without_cross_handler_evidence(co
 
 def test_declared_namespace_is_exact_and_still_checks_protocol(corpus):
     _, scans, aliases, _ = corpus
-    # Explicit operator opt-in is separate from the config-only matrix above.
+    # Explicit suffix opt-in remains separate from namespace-aware config matching.
     aliases = DeploymentAliases(service_ports=aliases.service_ports, service_protocols=aliases.service_protocols,
         dns_suffixes=(".production.svc.cluster.local",), source_files=aliases.source_files)
     target = "https://api.production.svc.cluster.local:8443/Api/Items/42"
@@ -163,12 +179,14 @@ def test_declared_namespace_is_exact_and_still_checks_protocol(corpus):
 def test_port_name_does_not_become_tls_declaration(corpus):
     root, _, _, _ = corpus
     aliases, notes = extract_deployment_aliases([root / "worker"])
-    assert aliases.service_ports == {"worker": 9000} and aliases.service_protocols == {}
+    assert aliases.service_ports == aliases.service_protocols == {}
+    assert aliases.scoped_services["preview/worker"].port == 9000
+    assert aliases.scoped_services["preview/worker"].protocol is None
     assert notes == []
 
 
 def qualification_proof(root: Path) -> dict:
-    """Reusable bounded artifact: actual config parsing, explicit normalized app inputs."""
+    """Bounded legacy operator seams, actual nginx config and normalized app inputs."""
     scans = fixture_scans(root)
     targets = ["https://api:8443/Api/Items/42", "http://api:8443/Api/Items/42",
                "http://api-edge.internal/Api/Items/42", "grpc://api-edge.internal/Api/Items/42",
@@ -179,6 +197,7 @@ def qualification_proof(root: Path) -> dict:
     scans["caller"].external_calls = [ExternalCall(target=target, method="POST", file="client.py", line=3,
         source_analyzer="wp032-normalized-fixture") for target in targets]
     aliases, notes = extract_deployment_aliases([root / name for name in scans])
+    aliases = legacy_operator_aliases(aliases)
     links = link_contracts(list(scans.items()), aliases)
     auth = {name: {(r.file, r.method, r.path): False for r in scan.routes} for name, scan in scans.items()}
     flows = find_cross_boundary_flows(links, list(scans.items()))
@@ -221,10 +240,12 @@ def qualification_proof(root: Path) -> dict:
         assert {item["source_analyzer"] for item in refs} >= {"wp032-normalized-fixture"}
         assert edge["resolution"] == "candidate" or edge["scheme"] in {"http", "https"}
     assert finding_refs
-    return {"scope": "three_synthetic_repos_actual_config_extraction_supplied_normalized_app_signals",
+    return {"scope": "three_synthetic_repos_explicit_operator_legacy_seams_actual_nginx_extraction_normalized_app_signals",
         "provider_calls": 0, "aliases": {**asdict(aliases), "dns_suffixes": list(aliases.dns_suffixes),
-            "unresolved_proxies": list(aliases.unresolved_proxies)}, "extraction_notes": notes,
-        "links": [asdict(link) for link in links], "architecture": graph, "finding_score_references": finding_refs,
+            "unresolved_proxies": list(aliases.unresolved_proxies),
+            "unresolved_service_protocols": list(aliases.unresolved_service_protocols)}, "extraction_notes": notes,
+        "links": [{**asdict(link), "declaration_refs": [asdict(ref) for ref in link.declaration_refs]} for link in links],
+        "architecture": graph, "finding_score_references": finding_refs,
         "cross_boundary_flows": [asdict(flow) for flow in flows], "trust_gaps": [asdict(gap) for gap in gaps]}
 
 

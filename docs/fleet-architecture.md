@@ -5,6 +5,30 @@ fleet summary fields and Mermaid/text outputs remain available. It contains
 `schema_version: "1.0"`, `kind: "fleet_architecture"`, `repositories`, `nodes`,
 `edges`, `evidence`, `coverage`, and `limitations`.
 
+Explicit Kubernetes Service/Ingress declarations preserve the internal
+`namespace/service` identity and exact repository ownership. They do not create
+implicit `.svc`/cluster-domain aliases or assume a namespace when absent.
+Known namespace ambiguity and unsupported/conflicting deployment protocols stay
+candidate facts; port names never establish TLS or mTLS.
+
+HTTP edges and `cross_repo_links` may carry `server_namespace`,
+`server_service_name`, `server_port`, and `server_protocol`. These are explicitly
+declared backend Service facts; `destination` and `scheme` describe the client's
+proxy-facing leg. A backend HTTPS declaration does not establish frontend TLS.
+The qualified subset requires an Ingress backend port to match the Service port
+by number or exact declared name, and does not model ExternalName redirects.
+Their typed `declaration_refs` bind configuration origins
+to an exact `repository_root`, safe relative `file`, and optional `line`.
+Graph evidence uses the matching repository context rather than its basename.
+A file-only declaration has an explicit unknown line and
+`snapshot_binding: "unverified"`; attribution alone does not verify captured
+configuration bytes or establish runtime connectivity.
+
+Namespace and Ingress scope rules follow the Kubernetes
+[namespace model](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
+and [Ingress contract](https://kubernetes.io/docs/concepts/services-networking/ingress/).
+Source references retain static declarations, not a claim about a running cluster.
+
 Repository IDs derive from canonical lexical roots, independently of display
 names and input order. Core slugs, desktop request GUIDs, and repository IDs are
 separate identities. Every requested root has a repository group, including a

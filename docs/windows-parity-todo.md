@@ -1,4 +1,14 @@
 # AttackMap Windows parity — podrobné TODO pro paralelní agenty
+**Checkpoint 7. 11. 2026 — skutečný scan a opravy:** Uživatelský Automatic běh nad Juice Shopem dokončil analýzu i lokální AI odpověď (421 s, 18 nálezů, 1 cesta). WP005 má ověřené uložení/obnovení a přesný Markdown export, ale zůstává MANUAL_PENDING. Oprava SARIF verze prošla source/frozen gate; formátování známých AI referencí 100 testy a offline původním textem. Nový kandidát zahrnuje obě opravy a není nasazen. [WP005 podklady](verification/windows-parity/WP005/closeout-20261107/README.md) · [WP017 dávka](verification/windows-parity/WP017/citation-label-20261107/README.md) · [WP022 verze](verification/windows-parity/WP022/sarif-version-20261107/README.md). Computer Use je na pokyn uživatele vypnutý, aplikace zůstává otevřená. Ořez posledního snímku uživatel potvrdil jako chybu screenshot programu; další kontrola tohoto místa se neprovádí. Součet 44: 9 DONE, 5 IMPLEMENTED, 5 MANUAL_PENDING, 16 IN_PROGRESS, 7 OPEN, 2 DEFERRED; samostatné release a historické WP043 brány se nemění.
+
+**WP044 kvalifikace — 7. 11. 2026:** Dokončen fyzický fleet16 source/API, skutečné source/frozen CLI, produkční headless consumer a jediný řízený source fault. Přesné IDs/provenance/negativní vazby i exporty mají nezávislé review; 134 nativních vstupů WP005 zůstalo beze změny. Celé WP044 zůstává IN_PROGRESS: syntetický corpus nenahrazuje reprezentativní produkční fleet, GUI ani maturity. [Protokol a přesná omezení](verification/windows-parity/WP044/qualification-20261107/README.md). WP005 ovládá výhradně uživatel; Computer Use je na jeho pokyn zastavený.
+
+**WP005 pokračování — 7. 11. 2026:** Po dokončení WP032 pokračuje autorizovaná práce na nativních options/settings/capabilities. WP004 je DONE; WP005 zatím MANUAL_PENDING. Běží oddělené modelové, build a akceptační rozsahy; skutečný choose/save/reopen/unsupported průchod a vizuální kontrolu provádí integrátor. Samostatné lidské, rendering a release brány se nepřebírají.
+
+**WP032 dokončen — 7. 11. 2026:** Explicitní namespace/service identita, přesný backend port/protokol a typované declaration/evidence reference jsou přijaté DONE. Finální společná sada 609 PASS; source i fresh-frozen 9/9 referenčních běhů, 4+4 skutečné native consumer běhy a oba Automatic Juice Shop běhy PASS. Nezávislé přijetí a závěrečný collector ověřily aktuální zdroje i build. Raw provenance rozdíly zůstávají přiznané; rozdíl SARIF driver.version je samostatný otevřený nález WP022. [Protokol a hranice přijetí](verification/windows-parity/WP032/closeout-20261107/README.md). Součet 44: 9 DONE, 5 IMPLEMENTED, 5 MANUAL_PENDING, 16 IN_PROGRESS, 7 OPEN, 2 DEFERRED. Průběžný uživatelský pokyn dovoluje další dostupnou roadmapovou práci; rendering a release brány zůstávají samostatné.
+
+**WP018 dokončen — 7. 11. 2026:** Source i nový standardně zmrazený engine prošly formátovou paritou, fleet16 s workers 1/2/4, osmi fault/cleanup scénáři, skutečným C# consumerem a Automatic Juice Shop během bez vyčerpání 600 s budgetu. Nezávislé přijetí **DONE**; 114 source PASS / 1 Windows SKIP, 19 verifier PASS, 90 native model kontrol. [Protokol a hranice přijetí](verification/windows-parity/WP018/closeout-20261106/README.md). Součet 44: 8 DONE, 5 IMPLEMENTED, 5 MANUAL_PENDING, 17 IN_PROGRESS, 7 OPEN, 2 DEFERRED. Ostatní zastavené úkoly se neobnovují; rendering/release brány zůstávají samostatné.
+
 **STOP / předání 31. 10. 2026:** Uživatel požádal uložit práci a zastavit pokračování. [Aktuální handoff: izolace, rendering a fleet](verification/windows-parity/HANDOFF-20261031-ISOLATION-RENDER-FLEET/README.md) shrnuje skutečné důkazy včetně live11, dirty tree a další otevřené brány. Bez nového pokynu nepokračovat; WP017/WP019/WP034/WP035/WP043 IN_PROGRESS, rendering FAILED. Následující datované checkpointy jsou zachované předchozí stavy.
 
 **WP035 frozen external plugin — 31. 10. 2026:** Nový běžný frozen CLI běh nad dvěma Python fixtures s workers=2 skutečně spustil PythonAnalyzer 0.1.0 v oddělených analyzer_host procesech. OS observer zachytil oba repo children s isolation flagem i dva analyzer hosts; oba raw ledger uvádějí succeeded/isolated, exit 0, Job active 0 a fixtures beze změny. Nezávislý reviewer ověřil raw důkazy a hashe. Předchozí config-only `in_process` vysvětluje záměrná builtins policy; nešlo o ztrátu flagu. Wheel attestation není verified Git pin: `pin_status=unverified`, `content_verified=false`. Snapshot-bound diagnostic engine ani tento běh neuzavírají OS sandbox, crash/hang containment, celé WP035/C36 či release; všechny failed pokusy zachovány. WP035 **IN_PROGRESS**. [Evidence a hashe](verification/windows-parity/WP035/frozen-plugin-isolation-20261031/README.md).
@@ -158,6 +168,9 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - DoD: round-trip všech povolených nastavení, unknown/old settings zachovají originál; engine switch invaliduje capabilities. Existing self-exe guard a no-download policy zachovány.
 - Ověření: `ReportAdapter.Tests`, `EngineLaunchSpec.Tests`, nové options/capability tests; native choose/save/reopen/unsupported journey a preview.
 - Důkaz: `docs/verification/windows-parity/WP005/`; agent i root **54 NativeOptions PASS**, regression **71 ReportAdapter PASS** a **24 EngineLaunchSpec PASS**. Preview build je čistý; root skutečně prohlédl opravený light supported a unsupported stav, po dvou nalezených clipping/contrast opravách je finální 1160×960 light stav čitelný bez překryvu. Shell integration, keyboard/Narrator, dark theme a druhá velikost zůstávají otevřené, proto WP005 není DONE.
+
+- Checkpoint 7. 11. 2026: skutečné user-only save/reopen a Automatic Juice Shop + lokální Flint odpověď dokončené, přesný core Markdown export a hash-bound podklady. MANUAL_PENDING kvůli zbývajícím keyboard/Narrator/unsupported/options-viewport branám. [Evidence](verification/windows-parity/WP005/closeout-20261107/README.md).
+
 
 <a id="wp006"></a>
 
@@ -346,12 +359,15 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ## Fleet, watch a export
 
+- Řez 7. 11. 2026: úzká oprava interpunkce známých AI ID, 100 pytest PASS, původní AI text offline nad přesným kontextem a nové bundled origins. Frozen funkční citation test ani nový modelový běh se netvrdí; whole WP017 otevřené. [Evidence](verification/windows-parity/WP017/citation-label-20261107/README.md).
+
+
 <a id="wp018"></a>
 
 ### WP018 — Fleet přes desktop kontrakt a supervisor
 
-- Priorita: P1; lane: CORE_FLEET; checkpoint: K4; stav: IMPLEMENTED.
-- Owner: `/root/wp018_resume`; resume base: `a8c4786`; výhradní lease na `desktop_fleet.py` a `test_desktop_fleet.py`; shared worker/service/schemas/publisher pouze po koordinaci s root.
+- Priorita: P1; lane: CORE_FLEET; checkpoint: K4; stav: DONE.
+- Owner: `/root/wp018_closeout_20261106`; base: `9b8e12d40d8d19ed5e9d07b7ec4d04b643513796`; dokončeno 7. 11. 2026, leases uvolněné.
 - Závislosti: WP004.
 - Kritéria: C06, C08, C09, C10, C28; původní úkoly: AM006, AM009–011, AM040; funkce: F19.
 - Zápis: nový desktop fleet adapter, `tests/test_desktop_fleet.py` (nový).
@@ -359,8 +375,10 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Kroky: repo-set identity + per-child identity/progress/terminal/manifest, reuse serial/parallel fleet service, bounded admission a cancel celé vlastněné větve; unsupported mode preflight.
 - DoD: source/frozen serial≡parallel ve všech výstupních formátech; Unicode/spaces/duplicate basename; failed child zachová sibling results a zjevný fleet partial stav. Žádný frozen exe spuštěný jako Python.
 - Ověření: `test_fleet_parallelism.py`, `test_fleet_publication.py`, `test_unreadable_and_fleet_failures.py`, nové native broker fixtures a procesová kontrola.
-- Důkaz: `docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md`; root schválil odstranění dvou nadbytečných fixture `mkdir`, produkční kód se nezměnil. **38 focused + 29 regression PASS, 1 explicit Windows chmod skip**. Source-worker serial/parallel parita prošla pro all/json/markdown s mezerami a Unicode; fresh frozen parita a reálné owned-process cancellation/cleanup acceptance chybí, proto WP018 není DONE.
+- Historický důkaz 20. 10.: `docs/verification/windows-parity/WP018/resume-verification-2026-10-20.md`; root schválil odstranění dvou nadbytečných fixture `mkdir`, produkční kód se nezměnil. **38 focused + 29 regression PASS, 1 explicit Windows chmod skip**. Source-worker serial/parallel parita prošla pro all/json/markdown s mezerami a Unicode; fresh frozen parita a reálné owned-process cancellation/cleanup acceptance tehdy chyběly, proto WP018 nebyl DONE.
 - Rozsah fleet16: ověřit celý běh 16 roots při concurrency 1/2/4, explicitní overall/per-child budget a status všech 16 požadovaných children. Dnešní UI default 1 worker/600 s není 16-repo kvalifikace; bounded admission a skutečný memory peak koordinovat s WP034. Selhání/cancel zachová správné sibling artefakty a ověřeně ukončí vlastněné procesy.
+
+- **Finální přijetí 7. 11.: DONE.** [Closeout](verification/windows-parity/WP018/closeout-20261106/README.md) a [hash-bound výsledky](verification/windows-parity/WP018/closeout-20261106/verification.json): 12 CLI běhů ve source/frozen, 6 desktopových běhů 16 repozitářů (workers 1/2/4), 8 skutečných scénářů selhání/ukončení s platnou předchozí generací a přirozeným Job0, 2 skutečné headless C# průchody; navíc Automatic Juice Shop+tiny s nevyčerpaným limitem 600 s v obou runtimes. 114 PASS / 1 platform SKIP + 19 samostatných verifier PASS; 73 + 17 nativních modelových kontrol. Limity a naměřené paměťové peaky doložené; C35/C36, produkční fleet16, GUI a release zůstávají samostatné.
 
 <a id="wp019"></a>
 
@@ -418,7 +436,13 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Ověření: native picker + clipboard/reveal procedura; `SelectedArtifacts.Tests`, `ReportExport.Tests`, SARIF parse a skutečná PDF kontrola obsahu/layoutu při změně exportéru.
 - Důkaz přípravného řezu: `docs/verification/windows-parity/WP022/preparation-2026-10-20.md`; agent i root **43 PASS**. Deterministická SARIF projekce a generation/hash-bound export intents chrání traversal/reparse/collisions/tamper/secret data. Žádný skutečný export/PDF/clipboard/open/reveal neproběhl a plný externí SARIF schema/consumer validátor nebyl spuštěn; WP022 není DONE bez shell/WP013 integrace a real export evidence.
 
+- Nový otevřený nález 7. 11. 2026 z WP032: skutečný SARIF source uvádí driver.version `1.5.1`, fresh-frozen `0.0.0-dev` při shodném CLI `1.5.1`; chybí frozen distribution metadata. Raw exporty a přesné rozdíly zachovány v [WP032 kvalifikaci](verification/windows-parity/WP032/closeout-20261107/verification.json). Oprava a source/frozen SARIF metadata gate patří do WP022; jeho stav zůstává IMPLEMENTED, závislost WP013 a vlastní export workflow přijetí zůstávají otevřené.
+
+- Vyřešení metadata nálezu 7. 11. 2026: canonical runtime verze sdílená s CLI, 23 testů PASS a skutečný source/frozen SARIF driver.version 1.5.1 s bajtově shodným exportem. Původní 0.0.0-dev důkazy zachovány; whole WP022 závislost a ostatní workflow gates zůstávají otevřené. [Evidence](verification/windows-parity/WP022/sarif-version-20261107/README.md).
+
+
 ## Integrace, distribuce a lidé
+
 
 <a id="wp023"></a>
 
@@ -583,7 +607,7 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 ### WP032 — Dokončit service identity a evidence links
 
-- Priorita: P1; lane: CORE_GRAPH; checkpoint: K8; stav: IN_PROGRESS.
+- Priorita: P1; lane: CORE_GRAPH; checkpoint: K8; stav: DONE.
 - Závislosti: WP002.
 - Kritéria: C11, C12, C28; původní úkoly: AM012, AM013, AM039, AM040; funkce: F07, F19.
 - Zápis: `contracts.py`, `crossrepo.py`, focused deployment/ownership fixtures a docs.
@@ -594,6 +618,8 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 
 - Dávka 31. 10. 2026: explicitní non-HTTP(S) schemes (`grpc`, `kafka`, `wss`, `ftp`) už nemohou povýšit HTTP route na `observed` nebo `observed_via_proxy`; zůstávají `candidate:unsupported_protocol`, zatímco dřívější `scheme_mismatch` priorita a HTTP/HTTPS/proxy pravidla zůstávají zachované. Fyzická tříservisová config-only fixture kvalifikovala 19 linků, 20 graph edges, 30 exact evidence refs a 2 snapshot-qualified finding→score refs; jde o supplied normalized observations, ne runtime fleet scan. WP032/C28, produkční fleet, native/UI/package/release jsou open. [Evidence](verification/windows-parity/WP032/agent-20261031/README.md).
 - Dávka 31. 10. 2026: multi-backend/unresolved config proxy zanechá negative `unresolved_proxies`, který přetrvá pořadí deklarací, CLI merge i conflict fallback a zabrání direct/proxy observed fallbacku. DNS root-dot ekvivalent (`host.rstrip(".")`) už negative fakt neobejde přes hosts/proxies/host_ports; blocked link zůstává candidate bez positive provenance. Finální guarded sada 451 PASS a nezávislý post-fix review 84 PASS; runtime/production/native/UI/package/C28 acceptance jsou otevřené. [Evidence](verification/windows-parity/WP032/agent-dot-host-fix-20261031/README.md).
+
+- Přijetí 7. 11. 2026: owner `/root`, base `9b8e12d40d8d19ed5e9d07b7ec4d04b643513796`; přesný namespace/root/backend port/protokol, persistentní negativní fakta a typované config origins. **609 PASS**, source/frozen 9+9 CLI, native 4+4, skutečný Juice Shop source/frozen PASS. Nezávislé přijetí DONE; GUI/rendering, C27/C33, platformní a release brány nejsou součástí přijetí. [Závěr a hash-bound důkazy](verification/windows-parity/WP032/closeout-20261107/README.md).
 
 <a id="wp033"></a>
 
@@ -725,6 +751,8 @@ Konkrétní suite karty níže doplňuje tento vzor; nové test soubory musí ag
 - Dávka 30. 10. 2026: dokumentovaný opt-in YAML/JSON formát `attackmap_datastores` je napojen od config emitteru přes provenance/merge až do produkčního fleet grafu. Syntetický fyzický 16-repo corpus serial/parallel: 8 deklarací → 1 undirected declared association, přesná oboustranná evidence, 32 child manifestů/hashů ověřeno; coverage 15 completed + 1 partial. Juice Shop negativní integrace bez shared edges. Centrální validátor odmítá credential-shaped host před i po normalizaci. Finální affected suite 251 PASS, společně s WP039 320 PASS; nezávislé review cleared. Formát je owner assertion, nikoli inference běžných frameworků nebo runtime konektivita. Reprezentativní produkční fleet/native/frozen a celé WP044 zůstávají otevřené. [Předání dávky](verification/windows-parity/ROADMAP-BATCH-20261030/README.md).
 - Dávka 31. 10. 2026: velmi úzký literal Rails `config/database.yml` emitter vytváří oddělený `framework_datastore_candidate`; dva shodné config facts mohou vytvořit pouze nesměrovaný candidate s oboustrannou evidence, nikoli declared/observed runtime relation. ID doména brání míchání s owner declarations; ERB, aliases, defaults, overrides, multiple databáze, secrets a neúplné identity zůstávají bez vztahu. Producer/consumer, RPC, reprezentativní produkční fleet/native/frozen a celé WP044 zůstávají otevřené. [Evidence](verification/windows-parity/ROADMAP-CONTINUATION-20261031/README.md).
 - Další dávka 31. 10. 2026: opt-in YAML/JSON `attackmap_messaging` dodává jen explicitní Kafka topic owner declaration. Shodná sedmidílná identity a opačné `publish`/`consume` ve dvou canonical repo roots vytvoří jedině směrovaný `producer_consumer` vztah `resolution=declared`; runtime delivery, HTTP/RPC/trust path ani general messaging se neodvozují. Fyzický syntetický 16-repo serial/parallel průchod měl 8 deklarací → 7 topics → 1 declared edge, 6 unmatched a 32 ověřených child manifests; Juice Shop negative bez messaging edge. Production fleet/native/frozen/UI/whole-task zůstávají open. [Evidence](verification/windows-parity/ROADMAP-NEXT-20261031/README.md).
+
+- Kvalifikace 7. 11. 2026: [fyzický v2fleet16, actual source/frozen CLI, headless consumer a řízený source fault](verification/windows-parity/WP044/qualification-20261107/README.md). Omezený řez přijatý, whole-task/production/GUI/maturity otevřené; původní failed oracle/fixture checkpointy zachované.
 
 ## Podmíněná budoucnost
 

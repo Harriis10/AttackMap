@@ -143,6 +143,12 @@ groups, components, typed relationships and evidence IDs. The native Windows
 preview can explore up to 16 selected repositories, distinguish observed and
 candidate links, and export the captured model or an entire SVG diagram.
 See the [fleet graph contract and current limits](docs/fleet-architecture.md).
+Explicit Kubernetes Service/Ingress declarations retain their namespace and
+repository ownership. Unresolved namespaces and unsupported or conflicting
+deployment protocols remain candidate links. Qualified links include root-bound
+Service/Ingress source references; names alone do not create cluster DNS aliases.
+Qualified Ingress bindings also verify the backend Service port; known backend
+port/protocol metadata is kept separate from the client's proxy-facing URL.
 See the [outputs reference](https://docs.mlaify.io/scanning/) for the full list.
 
 CLI and desktop runs publish validated generations under the output directory.

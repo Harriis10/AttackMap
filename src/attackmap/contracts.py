@@ -53,6 +53,9 @@ unit-testable without a real scan and imports nothing from the CLI/fleet layer.
 from __future__ import annotations
 
 import re
+import ntpath
+import posixpath
+from pathlib import PurePosixPath
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from urllib.parse import urlsplit
@@ -100,7 +103,7 @@ class ContractLink:
     # target when one is present; ``None`` for relative/variable targets.
     destination: str | None = None
     resolution: str = "observed"  # "observed" | "observed_via_proxy" | "candidate"
-    resolution_reason: str = ""  # "" | no_destination | unresolved_host | ambiguous_identity | explicit_port | scheme_mismatch | unsupported_protocol
+    resolution_reason: str = ""  # "" | no_destination | unresolved_host | unresolved_namespace | ambiguous_identity | explicit_port | scheme_mismatch | unsupported_protocol
     # The call target's URL scheme (``http``/``https``/…) when it carries one;
     # `None` for scheme-less authorities and relative targets (C28 protocol
     # modeling).
@@ -116,6 +119,76 @@ class ContractLink:
     # The declared proxy hostname the call dials on an ``observed_via_proxy``
     # link; `None` on every other resolution (C28 proxy modeling).
     proxy_host: str | None = None
+    server_namespace: str | None = None
+    server_service_name: str | None = None
+    declaration_refs: tuple[DeclarationSource, ...] = ()
+    # These describe the explicitly owned backend Service, not the client URL
+    # or the ingress listener represented by destination/scheme.
+    server_port: int | None = None
+    server_protocol: str | None = None
+
+
+def _repository_root_identity(value: str) -> str:
+    """Compare captured repository roots without touching their live trees."""
+    if ntpath.splitdrive(value)[0]:
+        if not ntpath.isabs(value):
+            raise ValueError("Scoped service ownership requires an absolute repository root")
+        return ntpath.normcase(ntpath.normpath(value))
+    if not posixpath.isabs(value):
+        raise ValueError("Scoped service ownership requires an absolute repository root")
+    return posixpath.normpath(value)
+
+
+@dataclass(frozen=True)
+class DeclarationSource:
+    """An exact config origin; capture/hash verification belongs to consumers."""
+
+    repository_root: str
+    file: str
+    line: int | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.repository_root, str) or any(ord(c) < 32 for c in self.repository_root):
+            raise ValueError("Declaration source requires an absolute repository root")
+        object.__setattr__(self, "repository_root", _repository_root_identity(self.repository_root))
+        if not isinstance(self.file, str) or not self.file or any(ord(c) < 32 for c in self.file):
+            raise ValueError("Declaration source requires a safe relative file")
+        path = self.file.replace("\\", "/")
+        if PurePosixPath(path).is_absolute() or ":" in path or any(part in {"", ".", ".."} for part in path.split("/")):
+            raise ValueError("Declaration source requires a safe relative file")
+        object.__setattr__(self, "file", path)
+        if self.line is not None and (type(self.line) is not int or self.line < 1):
+            raise ValueError("Declaration source line must be positive or unknown")
+
+
+@dataclass(frozen=True)
+class ScopedServiceBinding:
+    """An explicitly owned Kubernetes Service, not an inferred DNS alias."""
+
+    repository_root: str
+    port: int | None = None
+    protocol: str | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.repository_root, str) or any(ord(c) < 32 for c in self.repository_root):
+            raise ValueError("Scoped service ownership requires a repository root")
+        object.__setattr__(self, "repository_root", _repository_root_identity(self.repository_root))
+        if self.port is not None and (type(self.port) is not int or not 1 <= self.port <= 65535):
+            raise ValueError("Scoped service port must be an integer between 1 and 65535")
+        if self.protocol is not None and self.protocol not in ("http", "https"):
+            raise ValueError("Scoped service protocol must be http or https; unsupported protocols need a negative fact")
+
+
+_NAMESPACE_LABEL = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\Z")
+
+
+def _scoped_service_key(value: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError("Scoped service identity requires namespace/service text")
+    parts = value.split("/")
+    if len(parts) != 2 or any(_NAMESPACE_LABEL.fullmatch(part) is None for part in parts):
+        raise ValueError("Scoped service identity requires explicit namespace/service DNS labels")
+    return value
 
 
 @dataclass(frozen=True)
@@ -152,6 +225,13 @@ class DeploymentAliases:
     - ``unresolved_proxies``: normalized hosts with unmodeled/conflicting proxy
       routing. These negative facts prevent any direct or proxy identity
       fallback from claiming an observed contract for that host.
+    - ``scoped_services``: internal ``namespace/service`` keys bound to exact
+      repository roots. These declarations do not create cluster DNS aliases.
+    - ``scoped_proxies``: concrete ingress hostname → explicit scoped Service.
+      Only an exact owned Service may establish this logical proxy seam.
+    - ``unresolved_service_protocols``: service identities or scoped keys whose
+      explicit protocol was unsupported or conflicting. Discarding a positive
+      declaration must never turn that negative evidence into an unknown.
 
     Alias values address a repo by any of its identities (fleet id or root
     directory name, case-insensitive) and may name repos outside the current
@@ -170,6 +250,11 @@ class DeploymentAliases:
     # Negative config evidence must survive alias merges: removing a proxy
     # alone could expose an unsupported direct repo-identity/alias fallback.
     unresolved_proxies: tuple[str, ...] = ()
+    # These internal keys never become inferred .svc or cluster-domain aliases.
+    scoped_services: Mapping[str, ScopedServiceBinding] = field(default_factory=dict)
+    scoped_proxies: Mapping[str, str] = field(default_factory=dict)
+    unresolved_service_protocols: tuple[str, ...] = ()
+    declaration_sources: Mapping[str, tuple[DeclarationSource, ...]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         hosts = _declared_hosts(self.hosts)
@@ -183,6 +268,40 @@ class DeploymentAliases:
         unresolved = _declared_hosts({str(host).strip().rstrip("."): "unresolved"
                                       for host in self.unresolved_proxies})
         object.__setattr__(self, "unresolved_proxies", tuple(sorted(unresolved)))
+        services = {}
+        for key, binding in self.scoped_services.items():
+            _scoped_service_key(key)
+            if not isinstance(binding, ScopedServiceBinding):
+                raise ValueError("Scoped service declarations require typed ownership bindings")
+            services[key] = binding
+        proxies = {}
+        for host, key in self.scoped_proxies.items():
+            normalized = host.lower().rstrip(".")
+            if not normalized or any(_NAMESPACE_LABEL.fullmatch(label) is None for label in normalized.split(".")):
+                raise ValueError("Scoped proxy requires a concrete hostname")
+            _scoped_service_key(key)
+            if normalized in proxies and proxies[normalized] != key:
+                raise ValueError("Conflicting scoped proxy declarations")
+            proxies[normalized] = key
+        object.__setattr__(self, "scoped_services", services)
+        object.__setattr__(self, "scoped_proxies", proxies)
+        negative_protocols = set()
+        for identity in self.unresolved_service_protocols:
+            if not isinstance(identity, str) or not identity or any(ord(c) < 32 for c in identity):
+                raise ValueError("Unresolved protocol identities must be nonempty strings")
+            if "/" in identity:
+                _scoped_service_key(identity)
+            negative_protocols.add(identity.lower())
+        object.__setattr__(self, "unresolved_service_protocols", tuple(sorted(negative_protocols)))
+        declarations = {}
+        for key, sources in self.declaration_sources.items():
+            if not isinstance(key, str) or not key.startswith(_SOURCE_KEY_PREFIXES):
+                raise ValueError("Declaration source key must name a modeled declaration")
+            if not isinstance(sources, tuple) or any(not isinstance(source, DeclarationSource) for source in sources):
+                raise ValueError("Declaration sources require a tuple of typed origins")
+            declarations[key] = tuple(sorted(set(sources), key=lambda source: (
+                source.repository_root, source.file, source.line or 0)))
+        object.__setattr__(self, "declaration_sources", declarations)
 
 
 def _declared_hosts(mapping: Mapping[str, str]) -> dict[str, str]:
@@ -285,6 +404,9 @@ _SOURCE_KEY_PREFIXES = (
     "service_ports:",
     "proxies:",
     "service_protocols:",
+    "scoped_services:",
+    "scoped_proxies:",
+    "unresolved_service_protocols:",
 )
 
 
@@ -533,6 +655,30 @@ def link_contracts(
     calls_by_repo = {rid: _linkable_calls(scan) for rid, scan in repo_scans}
     routes_by_repo = {rid: _linkable_routes(scan) for rid, scan in repo_scans}
     identities = {rid: _repo_identities(rid, scan) for rid, scan in repo_scans}
+    roots: dict[str, str] = {}
+    for rid, scan in repo_scans:
+        try:
+            roots[rid] = _repository_root_identity(scan.root)
+        except ValueError:
+            pass  # Legacy relative roots cannot establish scoped ownership.
+    scoped_roots = {binding.repository_root for binding in aliases.scoped_services.values()}
+
+    def unresolved_namespace(host: str, destination: str, server_id: str) -> bool:
+        if roots.get(server_id) not in scoped_roots:
+            return False
+        names = identities[server_id]
+        # Explicit operator bindings may confirm an abstract seam, but never
+        # assign a caller's Kubernetes namespace. Extracted bare backends do not.
+        if aliases.hosts.get(host) in names and f"hosts:{host}" not in aliases.source_files:
+            return False
+        if aliases.host_ports.get(destination) in names and f"host_ports:{destination}" not in aliases.source_files:
+            return False
+        if aliases.proxies.get(host) in names and f"proxies:{host}" not in aliases.source_files:
+            return False
+        for suffix in aliases.dns_suffixes:
+            if host.endswith(suffix) and host[:-len(suffix)] in names and f"dns_suffix:{suffix}" not in aliases.source_files:
+                return False
+        return True
 
     def scheme_contradiction(scheme: str | None, server_id: str) -> str | None:
         """The provenance key of the protocol declaration a call's scheme
@@ -571,6 +717,9 @@ def link_contracts(
         host = destination.rsplit(":", 1)[0] if explicit_port else destination
         scheme = _target_scheme(call_target)
         host_repos, host_provenance = _host_repos(host, identities, aliases)
+        scoped_key = aliases.scoped_proxies.get(host.rstrip("."))
+        binding = aliases.scoped_services.get(scoped_key) if scoped_key is not None else None
+        scoped_owners = {rid for rid, root in roots.items() if binding is not None and root == binding.repository_root}
 
         if host.rstrip(".") in aliases.unresolved_proxies:
             # Unmodeled proxy routing cannot become a direct observed edge
@@ -581,6 +730,38 @@ def link_contracts(
             implicated = server_id in host_repos or declared in identities[server_id]
             reason = "ambiguous_identity" if implicated else "unresolved_host"
             return destination, "candidate", reason, None, None
+
+        legacy_backend = aliases.proxies.get(host)
+        protocol_negatives = set(aliases.unresolved_service_protocols) & identities[server_id]
+        if protocol_negatives and (server_id in host_repos or legacy_backend in identities[server_id]
+                                   or server_id in scoped_owners):
+            source = f"unresolved_service_protocols:{min(protocol_negatives)}"
+            return destination, "candidate", "unsupported_protocol", _sourced(aliases, source), None
+
+        if scoped_key is not None:
+            # The explicit namespace selects a concrete Service owner, never a
+            # basename, inferred cluster DNS name or unrelated matching route.
+            if server_id not in scoped_owners:
+                return destination, "candidate", "unresolved_host", None, None
+            if len(scoped_owners) != 1:
+                return destination, "candidate", "ambiguous_identity", None, None
+            if scoped_key in aliases.unresolved_service_protocols:
+                source = f"unresolved_service_protocols:{scoped_key}"
+                return destination, "candidate", "unsupported_protocol", _sourced(aliases, source), None
+            canonical_host = host.rstrip(".")
+            conflicting_host = any(name.rstrip(".") == canonical_host for name in (*aliases.hosts, *aliases.proxies))
+            conflicting_port = explicit_port and any(
+                name.rsplit(":", 1)[0].rstrip(".") == canonical_host
+                and name.rsplit(":", 1)[1] == destination.rsplit(":", 1)[1]
+                for name in aliases.host_ports)
+            if host_repos or conflicting_host or conflicting_port:
+                return destination, "candidate", "ambiguous_identity", None, None
+            if explicit_port:
+                # Backend Service.port does not declare the ingress listener.
+                return destination, "candidate", "explicit_port", None, None
+            if scheme is not None and scheme not in {"http", "https"}:
+                return destination, "candidate", "unsupported_protocol", None, None
+            return destination, "observed_via_proxy", "", _sourced(aliases, f"scoped_proxies:{host.rstrip('.')}"), host
 
         # Declared proxy (C28): the call dials the proxy, which positively
         # fronts exactly one repo. The logical seam is observed, but never as a
@@ -609,6 +790,8 @@ def link_contracts(
                 return destination, "candidate", "ambiguous_identity", None, None
             if scheme is not None and scheme not in {"http", "https"}:
                 return destination, "candidate", "unsupported_protocol", None, None
+            if unresolved_namespace(host, destination, server_id):
+                return destination, "candidate", "unresolved_namespace", None, None
             return destination, "observed_via_proxy", "", _sourced(aliases, f"proxies:{host}"), host
 
         if explicit_port:
@@ -660,6 +843,8 @@ def link_contracts(
             return destination, "candidate", "scheme_mismatch", _sourced(aliases, contradiction) or None, None
         if scheme is not None and scheme not in {"http", "https"}:
             return destination, "candidate", "unsupported_protocol", None, None
+        if unresolved_namespace(host, destination, server_id):
+            return destination, "candidate", "unresolved_namespace", None, None
         return destination, "observed", "", _sourced(aliases, provenance), None
 
     links: list[ContractLink] = []
@@ -692,6 +877,33 @@ def link_contracts(
                         continue
                     seen.add(key)
                     destination, resolution, reason, provenance, proxy_host = resolve(call.target, server_id)
+                    scoped_key = None
+                    if resolution == "observed_via_proxy" or reason in {"unsupported_protocol", "explicit_port"}:
+                        authority = destination_authority(call.target)
+                        if authority is not None:
+                            target, has_port = authority
+                            host = target.rsplit(":", 1)[0] if has_port else target
+                            key = aliases.scoped_proxies.get(host.rstrip("."))
+                            binding = aliases.scoped_services.get(key) if key is not None else None
+                            if binding is not None and roots.get(server_id) == binding.repository_root:
+                                owners = [rid for rid, root in roots.items() if root == binding.repository_root]
+                                if len(owners) == 1:
+                                    scoped_key = key
+                    namespace, service_name = scoped_key.split("/") if scoped_key is not None else (None, None)
+                    declaration_keys = []
+                    if scoped_key is not None:
+                        declaration_keys.extend((f"scoped_services:{scoped_key}",
+                                                 f"scoped_proxies:{host.rstrip('.')}"))
+                    if reason == "unsupported_protocol":
+                        negatives = set(aliases.unresolved_service_protocols) & identities[server_id]
+                        if scoped_key in aliases.unresolved_service_protocols:
+                            negatives.add(scoped_key)
+                        declaration_keys.extend(f"unresolved_service_protocols:{name}" for name in sorted(negatives))
+                    declaration_refs = {source for key in declaration_keys
+                                        for source in aliases.declaration_sources.get(key, ())}
+                    scoped_binding = aliases.scoped_services.get(scoped_key) if scoped_key is not None else None
+                    protocol_unresolved = (scoped_key in aliases.unresolved_service_protocols
+                        or bool(set(aliases.unresolved_service_protocols) & identities[server_id]))
                     links.append(
                         ContractLink(
                             client_repo=client_id,
@@ -711,6 +923,13 @@ def link_contracts(
                             scheme=_target_scheme(call.target),
                             alias_provenance=provenance,
                             proxy_host=proxy_host,
+                            server_namespace=namespace,
+                            server_service_name=service_name,
+                            declaration_refs=tuple(sorted(declaration_refs, key=lambda source: (
+                                source.repository_root, source.file, source.line or 0))),
+                            server_port=scoped_binding.port if scoped_binding is not None else None,
+                            server_protocol=(scoped_binding.protocol if scoped_binding is not None
+                                             and not protocol_unresolved else None),
                         )
                     )
     links.sort(

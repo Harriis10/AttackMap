@@ -13,6 +13,7 @@ import posixpath
 import re
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
+from dataclasses import asdict
 from typing import TYPE_CHECKING, Any
 
 from .fleet_resource_identity import (MAX_DATASTORE_DECLARATIONS, MAX_DATASTORE_REPOSITORIES,
@@ -287,7 +288,8 @@ def build_fleet_architecture(
         component = context["service_ids"].get(context["owner"](file))
         return repository, component or repository["id"], context["owner_basis"](file) if component else "repository_only"
 
-    for link in sorted(fleet.links, key=lambda item: _canonical(vars(item))):
+    declaration_contexts = {_root(context["root"]): context for context in contexts.values()}
+    for link in sorted(fleet.links, key=lambda item: _canonical(asdict(item))):
         client = endpoint(link.client_repo, link.client_file)
         server = endpoint(link.server_repo, link.server_file)
         if client is None or server is None:
@@ -298,9 +300,22 @@ def build_fleet_architecture(
             "external_call", link.client_file, link.client_line, link.client_target)
         refs += contexts[server_repo["id"]]["evidence"].refs(
             "route", link.server_file, link.server_line, f"{link.method} {link.server_route_path}")
+        for declaration in link.declaration_refs:
+            context = declaration_contexts.get(_root(declaration.repository_root))
+            if context is None:
+                limitations.add("A deployment declaration has no available child snapshot; its source reference is unavailable.")
+                continue
+            reference = context["evidence"].ref("deployment_declaration", declaration.file, declaration.line)
+            reference["basis"] = "supplied_static_config_declaration"
+            # Attribution does not establish identical captured config bytes
+            # across independently scanned children and parent extraction.
+            reference["snapshot_binding"] = "unverified"
+            refs.append(reference)
         identity = [client_repo["id"], server_repo["id"], link.client_file, _line(link.client_line),
                     link.client_method, link.client_target, link.server_file, _line(link.server_line),
                     link.method, link.server_route_path, link.destination, link.scheme]
+        if link.server_namespace is not None or link.server_service_name is not None:
+            identity.extend([link.server_namespace, link.server_service_name])
         relation_id = _id("relation", "http_contract", identity)
         details = {"relation_id": relation_id, "basis": "core_contract_link",
                    "confidence": None, "scope": "cross_repository",
@@ -311,6 +326,10 @@ def build_fleet_architecture(
                    "server_route_path": _text(link.server_route_path),
                    "destination": _text(link.destination) if link.destination else None,
                    "scheme": link.scheme,
+                   "server_namespace": link.server_namespace,
+                   "server_service_name": link.server_service_name,
+                   "server_port": link.server_port,
+                   "server_protocol": link.server_protocol,
                    "provenance": _text(link.alias_provenance) if link.alias_provenance else None,
                    "endpoint_resolution": {"source": source_resolution, "target": target_resolution}}
         if link.resolution == "observed_via_proxy":

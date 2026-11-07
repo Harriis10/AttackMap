@@ -18,7 +18,7 @@ foundation the seam-analysis phases build on.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -379,6 +379,11 @@ def fleet_summary_json(fleet: FleetScan) -> dict:
                 "scheme": lk.scheme,
                 "alias_provenance": lk.alias_provenance,
                 "proxy_host": lk.proxy_host,
+                "server_namespace": lk.server_namespace,
+                "server_service_name": lk.server_service_name,
+                "server_port": lk.server_port,
+                "server_protocol": lk.server_protocol,
+                "declaration_refs": [asdict(ref) for ref in lk.declaration_refs],
                 "client_location": f"{lk.client_file}:{lk.client_line}"
                 if lk.client_line
                 else lk.client_file,

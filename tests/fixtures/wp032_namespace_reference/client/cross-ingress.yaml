@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: no-cross-namespace-fallback
+  namespace: missing
+spec:
+  rules:
+    - host: cross.example
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: auth-api
+                port:
+                  number: 8080

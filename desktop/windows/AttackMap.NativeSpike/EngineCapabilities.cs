@@ -258,8 +258,13 @@ public sealed class EngineCapabilitiesCache
     public void Store(string executable, EngineCapabilities capabilities)
     {
         SelectEngine(executable);
-        if (capabilities.Compatible && capabilities.EngineSha256 != ExecutableSha256)
-        { Invalidate(); throw new InvalidDataException("Engine changed during capability discovery. Check compatibility again."); }
+        if (capabilities.Compatible)
+        {
+            string? advertisedPath = capabilities.ExpectedIdentity is { } identity ? identity.GetProperty("path").GetString() : null;
+            if (capabilities.EngineSha256 != ExecutableSha256 || advertisedPath == null ||
+                !string.Equals(Path.GetFullPath(advertisedPath), SelectedExecutable, StringComparison.OrdinalIgnoreCase))
+            { Invalidate(); throw new InvalidDataException("Engine changed during capability discovery. Check compatibility again."); }
+        }
         Current = capabilities;
     }
 }

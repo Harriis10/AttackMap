@@ -1,0 +1,435 @@
+{
+  "task": "WP005",
+  "status": "MANUAL_PENDING",
+  "whole_task_acceptance": false,
+  "scope": "Bounded retained models/build, actual user save/reopen, native full scan, screenshots and exact core Markdown export",
+  "separate_CSharp_assertion_checks": {
+    "NativeOptions": 81,
+    "EngineLaunchSpec": 46,
+    "ReportAdapter": 76
+  },
+  "current_native_inputs_match_pinned_snapshot": 134,
+  "source_identity_note": "Native134 checked against current files. Old engine semantics bind retained frozen02 source; no claim that all current Python matches post-citation or WP022 checkpoints.",
+  "native_app": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\native-build01\\app\\AttackMap.NativeSpike.exe",
+    "sha256": "a893b488874c8327e14e71b5c6d9d3dc185eb95fca29953c5335c955a95b865d"
+  },
+  "original_user_engine": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\native-build01\\app\\engine\\attackmap.exe",
+    "sha256": "e5de74f18990a0b4d7b37740f219cbc6c9bad03265031d2b8fa4f237ff4bff4c",
+    "captured_sources": {
+      "src/attackmap/desktop_worker.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\desktop_worker.py",
+        "sha256": "90b6fa59f17c9e4fef43c9badd2e2062b06522f493f2c158105ed5ad6840d7c4"
+      },
+      "src/attackmap/scan_service.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\scan_service.py",
+        "sha256": "7015fc62355cc209c4adea98f3727c2e4662e989f0a91f32214e7e681e6ff503"
+      },
+      "src/attackmap/pipeline.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\pipeline.py",
+        "sha256": "54cb1fb4083b83eaf8ab4b02bae465325945d6a4d3ca45b4cf2a8d1ab69cc5b6"
+      },
+      "src/attackmap/desktop_ai.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\desktop_ai.py",
+        "sha256": "7f3dba88eef181fbbf412ab5de737996bcfed68edbb013c9ce8e384c4a34475a"
+      },
+      "src/attackmap/ai_budget.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\ai_budget.py",
+        "sha256": "98527c906c139a6211a8e6b0bec353ca4a09032ba3625f59113767509ca08f28"
+      },
+      "src/attackmap/llm_review.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\llm_review.py",
+        "sha256": "dcee787e8b97ed3227dc1207b2cb72880f04963d053c4fa7c5b3483e05fe0389"
+      },
+      "src/attackmap/artifact_publisher.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\artifact_publisher.py",
+        "sha256": "602d076d5ee986967bf1f2b9b0e23c0f4dbab9553131ac3168f579233638021b"
+      },
+      "src/attackmap/report.py": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\report.py",
+        "sha256": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27"
+      }
+    },
+    "scope": "Original user-run frozen e5de; current-source WP022 SARIF metadata patch is a separate case. No new SARIF parity claim."
+  },
+  "actual_save3_reopen2": {
+    "passed": true,
+    "settings_sha256": "f763cb8076d7a5dc710a23e4c94410820275070fc42f7c4e9c5c3a1a5ee47a44",
+    "timeout120_budget45_config": true
+  },
+  "saved4_scope": "User-edited after reopen; exact saved/intended/dispatched full-run preferences, NOT restored-after-reopen proof.",
+  "full_run": {
+    "run_id": "f2a53980402a46558303d30828cf7287",
+    "elapsed_seconds": 420.921018,
+    "automatic_catalog_entries": 21,
+    "analyzer_execution_counts": {
+      "succeeded": 7,
+      "skipped": 14
+    },
+    "isolated_successful_analyzers": [
+      "python",
+      "terraform",
+      "iac"
+    ],
+    "deterministic_findings": 18,
+    "deterministic_paths": 1,
+    "artifact_entries_bound": 21,
+    "model": {
+      "model": "recursivesi/flint",
+      "backend": "api",
+      "usage": {
+        "input_tokens": 5448,
+        "output_tokens": 19692
+      },
+      "calls_reserved": 1,
+      "proof": "Real product returned-output/usage metadata and manifested nonempty review; no raw HTTP wire trace retained"
+    },
+    "request_soft_budget_absent": true,
+    "effective_runtime_soft_budget": {
+      "seconds": 600,
+      "exceeded": false
+    }
+  },
+  "AI_authorization": "User explicitly enabled AI and selected recursivesi/flint at the retained local endpoint; this overrides the default test model for this user-driven case.",
+  "AI_quality_limits": {
+    "reference_validity": "invalid",
+    "invalid_references": [
+      "finding:1:",
+      "finding:2:",
+      "finding:4:"
+    ],
+    "claim_support": "not_assessed",
+    "source_location_validation": "unvalidated",
+    "source_reference_validity": "unresolved",
+    "allowed_reference_count": 9
+  },
+  "screenshots": [
+    {
+      "image": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\user-light-supported-01.png",
+      "sha256": "3b5bff82ea1932aa3efbe299dda7d1a773bdeb53ed1bdcf5e7392d15327410ee",
+      "pixel_dimensions": [
+        1266,
+        792
+      ],
+      "review": "independent-user-light-supported-01.review.json"
+    },
+    {
+      "image": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\user-light-reopened-advanced-01.png",
+      "sha256": "8b5b3c492d3ec2a7c5c33c50a009bd79214756548b983649bb0635cf3105b184",
+      "pixel_dimensions": [
+        890,
+        954
+      ],
+      "review": "independent-user-light-reopened-advanced-01.review.json"
+    },
+    {
+      "image": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\user-dark-ai-review-01.png",
+      "sha256": "ca2998ec618a909b41c92db435dcca9ffc0ed4e48bb61465b45b8f875ab06259",
+      "pixel_dimensions": [
+        1903,
+        1039
+      ],
+      "review": "independent-user-dark-ai-review-01.review.json"
+    }
+  ],
+  "screenshot_scope": {
+    "light_options": "1266x792 actual user screenshot",
+    "advanced": "890x954 crop; NOT a second viewport",
+    "dark_reports": "1903x1039 user screenshot; user explicitly confirms app is fine and apparent clipping is capture artifact; no further check"
+  },
+  "exported_core_markdown": {
+    "bytes": 17352,
+    "sha256": "99767f71e640efa588d9de5d7f3ca3edb226cdd199211eff87f5462598d63d3e",
+    "exact_canonical_manifest_bytes": true,
+    "AI_separate_artifact_bytes": 7761,
+    "AI_export_claim": false
+  },
+  "failed_120_second_runs_retained": [
+    {
+      "run_id": "a7e6bcd2307a4e8da19921696ecf8ee2",
+      "terminal_state": "failed",
+      "hard_timeout_seconds": 120,
+      "manifest_calls_reserved_checkpoint": 0,
+      "interpretation": "Pre-AI checkpoint is not proof of no later HTTP attempt; see core/causal-path-review.json."
+    },
+    {
+      "run_id": "ede4caad4c604531a32d6685f47c2f38",
+      "terminal_state": "failed",
+      "hard_timeout_seconds": 120,
+      "manifest_calls_reserved_checkpoint": 0,
+      "interpretation": "Pre-AI checkpoint is not proof of no later HTTP attempt; see core/causal-path-review.json."
+    }
+  ],
+  "personal_settings_five_JSON_hashes_unchanged": {
+    "settings.json": {
+      "exists": true,
+      "sha256": "fa67979c278edcf43912270384710991fcf8679f8b0b478219cf03a8f4049a2f"
+    },
+    "window.json": {
+      "exists": true,
+      "sha256": "313bd8f70dec5de0c96e0f5aea50972a5e5fad5e8da09e8206b351ce900138b0"
+    },
+    "recent-repositories.json": {
+      "exists": true,
+      "sha256": "5a403bc3c0b86ca096e079fcd42dd86e8e02be830398e5a82f71a6bd9e667350"
+    },
+    "theme.json": {
+      "exists": true,
+      "sha256": "0f4f87db4567232a7f1756aa1534ec1314777b39c3bf5209f87cf9739321cddc"
+    },
+    "provider.json": {
+      "exists": true,
+      "sha256": "675214a40f906f85bddcb7ae87b729d65eb09be4de14eb7146a7b4728afba554"
+    }
+  },
+  "personal_scope": "Only the five specified JSON contents; no general profile/filesystem/history/credentials/WebView isolation claim.",
+  "app_lifetime": {
+    "automatic_termination_enabled": false,
+    "user_instruction": "Leave app open; all ComputerUse/Sky/CUA/native automation prohibited",
+    "action_taken": "None; no liveness probe, window activation, process termination or GUI interaction performed by collector"
+  },
+  "remaining_manual_gates": [
+    "Actual keyboard/focus journey",
+    "Actual Narrator speech/accessibility journey",
+    "Unsupported-engine compatibility/settings journey",
+    "Options in Dark and a second actual window size where unobserved"
+  ],
+  "excluded_claims": [
+    "Whole WP005 acceptance",
+    "C27/AI accuracy or valid narrative reference acceptance",
+    "Release/clean-host/macOS acceptance",
+    "WP026 multi-user study",
+    "WP022 candidate562d or user enginee5de includes the later citation fix",
+    "General profile isolation",
+    "Second viewport from the Advanced crop"
+  ],
+  "later_source_batch": "Citation formatting100-test/offline source proof and newer build are separate; user engine and WP022 metadata candidate are earlier checkpoints.",
+  "bound_evidence_sha256": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\core\\verification.json": "86b1be5a245e2f184806fc9d2d4ba3c947a98ef648fe4611f275e6eed06cbad1",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\core\\final-models01\\NativeOptions.Tests.log": "79ddf419ea157132766577f83be0c7e6d7adff5c76461bbb4eabf9481d0ec1b9",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\core\\final-models01\\EngineLaunchSpec.Tests.log": "d01e8a7b1a5c7bfec291c04d35da4855552acce4ee3031b4ce1fe95378afa518",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\core\\final-models01\\ReportAdapter.Tests.log": "78cab78400e3879acf6d8927950ca2829d73c3d2e9bc3e396560493bd762bf81",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\native-build01\\snapshot-inputs.json": "5014c44b4f3fedf72c93ea163ff51f3f3369975093cc1245603a0b1563e5b59d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AI\\AiArtifactProjection.cs": "bc0a37b83d4795c8e09cba7891c83a54c54a8eb0571a6fac6da66dc47e3d008c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AI\\AiArtifactsView.cs": "2d9abceb7711947c7da4292c1a5f258abf5543027a855b8d51210203beba3cc8",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AnalyzerSelectionModel.cs": "73c8738b7dab2d5ed68d47399d1df2e1ebd5aadb84b7d6a27a0b926806709318",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AnalyzerSelectionView.cs": "08cfbb05a571ca3c03f1630569671cefe46d5a1d9e0ab2a1413086b1c53e1c88",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\App.xaml": "30255e7b1e84814e15b2adf988d66cb8abb59c1c7c740e3e74081288ca2e617f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\App.xaml.cs": "202a2ea6ba7e4f41086a54dd035eb33a492213506933d0c59234abe1c52ead52",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\AttackMap.NativeSpike.csproj": "c6b59e62e7b52b6249ef4b7d5416c2d703e7fa4d1ede89b17cf92097fc7e6e98",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\CaptureOracle.cs": "77cc13e6bcd2b91555e8d118222903bd53a10d669124818740884d4a142c2bff",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\DesktopActionRunner.cs": "7a12a394d813b63a586ee8f9e99867ad90e70eeb561667843aa5f22de0a2db21",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Diagram\\DiagramModel.cs": "41bedea4ad97d41f394a06d421a5c1d7f9a8e3f19a9e9d11e898e26e2bc62efb",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Diagram\\DiagramSelectionReader.cs": "47bd2c139894fe8e7b54c3db33dcb70dceebd50ce7ce1e2dc50a86d1814fd566",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Diagram\\DiagramView.cs": "4a1c48c40af8b227e676200e211ce689acd850d4ff9ba6d67ac6e67c3a03ff37",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Diagram\\DiagramWorkspaceView.cs": "d6501564f02c59e0c45771e629b62cb530a52a57ca7f3ecfc4b3339ed47abf08",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\EngineCapabilities.cs": "5e10dc175e387846144bdf24434136f54b758eaadf9848710658fe2a521c5085",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\EngineLaunchSpec.cs": "8ec9d8215e6520982db29d87f4af96edc601ddd0ceb181be8e5935b1db3fab59",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\EngineProtocol.cs": "ca2d0c194be051549b1bfb350d3395572129e5cba0dea1d7a3298aa2fdefff36",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\EngineSession.cs": "6324c07533b878655e88144502eb0ad18833c8ecf2b149873cc9ddda92b966c3",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ExportPrep\\SelectedExportWorkspace.cs": "3e8acc057103c86189d64ed5b83443f04df3c8dff8e7e7d7be6eb35b5a2a177a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ExportPrep\\SelectedSarifProjection.cs": "48ba795f75418bca6bcea05e7a96130a621e3fc4ca4233b2a049a3afa8a40c0d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ExportSelection.cs": "fbd84648f1cc18c1411c7daa4d76e583f565bd68688932818ba139890466271c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\FindingContextFormatter.cs": "421990cf839e2771cdb3af46a5ced537f5388b11afdd77cee22c266b103fddf4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetAdapter.cs": "69421a736d7dc2a669a0eb1f150bf88eb524a86027c4625dd32395d68bf1e59d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetExecutionOptions.cs": "fe0cef4c9d8a6e911ca9f450ca1db5b1f439744207a6c1fa0b50a5f01c6add64",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetGraphBinding.cs": "3628949c8482611c52a6ead0c95272f43853e3c63efa49232d037941864779e4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetGraphEvidenceNavigation.cs": "93824a26ee8fb5a6afd1b9316e672c059522e46f6374e61b8003da210f374866",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetGraphPane.cs": "bcfdec2c1479e64ed7b098b90c5107fea5f4d006364fbc64c8da957ea2ebb8cd",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetScanOptions.cs": "8aed7cba95048f2b6e863617fe76ddf291b4a69cb2ab98d237c9b9482023c1ed",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetSession.cs": "8f75b1a90dea78bf836003aacf166fb1484730feef5f9765f1779bfbe5ad07bc",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetSummaryIdentityMap.cs": "a124caa7b84179771cfb7267f5768917e01d4b7038eefa2ad233bc697203f004",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetTransportQaInputs.cs": "c4374c6b0261995c9523449266158739ca7d8c6b40f03de5efbb67d7f8659877",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetView.cs": "ef91be44fc64949a2b5b3286f9943037005bd01198fc06ad3405a1497c83d420",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Fleet\\FleetWorkspace.cs": "618abc0967bdbb728fb5d29dc6c50967ed4b17a42d8dd88972fab5f0a42374c4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Graphs\\GraphWebView.cs": "0281530faa02e891c27650d918b05faa13dcbbc3c2c9cdcf4b220c0a45224d54",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\History\\HistoryComparisonModel.cs": "6c669638ce8201829d7565a54164507cd12d5e85f3182de827b9e63c66cb8256",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\History\\HistoryComparisonView.cs": "77b7eb93382981070977bfe29e9bcbcdff9c61fa5e817bd03351ceabf2aabf4d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\History\\RecentRepositoriesCodec.cs": "725b8cd442747e3d1eaee60774aa039c093585840f50d7dafc2d4c79ea5229c3",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\History\\RecentRepositoriesPanel.cs": "6a3c77fd613dfd7f5ce51361c0427f1a2e9599a4d8ebcb9c333ad6f2f57caf0f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\History\\RecentRepositoriesStore.cs": "8498c539d8363d6bec337421b4a9ced3ac252b53203491534e79baf9dd832c4d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\HistoryComparisonView.cs": "6b5e3c16897a3733317d87f587d4056a50e87a5f042b43a4ed3f50c33cea3b94",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Inventory\\InventoryView.cs": "b32db66e1158c324f5e157c316263215ba7b996960e29910de9eb69e753687cf",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Inventory\\InventoryViewModel.cs": "508bea694f332aa0faab826f75467ddc699250a7f0cd982cc9095fc5d99bd9a3",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\LocalSettings.cs": "2073adc489b50fbfba2797772deb79abfda3326392a3642fd3269cab9b80f295",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.AccessibilitySmoke.cs": "8b2aa27b674644a35c6e602e75bed45386e9e609392cf7465c7adb30cba73a05",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ActivationSmoke.cs": "48abce99cf2de4b4140bfab00740d1229fc192cba276bac9e70179b1d88d643f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.AiReview.cs": "d58d86872ee1d1c1fd5fab67b49fb5a4ac1d936c129ffac39bd901d218b7cacf",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.AnalyzerSmoke.cs": "b36c2690e0039c1ab9da002a5c1b27f4cad2c2f8c515df448569dcf4f4be0a77",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.Capture.cs": "8ed546e4880f0f2eca1e546f72007c04aa78a0eaedcac4cfedac4df73ba5c53b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.DiagramRenderSmoke.cs": "9abe3082414bfa86cae35f455b36224fa6d73bb063fbfe766f6b02a0c26597ce",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.FaultSmoke.cs": "cbf722b81dd6e374a0395cbce4e7c2345b7f2f69b2be8c3de8337070d68cc0a5",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.FleetEvidenceSmoke.cs": "a64b6ba0e8968ec17260c297333651bbdaca34227c0332b04d5d0049ae35ece8",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.FleetGraph.cs": "410468420c5a623ff3321699188f0e2c2f932585ed12a41d3da17cd7d461dc35",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.FleetGraphSmoke.cs": "0622fb9a0b9959a40d9cc331ab3351f8754c016c985cbb45d0ba89a980e749e9",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.FleetTransportSmoke.cs": "00223c4e5d84429e60cbb6923214bb208fb9db508c10a1642b4dcefcdbfdbef0",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.GraphFallbackSmoke.cs": "53225da6b674a10993c57df2f96aa6ffd08d56aac587690cdf024c11759382d7",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.NavigationRenderSmoke.cs": "e764c7bd3331198cd96ce6628231876e95cf94442d68d0f5d0c89f601aedf16d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.Parity.cs": "3a2513643099961ccd1861e2f50d311ce37e66eddb5932952a22f3c51f8c640d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ParitySmoke.cs": "2e0303d4964703865983f7af520cbc01980bbbb508e1af5e18b1aa964937a689",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.PortableStartupSmoke.cs": "97aa48ab7d6a6f050c6a54516a03ec9edd5780ef261069e17194adfa58e4ffd8",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ProviderFaultSmoke.cs": "23fe3b9aaa97f3890d66ad9a0ebb863baf844cfbecddcd4993c7f020545d23ab",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ProviderRenderSmoke.cs": "aaf57105bfa5362ef38a88b0b13120dedc24633b9f0025a7d48e816aa8fdd470",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ProviderScrollSmoke.cs": "3c7ae9ab11e19a1df6bfe2e4f677380042ae2c8a7c215aa5bdad32012f55eece",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ReadinessSmoke.cs": "a17d5146550f0b7fad25a31cdf909fb733327e092fc7db94cee11496b97bac73",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.RenderDiagnostics.cs": "fcae9cccbf18889e847e2208f53606aa339f023dcb549eefd8653c64304474bf",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ReportGraph.cs": "1e86ae94ece526ca3690b03a3561ce0c67507a388f5d908188b9970ffbfc397f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ReportGraphSmoke.cs": "6ee716475eaae0d5556d7125e702967f7dfd145cff2f825583fc8b4e6628ec27",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.SelectedExport.cs": "fd50d585d09b57cdf0362cda61bc13012678d1f50d5cd5f556ea674157513289",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.SingleWatchSmoke.cs": "b7c0fdff4c2a6cad9891433924dc2e177d4be905b162aec87605d27e9eb22136",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.Workspaces.cs": "043e17cfa1cecd08b38ef00d6dfee57708c2ba56b413484af59a3882cd63bcad",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.xaml": "5d18931b0f75369c0fc47f3ce78e7101a7a892eedf361261c874c060677cf6df",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.xaml.cs": "e92f25c06d04d62f43053a199a9b12fc6413f460972e80fd06da9beb30e25299",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ManualOptionsState.cs": "f9a2ee124d2be8abe2376af0d9f383198f7cc5de52ed4c52060abe30c6171cc9",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MarkdownView.cs": "d492140cbfb619fb374ff2a777bd4ad88e6f6cedc4840c1dd0cca2bee9db91a4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\NativeAccessibility.cs": "024a8fd178ad7f323383ba37c47b896b7e0d96c0304ac1cbb77f2fd7aaf1675c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\NativeCaptureProbe.cs": "82905c0f9a423d8eecc23b063ea2a9f4a4cf80e273d03f0fc628cc1e5c7e9b8b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\NativePerformanceProbe.cs": "5eea54ae9e6300edfe5d170d48396269b0510425a05e0dd254f427e76f60f0cc",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\NativeScanOptions.cs": "29f8577421d2fe429f6fafac4ea82a5799c6cb2c0885f773a814d16a7b348866",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Overview\\OverviewView.cs": "b5ae6a3432048ba8068427e986d2c40528eb499da6044fa603674fcc56eef475",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Overview\\ParityOverviewAdapter.cs": "9c5c0d35e4b08757ad11c636d1ba9aa6c3e53b361de624a68243a9d632024d89",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\OverviewAdapter.cs": "8946af4bfa93140fe9477fc358361dedc9877c426f998b1f5697a41c23821699",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ParitySmokeTimeouts.cs": "c94d78f405645c8822b85afc62c60683d2a6eba62c91ac64ec998e6553a69486",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ProviderConfiguration.cs": "b6ad5a60ba3feedf1fb6e787aa5096e83a0c998b366907a5d685540fef499367",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ProviderSettingsView.cs": "06778ae3c4b121721ad76a20a89fbce150a7ab743782f0e2a45649989808b2e6",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ReportAdapter.cs": "4a5ae903655505f7fb1358ef040ecd4d76ae3b0aac96d2e8bb7a65e8475b7d83",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ReportSectionAdapter.cs": "675203a9306349ef05af2b49a69bc9dee713bd31a9c0ae6be39d6395e28f017c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ReportSections.cs": "af6ff0b08e8b50476e944d695f22790197ab517c0fb277643848ec7312e4d078",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ReviewExport.cs": "7902238dce10eac231ffdf410f7125f905175187db2c9df98d23c446da4ecc56",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\RiskPathsView.cs": "dd754f001981c7467f780ee7adc0c3580b662519c8cba6b39058df4db4fb4b0f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\RiskPathsViewModel.cs": "633bd68267de9f4f643acae1778a2245bc46fb71b1b44baffb40e0100e8f0489",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\RunPresentation.cs": "cd598b99703fcfed8b9a885f0c3067890d8f3f6025aacb40fef3cca04c8e7ec2",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ScanLocations.cs": "9bb0a678ca68cb23753f8d38896b77a61dfa59a2b2ad867487ab8ef25bde4265",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ScanProgressModel.cs": "5dceac9f5bf5b9366c077f57a428f94a8d94ed5bb05ee0785cf824622becc157",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ScanProgressView.cs": "582f9c3d5224fe5bdcb527d79914f2a5e099a47d1916dccd7a82d48d41543059",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ScanTiming.cs": "37a384f37ee4f4da58246779c9359945c149c46cbd225000826a9defab5af247",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\SelectedArtifacts.cs": "1a28d9ec054175a9241cc4e581115bf23c10e7cdeb761bf4260fbb91fa6db52a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\SourceLocation.cs": "708199c2888484fb7e85d8d78f48d0181d6c4fbb3f74943fc977e28e2422a169",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\StructureAdapter.cs": "493261417dc1c074dba594674486ba02179284e4bc45bb706c6811ac2d1f3f4c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Suppression\\SuppressionWorkspaceModel.cs": "bf604daf255de1cdb648cc353a67da5472ece033bfee7445dff6afdd6713c8b2",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Suppression\\SuppressionWorkspacePanel.cs": "daf4cd7ee001da018c4ba14e340308006fa7858b6a8a41799790390f7e14ad72",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\SuppressionPanel.cs": "444723985d9e9bffcd00a11992c1c401707919f566fd636498442cf67119f6fc",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Themes\\AttackMapTheme.xaml": "9c453857fad3e60e210f0f2e0e6ba30c327788803b3f37ce4038ec574ab79acf",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\UiActivation.cs": "528519d4b9ae150da9b82326558b95f83329e27ab18dc34d76143586306ed67e",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\VerifiedReportSnapshot.cs": "52dbaf8a8c3b2193e45faab44eec0d83d216a42bbd8996440258d680c56945a2",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Watch\\FleetRepositoryWatchCoordinator.cs": "e4f393ce0132a4c304672899d6a76c5be6806f4dd8f1a3530f7f293cd47e18f1",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Watch\\RepositoryWatchCoordinator.cs": "1234bce97bc59dca5a6723f216f0821e02ebd4eb9191b6dfa245594e50e4c5d8",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\Watch\\RepositoryWatchState.cs": "6a6d77bcef51281b2caa12cc3c9e6246608898b7b85952c0d25808d8a4151559",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\WindowPlacement.cs": "9df74b1886a364be281852c29c842787cef8ecc155ffda50aa1a6ad6d4a1191a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\fixtures\\findings.json": "1cc6947d341248fe595f9abead14179d4947b11a7a9a05bee558023928916c34",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\GraphExplorer.Core.csproj": "24cd968c740aa34841ed3b3738faf290782c8752b5564cde659f61d6743b0e50",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\GraphExporter.cs": "a2eab58d66db123cab8427b8c3049432d856b8eacf9ab16b06dfbb503133e776",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\GraphModel.cs": "1b5a07bfdb2336703e2f6ae4c3c57b67f233e61970bce9df1f89f4a065720048",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\GraphProjection.cs": "82f3c5b507133a5c66efc6f9e468d04eecf71c3bc4044f516ae502fcd9adcdc5",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\GraphReader.cs": "fcba3cff99adaecffbd5ab18a5dcdcaa1881bf800bf1de156e155d269c10d964",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\LayoutSession.cs": "288c02db5b15d882d48072e637d8afff03429c0563b4eff44c3e73e04438aec2",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\MsaglLayoutAdapter.cs": "0ad6d07ce373f6ab7a2c38ae6ac52cdea0ef817409cd92e67839796004ea9831",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Core\\THIRD-PARTY-NOTICES.txt": "07d27bb2593d4964e2014ecdd65dbcd478dd82c2fdf2367bac4812440a539539",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.NativeView\\GraphExplorer.NativeView.csproj": "48223878b81dd88eeb8ecd84946a2471345bcfebd3f8f15bc9d29ba195cc2842",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.NativeView\\GraphExplorerView.cs": "0423ad8c21ae31cdee23ffa1be52e59592e7c23b0a2aafc35ef345971070d06c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\app.js": "7bb1b5757991f682b6d1d20a4e2a8de7e7819109ef02b3b9f2ab80f7b1bdef20",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\asset-manifest.json": "429a640ccd4b7acd1243f40a82b27c56b2fbad90e72293fdea85d46cd62b3b43",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\GraphWebView.cs": "a780cf164c3d454f182dd5298d45f5077b26d871575f22fcda1bf81d0de626e3",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\index.html": "84b1bf3204845f31a7472dcf1e016b7ab7b9d022db54ab7d9ada1836e299644c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\projection.js": "c48a6825278bee14c0aa59e9d4042790debc740678b48e4fe14d279d5809a5c8",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\README.md": "0ac609bd22b3b12ca6630e341d52f7c4cceeb87477f2c8797a857c6dc3ff37ce",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\styles.css": "044ac853cddc81121a11475f58f6d388f54ebe606f88693bb7e755a7fb3889e5",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\synthetic-fixture.js": "3ae5b6d254122d93f674d589200d6b8df1be363795b35bae196963df0d238093",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\cose-base-2.2.0.js": "7cae9509bd36235a63a85e71c8d9fa2cd0bc1d0c1ecc5b5a737976f39d040ddf",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\cose-base-2.2.0.LICENSE": "5fb3cf4a14c3c5af6e473a192df8bca10c77754e3a0c6492c79fb92a76a5478a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\cytoscape-3.34.4.LICENSE": "eb319c6e6f233607f71e8e2f450391751883cfc0eeb3ca7ef574c13d1d9c2203",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\cytoscape-3.34.4.min.js": "081591ab735b2b6a3b31a3c60f8f3a3e2fee8c92939e0c7820ad1208571b6cd8",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\cytoscape-fcose-2.2.0.js": "4b1cab218d74996aa59cd8473f9239cc6398b8c1774d84d7e59ad9a68959cb57",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\cytoscape-fcose-2.2.0.LICENSE": "2837634f403949215760fcdd2fa1ed0c64875d02099ecc8318c704b852f1421d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\layout-base-2.0.1.js": "ec15ab5df9af3f20708f4faab994accf91cda71848cd5bb10a23432cc50b6745",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\layout-base-2.0.1.LICENSE": "eabb762d8a95109a39c9be3247325529a5239a7aca327d909c3ccdc41f3a06bf",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\GraphExplorer.Web\\vendor\\manifest.json": "993b2dcc2e07976d81e597c33480343aaa9dbefc702462af4ac5cc9df5a0dcdb",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\native-build01\\build-proof.json": "f8ef6bfb3ef26ff3e600f676edcac998397d250d8efb9de300e07cc8756faa4c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-full-scan01\\independent-completion-review.json": "50f456f1436b8ad61095e28830fad65d9e32c3fbc836069c380c4780109f8a2b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-full-scan01\\expected-settings.json": "5450706f19f5f1b54288a994749bb0e401a3e3bdf3fd45fb4c4ce66be5ba0049",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-full-scan01\\saved-settings.json": "5450706f19f5f1b54288a994749bb0e401a3e3bdf3fd45fb4c4ce66be5ba0049",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-full-scan01\\native-request.json": "b0570979a38aac459491911fbc40438059eb05983b54ec62a8061feaee84664c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-full-scan01\\admission.json": "b1e72c22390f33efd438e043cfc381183d4dd5e9823a28601f5867cdf30d3001",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\desktop-request.json": "2779c228675876906031514afef4dd71a35b5330ac46d951ecb76554da8aa004",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\6669709ea10b4284a3d94bf482f7a94a\\request.json": "617740a5194558fc21cecb86d8a33fa9f7007237649cf583a0fe674d15ac5ca4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\6669709ea10b4284a3d94bf482f7a94a\\6669709ea10b4284a3d94bf482f7a94a.result.json": "7f19560eece7e9cbb5af37d894711b4f8a312155dd59456cfedd60cd3b453ee9",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\native-build01\\app\\engine\\attackmap.exe": "e5de74f18990a0b4d7b37740f219cbc6c9bad03265031d2b8fa4f237ff4bff4c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\2256736ca8484c1e9233935707fefe45\\request.json": "12f93fdb5d9b6cfb849cd4d41945b1f57ec498fe7d13c6c408788166de5ce1cc",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\2256736ca8484c1e9233935707fefe45\\2256736ca8484c1e9233935707fefe45.result.json": "aee9fc70d0782bb23c71323cf46dcdcd93e7bf80c500a87b177f7b9fcffb6a68",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\471466a4ebb24cf5b27359612d554897\\request.json": "5e326613deabe932bac70993ae555195c3a10972d347e4cd4346bd83cf211fab",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\471466a4ebb24cf5b27359612d554897\\471466a4ebb24cf5b27359612d554897.result.json": "71429b76b3705a359697ef46d4d6da488760d8b2bf7acadf073955462fc31d36",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\5be925d396d44c55a990e0208e09f668\\request.json": "0e03d8d5902dbd75386e7f89ee6e1243672cb6d7c43e8674c243ea00185fd4cd",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\5be925d396d44c55a990e0208e09f668\\5be925d396d44c55a990e0208e09f668.result.json": "dc3a394a7ee25ee06d9df4b3d0c7bd36de860b0c5da23b2d00413a7cbd4fe301",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\87c55d23346c41d1ba0ddb7abe8de128\\request.json": "075f179805c2a64c147d79b48d772064978615645c66867fff92109742a9982a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\ed44f36d2d73475682d67e3a744af286\\request.json": "79a381f05d9352de2164ad7f93f2066d2bec46477bf8d8fd66aceb75937969b5",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\ed44f36d2d73475682d67e3a744af286\\ed44f36d2d73475682d67e3a744af286.result.json": "1faa8313d1bb107bd8f74d444a0474fa2cba96f4e6d37140894595ffeb4c7ca4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\f5a750e60f6e491db363a8245da27620\\request.json": "4fdc1d9d313e58eb692e968947ba81d96c3706f2607a1159312b231b9b6b5174",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\actions\\f5a750e60f6e491db363a8245da27620\\f5a750e60f6e491db363a8245da27620.result.json": "05e8e7f64c1572f76c2c55766ba704e9dc6bd192dbc4b47f1b8bf1b61b2a1230",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\current-generation.json": "392a4edf7c2958ab7b1e60cbb1da82c5d33aaecb82cb6ea5757a597708a11d85",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\artifact-manifest.json": "36f253af0c71800dfa50fe25a902bd5ca99f08980863e0e4762c99286d646b82",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attackmap-report.json": "823a3f1522141dfcd95fbefabe766af4ff4e0c9c52fa5d67dba366fd132b8c82",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\run-manifest.json": "88374fdc7c7def7c589c618ae390d32b73c5999950273daa2c0b77317a952396",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\defensive-review-llm.meta.json": "077b716a176c0b44de479c7ae14d1f37249b1686227e0302efe639dde9d44d00",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\defensive-review-llm.md": "c3f79d6ae7f9babcca7acadbc3fc045658613fd370f970eaccad0f3bb2e6ab90",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\defensive-review.md": "99767f71e640efa588d9de5d7f3ca3edb226cdd199211eff87f5462598d63d3e",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\defensive-review.json": "651b4731440111bdb2de51fa132b21a6b4d52b1ecaafe2361406e99a3922a1b4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\review-context-pack.json": "e59a98ec636cff110dec699a16c214cc9209cb37153c375ac6d9b36c6b28d4d0",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\scan.json": "d0e1fb496cdada2b0b75403cdd6f1080b3e02d171ab51ec37a7be835018c9c12",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\findings.json": "02e2f38455a518aadaa094b67dd63ac5d9b181c31b9426287c63edc2a894cb6c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attack_paths.json": "c10f4f84dc3445dfd36d9cd6f728aada3d90c7bf6508368e78cbd287940e6c04",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attack_surfaces.json": "bdd68bc837286294ef25cac91d4cedcab734860570a9d7cccd9259d0426e2fe0",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\exploitability.json": "30efcc7547b9613e8419601a2c613368b03fbfd094734eb96cf142b91212b7aa",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\suppressed_findings.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attackmap-report.sarif": "21e4f8d923a9e4300d16a6d4c24f1c92517771cd012fd93040916bd9a54717ab",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\architecture.md": "546ee30820fd064863d8d726d635602298a36fad87af868aa6ab7ebdd78fea02",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attack-surface.md": "5ea5c5f3d555df1e6cab20192273ac3ff74231d7064da6e56704799cf79b7f5c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attackmap-exploitability.md": "23c3bc4999099cec68e15f4ec8b2232903161d80a5460e413d5e37cd2c4279da",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attackmap-paths.md": "6dc926b2fa8760d25f11ddccdfc645d0a42d512e5c9844867b251479c2f06f97",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attackmap-topology.md": "7b85b3b2402a48fb55474bae8a0ed2df987646e07a117f70d54a25a9387bbe67",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attackmap-paths.dot": "a44d41cee8c8e57723c7ca3b43cc6f75fdaea1043e2c3ba54fb89a9b5dd35d6d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\f2a53980402a46558303d30828cf7287\\attackmap-topology.dot": "c75db8f35774ffe3206990a4ca12b01325579c991db763241cdca9ba47bc0d76",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\desktop_worker.py": "90b6fa59f17c9e4fef43c9badd2e2062b06522f493f2c158105ed5ad6840d7c4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\scan_service.py": "7015fc62355cc209c4adea98f3727c2e4662e989f0a91f32214e7e681e6ff503",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\pipeline.py": "54cb1fb4083b83eaf8ab4b02bae465325945d6a4d3ca45b4cf2a8d1ab69cc5b6",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\desktop_ai.py": "7f3dba88eef181fbbf412ab5de737996bcfed68edbb013c9ce8e384c4a34475a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\ai_budget.py": "98527c906c139a6211a8e6b0bec353ca4a09032ba3625f59113767509ca08f28",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\llm_review.py": "dcee787e8b97ed3227dc1207b2cb72880f04963d053c4fa7c5b3483e05fe0389",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\artifact_publisher.py": "602d076d5ee986967bf1f2b9b0e23c0f4dbab9553131ac3168f579233638021b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-closeout-freeze-20261107-02\\source\\src\\attackmap\\report.py": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-full-scan01\\verify-completion.py": "852d8a2457828caa1985b703f3a54b646abf189c6877dc4fad36dbbebb597346",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-save03\\verification.json": "60c8e785481fdf249c822e5b259312e329ae4e63d524b455c6b133a9f03e04fd",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-reopen02\\verification.json": "b92eb73384270b748177ad4a10df1b3df53c5cce12d3559b3f6166978b8b4f0a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-save03\\settings.json": "f763cb8076d7a5dc710a23e4c94410820275070fc42f7c4e9c5c3a1a5ee47a44",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-reopen02\\settings.json": "f763cb8076d7a5dc710a23e4c94410820275070fc42f7c4e9c5c3a1a5ee47a44",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-reopen01\\verification.json": "23efbdd667157841fe9346bdc1a34ca8f4ea47fbcb50ff6fcb080e49513c4912",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-save02\\verification.json": "b67587683d76b41f168770de0bd967634a293bcb2d3b62cd8fdd2ad9687b6e2c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\actual-capabilities-review.json": "4a8b0ed55916e5960d365c0a389f3b15ee00c833520d42cdc9f510098a0beba2",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\core\\independent-shell-review.json": "f0e697fe6c73e0ec98fde75168138b13c4505a51429d4435d792f9e515e79212",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\core\\causal-path-review.json": "5404d5e86b38167d886a8aa924f2c829d748a81f22a0e57c17be0c09c3dc46ea",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-scan01\\user-live-provider-overrides.json": "f5806bde4abe8cf751313c6661cfd4de48d3671b86b1a01236857085f3dd7da0",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\computer-use-attempts.json": "d0b0db083141ca9d475a80175722e80b6a826912c5c3c46df7200f453b55583d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-export01\\verification.json": "dc12eb84969714764c84323e771ac4da838b7effb0ec2a3d1475d9edc076dd6f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-export01\\attackmap-f2a53980402a46558303d30828cf7287-review.md": "99767f71e640efa588d9de5d7f3ca3edb226cdd199211eff87f5462598d63d3e",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\user-light-supported-01.png": "3b5bff82ea1932aa3efbe299dda7d1a773bdeb53ed1bdcf5e7392d15327410ee",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\independent-user-light-supported-01.review.json": "fd239d4499b0767dbb6679ca67d0fcdeeddf78c8942f99754e06d763b5cf0537",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\user-light-reopened-advanced-01.png": "8b5b3c492d3ec2a7c5c33c50a009bd79214756548b983649bb0635cf3105b184",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\independent-user-light-reopened-advanced-01.review.json": "ee566d590a09d787291721d115571b6851034d949ee757b8e701dfb9e7e5e91b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\user-dark-ai-review-01.png": "ca2998ec618a909b41c92db435dcca9ffc0ed4e48bb61465b45b8f875ab06259",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\independent-user-dark-ai-review-01.review.json": "7138682e4819c6f13bd2a4617033e9e38fd9a6bf4e90f075b68ea098b7de1da1",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\screenshots\\user-dark-ai-review-01.user-clarification.json": "8b23f46fc816e1fcafb899c1bfe88ded076a4c33bb5d89f48e77e314f3837a45",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\ui06-helper.json": "e7031b13ff1a47fad94ff8e602cf45a402ec35b7d2cf5bcb23aa8ec939ecab98",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\ui06\\started.json": "a7c7947d67f85502275c36e6b1d88080da63506c413e966932d1fa182929c389",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-window-handoff.json": "ea3ec922254203eed08d4623aff36f9c7c24506e6f125847c78a7025da28ae6e",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\native-build01\\app\\AttackMap.NativeSpike.exe": "a893b488874c8327e14e71b5c6d9d3dc185eb95fca29953c5335c955a95b865d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\diagnostics\\a7e6bcd2307a4e8da19921696ecf8ee2\\terminal-diagnostic.json": "ce169a485b72aab64ea3969c86ebf0168ce49035691e0122ee524c07f4a8e7c9",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\a7e6bcd2307a4e8da19921696ecf8ee2\\desktop-request.json": "922f843adc7f926599569a001aec52dca92823c2c3001d6bedfd26cc13de7ea2",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\a7e6bcd2307a4e8da19921696ecf8ee2\\run-manifest.json": "9b2708aaf883b2e0226bf8a9e4a1dc523a4ee7fa2061e812f889e9e09e44d3e6",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\diagnostics\\ede4caad4c604531a32d6685f47c2f38\\terminal-diagnostic.json": "70df6078fb9ae4f9dd91bcd357039e303594662b4ec482f6764182d15bb2a7b4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\ede4caad4c604531a32d6685f47c2f38\\desktop-request.json": "bd6c6372d24632ef63a0d5be9eae61db25aedc1e0fa536e9b3c2a13949b118d5",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\manual-profile\\reports\\ede4caad4c604531a32d6685f47c2f38\\run-manifest.json": "2bea23bfa79363101f1f09f6cebf311195618df50753315608c4658b98d3df21",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\personal-settings-baseline.json": "07026a00eb70a8dba30314166b8a1aedcafe355e458f2ca7ed379212b63010e3"
+  },
+  "collector_sha256": "5dc12c4e847489e54ef1fd0db81162d0570c323130142f12998e7dfc25535d89",
+  "new_tests_scans_HTTP_GUI_operations": 0
+}

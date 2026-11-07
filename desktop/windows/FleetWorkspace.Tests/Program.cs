@@ -1,5 +1,6 @@
 using AttackMap.NativeSpike;
 using System.Text.Json;
+if (args.Contains("--real-engine")) { await LiveFleet.Run(args); return; }
 int checks = 0;
 void Check(bool value) { checks++; if (!value) throw new Exception($"Fleet check {checks} failed"); }
 void Reject(Action action) { try { action(); } catch (Exception e) when (e is InvalidDataException or InvalidOperationException) { checks++; return; } throw new Exception("Expected rejection"); }

@@ -71,6 +71,11 @@ build_v2/
 .tools/
 .tmp/
 
+# Disposable local test scratch and local transfer archives
+.review-test-temp/
+native-fleet-transport-*-elevated-tmp*/
+attackmap-handoff-*.bundle
+
 # Local evidence payloads and offline caches (kept on disk, transferred separately)
 artifacts/
 NuGet/

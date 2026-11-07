@@ -10,6 +10,28 @@ string folder = Path.Combine(Path.GetTempPath(), "attackmap-wp005-" + Guid.NewGu
 Directory.CreateDirectory(folder);
 try
 {
+    void ManualRejected(string[] arguments)
+    {
+        bool rejected = false;
+        try { ManualOptionsState.ReadDirectory(arguments); }
+        catch (Exception error) when (error is ArgumentException or DirectoryNotFoundException) { rejected = true; }
+        Check(rejected, "Manual options state must remain an explicit existing local caller-owned directory");
+    }
+    Check(ManualOptionsState.ReadDirectory(new[] { "app.exe" }) == null, "Ordinary startup has no manual settings redirection");
+    Check(ManualOptionsState.ReadDirectory(new[] { "app.exe", "--options-manual", folder }) == folder,
+        "Manual state selects the exact existing caller-owned directory");
+    new LocalSettingsStore(Path.Combine(folder, "manual-settings.json")).Save(new LocalSettings(Modules: "config"));
+    string reopenedManualDirectory = ManualOptionsState.ReadDirectory(new[] { "app.exe", "--options-manual", folder })!;
+    Check(new LocalSettingsStore(Path.Combine(reopenedManualDirectory, "manual-settings.json")).Load().Modules == "config",
+        "Reopening manual state reads the same caller-owned persisted settings");
+    foreach (var arguments in new[] {
+        new[] { "app.exe", "--options-manual" },
+        new[] { "app.exe", "--options-manual", "relative" },
+        new[] { "app.exe", "--options-manual", Path.Combine(folder, "missing") },
+        new[] { "app.exe", "--options-manual", folder, "--options-manual", folder },
+        new[] { "app.exe", "--options-manual", folder, "--extra" },
+        new[] { "app.exe", "--options-manual", @"\\server\share" },
+        new[] { "app.exe", "--options-manual", "//server/share" } }) ManualRejected(arguments);
     var defaults = new NativeScanOptions();
     string original = JsonSerializer.Serialize(new { schema_version = "1.1", kind = "request", run_id = "r", repository_id = folder,
         generation = 1L, revision = 0, repository_path = folder, output_path = folder,
@@ -134,6 +156,12 @@ try
     string otherExe = Path.Combine(otherDir, "attackmap.exe"); File.WriteAllText(otherExe, "other-engine");
     cache.Store(executable, EngineCapabilities.Parse(Document().ToJsonString())); cache.SelectEngine(otherExe);
     Check(cache.Current == null, "Engine switch invalidates cached options");
+    Rejected(() => cache.Store(otherExe, EngineCapabilities.Parse(Document().ToJsonString())),
+        "Identical engine bytes at another path cannot reuse capabilities from the previous environment");
+    var futureCapabilities = EngineCapabilities.Parse("{\"schema\":99,\"engine_identity\":\"future-format\"}");
+    cache.Store(otherExe, futureCapabilities);
+    Check(cache.Current == futureCapabilities && !cache.Current.Compatible,
+        "Unknown capability formats retain their disabled reason without interpreting a future identity");
     Console.WriteLine($"NativeOptions: {checks} checks passed; settings/model/capability seams only, no engine/provider process.");
 }
 finally { Directory.Delete(folder, recursive: true); }

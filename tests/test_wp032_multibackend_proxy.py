@@ -99,12 +99,25 @@ def test_valid_single_backend_keeps_proxy_semantics_and_origins(tmp_path, scheme
     scans = materialize(root, (single,))
     aliases, notes = extract_deployment_aliases([root / name for name in scans])
     assert notes == []
-    assert aliases.proxies == {TARGET: "api", "safe.production.internal": "api"}
+    if single.endswith(".yaml"):
+        assert aliases.proxies == {"safe.production.internal": "api"}
+        assert aliases.scoped_proxies == {TARGET: "production/api"}
+    else:
+        assert aliases.proxies == {TARGET: "api", "safe.production.internal": "api"}
+        assert aliases.source_files[f"proxies:{TARGET}"] == f"caller/case-00{Path(single).suffix}"
+        raw_links = resolve(scans, aliases, f"{scheme}://EDGE.PRODUCTION.internal/Api/Items/42")
+        assert raw_links[0].resolution == "candidate" and raw_links[0].resolution_reason == "unresolved_namespace"
+        # An operator can affirm an abstract proxy seam explicitly. Its origin
+        # is no longer the unscoped nginx declaration and must not claim one.
+        aliases = replace(aliases, source_files={key: value for key, value in aliases.source_files.items()
+                                                if key != f"proxies:{TARGET}"})
     links = resolve(scans, aliases, f"{scheme}://EDGE.PRODUCTION.internal/Api/Items/42")
     api, worker = links
     assert api.server_repo == "api" and api.resolution == "observed_via_proxy"
     assert api.proxy_host == TARGET
-    assert api.alias_provenance == f"proxies:{TARGET} (caller/case-00{Path(single).suffix})"
+    prefix = "scoped_proxies" if single.endswith(".yaml") else "proxies"
+    expected_origin = f" (caller/case-00{Path(single).suffix})" if single.endswith(".yaml") else ""
+    assert api.alias_provenance == f"{prefix}:{TARGET}{expected_origin}"
     assert worker.server_repo == "worker" and worker.resolution_reason == "unresolved_host"
     assert aliases.service_protocols == {"api": "https"}
     assert "worker" not in aliases.service_protocols  # its port is merely named https
@@ -232,6 +245,14 @@ def test_cli_dotted_host_merge_cannot_override_unresolved_config_proxy(tmp_path,
 def qualification_proof(root: Path) -> dict:
     scans = materialize(root, ("single.conf", "mixed-upstream.conf", "single.yaml"))
     aliases, notes = extract_deployment_aliases([root / name for name in scans])
+    # This legacy invalidation/reference matrix keeps its direct positive via
+    # explicit operator ports, never by stripping namespaces from retained YAML.
+    aliases = DeploymentAliases(hosts={"api": "api", "worker": "worker"}, service_ports={"api": 8443, "worker": 9000},
+        service_protocols=aliases.service_protocols, proxies=aliases.proxies,
+        source_files={key: value for key, value in aliases.source_files.items()
+                      if key.startswith(("proxies:", "service_protocols:"))},
+        unresolved_proxies=aliases.unresolved_proxies,
+        unresolved_service_protocols=aliases.unresolved_service_protocols)
     targets = [f"https://{TARGET}/Api/Items/42", "http://safe.production.internal/Api/Items/42",
                "https://api:8443/Api/Items/42", "http://api:8443/Api/Items/42",
                "grpc://safe.production.internal/Api/Items/42", f"https://{TARGET}/api/items/42",
@@ -271,8 +292,10 @@ def qualification_proof(root: Path) -> dict:
     assert sum(link.resolution == "observed" for link in links) == 1
     assert sum(link.resolution == "observed_via_proxy" for link in links) == 1
     assert not any(link.client_target.endswith("/API/Items/42") for link in links)
-    return {"scope": "physical_configs_supplied_normalized_app_signals_no_runtime_traffic", "provider_calls": 0,
-            "aliases": asdict(aliases), "notes": notes, "links": [asdict(link) for link in links], "architecture": graph}
+    return {"scope": "physical_proxy_configs_explicit_operator_ports_normalized_app_signals_no_runtime_traffic", "provider_calls": 0,
+            "aliases": asdict(aliases), "notes": notes,
+            "links": [{**asdict(link), "declaration_refs": [asdict(ref) for ref in link.declaration_refs]} for link in links],
+            "architecture": graph}
 
 
 def test_graph_evidence_case_and_existing_protocol_guards_survive_invalidation(tmp_path):

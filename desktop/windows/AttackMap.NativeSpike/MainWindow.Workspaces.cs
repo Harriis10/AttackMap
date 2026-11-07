@@ -131,7 +131,7 @@ public sealed partial class MainWindow
     private bool WorkspaceBusy() => scanning || actionRunning || engine.CleanupBlocked || fleetSession.CleanupBlocked || DesktopActionRunner.CleanupBlocked;
     private static bool SameFleetRoots(IReadOnlyList<FleetRoot> selected, IReadOnlyList<string> requested) =>
         selected.Select(root => root.RepositoryPath).SequenceEqual(requested, StringComparer.OrdinalIgnoreCase);
-    private static string FleetOutputBase => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "fleet");
+    private string FleetOutputBase => OptionsStatePath("fleet");
     private void RestartFleetWatch(IEnumerable<string>? verificationIgnoredOutputs = null)
     {
         StopRepositoryWatch();

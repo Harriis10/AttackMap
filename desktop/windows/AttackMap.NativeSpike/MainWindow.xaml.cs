@@ -36,12 +36,21 @@ public sealed partial class MainWindow : Window
     private readonly WindowPlacementStore placementStore = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "window.json"));
     private WindowPlacement? lastPlacement;
     private bool placementPersistenceEnabled;
+    private readonly string? optionsManualDirectory;
     private string? lastScanOutput;
     private bool artifactBusy;
     private string reportLabel = "synthetic findings. No production analysis loaded";
     public MainWindow()
     {
         var startup = Environment.GetCommandLineArgs();
+        optionsManualDirectory = ManualOptionsState.ReadDirectory(startup);
+        if (optionsManualDirectory is { } optionsState)
+        {
+            settings = new LocalSettingsStore(Path.Combine(optionsState, "settings.json"));
+            placementStore = new WindowPlacementStore(Path.Combine(optionsState, "window.json"));
+            recentStore = new HistoryPrep.RecentRepositoriesStore(Path.Combine(optionsState, "recent-repositories.json"));
+            providerRenderActionDirectory = Path.Combine(optionsState, "actions");
+        }
         var diagnosticsStartup = startup;
         int activationIndex = Array.IndexOf(startup, "--activation-smoke");
         if (activationIndex >= 0)
@@ -330,7 +339,7 @@ public sealed partial class MainWindow : Window
         ScanOptionsPanel.IsEnabled = Provider.IsEnabled = false;
         // Stable per-repository base: generations accumulate here so engine
         // retention (keep window, budget, pins) applies per repository.
-        string output = verificationOutput ?? ScanLocations.ReportsBase(repository);
+        string output = verificationOutput ?? (optionsManualDirectory == null ? ScanLocations.ReportsBase(repository) : Path.Combine(optionsManualDirectory, "reports"));
         lastScanOutput = output;
         DiagnosticPath.Text = $"Selected local run folder: {output}. A terminal diagnostic is available only if the broker writes one.";
         string engineStatus = "";
@@ -912,7 +921,8 @@ public sealed partial class MainWindow : Window
         History.CurrentReportPath = ""; Suppression.SetContext("", default, "");
         return Task.CompletedTask;
     }
-    private static string ThemeStorePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "theme.json");
+    private string ThemeStorePath => OptionsStatePath("theme.json");
+    private string OptionsStatePath(string name) => Path.Combine(optionsManualDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview"), name);
 
     private void LoadSavedTheme()
     {
@@ -1065,7 +1075,7 @@ public sealed partial class MainWindow : Window
 
     private void RestoreProviderSettings()
     {
-        string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AttackMap", "NativePreview", "provider.json");
+        string path = OptionsStatePath("provider.json");
         try
         {
             if (!File.Exists(path) || restoredScanOptions.Provider != null) return;
@@ -1224,6 +1234,11 @@ public sealed partial class MainWindow : Window
 
     private async Task ProviderAction(string operation, ProviderAccessRequest request)
     {
+        if (optionsManualDirectory != null)
+        {
+            Provider.ShowResult("Provider credential actions are unavailable in isolated options QA. Local scan preferences can still be saved; no provider request was started.");
+            return;
+        }
         if (actionRunning || scanning) { Provider.ShowResult("Wait for the active scan/action before provider changes."); return; }
         actionRunning = true;
         Provider.IsEnabled = false;

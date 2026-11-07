@@ -569,6 +569,11 @@ def test_nginx_proxy_pass_unmodeled_scheme_noted_not_guessed(tmp_path: Path) -> 
     aliases, notes = extract_deployment_aliases([repo])
     assert aliases.proxies == {"grpc.internal": "orders"}  # the proxy still declares
     assert aliases.service_protocols == {}
+    assert aliases.unresolved_service_protocols == ("orders",)
+    assert aliases.source_files["unresolved_service_protocols:orders"] == "edge/edge.conf"
+    assert {(Path(ref.repository_root), ref.file, ref.line)
+            for ref in aliases.declaration_sources["unresolved_service_protocols:orders"]} == {
+        (repo.resolve(), "edge.conf", None)}
     assert any("proxy_pass grpc://" in n for n in notes)
 
 

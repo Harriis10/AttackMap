@@ -119,7 +119,7 @@ def _claim_support_assessments(markdown: str, candidates: list[str]) -> list[dic
     candidate_set = set(candidates)
     assessments: list[dict] = []
     for line in markdown.splitlines():
-        cited = [token for token in reference_tokens(line) if token in candidate_set]
+        cited = [token for token in reference_tokens(line, allowed_ids=candidate_set) if token in candidate_set]
         if not cited:
             continue
         if len(assessments) >= 40:
@@ -153,7 +153,7 @@ def _validate_narrative_references(result: LlmReviewResult, rendered) -> LlmRevi
             records[identity] = EvidenceReference(identity, hashlib.sha256(
                 json.dumps(entry, sort_keys=True, ensure_ascii=True).encode()).hexdigest())
     context = CitationContext("", tuple(value for key, value in records.items() if key not in duplicates), ())
-    candidates = [token for token in reference_tokens(result.markdown)
+    candidates = [token for token in reference_tokens(result.markdown, allowed_ids=records)
                   if token.lower().split(":", 1)[0] in {*prefixes.values(), "find"} and ":" in token]
     # This status covers producer IDs only. File/line and snapshot support are
     # separate questions and must not be implied by this check.
@@ -163,7 +163,7 @@ def _validate_narrative_references(result: LlmReviewResult, rendered) -> LlmRevi
                                   *(token for token in candidates if token not in allowed)]))
     valid = tuple(token for token in candidates if token in allowed)
     status = "invalid" if invalid else "valid" if valid else "missing"
-    source_tokens = [token for token in reference_tokens(result.markdown)
+    source_tokens = [token for token in reference_tokens(result.markdown, allowed_ids=records)
                      if token not in candidates and not token.lower().startswith(("http://", "https://"))]
     source_check = validate_references(" ".join(source_tokens), context)
     unresolved_sources = list(source_check.invalid_references)

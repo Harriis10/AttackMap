@@ -26,6 +26,42 @@ _COLLECTION_PREFIXES = {
 _ID = re.compile(r"(?:surface|finding|path|taint|exploit|anomaly):[1-9][0-9]*\Z")
 _LOCATION = re.compile(r"\A(?P<path>.+):(?P<line>[1-9][0-9]*)(?:-(?P<end>[1-9][0-9]*))?\Z")
 _TOKENS = re.compile(r'''[^\s`\[\](){}<>,;!?"'|=*]+''')
+_BOLD_LABEL = re.compile(r" {0,3}(?:[-+*][ \t]+|[0-9]+[.)][ \t]+)?\*\*(?P<id>[^\s*`]+)\*\*(?:[ \t]+|$)")
+
+
+def _bold_label_spans(text: str) -> set[tuple[int, int]]:
+    """Recognize only whole line-leading labels; ambiguous markup stays literal.
+
+    This is not Markdown rendering. Code and open link/parenthesis contexts
+    conservatively suppress the optional delimiter fallback across lines.
+    """
+    spans = set()
+    offset = 0
+    fence, ticks, brackets, html_code = None, 0, 0, False
+    for line in text.splitlines(keepends=True):
+        marker = re.match(r" {0,3}(`{3,}|~{3,})(.*)", line)
+        if fence:
+            if marker and marker[1][0] == fence[0] and len(marker[1]) >= len(fence) and not marker[2].strip():
+                fence = None
+        elif marker and not ticks:
+            fence = marker[1]
+        elif html_code:
+            if re.search(r"</(?:pre|code)\s*>", line, re.I):
+                html_code = False
+        elif re.search(r"<(?:pre|code)\b", line, re.I):
+            html_code = not bool(re.search(r"</(?:pre|code)\s*>", line, re.I))
+        else:
+            label = _BOLD_LABEL.match(line) if not ticks and not brackets else None
+            if label:
+                spans.add((offset + label.start("id"), offset + label.end("id")))
+            for token in re.finditer(r"`+|[\[\]()]", line):
+                value = token[0]
+                if value.startswith("`"):
+                    ticks = 0 if len(value) == ticks else len(value) if not ticks else ticks
+                elif not ticks:
+                    brackets = max(0, brackets + (1 if value in "[(" else -1))
+        offset += len(line)
+    return spans
 
 
 def _looks_like_location(token: str) -> bool:
@@ -190,9 +226,18 @@ class CitationContext:
                           "source_ids": list(ref.source_ids)} for ref in self.records]}
 
 
-def reference_tokens(text: str) -> tuple[str, ...]:
+def reference_tokens(text: str, *, allowed_ids: Iterable[str] = ()) -> tuple[str, ...]:
     """Whole, case-sensitive tokens only; filenames and ID prefixes never match."""
-    return tuple(dict.fromkeys(token.rstrip(".,") for token in _TOKENS.findall(text)))
+    allowed = set(allowed_ids)
+    labels = _bold_label_spans(text) if allowed else set()
+    tokens = []
+    for match in _TOKENS.finditer(text):
+        token = match[0].rstrip(".,")
+        if (token not in allowed and token.endswith(":") and not token.endswith("::")
+                and token[:-1] in allowed and match.span() in labels):
+            token = token[:-1]
+        tokens.append(token)
+    return tuple(dict.fromkeys(tokens))
 
 
 def context_from_payload(payload: dict, spans: tuple[SourceSpan, ...], *, repository_root: str) -> CitationContext:
@@ -256,7 +301,7 @@ def validate_references(text: str, context: CitationContext) -> CitationValidati
     spans = {span.evidence_id: span for span in context.spans}
     locations = {key: span for span in context.spans for key in (span.location, span.span_location)}
     valid, invalid, resolved = [], [], {}
-    for token in reference_tokens(text):
+    for token in reference_tokens(text, allowed_ids=records):
         if token in records:
             valid.append(token)
             for source_id in records[token].source_ids:

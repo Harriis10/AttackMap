@@ -13,9 +13,9 @@ from __future__ import annotations
 import hashlib
 import re
 from urllib.parse import quote
-from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
+from . import __version__
 from .srcpaths import evidence_locations
 from .md import md_text
 from .models import AttackPath, Finding, TaintFlowStep, finding_rule_id
@@ -107,10 +107,7 @@ def _locations_from_evidence(evidence: list[str]) -> list[dict[str, Any]]:
 
 
 def _tool_version() -> str:
-    try:
-        return version("attackmap")
-    except PackageNotFoundError:
-        return "0.0.0-dev"
+    return __version__
 
 
 def _build_rules(findings: list[Finding]) -> list[dict[str, Any]]:
