@@ -2,6 +2,9 @@
 
 Větev: **`codex/windows-build-development`**. Stav popsaný k **7. 11. 2026**.
 
+Zdroj příspěvku: [fork Mipam/AttackMap](https://github.com/Mipam/AttackMap).
+Cílová větev pull requestu: `Harriis10/AttackMap:main`.
+
 Tato větev obsahuje vývoj nativní Windows aplikace, její propojení s enginem
 AttackMap a sestavení přenosné Windows distribuce. Jde o vývojový checkpoint
 s doloženými dílčími výsledky; celkové přijetí produktu řídí
@@ -58,8 +61,9 @@ tyto schopnosti proto nejsou všechny novou Windows implementací.
 
 ## Doložené ověření a jeho rozsah
 
-Při přípravě tohoto diffu se produkční kód nezměnil a testy se neopakovaly.
-Následující výsledky pocházejí z již dokončených ověřovacích běhů:
+Při přípravě příspěvku se produkční kód nezměnil. Následující výsledky
+pocházejí z dokončených implementačních ověřovacích běhů; samostatný aktuální
+výsledek celé sady `pytest` je uveden v pull requestu.
 
 - **WP018 / společná pipeline:** přijatý rozsah DONE zahrnuje source/frozen
   formátovou a serial/parallel paritu, fleet16 s workers 1/2/4, fault/cleanup
@@ -107,7 +111,7 @@ fleet. Přijatý Windows M3 a odstranění Windows C26 zůstávají zachované.
 
 ## Jak zobrazit diff
 
-[GitHub porovnání vůči main](https://github.com/Harriis10/AttackMap/compare/main...codex%2Fwindows-build-development)
+[GitHub porovnání vůči main](https://github.com/Harriis10/AttackMap/compare/main...Mipam:codex%2Fwindows-build-development)
 zobrazuje také dokumentační commit s tímto přehledem. Přesný implementační
 diff před přidáním přehledu lze v klonu získat takto:
 

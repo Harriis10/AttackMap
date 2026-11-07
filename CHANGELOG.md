@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Windows native desktop development workflow with persistent scan options and
+  an unsigned, self-contained Windows x64 portable package containing the engine,
+  runtime dependencies, SBOM and hash-bound provenance. Signing, clean-host and
+  full release acceptance remain separate.
+- Explicit namespace/service and backend port/protocol facts with deployment
+  declaration references in qualified cross-repository links; unresolved or
+  conflicting bindings remain candidates.
 - Watch correctness (AM044/C31): the desktop watcher now receives per-path
   change events (ReadDirectoryChangesW) and filters them through the shared
   generated-output identification (output marker + artifact manifest), debounces
@@ -69,6 +76,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Use the executing engine version in SARIF so source and frozen exports match
+  the CLI even when distribution metadata is absent or stale.
+- Accept a single trailing colon in a complete bold citation label only for an
+  exact issued evidence ID; unknown or extended IDs remain invalid, and claim
+  support and source-location validity are unchanged.
 - Native Windows reports: `Expander` content no longer renders as a centered
   block. All four expanders (raw artifacts, advanced scan options, suppression,
   coverage limitations) now stretch content to the card column, the raw
