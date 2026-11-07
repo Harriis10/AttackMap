@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "scope": "Actual loaded native history control baseline identity change with fixture comparison envelopes; no engine or manual UI acceptance",
+  "passed": true,
+  "native_dll_sha256": "6c10d330a6d2f3f4f59a6a96b48e6d792e9d7fa49116d83b16c6c5577376ae00",
+  "build": {
+    "session": 16369,
+    "exit_code": 0,
+    "qa_output": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-history-freshness-qa-640023631a7f417492e8bcd77478a718"
+  },
+  "process": {
+    "exit_code": 0,
+    "result_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-history-baseline-50345166af9e496b9322b1d132ebcab5.json",
+    "pid": 94376,
+    "output": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-history-freshness-qa-640023631a7f417492e8bcd77478a718"
+  },
+  "result": {
+    "passed": true,
+    "actualControlLoaded": true,
+    "originalVisible": true,
+    "unchangedSelectionRetained": true,
+    "changedCleared": true,
+    "changedDisclosed": true,
+    "busyPreserved": true,
+    "lateOldRejected": true,
+    "freshResultVisible": true,
+    "emptySelectionCleared": true,
+    "personalSettingsRead": false,
+    "limitations": "Actual loaded production control with fixture comparison envelopes; no core action, file picker, manual keyboard or full history acceptance."
+  },
+  "source_and_log_hashes": {
+    "desktop/windows/AttackMap.NativeSpike/HistoryComparisonView.cs": "8d5bcb031f264fc913e71f57ceb2a5fc83dcf8e42a7fbeac4602c038973da79f",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs": "b2658975640c2feb884d3ad06646dcf6f4b6a0b9668fd8dd34aaa427c78f9910",
+    ".pytest_cache/m3-native-history-freshness-qa-build.log": "b9fe3af9452ce6e5f3b2d51262c1cddb6b47893d3a072520b8a141677d446ee2"
+  },
+  "fix": "Changing baseline invalidates rendered comparison rows, selected detail and notes before disclosing new identity; unchanged baseline preserves result; busy state and existing late-result identity rejection remain.",
+  "negative_evidence": "Pre-fix defect was demonstrated by source audit: BaselineReportPath only changed label/summary/actions while CurrentReportPath cleared results/detail/notes. No pre-fix runtime reproduction claimed.",
+  "limitations": [
+    "Loaded real production control and real visual children; fixture core comparison envelopes, not an actual backend comparison.",
+    "No OS picker, manual selection/keyboard/Narrator or full comparison workflow acceptance.",
+    "New QA binary only; historical immutable packages and user-open preview unchanged; Python core/source/tests untouched."
+  ]
+}

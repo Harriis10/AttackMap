@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "captured_utc": "2026-10-21T00:13:20.2450704Z",
+  "kind": "agent_tool_transcript_verification",
+  "source_hashes_capture_time_only": true,
+  "files": [
+    {
+      "path": "src/attackmap/contracts.py",
+      "sha256": "4d97d55fc74a33a4573cb5f5d906602f8c54b85590dc480dc96290ffa31dc496",
+      "size_bytes": 34071
+    },
+    {
+      "path": "src/attackmap/config_scanner.py",
+      "sha256": "4e02b2c42e5a19c1bd7fdcb6f4dd8960bbce5d7044a20ed71e0651d425492a6f",
+      "size_bytes": 44521
+    },
+    {
+      "path": "tests/test_service_identity.py",
+      "sha256": "8a515b47dcca314a6bc1a28dfd05141c00cb7b9be4f3f359b3951bc0fe8bbbb6",
+      "size_bytes": 5377
+    }
+  ],
+  "runs": [
+    {
+      "Session": 85801,
+      "Result": "175 passed in 263.46s",
+      "Command": ".venv/Scripts/python.exe -m pytest tests/test_service_identity.py tests/test_contracts.py tests/test_crossrepo.py tests/test_fleet.py tests/test_config_scanner.py -q -p no:cacheprovider --basetemp=.tmp/wp032-identity-approved-20261021",
+      "ExitCode": 0
+    },
+    {
+      "Session": 75292,
+      "Result": "67 passed in 32.23s",
+      "Command": ".venv/Scripts/python.exe -m pytest tests/test_service_identity.py tests/test_merge.py tests/test_merge_signal_provenance.py tests/test_merge_conflict_matrix.py tests/test_ranking_factors.py -q -p no:cacheprovider --basetemp=.tmp/wp032-final-identity-20261021",
+      "ExitCode": 0
+    }
+  ],
+  "environment": {
+    "DOTNET_CLI_HOME": ".tools/dotnet-home",
+    "NUGET_PACKAGES": ".tools/nuget-packages",
+    "DOTNET_ROOT": ".tools/dotnet",
+    "dotnet_sdk": "8.0.426"
+  },
+  "limitations": "Initial default-temp run:114 passed,16 setup errors (WinError5 pytest shared temp ACL); owned .tmp retry was interrupted after setup ACL errors. Approved dedicated-dir runs passed. config_scanner.py later changed by WP033 snapshot owner; captured hashes below are current capture identities, not retroactive identities at test time. No live runtime/UI claim.",
+  "raw_log_status": "Exact stdout summaries recorded from completed tool sessions; full raw stdout was not persisted during execution."
+}

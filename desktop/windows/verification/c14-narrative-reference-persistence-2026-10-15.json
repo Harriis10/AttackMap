@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "scope": "Focused offline producer-reference integration; no model calls, rebuild or full matrix",
+  "terminal": {
+    "tool_exec": "c757de",
+    "exit_code": 0,
+    "passed": 8,
+    "seconds": 1.72
+  },
+  "checks": [
+    "One fake SDK request through actual generate_llm_review wrapper",
+    "Selected sanitized prompt includes exact finding:2",
+    "Recorded find:2 typo remains unresolved without repair",
+    "Warning and original prose survive atomic pipeline Markdown persistence",
+    "JSON metadata persists exact reference_validation/context digest",
+    "Claim support and source-location validation remain not_assessed",
+    "Published generation schema and checksums validate"
+  ],
+  "files": {
+    "src/attackmap/llm_review.py": "adb3f8bed03e6c8fdb5e1d32a06e4c96622fe0aeed618d0a190d1d517cde9578",
+    "src/attackmap/pipeline.py": "7adc5b7d89c298124b8fbc21f9ada3f64890e5382fc10687a74a57c517dc857c",
+    "tests/test_narrative_citations.py": "bf1697f96ace13f3b1dac846392243a79c92a1c9f8c444317b15f57c79915a8e",
+    ".pytest_cache/narrative-citations-e2e.log": "1a8c0b041c2198e058b94c5d5e2fd15178fd4f971619c42a155bc2ba1d7b9fda",
+    ".pytest_cache/narrative-citations-e2e.xml": "216d4299c3716108e4efc0440ec48415003ed8e1a2dff9fefbcd1a160cc6034c"
+  },
+  "limitations": [
+    "Fake provider verifies integration, not live packaged current behavior",
+    "Reference identity validation does not assess whether a claim follows from evidence",
+    "Installed historical live workflow predates citation wrapper fix"
+  ]
+}

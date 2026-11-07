@@ -1,0 +1,235 @@
+{
+  "mode": "after-final",
+  "python": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+  "cases": {
+    "fastapi-siblings": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\fastapi-siblings",
+      "sha256": {
+        "main.py": "d592c285ca6e375f557aadfeed401a49c5be6bb729eabb7da07203838b2dfc43",
+        "routers.py": "0871768ceca4f534c64f117c31e9761b974d476c2e51095a5d05b182d8e53288",
+        "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b"
+      },
+      "results": {
+        "builtin_python_service": {
+          "routes": [
+            {
+              "path": "/private/item",
+              "method": "GET",
+              "file": "routers.py",
+              "line": 4,
+              "auth": "required",
+              "guards": [
+                "include_router dependencies (main.py:5)"
+              ],
+              "guard_evidence": "bound router auth dependencies at include site main.py:5"
+            }
+          ],
+          "framework_hints": [
+            {
+              "hint": "asgi_app:fastapi",
+              "file": "main.py",
+              "line": 4,
+              "evidence_text": "FastAPI() application object",
+              "confidence": 0.9
+            },
+            {
+              "hint": "fastapi_router_mount:/api/private",
+              "file": "main.py",
+              "line": 5,
+              "evidence_text": "router 'private' mounted at /api/private (defined in routers.py:2; route paths retain per-file extraction; declared wiring only)",
+              "confidence": 0.85
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "auth_dependency_definition",
+              "file": "guards.py",
+              "line": 2,
+              "evidence_text": "def verify_token verifies caller credentials",
+              "confidence": 0.8
+            }
+          ],
+          "limitations": []
+        },
+        "installed_python_plugin": {
+          "routes": [],
+          "framework_hints": [
+            {
+              "hint": "fastapi",
+              "file": "guards.py",
+              "line": 1,
+              "evidence_text": "from fastapi import HTTPException",
+              "confidence": 0.7
+            },
+            {
+              "hint": "fastapi",
+              "file": "main.py",
+              "line": 1,
+              "evidence_text": "from fastapi import FastAPI, Depends",
+              "confidence": 0.7
+            },
+            {
+              "hint": "fastapi",
+              "file": "routers.py",
+              "line": 1,
+              "evidence_text": "from fastapi import APIRouter",
+              "confidence": 0.7
+            }
+          ],
+          "auth_hints": [],
+          "limitations": []
+        }
+      }
+    },
+    "flask-siblings": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\flask-siblings",
+      "sha256": {
+        "main.py": "156c2d9678fcdccc6a92f5ac3ac6d8809f5f9d213d82b5c287c56a9e3ac0a50c",
+        "views.py": "f8f3a88f6864ba4922c21bd26ccfc596cde7cf3443919a7effb48ce34a923e73"
+      },
+      "results": {
+        "builtin_python_service": {
+          "routes": [
+            {
+              "path": "/v1/item",
+              "method": "GET",
+              "file": "views.py",
+              "line": 8,
+              "auth": "required",
+              "guards": [
+                "before_request auth hook (views.py:4)"
+              ],
+              "guard_evidence": "bound blueprint before_request guard defined in views.py:4"
+            }
+          ],
+          "framework_hints": [
+            {
+              "hint": "wsgi_app:flask",
+              "file": "main.py",
+              "line": 3,
+              "evidence_text": "Flask() application object",
+              "confidence": 0.9
+            },
+            {
+              "hint": "flask_blueprint_mount:/api",
+              "file": "main.py",
+              "line": 4,
+              "evidence_text": "blueprint 'private' mounted at /api (defined in views.py:2; registration prefix overrides its default; route paths retain per-file extraction; declared wiring only)",
+              "confidence": 0.85
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "blueprint_auth_hook:verify_token",
+              "file": "views.py",
+              "line": 7,
+              "evidence_text": "before_request(verify_token) guards views.py:2; guard defined in views.py:4",
+              "confidence": 0.8
+            },
+            {
+              "hint": "auth_dependency_definition",
+              "file": "views.py",
+              "line": 4,
+              "evidence_text": "def verify_token verifies caller credentials",
+              "confidence": 0.8
+            }
+          ],
+          "limitations": []
+        },
+        "installed_python_plugin": {
+          "routes": [],
+          "framework_hints": [
+            {
+              "hint": "flask",
+              "file": "main.py",
+              "line": 1,
+              "evidence_text": "from flask import Flask",
+              "confidence": 0.7
+            },
+            {
+              "hint": "flask",
+              "file": "views.py",
+              "line": 1,
+              "evidence_text": "from flask import Blueprint, abort, request",
+              "confidence": 0.7
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "authorization_header",
+              "file": "views.py",
+              "line": 5,
+              "evidence_text": "if not request.headers.get(\"Authorization\"):",
+              "confidence": 0.6
+            }
+          ],
+          "limitations": []
+        }
+      }
+    },
+    "unbound-child": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\unbound-child",
+      "sha256": {
+        "main.py": "f15e438e2aeba9b6cc233dd4970c828f27c929f9e24508175b83f185fc242e95",
+        "routers.py": "2c7c4005d8afb23e8dff77f8cf424b74a4e798a00d9ea2df38a8de42d0802241",
+        "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b"
+      },
+      "results": {
+        "builtin_python_service": {
+          "routes": [],
+          "framework_hints": [
+            {
+              "hint": "asgi_app:fastapi",
+              "file": "main.py",
+              "line": 3,
+              "evidence_text": "FastAPI() application object",
+              "confidence": 0.9
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "auth_dependency_definition",
+              "file": "guards.py",
+              "line": 2,
+              "evidence_text": "def verify_token verifies caller credentials",
+              "confidence": 0.8
+            }
+          ],
+          "limitations": [
+            "main.py:4: include_router binding/prefix unresolved or nested; no mount/auth certification"
+          ]
+        },
+        "installed_python_plugin": {
+          "routes": [],
+          "framework_hints": [
+            {
+              "hint": "fastapi",
+              "file": "guards.py",
+              "line": 1,
+              "evidence_text": "from fastapi import HTTPException",
+              "confidence": 0.7
+            },
+            {
+              "hint": "fastapi",
+              "file": "main.py",
+              "line": 1,
+              "evidence_text": "from fastapi import FastAPI, Depends",
+              "confidence": 0.7
+            },
+            {
+              "hint": "fastapi",
+              "file": "routers.py",
+              "line": 1,
+              "evidence_text": "from fastapi import APIRouter",
+              "confidence": 0.7
+            }
+          ],
+          "auth_hints": [],
+          "limitations": []
+        }
+      }
+    }
+  },
+  "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\ecosystem_python.py",
+  "source_sha256": "b5e4dfa35e463f2670131a62267506997268d8fdc5922d3a6e429f38157b7004"
+}

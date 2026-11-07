@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-15",
+  "scope": "Native typed advanced options and backward-compatible settings",
+  "focusedChecks": 41,
+  "publish": "Release win-x64 successful",
+  "nativeOptionsSave": {
+    "passed": true,
+    "stage": "save",
+    "automaticScan": false,
+    "options": {
+      "recall": true,
+      "strict_analyzers": true,
+      "no_suppress": true,
+      "cve": true,
+      "secrets_history": 12,
+      "timeout_seconds": 123
+    },
+    "modules": "javascript-web, config",
+    "networkDisclosure": "AI off; CVE ON: scan contacts OSV with dependency names/versions"
+  },
+  "nativeOptionsRestoreNewProcess": {
+    "passed": true,
+    "stage": "restore",
+    "automaticScan": false,
+    "options": {
+      "recall": true,
+      "strict_analyzers": true,
+      "no_suppress": true,
+      "cve": true,
+      "secrets_history": 12,
+      "timeout_seconds": 123
+    },
+    "modules": "javascript-web, config",
+    "networkDisclosure": "AI off; CVE ON: scan contacts OSV with dependency names/versions"
+  },
+  "legacyReportRegressionPassed": true,
+  "liveNativeAdvancedScan": {
+    "passed": true,
+    "loaded": 18,
+    "error": null,
+    "runSummary": "Selected repository: C:\\tmp\\juice-shop\nRun state: Engine completed; policy not_evaluated; artifacts ready\nDisplayed report: f52ee00ac7304d3bacf51e89f5da9156\nReport repository: C:\\tmp\\juice-shop\nRequested at (client UTC): 2026-10-15T11:08:20.2068881Z; engine scan timestamp unavailable",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 859\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []",
+    "options": {
+      "recall": false,
+      "strict_analyzers": true,
+      "no_suppress": true,
+      "cve": false,
+      "secrets_history": 0,
+      "timeout_seconds": 120
+    },
+    "modules": "javascript-web, config"
+  },
+  "verifiedBrokerRequest": {
+    "schema_version": "1.1",
+    "kind": "request",
+    "run_id": "f52ee00ac7304d3bacf51e89f5da9156",
+    "repository_id": "C:\\tmp\\juice-shop",
+    "generation": 1,
+    "revision": 0,
+    "repository_path": "C:\\tmp\\juice-shop",
+    "output_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-native-advanced-scan",
+    "modules": [
+      "javascript-web",
+      "config"
+    ],
+    "options": {
+      "recall": false,
+      "strict_analyzers": true,
+      "no_suppress": true,
+      "cve": false,
+      "secrets_history": 0,
+      "timeout_seconds": 120
+    }
+  },
+  "verifiedPreparedEngineOptions": {
+    "recall": false,
+    "strict_analyzers": true,
+    "no_suppress": true,
+    "cve": false,
+    "secrets_history": 0,
+    "timeout_seconds": 120
+  },
+  "verifiedPointerManifestSha256": "461d5485d56e66cbf992f4bb93af78c9da9d326579fe87df5a3594507c954753",
+  "verifiedArtifactCount": 19,
+  "engineFilesScanned": 859,
+  "engineAnalyzers": [
+    {
+      "name": "javascript-web",
+      "version": "0.2.0"
+    },
+    {
+      "name": "config",
+      "version": "0.1.0"
+    }
+  ],
+  "llmUsage": {},
+  "analyzerErrors": [],
+  "limitations": [
+    "CVE opt-in restored/disclosed and serialization tested without making a live OSV request",
+    "No AI provider UI, credentials or auto-install option",
+    "No keyboard/Narrator or full C21 acceptance claim"
+  ],
+  "cleanup": "Normal-user CIM verified no attackmap.desktop_worker Python processes remain after completion."
+}

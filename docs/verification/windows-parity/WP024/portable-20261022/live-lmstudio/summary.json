@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "scope": "Requested portable native local LM Studio connection, AI review scan and advisory report/test-evidence critique",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "run": "00314695009e41ca9a6045245a6b142e",
+  "scan_seconds": 141.11877569998614,
+  "scan_completed_model_responses": 1,
+  "direct_completed_generations": [
+    {
+      "scope": "connection/generation-probe",
+      "response_id": "resp_692db7fb76b6de4130bd3a3fa6c5c7135aec34aeeb7cf892",
+      "seconds": 14.247550700005377,
+      "usage": {
+        "input_tokens": 98,
+        "output_tokens": 698,
+        "total_tokens": 796,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 684
+        }
+      }
+    },
+    {
+      "scope": "report-quality-review-readable",
+      "response_id": "resp_19e249d8ccf67862686dfbeb18148c408e0d73e076fee809",
+      "seconds": 223.45338690001518,
+      "usage": {
+        "input_tokens": 44468,
+        "output_tokens": 3176,
+        "total_tokens": 47644,
+        "input_tokens_details": {
+          "cached_tokens": 199
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 1783
+        }
+      }
+    }
+  ],
+  "own_completed_generations_total": 3,
+  "report": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\portable-20261022\\live-lmstudio\\native-scan\\reports\\00314695009e41ca9a6045245a6b142e\\attackmap-report.json",
+  "report_sha256": "bbbcd5cb3551882df76ece27c0a6e5964acce6f3bcbe842ffcd05fd5bc3b00f2",
+  "report_quality_review": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\portable-20261022\\live-lmstudio\\report-quality-review-readable\\output.md",
+  "review_all_findings_supplied": true,
+  "review_full_raw_report_supplied": false,
+  "review_finding_contexts_supplied": false,
+  "review_location_fingerprints_supplied": false,
+  "earlier_review_attempt_timed_out": true,
+  "no_remote_provider": true,
+  "no_separate_python_on_child_PATH": true,
+  "full_release_acceptance": false,
+  "claims_automatically_verified": false,
+  "manual_visual_acceptance": false,
+  "clean_host_acceptance": false
+}

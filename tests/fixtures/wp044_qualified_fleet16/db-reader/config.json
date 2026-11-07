@@ -1,0 +1,18 @@
+{
+  "attackmap_datastores": {
+    "schema_version": "1.0",
+    "declarations": [
+      {
+        "identity": {
+          "scope": "production-eu",
+          "protocol": "postgresql",
+          "host": "db.example.internal",
+          "port": 5432,
+          "namespace": "public",
+          "resource": "orders"
+        },
+        "operation": "read"
+      }
+    ]
+  }
+}

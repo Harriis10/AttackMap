@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "revision": 2,
+  "recorded_utc": "2026-10-15T14:40:47.000158+00:00",
+  "status": "passed",
+  "scope": "One separately authorized UTF-8-corrected owned-worker termination probe; two tiny repositories, two fleet workers, JSON output, AI/CVE off. Not a benchmark or full platform acceptance.",
+  "prior_no_kill_evidence": "desktop/windows/verification/native-frozen-fleet-worker-death-post-matrix-2026-10-15.json",
+  "engine": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+    "sha256": "ebafb3277271d6a87703e07e0c4b4b5d21d3d296a0f200990223a439be280013"
+  },
+  "result": {
+    "status": "passed",
+    "parent_exit": 1,
+    "identity_observations": [
+      {
+        "elapsed_seconds": 0.7160803000006126,
+        "observed_utc": "2026-10-15T14:40:32.077989+00:00",
+        "parent_present": true,
+        "owned_records": [
+          {
+            "ProcessId": 80284,
+            "ParentProcessId": 83664,
+            "ExecutablePath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+            "CommandLine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe analyze \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\good worker\" \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\bad worker\" --output C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output --format json --fleet-workers 2 --module python-web --module config --no-progress",
+            "CreatedUtc": "2026-10-15T14:40:31.3528210Z"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 0.8051477999979397,
+        "observed_utc": "2026-10-15T14:40:32.885754+00:00",
+        "parent_present": true,
+        "owned_records": [
+          {
+            "ProcessId": 80284,
+            "ParentProcessId": 83664,
+            "ExecutablePath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+            "CommandLine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe analyze \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\good worker\" \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\bad worker\" --output C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output --format json --fleet-workers 2 --module python-web --module config --no-progress",
+            "CreatedUtc": "2026-10-15T14:40:31.3528210Z"
+          },
+          {
+            "ProcessId": 83944,
+            "ParentProcessId": 80284,
+            "ExecutablePath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+            "CommandLine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe analyze \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\good worker\" --output C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output\\20261015T144032-9eeaaf79093a4a19a551092c8fe85a56\\good-worker --format json --ai-max-calls 8 --ai-output-tokens 32000 --ai-timeout-seconds 600 --run-id 20261015T144032-9eeaaf79093a4a19a551092c8fe85a56 --module python-web --module config --no-progress --fleet-result C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\attackmap-fleet-a9unvjz4\\result.json",
+            "CreatedUtc": "2026-10-15T14:40:32.4528940Z"
+          },
+          {
+            "ProcessId": 51552,
+            "ParentProcessId": 80284,
+            "ExecutablePath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+            "CommandLine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe analyze \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\bad worker\" --output C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output\\20261015T144032-9eeaaf79093a4a19a551092c8fe85a56\\bad-worker --format json --ai-max-calls 8 --ai-output-tokens 32000 --ai-timeout-seconds 600 --run-id 20261015T144032-9eeaaf79093a4a19a551092c8fe85a56 --module python-web --module config --no-progress --fleet-result C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\attackmap-fleet-b68dw3x1\\result.json",
+            "CreatedUtc": "2026-10-15T14:40:32.4540900Z"
+          },
+          {
+            "ProcessId": 62656,
+            "ParentProcessId": 83944,
+            "ExecutablePath": "C:\\Windows\\system32\\conhost.exe",
+            "CommandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+            "CreatedUtc": "2026-10-15T14:40:32.4638070Z"
+          },
+          {
+            "ProcessId": 83588,
+            "ParentProcessId": 51552,
+            "ExecutablePath": "C:\\Windows\\system32\\conhost.exe",
+            "CommandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+            "CreatedUtc": "2026-10-15T14:40:32.4643110Z"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 0.9029260999959661,
+        "observed_utc": "2026-10-15T14:40:33.795655+00:00",
+        "parent_present": true,
+        "owned_records": [
+          {
+            "ProcessId": 80284,
+            "ParentProcessId": 83664,
+            "ExecutablePath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+            "CommandLine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe analyze \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\good worker\" \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\bad worker\" --output C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output --format json --fleet-workers 2 --module python-web --module config --no-progress",
+            "CreatedUtc": "2026-10-15T14:40:31.3528210Z"
+          },
+          {
+            "ProcessId": 83944,
+            "ParentProcessId": 80284,
+            "ExecutablePath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+            "CommandLine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe analyze \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\good worker\" --output C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output\\20261015T144032-9eeaaf79093a4a19a551092c8fe85a56\\good-worker --format json --ai-max-calls 8 --ai-output-tokens 32000 --ai-timeout-seconds 600 --run-id 20261015T144032-9eeaaf79093a4a19a551092c8fe85a56 --module python-web --module config --no-progress --fleet-result C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\attackmap-fleet-a9unvjz4\\result.json",
+            "CreatedUtc": "2026-10-15T14:40:32.4528940Z"
+          },
+          {
+            "ProcessId": 51552,
+            "ParentProcessId": 80284,
+            "ExecutablePath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+            "CommandLine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe analyze \"C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\bad worker\" --output C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output\\20261015T144032-9eeaaf79093a4a19a551092c8fe85a56\\bad-worker --format json --ai-max-calls 8 --ai-output-tokens 32000 --ai-timeout-seconds 600 --run-id 20261015T144032-9eeaaf79093a4a19a551092c8fe85a56 --module python-web --module config --no-progress --fleet-result C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\attackmap-fleet-b68dw3x1\\result.json",
+            "CreatedUtc": "2026-10-15T14:40:32.4540900Z"
+          },
+          {
+            "ProcessId": 62656,
+            "ParentProcessId": 83944,
+            "ExecutablePath": "C:\\Windows\\system32\\conhost.exe",
+            "CommandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+            "CreatedUtc": "2026-10-15T14:40:32.4638070Z"
+          },
+          {
+            "ProcessId": 83588,
+            "ParentProcessId": 51552,
+            "ExecutablePath": "C:\\Windows\\system32\\conhost.exe",
+            "CommandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+            "CreatedUtc": "2026-10-15T14:40:32.4643110Z"
+          }
+        ]
+      }
+    ],
+    "ownership": {
+      "pid": 51552,
+      "opened_executable": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+      "creation_utc": "2026-10-15T14:40:32.454091+00:00",
+      "termination_exit_code": 97,
+      "worker_argv": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\bad worker",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output\\20261015T144032-9eeaaf79093a4a19a551092c8fe85a56\\bad-worker",
+        "--format",
+        "json",
+        "--ai-max-calls",
+        "8",
+        "--ai-output-tokens",
+        "32000",
+        "--ai-timeout-seconds",
+        "600",
+        "--run-id",
+        "20261015T144032-9eeaaf79093a4a19a551092c8fe85a56",
+        "--module",
+        "python-web",
+        "--module",
+        "config",
+        "--no-progress",
+        "--fleet-result",
+        "C:\\Users\\PRECIS~1\\AppData\\Local\\Temp\\attackmap-fleet-b68dw3x1\\result.json"
+      ],
+      "parent_pid": 80284
+    },
+    "validation": {
+      "partial_summary": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output\\20261015T144032-9eeaaf79093a4a19a551092c8fe85a56\\fleet-summary.json",
+      "failed_child": [
+        {
+          "repo_id": "bad-worker",
+          "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\fixtures spaces žluťoučký\\bad worker",
+          "error": "subprocess exited 97"
+        }
+      ],
+      "successful_child_manifest_sha256": "e441b2a3e2362eaf1ba551e282897e4a6737b77b6603c03f909e6f069b7bf1dd",
+      "diagnostic": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\output\\diagnostics\\20261015T144032-9eeaaf79093a4a19a551092c8fe85a56\\terminal-diagnostic.json",
+      "no_parent_current": true,
+      "no_top_level_partial_export": true
+    },
+    "manual_or_platform_acceptance": false
+  },
+  "evidence": [
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\owned-identity-observations.json",
+      "sha256": "f23fa81acb84c1dea7f847d001dc780f80552e74cd6859f305c8c48c34a5a7cf",
+      "bytes": 8906
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\owned-request.json",
+      "sha256": "67eb48e68f692b5eae5d812c4a93ef78afe3326b056142d936e6d668882f2a4e",
+      "bytes": 1619
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\owned-termination.json",
+      "sha256": "96d28fe94ae245848b2bbe3a3eec63fed5a6800f088f64797df4e6e0b294c8d6",
+      "bytes": 1238
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\parent.json",
+      "sha256": "c261fb3d2bc6f5f2891d2a53c7380727c5051d94093bfbb189e818be5d4f864d",
+      "bytes": 844
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\result.json",
+      "sha256": "ecfb792b5ae928c1d9b485e19072ea02dec64705d0e5f2da0782ceeadb8eb328",
+      "bytes": 11528
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\parent.stderr.log",
+      "sha256": "2963882572e5259a25ecfa5564e94c1da3309e68b27090c6f9e25c65c0d7afde",
+      "bytes": 106
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\probe-utf8-cf8d524c410340d28259fc9819b28950\\parent.stdout.log",
+      "sha256": "a7f80919ea59fb5abe22949483c582fc11a04a1f2d3b067a7060dacf406181a8",
+      "bytes": 560
+    },
+    {
+      "path": ".pytest_cache\\m3-post-matrix-fleet\\controlled_failure_probe_utf8.py",
+      "sha256": "64b2a3b6f88ce73b7b73b04bc7420d3b51487352dab27900c8d9f0d8f3b64283",
+      "bytes": 11461
+    }
+  ]
+}

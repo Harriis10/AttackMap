@@ -43,23 +43,28 @@ def test_get_registered_analyzers_exposes_builtin_web_analyzers(monkeypatch) -> 
     monkeypatch.setattr("attackmap.analyzers.discover_installed_analyzers", lambda: [])
     analyzers = get_registered_analyzers()
 
-    assert len(analyzers) == 4
+    assert len(analyzers) == 9
     assert isinstance(analyzers[0], BuiltinPythonWebAnalyzer)
     assert isinstance(analyzers[1], BuiltinJavaScriptWebAnalyzer)
-    # Config analyzer joined the built-in set with #43. See BuiltinConfigAnalyzer.
-    assert analyzers[2].name == "config"
-    assert isinstance(analyzers[3], DefaultAnalyzer)
+    # Config analyzer joined the built-in set with #43; the AM052 lanes
+    # (php-web / php-laminas / omeka-s / node-atproto / python-service)
+    # slot in around it. See get_builtin_repository_analyzers.
+    assert analyzers[2].name == "php-web"
+    assert analyzers[3].name == "config"
+    assert isinstance(analyzers[-1], DefaultAnalyzer)
     assert [analyzer.name for analyzer in analyzers] == [
-        "python-web", "javascript-web", "config", "default",
+        "python-web", "javascript-web", "php-web", "config",
+        "php-laminas", "omeka-s", "node-atproto", "python-service", "default",
     ]
 
 
 def test_get_builtin_repository_analyzers_contains_builtin_defaults() -> None:
     analyzers = get_builtin_repository_analyzers()
 
-    assert len(analyzers) == 4
+    assert len(analyzers) == 9
     assert [analyzer.name for analyzer in analyzers] == [
-        "python-web", "javascript-web", "config", "default",
+        "python-web", "javascript-web", "php-web", "config",
+        "php-laminas", "omeka-s", "node-atproto", "python-service", "default",
     ]
 
 
@@ -221,7 +226,8 @@ def test_get_registered_analyzers_skips_duplicate_names(monkeypatch) -> None:
     analyzers = get_registered_analyzers()
 
     assert [analyzer.name for analyzer in analyzers] == [
-        "python-web", "javascript-web", "config", "default",
+        "python-web", "javascript-web", "php-web", "config",
+        "php-laminas", "omeka-s", "node-atproto", "python-service", "default",
     ]
 
 
@@ -425,7 +431,7 @@ def test_merge_analyzer_results_combines_languages_and_deduplicates_signals() ->
     assert len(merged.secret_hints) == 1
 
 
-def test_analyze_repository_merges_and_deduplicates_multiple_analyzer_results() -> None:
+def test_analyze_repository_merges_and_deduplicates_multiple_analyzer_results(tmp_path: Path) -> None:
     class FirstAnalyzer:
         metadata = get_analyzer_metadata(BuiltinPythonWebAnalyzer())
 
@@ -465,7 +471,8 @@ def test_analyze_repository_merges_and_deduplicates_multiple_analyzer_results() 
                 files_scanned=3,
             )
 
-    result = analyze_repository(".", analyzers=[FirstAnalyzer(), SecondAnalyzer()])
+    (tmp_path / "app.py").write_text('x = 1\n', encoding="utf-8")
+    result = analyze_repository(tmp_path, analyzers=[FirstAnalyzer(), SecondAnalyzer()])
 
     assert result.files_scanned == 5
     assert result.languages == ["javascript", "python"]
@@ -525,7 +532,7 @@ app.post("/xrpc/com.atproto.server.createSession", (_req, res) => res.json({ ok:
     assert "atproto_protocol:xrpc" in hint_values
 
 
-def test_analyze_repository_respects_optional_detect() -> None:
+def test_analyze_repository_respects_optional_detect(tmp_path: Path) -> None:
     class DetectFalseAnalyzer:
         metadata = get_analyzer_metadata(DefaultAnalyzer())
 
@@ -557,7 +564,8 @@ def test_analyze_repository_respects_optional_detect() -> None:
                 files_scanned=1,
             )
 
-    result = analyze_repository(".", analyzers=[DetectFalseAnalyzer(), DetectTrueAnalyzer()])
+    (tmp_path / "index.php").write_text('<?php echo "fixture";\n', encoding="utf-8")
+    result = analyze_repository(tmp_path, analyzers=[DetectFalseAnalyzer(), DetectTrueAnalyzer()])
 
     assert result.files_scanned == 1
     assert result.languages == ["php"]
@@ -758,3 +766,23 @@ def test_builtin_javascript_analyzer_merges_alongside_default_without_double_cou
     (tmp_path / "server.ts").write_text("const x = 1;\n", encoding="utf-8")
     result = analyze_repository(tmp_path)
     assert result.files_scanned == 1
+
+
+def test_analyze_repository_reports_index_mutation(tmp_path: Path) -> None:
+    """A file mutated during analyzer execution is reported in limitations."""
+    target = tmp_path / "app.js"
+    target.write_text("const x = 1;\n", encoding="utf-8")
+
+    class MutatingAnalyzer:
+        metadata = get_analyzer_metadata(DefaultAnalyzer())
+
+        @property
+        def name(self) -> str:
+            return self.metadata.name
+
+        def analyze(self, root: str | Path) -> AnalyzerResult:
+            target.write_text("const x = 2;\nconst y = 3;\n", encoding="utf-8")
+            return AnalyzerResult(root=str(root))
+
+    result = analyze_repository(tmp_path, analyzers=[MutatingAnalyzer()])
+    assert any("mutated" in note for note in result.limitations)

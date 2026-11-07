@@ -1,0 +1,2059 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="54" skipped="0" tests="82" time="6.621" timestamp="2026-10-31T10:24:40.015636+01:00" hostname="corpsec"><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.018"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nfunction mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import0')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount(LOCAL) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nfunction mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.018"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nfunction mount(handler) {\napp.get('/orders/:id', handler())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import1')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL) {\nREGISTER\n}', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nfunction mount(handler) {\napp.get('/orders/:id', handler())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.020"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nfunction mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import2')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount(LOCAL) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nfunction mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL = other) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.341" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL = other) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.230" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL = other) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.192" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount({ value: LOCAL }) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.014"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nfunction mount({ value: loadOrder }) {\napp.get('/orders/:id', loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import6')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount({ value: LOCAL }) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nfunction mount({ value: loadOrder }) {\napp.get('/orders/:id', loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount({ value: LOCAL }) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.014"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nfunction mount({ value: handler }) {\napp.get('/orders/:id', handler())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import7')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount({ value: LOCAL }) {\nREGISTER\n}', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nfunction mount({ value: handler }) {\napp.get('/orders/:id', handler())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount({ value: LOCAL }) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nfunction mount({ value: orders }) {\napp.get('/orders/:id', orders.loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import8')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount({ value: LOCAL }) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nfunction mount({ value: orders }) {\napp.get('/orders/:id', orders.loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount([LOCAL]) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.019"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nfunction mount([loadOrder]) {\napp.get('/orders/:id', loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import9')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount([LOCAL]) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nfunction mount([loadOrder]) {\napp.get('/orders/:id', loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount([LOCAL]) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nfunction mount([handler]) {\napp.get('/orders/:id', handler())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import10')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount([LOCAL]) {\nREGISTER\n}', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nfunction mount([handler]) {\napp.get('/orders/:id', handler())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount([LOCAL]) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.061"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nfunction mount([orders]) {\napp.get('/orders/:id', orders.loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import11')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount([LOCAL]) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nfunction mount([orders]) {\napp.get('/orders/:id', orders.loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(...LOCAL) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.010"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nfunction mount(...loadOrder) {\napp.get('/orders/:id', loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import12')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount(...LOCAL) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nfunction mount(...loadOrder) {\napp.get('/orders/:id', loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(...LOCAL) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.019"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nfunction mount(...handler) {\napp.get('/orders/:id', handler())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import13')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(...LOCAL) {\nREGISTER\n}', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nfunction mount(...handler) {\napp.get('/orders/:id', handler())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(...LOCAL) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.025"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nfunction mount(...orders) {\napp.get('/orders/:id', orders.loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import14')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount(...LOCAL) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nfunction mount(...orders) {\napp.get('/orders/:id', orders.loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=4, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nfunction mount(loadOrder) {\nfunction nested() {\napp.get('/orders/:id', loadOrder())\n}\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import15')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=4, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nfunction mount(loadOrder) {\nfunction nested() {\napp.get('/orders/:id', loadOrder())\n}\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.025"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=4, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nfunction mount(handler) {\nfunction nested() {\napp.get('/orders/:id', handler())\n}\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import16')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=4, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nfunction mount(handler) {\nfunction nested() {\napp.get('/orders/:id', handler())\n}\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.022"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=4, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nfunction mount(orders) {\nfunction nested() {\napp.get('/orders/:id', orders.loadOrder())\n}\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import17')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=4, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nfunction mount(orders) {\nfunction nested() {\napp.get('/orders/:id', orders.loadOrder())\n}\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = (LOCAL) =&gt; {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nconst mount = (loadOrder) =&gt; {\napp.get('/orders/:id', loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import18')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'const mount = (LOCAL) =&gt; {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nconst mount = (loadOrder) =&gt; {\napp.get('/orders/:id', loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = (LOCAL) =&gt; {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.014"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nconst mount = (handler) =&gt; {\napp.get('/orders/:id', handler())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import19')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mount = (LOCAL) =&gt; {\nREGISTER\n}', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nconst mount = (handler) =&gt; {\napp.get('/orders/:id', handler())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = (LOCAL) =&gt; {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.024"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nconst mount = (orders) =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import20')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'const mount = (LOCAL) =&gt; {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nconst mount = (orders) =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = LOCAL =&gt; {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.065" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = LOCAL =&gt; {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.090" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = LOCAL =&gt; {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.105" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = (LOCAL) =&gt;\nREGISTER\n-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.010"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nconst mount = (loadOrder) =&gt;\napp.get('/orders/:id', loadOrder())\n&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import24')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'const mount = (LOCAL) =&gt;\nREGISTER\n'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nconst mount = (loadOrder) =&gt;\napp.get('/orders/:id', loadOrder())\n")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = (LOCAL) =&gt;\nREGISTER\n-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.017"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nconst mount = (handler) =&gt;\napp.get('/orders/:id', handler())\n&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import25')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mount = (LOCAL) =&gt;\nREGISTER\n', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nconst mount = (handler) =&gt;\napp.get('/orders/:id', handler())\n")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mount = (LOCAL) =&gt;\nREGISTER\n-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nconst mount = (orders) =&gt;\napp.get('/orders/:id', orders.loadOrder())\n&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import26')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'const mount = (LOCAL) =&gt;\nREGISTER\n'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nconst mount = (orders) =&gt;\napp.get('/orders/:id', orders.loadOrder())\n")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-try { work() } catch (LOCAL) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.018"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\ntry { work() } catch (loadOrder) {\napp.get('/orders/:id', loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import27')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'try { work() } catch (LOCAL) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\ntry { work() } catch (loadOrder) {\napp.get('/orders/:id', loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-try { work() } catch (LOCAL) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.010"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\ntry { work() } catch (handler) {\napp.get('/orders/:id', handler())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import28')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'try { work() } catch (LOCAL) {\nREGISTER\n}', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\ntry { work() } catch (handler) {\napp.get('/orders/:id', handler())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-try { work() } catch (LOCAL) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.013"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\ntry { work() } catch (orders) {\napp.get('/orders/:id', orders.loadOrder())\n}&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import29')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'try { work() } catch (LOCAL) {\nREGISTER\n}'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\ntry { work() } catch (orders) {\napp.get('/orders/:id', orders.loadOrder())\n}")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mounts = { mount(LOCAL) {\nREGISTER\n} }-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.013"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder } from './orders'\nconst mounts = { mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n} }&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import30')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'const mounts = { mount(LOCAL) {\nREGISTER\n} }'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder } from './orders'\nconst mounts = { mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n} }")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mounts = { mount(LOCAL) {\nREGISTER\n} }-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.019"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import { loadOrder as handler } from './orders'\nconst mounts = { mount(handler) {\napp.get('/orders/:id', handler())\n} }&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import31')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mounts = { mount(LOCAL) {\nREGISTER\n} }', import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import { loadOrder as handler } from './orders'\nconst mounts = { mount(handler) {\napp.get('/orders/:id', handler())\n} }")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[True-const mounts = { mount(LOCAL) {\nREGISTER\n} }-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.019"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;import * as orders from './orders'\nconst mounts = { mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n} }&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import32')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'const mounts = { mount(LOCAL) {\nREGISTER\n} }'
+import_first = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "import * as orders from './orders'\nconst mounts = { mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n} }")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import33')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount(LOCAL) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(handler) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import34')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL) {\nREGISTER\n}', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(handler) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import35')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount(LOCAL) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL = other) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.070" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL = other) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.070" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL = other) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.066" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount({ value: LOCAL }) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.013"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount({ value: loadOrder }) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import39')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount({ value: LOCAL }) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount({ value: loadOrder }) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount({ value: LOCAL }) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount({ value: handler }) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import40')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount({ value: LOCAL }) {\nREGISTER\n}', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount({ value: handler }) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount({ value: LOCAL }) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount({ value: orders }) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import41')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount({ value: LOCAL }) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount({ value: orders }) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount([LOCAL]) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.063"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount([loadOrder]) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import42')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount([LOCAL]) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount([loadOrder]) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount([LOCAL]) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount([handler]) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import43')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount([LOCAL]) {\nREGISTER\n}', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount([handler]) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount([LOCAL]) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount([orders]) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import44')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount([LOCAL]) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount([orders]) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(...LOCAL) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.014"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(...loadOrder) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import45')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'function mount(...LOCAL) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(...loadOrder) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(...LOCAL) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.014"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(...handler) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import46')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(...LOCAL) {\nREGISTER\n}', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(...handler) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(...LOCAL) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(...orders) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import47')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'function mount(...LOCAL) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "function mount(...orders) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(loadOrder) {\nfunction nested() {\napp.get('/orders/:id', loadOrder())\n}\n}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import48')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder'
+scope = 'function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "function mount(loadOrder) {\nfunction nested() {\napp.get('/orders/:id', loadOrder())\n}\n}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.015"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(handler) {\nfunction nested() {\napp.get('/orders/:id', handler())\n}\n}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import49')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "function mount(handler) {\nfunction nested() {\napp.get('/orders/:id', handler())\n}\n}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.014"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), &quot;function mount(orders) {\nfunction nested() {\napp.get('/orders/:id', orders.loadOrder())\n}\n}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import50')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders'
+scope = 'function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=3, auth='unknown', guards=[], guard_evidence=None), "function mount(orders) {\nfunction nested() {\napp.get('/orders/:id', orders.loadOrder())\n}\n}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = (LOCAL) =&gt; {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (loadOrder) =&gt; {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import51')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'const mount = (LOCAL) =&gt; {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (loadOrder) =&gt; {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = (LOCAL) =&gt; {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (handler) =&gt; {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import52')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mount = (LOCAL) =&gt; {\nREGISTER\n}', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (handler) =&gt; {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = (LOCAL) =&gt; {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.020"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (orders) =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import53')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'const mount = (LOCAL) =&gt; {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (orders) =&gt; {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = LOCAL =&gt; {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.103" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = LOCAL =&gt; {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.103" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = LOCAL =&gt; {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.080" /><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = (LOCAL) =&gt;\nREGISTER\n-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.019"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (loadOrder) =&gt;\napp.get('/orders/:id', loadOrder())\n\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import57')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'const mount = (LOCAL) =&gt;\nREGISTER\n'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (loadOrder) =&gt;\napp.get('/orders/:id', loadOrder())\n\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = (LOCAL) =&gt;\nREGISTER\n-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.016"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (handler) =&gt;\napp.get('/orders/:id', handler())\n\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import58')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mount = (LOCAL) =&gt;\nREGISTER\n', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (handler) =&gt;\napp.get('/orders/:id', handler())\n\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mount = (LOCAL) =&gt;\nREGISTER\n-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.013"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mount = (orders) =&gt;\napp.get('/orders/:id', orders.loadOrder())\n\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import59')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'const mount = (LOCAL) =&gt;\nREGISTER\n'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mount = (orders) =&gt;\napp.get('/orders/:id', orders.loadOrder())\n\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-try { work() } catch (LOCAL) {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.011"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;try { work() } catch (loadOrder) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import60')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'try { work() } catch (LOCAL) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "try { work() } catch (loadOrder) {\napp.get('/orders/:id', loadOrder())\n}\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-try { work() } catch (LOCAL) {\nREGISTER\n}-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.015"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;try { work() } catch (handler) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import61')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'try { work() } catch (LOCAL) {\nREGISTER\n}', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "try { work() } catch (handler) {\napp.get('/orders/:id', handler())\n}\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-try { work() } catch (LOCAL) {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;try { work() } catch (orders) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import62')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'try { work() } catch (LOCAL) {\nREGISTER\n}'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "try { work() } catch (orders) {\napp.get('/orders/:id', orders.loadOrder())\n}\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mounts = { mount(LOCAL) {\nREGISTER\n} }-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.012"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mounts = { mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n} }\nimport { loadOrder } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import63')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', scope = 'const mounts = { mount(LOCAL) {\nREGISTER\n} }'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mounts = { mount(loadOrder) {\napp.get('/orders/:id', loadOrder())\n} }\nimport { loadOrder } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mounts = { mount(LOCAL) {\nREGISTER\n} }-import { loadOrder as handler } from './orders'-handler()-handler]" time="0.043"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mounts = { mount(handler) {\napp.get('/orders/:id', handler())\n} }\nimport { loadOrder as handler } from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import64')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler'
+scope = 'const mounts = { mount(LOCAL) {\nREGISTER\n} }', import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mounts = { mount(handler) {\napp.get('/orders/:id', handler())\n} }\nimport { loadOrder as handler } from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_lexically_shadowed_import_is_not_handler_evidence[False-const mounts = { mount(LOCAL) {\nREGISTER\n} }-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.014"><failure message="assert ('./orders', 'loadOrder', True) is None&#10; +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), &quot;const mounts = { mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n} }\nimport * as orders from './orders'&quot;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-red-qualified-01/test_lexically_shadowed_import65')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', scope = 'const mounts = { mount(LOCAL) {\nREGISTER\n} }'
+import_first = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("scope", [
+        "function mount(LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL = other) {\nREGISTER\n}",
+        "function mount({ value: LOCAL }) {\nREGISTER\n}",
+        "function mount([LOCAL]) {\nREGISTER\n}",
+        "function mount(...LOCAL) {\nREGISTER\n}",
+        "function mount(LOCAL) {\nfunction nested() {\nREGISTER\n}\n}",
+        "const mount = (LOCAL) =&gt; {\nREGISTER\n}",
+        "const mount = LOCAL =&gt; {\nREGISTER\n}",
+        "const mount = (LOCAL) =&gt;\nREGISTER\n",
+        "try { work() } catch (LOCAL) {\nREGISTER\n}",
+        "const mounts = { mount(LOCAL) {\nREGISTER\n} }",
+    ])
+    @pytest.mark.parametrize("import_first", [True, False])
+    def test_lexically_shadowed_import_is_not_handler_evidence(
+        tmp_path: Path, imports: str, target: str, local: str, scope: str, import_first: bool,
+    ) -&gt; None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        scoped = scope.replace("LOCAL", local).replace("REGISTER", registration)
+        source = imports + "\n" + scoped if import_first else scoped + "\n" + imports
+        (repo / "server.ts").write_text(source, encoding="utf-8")
+        line = source[:source.index(registration)].count("\n") + 1
+        route = Route(path="/orders/:id", method="GET", file="server.ts", line=line)
+&gt;       assert _handler_binding(route, source) is None
+E       assert ('./orders', 'loadOrder', True) is None
+E        +  where ('./orders', 'loadOrder', True) = _handler_binding(Route(path='/orders/:id', method='GET', file='server.ts', line=2, auth='unknown', guards=[], guard_evidence=None), "const mounts = { mount(orders) {\napp.get('/orders/:id', orders.loadOrder())\n} }\nimport * as orders from './orders'")
+
+tests\test_authz_bound_handlers.py:166: AssertionError</failure></testcase><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[function unrelated(LOCAL) { use(LOCAL) }\nREGISTER-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.157" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[function unrelated(LOCAL) { use(LOCAL) }\nREGISTER-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.138" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[function outer() {\nfunction unrelated(LOCAL) { use(LOCAL) }\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.213" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[function outer() {\nfunction unrelated(LOCAL) { use(LOCAL) }\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.081" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[function outer(other) {\nfunction nested() {\nREGISTER\n}\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.112" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[function outer(other) {\nfunction nested() {\nREGISTER\n}\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.080" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[const mount = (other) =&gt; {\nREGISTER\n}-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.100" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[const mount = (other) =&gt; {\nREGISTER\n}-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.081" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[const unrelated = (LOCAL) =&gt; use(LOCAL);\nREGISTER-import { loadOrder } from './orders'-loadOrder()-loadOrder]" time="0.154" /><testcase classname="tests.test_authz_bound_handlers" name="test_unshadowed_import_survives_unrelated_and_nested_scopes[const unrelated = (LOCAL) =&gt; use(LOCAL);\nREGISTER-import * as orders from './orders'-orders.loadOrder()-orders]" time="0.078" /><testcase classname="tests.test_authz_bound_handlers" name="test_local_declarations_and_writes_veto_import_regardless_of_order[True-let loadOrder = other]" time="0.122" /><testcase classname="tests.test_authz_bound_handlers" name="test_local_declarations_and_writes_veto_import_regardless_of_order[True-loadOrder = other]" time="0.113" /><testcase classname="tests.test_authz_bound_handlers" name="test_local_declarations_and_writes_veto_import_regardless_of_order[True-function loadOrder() {}]" time="0.155" /><testcase classname="tests.test_authz_bound_handlers" name="test_local_declarations_and_writes_veto_import_regardless_of_order[False-let loadOrder = other]" time="0.094" /><testcase classname="tests.test_authz_bound_handlers" name="test_local_declarations_and_writes_veto_import_regardless_of_order[False-loadOrder = other]" time="0.192" /><testcase classname="tests.test_authz_bound_handlers" name="test_local_declarations_and_writes_veto_import_regardless_of_order[False-function loadOrder() {}]" time="0.133" /></testsuite></testsuites>

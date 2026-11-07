@@ -1,0 +1,181 @@
+{
+  "scope": "Deterministic fake SDK matrix only; no live HTTP, provider authentication, native UI or runtime acceptance",
+  "findings_hash_invariant": true,
+  "rows": [
+    {
+      "mode": "none",
+      "folder": "docs\\verification\\windows-parity\\WP014\\citation-final-temp\\test_dispatch_matrix_and_exact0\\none\\desktop-none",
+      "findings_sha256": "ee071c99076fc80af9d1be8e9243bfb75063f5b52c992e6d9fed52561631af49",
+      "findings_bytes": 4871,
+      "status": "not_requested",
+      "model_output_available": false,
+      "artifact": null,
+      "metadata_artifact": null,
+      "allowance": null,
+      "service_parameters": {
+        "requested_effort": null,
+        "mapped_effort": null,
+        "provider": "openai",
+        "requested_model": "cyberstag-security-26b-a4b-v1",
+        "backend": "api",
+        "speed": "standard",
+        "jury_votes": null
+      }
+    },
+    {
+      "mode": "review",
+      "folder": "docs\\verification\\windows-parity\\WP014\\citation-final-temp\\test_dispatch_matrix_and_exact0\\review\\desktop-review",
+      "findings_sha256": "ee071c99076fc80af9d1be8e9243bfb75063f5b52c992e6d9fed52561631af49",
+      "findings_bytes": 4871,
+      "status": "completed",
+      "model_output_available": true,
+      "artifact": "defensive-review-llm.md",
+      "metadata_artifact": "defensive-review-llm.meta.json",
+      "allowance": {
+        "token_allowance_kind": "output_tokens",
+        "max_calls": 8,
+        "calls_reserved": 1,
+        "output_token_limit": 32000,
+        "output_tokens_charged_or_reserved": 1,
+        "reported_output_tokens": 1,
+        "unknown_output_usage_calls": 0,
+        "output_limit_violations": 0,
+        "remaining_seconds": 598.9330984999979,
+        "usage_status": "reported"
+      },
+      "service_parameters": {
+        "requested_effort": null,
+        "mapped_effort": "high",
+        "provider": "openai",
+        "requested_model": "cyberstag-security-26b-a4b-v1",
+        "backend": "api",
+        "speed": "standard",
+        "jury_votes": null
+      }
+    },
+    {
+      "mode": "hunt",
+      "folder": "docs\\verification\\windows-parity\\WP014\\citation-final-temp\\test_dispatch_matrix_and_exact0\\hunt\\desktop-hunt",
+      "findings_sha256": "ee071c99076fc80af9d1be8e9243bfb75063f5b52c992e6d9fed52561631af49",
+      "findings_bytes": 4871,
+      "status": "completed",
+      "model_output_available": true,
+      "artifact": "vulnerability-hypotheses.md",
+      "metadata_artifact": "vulnerability-hypotheses.meta.json",
+      "allowance": {
+        "token_allowance_kind": "output_tokens",
+        "max_calls": 8,
+        "calls_reserved": 1,
+        "output_token_limit": 32000,
+        "output_tokens_charged_or_reserved": 1,
+        "reported_output_tokens": 1,
+        "unknown_output_usage_calls": 0,
+        "output_limit_violations": 0,
+        "remaining_seconds": 599.5158936999942,
+        "usage_status": "reported"
+      },
+      "service_parameters": {
+        "requested_effort": null,
+        "mapped_effort": "high",
+        "provider": "openai",
+        "requested_model": "cyberstag-security-26b-a4b-v1",
+        "backend": "api",
+        "speed": "standard",
+        "jury_votes": null
+      }
+    },
+    {
+      "mode": "hunt_verify",
+      "folder": "docs\\verification\\windows-parity\\WP014\\citation-final-temp\\test_dispatch_matrix_and_exact0\\hunt_verify\\desktop-hunt_verify",
+      "findings_sha256": "ee071c99076fc80af9d1be8e9243bfb75063f5b52c992e6d9fed52561631af49",
+      "findings_bytes": 4871,
+      "status": "completed",
+      "model_output_available": true,
+      "artifact": "vulnerability-hypotheses.md",
+      "metadata_artifact": "vulnerability-hypotheses.meta.json",
+      "allowance": {
+        "token_allowance_kind": "output_tokens",
+        "max_calls": 8,
+        "calls_reserved": 4,
+        "output_token_limit": 32000,
+        "output_tokens_charged_or_reserved": 4,
+        "reported_output_tokens": 4,
+        "unknown_output_usage_calls": 0,
+        "output_limit_violations": 0,
+        "remaining_seconds": 598.5930892999895,
+        "usage_status": "reported"
+      },
+      "service_parameters": {
+        "requested_effort": null,
+        "mapped_effort": "high",
+        "provider": "openai",
+        "requested_model": "cyberstag-security-26b-a4b-v1",
+        "backend": "api",
+        "speed": "standard",
+        "jury_votes": 3
+      }
+    },
+    {
+      "mode": "remediate",
+      "folder": "docs\\verification\\windows-parity\\WP014\\citation-final-temp\\test_dispatch_matrix_and_exact0\\remediate\\desktop-remediate",
+      "findings_sha256": "ee071c99076fc80af9d1be8e9243bfb75063f5b52c992e6d9fed52561631af49",
+      "findings_bytes": 4871,
+      "status": "completed",
+      "model_output_available": true,
+      "artifact": "remediation.md",
+      "metadata_artifact": "remediation.meta.json",
+      "allowance": {
+        "token_allowance_kind": "output_tokens",
+        "max_calls": 8,
+        "calls_reserved": 1,
+        "output_token_limit": 32000,
+        "output_tokens_charged_or_reserved": 1,
+        "reported_output_tokens": 1,
+        "unknown_output_usage_calls": 0,
+        "output_limit_violations": 0,
+        "remaining_seconds": 599.6404810999957,
+        "usage_status": "reported"
+      },
+      "service_parameters": {
+        "requested_effort": null,
+        "mapped_effort": "high",
+        "provider": "openai",
+        "requested_model": "cyberstag-security-26b-a4b-v1",
+        "backend": "api",
+        "speed": "standard",
+        "jury_votes": null
+      }
+    },
+    {
+      "mode": "triage",
+      "folder": "docs\\verification\\windows-parity\\WP014\\citation-final-temp\\test_dispatch_matrix_and_exact0\\triage\\desktop-triage",
+      "findings_sha256": "ee071c99076fc80af9d1be8e9243bfb75063f5b52c992e6d9fed52561631af49",
+      "findings_bytes": 4871,
+      "status": "completed",
+      "model_output_available": true,
+      "artifact": "triage.md",
+      "metadata_artifact": "triage.meta.json",
+      "allowance": {
+        "token_allowance_kind": "output_tokens",
+        "max_calls": 8,
+        "calls_reserved": 1,
+        "output_token_limit": 32000,
+        "output_tokens_charged_or_reserved": 1,
+        "reported_output_tokens": 1,
+        "unknown_output_usage_calls": 0,
+        "output_limit_violations": 0,
+        "remaining_seconds": 599.713233100003,
+        "usage_status": "reported"
+      },
+      "service_parameters": {
+        "requested_effort": null,
+        "mapped_effort": "high",
+        "provider": "openai",
+        "requested_model": "cyberstag-security-26b-a4b-v1",
+        "backend": "api",
+        "speed": "standard",
+        "jury_votes": null
+      }
+    }
+  ]
+}

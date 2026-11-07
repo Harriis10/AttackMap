@@ -1,0 +1,16 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________________ test_fleet_real_workers_match_serial[all] __________________
+tests\test_fleet_parallelism.py:238: in test_fleet_real_workers_match_serial
+    assert serial.scan.model_dump(mode="json") == parallel.scan.model_dump(mode="json")
+E   AssertionError: assert {'root': 'C:\...nts': [], ...} == {'root': 'C:\...nts': [], ...}
+E     
+E     Omitting 32 identical items, use -vv to show
+E     Differing items:
+E     {'analyzer_run_ledger': {'schema_version': '1.1', 'scope': 'analyzer_selection_and_execution', 'inventory_scope': 'registered_candidates', 'selection_mode': 'automatic', ...}} != {'analyzer_run_ledger': {'schema_version': '1.1', 'scope': 'analyzer_selection_and_execution', 'inventory_scope': 'registered_candidates', 'selection_mode': 'automatic', ...}}
+E     Use -v to get more diff
+---------------------------- Captured stdout call -----------------------------
+\n\u2500\u2500 service-one  (C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\service one) \u2500\u2500\nScanned 1 files\nDetected languages: python\nRoutes: 1\nExternal calls: 0\nDatastores: 0\n\nHeuristic static analysis; runtime reachability and exploitability are not verified.\nFindings:\n- [LOW] Heuristic scan found only a limited attack surface\n\nAttack paths:\n\nReports written to: C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\out-1\\20261031T091225-9b4deb797a694775a9be62e1a4a0f878\\service-one\\20261031T091225-9b4deb797a694775a9be62e1a4a0f878\n\n\u2500\u2500 slu-ba-dv  (C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\slu\u017eba dv\u011b) \u2500\u2500\nScanned 1 files\nDetected languages: python\nRoutes: 1\nExternal calls: 0\nDatastores: 0\n\nHeuristic static analysis; runtime reachability and exploitability are not verified.\nFindings:\n- [LOW] Heuristic scan found only a limited attack surface\n\nAttack paths:\n\nReports written to: C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\out-1\\20261031T091225-9b4deb797a694775a9be62e1a4a0f878\\slu-ba-dv\\20261031T091225-9b4deb797a694775a9be62e1a4a0f878\n\nFleet: 2 repositories, 2 finding(s), 0 cross-repo link(s), 0 cross-boundary + 0 trust-gap + 0 anomaly (all speculative). Summary written to: C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\out-1\\20261031T091225-9b4deb797a694775a9be62e1a4a0f878\\fleet-summary.md\n\nFleet: scanning 2 repositories with 2 worker(s)...\n  done service-one  (C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\service one)\n  done slu-ba-dv  (C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\slu\u017eba dv\u011b)\n\nFleet: 2 repositories, 2 finding(s), 0 cross-repo link(s), 0 cross-boundary + 0 trust-gap + 0 anomaly (all speculative). Summary written to: C:\\tmp\\wp034-head-baseline-20261031\\test_fleet_real_workers_match_0\\out-2\\20261031T091230-34f1d986171343d39ecf1874a01a812c\\fleet-summary.md
+=========================== short test summary info ===========================
+FAILED tests/test_fleet_parallelism.py::test_fleet_real_workers_match_serial[all]
+1 failed in 13.32s

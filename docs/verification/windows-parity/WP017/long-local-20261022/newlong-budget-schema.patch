@@ -1,0 +1,31 @@
+--- a/schemas/run-request.schema.json
++++ b/schemas/run-request.schema.json
+@@ -50,7 +50,7 @@
+         },
+         "timeout_seconds": {
+           "default": 600,
+-          "maximum": 3600,
++          "maximum": 7200,
+           "minimum": 1,
+           "title": "Timeout Seconds",
+           "type": "integer"
+@@ -117,7 +117,7 @@
+         },
+         "timeout_seconds": {
+           "default": 600,
+-          "maximum": 3600,
++          "maximum": 7200,
+           "minimum": 1,
+           "title": "Timeout Seconds",
+           "type": "integer"
+--- a/schemas/run-fleet-request.schema.json
++++ b/schemas/run-fleet-request.schema.json
+@@ -74,7 +74,7 @@
+         },
+         "timeout_seconds": {
+           "default": 600,
+-          "maximum": 3600,
++          "maximum": 7200,
+           "minimum": 1,
+           "title": "Timeout Seconds",
+           "type": "integer"

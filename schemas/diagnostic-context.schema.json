@@ -1,0 +1,536 @@
+{
+  "$defs": {
+    "DiagnosticAnalyzer": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.+-]{0,127}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "version_status": {
+          "default": "unknown",
+          "enum": [
+            "declared",
+            "unknown"
+          ],
+          "title": "Version Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "DiagnosticAnalyzer",
+      "type": "object"
+    },
+    "DiagnosticAnalyzers": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "not_started",
+            "unknown",
+            "partial",
+            "complete"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "requested_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Count"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/DiagnosticAnalyzer"
+          },
+          "maxItems": 128,
+          "title": "Items",
+          "type": "array"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "title": "DiagnosticAnalyzers",
+      "type": "object"
+    },
+    "DiagnosticChild": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "outcome": {
+          "default": "unknown",
+          "enum": [
+            "completed",
+            "failed",
+            "cancelled",
+            "unknown"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "coverage": {
+          "$ref": "#/$defs/DiagnosticCoverage"
+        },
+        "resource_events": {
+          "$ref": "#/$defs/DiagnosticResources"
+        }
+      },
+      "required": [
+        "index"
+      ],
+      "title": "DiagnosticChild",
+      "type": "object"
+    },
+    "DiagnosticCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "not_started",
+            "unknown",
+            "partial",
+            "complete"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "accepted_file_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accepted File Count"
+        },
+        "legacy_files_scanned_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legacy Files Scanned Count"
+        },
+        "analyzer_error_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Analyzer Error Count"
+        },
+        "limitation_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limitation Count"
+        },
+        "scope_notice": {
+          "const": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage.",
+          "default": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage.",
+          "title": "Scope Notice",
+          "type": "string"
+        }
+      },
+      "title": "DiagnosticCoverage",
+      "type": "object"
+    },
+    "DiagnosticFleet": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "not_started",
+          "enum": [
+            "not_started",
+            "unknown",
+            "partial",
+            "complete"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "requested_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Count"
+        },
+        "completed_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Completed Count"
+        },
+        "failed_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failed Count"
+        },
+        "cancelled_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cancelled Count"
+        },
+        "children": {
+          "items": {
+            "$ref": "#/$defs/DiagnosticChild"
+          },
+          "maxItems": 128,
+          "title": "Children",
+          "type": "array"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "title": "DiagnosticFleet",
+      "type": "object"
+    },
+    "DiagnosticResources": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "not_started",
+            "unknown",
+            "partial",
+            "complete"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "scopes": {
+          "items": {
+            "enum": [
+              "repo_index.file_bytes",
+              "repo_index.index_bytes",
+              "config_scanner.file_bytes"
+            ],
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Scopes",
+          "type": "array"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/ResourceLimitEvent"
+          },
+          "maxItems": 256,
+          "title": "Items",
+          "type": "array"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "scope_notice": {
+          "const": "Only listed instrumented byte-limit scopes; other limits remain unknown.",
+          "default": "Only listed instrumented byte-limit scopes; other limits remain unknown.",
+          "title": "Scope Notice",
+          "type": "string"
+        }
+      },
+      "title": "DiagnosticResources",
+      "type": "object"
+    },
+    "DiagnosticStage": {
+      "additionalProperties": false,
+      "properties": {
+        "stage_id": {
+          "enum": [
+            "request_validation",
+            "select_analyzers",
+            "scan_and_merge",
+            "secrets_history",
+            "cve",
+            "translate",
+            "suppress",
+            "publish",
+            "publication",
+            "fleet",
+            "worker",
+            "analysis_pipeline",
+            "baseline",
+            "pr_comment",
+            "llm",
+            "hunt",
+            "remediate",
+            "triage",
+            "unknown"
+          ],
+          "title": "Stage Id",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "completed",
+            "failed",
+            "cancelled",
+            "unknown"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "duration_milliseconds": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "ge": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Milliseconds"
+        }
+      },
+      "required": [
+        "stage_id",
+        "outcome"
+      ],
+      "title": "DiagnosticStage",
+      "type": "object"
+    },
+    "ResourceLimitEvent": {
+      "additionalProperties": false,
+      "description": "An observed byte- or file-limit branch, never a claim about uninstrumented limits.",
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "file_bytes",
+            "index_bytes",
+            "index_files"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "producer": {
+          "enum": [
+            "repo_index",
+            "config_scanner"
+          ],
+          "title": "Producer",
+          "type": "string"
+        },
+        "limit": {
+          "exclusiveMinimum": 0,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "unit": {
+          "default": "bytes",
+          "enum": [
+            "bytes",
+            "files"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "action": {
+          "default": "skipped_file",
+          "enum": [
+            "skipped_file",
+            "skipped_remaining_files"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "observed_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Bytes"
+        },
+        "observed_files": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Files"
+        }
+      },
+      "required": [
+        "event_id",
+        "category",
+        "producer",
+        "limit"
+      ],
+      "title": "ResourceLimitEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "context_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Context Version",
+      "type": "string"
+    },
+    "outcome": {
+      "default": "unknown",
+      "enum": [
+        "completed",
+        "failed",
+        "cancelled",
+        "unknown"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "policy_outcome": {
+      "default": "unknown",
+      "enum": [
+        "not_evaluated",
+        "passed",
+        "failed",
+        "unknown"
+      ],
+      "title": "Policy Outcome",
+      "type": "string"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/DiagnosticStage"
+      },
+      "maxItems": 128,
+      "title": "Stages",
+      "type": "array"
+    },
+    "analyzers": {
+      "$ref": "#/$defs/DiagnosticAnalyzers"
+    },
+    "coverage": {
+      "$ref": "#/$defs/DiagnosticCoverage"
+    },
+    "resource_events": {
+      "$ref": "#/$defs/DiagnosticResources"
+    },
+    "fleet": {
+      "$ref": "#/$defs/DiagnosticFleet"
+    }
+  },
+  "title": "DiagnosticContext",
+  "type": "object"
+}

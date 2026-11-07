@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="2.989" timestamp="2026-10-31T10:12:00.377928+01:00" hostname="corpsec"><testcase classname="tests.test_wp032_multibackend_proxy" name="test_rejected_proxy_cannot_fall_through_to_repository_identity[]" time="0.076"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-identity-red-20261031/test_rejected_proxy_cannot_fal0')
+port = ''
+
+    @pytest.mark.parametrize("port", ["", ":8443"])
+    def test_rejected_proxy_cannot_fall_through_to_repository_identity(tmp_path, port):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("identity-collision.conf",))
+        aliases, _ = extract_deployment_aliases([root / name for name in scans])
+        links = resolve(scans, aliases, f"https://API{port}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+&gt;       assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E       AssertionError: assert ('observed', '') == ('candidate',...ous_identity')
+E         
+E         At index 0 diff: 'observed' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:119: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_rejected_proxy_cannot_fall_through_to_repository_identity[:8443]" time="0.112"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-identity-red-20261031/test_rejected_proxy_cannot_fal1')
+port = ':8443'
+
+    @pytest.mark.parametrize("port", ["", ":8443"])
+    def test_rejected_proxy_cannot_fall_through_to_repository_identity(tmp_path, port):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("identity-collision.conf",))
+        aliases, _ = extract_deployment_aliases([root / name for name in scans])
+        links = resolve(scans, aliases, f"https://API{port}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+&gt;       assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E       AssertionError: assert ('observed', '') == ('candidate',...ous_identity')
+E         
+E         At index 0 diff: 'observed' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:119: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_rejected_proxy_remains_candidate_with_other_positive_declarations[host]" time="0.065"><failure message="AssertionError: assert (2 == 2 and False)&#10; +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])&#10; +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF35080&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-identity-red-20261031/test_rejected_proxy_remains_ca0')
+declaration = 'host'
+
+    @pytest.mark.parametrize("declaration", ["host", "port", "suffix", "proxy"])
+    def test_rejected_proxy_remains_candidate_with_other_positive_declarations(tmp_path, declaration):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        kwargs = {"host": {"hosts": {TARGET: "api"}}, "port": {"host_ports": {f"{TARGET}:8443": "api"}},
+                  "suffix": {"dns_suffixes": (".production.internal",)}, "proxy": {"proxies": {TARGET: "api"}}}[declaration]
+        if declaration == "suffix":
+            # The declared namespace would normally resolve this full host by repo basename.
+            scans["api"].root = str(root / "edge")
+        aliases = replace(extracted, **kwargs)
+        links = resolve(scans, aliases, f'https://{TARGET}{":8443" if declaration == "port" else ""}/Api/Items/42')
+&gt;       assert len(links) == 2 and all(link.resolution == "candidate" for link in links)
+E       AssertionError: assert (2 == 2 and False)
+E        +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])
+E        +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF35080&gt;)
+
+tests\test_wp032_multibackend_proxy.py:136: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_rejected_proxy_remains_candidate_with_other_positive_declarations[port]" time="0.065"><failure message="AssertionError: assert (2 == 2 and False)&#10; +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])&#10; +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF357D0&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-identity-red-20261031/test_rejected_proxy_remains_ca1')
+declaration = 'port'
+
+    @pytest.mark.parametrize("declaration", ["host", "port", "suffix", "proxy"])
+    def test_rejected_proxy_remains_candidate_with_other_positive_declarations(tmp_path, declaration):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        kwargs = {"host": {"hosts": {TARGET: "api"}}, "port": {"host_ports": {f"{TARGET}:8443": "api"}},
+                  "suffix": {"dns_suffixes": (".production.internal",)}, "proxy": {"proxies": {TARGET: "api"}}}[declaration]
+        if declaration == "suffix":
+            # The declared namespace would normally resolve this full host by repo basename.
+            scans["api"].root = str(root / "edge")
+        aliases = replace(extracted, **kwargs)
+        links = resolve(scans, aliases, f'https://{TARGET}{":8443" if declaration == "port" else ""}/Api/Items/42')
+&gt;       assert len(links) == 2 and all(link.resolution == "candidate" for link in links)
+E       AssertionError: assert (2 == 2 and False)
+E        +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])
+E        +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF357D0&gt;)
+
+tests\test_wp032_multibackend_proxy.py:136: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_rejected_proxy_remains_candidate_with_other_positive_declarations[suffix]" time="0.046"><failure message="AssertionError: assert (2 == 2 and False)&#10; +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])&#10; +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF365A0&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-identity-red-20261031/test_rejected_proxy_remains_ca2')
+declaration = 'suffix'
+
+    @pytest.mark.parametrize("declaration", ["host", "port", "suffix", "proxy"])
+    def test_rejected_proxy_remains_candidate_with_other_positive_declarations(tmp_path, declaration):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        kwargs = {"host": {"hosts": {TARGET: "api"}}, "port": {"host_ports": {f"{TARGET}:8443": "api"}},
+                  "suffix": {"dns_suffixes": (".production.internal",)}, "proxy": {"proxies": {TARGET: "api"}}}[declaration]
+        if declaration == "suffix":
+            # The declared namespace would normally resolve this full host by repo basename.
+            scans["api"].root = str(root / "edge")
+        aliases = replace(extracted, **kwargs)
+        links = resolve(scans, aliases, f'https://{TARGET}{":8443" if declaration == "port" else ""}/Api/Items/42')
+&gt;       assert len(links) == 2 and all(link.resolution == "candidate" for link in links)
+E       AssertionError: assert (2 == 2 and False)
+E        +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])
+E        +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF365A0&gt;)
+
+tests\test_wp032_multibackend_proxy.py:136: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_rejected_proxy_remains_candidate_with_other_positive_declarations[proxy]" time="0.058"><failure message="AssertionError: assert (2 == 2 and False)&#10; +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])&#10; +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF368E0&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-identity-red-20261031/test_rejected_proxy_remains_ca3')
+declaration = 'proxy'
+
+    @pytest.mark.parametrize("declaration", ["host", "port", "suffix", "proxy"])
+    def test_rejected_proxy_remains_candidate_with_other_positive_declarations(tmp_path, declaration):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        kwargs = {"host": {"hosts": {TARGET: "api"}}, "port": {"host_ports": {f"{TARGET}:8443": "api"}},
+                  "suffix": {"dns_suffixes": (".production.internal",)}, "proxy": {"proxies": {TARGET: "api"}}}[declaration]
+        if declaration == "suffix":
+            # The declared namespace would normally resolve this full host by repo basename.
+            scans["api"].root = str(root / "edge")
+        aliases = replace(extracted, **kwargs)
+        links = resolve(scans, aliases, f'https://{TARGET}{":8443" if declaration == "port" else ""}/Api/Items/42')
+&gt;       assert len(links) == 2 and all(link.resolution == "candidate" for link in links)
+E       AssertionError: assert (2 == 2 and False)
+E        +  where 2 = len([ContractLink(client_repo='caller', server_repo='api', method='POST', path_template='Api/Items/*', client_target='http..., resolution='candidate', resolution_reason='unresolved_host', scheme='https', alias_provenance=None, proxy_host=None)])
+E        +  and   False = all(&lt;generator object test_rejected_proxy_remains_candidate_with_other_positive_declarations.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001317AF368E0&gt;)
+
+tests\test_wp032_multibackend_proxy.py:136: AssertionError</failure></testcase></testsuite></testsuites>

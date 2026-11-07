@@ -1,0 +1,177 @@
+{
+  "status": "BROAD_PYTHON_PASS_WITH_SEVEN_EXISTING_SKIP_GATES_PLUS_VERIFIED_FOCUSED_RUNNER_DELTA",
+  "base_commit": "258adf66a9ec3c5a691868ae67c3a73b08b92c4a",
+  "exit_code": 0,
+  "pytest_summary": {
+    "passed": 4423,
+    "skipped": 7,
+    "failed": 0,
+    "errors": 0,
+    "subtests_passed": 20,
+    "warnings": 1,
+    "elapsed_seconds": 853.25,
+    "junit_testcase_count_including_subtests": 4450
+  },
+  "process_elapsed_seconds": 855.2217793000164,
+  "source_manifest_tracked_file_count": 631,
+  "source_manifest_scope_counts": {
+    "src/": 130,
+    "tests/": 475,
+    "installer/": 4,
+    "tools/": 21
+  },
+  "all_src_hashes_unchanged": true,
+  "changed_paths": [
+    "tests/test_wp017_native_runner.py",
+    "tools/run_wp017_native_modes.py"
+  ],
+  "source_delta": [
+    {
+      "path": "tests/test_wp017_native_runner.py",
+      "before_sha256": "5cd815833bcf51d0cc2ab72e8e295a95676553b81a290c3aab628e8d65acd219",
+      "after_sha256": "8e2360f871b363beae58f9734d8c485471a28534110aa791ce7d7c74d148b262"
+    },
+    {
+      "path": "tools/run_wp017_native_modes.py",
+      "before_sha256": "f0b6df2edafb9b752a799635f141ce8030302b95b16d3e11a0a584f54b5b7f8c",
+      "after_sha256": "c6f6e5ebd4e54dfaa425048ab3990a55e4f4e9eaa337cb4a1f545e60d15a0686"
+    }
+  ],
+  "scan_limit_source_sha256": "e1b31058d1210848ff77590475c4eb4e8960f9c0972259221ef85acc999ec99d",
+  "scan_limits": [
+    {
+      "class": "tests.test_scan_limits",
+      "name": "test_oversized_file_is_skipped_quickly_and_reported",
+      "time_seconds": 0.086,
+      "status": "pass"
+    },
+    {
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[long_word]",
+      "time_seconds": 1.846,
+      "status": "pass"
+    },
+    {
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[router_assign]",
+      "time_seconds": 2.247,
+      "status": "pass"
+    },
+    {
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[blueprint]",
+      "time_seconds": 1.83,
+      "status": "pass"
+    },
+    {
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[graphql_field]",
+      "time_seconds": 2.201,
+      "status": "pass"
+    },
+    {
+      "class": "tests.test_scan_limits",
+      "name": "test_max_file_bytes_env_override",
+      "time_seconds": 0.018,
+      "status": "pass"
+    },
+    {
+      "class": "tests.test_scan_limits",
+      "name": "test_many_matches_in_a_large_file_scan_in_linear_time",
+      "time_seconds": 8.011,
+      "status": "pass"
+    }
+  ],
+  "skip_gates": [
+    {
+      "class": "tests.test_analyzers",
+      "name": "test_discover_installed_analyzers_includes_php_web_when_installed",
+      "reason": {
+        "type": "pytest.skip",
+        "message": "could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'"
+      },
+      "detail": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_analyzers.py:134: could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'"
+    },
+    {
+      "class": "tests.test_analyzers",
+      "name": "test_analyze_repository_uses_installed_php_web_analyzer_for_php_routes",
+      "reason": {
+        "type": "pytest.skip",
+        "message": "could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'"
+      },
+      "detail": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_analyzers.py:604: could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'"
+    },
+    {
+      "class": "tests.test_llm_cli_isolation",
+      "name": "test_live_hostile_repo_hooks_and_mcp_never_fire",
+      "reason": {
+        "type": "pytest.skip",
+        "message": "live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI"
+      },
+      "detail": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_llm_cli_isolation.py:158: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI"
+    },
+    {
+      "class": "tests.test_resource_budgets",
+      "name": "test_cancellation_under_load_terminates_promptly_with_partial_coverage",
+      "reason": {
+        "type": "pytest.skip",
+        "message": "cancellation-under-load proof: a ~5000-file fixture needs ~2 minutes; run with ATTACKMAP_STRESS_TESTS=1"
+      },
+      "detail": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_resource_budgets.py:218: cancellation-under-load proof: a ~5000-file fixture needs ~2 minutes; run with ATTACKMAP_STRESS_TESTS=1"
+    },
+    {
+      "class": "tests.test_sdk_fs",
+      "name": "test_unreadable_file_returns_none",
+      "reason": {
+        "type": "pytest.skip",
+        "message": "chmod 000 is not enforced on Windows or for root"
+      },
+      "detail": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_sdk_fs.py:95: chmod 000 is not enforced on Windows or for root"
+    },
+    {
+      "class": "tests.test_ui_export",
+      "name": "test_export_endpoint_rejects_symlinked_path",
+      "reason": {
+        "type": "pytest.skip",
+        "message": "Windows tests run without symlink creation privileges"
+      },
+      "detail": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_ui_export.py:242: Windows tests run without symlink creation privileges"
+    },
+    {
+      "class": "tests.test_unreadable_and_fleet_failures",
+      "name": "test_unreadable_file_is_skipped_and_reported",
+      "reason": {
+        "type": "pytest.skip",
+        "message": "chmod 000 is not enforced on Windows or for root"
+      },
+      "detail": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_unreadable_and_fleet_failures.py:31: chmod 000 is not enforced on Windows or for root"
+    }
+  ],
+  "process_completion": {
+    "pytest_exit_code": 0,
+    "known_owned_pids": [
+      23268,
+      6716,
+      29904,
+      25416
+    ],
+    "all_absent_after_completion": true
+  },
+  "limitations": [
+    "Full tracked source snapshot was not identical before/after: concurrent approved WP017 runner changes were subsequently validated by a source-bound focused run (39 tests and 23 subtests passed). Treat as broad baseline plus focused delta.",
+    "Seven existing pytest skip gates remain unexecuted; no selected test filtering or new skip was introduced.",
+    "No native consumer, frozen engine, GUI, live LM Studio, manual accessibility, clean-host, macOS, signing, or human beta gate is proved by this Python suite.",
+    "First restricted-token attempt was aborted for basetemp ACL access; retained separately, never represented as PASS."
+  ],
+  "focused_delta": {
+    "evidence": "docs/verification/windows-parity/WP017/astra-review-20261022/focused-result.json",
+    "evidence_sha256": "34bef94c0a29aac96a0416e6484ca3ede33d1f3804f84360212613e5e9eec025",
+    "exit_code": 0,
+    "tests_passed": 39,
+    "subtests_passed": 23,
+    "pytest_seconds": 3.43,
+    "matches_broad_source_after": true,
+    "matches_current_source": true,
+    "log_and_junit_sha256_verified": true
+  }
+}

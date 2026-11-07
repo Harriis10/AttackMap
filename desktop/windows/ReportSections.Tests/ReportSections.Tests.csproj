@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../AttackMap.NativeSpike/ReportSections.cs" Link="ReportSections.cs"/>
+    <Compile Include="../AttackMap.NativeSpike/ReportSectionAdapter.cs" Link="ReportSectionAdapter.cs"/>
+    <Content Include="../../../fixtures/desktop-parity/report-*.json" Link="fixtures/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+</Project>

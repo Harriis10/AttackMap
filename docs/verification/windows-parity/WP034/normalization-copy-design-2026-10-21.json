@@ -1,0 +1,35 @@
+{
+  "status": "DESIGN_ONLY_NO_PROTOTYPE_OR_CANONICAL_CHANGE",
+  "baseline": {
+    "source": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+    "files": {
+      "models.py": "cc8f4a00c47e5ef3c9b371464c381b6f42ef80fd3516460c7e5e4aa4e365da81",
+      "signal_provenance.py": "0522dc9c83aa5ee11175df230b5f32b9c819e3b91062c3a25c3fe5727d3d0134"
+    },
+    "input_sha256": "a6db0def59166cb1b191b5c61f75cce28979d3916001b5ece48fcf114f9fcb1b"
+  },
+  "change_scope": "Only representative clone in merge_normalized_signals; grouping, keys, sorting, origin deep-copy and conflict reconstruction unchanged.",
+  "fast_path_guard": [
+    "Exact Signal type. No nonempty private/extra state.",
+    "Plain properties dict with plain string keys/values.",
+    "Every other actual __dict__ value outside properties/origins/conflicts is an immutable built-in scalar; unexpected mutable or subclass state uses existing deep copy."
+  ],
+  "copy": "model_copy(deep=False, update={properties:dict(...),origins:[],conflicts:[]}); restore cloned public model_fields_set from saved original set before existing ID/origin/conflict assignments. No model_construct, new validators bypassed, mutable global cache or source aliasing.",
+  "goldens": [
+    "All complete JSON and all8 combinations of exclude_unset/exclude_defaults/exclude_none; exact array order/observation IDs.",
+    "Recursive model_fields_set for signals/origins/conflicts, including unset versus explicitly-empty properties.",
+    "Single/duplicate identities, reversed input orders, distinct legacy/known origin versions, missing file/line and unknown classifications.",
+    "Conflicting auth/properties/source roles/evidence kinds, duplicate origin keys and conflict values.",
+    "Scalar defaults, explicit None, retained already-redacted evidence and unknown property keys.",
+    "Validated Signal subclasses with nested mutable fields/allowed extras/private attributes exercise deep-copy fallback.",
+    "Input and output mutations both ways for properties, origins, origin properties, conflict value lists and scalar fields; no input field-set mutation.",
+    "Two results sharing the same input origin/property objects must not gain new output aliasing.",
+    "Actual published6000-signal corpus same hash; no original report/source writes."
+  ],
+  "evidence_requirements": [
+    "New owned candidate copy only, exact source refs/delta hashes.",
+    "Clean baseline first; no canonical lease currently.",
+    "Pure main-thread timing and allocation only, no full pipeline rerun or C35/speed qualification.",
+    "No single-item sort/origin-key fast path in this first candidate."
+  ]
+}

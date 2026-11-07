@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "scope": "Root Windows focused verification of POSIX-complete test doubles; not Linux execution or production supervision acceptance",
+  "command": "PYTHONPATH=src .venv/Scripts/python.exe -m pytest tests/test_ui.py::test_runner_cancel_sets_flag tests/test_ui_supervision.py::test_unverified_exit_keeps_admission_slot -q --basetemp <unique user TEMP directory>",
+  "exit_code": 0,
+  "result": "2 passed in 0.77s",
+  "initial_attempt": "Sandbox default pytest TEMP failed with PermissionError at fixture setup before either test executed; corrected explicit unique basetemp under normal user.",
+  "source_checksums": {
+    "tests/test_ui.py": "f47ae824d73f0b26728795001f2dcd705bd38c1396d891ebcf4f9647e6c54229",
+    "tests/test_ui_supervision.py": "e00314c6c50f5791e04f2db5be027bae019ecaf392bfad10483828267780f9e5"
+  },
+  "limitations": [
+    "Windows execution does not exercise the newly intercepted POSIX signal branch.",
+    "No production source changed for these test-double corrections."
+  ]
+}

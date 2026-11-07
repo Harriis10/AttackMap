@@ -10,11 +10,16 @@ Reference: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
 
 from __future__ import annotations
 
+import hashlib
 import re
-from importlib.metadata import PackageNotFoundError, version
+from urllib.parse import quote
 from typing import Any
 
-from .models import AttackPath, Finding
+from . import __version__
+from .srcpaths import evidence_locations
+from .md import md_text
+from .models import AttackPath, Finding, TaintFlowStep, finding_rule_id
+from .taxonomy import CWE_NAMES, cwe_tag, cwe_url, taxonomy_for
 
 
 SARIF_VERSION = "2.1.0"
@@ -54,38 +59,46 @@ def _slugify(text: str) -> str:
     return slug or "finding"
 
 
-# Regex to lift `file` and `line` from evidence strings like
-# `"POST /webhook/x in app.py; auth signals: ..."` (surface_evidence
-# format) or `"API_KEY in config.py"` (secret_hint format). Best-effort:
-# a location is optional per SARIF spec.
-_LOCATION_FROM_EVIDENCE = re.compile(
-    r"(?:in|at)\s+`?([\w./_\\-]+\.(?:py|js|jsx|ts|tsx|mjs|cjs|go|rs|php|java|kt|cs|cpp|c|h|hpp|yml|yaml|json|toml|env|sh|dockerfile))`?(?::(\d+))?",
-    re.IGNORECASE,
-)
+SRCROOT = "%SRCROOT%"
+
+
+def _sarif_uri(file_path: str) -> str:
+    """Repo-relative, forward-slashed, percent-encoded artifact URI (#230)."""
+    return quote(file_path.replace("\\", "/").lstrip("/"), safe="/@()[]+~-._")
+
+
+def _sarif_location(file_path: str, line_num: int | None) -> dict[str, Any]:
+    physical: dict[str, Any] = {"artifactLocation": {"uri": _sarif_uri(file_path), "uriBaseId": SRCROOT}}
+    # No fabricated `startLine: 1` (#230): a location without a known line is
+    # a file-level location with no region.
+    if line_num is not None and line_num >= 1:
+        physical["region"] = {"startLine": line_num}
+    return {"physicalLocation": physical}
+
+
+def _instances(finding: Finding) -> list[tuple[str, int | None, str | None]]:
+    """``(file, line, fingerprint)`` per instance: structured locations first
+    (with their #222 fingerprints), else the files cited in evidence."""
+    if finding.locations:
+        pairs = [(loc.file, loc.line, loc.fingerprint) for loc in finding.locations]
+    else:
+        pairs = [(f, l, None) for f, l in evidence_locations(finding.evidence)]
+    seen: set[tuple[str, int | None]] = set()
+    out: list[tuple[str, int | None, str | None]] = []
+    for file, line, fp in pairs:
+        key = (file.replace("\\", "/"), line)
+        if key not in seen:
+            seen.add(key)
+            out.append((key[0], line, fp))
+    return out
+
+
+def _finding_locations(finding: Finding) -> list[dict[str, Any]]:
+    return [_sarif_location(file, line) for file, line, _ in _instances(finding)]
 
 
 def _locations_from_evidence(evidence: list[str]) -> list[dict[str, Any]]:
-    seen: set[tuple[str, int | None]] = set()
-    locations: list[dict[str, Any]] = []
-    for line in evidence:
-        for match in _LOCATION_FROM_EVIDENCE.finditer(line):
-            file_path = match.group(1)
-            raw_line = match.group(2)
-            line_num = int(raw_line) if raw_line else None
-            key = (file_path, line_num)
-            if key in seen:
-                continue
-            seen.add(key)
-            region = {"startLine": line_num} if line_num is not None else {"startLine": 1}
-            locations.append(
-                {
-                    "physicalLocation": {
-                        "artifactLocation": {"uri": file_path},
-                        "region": region,
-                    }
-                }
-            )
-    return locations
+    return [_sarif_location(path, line) for path, line in evidence_locations(evidence)]
 
 
 # ---------------------------------------------------------------------------
@@ -94,10 +107,7 @@ def _locations_from_evidence(evidence: list[str]) -> list[dict[str, Any]]:
 
 
 def _tool_version() -> str:
-    try:
-        return version("attackmap")
-    except PackageNotFoundError:
-        return "0.0.0-dev"
+    return __version__
 
 
 def _build_rules(findings: list[Finding]) -> list[dict[str, Any]]:
@@ -106,7 +116,7 @@ def _build_rules(findings: list[Finding]) -> list[dict[str, Any]]:
     identical-title findings keeps the taxonomy stable."""
     rules_by_id: dict[str, dict[str, Any]] = {}
     for finding in findings:
-        rule_id = _slugify(finding.title)
+        rule_id = finding_rule_id(finding)
         if rule_id in rules_by_id:
             continue
         rules_by_id[rule_id] = {
@@ -121,12 +131,96 @@ def _build_rules(findings: list[Finding]) -> list[dict[str, Any]]:
                 "security-severity": _security_severity(finding.severity, finding.confidence),
             },
         }
+        _add_rule_taxonomy(rules_by_id[rule_id], rule_id)
     return list(rules_by_id.values())
 
 
-def _build_result(finding: Finding, *, suppression_reason: str | None = None) -> dict[str, Any]:
-    rule_id = _slugify(finding.title)
-    locations = _locations_from_evidence(finding.evidence)
+CWE_TAXONOMY = "CWE"
+
+
+def _add_rule_taxonomy(rule: dict[str, Any], rule_id: str) -> None:
+    """CWE tags, helpUri, CWE relationships and the OWASP/ASVS/ATT&CK ids
+    from the taxonomy registry (#250). Unregistered rules are left as is."""
+    entry = taxonomy_for(rule_id)
+    if entry is None:
+        return
+    props = rule["properties"]
+    # Detectors may already tag the CWE (workflow findings do); keep one copy.
+    props["tags"] = list(dict.fromkeys([*props["tags"], *(cwe_tag(c) for c in entry.cwe)]))
+    props["cwe"] = entry.cwe_ids
+    props["owasp"] = list(entry.owasp)
+    if entry.asvs:
+        props["asvs"] = list(entry.asvs)
+    if entry.attack:
+        props["attack"] = list(entry.attack)
+    rule["helpUri"] = cwe_url(entry.cwe[0])
+    rule["relationships"] = [
+        {"target": {"id": str(c), "toolComponent": {"name": CWE_TAXONOMY}}, "kinds": ["superset"]}
+        for c in entry.cwe
+    ]
+
+
+def _cwe_taxonomy(rules: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The run's CWE `taxonomies` entry: one taxon per CWE a rule cites."""
+    ids = sorted(
+        {int(rel["target"]["id"]) for rule in rules for rel in rule.get("relationships", [])}
+    )
+    if not ids:
+        return None
+    return {
+        "name": CWE_TAXONOMY,
+        "organization": "MITRE",
+        "informationUri": "https://cwe.mitre.org/",
+        "shortDescription": {"text": "The MITRE Common Weakness Enumeration"},
+        "taxa": [
+            {
+                "id": str(c),
+                "name": CWE_NAMES.get(c, f"CWE-{c}"),
+                "shortDescription": {"text": CWE_NAMES.get(c, f"CWE-{c}")},
+                "helpUri": cwe_url(c),
+            }
+            for c in ids
+        ],
+    }
+
+
+def _stable_hash(*parts: object) -> str:
+    return hashlib.sha256("\x1f".join(str(p) for p in parts).encode("utf-8")).hexdigest()[:32]
+
+
+def _code_flow(steps: list[TaintFlowStep]) -> dict[str, Any]:
+    """A traced source→sink flow (#239) as a SARIF ``codeFlow``: one
+    threadFlow whose locations are the source, each propagation /
+    sanitizer / guard step, and the sink."""
+    locations = []
+    for step in steps:
+        loc = _sarif_location(step.file, step.line)
+        loc["message"] = {"text": f"{step.kind}: {step.evidence_text or ''}".rstrip(": ")}
+        locations.append({"location": loc, "kinds": [step.kind]})
+    source = steps[0] if steps else None
+    text = f"{source.evidence_text} flows to the sink" if source and source.evidence_text else "taint flow"
+    return {"message": {"text": text}, "threadFlows": [{"locations": locations}]}
+
+
+def _flows_by_sink(finding: Finding) -> dict[tuple[str, int | None], list[dict[str, Any]]]:
+    out: dict[tuple[str, int | None], list[dict[str, Any]]] = {}
+    for steps in finding.code_flows:
+        if not steps:
+            continue
+        sink = steps[-1]
+        out.setdefault((sink.file.replace("\\", "/"), sink.line), []).append(_code_flow(steps))
+    return out
+
+
+def _build_result(finding: Finding, *, suppression_reason: str | None = None) -> list[dict[str, Any]]:
+    """One SARIF result per finding instance (#230).
+
+    Each result carries a single primary location and a partial fingerprint
+    derived from (rule id, instance fingerprint) — never evidence text — so
+    Code Scanning keeps alert identity (and dismissals) stable when another
+    instance appears or a snippet changes. Evidence lives in properties.
+    """
+    rule_id = finding_rule_id(finding)
     properties: dict[str, Any] = {
         "tags": list(finding.tags),
         "security-severity": _security_severity(finding.severity, finding.confidence),
@@ -136,37 +230,54 @@ def _build_result(finding: Finding, *, suppression_reason: str | None = None) ->
         # SARIF `rank` is 0-100, higher = more important — same
         # direction as `score` from #4.
         properties["rank"] = float(finding.score)
-    result: dict[str, Any] = {
-        "ruleId": rule_id,
-        "level": _sarif_level(finding.severity),
-        "message": {
-            "text": finding.title,
-            "markdown": f"**{finding.title}**\n\n{finding.mitigation}",
-        },
-        "properties": properties,
-    }
-    # If we found citable file locations, attach them; otherwise SARIF
-    # allows results without locations (they surface repo-wide).
-    if locations:
-        result["locations"] = locations
-    # Evidence goes to a partial-fingerprints-style secondary spot
-    # so the raw citation text isn't lost.
     if finding.evidence:
-        result["partialFingerprints"] = {
-            "attackmap/evidence": "|".join(finding.evidence[:8]),
+        properties["evidence"] = list(finding.evidence[:8])
+
+    def result(location: dict[str, Any] | None, fingerprint: str) -> dict[str, Any]:
+        r: dict[str, Any] = {
+            "ruleId": rule_id,
+            "level": _sarif_level(finding.severity),
+            "message": {
+                "text": finding.title,
+                "markdown": f"**{md_text(finding.title)}**\n\n{finding.mitigation}",
+            },
+            "partialFingerprints": {"attackmapInstance/v1": fingerprint},
+            "properties": properties,
         }
-    # Suppressed findings stay in the log (not dropped) but carry a SARIF
-    # `suppressions` array so viewers / GitHub Code Scanning show them as
-    # suppressed rather than active (#144).
-    if suppression_reason is not None:
-        result["suppressions"] = [
-            {"kind": "external", "justification": suppression_reason or "suppressed by AttackMap"}
-        ]
-    return result
+        if location is not None:
+            r["locations"] = [location]
+        # Suppressed findings stay in the log (not dropped) but carry a SARIF
+        # `suppressions` array so viewers / GitHub Code Scanning show them as
+        # suppressed rather than active (#144).
+        if suppression_reason is not None:
+            r["suppressions"] = [
+                {"kind": "external", "justification": suppression_reason or "suppressed by AttackMap"}
+            ]
+        return r
+
+    instances = _instances(finding)
+    if not instances:
+        # Repository-level aggregates use the explicit rule, never its prose.
+        # Rule-less legacy output retains its historical title-based identity.
+        from .finding_identity import finding_id
+        scope = finding_id(finding) if finding.rule_id else finding.title
+        return [result(None, _stable_hash(rule_id, scope))]
+    results = [
+        result(_sarif_location(file, line), _stable_hash(rule_id, fp or f"{file}:{line}"))
+        for file, line, fp in instances
+    ]
+    # Traced taint flows (#239) ride on the result at their sink location.
+    flows = _flows_by_sink(finding)
+    if flows:
+        for r, (file, line, _) in zip(results, instances):
+            matched = flows.pop((file, line), None)
+            if matched:
+                r["codeFlows"] = matched
+    return results
 
 
 def _build_results(findings: list[Finding]) -> list[dict[str, Any]]:
-    return [_build_result(finding) for finding in findings]
+    return [r for finding in findings for r in _build_result(finding)]
 
 
 def _build_code_flows_from_attack_paths(
@@ -182,18 +293,9 @@ def _build_code_flows_from_attack_paths(
     """
     flows: list[dict[str, Any]] = []
     for path in attack_paths:
-        thread_flow_locations = [
-            {
-                "location": {
-                    "message": {"text": step},
-                    "physicalLocation": {
-                        "artifactLocation": {"uri": ""},
-                        "region": {"startLine": 1},
-                    },
-                }
-            }
-            for step in path.steps
-        ]
+        # Steps are narrative, not code positions: a message-only location
+        # (no fabricated empty URI / line 1, #230).
+        thread_flow_locations = [{"location": {"message": {"text": step}}} for step in path.steps]
         flows.append(
             {
                 "message": {"text": f"{path.name}: {path.impact}"},
@@ -221,7 +323,8 @@ def build_sarif(
     # resolves in viewers.
     rules = _build_rules(findings + [f for f, _ in suppressed])
     results = _build_results(findings)
-    results.extend(_build_result(f, suppression_reason=reason) for f, reason in suppressed)
+    for f, reason in suppressed:
+        results.extend(_build_result(f, suppression_reason=reason))
 
     driver: dict[str, Any] = {
         "name": "AttackMap",
@@ -229,10 +332,18 @@ def build_sarif(
         "informationUri": TOOL_INFO_URI,
         "rules": rules,
     }
+    cwe_taxonomy = _cwe_taxonomy(rules)
+    if cwe_taxonomy is not None:
+        driver["supportedTaxonomies"] = [{"name": CWE_TAXONOMY}]
     run: dict[str, Any] = {
         "tool": {"driver": driver},
+        # Artifact URIs are relative to the scanned repo root; the absolute
+        # local path is deliberately not embedded.
+        "originalUriBaseIds": {SRCROOT: {"description": {"text": "Root of the scanned repository."}}},
         "results": results,
     }
+    if cwe_taxonomy is not None:
+        run["taxonomies"] = [cwe_taxonomy]
     if attack_paths:
         # Attach codeflows at the run level via a properties bag. SARIF
         # allows tool-defined properties here; consumers who care about

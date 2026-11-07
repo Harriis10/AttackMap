@@ -1,0 +1,12 @@
+{
+  "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.xaml.cs",
+  "line_number": 595,
+  "original_snippet": "            File.WriteAllText(arguments[startupIndex + 1] + \".result.json\", JsonSerializer.Serialize(new { passed = available && PythonPath.Text == bundled && !scanning && repositoryPath == null && options.Provider == null && !options.Cve, bundledEngine = PythonPath.Text, automaticScan = scanning, aiEnabled = options.Provider?.EnableAi ?? false, cveEnabled = options.Cve, personalSettingsRead = false, manualStartupAcceptance = false }));",
+  "proposed_snippet": "            File.WriteAllText(arguments[startupIndex + 1] + \".result.json\", JsonSerializer.Serialize(new { passed = available && PythonPath.Text == bundled && !scanning && repositoryPath == null && options.Provider?.EnableAi != true && !options.Cve, bundledEngine = PythonPath.Text, automaticScan = scanning, aiEnabled = options.Provider?.EnableAi ?? false, cveEnabled = options.Cve, personalSettingsRead = false, manualStartupAcceptance = false }));",
+  "original_snippet_sha256": "92a43fd662fabe757466fe67a7bfc9b1a630e1715ace5ead2bea7b3c9e491714",
+  "proposed_snippet_sha256": "059c35e09f2473ec0200f4099abc8af5c83694d374076d422be2fbed691a8072",
+  "current_source_sha256": "1236e35c18d4ccf783bdcda562ca7fca01f48bb8189715041e0e613f79b83a50",
+  "application_owner": "root",
+  "applied_by_this_agent": false,
+  "scope": "Original one-line snippet reconstructed by reversing only root-confirmed change; no historical full-source hash claim."
+}

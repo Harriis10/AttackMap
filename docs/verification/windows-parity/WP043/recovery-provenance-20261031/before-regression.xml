@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="21" skipped="0" tests="22" time="9.361" timestamp="2026-10-31T13:20:41.534930+01:00" hostname="corpsec"><testcase classname="tests.test_wp043_live_capture.WP043LiveCaptureTests" name="test_later_owned_transient_cannot_recover_original_unsafe_failure" time="8.934"><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure><failure message="AssertionError: 'independent-live-window-captured' != 'failed'&#10;- independent-live-window-captured&#10;+ failed">self = &lt;test_wp043_live_capture.WP043LiveCaptureTests testMethod=test_later_owned_transient_cannot_recover_original_unsafe_failure&gt;
+
+    def test_later_owned_transient_cannot_recover_original_unsafe_failure(self):
+        for phase in ("navigation-before-enter", "capture-before-grab", "capture-after-grab"):
+            for failure in ("external", "mixed", "generic", "unknown", "geometry", "identity", "foreground"):
+                with self.subTest(phase=phase, failure=failure):
+                    evidence, backend = self._transient_recovery_race(phase, failure)
+&gt;                   self.assertEqual(evidence["status"], "failed")
+E                   AssertionError: 'independent-live-window-captured' != 'failed'
+E                   - independent-live-window-captured
+E                   + failed
+
+tests\test_wp043_live_capture.py:515: AssertionError</failure></testcase></testsuite></testsuites>

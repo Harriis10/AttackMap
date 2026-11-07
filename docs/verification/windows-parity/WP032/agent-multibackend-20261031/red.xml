@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="32" skipped="0" tests="36" time="4.791" timestamp="2026-10-31T10:03:04.238235+01:00" hostname="corpsec"><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-first-mixed-upstream.conf]" time="0.095"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_0')
+bad_case = 'mixed-upstream.conf', reverse = False, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-first-mixed-ports.conf]" time="0.068"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_1')
+bad_case = 'mixed-ports.conf', reverse = False, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-first-mixed-unknown.conf]" time="0.064"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_2')
+bad_case = 'mixed-unknown.conf', reverse = False, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-first-split.conf]" time="0.072"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_3')
+bad_case = 'split.conf', reverse = False, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-first-only-multi.conf]" time="0.088"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_4')
+bad_case = 'only-multi.conf', reverse = False, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-first-only-unknown.conf]" time="0.090"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_5')
+bad_case = 'only-unknown.conf', reverse = False, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-first-split.yaml]" time="0.095"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_6')
+bad_case = 'split.yaml', reverse = False, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-last-mixed-upstream.conf]" time="0.072"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_7')
+bad_case = 'mixed-upstream.conf', reverse = True, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-last-mixed-ports.conf]" time="0.068"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_8')
+bad_case = 'mixed-ports.conf', reverse = True, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-last-mixed-unknown.conf]" time="0.074"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_9')
+bad_case = 'mixed-unknown.conf', reverse = True, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-last-split.conf]" time="0.086"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_10')
+bad_case = 'split.conf', reverse = True, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-last-only-multi.conf]" time="0.061"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_11')
+bad_case = 'only-multi.conf', reverse = True, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-last-only-unknown.conf]" time="0.054"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_12')
+bad_case = 'only-unknown.conf', reverse = True, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[http-single-last-split.yaml]" time="0.065"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_13')
+bad_case = 'split.yaml', reverse = True, scheme = 'http'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-first-mixed-upstream.conf]" time="0.051"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_14')
+bad_case = 'mixed-upstream.conf', reverse = False, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-first-mixed-ports.conf]" time="0.049"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_15')
+bad_case = 'mixed-ports.conf', reverse = False, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-first-mixed-unknown.conf]" time="0.065"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_16')
+bad_case = 'mixed-unknown.conf', reverse = False, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-first-split.conf]" time="0.055"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_17')
+bad_case = 'split.conf', reverse = False, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-first-only-multi.conf]" time="0.051"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_18')
+bad_case = 'only-multi.conf', reverse = False, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-first-only-unknown.conf]" time="0.046"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_19')
+bad_case = 'only-unknown.conf', reverse = False, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-first-split.yaml]" time="0.082"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_20')
+bad_case = 'split.yaml', reverse = False, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-last-mixed-upstream.conf]" time="0.048"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_21')
+bad_case = 'mixed-upstream.conf', reverse = True, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-last-mixed-ports.conf]" time="0.045"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_22')
+bad_case = 'mixed-ports.conf', reverse = True, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-last-mixed-unknown.conf]" time="0.051"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_23')
+bad_case = 'mixed-unknown.conf', reverse = True, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-last-split.conf]" time="0.088"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_24')
+bad_case = 'split.conf', reverse = True, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-last-only-multi.conf]" time="0.090"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_25')
+bad_case = 'only-multi.conf', reverse = True, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-last-only-unknown.conf]" time="0.127"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_26')
+bad_case = 'only-unknown.conf', reverse = True, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_unmodeled_routing_cannot_resurrect_a_single_backend[https-single-last-split.yaml]" time="0.087"><failure message="AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Left contains 1 more item:&#10;  {'edge.production.internal': 'api'}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_unmodeled_routing_cannot_27')
+bad_case = 'split.yaml', reverse = True, scheme = 'https'
+
+    @pytest.mark.parametrize("bad_case", BAD_CASES)
+    @pytest.mark.parametrize("reverse", [False, True], ids=["single-first", "single-last"])
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    def test_unmodeled_routing_cannot_resurrect_a_single_backend(tmp_path, bad_case, reverse, scheme):
+        single = "single.yaml" if bad_case.endswith(".yaml") else "single.conf"
+        cases = (bad_case, single) if reverse else (single, bad_case)
+        root = tmp_path / "fleet"
+        scans = materialize(root, cases)
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+&gt;       assert aliases.proxies == {"safe.production.internal": "api"}
+E       AssertionError: assert {'edge.produc...ernal': 'api'} == {'safe.produc...ernal': 'api'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'edge.production.internal': 'api'}
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:70: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_one_known_location_does_not_hide_an_unknown_location[mixed-upstream.conf]" time="0.082"><failure message="AssertionError: assert 'edge.production.internal' not in {'edge.production.internal': 'api', 'safe.production.internal': 'api'}&#10; +  where {'edge.production.internal': 'api', 'safe.production.internal': 'api'} = DeploymentAliases(hosts={}, host_ports={}, dns_suffixes=(), proxies={'edge.production.internal': 'api', 'safe.producti...l', 'proxies:edge.production.internal': 'caller/case-00.conf', 'proxies:safe.production.internal': 'caller/safe.conf'}).proxies">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_one_known_location_does_n0')
+bad_case = 'mixed-upstream.conf'
+
+    @pytest.mark.parametrize("bad_case", ["mixed-upstream.conf", "mixed-ports.conf", "mixed-unknown.conf"])
+    def test_one_known_location_does_not_hide_an_unknown_location(tmp_path, bad_case):
+        root = tmp_path / "fleet"
+        scans = materialize(root, (bad_case,))
+        aliases, _ = extract_deployment_aliases([root / name for name in scans])
+        links = resolve(scans, aliases, f"https://{TARGET}/Api/Items/42")
+&gt;       assert TARGET not in aliases.proxies
+E       AssertionError: assert 'edge.production.internal' not in {'edge.production.internal': 'api', 'safe.production.internal': 'api'}
+E        +  where {'edge.production.internal': 'api', 'safe.production.internal': 'api'} = DeploymentAliases(hosts={}, host_ports={}, dns_suffixes=(), proxies={'edge.production.internal': 'api', 'safe.producti...l', 'proxies:edge.production.internal': 'caller/case-00.conf', 'proxies:safe.production.internal': 'caller/safe.conf'}).proxies
+
+tests\test_wp032_multibackend_proxy.py:87: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_one_known_location_does_not_hide_an_unknown_location[mixed-ports.conf]" time="0.093"><failure message="AssertionError: assert 'edge.production.internal' not in {'edge.production.internal': 'api', 'safe.production.internal': 'api'}&#10; +  where {'edge.production.internal': 'api', 'safe.production.internal': 'api'} = DeploymentAliases(hosts={}, host_ports={}, dns_suffixes=(), proxies={'edge.production.internal': 'api', 'safe.producti...l', 'proxies:edge.production.internal': 'caller/case-00.conf', 'proxies:safe.production.internal': 'caller/safe.conf'}).proxies">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_one_known_location_does_n1')
+bad_case = 'mixed-ports.conf'
+
+    @pytest.mark.parametrize("bad_case", ["mixed-upstream.conf", "mixed-ports.conf", "mixed-unknown.conf"])
+    def test_one_known_location_does_not_hide_an_unknown_location(tmp_path, bad_case):
+        root = tmp_path / "fleet"
+        scans = materialize(root, (bad_case,))
+        aliases, _ = extract_deployment_aliases([root / name for name in scans])
+        links = resolve(scans, aliases, f"https://{TARGET}/Api/Items/42")
+&gt;       assert TARGET not in aliases.proxies
+E       AssertionError: assert 'edge.production.internal' not in {'edge.production.internal': 'api', 'safe.production.internal': 'api'}
+E        +  where {'edge.production.internal': 'api', 'safe.production.internal': 'api'} = DeploymentAliases(hosts={}, host_ports={}, dns_suffixes=(), proxies={'edge.production.internal': 'api', 'safe.producti...l', 'proxies:edge.production.internal': 'caller/case-00.conf', 'proxies:safe.production.internal': 'caller/safe.conf'}).proxies
+
+tests\test_wp032_multibackend_proxy.py:87: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_one_known_location_does_not_hide_an_unknown_location[mixed-unknown.conf]" time="0.066"><failure message="AssertionError: assert 'edge.production.internal' not in {'edge.production.internal': 'api', 'safe.production.internal': 'api'}&#10; +  where {'edge.production.internal': 'api', 'safe.production.internal': 'api'} = DeploymentAliases(hosts={}, host_ports={}, dns_suffixes=(), proxies={'edge.production.internal': 'api', 'safe.producti...l', 'proxies:edge.production.internal': 'caller/case-00.conf', 'proxies:safe.production.internal': 'caller/safe.conf'}).proxies">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_one_known_location_does_n2')
+bad_case = 'mixed-unknown.conf'
+
+    @pytest.mark.parametrize("bad_case", ["mixed-upstream.conf", "mixed-ports.conf", "mixed-unknown.conf"])
+    def test_one_known_location_does_not_hide_an_unknown_location(tmp_path, bad_case):
+        root = tmp_path / "fleet"
+        scans = materialize(root, (bad_case,))
+        aliases, _ = extract_deployment_aliases([root / name for name in scans])
+        links = resolve(scans, aliases, f"https://{TARGET}/Api/Items/42")
+&gt;       assert TARGET not in aliases.proxies
+E       AssertionError: assert 'edge.production.internal' not in {'edge.production.internal': 'api', 'safe.production.internal': 'api'}
+E        +  where {'edge.production.internal': 'api', 'safe.production.internal': 'api'} = DeploymentAliases(hosts={}, host_ports={}, dns_suffixes=(), proxies={'edge.production.internal': 'api', 'safe.producti...l', 'proxies:edge.production.internal': 'caller/case-00.conf', 'proxies:safe.production.internal': 'caller/safe.conf'}).proxies
+
+tests\test_wp032_multibackend_proxy.py:87: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_valid_single_backend_keeps_proxy_semantics_and_origins[single.conf-http]" time="0.066" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_valid_single_backend_keeps_proxy_semantics_and_origins[single.conf-https]" time="0.079" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_valid_single_backend_keeps_proxy_semantics_and_origins[single.yaml-http]" time="0.062" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_valid_single_backend_keeps_proxy_semantics_and_origins[single.yaml-https]" time="0.159" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_graph_evidence_case_and_existing_protocol_guards_survive_invalidation" time="0.240"><failure message="AssertionError: assert {None, 'wp032...ized-fixture'} == {'wp032-multi...ized-fixture'}&#10;  &#10;  Extra items in the left set:&#10;  None&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_graph_evidence_case_and_e0')
+
+    def test_graph_evidence_case_and_existing_protocol_guards_survive_invalidation(tmp_path):
+&gt;       proof = qualification_proof(tmp_path / "fleet")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_multibackend_proxy.py:149: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-red02-20261031/test_graph_evidence_case_and_e0/fleet')
+
+    def qualification_proof(root: Path) -&gt; dict:
+        scans = materialize(root, ("single.conf", "mixed-upstream.conf", "single.yaml"))
+        aliases, notes = extract_deployment_aliases([root / name for name in scans])
+        targets = [f"https://{TARGET}/Api/Items/42", "http://safe.production.internal/Api/Items/42",
+                   "https://api:8443/Api/Items/42", "http://api:8443/Api/Items/42",
+                   "grpc://safe.production.internal/Api/Items/42", f"https://{TARGET}/api/items/42",
+                   f"https://{TARGET}/API/Items/42", "https://api.preview.svc.cluster.local:8443/Api/Items/42"]
+        scans["caller"].external_calls = [ExternalCall(target=target, method="POST", file="client.py", line=3,
+                                                      source_analyzer=ORIGIN) for target in targets]
+        links = link_contracts(list(scans.items()), aliases)
+        results = [FleetRepoResult(name, scan.root, str(root / "reports" / name), scan, [])
+                   for name, scan in scans.items()]
+        graph = build_fleet_architecture(FleetScan(results=results, links=links))
+        evidence = {item["id"]: item for item in graph["evidence"]}
+        edges = [edge for edge in graph["edges"] if edge["kind"] == "cross_repo_http_call"]
+        for edge in edges:
+            refs = [evidence[ref] for ref in edge["evidence_refs"]]
+            assert {item["kind"] for item in refs} == {"external_call", "route"}
+&gt;           assert {item["source_analyzer"] for item in refs} == {ORIGIN}
+E           AssertionError: assert {None, 'wp032...ized-fixture'} == {'wp032-multi...ized-fixture'}
+E             
+E             Extra items in the left set:
+E             None
+E             Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:129: AssertionError</failure></testcase></testsuite></testsuites>

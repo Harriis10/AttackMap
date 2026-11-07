@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mixed-resource
+  namespace: production
+spec:
+  rules:
+    - host: edge.production.internal
+      http:
+        paths:
+          - path: /Api
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8443
+          - path: /Assets
+            backend:
+              resource:
+                apiGroup: storage.example.test
+                kind: StorageBucket
+                name: assets

@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-15",
+  "scope": "Explicit local Python/repository path persistence only",
+  "focusedChecks": {
+    "passed": 16,
+    "command": "dotnet run --project desktop/windows/ReportAdapter.Tests"
+  },
+  "publish": {
+    "passed": true,
+    "sdk": "8.0.426",
+    "command": "dotnet publish desktop/windows/AttackMap.NativeSpike/AttackMap.NativeSpike.csproj -c Release -p:Platform=x64 --self-contained true --no-restore -o desktop/windows/artifacts/native-spike"
+  },
+  "nativeSave": {
+    "passed": true,
+    "stage": "save",
+    "automaticScan": false
+  },
+  "nativeRestoreNewProcess": {
+    "passed": true,
+    "stage": "restore",
+    "automaticScan": false
+  },
+  "reportRegression": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "legacyIntegrity": "unverified"
+  },
+  "personalSettingsTouched": false,
+  "limitations": [
+    "No keyboard or Narrator proof",
+    "No provider credentials/options or window restoration",
+    "No full C21\u2013C26 acceptance claim"
+  ]
+}

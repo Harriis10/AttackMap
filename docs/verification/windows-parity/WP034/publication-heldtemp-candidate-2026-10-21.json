@@ -1,0 +1,330 @@
+{
+  "status": "FIFTH_HELD_DESCRIPTOR_CORRECTNESS_PASS_NOT_BENCHMARK_OR_CANONICAL_ACCEPTANCE",
+  "source_frozen": true,
+  "baseline_source": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+  "candidate": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\source",
+  "tree_file_count": 138,
+  "changed_files": [
+    "src/attackmap/report.py",
+    "src/attackmap/safe_fs.py"
+  ],
+  "source_delta": [
+    {
+      "path": "src/attackmap/safe_fs.py",
+      "baseline_sha256": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+      "candidate_sha256": "91c7af17f537622dca159e47878bb92e310fbd8da34ff7a1f0d57c4c5b972b4d"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "baseline_sha256": "20bd67d3390bfaa7e44bd98024a9f1689d9b2f731766865ec62616801cf4b796",
+      "candidate_sha256": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27"
+    }
+  ],
+  "prior_prototypes": [
+    {
+      "evidence": "publication-copy-candidate-2026-10-21.json",
+      "artifacts_unchanged": true
+    },
+    {
+      "evidence": "publication-section-candidate-2026-10-21.json",
+      "artifacts_unchanged": true
+    },
+    {
+      "evidence": "publication-stagecopy-candidate-2026-10-21.json",
+      "artifacts_unchanged": true
+    },
+    {
+      "evidence": "publication-newtarget-candidate-2026-10-21.json",
+      "artifacts_unchanged": true
+    }
+  ],
+  "attempts": [
+    {
+      "session": 53188,
+      "folder": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01",
+      "runs": [
+        {
+          "label": "checks",
+          "number": 0,
+          "exit_code": 0,
+          "abort": null,
+          "cleanup_verified": true,
+          "peak_owned_job_commit_bytes": 21590016,
+          "whole_child_wall_seconds": 6.291306799990707
+        }
+      ],
+      "checks": {
+        "byte_golden_cases_new_targets": 8,
+        "existing_target_no_stage_sentinel": true,
+        "existing_file_id_unchanged": 3096224747581344,
+        "existing_owner_group_dacl_sha256_unchanged": "389fd7ee72a33ab04f4e09e792a00fbdcf615db58c668286a55a459e26283a11",
+        "existing_write_failure_legacy_partial_bytes": 5,
+        "new_target_failure_phases": [
+          {
+            "phase": "encoder",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "stage_write",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "stage_flush",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "stage_seek",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "copy_read",
+            "target_exists": true,
+            "new_target_bytes": 0
+          },
+          {
+            "phase": "copy_write",
+            "target_exists": true,
+            "new_target_bytes": 5
+          },
+          {
+            "phase": "target_fdopen",
+            "target_exists": true,
+            "new_target_bytes": 0
+          },
+          {
+            "phase": "temp_close",
+            "target_exists": true,
+            "new_target_bytes": 30
+          }
+        ],
+        "no_temp_name_access_or_application_unlink": true,
+        "held_descriptor_substitution_attempts": [
+          {
+            "kind": "regular",
+            "original_name": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\checks\\.report-stage-qfph_f55",
+            "mutation_allowed": true,
+            "foreign_path": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\checks\\.report-stage-qfph_f55",
+            "foreign_preserved": true
+          },
+          {
+            "kind": "hardlink",
+            "original_name": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\checks\\.report-stage-rynqkzzr",
+            "mutation_allowed": true,
+            "foreign_path": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\checks\\.report-stage-rynqkzzr",
+            "foreign_preserved": true
+          }
+        ],
+        "outside_path_rejected": true,
+        "actual_symlink_results": {
+          "target": {
+            "skipped": "[WinError 183] Nelze vytvo\u0159it soubor, kter\u00fd ji\u017e existuje: 'C:\\\\tmp\\\\attackmap-wp034\\\\publication-heldtemp-candidate-20261021-01\\\\outside.json' -> 'C:\\\\tmp\\\\attackmap-wp034\\\\publication-heldtemp-candidate-20261021-01\\\\checks\\\\report.json'"
+          },
+          "directory": "rejected"
+        },
+        "concurrent_target_races": [
+          {
+            "when": "before_final_recheck",
+            "kind": "regular",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          },
+          {
+            "when": "before_final_recheck",
+            "kind": "symlink",
+            "failure": "UnsafePathError",
+            "actor_preserved": true
+          },
+          {
+            "when": "before_final_recheck",
+            "kind": "hardlink",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          },
+          {
+            "when": "after_final_recheck_before_open",
+            "kind": "regular",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          },
+          {
+            "when": "after_final_recheck_before_open",
+            "kind": "symlink",
+            "failure": "UnsafePathError",
+            "actor_preserved": true
+          },
+          {
+            "when": "after_final_recheck_before_open",
+            "kind": "hardlink",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          }
+        ],
+        "prior_generation_valid_all_checks": true,
+        "permission_assumption": "New target/stage inherit authorized output parent; no ACL equality for temporary versus concurrently created target claimed."
+      }
+    },
+    {
+      "session": 36835,
+      "folder": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02",
+      "runs": [
+        {
+          "label": "checks",
+          "number": 0,
+          "exit_code": 0,
+          "abort": null,
+          "cleanup_verified": true,
+          "peak_owned_job_commit_bytes": 21352448,
+          "whole_child_wall_seconds": 12.77567529999942
+        }
+      ],
+      "checks": {
+        "byte_golden_cases_new_targets": 8,
+        "existing_target_no_stage_sentinel": true,
+        "existing_file_id_unchanged": 3096224747581559,
+        "existing_owner_group_dacl_sha256_unchanged": "389fd7ee72a33ab04f4e09e792a00fbdcf615db58c668286a55a459e26283a11",
+        "existing_write_failure_legacy_partial_bytes": 5,
+        "new_target_failure_phases": [
+          {
+            "phase": "encoder",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "stage_write",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "stage_flush",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "stage_seek",
+            "target_exists": false,
+            "new_target_bytes": null
+          },
+          {
+            "phase": "copy_read",
+            "target_exists": true,
+            "new_target_bytes": 0
+          },
+          {
+            "phase": "copy_write",
+            "target_exists": true,
+            "new_target_bytes": 5
+          },
+          {
+            "phase": "target_fdopen",
+            "target_exists": true,
+            "new_target_bytes": 0
+          },
+          {
+            "phase": "temp_close",
+            "target_exists": true,
+            "new_target_bytes": 30
+          }
+        ],
+        "no_temp_name_access_or_application_unlink": true,
+        "held_descriptor_substitution_attempts": [
+          {
+            "kind": "regular",
+            "original_name": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\checks\\.report-stage-kuk7wph1",
+            "mutation_allowed": true,
+            "foreign_path": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\checks\\.report-stage-kuk7wph1",
+            "foreign_preserved": true
+          },
+          {
+            "kind": "hardlink",
+            "original_name": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\checks\\.report-stage-nw_xna_u",
+            "mutation_allowed": true,
+            "foreign_path": "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\checks\\.report-stage-nw_xna_u",
+            "foreign_preserved": true
+          }
+        ],
+        "outside_path_rejected": true,
+        "actual_symlink_results": {
+          "target": "rejected",
+          "directory": "rejected"
+        },
+        "concurrent_target_races": [
+          {
+            "when": "before_final_recheck",
+            "kind": "regular",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          },
+          {
+            "when": "before_final_recheck",
+            "kind": "symlink",
+            "failure": "UnsafePathError",
+            "actor_preserved": true
+          },
+          {
+            "when": "before_final_recheck",
+            "kind": "hardlink",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          },
+          {
+            "when": "after_final_recheck_before_open",
+            "kind": "regular",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          },
+          {
+            "when": "after_final_recheck_before_open",
+            "kind": "symlink",
+            "failure": "UnsafePathError",
+            "actor_preserved": true
+          },
+          {
+            "when": "after_final_recheck_before_open",
+            "kind": "hardlink",
+            "failure": "FileExistsError",
+            "actor_preserved": true
+          }
+        ],
+        "prior_generation_valid_all_checks": true,
+        "permission_assumption": "New target/stage inherit authorized output parent; no ACL equality for temporary versus concurrently created target claimed."
+      }
+    }
+  ],
+  "command": "$env:PYTHONPATH='C:/tmp/attackmap-wp034/10k-20261021-02/source/src'; $env:PYTHONDONTWRITEBYTECODE='1'; & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-prepare-heldtemp-recheck.py; if ($LASTEXITCODE -eq 0) { & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-publication-heldtemp-recheck.py }",
+  "artifacts": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-prepare-heldtemp-prototype.py": "383ecd416a03851cc047181b2618a147ddb05bb6ce13a6bdc5e9feaf44164666",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-heldtemp-prototype.py": "d180beaf6780265f2c7df350cff227960db74a967f5a93753d925dd660d0dc9b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-prepare-heldtemp-recheck.py": "ec36a9ed3f8964b328e05b7eea01f1e525daf18e3072f4f677124e13d45d2a0f",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-heldtemp-recheck.py": "384fd5da1b58c3ff376a2323bd6f5b41cb29219483a6be18b99c5c52d247a459",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-heldtemp-candidate-02.diff": "9e34ff806675ffa24067414d585faa4bc077897828b358a2980c7e48de6f56c5",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\source-delta.json": "1b2e4a08970490c1ecb84c5312e913cd1dd9ae477ac2f01917d4e6a512a39ac4",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\campaign-runs.json": "9826dcd24fa63d90d9cc29acc11c902874aeecfe0c554b54f1b412f88e0ed3f3",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\checks-result.json": "5d2604ee2955f536e91d6eecc1384f2018835196a9cd137be32fc37a7c53f7d2",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\0-checks.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-01\\0-checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\source-delta.json": "1b2e4a08970490c1ecb84c5312e913cd1dd9ae477ac2f01917d4e6a512a39ac4",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\campaign-runs.json": "c160a0fe3f332f104a1cdebeca37aaf95d75cccd7324557cd2cc2542e8817b19",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\checks-result.json": "8bf6b987ea46ccd82621d39d0100c4203454357c663ea7b688d68f677cb246b2",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\0-checks.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "C:\\tmp\\attackmap-wp034\\publication-heldtemp-candidate-20261021-02\\0-checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "helper_has_no_temp_name_access_or_application_path_cleanup": true,
+  "first_attempt_limitation": "Attempt01 correctness process exited0, but initial target-symlink fixture skippedWinError183 because previous substitution test left report present. Attempt01 preserved. Attempt02 clears only own test report before that fixture; production helper hash identical; no symlink skips in final run.",
+  "verified_boundaries": [
+    "Existing/symlink initial entry runs exact original C dumps +safe_write_text; no TemporaryFile call. Actual fixture file ID and read-only OWNER/GROUP/DACL hash unchanged; ordinary write fault leaves legacy5B partial output.",
+    "Initially absent path uses TemporaryFile w+b in target parent; section-C UTF8 bytes, explicit flush and seek before exclusive final open. Reads same held descriptor; no stage pathname reopen/unlink in helper.",
+    "Actual Windows rename-original+regular replacement and rename-original+hardlink replacement both permitted. Copied bytes remain original; foreign old-name replacement survives temp close. This proves permitted mutation path, not merely OS denial.",
+    "Eight phase failures: encoder/stage write/flush/seek before open leave no target; copy read/write/target-fdopen may leave new0/5/0B; temporary close after copy may leave complete30B new target while raising. Prior published pointer/generation remains checksum-valid in all cases.",
+    "Six deterministic pre/post-final-check regular/symlink/hardlink actor races refused without overwriting actor bytes. New file uses shared checked O_CREAT|O_EXCL|O_NOFOLLOW. No full per-file rollback/durability claim."
+  ],
+  "limits": [
+    "Only tiny correctness jobs, no ABBA/performance/retained36.9MB report run for fifth. Earlier fourth measurements are not fifth performance evidence. Root B timing retry prohibits heavy jobs until explicit release.",
+    "Windows TemporaryFile is named internally/delete-on-close; requested create mode0600 is not proof of user-only DACL. Authorized new-output parent assumption remains; no ACL abstractions introduced.",
+    "Largest section/scalar remains unbounded; no50k/100k/C35/fullpipeline claim. Report dictionary construction/return unchanged by source diff, not separately invoked here.",
+    "No canonical report.py/safe_fs edits or persistent writer tests yet; root review/lease required. All prior source/campaign copies remain unchanged."
+  ]
+}

@@ -1,0 +1,258 @@
+FFFFFF                                                                   [100%]
+================================== FAILURES ===================================
+_ test_later_destructuring_declarators_cannot_bind_an_import[True-function* LOCAL() {}-import { loadOrder } from './orders'-loadOrder()-loadOrder] _
+
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-generator-red-qualified-01/test_later_destructuring_decla0')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', declaration = 'function* loadOrder() {}', before = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("declaration", [
+        "const first = 0, { LOCAL } = other",
+        "const first = 0, { value: LOCAL } = other",
+        "const first = 0, [LOCAL] = other",
+        "const first = 0, { value: { LOCAL } } = other",
+        "const first = 0, second = use(1, [2, 3]), { value: LOCAL } = other",
+        "const first = 0,\n[LOCAL] = other",
+        "const{ LOCAL } = other",
+        "enum LOCAL { value }",
+        "namespace LOCAL {}",
+        "function* LOCAL() {}",
+        "const first = 0, LOCAL = other",
+        "let first,\nLOCAL",
+    ])
+    @pytest.mark.parametrize("before", [True, False])
+    def test_later_destructuring_declarators_cannot_bind_an_import(
+        tmp_path: Path, imports: str, target: str, local: str, declaration: str, before: bool,
+    ) -> None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        declaration = declaration.replace("LOCAL", local)
+        body = declaration + "\n" + registration if before else registration + "\n" + declaration
+        (repo / "server.ts").write_text(imports + "\nfunction mount() {\n" + body + "\n}", encoding="utf-8")
+>       assert scan_repo(repo).authz_candidates == []
+E       AssertionError: assert [BolaCandidat..._check=False)] == []
+E         
+E         Left contains one more item: BolaCandidate(route_path='/orders/:id', route_method='GET', route_file='orders.ts', route_line=5, id_param='id', surfa...rModel.findOne with request-id-only WHERE; imported handler loadOrder bound at server.ts:4', has_ownership_check=False)
+E         Use -v to get more diff
+
+tests\test_authz_bound_handlers.py:252: AssertionError
+_ test_later_destructuring_declarators_cannot_bind_an_import[True-function* LOCAL() {}-import { loadOrder as handler } from './orders'-handler()-handler] _
+
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-generator-red-qualified-01/test_later_destructuring_decla1')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler', declaration = 'function* handler() {}'
+before = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("declaration", [
+        "const first = 0, { LOCAL } = other",
+        "const first = 0, { value: LOCAL } = other",
+        "const first = 0, [LOCAL] = other",
+        "const first = 0, { value: { LOCAL } } = other",
+        "const first = 0, second = use(1, [2, 3]), { value: LOCAL } = other",
+        "const first = 0,\n[LOCAL] = other",
+        "const{ LOCAL } = other",
+        "enum LOCAL { value }",
+        "namespace LOCAL {}",
+        "function* LOCAL() {}",
+        "const first = 0, LOCAL = other",
+        "let first,\nLOCAL",
+    ])
+    @pytest.mark.parametrize("before", [True, False])
+    def test_later_destructuring_declarators_cannot_bind_an_import(
+        tmp_path: Path, imports: str, target: str, local: str, declaration: str, before: bool,
+    ) -> None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        declaration = declaration.replace("LOCAL", local)
+        body = declaration + "\n" + registration if before else registration + "\n" + declaration
+        (repo / "server.ts").write_text(imports + "\nfunction mount() {\n" + body + "\n}", encoding="utf-8")
+>       assert scan_repo(repo).authz_candidates == []
+E       AssertionError: assert [BolaCandidat..._check=False)] == []
+E         
+E         Left contains one more item: BolaCandidate(route_path='/orders/:id', route_method='GET', route_file='orders.ts', route_line=5, id_param='id', surfa...rModel.findOne with request-id-only WHERE; imported handler loadOrder bound at server.ts:4', has_ownership_check=False)
+E         Use -v to get more diff
+
+tests\test_authz_bound_handlers.py:252: AssertionError
+_ test_later_destructuring_declarators_cannot_bind_an_import[True-function* LOCAL() {}-import * as orders from './orders'-orders.loadOrder()-orders] _
+
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-generator-red-qualified-01/test_later_destructuring_decla2')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', declaration = 'function* orders() {}', before = True
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("declaration", [
+        "const first = 0, { LOCAL } = other",
+        "const first = 0, { value: LOCAL } = other",
+        "const first = 0, [LOCAL] = other",
+        "const first = 0, { value: { LOCAL } } = other",
+        "const first = 0, second = use(1, [2, 3]), { value: LOCAL } = other",
+        "const first = 0,\n[LOCAL] = other",
+        "const{ LOCAL } = other",
+        "enum LOCAL { value }",
+        "namespace LOCAL {}",
+        "function* LOCAL() {}",
+        "const first = 0, LOCAL = other",
+        "let first,\nLOCAL",
+    ])
+    @pytest.mark.parametrize("before", [True, False])
+    def test_later_destructuring_declarators_cannot_bind_an_import(
+        tmp_path: Path, imports: str, target: str, local: str, declaration: str, before: bool,
+    ) -> None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        declaration = declaration.replace("LOCAL", local)
+        body = declaration + "\n" + registration if before else registration + "\n" + declaration
+        (repo / "server.ts").write_text(imports + "\nfunction mount() {\n" + body + "\n}", encoding="utf-8")
+>       assert scan_repo(repo).authz_candidates == []
+E       AssertionError: assert [BolaCandidat..._check=False)] == []
+E         
+E         Left contains one more item: BolaCandidate(route_path='/orders/:id', route_method='GET', route_file='orders.ts', route_line=5, id_param='id', surfa...rModel.findOne with request-id-only WHERE; imported handler loadOrder bound at server.ts:4', has_ownership_check=False)
+E         Use -v to get more diff
+
+tests\test_authz_bound_handlers.py:252: AssertionError
+_ test_later_destructuring_declarators_cannot_bind_an_import[False-function* LOCAL() {}-import { loadOrder } from './orders'-loadOrder()-loadOrder] _
+
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-generator-red-qualified-01/test_later_destructuring_decla3')
+imports = "import { loadOrder } from './orders'", target = 'loadOrder()'
+local = 'loadOrder', declaration = 'function* loadOrder() {}', before = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("declaration", [
+        "const first = 0, { LOCAL } = other",
+        "const first = 0, { value: LOCAL } = other",
+        "const first = 0, [LOCAL] = other",
+        "const first = 0, { value: { LOCAL } } = other",
+        "const first = 0, second = use(1, [2, 3]), { value: LOCAL } = other",
+        "const first = 0,\n[LOCAL] = other",
+        "const{ LOCAL } = other",
+        "enum LOCAL { value }",
+        "namespace LOCAL {}",
+        "function* LOCAL() {}",
+        "const first = 0, LOCAL = other",
+        "let first,\nLOCAL",
+    ])
+    @pytest.mark.parametrize("before", [True, False])
+    def test_later_destructuring_declarators_cannot_bind_an_import(
+        tmp_path: Path, imports: str, target: str, local: str, declaration: str, before: bool,
+    ) -> None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        declaration = declaration.replace("LOCAL", local)
+        body = declaration + "\n" + registration if before else registration + "\n" + declaration
+        (repo / "server.ts").write_text(imports + "\nfunction mount() {\n" + body + "\n}", encoding="utf-8")
+>       assert scan_repo(repo).authz_candidates == []
+E       AssertionError: assert [BolaCandidat..._check=False)] == []
+E         
+E         Left contains one more item: BolaCandidate(route_path='/orders/:id', route_method='GET', route_file='orders.ts', route_line=5, id_param='id', surfa...rModel.findOne with request-id-only WHERE; imported handler loadOrder bound at server.ts:3', has_ownership_check=False)
+E         Use -v to get more diff
+
+tests\test_authz_bound_handlers.py:252: AssertionError
+_ test_later_destructuring_declarators_cannot_bind_an_import[False-function* LOCAL() {}-import { loadOrder as handler } from './orders'-handler()-handler] _
+
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-generator-red-qualified-01/test_later_destructuring_decla4')
+imports = "import { loadOrder as handler } from './orders'"
+target = 'handler()', local = 'handler', declaration = 'function* handler() {}'
+before = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("declaration", [
+        "const first = 0, { LOCAL } = other",
+        "const first = 0, { value: LOCAL } = other",
+        "const first = 0, [LOCAL] = other",
+        "const first = 0, { value: { LOCAL } } = other",
+        "const first = 0, second = use(1, [2, 3]), { value: LOCAL } = other",
+        "const first = 0,\n[LOCAL] = other",
+        "const{ LOCAL } = other",
+        "enum LOCAL { value }",
+        "namespace LOCAL {}",
+        "function* LOCAL() {}",
+        "const first = 0, LOCAL = other",
+        "let first,\nLOCAL",
+    ])
+    @pytest.mark.parametrize("before", [True, False])
+    def test_later_destructuring_declarators_cannot_bind_an_import(
+        tmp_path: Path, imports: str, target: str, local: str, declaration: str, before: bool,
+    ) -> None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        declaration = declaration.replace("LOCAL", local)
+        body = declaration + "\n" + registration if before else registration + "\n" + declaration
+        (repo / "server.ts").write_text(imports + "\nfunction mount() {\n" + body + "\n}", encoding="utf-8")
+>       assert scan_repo(repo).authz_candidates == []
+E       AssertionError: assert [BolaCandidat..._check=False)] == []
+E         
+E         Left contains one more item: BolaCandidate(route_path='/orders/:id', route_method='GET', route_file='orders.ts', route_line=5, id_param='id', surfa...rModel.findOne with request-id-only WHERE; imported handler loadOrder bound at server.ts:3', has_ownership_check=False)
+E         Use -v to get more diff
+
+tests\test_authz_bound_handlers.py:252: AssertionError
+_ test_later_destructuring_declarators_cannot_bind_an_import[False-function* LOCAL() {}-import * as orders from './orders'-orders.loadOrder()-orders] _
+
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/docs/verification/windows-parity/WP031/agent-shadow-fix-20261031/pytest-generator-red-qualified-01/test_later_destructuring_decla5')
+imports = "import * as orders from './orders'", target = 'orders.loadOrder()'
+local = 'orders', declaration = 'function* orders() {}', before = False
+
+    @pytest.mark.parametrize(("imports", "target", "local"), [
+        ("import { loadOrder } from './orders'", "loadOrder()", "loadOrder"),
+        ("import { loadOrder as handler } from './orders'", "handler()", "handler"),
+        ("import * as orders from './orders'", "orders.loadOrder()", "orders"),
+    ])
+    @pytest.mark.parametrize("declaration", [
+        "const first = 0, { LOCAL } = other",
+        "const first = 0, { value: LOCAL } = other",
+        "const first = 0, [LOCAL] = other",
+        "const first = 0, { value: { LOCAL } } = other",
+        "const first = 0, second = use(1, [2, 3]), { value: LOCAL } = other",
+        "const first = 0,\n[LOCAL] = other",
+        "const{ LOCAL } = other",
+        "enum LOCAL { value }",
+        "namespace LOCAL {}",
+        "function* LOCAL() {}",
+        "const first = 0, LOCAL = other",
+        "let first,\nLOCAL",
+    ])
+    @pytest.mark.parametrize("before", [True, False])
+    def test_later_destructuring_declarators_cannot_bind_an_import(
+        tmp_path: Path, imports: str, target: str, local: str, declaration: str, before: bool,
+    ) -> None:
+        repo = _repo(tmp_path, LOOKUP + "    res.json(order)")
+        registration = f"app.get('/orders/:id', {target})"
+        declaration = declaration.replace("LOCAL", local)
+        body = declaration + "\n" + registration if before else registration + "\n" + declaration
+        (repo / "server.ts").write_text(imports + "\nfunction mount() {\n" + body + "\n}", encoding="utf-8")
+>       assert scan_repo(repo).authz_candidates == []
+E       AssertionError: assert [BolaCandidat..._check=False)] == []
+E         
+E         Left contains one more item: BolaCandidate(route_path='/orders/:id', route_method='GET', route_file='orders.ts', route_line=5, id_param='id', surfa...rModel.findOne with request-id-only WHERE; imported handler loadOrder bound at server.ts:3', has_ownership_check=False)
+E         Use -v to get more diff
+
+tests\test_authz_bound_handlers.py:252: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_authz_bound_handlers.py::test_later_destructuring_declarators_cannot_bind_an_import[True-function* LOCAL() {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]
+FAILED tests/test_authz_bound_handlers.py::test_later_destructuring_declarators_cannot_bind_an_import[True-function* LOCAL() {}-import { loadOrder as handler } from './orders'-handler()-handler]
+FAILED tests/test_authz_bound_handlers.py::test_later_destructuring_declarators_cannot_bind_an_import[True-function* LOCAL() {}-import * as orders from './orders'-orders.loadOrder()-orders]
+FAILED tests/test_authz_bound_handlers.py::test_later_destructuring_declarators_cannot_bind_an_import[False-function* LOCAL() {}-import { loadOrder } from './orders'-loadOrder()-loadOrder]
+FAILED tests/test_authz_bound_handlers.py::test_later_destructuring_declarators_cannot_bind_an_import[False-function* LOCAL() {}-import { loadOrder as handler } from './orders'-handler()-handler]
+FAILED tests/test_authz_bound_handlers.py::test_later_destructuring_declarators_cannot_bind_an_import[False-function* LOCAL() {}-import * as orders from './orders'-orders.loadOrder()-orders]
+6 failed, 230 deselected in 1.32s

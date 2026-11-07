@@ -1,0 +1,27 @@
+{
+  "description": "Two analyzers emit the same route with contradictory auth properties (required vs anonymous). Both values must survive merging as a SignalConflict with corroborating origins.",
+  "inputs": [
+    {
+      "root": ".",
+      "files_scanned": 2,
+      "scanned_files": ["app.py", "db.py"],
+      "routes": [
+        {"path": "/account", "method": "GET", "file": "app.py", "line": 10, "auth": "required", "source_analyzer": "php-web"}
+      ]
+    },
+    {
+      "root": ".",
+      "files_scanned": 2,
+      "scanned_files": ["app.py", "lib.php"],
+      "routes": [
+        {"path": "/account", "method": "GET", "file": "app.py", "line": 10, "auth": "anonymous", "source_analyzer": "php-laminas"}
+      ]
+    }
+  ],
+  "expected": {
+    "conflict_field": "auth",
+    "conflict_values": ["anonymous", "required"],
+    "origin_analyzers": ["php-laminas", "php-web"],
+    "merged_routes": 1
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "scope": "One actual QA MainWindow plus timing-enabled frozen engine scan, tiny owned repository, AI/CVE off; no candidate package promotion",
+  "passed": true,
+  "process": {
+    "pid": 69284,
+    "exit_code": 0
+  },
+  "context": {
+    "smoke": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-timing-bound-menu-qa-27c7c2534ace4c01a943e1d7175e2920\\scan-smoke.json",
+    "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-timing-0a7d1e482b6c461cae713f1c5a70996a\\dist\\attackmap\\attackmap.exe",
+    "output": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-positive-timing-664734f8fe5c4d7db37b8cf2bb7e9b2e\\output",
+    "created_utc": "2026-10-15T15:26:25.7249652Z",
+    "repository": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-positive-timing-664734f8fe5c4d7db37b8cf2bb7e9b2e\\repository",
+    "pid": 69284,
+    "proof_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-positive-timing-664734f8fe5c4d7db37b8cf2bb7e9b2e",
+    "app": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\native-timing-bound-menu-qa-27c7c2534ace4c01a943e1d7175e2920"
+  },
+  "native_dll_sha256": "a7201cb2ecddd9eaeabd3481566e7237ce2c4298883c383a5a38fe2f92f5dce9",
+  "engine_sha256": "fe1153740aa14724b7f98075a32f9044f14ffa9cd9b3454d6ccce2f950e86610",
+  "smoke": {
+    "passed": true,
+    "loaded": 2,
+    "error": null,
+    "runSummary": "Selected repository: C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-positive-timing-664734f8fe5c4d7db37b8cf2bb7e9b2e\\repository\nRun state: Engine completed; policy not_evaluated; artifacts ready\nDisplayed report: d22a379bae034e98a4b4c78600952c17\nReport repository: C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-positive-timing-664734f8fe5c4d7db37b8cf2bb7e9b2e\\repository\nRequested at (client UTC): 2026-10-15T15:26:26.6553577Z; Engine analysis started (UTC): 2026-10-15T15:26:28.4947010Z; analysis finished before publication (UTC): 2026-10-15T15:26:28.6896400Z; outcome: completed. This is not publication completion time.",
+    "coverage": "Distinct accepted source paths enumerated by analyzers: 1\nEnumeration does not establish complete language or runtime coverage.\nReported file count (legacy aggregate; may overlap): 1\nCoverage limitations:\nNone supplied; completeness is unverified.\nAnalyzer errors (as supplied): []",
+    "options": {
+      "recall": false,
+      "strict_analyzers": false,
+      "no_suppress": false,
+      "cve": false,
+      "secrets_history": 0,
+      "timeout_seconds": 600
+    },
+    "modules": ""
+  },
+  "pointer": {
+    "generation": "d22a379bae034e98a4b4c78600952c17",
+    "manifest_sha256": "da5f3470b1385ce8ca70ed288c77d6a1d4c053cf5af873099b57bb5f93980034"
+  },
+  "manifest_sha256": "da5f3470b1385ce8ca70ed288c77d6a1d4c053cf5af873099b57bb5f93980034",
+  "run_manifest_sha256": "ea60cccd46fde639f05f2c0b574c3c4f417d20c923bc6b4c60761e5ed82bc9bc",
+  "scan_timing": {
+    "schema_version": "1.0",
+    "clock": "engine_utc",
+    "scope": "analysis_pipeline_before_publication",
+    "started_at": "2026-10-15T15:26:28.494701+00:00",
+    "finished_at": "2026-10-15T15:26:28.689640+00:00",
+    "outcome": "completed"
+  },
+  "verified_artifacts": [
+    {
+      "path": "scan.json",
+      "sha256": "889cf414797ff9d358b18a8e9d80d390988b3486364d0305a7e7ffc73138ce7a",
+      "size_bytes": 2705
+    },
+    {
+      "path": "findings.json",
+      "sha256": "cc73a8816ee96e42c53ae2925eec5ce61ba25560dd930bd04a6eb2f5338b5e90",
+      "size_bytes": 9833
+    },
+    {
+      "path": "attack_paths.json",
+      "sha256": "0295e7c30f3d6b5ceee5932cca9e0db0626ea9047da66784f52b1f5372f57216",
+      "size_bytes": 648
+    },
+    {
+      "path": "attack_surfaces.json",
+      "sha256": "10de881a14764c6590eb2e468d2184c57ac4752901e2ac5e32e0fd7c3efcd31e",
+      "size_bytes": 760
+    },
+    {
+      "path": "exploitability.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "path": "suppressed_findings.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "path": "defensive-review.json",
+      "sha256": "749dfe1091ddf85e4070ae94937524e0ed086b46f9c046ea27afd049104dc5a3",
+      "size_bytes": 28197
+    },
+    {
+      "path": "review-context-pack.json",
+      "sha256": "a14362caa4380a617ab9462eb15e347e53a5e3f8ca9f54542654057830a2cbd9",
+      "size_bytes": 32495
+    },
+    {
+      "path": "attackmap-report.json",
+      "sha256": "9bf670e010449c4ad3ac3dc07ecab8d86ee6feb7e54ef9f543e8286e4baae03e",
+      "size_bytes": 86515
+    },
+    {
+      "path": "run-manifest.json",
+      "sha256": "ea60cccd46fde639f05f2c0b574c3c4f417d20c923bc6b4c60761e5ed82bc9bc",
+      "size_bytes": 1112
+    },
+    {
+      "path": "attackmap-report.sarif",
+      "sha256": "d2df4c7993d52dc01c7a12ff43c285e6d91110ba431a0762c58088194ff9890d",
+      "size_bytes": 10641
+    },
+    {
+      "path": "architecture.md",
+      "sha256": "1ad3163d0f574b8ecd4a36107df82b60777bb77aa2b907c79e3320997a66b442",
+      "size_bytes": 753
+    },
+    {
+      "path": "attack-surface.md",
+      "sha256": "a04f1608cc77f5c56155b34e46d8dd5679ca731e24a670e73ad7f365c59ef3b4",
+      "size_bytes": 1047
+    },
+    {
+      "path": "defensive-review.md",
+      "sha256": "25995d4913bd9bcd138715a65c2d609872ccb74004e6e91904b426df6ed9b99d",
+      "size_bytes": 5487
+    },
+    {
+      "path": "attackmap-exploitability.md",
+      "sha256": "ea1354339fabe2e2c4e938c6c2e592e65f70e02ee610b0b71334ed6d6bde3d32",
+      "size_bytes": 237
+    },
+    {
+      "path": "attackmap-paths.md",
+      "sha256": "2716134389ac6523942e16707dcb666d4333cff29d80eb4036b9886b1a32a95d",
+      "size_bytes": 786
+    },
+    {
+      "path": "attackmap-topology.md",
+      "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+      "size_bytes": 71
+    },
+    {
+      "path": "attackmap-paths.dot",
+      "sha256": "d3422abae799c54f1ff5117ef5df8504d1f068d190974c9148cb01266774e452",
+      "size_bytes": 917
+    },
+    {
+      "path": "attackmap-topology.dot",
+      "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+      "size_bytes": 123
+    }
+  ],
+  "checks": {
+    "engine_utc_start_matches_manifest_exactly": true,
+    "engine_utc_finish_matches_manifest_exactly": true,
+    "client_requested_at_separate": true,
+    "before_publication_scope_explicit": true,
+    "selected_generation_hashes_verified": true,
+    "personal_settings_restore_skipped_by_scan_smoke": true,
+    "owned_qa_smoke_removed_after_capture": true
+  },
+  "limitations": [
+    "Timing frozen executable is a dedicated snapshot before future service/CLI startup-diagnostic fixes.",
+    "Small synthetic owned repository; no Juice Shop scan, live AI/CVE, manual OS dialog, Windows11 or full gate acceptance.",
+    "QA native DLL is newer than user-open immutable candidate; package unchanged."
+  ]
+}

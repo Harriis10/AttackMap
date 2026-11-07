@@ -1,0 +1,19 @@
+{
+  "fixture_only": true,
+  "description": "Controlled discovery-failure preview data; not an actual engine inventory or scan.",
+  "schema": 1,
+  "modules": [{"name": "config", "display_name": "Config fixture", "enabled_by_default": true, "experimental": false}],
+  "analyzer_catalog": {
+    "schema": 1,
+    "scope": "installed_discovery",
+    "candidates": [
+      {"candidate_id": "builtin:config", "name": "config", "origin": "builtin", "status": "effective", "package": {"name": "attackmap", "version": "fixture"}, "metadata": {"version": "fixture"}, "implementation": {"module": "fixture.only", "qualname": "ConfigFixture", "source_sha256": null}},
+      {"name": "load-fixture", "origin": "plugin", "status": "load_error", "package": {"name": "fixture-plugin"}, "error": {"stage": "load", "error_type": "ImportError"}},
+      {"name": "init-fixture", "origin": "plugin", "status": "initialization_error", "package": {"name": "fixture-plugin"}, "error": {"stage": "initialization", "error_type": "RuntimeError"}},
+      {"name": "metadata-fixture", "origin": "plugin", "status": "metadata_error", "package": {"name": "fixture-plugin"}, "error": {"stage": "metadata", "error_type": "ValueError"}},
+      {"name": "contract-fixture", "origin": "plugin", "status": "contract_error", "package": {"name": "fixture-plugin"}, "error": {"stage": "contract", "error_type": null}},
+      {"name": "policy-fixture", "origin": "plugin", "status": "skipped_policy", "package": {"name": "fixture-third-party"}, "error": null}
+    ],
+    "discovery_errors": [{"stage": "entry_points", "error_type": "OSError"}]
+  }
+}

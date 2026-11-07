@@ -1,0 +1,276 @@
+{
+  "passed": true,
+  "scope": "Actual packaged executable inventory and payload/SBOM integrity; unsigned development only, no installation/clean-host/manual/provider/release acceptance",
+  "package": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\packages\\dev-20261023114018-2bcd8988",
+  "package_id": "dev-20261023114018-2bcd8988",
+  "package_manifest_sha256": "8ff57c6dcb5a7500f346606123501f6fdd164d49a2a215e7eb523ca6dd6ae228",
+  "zip_sha256": "1ea81929733bf6bd1204af0d06de82a6f625f00d83b738d772be7b7dc3299bde",
+  "sbom_sha256": "fe791400ac94139d9fcd5b4f03f89f9aef016bcaf1811a760455b7f3810561e4",
+  "package_verification": {
+    "manifest_schema_version": 1,
+    "package_manifest_sha256": "8ff57c6dcb5a7500f346606123501f6fdd164d49a2a215e7eb523ca6dd6ae228",
+    "files_verified": 776,
+    "bytes_verified": 276545640,
+    "unexpected_files": [],
+    "installer_script": {
+      "path": "Install-AttackMap.ps1",
+      "size_bytes": 7373,
+      "sha256": "dfe3680f422e840e6bc517bc13da55dda2c9908a7d4a2d05329850da545e05c0"
+    },
+    "installer_launcher": {
+      "path": "Install-AttackMap.cmd",
+      "size_bytes": 389,
+      "sha256": "9c1d884f98a18446aeaef545f531fc247996bc8e23ecf8838d437e0de4db8876"
+    }
+  },
+  "zip_files_verified": 779,
+  "zip_payload_equal_to_manifest": true,
+  "native_payload_equal_to_captured_build": true,
+  "native_payload_file_count": 511,
+  "engine_sha256": "6045194b77c0957166a6eb9fece45dbfd9c42441bb9e32cec6d040db6c419b05",
+  "frozen_payload_files_equal": true,
+  "engine_payload_file_count": 265,
+  "official_distributions": {
+    "attackmap-analyzer-atproto": {
+      "version": "0.1.0",
+      "entry_points": [
+        "atproto"
+      ]
+    },
+    "attackmap-analyzer-c": {
+      "version": "0.1.0",
+      "entry_points": [
+        "c"
+      ]
+    },
+    "attackmap-analyzer-cpp": {
+      "version": "0.1.0",
+      "entry_points": [
+        "cpp"
+      ]
+    },
+    "attackmap-analyzer-dotnet": {
+      "version": "0.1.0",
+      "entry_points": [
+        "dotnet"
+      ]
+    },
+    "attackmap-analyzer-go": {
+      "version": "0.1.0",
+      "entry_points": [
+        "go"
+      ]
+    },
+    "attackmap-analyzer-iac": {
+      "version": "0.1.0",
+      "entry_points": [
+        "iac"
+      ]
+    },
+    "attackmap-analyzer-java-spring": {
+      "version": "0.1.0",
+      "entry_points": [
+        "java_spring"
+      ]
+    },
+    "attackmap-analyzer-node-service": {
+      "version": "0.2.0",
+      "entry_points": [
+        "node_service"
+      ]
+    },
+    "attackmap-analyzer-omeka-s": {
+      "version": "0.1.0",
+      "entry_points": [
+        "omeka_s"
+      ]
+    },
+    "attackmap-analyzer-php-laminas": {
+      "version": "0.1.0",
+      "entry_points": [
+        "php_laminas"
+      ]
+    },
+    "attackmap-analyzer-php-web": {
+      "version": "0.1.0",
+      "entry_points": [
+        "php_web"
+      ]
+    },
+    "attackmap-analyzer-python": {
+      "version": "0.1.0",
+      "entry_points": [
+        "python"
+      ]
+    },
+    "attackmap-analyzer-rust": {
+      "version": "0.1.0",
+      "entry_points": [
+        "rust"
+      ]
+    },
+    "attackmap-analyzer-swift": {
+      "version": "0.1.0",
+      "entry_points": [
+        "swift"
+      ]
+    },
+    "attackmap-analyzer-terraform": {
+      "version": "0.1.0",
+      "entry_points": [
+        "terraform"
+      ]
+    }
+  },
+  "effective_analyzers": 21,
+  "catalog_candidates": 24,
+  "shadowed": [
+    "omeka-s",
+    "php-laminas",
+    "php-web"
+  ],
+  "declared_pins": {
+    "attackmap-analyzer-python": {
+      "repo": "attackmap-analyzer-python",
+      "package": "attackmap-analyzer-python",
+      "version": "0.1.0",
+      "git_sha": "1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+      "entry_points": [
+        "python"
+      ]
+    },
+    "attackmap-analyzer-rust": {
+      "repo": "attackmap-analyzer-rust",
+      "package": "attackmap-analyzer-rust",
+      "version": "0.1.0",
+      "git_sha": "c2e02d2855e6102153140f2644504b1cc0a95fb8",
+      "entry_points": [
+        "rust"
+      ]
+    },
+    "attackmap-analyzer-go": {
+      "repo": "attackmap-analyzer-go",
+      "package": "attackmap-analyzer-go",
+      "version": "0.1.0",
+      "git_sha": "e92fc3de5c34485c4ea06032052ad0f6c21fd133",
+      "entry_points": [
+        "go"
+      ]
+    },
+    "attackmap-analyzer-java-spring": {
+      "repo": "attackmap-analyzer-java-spring",
+      "package": "attackmap-analyzer-java-spring",
+      "version": "0.1.0",
+      "git_sha": "98dec01669ca90216cea4559495ee310224fd8f3",
+      "entry_points": [
+        "java_spring"
+      ]
+    },
+    "attackmap-analyzer-dotnet": {
+      "repo": "attackmap-analyzer-dotnet",
+      "package": "attackmap-analyzer-dotnet",
+      "version": "0.1.0",
+      "git_sha": "a1f00d05bc915940ed684f438c678e696f3de53d",
+      "entry_points": [
+        "dotnet"
+      ]
+    },
+    "attackmap-analyzer-terraform": {
+      "repo": "attackmap-analyzer-terraform",
+      "package": "attackmap-analyzer-terraform",
+      "version": "0.1.0",
+      "git_sha": "736f2c22051ffca537785edebf941a2d5ddb2487",
+      "entry_points": [
+        "terraform"
+      ]
+    },
+    "attackmap-analyzer-c": {
+      "repo": "attackmap-analyzer-c",
+      "package": "attackmap-analyzer-c",
+      "version": "0.1.0",
+      "git_sha": "1c2789ef62e57b713789f483b9409a5c64644795",
+      "entry_points": [
+        "c"
+      ]
+    },
+    "attackmap-analyzer-cpp": {
+      "repo": "attackmap-analyzer-cpp",
+      "package": "attackmap-analyzer-cpp",
+      "version": "0.1.0",
+      "git_sha": "61fa5325696620665bf9ceab10ec7bed378888ec",
+      "entry_points": [
+        "cpp"
+      ]
+    },
+    "attackmap-analyzer-swift": {
+      "repo": "attackmap-analyzer-swift",
+      "package": "attackmap-analyzer-swift",
+      "version": "0.1.0",
+      "git_sha": "bae13e58a49f46c15992197517cf9c036a75d83c",
+      "entry_points": [
+        "swift"
+      ]
+    },
+    "attackmap-analyzer-node-service": {
+      "repo": "attackmap-analyzer-node-service",
+      "package": "attackmap-analyzer-node-service",
+      "version": "0.2.0",
+      "git_sha": "8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+      "entry_points": [
+        "node_service"
+      ]
+    },
+    "attackmap-analyzer-atproto": {
+      "repo": "attackmap-analyzer-atproto",
+      "package": "attackmap-analyzer-atproto",
+      "version": "0.1.0",
+      "git_sha": "d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+      "entry_points": [
+        "atproto"
+      ]
+    },
+    "attackmap-analyzer-php-web": {
+      "repo": "attackmap-analyzer-php-web",
+      "package": "attackmap-analyzer-php-web",
+      "version": "0.1.0",
+      "git_sha": "69143bd994ec9111cffc2f78d4020bad611e68c7",
+      "entry_points": [
+        "php_web"
+      ]
+    },
+    "attackmap-analyzer-php-laminas": {
+      "repo": "attackmap-analyzer-php-laminas",
+      "package": "attackmap-analyzer-php-laminas",
+      "version": "0.1.0",
+      "git_sha": "7eac668b6f64a1d3fc3fa731317cb253a98915ce",
+      "entry_points": [
+        "php_laminas"
+      ]
+    },
+    "attackmap-analyzer-omeka-s": {
+      "repo": "attack-map-analyzer-omeka-s",
+      "package": "attackmap-analyzer-omeka-s",
+      "version": "0.1.0",
+      "git_sha": "6b9e478689a825dbcba655de4ff0bf63a3a3c544",
+      "entry_points": [
+        "omeka_s"
+      ]
+    },
+    "attackmap-analyzer-iac": {
+      "repo": "attackmap-analyzer-iac",
+      "package": "attackmap-analyzer-iac",
+      "version": "0.1.0",
+      "git_sha": "002efc484fc26ead1243aa34b610ccb2230147b0",
+      "entry_points": [
+        "iac"
+      ]
+    }
+  },
+  "pin_content_attestation": "unverified; observed source/wheel/payload identity is separate from declared Git pin",
+  "available_profiles": [
+    "automatic@1.0",
+    "node-atproto@1.0",
+    "php-laminas-omeka@1.0",
+    "python@1.0"
+  ]
+}

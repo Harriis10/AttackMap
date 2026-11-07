@@ -1,0 +1,95 @@
+{
+  "stage": "preflight-only",
+  "processes_started": 0,
+  "app": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-long-budget-20261023\\package-stages\\dev-20261023001948-7fa3eaff\\app\\AttackMap.NativeSpike.exe",
+  "release_lock": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\release-lock.json",
+  "manifest_sha256": "3666fe473f69d362671cc67c235a4920ca63fcf1a64a0d8b1ae8ce14d22d61b6",
+  "output": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-budget-preview-7200-01",
+  "phase": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-budget-preview-7200-01\\native",
+  "proof": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-budget-preview-7200-01\\native\\proof.json",
+  "png": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-budget-preview-7200-01\\native\\budget-label.png",
+  "timeout_seconds": 180,
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-long-budget-20261023\\package-stages\\dev-20261023001948-7fa3eaff\\app\\AttackMap.NativeSpike.exe",
+    "--provider-scroll-smoke",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-budget-preview-7200-01\\native\\proof.json",
+    "--viewport",
+    "1024",
+    "700",
+    "--provider-scroll-capture",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\sol-budget-preview-7200-01\\native\\budget-label.png"
+  ],
+  "requested_scans": 0,
+  "requested_provider_calls": 0,
+  "settings_save_requested": false,
+  "visual_review_performed": false,
+  "accepted_visual": false,
+  "accepted_accessibility": false,
+  "accepted_wp017": false,
+  "accepted_wp023": false,
+  "accepted_release": false,
+  "inputs": {
+    "package": {
+      "passed": true,
+      "scope": "Complete pinned package byte consistency; source lock consistency when RequiredBundled; acceptance separate",
+      "package_id": "dev-20261023001948-7fa3eaff",
+      "manifest": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-long-budget-20261023\\package-stages\\dev-20261023001948-7fa3eaff\\package-manifest.json",
+        "sha256": "3666fe473f69d362671cc67c235a4920ca63fcf1a64a0d8b1ae8ce14d22d61b6"
+      },
+      "files_verified": 778,
+      "release_lock": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-sol-long-budget-20261023-02\\release-lock.json",
+        "sha256": "56f6fca19411cba34addbd5440ef3bd906e772fcdee3e6b16da1d36e47aa2075"
+      },
+      "kind": null,
+      "native_build": null,
+      "engine_build": null,
+      "identities": {
+        "AttackMap.NativeSpike.exe": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-long-budget-20261023\\package-stages\\dev-20261023001948-7fa3eaff\\app\\AttackMap.NativeSpike.exe",
+          "sha256": "81ed7619e1ce5ebcbdc905f784a57d55234a2b03d416f46a77a0a57ef7e734fc"
+        },
+        "AttackMap.NativeSpike.dll": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-long-budget-20261023\\package-stages\\dev-20261023001948-7fa3eaff\\app\\AttackMap.NativeSpike.dll",
+          "sha256": "74471d63ff06f2f0c2b9e85105fc567c6f3d35dd23189a523ecadbc32df14d95"
+        },
+        "engine/attackmap.exe": {
+          "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-long-budget-20261023\\package-stages\\dev-20261023001948-7fa3eaff\\app\\engine\\attackmap.exe",
+          "sha256": "574497f7c4ae3c8859edb5506c0538c8cba99dc70436f29857dbec6240aa81f5"
+        }
+      },
+      "accepted_wp017": false,
+      "accepted_manual_ui": false,
+      "accepted_same_source": false,
+      "accepted_release": false,
+      "accepted_clean_host": false
+    },
+    "runner": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\provider_budget_capture.py",
+      "sha256": "cf65c5fb4491d874d7bf91ec338b0983f10d91ff160d96e47feeada4b750f46e"
+    },
+    "helper": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tools\\run_wp017_native_modes.py",
+      "sha256": "63227037d32aa97005be22de30b026418942ef1db1960a848202399efab5018d"
+    },
+    "guard": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\astra-gui-20261022\\run-gui-checkpoint.py",
+      "sha256": "ca465bd99194112e77a25eaabd9858687ad6a1dbbbe7191facc1c4e32b268afb"
+    },
+    "source": {
+      "MainWindow.ProviderScrollSmoke.cs": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\MainWindow.ProviderScrollSmoke.cs",
+        "sha256": "9a2e9dd8b6b09adf1458a1a4ac3be81221593b826b771cfa299404684cda30f6"
+      },
+      "ProviderSettingsView.cs": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\ProviderSettingsView.cs",
+        "sha256": "a88eb2e1a18940164970af2903b7845c823909007ddce893968df8c12eb6f495"
+      },
+      "NativeCaptureProbe.cs": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\AttackMap.NativeSpike\\NativeCaptureProbe.cs",
+        "sha256": "7247f9b91264379b4fcc37a8b3a385f37a8fe96109b528e10a27822a9f3ced62"
+      }
+    }
+  }
+}

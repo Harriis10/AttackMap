@@ -1,0 +1,2563 @@
+{
+  "coverage": {
+    "atomic_snapshot": false,
+    "available_repositories": 16,
+    "complete": false,
+    "completed_repositories": 16,
+    "failed_repositories": 0,
+    "partial_repositories": 0,
+    "protocols": {
+      "http": {
+        "analysis_status": "supplied_links_only",
+        "basis": "supplied_core_contract_links",
+        "status": "supported"
+      },
+      "producer_consumer": {
+        "reason": "missing_qualified_identity_and_operation",
+        "status": "unanalysed"
+      },
+      "rpc_schema": {
+        "reason": "no_qualified_cross_repository_contract",
+        "status": "unanalysed"
+      },
+      "shared_datastore": {
+        "extraction_contract": {
+          "kind": "shared_datastore_declaration",
+          "production_extraction": "unavailable",
+          "schema_version": "1.0",
+          "status": "prepared"
+        },
+        "reason": "missing_qualified_identity",
+        "status": "unanalysed"
+      }
+    },
+    "repository_results_complete": true,
+    "repository_statuses": {
+      "completed": 16
+    },
+    "requested_repositories": 16
+  },
+  "edges": [
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-2921deb0b39fc56a65d59094c87c0f426fe3a41a71f4c8d60d6051613d8c861f",
+        "evidence-2e2e47daeff16e82d82c73b2eaa69bce8620aa5a17033563c213f3df71dea081",
+        "evidence-7516189982b928417bb9da5a62384c1f718f060604e18eaca0fd97824fe3030a"
+      ],
+      "id": "edge-03d22040d3e09d3555d07bfa72425094d7359b6322f97f8cdc795037dae95805",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "target": "component-fa2bcbe4e0806af770123c206087e148e6a1726fe23325ac6f3b3eb988019911"
+    },
+    {
+      "basis": "core_contract_link",
+      "client_method": "GET",
+      "client_target": "/v1/items",
+      "confidence": null,
+      "destination": "repo-05",
+      "directed": true,
+      "endpoint_resolution": {
+        "source": "analyzer_hint_file_owner",
+        "target": "analyzer_hint_file_owner"
+      },
+      "evidence_refs": [
+        "evidence-0761be7c7e870d0685d3953fa497a94f3e545400e504afa8644610653f6f934a",
+        "evidence-610239efedbbcd80c165d601af0efa55f933d18e33185b3f8ad1427744daf6a3",
+        "evidence-821dd0c051603a64d9a1196656b0c83d1e9d811e7cf0a37543166186c5fd4e34",
+        "evidence-c06c430695893f60f27eb487d3aeb1a033e49a6892c218ce86aba6c3d6a9ae22",
+        "evidence-c0d351d9f5c155840faf736ca9544a213c581a32bce15af462e472a585d629bb",
+        "evidence-f2d7136270deed1657ccafef9b7895cd63556e34ebe33f78687b882a866d2a1b"
+      ],
+      "id": "edge-077643ddfb3c7c953d97a1f872fc8281a182c6549a5095b8304abfba15a932c4",
+      "kind": "cross_repo_http_call",
+      "leg": "direct",
+      "method": "GET",
+      "path_template": "v1/items",
+      "provenance": null,
+      "relation_id": "relation-57eda52a6fa38075628f2afd06e5fc9103c034e7fe87b03878d24fba008cc8d2",
+      "resolution": "candidate",
+      "resolution_reason": "no_destination",
+      "scheme": "https",
+      "scope": "cross_repository",
+      "server_route_path": "/v1/items",
+      "source": "component-16bf2f201307aa5899118278ee1a41b5ce7cfdce699882c59f6d2268df0af5d2",
+      "target": "component-f516e8e97d45abf13b360ad93d38d97bb68dbedccf24c699c7fd08456f51095c"
+    },
+    {
+      "basis": "database_hint_source_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-96d5e83186a0281537b18014e4d6d5d06ae73cadaf9fe312475e0da63758a8ca",
+        "evidence-a228c7a7e3b73dadc0b9dab042117bbacfde70928ab4630ef99b9166d869bee8"
+      ],
+      "id": "edge-07a06fcd0993f47c4648f036f86bd84e47e5d431722320e48a5b9d418ca8fc5a",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "component-9c1edade26c26d27a90a725dc3b169135e1d71fc7698507fab3e594557f89db5",
+      "target": "component-98406baf2302efef402616ae01bdd6d7d2661c2e28dacc9a02dddd9c1ddd2478"
+    },
+    {
+      "basis": "core_service_topology",
+      "confidence": null,
+      "directed": true,
+      "evidence_refs": [
+        "evidence-24e62158127e11ed829b16b3d1d3fa13682ea25488d791e65039f51273d8b0e9",
+        "evidence-9fb2b6c35da5b1fa588df75ec74b79dd7283fdc0045884b210fac6dc6e6a847f",
+        "evidence-eeb3f159ef903694ac797d005aa6c2c0eb3ff782a88cb9de79631dbfcafde8b9"
+      ],
+      "id": "edge-07ecf5c321dd350a599b6b7263054430f29e7ba4784f47ce24fd79a7bb5e741d",
+      "kind": "http-call",
+      "resolution": "inferred",
+      "scope": "repository",
+      "source": "component-6bf1fc297aa6ba10407179a1950745264823fa4ffd0ef9861de32ca3600f5ac9",
+      "target": "component-975163e1d82954ed9fa914fa412cc185b26f1e6b19490ead6fba3cba0b80639f"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-11790462096c8ca105edbec27182ad54f17e28371bfc8c3980d2fab4f1c18510",
+        "evidence-496ab2c3bb6b1bbfb839cc8e0758f0ff00511e64ca838a04dd237b789ed5e103",
+        "evidence-87d6d46924cd6e07a409fe6f993fce1941cd87f64375225d26836d727ac0b752"
+      ],
+      "id": "edge-1f0c588e84387cc886dad61e84a35433a98e990d587a1d0cac7cd2524e5fcc21",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "target": "component-6eb9ab6a2e766f8d7d6de47e51862abb8fcda67ec5719e65bccc8e2d82a9628c"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-1ffe92c78c6d7336b8e1b81095b4395b3f3174e5545efcfc93dfdc83194500cc",
+        "evidence-83abaea69dbd0018d485c2d7ba61be75b189dfb983dda750405171aa8539862a",
+        "evidence-91efb3ee90acf7b480b4d3f1a33df0a94731f1e564964e6dfb708c3006ef6d9d"
+      ],
+      "id": "edge-2c372b5aaa773c975a0a706c273840738bcc3aad0b188cdec447934baeddd201",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "target": "component-c7830bef2ede6d5caaafb9d6bc9671ab71d9f1d635f3b9abdfcaf3a854117fb6"
+    },
+    {
+      "basis": "core_contract_link",
+      "client_method": "GET",
+      "client_target": "https://service-2/v1/items",
+      "confidence": null,
+      "destination": "service-2",
+      "directed": true,
+      "endpoint_resolution": {
+        "source": "analyzer_hint_file_owner",
+        "target": "analyzer_hint_file_owner"
+      },
+      "evidence_refs": [
+        "evidence-093dd1ddad7e090235d5f7659901f412805603d95aa68385895258e7b3b3c629",
+        "evidence-2378d1fd9c2807da4048415deaab6924a58c8d11af7fa170d8bb7624df2fdfab",
+        "evidence-2a20466a84b397d31bdd919574539f16f058bdbcb394f180566b6a4577fd51a7",
+        "evidence-36924a4d86ddb85af759eab7719901d3a12374539c32ba3da7102202c0b876ca",
+        "evidence-60f46f1f6de5ae561bcd25e2d0db357aec4d3dcb5e5ce9adea7ab985e3d752bf",
+        "evidence-9b4b847683a85c348247cff06b8b540748e61de406013c29298c590e4d714fe8"
+      ],
+      "id": "edge-2eedc4b8f5211a01c4384802d2e9f6359b8fc71266ee01a2fa1fed0f96f7d7f7",
+      "kind": "cross_repo_http_call",
+      "leg": "direct",
+      "method": "GET",
+      "path_template": "v1/items",
+      "provenance": null,
+      "relation_id": "relation-30058142260bf7d900bc675d6624701ccc353e076d284f9b0f1b7a880b944348",
+      "resolution": "observed",
+      "resolution_reason": "",
+      "scheme": "https",
+      "scope": "cross_repository",
+      "server_route_path": "/v1/items",
+      "source": "component-16bf2f201307aa5899118278ee1a41b5ce7cfdce699882c59f6d2268df0af5d2",
+      "target": "component-6bf1fc297aa6ba10407179a1950745264823fa4ffd0ef9861de32ca3600f5ac9"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-75790b429db4e2d8ae1a82ff0a429a7e780406ab64e798eef7d7cd335a918549",
+        "evidence-7c2faf995c3e9038bebd337ef40633b6bfb240b2cdff6b8b2f64b7e35fe75043",
+        "evidence-e1dd64940aceb92e3f8781376b1d3d813d7465527ba1eefcb95f52a8f7c1c1f6"
+      ],
+      "id": "edge-305e44777c1ca627792c71a558d22001604c35ae87bc508ea3f3e7d6f990142f",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "target": "component-f516e8e97d45abf13b360ad93d38d97bb68dbedccf24c699c7fd08456f51095c"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-d48a3604e5b8629e0e0786384f8cb43b8bc70cdab5367cbf47714d0c99a949de",
+        "evidence-e0e14d61df18ef4105310b062485c642393f368fec8d969fde4bdc04e68cb89c",
+        "evidence-e878c1a9ddb2198304e1763adda1f4308f49c760a9f5d4d736f76e8b69a74125"
+      ],
+      "id": "edge-30cbb464034c0e1c7dd7002511eea7d51cc04aecba03b40cfecab0ea38de4369",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "target": "component-d4c1c0181b6397de05a5ac7884f0d0ff9cc968a59d184b0c2bc653e76ace5420"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-365ec77fc6c3903cc16e5f08094b88942d417ef4ea4389e66e075659be5ebbbb",
+        "evidence-4e65a261ad21c44813ff003c0b7ca84691c6b09523bc28e07cf10970e71ca62c",
+        "evidence-521ac9d3948836ca638cf4c706191613bbf79f12b264ee169aee07d00fce8cc1"
+      ],
+      "id": "edge-3afd0525045e3a1d28c445ea4c0d43df065aec6d66cca4b0980121162b4bdd04",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "target": "component-0941def382c402517e57c64ba5c049132a9eb175eca87a44646cbfcc889e69b9"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-0fb5d680f069e7e7f1fbe0a64fd26630e99bb842d539aa9dcce9ecf165a55c1b",
+        "evidence-11317b9598e3878ad458047836e6455c300b9c73fda4435250365e1acb220118",
+        "evidence-ff39485681101aefbe1fd3e562620fb39dd2043b66aef44d989351985080a8cb"
+      ],
+      "id": "edge-3f0bc01abf04553d2c77301a8cd7271e1e15a4de79d8d267253547d440f80c0e",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "target": "component-16bf2f201307aa5899118278ee1a41b5ce7cfdce699882c59f6d2268df0af5d2"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-5d375394e768b115f349a2758a7692281016d568d7c30e75a041d49773a0e771"
+      ],
+      "id": "edge-4091cf5bfcf4482674060cc5b71d638d6e5db3a0668aa65d17dbe7221292f81b",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "target": "component-c79d46185457e0eb5a57387f191e6f2160225e0a78b41d798ea77559e9af6787"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-de33b93d5583f243c3f6818cb753f1c400fd5268f43b94a08d3627d2aab28462"
+      ],
+      "id": "edge-4114f7e88324ada533581391181af8e03d6258cff26fac63ed604f0769b2f231",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "target": "component-bfdeaddba821330cffc99eb784b449e717076fdd1f1428ecf40d8c2269c6670c"
+    },
+    {
+      "basis": "core_contract_link",
+      "client_method": "GET",
+      "client_target": "https://service/v1/items",
+      "confidence": null,
+      "destination": "service",
+      "directed": true,
+      "endpoint_resolution": {
+        "source": "analyzer_hint_file_owner",
+        "target": "analyzer_hint_file_owner"
+      },
+      "evidence_refs": [
+        "evidence-24e62158127e11ed829b16b3d1d3fa13682ea25488d791e65039f51273d8b0e9",
+        "evidence-649296a4293de3eed4dbbaed86d969dadb669a26af54f52efd84ce569016c4c0",
+        "evidence-6f8c106933e79a202868b5de9b8a4a365a23ea77ccf2c5e48f07e16955d6f0c1",
+        "evidence-7e607198a2d105ca3841bf1cab5eafb7a8f8b21797710640c29585d6045732c6",
+        "evidence-9fb2b6c35da5b1fa588df75ec74b79dd7283fdc0045884b210fac6dc6e6a847f",
+        "evidence-eeb3f159ef903694ac797d005aa6c2c0eb3ff782a88cb9de79631dbfcafde8b9"
+      ],
+      "id": "edge-4c8045e7387288afd0674f174085c57ae03b058d50bfb0b354736bc15806ffbd",
+      "kind": "cross_repo_http_call",
+      "leg": "direct",
+      "method": "GET",
+      "path_template": "v1/items",
+      "provenance": null,
+      "relation_id": "relation-c24734a873ff1a514bff5b7255438dd722cee249af29f782ba44feb81ee3b824",
+      "resolution": "observed",
+      "resolution_reason": "",
+      "scheme": "https",
+      "scope": "cross_repository",
+      "server_route_path": "/v1/items",
+      "source": "component-6bf1fc297aa6ba10407179a1950745264823fa4ffd0ef9861de32ca3600f5ac9",
+      "target": "component-16bf2f201307aa5899118278ee1a41b5ce7cfdce699882c59f6d2268df0af5d2"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-00a6efb87121d48a58bff25b3fb48b186701546e862dcd1aa86c755f8d1c50ae",
+        "evidence-734ed207be649fe9fc7286ded15482390a23893cb1ade939c969f7eb991a5780",
+        "evidence-b10d846c9286937ef60dea35aa2a9ac68c5c867e6f0e2a0d52823565022d0d86"
+      ],
+      "id": "edge-4d994297e82a50418cad6b31d6ec76a854745d0c75773bd2999812385b0740c8",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "target": "component-4933d397957c2e94ea07d708568690e58829b65cfef7f5aa01b2e7888df8f6ea"
+    },
+    {
+      "basis": "database_hint_source_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-0185f823742c28208ffc9b6c67b49196cd74ea9ce55693a3265ea729c1fec3b6",
+        "evidence-9f20196b8e16e3fcd7e761bd0c8877c914263c2ea86af6bd8eff0652a666b063"
+      ],
+      "id": "edge-61c3262913fcc9de0c6ff3f65fc7923e31ce63863bf955fd5901fad48d4b5544",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "component-a9df07d076ac102bb66d9c143c4321eb2fc5b296541878ce62bd38e2093bc3c8",
+      "target": "component-092ea6209b9780140c084514f47f001d36f2337ee25dd1f3dbda6b82c8df9bd7"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-1825370028276f70d65f5bc4a5249599171153f5b284f0971cc34aca51f309e8",
+        "evidence-5bddf7db8351af1b51172b519f1e9a61d10e134f5a3424d588d60804b82858c7",
+        "evidence-fc4ce0aa0fbb7c40956cc3899529c63a4df37f30943098e6f5816e9fcb095741"
+      ],
+      "id": "edge-6670ec9513fdc91f890e370c276b478cd50eaf8ea6862c90ff78057c87afae03",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "target": "component-6bf1fc297aa6ba10407179a1950745264823fa4ffd0ef9861de32ca3600f5ac9"
+    },
+    {
+      "basis": "core_contract_link",
+      "client_method": "GET",
+      "client_target": "https://repo-06/v1/items",
+      "confidence": null,
+      "destination": "edge.example.internal",
+      "directed": true,
+      "endpoint_resolution": {
+        "source": "analyzer_hint_file_owner",
+        "target": "analyzer_hint_file_owner"
+      },
+      "evidence_refs": [
+        "evidence-567d590ac7406ba48b3edd8fedaab2473ed7bcd5fb7e9efbd8abcaea3f02bff9",
+        "evidence-753241e979512d43ee7fa019e5d942f699b34937300283f0019216d802966cd3",
+        "evidence-b5ecf530e2bed4a6fe10db0c87703865ebd41f74f4850bb91cfad745c17a0f7a",
+        "evidence-ddc7a2470994ec74ce54c2f79d5f18750cfd4b825a9f6bc20c7e2f1d8d8f5c64",
+        "evidence-ed925645c931dacbad7b7a81ffeac088cd72acd3d2bb575521a3e24e7eb420b7",
+        "evidence-f8c2cb8b9a0792bb9286f0d8a6e1bc5bf4dd1aa554c990fd0fb1d5e97c2926da"
+      ],
+      "id": "edge-686f3e9c5e6dce708fa340c8a7420d1424bc45a3ddc280ee09000a662d356a39",
+      "kind": "cross_repo_http_call",
+      "leg": "client_to_proxy",
+      "method": "GET",
+      "path_template": "v1/items",
+      "provenance": "fleet.yml:proxies:edge.example.internal",
+      "relation_id": "relation-a7aeee6f6bd8ab2efc36c5d17c00b7d2e915a99d0a273e44652da77bdaef26f3",
+      "resolution": "observed_via_proxy",
+      "resolution_reason": "",
+      "scheme": "https",
+      "scope": "cross_repository",
+      "server_route_path": "/v1/items",
+      "source": "component-f516e8e97d45abf13b360ad93d38d97bb68dbedccf24c699c7fd08456f51095c",
+      "target": "proxy-a65214ee8faa334852f333cd9dba2947def253c0d3909a35b54151e45b2e013f"
+    },
+    {
+      "basis": "core_service_topology",
+      "confidence": null,
+      "directed": true,
+      "evidence_refs": [
+        "evidence-567d590ac7406ba48b3edd8fedaab2473ed7bcd5fb7e9efbd8abcaea3f02bff9",
+        "evidence-b5ecf530e2bed4a6fe10db0c87703865ebd41f74f4850bb91cfad745c17a0f7a",
+        "evidence-f8c2cb8b9a0792bb9286f0d8a6e1bc5bf4dd1aa554c990fd0fb1d5e97c2926da"
+      ],
+      "id": "edge-6a171198d8c64c3ad58d75a189882b6913a75481fd2a06fedbf6b964ffe446c2",
+      "kind": "http-call",
+      "resolution": "inferred",
+      "scope": "repository",
+      "source": "component-f516e8e97d45abf13b360ad93d38d97bb68dbedccf24c699c7fd08456f51095c",
+      "target": "component-45365bf405aba5ca122d033f68080b66290061d30c1fe70e0a9493907f4cf436"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-00b1563116f194a46035d45dd4be479a1e7feb75782ce2059ac2b888f9b356b4"
+      ],
+      "id": "edge-708c73fc233a487346196267dbada5fc5d0f0f1a6dd218b523d51d61e14909f0",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "target": "component-104bc5ef335a9fe6b85268bb518806f30277871bf84f7a1a6f20f7c1217b50a0"
+    },
+    {
+      "basis": "core_contract_link",
+      "client_method": "GET",
+      "client_target": "https://repo-06/v1/items",
+      "confidence": null,
+      "destination": "edge.example.internal",
+      "directed": true,
+      "endpoint_resolution": {
+        "source": "analyzer_hint_file_owner",
+        "target": "analyzer_hint_file_owner"
+      },
+      "evidence_refs": [
+        "evidence-567d590ac7406ba48b3edd8fedaab2473ed7bcd5fb7e9efbd8abcaea3f02bff9",
+        "evidence-753241e979512d43ee7fa019e5d942f699b34937300283f0019216d802966cd3",
+        "evidence-b5ecf530e2bed4a6fe10db0c87703865ebd41f74f4850bb91cfad745c17a0f7a",
+        "evidence-ddc7a2470994ec74ce54c2f79d5f18750cfd4b825a9f6bc20c7e2f1d8d8f5c64",
+        "evidence-ed925645c931dacbad7b7a81ffeac088cd72acd3d2bb575521a3e24e7eb420b7",
+        "evidence-f8c2cb8b9a0792bb9286f0d8a6e1bc5bf4dd1aa554c990fd0fb1d5e97c2926da"
+      ],
+      "id": "edge-7578992d0fb951b6255cca41e47ce85f8d2cd2907280c7f8e1c83227a08ebcba",
+      "kind": "cross_repo_http_call",
+      "leg": "proxy_to_server",
+      "method": "GET",
+      "path_template": "v1/items",
+      "provenance": "fleet.yml:proxies:edge.example.internal",
+      "relation_id": "relation-a7aeee6f6bd8ab2efc36c5d17c00b7d2e915a99d0a273e44652da77bdaef26f3",
+      "resolution": "observed_via_proxy",
+      "resolution_reason": "",
+      "scheme": "https",
+      "scope": "cross_repository",
+      "server_route_path": "/v1/items",
+      "source": "proxy-a65214ee8faa334852f333cd9dba2947def253c0d3909a35b54151e45b2e013f",
+      "target": "component-9c1edade26c26d27a90a725dc3b169135e1d71fc7698507fab3e594557f89db5"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-0b6fe9b52037087070ad7732d3647fa7fad02ef86279aa88720f06d9d0c8e61a",
+        "evidence-32a2a92b4d41ed4c9f54356f6fdce97fbf827877e438c125c6b61a4308cf7a6d",
+        "evidence-8ec025ad697a33e985c047cd1b447b66f073cb695f8d98035382c0d8ce54763d"
+      ],
+      "id": "edge-7e840f6af41131762345ad347c233411cd724ff00267d20b9464a8c9553b886c",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "target": "component-54771168726dc2f7a6bc6288389ddbb948913fe16687c3489f02ca871158ba92"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-0fc328d3bb7f549792c4d7e02760ac734e394c245746816203754c14ce38f661",
+        "evidence-2a1b5a1bfd7ae1d91f5111a851793c08c88721056ab687582780169633c6201e",
+        "evidence-8c9dd69d7f933939520933ce4e968077fd01827d95d3dfafe7a994a7350ccd67"
+      ],
+      "id": "edge-83fec07f37e4dbbdb5fdbe8a47c33c5f5d9f84132b58babfb819015e438c9b7e",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "target": "component-a9df07d076ac102bb66d9c143c4321eb2fc5b296541878ce62bd38e2093bc3c8"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-8ee46cc40908f14b9261b4591b94f6bd7b3fbbbb58e06361a92923dbb1b621f5",
+        "evidence-9c60419b2039c2699634ba9e8a71f8956c13db8f2d6ddea0ffb0245b838b9e88",
+        "evidence-f050b03061a3b4672d8297ee0a2f7f30f97de728688725ac9efbfa5a7ba5e541"
+      ],
+      "id": "edge-9090a315aa012011976a7084e972aee78ffdb064673946681fb12141382c5ccd",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "target": "component-9c1edade26c26d27a90a725dc3b169135e1d71fc7698507fab3e594557f89db5"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-801d00b02b3b395ef8adc3bdf62a72bcb770888eb07dea602d1da2e775976fe3",
+        "evidence-9e284882f6b0a8737fcf8028195536c66aa448ef479bfb136df33e2c2c00f4e1",
+        "evidence-c059feff99f85f8ad731f638cfd90486e7b2037e47aadb94c23308890c2886c3"
+      ],
+      "id": "edge-9284c2a5540ea4b9c064269b8feae15b2303c4f20514ebe852c246b8b2a97d29",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "target": "component-d6051fce3076fb53c883829d880c8d1b10b5dc412dafc863ac47050aa4ac9b7a"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-46662cf567db18a02aa355a2a3a0598171d3cb5588b6435dfd9a48de1aa1ef58",
+        "evidence-8b3b033d3875d15cc233572c73db72ac83ed05614809a9212210b533de529fd6",
+        "evidence-bb2eefdcb665a3661585efc140d85d96bab24a16716871caed90599699526a7b"
+      ],
+      "id": "edge-ab092ed37778e75d72a6594c5ff8256fab11eee025273d6602209f1437961086",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "target": "component-b6b84621a65a2d443da3da5ebc1d62d3d17d42f967bf941e70f17f246b242245"
+    },
+    {
+      "basis": "core_service_topology",
+      "confidence": null,
+      "directed": true,
+      "evidence_refs": [
+        "evidence-2ff75275592d5258a7754459dc62a8c1247d21b84a84a92a783ada5d3f432efb",
+        "evidence-96ae932b87da1bb4943c6a919e01810db3d897a552adff9df390a166b9e22ece"
+      ],
+      "id": "edge-b743a1e02ca81ede2eec7fa6c456c26d8aa50e48990a2b29ec02d78603d53dd1",
+      "kind": "async-queue",
+      "resolution": "inferred",
+      "scope": "repository",
+      "source": "component-9c1edade26c26d27a90a725dc3b169135e1d71fc7698507fab3e594557f89db5",
+      "target": "component-104bc5ef335a9fe6b85268bb518806f30277871bf84f7a1a6f20f7c1217b50a0"
+    },
+    {
+      "basis": "core_contract_link",
+      "client_method": "GET",
+      "client_target": "https://service-2/v1/items",
+      "confidence": null,
+      "destination": "service-2",
+      "directed": true,
+      "endpoint_resolution": {
+        "source": "analyzer_hint_file_owner",
+        "target": "analyzer_hint_file_owner"
+      },
+      "evidence_refs": [
+        "evidence-2a20466a84b397d31bdd919574539f16f058bdbcb394f180566b6a4577fd51a7",
+        "evidence-30466de02bebda713ca2cff29d26b35703ed1bf1de4a3d1afda00f1aa2d03158",
+        "evidence-354b403d9ff68c72c5326c1e5c9b7a2a6b5de55ba73e849043c3a9a193928184",
+        "evidence-36924a4d86ddb85af759eab7719901d3a12374539c32ba3da7102202c0b876ca",
+        "evidence-60f46f1f6de5ae561bcd25e2d0db357aec4d3dcb5e5ce9adea7ab985e3d752bf",
+        "evidence-f44e683b98c305e81b2ea56f2896f9a270d8e985d73bd920d6573d04ec101782"
+      ],
+      "id": "edge-b8b5ec824047dfca26315244b26a1f4b06d25d1e1c40fb2e27daf42e479f5eb4",
+      "kind": "cross_repo_http_call",
+      "leg": "direct",
+      "method": "GET",
+      "path_template": "v1/items",
+      "provenance": null,
+      "relation_id": "relation-2579e9d74177cd665e12dd382566b48b7dd804de25eab7f8482b854752cc0430",
+      "resolution": "observed",
+      "resolution_reason": "",
+      "scheme": "https",
+      "scope": "cross_repository",
+      "server_route_path": "/v1/items",
+      "source": "component-16bf2f201307aa5899118278ee1a41b5ce7cfdce699882c59f6d2268df0af5d2",
+      "target": "component-6bf1fc297aa6ba10407179a1950745264823fa4ffd0ef9861de32ca3600f5ac9"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-0c2f3e7f25fda5b729ceae36b47d29aa571f72082200938898810cd589658897",
+        "evidence-e105b030f457bf662c5bd194c82989ba57fca30a4d1e54cc08fe3b9ebb64466b",
+        "evidence-f72c6aded6e882ff0604f21c2458dca88921c94e33c51558ee9072348ed9af24"
+      ],
+      "id": "edge-b976a61e8e82588a735cb8893435406fe944db00826fa75e8f96649046eee0e3",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "target": "component-abfebeb752a5212e1efcfe6cdf89ee4cf60dbe2cde87b5fa5276240fea322811"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-14d1201efdfe3870ffc1917ef9270aa71abd23fa7c34232f64a271d69da6a5c3"
+      ],
+      "id": "edge-dd516e32e89f9ce58ea1d747bfbf59ebef57cd9636bcaadf3e0c3a6da01dbf41",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "target": "component-975163e1d82954ed9fa914fa412cc185b26f1e6b19490ead6fba3cba0b80639f"
+    },
+    {
+      "basis": "core_service_topology",
+      "confidence": null,
+      "directed": true,
+      "evidence_refs": [
+        "evidence-ae04769d0b2a0dd5e913de6be008fdf31617e2a837ae53aa55dfecba3aa13a6e",
+        "evidence-cd401477f79163a592911be10a0bcd43e98a5c6c953dc0cc33e8883594a1695e"
+      ],
+      "id": "edge-dfc79f38aee2ebebc21b519d0052a4ac7b505f7b8da1cdf56d9652129ac1f8a3",
+      "kind": "async-queue",
+      "resolution": "inferred",
+      "scope": "repository",
+      "source": "component-a9df07d076ac102bb66d9c143c4321eb2fc5b296541878ce62bd38e2093bc3c8",
+      "target": "component-bfdeaddba821330cffc99eb784b449e717076fdd1f1428ecf40d8c2269c6670c"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-efdcfa5347fc1646dd8ab5053b8c836e36075156f3a35052e859142abc2e03e8"
+      ],
+      "id": "edge-e9f98643a9c5f3c4534edba21a16afe2220519a4d7ade6ea2ca3841a3cd397f0",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "target": "component-45365bf405aba5ca122d033f68080b66290061d30c1fe70e0a9493907f4cf436"
+    },
+    {
+      "basis": "core_service_topology",
+      "confidence": null,
+      "directed": true,
+      "evidence_refs": [
+        "evidence-093dd1ddad7e090235d5f7659901f412805603d95aa68385895258e7b3b3c629",
+        "evidence-2378d1fd9c2807da4048415deaab6924a58c8d11af7fa170d8bb7624df2fdfab",
+        "evidence-30466de02bebda713ca2cff29d26b35703ed1bf1de4a3d1afda00f1aa2d03158",
+        "evidence-354b403d9ff68c72c5326c1e5c9b7a2a6b5de55ba73e849043c3a9a193928184",
+        "evidence-9b4b847683a85c348247cff06b8b540748e61de406013c29298c590e4d714fe8",
+        "evidence-f44e683b98c305e81b2ea56f2896f9a270d8e985d73bd920d6573d04ec101782"
+      ],
+      "id": "edge-f3c05b24eef1ecf8ab1ee2057006e7bd9f1e336f0e8f7a758dc45973ecbf5e87",
+      "kind": "http-call",
+      "resolution": "inferred",
+      "scope": "repository",
+      "source": "component-16bf2f201307aa5899118278ee1a41b5ce7cfdce699882c59f6d2268df0af5d2",
+      "target": "component-c79d46185457e0eb5a57387f191e6f2160225e0a78b41d798ea77559e9af6787"
+    },
+    {
+      "basis": "repository_observation_scope",
+      "directed": true,
+      "evidence_refs": [
+        "evidence-04ebd2d9116f792c67882ac507fe284ec3e29d4817498f6bac4648e76c064eda",
+        "evidence-7a250f6a4d619afee9a8911c9081eaa24414c087f4f5ea6e40f8574d45d4c603",
+        "evidence-c4597bf2d574ba0cad51dc0ef6fb1be07a9591d573867aa19a4f31eb94b63cea"
+      ],
+      "id": "edge-f43dda270474eed92966255de9b9d511530f9c211757450e6b0bcc8d2668c69d",
+      "kind": "containment",
+      "resolution": "declared",
+      "source": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "target": "component-95504cdc561e33fca266f1c225421d4d521e84f8329bc07a57bcae7faf4f2841"
+    }
+  ],
+  "evidence": [
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-10",
+      "file": "services/api/main.ts",
+      "id": "evidence-00a6efb87121d48a58bff25b3fb48b186701546e862dcd1aa86c755f8d1c50ae",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-00b1563116f194a46035d45dd4be479a1e7feb75782ce2059ac2b888f9b356b4",
+      "kind": "source_file",
+      "line": null,
+      "location_reason": "line_not_supplied",
+      "location_status": "file_only",
+      "observation_id": null,
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-0185f823742c28208ffc9b6c67b49196cd74ea9ce55693a3265ea729c1fec3b6",
+      "kind": "database",
+      "line": 25,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-fc32c9bc5be8fc51eda9980371c14733d31597b35c022a96cd027ef092431202",
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-14",
+      "file": "services/api/main.ts",
+      "id": "evidence-04ebd2d9116f792c67882ac507fe284ec3e29d4817498f6bac4648e76c064eda",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-0761be7c7e870d0685d3953fa497a94f3e545400e504afa8644610653f6f934a",
+      "kind": "external_call",
+      "line": 14,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-093dd1ddad7e090235d5f7659901f412805603d95aa68385895258e7b3b3c629",
+      "kind": "external_call",
+      "line": 13,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-fa7514e75092636cb66a8f853f29c4a65be295ef79a8e4a112b433601b2fe9ac",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/worker/main.ts",
+      "id": "evidence-0b6fe9b52037087070ad7732d3647fa7fad02ef86279aa88720f06d9d0c8e61a",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-13",
+      "file": "services/api/main.ts",
+      "id": "evidence-0c2f3e7f25fda5b729ceae36b47d29aa571f72082200938898810cd589658897",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-0fb5d680f069e7e7f1fbe0a64fd26630e99bb842d539aa9dcce9ecf165a55c1b",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-0fc328d3bb7f549792c4d7e02760ac734e394c245746816203754c14ce38f661",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-11317b9598e3878ad458047836e6455c300b9c73fda4435250365e1acb220118",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-15",
+      "file": "services/api/main.ts",
+      "id": "evidence-11790462096c8ca105edbec27182ad54f17e28371bfc8c3980d2fab4f1c18510",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-14d1201efdfe3870ffc1917ef9270aa71abd23fa7c34232f64a271d69da6a5c3",
+      "kind": "source_file",
+      "line": null,
+      "location_reason": "line_not_supplied",
+      "location_status": "file_only",
+      "observation_id": null,
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-1825370028276f70d65f5bc4a5249599171153f5b284f0971cc34aca51f309e8",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-08",
+      "file": "services/api/main.ts",
+      "id": "evidence-1ffe92c78c6d7336b8e1b81095b4395b3f3174e5545efcfc93dfdc83194500cc",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-2378d1fd9c2807da4048415deaab6924a58c8d11af7fa170d8bb7624df2fdfab",
+      "kind": "external_call",
+      "line": 13,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-24e62158127e11ed829b16b3d1d3fa13682ea25488d791e65039f51273d8b0e9",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-04",
+      "file": "services/api/main.ts",
+      "id": "evidence-2921deb0b39fc56a65d59094c87c0f426fe3a41a71f4c8d60d6051613d8c861f",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-2a1b5a1bfd7ae1d91f5111a851793c08c88721056ab687582780169633c6201e",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-2a20466a84b397d31bdd919574539f16f058bdbcb394f180566b6a4577fd51a7",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-04",
+      "file": "services/api/main.ts",
+      "id": "evidence-2e2e47daeff16e82d82c73b2eaa69bce8620aa5a17033563c213f3df71dea081",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-2ff75275592d5258a7754459dc62a8c1247d21b84a84a92a783ada5d3f432efb",
+      "kind": "external_call",
+      "line": 22,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-93588efe052636d3809b18135afbe5080e29a35338a2572f287986e39c61fba0",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-30466de02bebda713ca2cff29d26b35703ed1bf1de4a3d1afda00f1aa2d03158",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-ba2addab18a9ad549057ae2a81b3b7de6505dd10459fb675c90e517f4bc1ee8a",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/worker/main.ts",
+      "id": "evidence-32a2a92b4d41ed4c9f54356f6fdce97fbf827877e438c125c6b61a4308cf7a6d",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-1a97f6ab61010f072de4b644337eaac82aba102b5cf03dbcc151adfcc0497329",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-354b403d9ff68c72c5326c1e5c9b7a2a6b5de55ba73e849043c3a9a193928184",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-09",
+      "file": "services/api/main.ts",
+      "id": "evidence-365ec77fc6c3903cc16e5f08094b88942d417ef4ea4389e66e075659be5ebbbb",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-36924a4d86ddb85af759eab7719901d3a12374539c32ba3da7102202c0b876ca",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-11",
+      "file": "services/api/main.ts",
+      "id": "evidence-46662cf567db18a02aa355a2a3a0598171d3cb5588b6435dfd9a48de1aa1ef58",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-15",
+      "file": "services/api/main.ts",
+      "id": "evidence-496ab2c3bb6b1bbfb839cc8e0758f0ff00511e64ca838a04dd237b789ed5e103",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-09",
+      "file": "services/api/main.ts",
+      "id": "evidence-4e65a261ad21c44813ff003c0b7ca84691c6b09523bc28e07cf10970e71ca62c",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-09",
+      "file": "services/api/main.ts",
+      "id": "evidence-521ac9d3948836ca638cf4c706191613bbf79f12b264ee169aee07d00fce8cc1",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-567d590ac7406ba48b3edd8fedaab2473ed7bcd5fb7e9efbd8abcaea3f02bff9",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-5bddf7db8351af1b51172b519f1e9a61d10e134f5a3424d588d60804b82858c7",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-5d375394e768b115f349a2758a7692281016d568d7c30e75a041d49773a0e771",
+      "kind": "source_file",
+      "line": null,
+      "location_reason": "line_not_supplied",
+      "location_status": "file_only",
+      "observation_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-60f46f1f6de5ae561bcd25e2d0db357aec4d3dcb5e5ce9adea7ab985e3d752bf",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-610239efedbbcd80c165d601af0efa55f933d18e33185b3f8ad1427744daf6a3",
+      "kind": "external_call",
+      "line": 14,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-7d1f588be31202d6f82dbb19b19908a98efe30c9969d1c10541a04b00f0e24ba",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-649296a4293de3eed4dbbaed86d969dadb669a26af54f52efd84ce569016c4c0",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-6f8c106933e79a202868b5de9b8a4a365a23ea77ccf2c5e48f07e16955d6f0c1",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-10",
+      "file": "services/api/main.ts",
+      "id": "evidence-734ed207be649fe9fc7286ded15482390a23893cb1ade939c969f7eb991a5780",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-04",
+      "file": "services/api/main.ts",
+      "id": "evidence-7516189982b928417bb9da5a62384c1f718f060604e18eaca0fd97824fe3030a",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-753241e979512d43ee7fa019e5d942f699b34937300283f0019216d802966cd3",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-75790b429db4e2d8ae1a82ff0a429a7e780406ab64e798eef7d7cd335a918549",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-14",
+      "file": "services/api/main.ts",
+      "id": "evidence-7a250f6a4d619afee9a8911c9081eaa24414c087f4f5ea6e40f8574d45d4c603",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-7c2faf995c3e9038bebd337ef40633b6bfb240b2cdff6b8b2f64b7e35fe75043",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-7e607198a2d105ca3841bf1cab5eafb7a8f8b21797710640c29585d6045732c6",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-12",
+      "file": "services/api/main.ts",
+      "id": "evidence-801d00b02b3b395ef8adc3bdf62a72bcb770888eb07dea602d1da2e775976fe3",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-821dd0c051603a64d9a1196656b0c83d1e9d811e7cf0a37543166186c5fd4e34",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-08",
+      "file": "services/api/main.ts",
+      "id": "evidence-83abaea69dbd0018d485c2d7ba61be75b189dfb983dda750405171aa8539862a",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-15",
+      "file": "services/api/main.ts",
+      "id": "evidence-87d6d46924cd6e07a409fe6f993fce1941cd87f64375225d26836d727ac0b752",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-11",
+      "file": "services/api/main.ts",
+      "id": "evidence-8b3b033d3875d15cc233572c73db72ac83ed05614809a9212210b533de529fd6",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-8c9dd69d7f933939520933ce4e968077fd01827d95d3dfafe7a994a7350ccd67",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/worker/main.ts",
+      "id": "evidence-8ec025ad697a33e985c047cd1b447b66f073cb695f8d98035382c0d8ce54763d",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-1a97f6ab61010f072de4b644337eaac82aba102b5cf03dbcc151adfcc0497329",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-8ee46cc40908f14b9261b4591b94f6bd7b3fbbbb58e06361a92923dbb1b621f5",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-08",
+      "file": "services/api/main.ts",
+      "id": "evidence-91efb3ee90acf7b480b4d3f1a33df0a94731f1e564964e6dfb708c3006ef6d9d",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-96ae932b87da1bb4943c6a919e01810db3d897a552adff9df390a166b9e22ece",
+      "kind": "external_call",
+      "line": 22,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-96d5e83186a0281537b18014e4d6d5d06ae73cadaf9fe312475e0da63758a8ca",
+      "kind": "database",
+      "line": 25,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-fc32c9bc5be8fc51eda9980371c14733d31597b35c022a96cd027ef092431202",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-9b4b847683a85c348247cff06b8b540748e61de406013c29298c590e4d714fe8",
+      "kind": "external_call",
+      "line": 13,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-fa7514e75092636cb66a8f853f29c4a65be295ef79a8e4a112b433601b2fe9ac",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-9c60419b2039c2699634ba9e8a71f8956c13db8f2d6ddea0ffb0245b838b9e88",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-12",
+      "file": "services/api/main.ts",
+      "id": "evidence-9e284882f6b0a8737fcf8028195536c66aa448ef479bfb136df33e2c2c00f4e1",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-9f20196b8e16e3fcd7e761bd0c8877c914263c2ea86af6bd8eff0652a666b063",
+      "kind": "database",
+      "line": 25,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-9fb2b6c35da5b1fa588df75ec74b79dd7283fdc0045884b210fac6dc6e6a847f",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-356caed83c1204477830b5a89ee5cb884a65f90cd929d4a67a3abb552f49dd15",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-a228c7a7e3b73dadc0b9dab042117bbacfde70928ab4630ef99b9166d869bee8",
+      "kind": "database",
+      "line": 25,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-ae04769d0b2a0dd5e913de6be008fdf31617e2a837ae53aa55dfecba3aa13a6e",
+      "kind": "external_call",
+      "line": 22,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-10",
+      "file": "services/api/main.ts",
+      "id": "evidence-b10d846c9286937ef60dea35aa2a9ac68c5c867e6f0e2a0d52823565022d0d86",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-b5ecf530e2bed4a6fe10db0c87703865ebd41f74f4850bb91cfad745c17a0f7a",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-4867d39e999fde77cc86d1aec9d11d64bbb9c3b676f64e69ef905245f0ccf337",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-11",
+      "file": "services/api/main.ts",
+      "id": "evidence-bb2eefdcb665a3661585efc140d85d96bab24a16716871caed90599699526a7b",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-12",
+      "file": "services/api/main.ts",
+      "id": "evidence-c059feff99f85f8ad731f638cfd90486e7b2037e47aadb94c23308890c2886c3",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-c06c430695893f60f27eb487d3aeb1a033e49a6892c218ce86aba6c3d6a9ae22",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-c0d351d9f5c155840faf736ca9544a213c581a32bce15af462e472a585d629bb",
+      "kind": "external_call",
+      "line": 14,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-7d1f588be31202d6f82dbb19b19908a98efe30c9969d1c10541a04b00f0e24ba",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-14",
+      "file": "services/api/main.ts",
+      "id": "evidence-c4597bf2d574ba0cad51dc0ef6fb1be07a9591d573867aa19a4f31eb94b63cea",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-cd401477f79163a592911be10a0bcd43e98a5c6c953dc0cc33e8883594a1695e",
+      "kind": "external_call",
+      "line": 22,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-93588efe052636d3809b18135afbe5080e29a35338a2572f287986e39c61fba0",
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-02",
+      "file": "services/api/main.ts",
+      "id": "evidence-d48a3604e5b8629e0e0786384f8cb43b8bc70cdab5367cbf47714d0c99a949de",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-ddc7a2470994ec74ce54c2f79d5f18750cfd4b825a9f6bc20c7e2f1d8d8f5c64",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-07",
+      "file": "services/api/main.ts",
+      "id": "evidence-de33b93d5583f243c3f6818cb753f1c400fd5268f43b94a08d3627d2aab28462",
+      "kind": "source_file",
+      "line": null,
+      "location_reason": "line_not_supplied",
+      "location_status": "file_only",
+      "observation_id": null,
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-02",
+      "file": "services/api/main.ts",
+      "id": "evidence-e0e14d61df18ef4105310b062485c642393f368fec8d969fde4bdc04e68cb89c",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-13",
+      "file": "services/api/main.ts",
+      "id": "evidence-e105b030f457bf662c5bd194c82989ba57fca30a4d1e54cc08fe3b9ebb64466b",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-e1dd64940aceb92e3f8781376b1d3d813d7465527ba1eefcb95f52a8f7c1c1f6",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": "fixture-service"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-02",
+      "file": "services/api/main.ts",
+      "id": "evidence-e878c1a9ddb2198304e1763adda1f4308f49c760a9f5d4d736f76e8b69a74125",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-ed925645c931dacbad7b7a81ffeac088cd72acd3d2bb575521a3e24e7eb420b7",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-eeb3f159ef903694ac797d005aa6c2c0eb3ff782a88cb9de79631dbfcafde8b9",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-356caed83c1204477830b5a89ee5cb884a65f90cd929d4a67a3abb552f49dd15",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-efdcfa5347fc1646dd8ab5053b8c836e36075156f3a35052e859142abc2e03e8",
+      "kind": "source_file",
+      "line": null,
+      "location_reason": "line_not_supplied",
+      "location_status": "file_only",
+      "observation_id": null,
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-06",
+      "file": "services/api/main.ts",
+      "id": "evidence-f050b03061a3b4672d8297ee0a2f7f30f97de728688725ac9efbfa5a7ba5e541",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-f2d7136270deed1657ccafef9b7895cd63556e34ebe33f78687b882a866d2a1b",
+      "kind": "route",
+      "line": 41,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-a63792b3b1d4b63d5dde4374a9b489687da3644fab790e89789a4f5b133439f3",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": "fixture-http"
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-f44e683b98c305e81b2ea56f2896f9a270d8e985d73bd920d6573d04ec101782",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-ba2addab18a9ad549057ae2a81b3b7de6505dd10459fb675c90e517f4bc1ee8a",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-13",
+      "file": "services/api/main.ts",
+      "id": "evidence-f72c6aded6e882ff0604f21c2458dca88921c94e33c51558ee9072348ed9af24",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "repo-05",
+      "file": "services/api/main.ts",
+      "id": "evidence-f8c2cb8b9a0792bb9286f0d8a6e1bc5bf4dd1aa554c990fd0fb1d5e97c2926da",
+      "kind": "external_call",
+      "line": 12,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-4867d39e999fde77cc86d1aec9d11d64bbb9c3b676f64e69ef905245f0ccf337",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service-2",
+      "file": "services/api/main.ts",
+      "id": "evidence-fc4ce0aa0fbb7c40956cc3899529c63a4df37f30943098e6f5816e9fcb095741",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": null,
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "source_analyzer": null
+    },
+    {
+      "basis": "supplied_static_source_location",
+      "core_repo_id": "service",
+      "file": "services/api/main.ts",
+      "id": "evidence-ff39485681101aefbe1fd3e562620fb39dd2043b66aef44d989351985080a8cb",
+      "kind": "service",
+      "line": 3,
+      "location_reason": null,
+      "location_status": "known",
+      "observation_id": "obs-293a26b46ba304ec18bb5dd1e9e8595457572cd2a95728f4c9b7a2089ebf3a47",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "source_analyzer": null
+    }
+  ],
+  "kind": "fleet_architecture",
+  "limitations": [
+    "Child snapshots are independent; fleet capture is not a globally atomic snapshot.",
+    "Core service topology uses repository-local names and heuristic ownership; namespace, deployment and port identity are not established by these local nodes.",
+    "Cross-repository producer/consumer and shared-datastore identities are unanalysed: existing hints lack qualified endpoint, namespace and operation identity.",
+    "RPC, protobuf and OpenAPI connectivity is unanalysed; names and protocol declarations do not establish links.",
+    "Repository overview paths do not establish connected paths through individual services.",
+    "Static analysis does not establish runtime reachability or control enforcement."
+  ],
+  "nodes": [
+    {
+      "basis": "static_database_hint",
+      "evidence_refs": [
+        "evidence-0185f823742c28208ffc9b6c67b49196cd74ea9ce55693a3265ea729c1fec3b6",
+        "evidence-9f20196b8e16e3fcd7e761bd0c8877c914263c2ea86af6bd8eff0652a666b063"
+      ],
+      "id": "component-092ea6209b9780140c084514f47f001d36f2337ee25dd1f3dbda6b82c8df9bd7",
+      "kind": "datastore",
+      "label": "postgresql",
+      "parent_id": "component-a9df07d076ac102bb66d9c143c4321eb2fc5b296541878ce62bd38e2093bc3c8",
+      "qualified_identity": null,
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-365ec77fc6c3903cc16e5f08094b88942d417ef4ea4389e66e075659be5ebbbb",
+        "evidence-4e65a261ad21c44813ff003c0b7ca84691c6b09523bc28e07cf10970e71ca62c",
+        "evidence-521ac9d3948836ca638cf4c706191613bbf79f12b264ee169aee07d00fce8cc1"
+      ],
+      "id": "component-0941def382c402517e57c64ba5c049132a9eb175eca87a44646cbfcc889e69b9",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "repo_id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-00b1563116f194a46035d45dd4be479a1e7feb75782ce2059ac2b888f9b356b4"
+      ],
+      "id": "component-104bc5ef335a9fe6b85268bb518806f30277871bf84f7a1a6f20f7c1217b50a0",
+      "kind": "component",
+      "label": "kafka:events",
+      "ownership": "unknown",
+      "parent_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-0fb5d680f069e7e7f1fbe0a64fd26630e99bb842d539aa9dcce9ecf165a55c1b",
+        "evidence-11317b9598e3878ad458047836e6455c300b9c73fda4435250365e1acb220118",
+        "evidence-ff39485681101aefbe1fd3e562620fb39dd2043b66aef44d989351985080a8cb"
+      ],
+      "id": "component-16bf2f201307aa5899118278ee1a41b5ce7cfdce699882c59f6d2268df0af5d2",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-efdcfa5347fc1646dd8ab5053b8c836e36075156f3a35052e859142abc2e03e8"
+      ],
+      "id": "component-45365bf405aba5ca122d033f68080b66290061d30c1fe70e0a9493907f4cf436",
+      "kind": "component",
+      "label": "repo-06",
+      "ownership": "unknown",
+      "parent_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-00a6efb87121d48a58bff25b3fb48b186701546e862dcd1aa86c755f8d1c50ae",
+        "evidence-734ed207be649fe9fc7286ded15482390a23893cb1ade939c969f7eb991a5780",
+        "evidence-b10d846c9286937ef60dea35aa2a9ac68c5c867e6f0e2a0d52823565022d0d86"
+      ],
+      "id": "component-4933d397957c2e94ea07d708568690e58829b65cfef7f5aa01b2e7888df8f6ea",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "repo_id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-0b6fe9b52037087070ad7732d3647fa7fad02ef86279aa88720f06d9d0c8e61a",
+        "evidence-32a2a92b4d41ed4c9f54356f6fdce97fbf827877e438c125c6b61a4308cf7a6d",
+        "evidence-8ec025ad697a33e985c047cd1b447b66f073cb695f8d98035382c0d8ce54763d"
+      ],
+      "id": "component-54771168726dc2f7a6bc6288389ddbb948913fe16687c3489f02ca871158ba92",
+      "kind": "service",
+      "label": "worker",
+      "ownership": "modeled_local",
+      "parent_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-1825370028276f70d65f5bc4a5249599171153f5b284f0971cc34aca51f309e8",
+        "evidence-5bddf7db8351af1b51172b519f1e9a61d10e134f5a3424d588d60804b82858c7",
+        "evidence-fc4ce0aa0fbb7c40956cc3899529c63a4df37f30943098e6f5816e9fcb095741"
+      ],
+      "id": "component-6bf1fc297aa6ba10407179a1950745264823fa4ffd0ef9861de32ca3600f5ac9",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-11790462096c8ca105edbec27182ad54f17e28371bfc8c3980d2fab4f1c18510",
+        "evidence-496ab2c3bb6b1bbfb839cc8e0758f0ff00511e64ca838a04dd237b789ed5e103",
+        "evidence-87d6d46924cd6e07a409fe6f993fce1941cd87f64375225d26836d727ac0b752"
+      ],
+      "id": "component-6eb9ab6a2e766f8d7d6de47e51862abb8fcda67ec5719e65bccc8e2d82a9628c",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "repo_id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-04ebd2d9116f792c67882ac507fe284ec3e29d4817498f6bac4648e76c064eda",
+        "evidence-7a250f6a4d619afee9a8911c9081eaa24414c087f4f5ea6e40f8574d45d4c603",
+        "evidence-c4597bf2d574ba0cad51dc0ef6fb1be07a9591d573867aa19a4f31eb94b63cea"
+      ],
+      "id": "component-95504cdc561e33fca266f1c225421d4d521e84f8329bc07a57bcae7faf4f2841",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "repo_id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-14d1201efdfe3870ffc1917ef9270aa71abd23fa7c34232f64a271d69da6a5c3"
+      ],
+      "id": "component-975163e1d82954ed9fa914fa412cc185b26f1e6b19490ead6fba3cba0b80639f",
+      "kind": "component",
+      "label": "service",
+      "ownership": "unknown",
+      "parent_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "role": "service"
+    },
+    {
+      "basis": "static_database_hint",
+      "evidence_refs": [
+        "evidence-96d5e83186a0281537b18014e4d6d5d06ae73cadaf9fe312475e0da63758a8ca",
+        "evidence-a228c7a7e3b73dadc0b9dab042117bbacfde70928ab4630ef99b9166d869bee8"
+      ],
+      "id": "component-98406baf2302efef402616ae01bdd6d7d2661c2e28dacc9a02dddd9c1ddd2478",
+      "kind": "datastore",
+      "label": "postgresql",
+      "parent_id": "component-9c1edade26c26d27a90a725dc3b169135e1d71fc7698507fab3e594557f89db5",
+      "qualified_identity": null,
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-8ee46cc40908f14b9261b4591b94f6bd7b3fbbbb58e06361a92923dbb1b621f5",
+        "evidence-9c60419b2039c2699634ba9e8a71f8956c13db8f2d6ddea0ffb0245b838b9e88",
+        "evidence-f050b03061a3b4672d8297ee0a2f7f30f97de728688725ac9efbfa5a7ba5e541"
+      ],
+      "id": "component-9c1edade26c26d27a90a725dc3b169135e1d71fc7698507fab3e594557f89db5",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-0fc328d3bb7f549792c4d7e02760ac734e394c245746816203754c14ce38f661",
+        "evidence-2a1b5a1bfd7ae1d91f5111a851793c08c88721056ab687582780169633c6201e",
+        "evidence-8c9dd69d7f933939520933ce4e968077fd01827d95d3dfafe7a994a7350ccd67"
+      ],
+      "id": "component-a9df07d076ac102bb66d9c143c4321eb2fc5b296541878ce62bd38e2093bc3c8",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-0c2f3e7f25fda5b729ceae36b47d29aa571f72082200938898810cd589658897",
+        "evidence-e105b030f457bf662c5bd194c82989ba57fca30a4d1e54cc08fe3b9ebb64466b",
+        "evidence-f72c6aded6e882ff0604f21c2458dca88921c94e33c51558ee9072348ed9af24"
+      ],
+      "id": "component-abfebeb752a5212e1efcfe6cdf89ee4cf60dbe2cde87b5fa5276240fea322811",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "repo_id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-46662cf567db18a02aa355a2a3a0598171d3cb5588b6435dfd9a48de1aa1ef58",
+        "evidence-8b3b033d3875d15cc233572c73db72ac83ed05614809a9212210b533de529fd6",
+        "evidence-bb2eefdcb665a3661585efc140d85d96bab24a16716871caed90599699526a7b"
+      ],
+      "id": "component-b6b84621a65a2d443da3da5ebc1d62d3d17d42f967bf941e70f17f246b242245",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "repo_id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-de33b93d5583f243c3f6818cb753f1c400fd5268f43b94a08d3627d2aab28462"
+      ],
+      "id": "component-bfdeaddba821330cffc99eb784b449e717076fdd1f1428ecf40d8c2269c6670c",
+      "kind": "component",
+      "label": "kafka:events",
+      "ownership": "unknown",
+      "parent_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-1ffe92c78c6d7336b8e1b81095b4395b3f3174e5545efcfc93dfdc83194500cc",
+        "evidence-83abaea69dbd0018d485c2d7ba61be75b189dfb983dda750405171aa8539862a",
+        "evidence-91efb3ee90acf7b480b4d3f1a33df0a94731f1e564964e6dfb708c3006ef6d9d"
+      ],
+      "id": "component-c7830bef2ede6d5caaafb9d6bc9671ab71d9f1d635f3b9abdfcaf3a854117fb6",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "repo_id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-5d375394e768b115f349a2758a7692281016d568d7c30e75a041d49773a0e771"
+      ],
+      "id": "component-c79d46185457e0eb5a57387f191e6f2160225e0a78b41d798ea77559e9af6787",
+      "kind": "component",
+      "label": "service-2",
+      "ownership": "unknown",
+      "parent_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-d48a3604e5b8629e0e0786384f8cb43b8bc70cdab5367cbf47714d0c99a949de",
+        "evidence-e0e14d61df18ef4105310b062485c642393f368fec8d969fde4bdc04e68cb89c",
+        "evidence-e878c1a9ddb2198304e1763adda1f4308f49c760a9f5d4d736f76e8b69a74125"
+      ],
+      "id": "component-d4c1c0181b6397de05a5ac7884f0d0ff9cc968a59d184b0c2bc653e76ace5420",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "repo_id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-801d00b02b3b395ef8adc3bdf62a72bcb770888eb07dea602d1da2e775976fe3",
+        "evidence-9e284882f6b0a8737fcf8028195536c66aa448ef479bfb136df33e2c2c00f4e1",
+        "evidence-c059feff99f85f8ad731f638cfd90486e7b2037e47aadb94c23308890c2886c3"
+      ],
+      "id": "component-d6051fce3076fb53c883829d880c8d1b10b5dc412dafc863ac47050aa4ac9b7a",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "repo_id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-75790b429db4e2d8ae1a82ff0a429a7e780406ab64e798eef7d7cd335a918549",
+        "evidence-7c2faf995c3e9038bebd337ef40633b6bfb240b2cdff6b8b2f64b7e35fe75043",
+        "evidence-e1dd64940aceb92e3f8781376b1d3d813d7465527ba1eefcb95f52a8f7c1c1f6"
+      ],
+      "id": "component-f516e8e97d45abf13b360ad93d38d97bb68dbedccf24c699c7fd08456f51095c",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "role": "service"
+    },
+    {
+      "basis": "core_service_topology",
+      "evidence_refs": [
+        "evidence-2921deb0b39fc56a65d59094c87c0f426fe3a41a71f4c8d60d6051613d8c861f",
+        "evidence-2e2e47daeff16e82d82c73b2eaa69bce8620aa5a17033563c213f3df71dea081",
+        "evidence-7516189982b928417bb9da5a62384c1f718f060604e18eaca0fd97824fe3030a"
+      ],
+      "id": "component-fa2bcbe4e0806af770123c206087e148e6a1726fe23325ac6f3b3eb988019911",
+      "kind": "service",
+      "label": "api",
+      "ownership": "modeled_local",
+      "parent_id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "repo_id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "role": "service"
+    },
+    {
+      "authority": "edge.example.internal",
+      "basis": "core_declared_proxy",
+      "component_role": "proxy",
+      "evidence_refs": [
+        "evidence-567d590ac7406ba48b3edd8fedaab2473ed7bcd5fb7e9efbd8abcaea3f02bff9",
+        "evidence-753241e979512d43ee7fa019e5d942f699b34937300283f0019216d802966cd3",
+        "evidence-b5ecf530e2bed4a6fe10db0c87703865ebd41f74f4850bb91cfad745c17a0f7a",
+        "evidence-ddc7a2470994ec74ce54c2f79d5f18750cfd4b825a9f6bc20c7e2f1d8d8f5c64",
+        "evidence-ed925645c931dacbad7b7a81ffeac088cd72acd3d2bb575521a3e24e7eb420b7",
+        "evidence-f8c2cb8b9a0792bb9286f0d8a6e1bc5bf4dd1aa554c990fd0fb1d5e97c2926da"
+      ],
+      "id": "proxy-a65214ee8faa334852f333cd9dba2947def253c0d3909a35b54151e45b2e013f",
+      "kind": "external",
+      "label": "edge.example.internal",
+      "parent_id": null,
+      "repo_id": null,
+      "scheme": "https"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-027ec735d8fd6123c933cab914e585cf4b0e8e972b6146ede7902f0032124493",
+      "kind": "repository",
+      "label": "repo-03",
+      "parent_id": null,
+      "repo_id": "repository-027ec735d8fd6123c933cab914e585cf4b0e8e972b6146ede7902f0032124493",
+      "requested_id": "00000000-0000-0000-0000-000000000003",
+      "root": "c:/fleet/repo-03",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "kind": "repository",
+      "label": "service",
+      "parent_id": null,
+      "repo_id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "requested_id": "00000000-0000-0000-0000-000000000000",
+      "root": "c:/team-a/service",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "kind": "repository",
+      "label": "repo-08",
+      "parent_id": null,
+      "repo_id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "requested_id": "00000000-0000-0000-0000-000000000008",
+      "root": "c:/fleet/repo-08",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "kind": "repository",
+      "label": "repo-07",
+      "parent_id": null,
+      "repo_id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "requested_id": "00000000-0000-0000-0000-000000000007",
+      "root": "c:/fleet/repo-07",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "kind": "repository",
+      "label": "repo-05",
+      "parent_id": null,
+      "repo_id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "requested_id": "00000000-0000-0000-0000-000000000005",
+      "root": "c:/fleet/repo-05",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "kind": "repository",
+      "label": "repo-04",
+      "parent_id": null,
+      "repo_id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "requested_id": "00000000-0000-0000-0000-000000000004",
+      "root": "c:/fleet/repo-04",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "kind": "repository",
+      "label": "repo-11",
+      "parent_id": null,
+      "repo_id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "requested_id": "00000000-0000-0000-0000-000000000011",
+      "root": "c:/fleet/repo-11",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "kind": "repository",
+      "label": "repo-14",
+      "parent_id": null,
+      "repo_id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "requested_id": "00000000-0000-0000-0000-000000000014",
+      "root": "c:/fleet/repo-14",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "kind": "repository",
+      "label": "repo-15",
+      "parent_id": null,
+      "repo_id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "requested_id": "00000000-0000-0000-0000-000000000015",
+      "root": "c:/fleet/repo-15",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "kind": "repository",
+      "label": "repo-12",
+      "parent_id": null,
+      "repo_id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "requested_id": "00000000-0000-0000-0000-000000000012",
+      "root": "c:/fleet/repo-12",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "kind": "repository",
+      "label": "repo-13",
+      "parent_id": null,
+      "repo_id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "requested_id": "00000000-0000-0000-0000-000000000013",
+      "root": "c:/fleet/repo-13",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "kind": "repository",
+      "label": "repo-02",
+      "parent_id": null,
+      "repo_id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "requested_id": "00000000-0000-0000-0000-000000000002",
+      "root": "c:/fleet/repo-02",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "kind": "repository",
+      "label": "service-2",
+      "parent_id": null,
+      "repo_id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "requested_id": "00000000-0000-0000-0000-000000000001",
+      "root": "c:/team-b/service",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "kind": "repository",
+      "label": "repo-06",
+      "parent_id": null,
+      "repo_id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "requested_id": "00000000-0000-0000-0000-000000000006",
+      "root": "c:/fleet/repo-06",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "kind": "repository",
+      "label": "repo-09",
+      "parent_id": null,
+      "repo_id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "requested_id": "00000000-0000-0000-0000-000000000009",
+      "root": "c:/fleet/repo-09",
+      "status": "completed"
+    },
+    {
+      "basis": "requested_root",
+      "evidence_refs": [],
+      "id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "kind": "repository",
+      "label": "repo-10",
+      "parent_id": null,
+      "repo_id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "requested_id": "00000000-0000-0000-0000-000000000010",
+      "root": "c:/fleet/repo-10",
+      "status": "completed"
+    }
+  ],
+  "repositories": [
+    {
+      "generation": 7,
+      "id": "repository-027ec735d8fd6123c933cab914e585cf4b0e8e972b6146ede7902f0032124493",
+      "label": "repo-03",
+      "repo_id": "repo-03",
+      "report_dir": "C:/reports/repo-03",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000003",
+      "root": "c:/fleet/repo-03",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-0cbd3dd065fd3c258e9bdeb8d59906667fc8485e2753142df84887c01a7cf9d5",
+      "label": "service",
+      "repo_id": "service",
+      "report_dir": "C:/reports/service",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000000",
+      "root": "c:/team-a/service",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-1448211de69d58e15cb8683f4fea7155f7a7ebcb8d967edd935b23d8d962060b",
+      "label": "repo-08",
+      "repo_id": "repo-08",
+      "report_dir": "C:/reports/repo-08",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000008",
+      "root": "c:/fleet/repo-08",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-15effa07c00c356da84e247fc3e3115f7ac152203b957068f36d12b04079330f",
+      "label": "repo-07",
+      "repo_id": "repo-07",
+      "report_dir": "C:/reports/repo-07",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000007",
+      "root": "c:/fleet/repo-07",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-23eaf871820bd687b9956c844f4e602147d314263bbe849cbf757dcd613ac426",
+      "label": "repo-05",
+      "repo_id": "repo-05",
+      "report_dir": "C:/reports/repo-05",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000005",
+      "root": "c:/fleet/repo-05",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-417d61d55d9a763ae5b206cf9d68d89f1e8bc552ff1a3a4cdde574e96b6c135d",
+      "label": "repo-04",
+      "repo_id": "repo-04",
+      "report_dir": "C:/reports/repo-04",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000004",
+      "root": "c:/fleet/repo-04",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-650f322f446171b0119aaf18a4c57179c3057c5e7cfd3e87d30e9e302f07e4a3",
+      "label": "repo-11",
+      "repo_id": "repo-11",
+      "report_dir": "C:/reports/repo-11",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000011",
+      "root": "c:/fleet/repo-11",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-79413f0665e2e26d3c73ece348b4b35cd60627bd177412221467adad1572556c",
+      "label": "repo-14",
+      "repo_id": "repo-14",
+      "report_dir": "C:/reports/repo-14",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000014",
+      "root": "c:/fleet/repo-14",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-94f1d4cde245d699e399940e97d30fd2e42fe6eedeb1c6101e0fdf6146fcb128",
+      "label": "repo-15",
+      "repo_id": "repo-15",
+      "report_dir": "C:/reports/repo-15",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000015",
+      "root": "c:/fleet/repo-15",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-a8d9525ed844156501f708cc4fa31640f9f315e340eb59329824c151f510b6a7",
+      "label": "repo-12",
+      "repo_id": "repo-12",
+      "report_dir": "C:/reports/repo-12",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000012",
+      "root": "c:/fleet/repo-12",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-b0611c98594b0cd85ba612df9bba56b53919d6494aaf7ce4e666f5cb911e70cf",
+      "label": "repo-13",
+      "repo_id": "repo-13",
+      "report_dir": "C:/reports/repo-13",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000013",
+      "root": "c:/fleet/repo-13",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-b813e56806cb9229b6a438b75803b194e7b993d2984316bc27559e5ec0e653a1",
+      "label": "repo-02",
+      "repo_id": "repo-02",
+      "report_dir": "C:/reports/repo-02",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000002",
+      "root": "c:/fleet/repo-02",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-c1e32b7b419dd9108c73456d21f643440b810b5d09829ae755acef8ea8e043c7",
+      "label": "service-2",
+      "repo_id": "service-2",
+      "report_dir": "C:/reports/service-2",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000001",
+      "root": "c:/team-b/service",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-dce347e32eca7c9170ebcc6a9fb34ca89116ca09b82e603500edac19c93a2bee",
+      "label": "repo-06",
+      "repo_id": "repo-06",
+      "report_dir": "C:/reports/repo-06",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000006",
+      "root": "c:/fleet/repo-06",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-e94ef8756fb8f36c44bd9eacd905a283c57b07b473c2ed100944af5b2eeb9032",
+      "label": "repo-09",
+      "repo_id": "repo-09",
+      "report_dir": "C:/reports/repo-09",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000009",
+      "root": "c:/fleet/repo-09",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    },
+    {
+      "generation": 7,
+      "id": "repository-f143cb9bf9a29c1581468f42d5ef23b01af57867f15ea691ead403e4e2837dc0",
+      "label": "repo-10",
+      "repo_id": "repo-10",
+      "report_dir": "C:/reports/repo-10",
+      "report_hash": null,
+      "requested_id": "00000000-0000-0000-0000-000000000010",
+      "root": "c:/fleet/repo-10",
+      "run_id": null,
+      "snapshot_available": true,
+      "snapshot_id": null,
+      "status": "completed"
+    }
+  ],
+  "schema_version": "1.0"
+}

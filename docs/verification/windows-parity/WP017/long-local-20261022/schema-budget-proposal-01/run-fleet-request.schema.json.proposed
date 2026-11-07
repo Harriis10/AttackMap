@@ -1,0 +1,369 @@
+{
+  "$defs": {
+    "FleetRepository": {
+      "additionalProperties": false,
+      "properties": {
+        "repository_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Repository Id",
+          "type": "string"
+        },
+        "repository_path": {
+          "maxLength": 32767,
+          "minLength": 1,
+          "title": "Repository Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository_id",
+        "repository_path"
+      ],
+      "title": "FleetRepository",
+      "type": "object"
+    },
+    "ProviderOptionsV13": {
+      "additionalProperties": false,
+      "description": "Additive AI controls; the legacy provider payload and defaults stay unchanged.",
+      "properties": {
+        "enable_ai": {
+          "default": false,
+          "title": "Enable Ai",
+          "type": "boolean"
+        },
+        "provider": {
+          "default": "openai",
+          "enum": [
+            "openai",
+            "claude"
+          ],
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "http://127.0.0.1:1234/v1",
+          "title": "Endpoint"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "cyberstag-security-26b-a4b-v1",
+          "title": "Model"
+        },
+        "max_calls": {
+          "default": 8,
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Max Calls",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 600,
+          "maximum": 7200,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        },
+        "output_token_limit": {
+          "default": 32000,
+          "maximum": 256000,
+          "minimum": 1,
+          "title": "Output Token Limit",
+          "type": "integer"
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "enum": [
+                "none",
+                "review",
+                "hunt",
+                "hunt_verify",
+                "remediate",
+                "triage"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mode"
+        },
+        "jury_votes": {
+          "anyOf": [
+            {
+              "maximum": 7,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Jury Votes"
+        },
+        "effort": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "xhigh",
+                "max"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effort"
+        },
+        "speed": {
+          "default": "standard",
+          "enum": [
+            "standard",
+            "fast"
+          ],
+          "title": "Speed",
+          "type": "string"
+        },
+        "backend": {
+          "default": "api",
+          "enum": [
+            "api",
+            "cli"
+          ],
+          "title": "Backend",
+          "type": "string"
+        }
+      },
+      "title": "ProviderOptionsV13",
+      "type": "object"
+    },
+    "ScanOptionsV13": {
+      "description": "Schema 1.3 adds only provider controls with existing service mappings.",
+      "properties": {
+        "recall": {
+          "default": false,
+          "title": "Recall",
+          "type": "boolean"
+        },
+        "strict_analyzers": {
+          "default": false,
+          "title": "Strict Analyzers",
+          "type": "boolean"
+        },
+        "no_suppress": {
+          "default": false,
+          "title": "No Suppress",
+          "type": "boolean"
+        },
+        "cve": {
+          "default": false,
+          "title": "Cve",
+          "type": "boolean"
+        },
+        "secrets_history": {
+          "default": 0,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Secrets History",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 600,
+          "maximum": 86400,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        },
+        "provider": {
+          "$ref": "#/$defs/ProviderOptionsV13"
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Absolute local baseline report file.",
+          "network_impact": "none",
+          "supported": true,
+          "title": "Baseline",
+          "unit": "absolute_file_path"
+        },
+        "suppress_file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Absolute local suppression file.",
+          "network_impact": "none",
+          "supported": true,
+          "title": "Suppress File",
+          "unit": "absolute_file_path"
+        },
+        "fail_on_new_high": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Fail On New High",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "fail_on_new_suppression": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Fail On New Suppression",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "strict_suppressions": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Strict Suppressions",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "isolated_analyzers": {
+          "default": false,
+          "network_impact": "none",
+          "supported": true,
+          "title": "Isolated Analyzers",
+          "type": "boolean",
+          "unit": "boolean"
+        },
+        "time_budget_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Soft deterministic between-stage ceiling; must be below the hard supervisor timeout.",
+          "network_impact": "none",
+          "scope": "deterministic_between_stages",
+          "supported": true,
+          "title": "Time Budget Seconds",
+          "unit": "seconds"
+        }
+      },
+      "title": "ScanOptionsV13",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.4",
+      "default": "1.4",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "repository_id": {
+      "minLength": 1,
+      "title": "Repository Id",
+      "type": "string"
+    },
+    "generation": {
+      "minimum": 1,
+      "title": "Generation",
+      "type": "integer"
+    },
+    "revision": {
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "fleet_request",
+      "default": "fleet_request",
+      "title": "Kind",
+      "type": "string"
+    },
+    "repositories": {
+      "items": {
+        "$ref": "#/$defs/FleetRepository"
+      },
+      "maxItems": 16,
+      "minItems": 2,
+      "title": "Repositories",
+      "type": "array"
+    },
+    "output_path": {
+      "minLength": 1,
+      "title": "Output Path",
+      "type": "string"
+    },
+    "modules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Modules",
+      "type": "array"
+    },
+    "max_workers": {
+      "default": 1,
+      "maximum": 4,
+      "minimum": 1,
+      "title": "Max Workers",
+      "type": "integer"
+    },
+    "options": {
+      "$ref": "#/$defs/ScanOptionsV13"
+    }
+  },
+  "required": [
+    "run_id",
+    "repository_id",
+    "generation",
+    "revision",
+    "repositories",
+    "output_path"
+  ],
+  "title": "FleetRunRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

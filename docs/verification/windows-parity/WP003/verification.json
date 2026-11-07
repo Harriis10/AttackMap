@@ -1,0 +1,47 @@
+{
+  "task": "WP003",
+  "status": "focused_verification_passed",
+  "changed_code": [
+    "src/attackmap/desktop_capabilities.py",
+    "src/attackmap/desktop_actions.py",
+    "src/attackmap/desktop_worker.py",
+    "src/attackmap/cli.py",
+    "tests/test_desktop_capabilities.py"
+  ],
+  "worker_lease": "Parent authorized only the raw validator call before model parsing/repository checks/dispatch.",
+  "source_capabilities_schema": 1,
+  "supported_run_schemas": [
+    "1.0",
+    "1.1"
+  ],
+  "sandbox_test_command": ".venv/Scripts/python.exe -m pytest tests/test_desktop_capabilities.py tests/test_capabilities.py tests/test_desktop_actions.py -q --basetemp=docs/verification/windows-parity/WP003/pytest-tmp-retry -p no:cacheprovider --tb=short",
+  "sandbox_exit_code": 1,
+  "sandbox_failure": "PermissionError [WinError 5] accessing pytest temporary directory and final cleanup; see pytest-retry.log",
+  "provider_calls": 0,
+  "package_rebuilds": 0,
+  "limitations": [
+    "Frozen transport branches are simulated under tests; retained frozen packages predate this patch.",
+    "No native UI integration, installed scan, live AI or signed-release acceptance is claimed.",
+    "Unknown envelope metadata remains additive; unsupported explicit scan/provider options and reserved feature fields fail."
+  ],
+  "first_approved_run": {
+    "passed": 71,
+    "failed": 16,
+    "cause": "New test expected exit 1; existing invalid-request contract returns exit 2. Product semantics preserved; assertions corrected."
+  },
+  "approved_test_command": ".venv/Scripts/python.exe -m pytest tests/test_desktop_capabilities.py tests/test_capabilities.py tests/test_desktop_actions.py tests/test_desktop_worker.py tests/test_run_contract.py -q --basetemp=docs/verification/windows-parity/WP003/pytest-tmp-approved-fixed -p no:cacheprovider --tb=short",
+  "approved_exit_code": 0,
+  "approved_result": {
+    "passed": 87,
+    "failed": 0,
+    "duration_seconds": 245.42,
+    "raw_log": "pytest-final.log"
+  },
+  "code_sha256": {
+    "src/attackmap/desktop_capabilities.py": "4aaeb83b5d12c1f850df055054aa013c418634c7b8114c4f77fd8a9c34dda38a",
+    "src/attackmap/desktop_actions.py": "da64ee2718245ec493b5d104853d68292b8008090367cb843fa2fb59d3e93be7",
+    "src/attackmap/desktop_worker.py": "f6dd0ba5cc8aedfcc3c8965d9df4804a1acb1c6d701f3fba764d13ba2f1bd73d",
+    "src/attackmap/cli.py": "bdfac9c30a3d4f574221d1ddd1524f26e0c74b7b634701df1f2730b602699c72",
+    "tests/test_desktop_capabilities.py": "92f21321987c98f51dc2b046be7dcd2e2791062c6e2679d54ee74e6b67ced1ce"
+  }
+}

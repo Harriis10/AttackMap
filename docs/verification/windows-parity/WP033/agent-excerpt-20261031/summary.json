@@ -1,0 +1,67 @@
+{
+  "scope": "WP033 source excerpt raw-snapshot binding correction only",
+  "created_utc": "2026-10-31T08:42:15.998376+00:00",
+  "base_commit": "4ea5e49ade229fc0432d68ce0f7e99bcf87b545d",
+  "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+  "interpreter": "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "source_sha256": {
+    "src/attackmap/citations.py": "b43a001f8edaef64ceb2eef84bb720fc213f8d2b9bddfaef03710ec3d27e8a08",
+    "src/attackmap/artifact_manifest.py": "08d85cb45a225087cece0282e9f29e153b8cbb50e2d60d73a6d9ae79bef9a314",
+    "docs/verification/windows-parity/WP033/agent-excerpt-20261031/test_excerpt_snapshot.py": "2700b620f9953cc8009d78bcffdf4ce363d5f591dd63228f0255e84203175538",
+    "docs/verification/windows-parity/WP033/agent-excerpt-20261031/README.md": "cc3f15898574b87b3a188892ec2eb47b186c85adbc672b7602f4dd938e4e9091"
+  },
+  "product_patch": {
+    "path": "artifacts/wp033-excerpt-20261031/product-change.patch",
+    "sha256": "e476799c08371822c88a0cba3bd03392d7d544c9f0ac39688dc44febff7f2c14"
+  },
+  "runs": [
+    {
+      "path": "artifacts/wp033-excerpt-20261031/before-regression-elevated.xml",
+      "sha256": "d6c5f67b8585488875afa6b9da983a2ee5d67e720e85eeddf53094d204c0ec7b",
+      "tests": 8,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0,
+      "seconds_junit": 0.74
+    },
+    {
+      "path": "artifacts/wp033-excerpt-20261031/focused-after.xml",
+      "sha256": "d6cae7cfad368d62cce98d1f1e37ed67ce3cb27d7186714b18fac0d69065cdf1",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds_junit": 0.663
+    },
+    {
+      "path": "artifacts/wp033-excerpt-20261031/focused-regression.xml",
+      "sha256": "0143e270d69137f417b0dcbca829b8d07d50020f8250d3d4db822fb0bea8bddc",
+      "tests": 194,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds_junit": 40.632
+    },
+    {
+      "path": "artifacts/wp033-excerpt-20261031/publication-citation-consumers.xml",
+      "sha256": "4a0317072442b904843809e7760bc20ea9ff6421c35177768892db799dd44745",
+      "tests": 97,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds_junit": 29.706
+    }
+  ],
+  "unique_after_fix_tests": 291,
+  "overlap_note": "8 focused-after tests are included in 194-test focused-regression; 97 consumer tests are separate.",
+  "snapshot_capture": "active exact-root pin reads original captured raw bytes, no live fallback",
+  "publication_gate": "snapshot id granted only for path/raw-SHA match; unbound excerpts mark incomplete/unverified",
+  "known_environment_attempts": "First ordinary run: 8 tmpdir setup errors. Second ordinary run: ACL cleanup error. Excluded from functional evidence; completed runs used require_escalated.",
+  "diff_check_passed": true,
+  "provider_calls": 0,
+  "native_or_gui_tests": 0,
+  "wp033_complete": false,
+  "c34_performance_accepted": false,
+  "package_or_release_accepted": false
+}

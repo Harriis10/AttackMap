@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="4" time="11.228" timestamp="2026-10-31T11:28:19.752970+01:00" hostname="corpsec"><testcase classname="tests.test_fleet_parallelism" name="test_cli_fleet_workers_spawns_parallel_subprocesses[False]" time="2.349" /><testcase classname="tests.test_fleet_parallelism" name="test_cli_fleet_workers_spawns_parallel_subprocesses[True]" time="1.859"><failure message="AssertionError: assert 0 == 1&#10; +  where 0 = &lt;built-in method count of list object at 0x000001E119E579C0&gt;('--isolated-analyzers')&#10; +    where &lt;built-in method count of list object at 0x000001E119E579C0&gt; = ['C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe', '-m', 'attackmap', 'analyze', 'C:\\Projects\\INPRO...ap\\artifacts\\wp035-cli-isolation-20261031\\baseline-final-temp\\test_cli_fleet_workers_spawns_1\\a', '--output', ...].count&#10; +  and   1 = int(True)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E118A6CC30&gt;
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/artifacts/wp035-cli-isolation-20261031/baseline-final-temp/test_cli_fleet_workers_spawns_1')
+isolated = True
+
+    @pytest.mark.parametrize("isolated", [False, True])
+    def test_cli_fleet_workers_spawns_parallel_subprocesses(
+        monkeypatch: pytest.MonkeyPatch, tmp_path: Path, isolated: bool
+    ) -&gt; None:
+        """Ordinary parallel CLI workers preserve the requested isolation policy."""
+        from typer.testing import CliRunner
+    
+        from attackmap.cli import app
+    
+        a, b = tmp_path / "a", tmp_path / "b"
+        a.mkdir()
+        b.mkdir()
+        commands: list[list[str]] = []
+    
+        def fake_run(
+            argv: list[str], **kwargs: Any
+        ) -&gt; subprocess.CompletedProcess[str]:
+            commands.append(argv)
+            out = Path(argv[argv.index("--output") + 1])
+            out.mkdir(parents=True, exist_ok=True)
+            _write_worker_payload(argv)
+            return subprocess.CompletedProcess(args=argv, returncode=0, stdout="", stderr="")
+    
+        monkeypatch.setattr(scan_service, "_run_supervised_worker", fake_run)
+        result = CliRunner().invoke(
+            app,
+            [
+                "analyze",
+                str(a),
+                str(b),
+                "-o",
+                str(tmp_path / "out"),
+                "--fleet-workers",
+                "2",
+                "--format",
+                "json",
+                *(["--isolated-analyzers"] if isolated else []),
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        assert len(commands) == 2
+        for argv in commands:
+            assert "analyze" in argv
+&gt;           assert argv.count("--isolated-analyzers") == int(isolated)
+E           AssertionError: assert 0 == 1
+E            +  where 0 = &lt;built-in method count of list object at 0x000001E119E579C0&gt;('--isolated-analyzers')
+E            +    where &lt;built-in method count of list object at 0x000001E119E579C0&gt; = ['C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe', '-m', 'attackmap', 'analyze', 'C:\\Projects\\INPRO...ap\\artifacts\\wp035-cli-isolation-20261031\\baseline-final-temp\\test_cli_fleet_workers_spawns_1\\a', '--output', ...].count
+E            +  and   1 = int(True)
+
+tests\test_fleet_parallelism.py:463: AssertionError</failure></testcase><testcase classname="tests.test_fleet_parallelism" name="test_cli_serial_fleet_preserves_isolation_policy[False]" time="2.014" /><testcase classname="tests.test_fleet_parallelism" name="test_cli_serial_fleet_preserves_isolation_policy[True]" time="1.871" /></testsuite></testsuites>

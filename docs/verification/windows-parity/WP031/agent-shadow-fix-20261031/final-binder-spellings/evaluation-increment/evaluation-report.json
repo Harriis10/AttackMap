@@ -1,0 +1,545 @@
+{
+  "corpus": {
+    "name": "attackmap-local-increment-20261031",
+    "version": "0.1.0",
+    "schema_version": "1.0.0",
+    "repositories": 3,
+    "repository_names": [
+      "attackmap-clean-catalog",
+      "dvwa-upstream-slice",
+      "juice-shop-upstream-slice"
+    ],
+    "positive_cases": 16,
+    "negative_cases": 10,
+    "clean_cases": 1,
+    "line_window": 4,
+    "notes": "Labels and membership frozen from source before the first evaluation of this increment. Original v0.2.0 corpus and its split are unchanged. Source slices preserve exact Git objects but omit app dependencies and are not runnable full upstream repositories. All labels await independent human review; no mature-family claim."
+  },
+  "matching_unit": "expectation unit: family + repository-relative file + exact route/method (or line within line_window when the finding cites no route); findings deduplicated by stable finding_id before counting",
+  "split": {
+    "seed": 20261011,
+    "holdout_fraction": 0.5,
+    "tuning_repos": [
+      "dvwa-upstream-slice"
+    ],
+    "holdout_repos": [
+      "attackmap-clean-catalog",
+      "juice-shop-upstream-slice"
+    ]
+  },
+  "c27_targets": {
+    "repositories": 30,
+    "positive_cases": 300,
+    "negative_cases": 300,
+    "clean_repositories": 10,
+    "per_family_positive": 30,
+    "per_family_negative": 30
+  },
+  "c27_gap": {
+    "repositories_short": 27,
+    "positive_cases_short": 284,
+    "negative_cases_short": 290,
+    "clean_repositories_short": 9
+  },
+  "sides": {
+    "tuning": {
+      "bola": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "precision_ci_95": null,
+        "recall_ci_95": null,
+        "positives": 0,
+        "negatives": 0,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [],
+        "violated_cases": []
+      },
+      "crypto": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": null,
+        "recall": 0.0,
+        "precision_ci_95": null,
+        "recall_ci_95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "positives": 1,
+        "negatives": 0,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [
+          "dvwa-static-token-key"
+        ],
+        "violated_cases": []
+      },
+      "injection": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 9,
+        "precision": null,
+        "recall": 0.0,
+        "precision_ci_95": null,
+        "recall_ci_95": [
+          0.0,
+          0.2991450484195441
+        ],
+        "positives": 9,
+        "negatives": 4,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [
+          "dvwa-sqli-low",
+          "dvwa-sqli-medium",
+          "dvwa-blind-sqli-low",
+          "dvwa-blind-sqli-medium",
+          "dvwa-blind-sqli-high",
+          "dvwa-exec-low",
+          "dvwa-redirect-low",
+          "dvwa-redirect-medium",
+          "dvwa-redirect-high"
+        ],
+        "violated_cases": []
+      },
+      "unauth_state_change": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "precision_ci_95": null,
+        "recall_ci_95": null,
+        "positives": 0,
+        "negatives": 0,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [],
+        "violated_cases": []
+      },
+      "webhook_exposure": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "precision_ci_95": null,
+        "recall_ci_95": null,
+        "positives": 0,
+        "negatives": 0,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [],
+        "violated_cases": []
+      }
+    },
+    "holdout": {
+      "bola": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": null,
+        "recall": 0.0,
+        "precision_ci_95": null,
+        "recall_ci_95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "positives": 1,
+        "negatives": 1,
+        "clean_repos": 1,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [
+          "juice-basket-ownership"
+        ],
+        "violated_cases": []
+      },
+      "crypto": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "precision": null,
+        "recall": 0.0,
+        "precision_ci_95": null,
+        "recall_ci_95": [
+          0.0,
+          0.6576197724933469
+        ],
+        "positives": 2,
+        "negatives": 0,
+        "clean_repos": 1,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [
+          "juice-password-md5",
+          "juice-static-jwt-key"
+        ],
+        "violated_cases": []
+      },
+      "injection": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "precision": null,
+        "recall": 0.0,
+        "precision_ci_95": null,
+        "recall_ci_95": [
+          5.551115123125783e-17,
+          0.5614970317550454
+        ],
+        "positives": 3,
+        "negatives": 3,
+        "clean_repos": 1,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [
+          "juice-search-sqli",
+          "juice-login-sqli",
+          "juice-redirect-substring"
+        ],
+        "violated_cases": []
+      },
+      "unauth_state_change": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "precision_ci_95": null,
+        "recall_ci_95": null,
+        "positives": 0,
+        "negatives": 2,
+        "clean_repos": 1,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [],
+        "violated_cases": []
+      },
+      "webhook_exposure": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "precision_ci_95": null,
+        "recall_ci_95": null,
+        "positives": 0,
+        "negatives": 0,
+        "clean_repos": 1,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [],
+        "violated_cases": []
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "dvwa-sqli-low",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-sqli-medium",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-sqli-impossible",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-sqli-constant-query",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-blind-sqli-low",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-blind-sqli-medium",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-blind-sqli-high",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-blind-sqli-impossible",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-exec-low",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-redirect-low",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-redirect-medium",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-redirect-high",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-redirect-impossible",
+      "repository": "dvwa-upstream-slice",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "dvwa-static-token-key",
+      "repository": "dvwa-upstream-slice",
+      "family": "crypto",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-search-sqli",
+      "repository": "juice-shop-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-login-sqli",
+      "repository": "juice-shop-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-redirect-substring",
+      "repository": "juice-shop-upstream-slice",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-basket-ownership",
+      "repository": "juice-shop-upstream-slice",
+      "family": "bola",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-search-fixed-query",
+      "repository": "juice-shop-upstream-slice",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-address-orm-query",
+      "repository": "juice-shop-upstream-slice",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-address-owner",
+      "repository": "juice-shop-upstream-slice",
+      "family": "bola",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-address-delete-auth",
+      "repository": "juice-shop-upstream-slice",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-password-update-orm",
+      "repository": "juice-shop-upstream-slice",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-password-update-auth",
+      "repository": "juice-shop-upstream-slice",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-password-md5",
+      "repository": "juice-shop-upstream-slice",
+      "family": "crypto",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "juice-static-jwt-key",
+      "repository": "juice-shop-upstream-slice",
+      "family": "crypto",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "clean-public-catalog",
+      "repository": "attackmap-clean-catalog",
+      "family": null,
+      "expectation": "clean",
+      "side": "holdout",
+      "matched": true,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    }
+  ]
+}

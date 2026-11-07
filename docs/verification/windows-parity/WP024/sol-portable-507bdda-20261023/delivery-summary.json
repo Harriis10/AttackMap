@@ -1,0 +1,84 @@
+{
+  "source_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "tracked_worktree_clean": true,
+  "full_portable": true,
+  "profile": "RequiredBundled",
+  "architecture": "win-x64",
+  "archive": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\portable-507bdda-20261023-packages\\dev-20261023015633-d159007f.zip",
+    "sha256": "d0b2b2d7e85d5721b728e58469f8bb53480cc3babf5a4e33eb954a457c51037e"
+  },
+  "archive_bytes": 119438169,
+  "archive_entries_match_verified_stage": 779,
+  "manifest": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\portable-507bdda-20261023-packages\\dev-20261023015633-d159007f\\package-manifest.json",
+    "sha256": "ef30d690255d8875759651c19b5fc124d22e06c90644360a410853f2fd4ee934"
+  },
+  "sbom": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-portable-507bdda-20261023\\package-evidence\\sbom\\release-sbom.json",
+    "sha256": "6bef15f55ae35bdc1ed9251973d27216cc0b4a1316fa6c35c7353c431e3f3a00"
+  },
+  "engine_reuse_provenance": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\sol-portable-507bdda-20261023\\engine-reuse-provenance.json",
+  "installation_and_native_scan_passed": true,
+  "generation": "1228c56adca44205bb9444925f1f6c21",
+  "artifacts_verified": 19,
+  "owned_processes": {
+    "native-build/process.json": {
+      "pid": 16580,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 51.247401500004344,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "package-evidence/process.json": {
+      "pid": 33360,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 33.14015530003235,
+      "timed_out": false,
+      "timeout_seconds": 900,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "package-evidence/sbom-command/process.json": {
+      "pid": 5456,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 4.5853671000222676,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "installed-native/installer/process.json": {
+      "pid": 31264,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 37.99456469999859,
+      "timed_out": false,
+      "timeout_seconds": 300,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "installed-native/native/process.json": {
+      "pid": 34320,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 69.61522099998547,
+      "timed_out": false,
+      "timeout_seconds": 1500,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    }
+  },
+  "signed_release": false,
+  "clean_host_acceptance": false,
+  "human_visual_accessibility_acceptance": false,
+  "all_five_modes_on_final_binary_accepted": false,
+  "prior_hunt_verify": "all four HTTP200 completed, partial because one jury abstention; harness failure retained",
+  "prior_triage": "scoped HTTP/artifact/export/native-exit PASS on precommit candidate",
+  "after_delivery": "No further tasks, model calls, GUI runs or delegation to be started, per user."
+}

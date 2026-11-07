@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+from .citations import matched_claim_terms
 from .models import AttackPath, AttackSurface, Finding, ScanResult
-from .security_overlay import build_security_overlay
+from .evidence import (
+    is_low_quality_source as _is_low_quality_source,
+    surface_evidence_class as _surface_evidence_class,
+    surface_evidence_counts as _evidence_class_counts,
+)
+from .security_overlay import SecurityOverlay, build_security_overlay
 
-SCHEMA_VERSION = "1.2.0"
-LOW_QUALITY_SEGMENTS = ("/tests/", "/__tests__/", "/fixtures/", "/mocks/", "/examples/")
+SCHEMA_VERSION = "1.5.0"  # Static evidence labels and explicit route ownership uncertainty (C03).
+# AM016/C14 added closed-set claim_support fields to weaknesses and
+# recommendations additively (1.5.0 consumers ignore unknown keys).
 
 
 def _severity_rank(value: str) -> int:
@@ -13,42 +20,6 @@ def _severity_rank(value: str) -> int:
 
 def _risk_rank(value: str) -> int:
     return {"high": 0, "medium": 1, "low": 2}.get(value, 3)
-
-
-def _is_low_quality_source(path_or_text: str) -> bool:
-    normalized = path_or_text.replace("\\", "/").lower()
-    return any(segment in f"/{normalized}/" for segment in LOW_QUALITY_SEGMENTS)
-
-
-def _is_protocol_derived_surface(surface: AttackSurface) -> bool:
-    file_lower = surface.file.lower()
-    route_lower = surface.route.lower()
-    return "lexicon" in file_lower or "/xrpc/" in route_lower or "atproto_" in " ".join(surface.auth_signals).lower()
-
-
-def _surface_evidence_class(surface: AttackSurface) -> str:
-    if _is_low_quality_source(surface.file):
-        return "low_quality"
-    if _is_protocol_derived_surface(surface):
-        return "inferred_protocol"
-    if surface.exposure == "public":
-        return "observed_runtime_public"
-    if surface.exposure == "internal":
-        return "observed_runtime_internal"
-    return "inferred"
-
-
-def _evidence_class_counts(surfaces: list[AttackSurface]) -> dict[str, int]:
-    counts = {
-        "observed_runtime_public": 0,
-        "observed_runtime_internal": 0,
-        "inferred_protocol": 0,
-        "inferred": 0,
-        "low_quality": 0,
-    }
-    for surface in surfaces:
-        counts[_surface_evidence_class(surface)] += 1
-    return counts
 
 
 def _strengths(scan: ScanResult, attack_surfaces: list[AttackSurface]) -> list[dict]:
@@ -90,29 +61,47 @@ def _strengths(scan: ScanResult, attack_surfaces: list[AttackSurface]) -> list[d
     return strengths[:4]
 
 
-def _related_surfaces_for_finding(finding: Finding, attack_surfaces: list[AttackSurface]) -> list[AttackSurface]:
+def _candidate_surfaces_for_finding(finding: Finding, attack_surfaces: list[AttackSurface]) -> list[AttackSurface]:
+    """Prose overlap is a browsing hint, never detector-owned evidence."""
     combined = f"{finding.title} {' '.join(finding.evidence)}".lower()
     related = [
         surface
         for surface in attack_surfaces
-        if surface.route.lower() in combined
-        or surface.file.lower() in combined
-        or surface.category.lower() in combined
+        if any(value and value.lower() in combined for value in (surface.route, surface.file, surface.category))
     ]
-    return related or attack_surfaces
+    return related
 
 
-def _basis_label_for_surfaces(surfaces: list[AttackSurface]) -> str:
-    counts = _evidence_class_counts(surfaces)
-    total = max(sum(counts.values()), 1)
-    observed_total = counts["observed_runtime_public"] + counts["observed_runtime_internal"]
-    if (observed_total / total) >= 0.5:
-        return "observed"
-    if (counts["inferred_protocol"] / total) >= 0.5:
-        return "inferred_protocol"
-    if (counts["low_quality"] / total) >= 0.5:
-        return "low_quality"
-    return "mixed"
+def _claim_support(finding: Finding) -> dict:
+    """Closed-set token check: does the cited evidence text itself name an
+    identifier, route, or secret-kind the claim (title) names? This is presence
+    only — it never verifies the claim's conclusion, and absence stays
+    'not_assessed' rather than asserting the claim is false."""
+    cited = " ".join([*finding.evidence,
+                      *(f"{location.file}:{location.line}" for location in finding.locations)])
+    terms = matched_claim_terms(finding.title, cited)
+    return {
+        "claim_support": "supported_by_cited_evidence" if terms else "not_assessed",
+        "claim_support_terms": list(terms),
+    }
+
+
+def _finding_evidence_context(finding: Finding, attack_surfaces: list[AttackSurface]) -> dict:
+    # Finding has no detector-owned surface IDs. Do not derive its basis from
+    # route/category/file prose matches, even when a candidate is static observed.
+    candidates = _candidate_surfaces_for_finding(finding, attack_surfaces)
+    return {
+        "evidence_basis": "heuristic_static",
+        **_claim_support(finding),
+        "surface_association": "unknown",
+        "candidate_surfaces": [
+            {"route": surface.route, "method": surface.method, "file": surface.file,
+             "association": "prose_overlap_candidate_only"}
+            for surface in candidates[:8]
+        ],
+        "candidate_surfaces_truncated": len(candidates) > 8,
+        "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+    }
 
 
 def _weaknesses_and_hotspots(
@@ -122,14 +111,16 @@ def _weaknesses_and_hotspots(
     ordered_findings = sorted(findings, key=lambda finding: (_severity_rank(finding.severity), finding.title))
     weakness_items = []
     for finding in ordered_findings[:8]:
-        related = _related_surfaces_for_finding(finding, attack_surfaces)
         weakness_items.append(
             {
                 "title": finding.title,
+                "rule_id": finding.rule_id,
+                "taxonomy": finding.taxonomy.model_dump() if finding.taxonomy else None,
                 "severity": finding.severity,
                 "confidence": finding.confidence,
-                "evidence_basis": _basis_label_for_surfaces(related),
+                **_finding_evidence_context(finding, attack_surfaces),
                 "evidence": finding.evidence[:10],
+                "locations": [loc.model_dump() for loc in finding.locations],
                 "mitigation": finding.mitigation,
                 "attack_techniques": [t.model_dump() for t in finding.attack_techniques],
             }
@@ -162,17 +153,11 @@ def _weaknesses_and_hotspots(
 def _evidence_chains(attack_paths: list[AttackPath]) -> list[dict]:
     chains = []
     for path in attack_paths[:6]:
-        joined = " ".join(path.steps).lower()
-        basis = "inferred"
-        if "entry:" in joined and "confidence=" in joined:
-            basis = "observed_plus_inferred"
-        elif "entry:" in joined:
-            basis = "observed"
         chains.append(
             {
                 "name": path.name,
                 "impact": path.impact,
-                "evidence_basis": basis,
+                "evidence_basis": "inferred",
                 "steps": path.steps[:8],
             }
         )
@@ -188,11 +173,10 @@ def _recommendations(findings: list[Finding], attack_surfaces: list[AttackSurfac
         if not mitigation or mitigation in seen:
             continue
         seen.add(mitigation)
-        related = _related_surfaces_for_finding(finding, attack_surfaces)
         recommendations.append(
             {
                 "priority": finding.severity,
-                "evidence_basis": _basis_label_for_surfaces(related),
+                **_finding_evidence_context(finding, attack_surfaces),
                 "action": mitigation,
                 "linked_finding": finding.title,
             }
@@ -207,9 +191,10 @@ def build_defensive_review_json(
     attack_surfaces: list[AttackSurface],
     findings: list[Finding],
     attack_paths: list[AttackPath],
+    overlay: SecurityOverlay | None = None,
 ) -> dict:
     evidence_counts = _evidence_class_counts(attack_surfaces)
-    overlay = build_security_overlay(scan, attack_surfaces, findings, attack_paths)
+    overlay = overlay or build_security_overlay(scan, attack_surfaces, findings, attack_paths)
     weaknesses, hotspots = _weaknesses_and_hotspots(attack_surfaces, overlay.findings)
     return {
         "schema_version": SCHEMA_VERSION,
@@ -246,8 +231,11 @@ def build_defensive_review_json(
                     "risk": surface.risk,
                     "evidence_class": _surface_evidence_class(surface),
                     "auth_signals": surface.auth_signals,
+                    "auth": surface.auth,
                     "data_store_interaction": surface.data_store_interaction,
                     "outbound_integration": surface.outbound_integration,
+                    "relationship_basis": surface.relationship_basis,
+                    "context_signals": surface.context_signals,
                 }
                 for surface in attack_surfaces[:60]
             ],
@@ -278,11 +266,13 @@ def build_defensive_review_json(
             "analysis_mode": "heuristic",
             "defensive_only": True,
             "notes": [
-                "Observed vs inferred classifications are heuristic and based on route, file, and signal patterns.",
+                "static_observed describes source declarations, never runtime reachability; exposure is inferred or unknown.",
+                "Same-file context and repository counts do not establish route ownership or auth enforcement.",
                 "Low-quality paths (tests/fixtures/mocks/examples) are retained in raw signals but separated in evidence class counts.",
                 "Use this artifact as a triage source-of-truth; validate high-priority items with repository context and runtime controls.",
                 "Assets, controls, and notable observations are heuristic overlays; absent-control entries indicate scanner did not find evidence, not necessarily that the control is missing in production.",
                 "ATT&CK technique mappings and detection opportunities are derived from insight kinds and finding-title keywords; treat them as triage hooks for SIEM/detection-engineering work, not authoritative MITRE mappings.",
+                "claim_support fields are closed-set token checks: supported_by_cited_evidence only means the cited evidence text names an identifier, route, or secret-kind the claim names; they never verify a claim's conclusion, and not_assessed never means a claim is false.",
             ],
         },
     }

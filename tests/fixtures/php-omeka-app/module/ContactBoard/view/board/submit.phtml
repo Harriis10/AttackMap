@@ -1,0 +1,17 @@
+<?php
+// Synthetic view script (application-overlay layer fixture).
+// Escaped output is the positive control; the raw short-echo of the
+// visitor note is the contrast the overlay should surface.
+/** @var \ContactBoard\Form\BoardForm $form */
+?>
+<h2><?= $this->escapeHtml($this->translate('Submit a board item')) ?></h2>
+
+<p class="visitor-note"><?= $visitorNote ?></p>
+
+<?php $form->prepare(); ?>
+<?= $this->form()->openTag($form) ?>
+<?= $this->formRow($form->get('o:title')) ?>
+<?= $this->formRow($form->get('o:site_note')) ?>
+<?= $this->form()->closeTag() ?>
+
+<a href="<?= $this->escapeHtmlAttr($returnUrl) ?>">Back to the board</a>

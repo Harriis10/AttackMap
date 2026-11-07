@@ -1,0 +1,534 @@
+{
+  "scope": "Scoped batch source/build/runtime verification; no whole-task release acceptance",
+  "changed_source_sha256": "11045162b607b4560b6c057ae5b2ca384420519567a19eee4b62ef2f10744685",
+  "changed_sources": {
+    "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionModel.cs": "71d3e21ae27b7d5f0ff9a0e9aa2e817deb2763008e9d30c1eb44136ce6c85c04",
+    "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionView.cs": "1713978c250d1544af60dce0395d5a76aca7dcaec63d9959579910089622d6b6",
+    "desktop/windows/AttackMap.NativeSpike/EngineCapabilities.cs": "d5c57ec0380c7c991e13f18497312e3d739e9efb60a0e2f4166374b591336de2",
+    "desktop/windows/AttackMap.NativeSpike/EngineProtocol.cs": "ca2d0c194be051549b1bfb350d3395572129e5cba0dea1d7a3298aa2fdefff36",
+    "desktop/windows/AttackMap.NativeSpike/LocalSettings.cs": "2073adc489b50fbfba2797772deb79abfda3326392a3642fd3269cab9b80f295",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs": "d4656b2ae43a5e2f9164ccbe49c5286bc92d8e1f2661364ca9a19749440854a3",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml": "ebe36b7772571ddc85056643c3d3eccf0e2797064835a3dbb32f38cdba053eb4",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs": "5fab8d3033ef0c9b36cd61e427d7a50ffba29b990f91aa968ba0b88af129211a",
+    "desktop/windows/AttackMap.NativeSpike/NativeCaptureProbe.cs": "7a81751ede6bd5ffcb2ebf55943f948e71889d5d3e89eb61b4a7dbfb8cd00429",
+    "desktop/windows/AttackMap.NativeSpike/NativeScanOptions.cs": "29f8577421d2fe429f6fafac4ea82a5799c6cb2c0885f773a814d16a7b348866",
+    "desktop/windows/AttackMap.NativeSpike/ReportSectionAdapter.cs": "675203a9306349ef05af2b49a69bc9dee713bd31a9c0ae6be39d6395e28f017c",
+    "desktop/windows/AttackMap.NativeSpike/ReportSections.cs": "af6ff0b08e8b50476e944d695f22790197ab517c0fb277643848ec7312e4d078",
+    "desktop/windows/EngineProtocol.Tests/Program.cs": "16a501848d98c286febe5df5a9aa0b797c8f350abcbc679f2dc72f03b27419fc",
+    "desktop/windows/NativeAiOptions.Tests/Program.cs": "18276f00eec47ede08e1d4085e642339f9392c047b4051731625fafd988ca2f7",
+    "desktop/windows/ReportAdapter.Tests/Program.cs": "3616491fb24fc7c74638959aaa785f29c6703b8066fcf43ec5b90e0dbceb0ce3",
+    "desktop/windows/ScanProgress.Tests/Program.cs": "ef334e059f73a60f958b93f103039516283e037a1d79a5c0f29c0a21712cc6fa",
+    "docs/README.md": "ca465beb1fb1f948b58a9dec173a311df5a1a89042de4a34e6e50448ab722231",
+    "docs/roadmap-windows-parity-2026-10-20.md": "a287f7d4041b17f0d14b995e94d13613751c679913913fb106f0024f7e7520d7",
+    "docs/windows-parity-backlog.json": "47938822605a59deb7f61e099bbcb0ba756e49b9f6d2f2aa9a32ce84bca5cc6d",
+    "docs/windows-parity-todo.md": "bece335b270ce046456d85ed06da79320deb4eaefa2d6dd08a9d476d74a95391",
+    "src/attackmap/analyzers.py": "50e28db09f7b8efb08c7f667f7475b2ad531b12d212eb857af9c88e325d2188b",
+    "src/attackmap/cli.py": "d1d0ed3b9802f2432c083bf58c2062a59b2f4133516cf4836d78642aed14c8cd",
+    "src/attackmap/desktop_capabilities.py": "0e6462c9bdb4a400a5f62087b1f17a2b536ff76dcdddb1f203423fe5a1048c80",
+    "src/attackmap/ecosystem_node_atproto.py": "0a07ba2174996189cd2b5e4c4c817cccb6c2679f3d0d048001a22395eff9360d",
+    "src/attackmap/models.py": "8d1aa70592a010039ea5e8746622307386b247999801fd901672e3805bf502cd",
+    "src/attackmap/pipeline.py": "757513aa3e5755a736a94d03d04f5deb9b7ccd0d73f2f7037a91d90e69794803",
+    "src/attackmap/run_contract.py": "be827e27997b14e4380f679b75ce3ea501a2701c1859253e93f2e799561afd72",
+    "src/attackmap/scan_service.py": "931632eb3737b7313267aebc9a67efaaa80f2cb5e7947a516f279576fc4f9f19",
+    "tests/test_ecosystem_node_atproto.py": "68c2ee411b09a3030f34a78024c23afa2ea8b8c505ea3b3dc494a37b7d24fa13",
+    "tests/test_run_contract.py": "b9810eb873987946e1bcdcd193bbf2f06e9359dac87b7c1e042bece058e8575e",
+    "src/attackmap/analyzer_run_ledger.py": "bde27e335ac974db37468b23ecc07814c2139f77ba24700d0334be1c94680b67",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.AnalyzerSmoke.cs": "4f30f12f6cc3d6518479283a79e924569d364b552e1b424d213524119d79a2be",
+    "tests/test_analyzer_run_ledger.py": "81168fe74221c10aa2f1d673b520f709c550b4a7f940676130d0b235cc86b156",
+    "tests/test_pipeline_analyzer_ledger.py": "ba138c5aee253c4104baea44f60d2358142ae09828b662ca4cdc559318b741d3",
+    "tests/test_ecosystem_node_atproto_routes.py": "ed88d4412100328a6d4fe59d0d9be8e0511f284f22f492716a169a5a90f920e7",
+    "tests/test_desktop_analyzer_profiles.py": "4a0ae782a40a868639cc7526262b2f830acea2802d5a83b37fda92565a0d8248",
+    "schemas/run-request.schema.json": "7eb27aacce65ad45180c56e768947cb40efda4a2c22c29e606234c5793e0af2b",
+    "schemas/run-progress.schema.json": "3eb46909ce3f5061a677bb839485af4221877af0ff6fe618e3ba8b1baa37d2bd",
+    "schemas/run-terminal.schema.json": "725d481e2c7e4f395dc759dc68027d539683062d4f4c063d7447e3b4bb010b35",
+    "schemas/run-manifest.schema.json": "b8eeb504fd68320c9c92d1cd8e4a4fecdc97c80f94683d564b64a3f82dfbeb2b"
+  },
+  "preserved_prior_dirty_sources": [
+    "desktop/windows/AiArtifacts.Tests/Program.cs",
+    "desktop/windows/AttackMap.NativeSpike/AI/AiArtifactProjection.cs",
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.Capture.cs",
+    "src/attackmap/ecosystem_php.py"
+  ],
+  "native_final_inputs_match_current": true,
+  "engine_input_mismatches": [],
+  "native_QA_capture_selector_updated_after_engine_build": true,
+  "engine_python_inputs_match_current": true,
+  "captures": {
+    "1024x700-Dark-Analyzers.png": "98b10f46d8c9a4ace841f2ad06494c612df937b6b918c74d52f20dfeac6ef2e0",
+    "1024x700-Light-Analyzers.png": "c99b4f93d904dad679c8e09f718482505b6db9df64b6fbad2ed0ff3c46542cd5",
+    "1600x1000-Dark-Analyzers.png": "22cba670d8b5c97aeec763785a5cf34e47e6c659f83e74ef68c0a4ce18cfabea",
+    "1600x1000-Dark-Collision.png": "4c5f42f6228de1d6192065496e283888a33eef5051d08f4a059d7e03bd6dd4d6",
+    "1600x1000-Dark-Ledger.png": "3e4fab6078a78fb6d5bac8be98d4814d91260251a3f472ab0a669472cc7624a0",
+    "1600x1000-Light-Analyzers.png": "c1a9108ee872cdc3d5420d830faccf2e9f6f199b3c3042fce3c29a5b7024d03a"
+  },
+  "owned_processes": {
+    "catalog-probe-frozen-capabilities-01": {
+      "pid": 33416,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.8225247000227682,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "catalog-probe-frozen-catalog-01": {
+      "pid": 15000,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.2137670999509282,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "catalog-probe-frozen-modules-01": {
+      "pid": 33968,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.160246899991762,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "catalog-probe-frozen-profiles-01": {
+      "pid": 33332,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.5525616999948397,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "catalog-probe-source-capabilities-01": {
+      "pid": 22224,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.795188199961558,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "catalog-probe-source-catalog-01": {
+      "pid": 22952,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.3123320000013337,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "catalog-probe-source-modules-01": {
+      "pid": 11064,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.5549773000529967,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "catalog-probe-source-profiles-01": {
+      "pid": 13352,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 1.9132053999928758,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-build-EngineProtocol.Tests": {
+      "pid": 10356,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 6.987903999979608,
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-build-NativeAiOptions.Tests": {
+      "pid": 23344,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 6.5452488999580964,
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-build-NativeOptions.Tests": {
+      "pid": 16588,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 8.701527500001248,
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-build-ReportAdapter.Tests": {
+      "pid": 13912,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 3.3768361999536864,
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-build-ReportSections.Tests": {
+      "pid": 21868,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 6.314186999981757,
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-build-ScanProgress.Tests": {
+      "pid": 25576,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.0512745999731123,
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-EngineProtocol.Tests": {
+      "pid": 22852,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 0.9845224000164308,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-NativeAiOptions.Tests": {
+      "pid": 17792,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 1.7798392999684438,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-NativeOptions.Tests": {
+      "pid": 14048,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 1.6443437000270933,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-ReportAdapter.Tests": {
+      "pid": 21304,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 1.9306619999697432,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-ReportSections.Tests": {
+      "pid": 29904,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 0.8709122999571264,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "console-ScanProgress.Tests": {
+      "pid": 28020,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 0.54337020003004,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "engine-final": {
+      "pid": 31264,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 198.53865800000494,
+      "timed_out": false,
+      "timeout_seconds": 1200,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "frozen-scan": {
+      "pid": 18812,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 69.73069290001877,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final": {
+      "pid": 34560,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 89.97298049996607,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final-preview5": {
+      "pid": 24684,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 20.856787799973972,
+      "timed_out": false,
+      "timeout_seconds": 90,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final-run": {
+      "pid": 11460,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 85.26134259998798,
+      "timed_out": false,
+      "timeout_seconds": 900,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final-run2": {
+      "pid": 33496,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 89.78520630003186,
+      "timed_out": false,
+      "timeout_seconds": 900,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final-run4": {
+      "pid": 33536,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 81.43013190000784,
+      "timed_out": false,
+      "timeout_seconds": 900,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final-run5": {
+      "pid": 18100,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 79.36826670001028,
+      "timed_out": false,
+      "timeout_seconds": 900,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final2": {
+      "pid": 33876,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 63.88964499998838,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final3": {
+      "pid": 20980,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 49.813847100012936,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final4": {
+      "pid": 34428,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 54.66739660000894,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-final5": {
+      "pid": 13988,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 58.70507170003839,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "native-preview2": {
+      "pid": 2968,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 11.98408510000445,
+      "timed_out": false,
+      "timeout_seconds": 120,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "node-frozen-after-query": {
+      "pid": 31748,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 3.6545818999875337,
+      "timed_out": false,
+      "timeout_seconds": 180,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "node-frozen-after-subscription": {
+      "pid": 28020,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 2.941232100012712,
+      "timed_out": false,
+      "timeout_seconds": 180,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    },
+    "source-scan": {
+      "pid": 31404,
+      "exit_code": 0,
+      "exited": true,
+      "seconds": 69.36981119995471,
+      "timed_out": false,
+      "timeout_seconds": 600,
+      "owned_job_assigned": true,
+      "owned_tree_cleanup_verified": true
+    }
+  },
+  "failed_command_records": {},
+  "failed_gui_attempts": [
+    "native-final-run",
+    "native-final-run2"
+  ],
+  "failed_visual_capture_attempts": [
+    "native-final-run4",
+    "native-final-run5"
+  ],
+  "accepted_functional_gui_run": "native-final-run4",
+  "accepted_visual_preview": "native-final-preview5",
+  "runtime_vs_preview_native_input_difference": [
+    "desktop/windows/AttackMap.NativeSpike/MainWindow.AnalyzerSmoke.cs",
+    "desktop/windows/AttackMap.NativeSpike/NativeCaptureProbe.cs"
+  ],
+  "git_diff_check_passed": true,
+  "task_count": 44,
+  "task_status_counts": {
+    "DONE": 7,
+    "MANUAL_PENDING": 5,
+    "IMPLEMENTED": 5,
+    "IN_PROGRESS": 15,
+    "OPEN": 10,
+    "DEFERRED": 2
+  },
+  "task_statuses_match": true,
+  "leases_released": [
+    {
+      "owner": "/root/analyzer_catalog",
+      "tasks": [
+        "WP042"
+      ],
+      "lock_keys": [
+        "analyzer_registry",
+        "analyzer_run_ledger",
+        "pipeline_models"
+      ],
+      "write_scope": [
+        "src/attackmap/analyzers.py",
+        "src/attackmap/pipeline.py",
+        "src/attackmap/models.py",
+        "src/attackmap/analyzer_run_ledger.py",
+        "tests/test_analyzer_run_ledger.py",
+        "tests/test_pipeline_analyzer_ledger.py"
+      ],
+      "scope": "single discovery/detect selection and executed/failed ledger; additive report/manifest contract; agree API with integrator"
+    },
+    {
+      "owner": "/root/analyzer_profiles",
+      "tasks": [
+        "WP042"
+      ],
+      "lock_keys": [
+        "native_analyzer_selection"
+      ],
+      "write_scope": [
+        "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionModel.cs",
+        "desktop/windows/AttackMap.NativeSpike/AnalyzerSelectionView.cs",
+        "desktop/windows/ScanProgress.Tests/Program.cs"
+      ],
+      "scope": "native versioned profiles and installed catalog presentation; shell/settings/request owned by integrator"
+    },
+    {
+      "owner": "/root/php_routes",
+      "tasks": [
+        "WP039"
+      ],
+      "lock_keys": [
+        "ecosystem_node_atproto"
+      ],
+      "write_scope": [
+        "src/attackmap/ecosystem_node_atproto.py",
+        "tests/test_ecosystem_node_atproto.py",
+        "tests/test_ecosystem_node_atproto_routes.py"
+      ],
+      "scope": "first reproduce bounded Node/ATProto subscription/auth gap, report contract before editing; no shared models/registry or plugin pin writes"
+    },
+    {
+      "owner": "/root",
+      "tasks": [
+        "WP042",
+        "WP039"
+      ],
+      "lock_keys": [
+        "engine_contract",
+        "shared_shell",
+        "package_inventory",
+        "active_plan"
+      ],
+      "write_scope": [
+        "src/attackmap/cli.py",
+        "src/attackmap/run_contract.py",
+        "src/attackmap/desktop_capabilities.py",
+        "desktop/windows/AttackMap.NativeSpike/MainWindow*.cs",
+        "tests/test_desktop_analyzer_profiles.py",
+        "docs",
+        "tools",
+        "tests/test_run_contract.py",
+        "desktop/windows/NativeAiOptions.Tests/Program.cs",
+        "desktop/windows/AttackMap.NativeSpike/ReportSections.cs",
+        "desktop/windows/AttackMap.NativeSpike/ReportSectionAdapter.cs",
+        "desktop/windows/AttackMap.NativeSpike/NativeCaptureProbe.cs"
+      ],
+      "scope": "integration/settings/request contract, visual verification, source/frozen scan evidence and active docs; shared modifications sequential"
+    }
+  ],
+  "other_active_leases": [],
+  "whole_task_acceptance": false
+}

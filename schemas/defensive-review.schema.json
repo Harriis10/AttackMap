@@ -31,33 +31,134 @@
     "assets": {
       "type": "array",
       "description": "Inferred high-value assets and their locations.",
-      "items": { "type": "object" }
+      "items": {
+        "type": "object"
+      }
     },
     "controls": {
       "type": "array",
       "description": "Defensive controls observed in code and expected-but-absent controls.",
-      "items": { "type": "object" }
+      "items": {
+        "type": "object"
+      }
     },
     "notable_observations": {
       "type": "array",
       "description": "Cross-cutting insights connecting assets, controls, surfaces, and chains.",
-      "items": { "type": "object" }
+      "items": {
+        "type": "object"
+      }
     },
     "detection_opportunities": {
       "type": "array",
       "description": "Defender-facing detection-engineering hints derived from insights and findings.",
-      "items": { "type": "object" }
+      "items": {
+        "type": "object"
+      }
     },
     "attack_techniques_observed": {
       "type": "array",
       "description": "Deduplicated MITRE ATT&CK techniques observed across findings and insights.",
-      "items": { "type": "object" }
+      "items": {
+        "type": "object"
+      }
     },
     "strengths": {
       "type": "array"
     },
     "weaknesses_risk_hotspots": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "weaknesses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "locations": {
+                "type": "array",
+                "description": "Every file (and line, when known) the finding covers \u2014 structured, not parsed from evidence text and not capped like `evidence` (added in 1.3.0, #214).",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "file"
+                  ],
+                  "properties": {
+                    "file": {
+                      "type": "string"
+                    },
+                    "line": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 1
+                    },
+                    "fingerprint": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Per-instance identity across runs (#222); allowed by the schema from 1.4.0."
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "rule_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Stable detector rule id (#223); `null` for findings without one (added in 1.4.0, #250)."
+              },
+              "taxonomy": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Standard ids for the finding's rule, looked up by rule id in the taxonomy registry; `null` for unregistered rules (added in 1.4.0, #250).",
+                "required": [
+                  "cwe",
+                  "owasp",
+                  "asvs",
+                  "attack"
+                ],
+                "properties": {
+                  "cwe": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^CWE-[0-9]+$"
+                    }
+                  },
+                  "owasp": {
+                    "type": "array",
+                    "description": "OWASP Top 10 2021 (A01:2021), API Security Top 10 2023 (API1:2023) or LLM Top 10 2025 ids.",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "asvs": {
+                    "type": "array",
+                    "description": "OWASP ASVS 4.0.3 requirement ids.",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "attack": {
+                    "type": "array",
+                    "description": "MITRE ATT&CK Enterprise technique ids.",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
     },
     "evidence_chains": {
       "type": "array"

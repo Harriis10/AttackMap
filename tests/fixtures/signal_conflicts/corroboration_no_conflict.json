@@ -1,0 +1,35 @@
+{
+  "description": "Three analyzers emit the identical route with the same auth value. The merged observation must keep all three corroborating origins, record no conflicts, and count the overlapping scanned files once.",
+  "inputs": [
+    {
+      "root": ".",
+      "files_scanned": 2,
+      "scanned_files": ["src/app.py", "src/auth.php"],
+      "routes": [
+        {"path": "/login", "method": "POST", "file": "src/app.py", "line": 5, "auth": "required", "source_analyzer": "php-web"}
+      ]
+    },
+    {
+      "root": ".",
+      "files_scanned": 2,
+      "scanned_files": ["src/app.py", "src/forms.php"],
+      "routes": [
+        {"path": "/login", "method": "POST", "file": "src/app.py", "line": 5, "auth": "required", "source_analyzer": "php-laminas"}
+      ]
+    },
+    {
+      "root": ".",
+      "files_scanned": 1,
+      "scanned_files": ["src/app.py"],
+      "routes": [
+        {"path": "/login", "method": "POST", "file": "src/app.py", "line": 5, "auth": "required", "source_analyzer": "omeka-s"}
+      ]
+    }
+  ],
+  "expected": {
+    "conflict_fields": [],
+    "origin_analyzers": ["omeka-s", "php-laminas", "php-web"],
+    "merged_routes": 1,
+    "unique_scanned_files": ["src/app.py", "src/auth.php", "src/forms.php"]
+  }
+}

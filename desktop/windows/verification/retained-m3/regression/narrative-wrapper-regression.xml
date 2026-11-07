@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="51" time="20.673" timestamp="2026-10-15T20:57:29.390324+02:00" hostname="corpsec"><testcase classname="tests.test_llm_review" name="test_generate_llm_review_returns_markdown_and_passes_expected_kwargs" time="0.012"><failure message="AssertionError: assert '&gt; Evidence r...view\n\nBody.' == '# Defensive Review\n\nBody.'&#10;  &#10;  + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.&#10;  + &#10;    # Defensive Review&#10;    &#10;    Body.">def test_generate_llm_review_returns_markdown_and_passes_expected_kwargs() -&gt; None:
+        fake_message = _FakeMessage(
+            content=[
+                _FakeBlock(type="thinking"),
+                _FakeBlock(type="text", text="# Defensive Review\n\nBody."),
+            ],
+            usage=_FakeUsage(input_tokens=1234, output_tokens=567, cache_read_input_tokens=42),
+        )
+        client = _FakeClient(fake_message)
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            client=client,
+        )
+    
+&gt;       assert result.markdown == "# Defensive Review\n\nBody."
+E       AssertionError: assert '&gt; Evidence r...view\n\nBody.' == '# Defensive Review\n\nBody.'
+E         
+E         + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Defensive Review
+E           
+E           Body.
+
+tests\test_llm_review.py:130: AssertionError</failure></testcase><testcase classname="tests.test_llm_review" name="test_generate_llm_review_honors_model_and_effort_overrides" time="0.010" /><testcase classname="tests.test_llm_review" name="test_default_model_is_opus_4_8" time="0.001" /><testcase classname="tests.test_llm_review" name="test_fast_mode_uses_beta_endpoint_on_supported_model" time="0.005" /><testcase classname="tests.test_llm_review" name="test_fast_mode_falls_back_to_standard_on_unsupported_model" time="0.009" /><testcase classname="tests.test_llm_review" name="test_standard_speed_uses_standard_endpoint" time="0.004" /><testcase classname="tests.test_llm_review" name="test_generate_llm_review_raises_when_no_text_blocks_returned" time="0.005" /><testcase classname="tests.test_llm_review" name="test_generate_llm_review_raises_clear_error_without_api_key" time="9.417" /><testcase classname="tests.test_llm_review" name="test_generate_llm_review_uses_auth_token_when_api_key_is_absent" time="0.016" /><testcase classname="tests.test_llm_review" name="test_cli_backend_parses_result_field_and_passes_correct_flags" time="0.021"><failure message="AssertionError: assert '&gt; Evidence r...rrative body.' == '# Review\n\nNarrative body.'&#10;  &#10;  + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.&#10;  + &#10;    # Review&#10;    &#10;    Narrative body.">def test_cli_backend_parses_result_field_and_passes_correct_flags() -&gt; None:
+        payload = {
+            "type": "result",
+            "subtype": "success",
+            "is_error": False,
+            "result": "# Review\n\nNarrative body.",
+            "stop_reason": "end_turn",
+            "usage": {"input_tokens": 12, "output_tokens": 34},
+            "modelUsage": {"claude-opus-4-7[1m]": {"inputTokens": 12}},
+        }
+        runner, captured = _make_cli_runner(json.dumps(payload))
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            backend="cli",
+            cli_runner=runner,
+        )
+    
+        assert result.backend == "cli"
+&gt;       assert result.markdown == "# Review\n\nNarrative body."
+E       AssertionError: assert '&gt; Evidence r...rrative body.' == '# Review\n\nNarrative body.'
+E         
+E         + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Review
+E           
+E           Narrative body.
+
+tests\test_llm_review.py:308: AssertionError</failure></testcase><testcase classname="tests.test_llm_review" name="test_cli_backend_raises_when_payload_marks_error" time="0.007" /><testcase classname="tests.test_llm_review" name="test_cli_backend_not_logged_in_surfaces_login_hint" time="0.007" /><testcase classname="tests.test_llm_review" name="test_cli_backend_prefers_result_text_over_subtype" time="0.011" /><testcase classname="tests.test_llm_review" name="test_cli_backend_raises_when_stdout_is_not_json" time="0.012" /><testcase classname="tests.test_llm_review" name="test_cli_backend_raises_when_subprocess_exits_nonzero_without_stdout" time="0.010" /><testcase classname="tests.test_llm_review" name="test_auto_backend_picks_api_when_api_key_present" time="0.010" /><testcase classname="tests.test_llm_review" name="test_auto_backend_falls_back_to_cli_when_no_creds" time="0.010" /><testcase classname="tests.test_llm_review" name="test_auto_backend_falls_back_to_cli_when_key_set_but_sdk_missing" time="0.010" /><testcase classname="tests.test_llm_review" name="test_openai_auto_falls_back_to_codex_when_key_set_but_sdk_missing" time="0.021" /><testcase classname="tests.test_llm_review" name="test_auto_backend_raises_when_no_creds_and_no_cli" time="0.018" /><testcase classname="tests.test_llm_review" name="test_explicit_cli_backend_raises_when_cli_missing" time="0.009" /><testcase classname="tests.test_llm_review" name="test_openai_default_model_constant" time="0.002" /><testcase classname="tests.test_llm_review" name="test_openai_api_returns_markdown_and_passes_expected_kwargs" time="0.018"><failure message="AssertionError: assert '&gt; Evidence r...view\n\nBody.' == '# Defensive Review\n\nBody.'&#10;  &#10;  + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.&#10;  + &#10;    # Defensive Review&#10;    &#10;    Body.">def test_openai_api_returns_markdown_and_passes_expected_kwargs() -&gt; None:
+        response = _FakeOpenAIResponse(
+            output_text="# Defensive Review\n\nBody.",
+            usage=_FakeOpenAIUsage(input_tokens=100, output_tokens=200),
+        )
+        client = _FakeOpenAIClient(response)
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            provider="openai",
+            openai_client=client,
+        )
+    
+        assert result.backend == "api"
+&gt;       assert result.markdown == "# Defensive Review\n\nBody."
+E       AssertionError: assert '&gt; Evidence r...view\n\nBody.' == '# Defensive Review\n\nBody.'
+E         
+E         + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Defensive Review
+E           
+E           Body.
+
+tests\test_llm_review.py:525: AssertionError</failure></testcase><testcase classname="tests.test_llm_review" name="test_openai_passes_model_through_verbatim" time="0.010" /><testcase classname="tests.test_llm_review" name="test_openai_effort_clamps_beyond_high" time="0.011" /><testcase classname="tests.test_llm_review" name="test_openai_raises_when_no_text_returned" time="0.008" /><testcase classname="tests.test_llm_review" name="test_openai_auto_backend_picks_api_when_client_present" time="0.009" /><testcase classname="tests.test_llm_review" name="test_openai_api_no_key_raises" time="3.219" /><testcase classname="tests.test_llm_review" name="test_openai_api_builds_client_with_key_from_env" time="0.010" /><testcase classname="tests.test_llm_review" name="test_openai_api_uses_openai_base_url_for_lmstudio" time="0.013" /><testcase classname="tests.test_llm_review" name="test_codex_cli_backend_reads_stdout_and_passes_correct_flags" time="0.006"><failure message="AssertionError: assert '&gt; Evidence r...rrative body.' == '# Review\n\n...rrative body.'&#10;  &#10;  + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.&#10;  + &#10;    # Review&#10;    &#10;    Codex narrative body.">def test_codex_cli_backend_reads_stdout_and_passes_correct_flags() -&gt; None:
+        runner, captured = _make_cli_runner("# Review\n\nCodex narrative body.")
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            provider="openai",
+            backend="cli",
+            codex_runner=runner,
+        )
+    
+        assert result.backend == "cli"
+&gt;       assert result.markdown == "# Review\n\nCodex narrative body."
+E       AssertionError: assert '&gt; Evidence r...rrative body.' == '# Review\n\n...rrative body.'
+E         
+E         + &gt; Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Review
+E           
+E           Codex narrative body.
+
+tests\test_llm_review.py:664: AssertionError</failure></testcase><testcase classname="tests.test_llm_review" name="test_codex_cli_backend_raises_on_nonzero_exit" time="0.007" /><testcase classname="tests.test_llm_review" name="test_codex_cli_login_error_surfaces_hint" time="0.010" /><testcase classname="tests.test_llm_review" name="test_openai_auto_backend_falls_back_to_codex_when_no_key" time="0.011" /><testcase classname="tests.test_llm_review" name="test_openai_auto_raises_when_no_key_and_no_codex" time="0.007" /><testcase classname="tests.test_llm_review" name="test_explicit_codex_backend_raises_when_cli_missing" time="0.010" /><testcase classname="tests.test_review_prompts" name="test_system_prompt_contains_grounding_rules" time="0.001" /><testcase classname="tests.test_review_prompts" name="test_rendered_user_prompt_includes_evidence_pack" time="0.011" /><testcase classname="tests.test_review_prompts" name="test_review_distinguishes_static_signals_from_runtime_exploitation" time="0.007" /><testcase classname="tests.test_pipeline" name="test_analyze_report_json_keys_locked" time="1.121" /><testcase classname="tests.test_pipeline" name="test_run_manifest_always_written_including_markdown_format" time="1.363" /><testcase classname="tests.test_pipeline" name="test_run_scan_returns_state_without_typer" time="0.928" /><testcase classname="tests.test_narrative_citations" name="test_exact_selected_reference_status[Observed syntax [finding:2].-valid-invalid0]" time="0.002" /><testcase classname="tests.test_narrative_citations" name="test_exact_selected_reference_status[Omitted finding:3.-invalid-invalid1]" time="0.002" /><testcase classname="tests.test_narrative_citations" name="test_exact_selected_reference_status[Target routes (`find:2`) lack auth authorization signal at handler level.-invalid-invalid2]" time="0.003" /><testcase classname="tests.test_narrative_citations" name="test_exact_selected_reference_status[finding:2 and find:2-invalid-invalid3]" time="0.007" /><testcase classname="tests.test_narrative_citations" name="test_exact_selected_reference_status[No citations; time 12:30; https://example.org/path:42.-missing-invalid4]" time="0.008" /><testcase classname="tests.test_narrative_citations" name="test_duplicate_and_wrong_collection_ids_are_not_authorized" time="0.003" /><testcase classname="tests.test_narrative_citations" name="test_included_asset_reference_does_not_imply_source_or_claim_support" time="0.002" /><testcase classname="tests.test_narrative_citations" name="test_generate_wrapper_persists_selected_reference_warning_and_original_prose" time="0.967" /><testcase classname="tests.test_narrative_citations" name="test_source_locations_are_unresolved_even_when_producer_id_is_valid" time="0.008" /></testsuite></testsuites>

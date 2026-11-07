@@ -470,3 +470,105 @@ def test_graphql_mutation_narrated_as_write_in_attack_path(tmp_path: Path) -> No
     paths = [p for p in generate_attack_paths(scan) if "BOLA" in p.name or "IDOR" in p.name]
     assert paths
     assert "modify" in " ".join(paths[0].steps).lower()
+
+
+# ---------------------------------------------------------------------------
+# AM038: region-scoped ownership checks + the unauthenticated-write defer
+# ---------------------------------------------------------------------------
+
+_REGION_FIXTURE = Path(__file__).parent / "fixtures" / "authz_regions"
+
+
+def test_sibling_handler_markers_do_not_suppress(tmp_path: Path) -> None:
+    """The classic miss (#AM038): a *sibling* handler's `user_id: str` type
+    annotation (previously matched by the `user_id:` marker form) must not
+    suppress this route's candidacy."""
+    scan = _scan_with_route(
+        tmp_path,
+        "/orders/{order_id}",
+        "GET",
+        "def get_order(order_id):\n"
+        "    return db.execute('SELECT * FROM orders WHERE id=%s', order_id)\n"
+        "\n"
+        "def later_sibling(user_id: str):\n"
+        "    return db.execute('SELECT 1')\n",
+    )
+    candidates = analyze_authz(scan, tmp_path)
+    assert [c.id_param for c in candidates] == ["order_id"]
+
+
+def test_region_fixture_positive_and_negative_twins() -> None:
+    """End-to-end over tests/fixtures/authz_regions: positives in their own
+    region fire; twins gated in their own handler or scoped to the caller's
+    identity do not."""
+    scan = scan_repo(_REGION_FIXTURE)
+    got = {(c.route_method, c.route_path) for c in scan.authz_candidates}
+    # Positives: no check in their own region / WHERE bound to the path id.
+    assert ("GET", "/invoices/<invoice_id>") in got
+    assert ("GET", "/leads/<lead_id>") in got
+    # Negatives: ownership gate / ownership column / caller-scoped query.
+    assert ("GET", "/reports/<report_id>") not in got
+    assert ("GET", "/teams/<team_id>") not in got
+    assert ("GET", "/notes/<note_id>") not in got
+    # Unauthenticated write: deferred to the unauth-state-change finding.
+    assert ("POST", "/users/<user_id>/notes") not in got
+
+
+def test_where_scoped_by_path_param_is_not_a_check(tmp_path: Path) -> None:
+    """`where user_id = ?` bound to the request's own id is object addressing,
+    not caller scoping (no identity token in the region)."""
+    scan = _scan_with_route(
+        tmp_path,
+        "/profiles/{user_id}",
+        "GET",
+        "def get_profile(user_id: str):\n"
+        "    return db.query('select * from profiles where user_id = %s', user_id)\n",
+    )
+    candidates = analyze_authz(scan, tmp_path)
+    assert [c.id_param for c in candidates] == ["user_id"]
+
+
+def test_where_scoped_by_caller_identity_is_a_check(tmp_path: Path) -> None:
+    scan = _scan_with_route(
+        tmp_path,
+        "/notes/{note_id}",
+        "GET",
+        "def get_note(note_id: str):\n"
+        "    return db.query(\n"
+        "        'select * from notes where user_id = %s and id = %s',\n"
+        "        session['user_id'], note_id)\n",
+    )
+    assert analyze_authz(scan, tmp_path) == []
+
+
+def test_unauthenticated_write_defers_to_unauth_finding(tmp_path: Path) -> None:
+    """A write route with no resolved authentication control is the
+    unauth-state-change finding's claim; BOLA presupposes an authenticated
+    caller whose object access is unscoped."""
+    scan = _scan_with_route(
+        tmp_path,
+        "/orders/{order_id}/cancel",
+        "POST",
+        "def cancel_order(order_id: str):\n"
+        "    return db.execute(\"update orders set status='cancelled' where id=%s\", order_id)\n",
+    )
+    assert analyze_authz(scan, tmp_path) == []
+
+
+def test_authenticated_write_still_a_bola_candidate(tmp_path: Path) -> None:
+    """The safe control: with authentication resolved (a Depends auth
+    dependency, which is not itself an ownership marker), the write keeps the
+    classic authenticated-but-unscoped BOLA treatment."""
+    (tmp_path / "app.py").write_text(
+        "from fastapi import FastAPI, Depends\n"
+        "app = FastAPI()\n\n"
+        '@app.post("/orders/{order_id}/cancel")\n'
+        "def cancel_order(order_id: str, user=Depends(verify_token)):\n"
+        "    return db.execute(\"update orders set status='cancelled' where id=?\", order_id)\n",
+        encoding="utf-8",
+    )
+    scan = scan_repo(tmp_path)
+    candidates = analyze_authz(scan, tmp_path)
+    assert [(c.route_method, c.route_path) for c in candidates] == [
+        ("POST", "/orders/{order_id}/cancel")
+    ]

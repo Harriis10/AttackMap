@@ -1,0 +1,453 @@
+{
+  "schema_version": "1.5.0",
+  "target_metadata": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\provider-faults\\actual01-unavailable\\fixture-repository",
+    "files_scanned": 2,
+    "languages": [
+      "python"
+    ]
+  },
+  "system_overview": {
+    "repository_type": "web/service-facing",
+    "raw_inferred_entry_point_count": 1,
+    "external_call_count": 0,
+    "database_count": 0,
+    "auth_hint_count": 0,
+    "secret_hint_count": 0,
+    "asset_count": 0,
+    "control_count_present": 0,
+    "control_count_absent": 1,
+    "notable_observation_count": 0,
+    "detection_opportunity_count": 1,
+    "attack_techniques_observed_count": 1
+  },
+  "attack_surface": {
+    "total_surfaces": 1,
+    "evidence_class_counts": {
+      "static_observed": 1,
+      "inferred_protocol": 0,
+      "low_quality": 0
+    },
+    "surfaces": [
+      {
+        "method": "GET",
+        "route": "/records",
+        "file": "app.py",
+        "line": 3,
+        "category": "public_api",
+        "exposure": "public",
+        "risk": "low",
+        "evidence_class": "static_observed",
+        "auth_signals": [],
+        "auth": "unknown",
+        "data_store_interaction": false,
+        "outbound_integration": false,
+        "relationship_basis": "unknown",
+        "context_signals": []
+      }
+    ]
+  },
+  "assets": [],
+  "controls": [
+    {
+      "id": "control:absent:rate_limiting",
+      "kind": "rate_limiting",
+      "name": "Rate limiting",
+      "strength": "absent",
+      "scope": "global",
+      "placements": [],
+      "evidence": [],
+      "notes": "Public routes observed without any rate-limiting markers."
+    }
+  ],
+  "notable_observations": [],
+  "detection_opportunities": [
+    {
+      "id": "detect:findings:residual",
+      "title": "Detection coverage for findings without a paired insight",
+      "rationale": "These findings did not generate cross-cutting insights but are still actionable with runtime telemetry.",
+      "signal_kind": "log",
+      "suggested_rule": "Add per-finding logging at the affected handler with a structured `{finding_id, route, status_code}` payload, and aggregate in the SIEM.",
+      "related_insight_ids": [],
+      "related_finding_titles": [
+        "Debug mode or unrestricted management endpoints enabled"
+      ],
+      "related_rule_ids": [
+        "debug-enabled"
+      ],
+      "attack_techniques": [
+        {
+          "technique_id": "T1190",
+          "name": "Exploit Public-Facing Application",
+          "tactic": "Initial Access",
+          "url": "https://attack.mitre.org/techniques/T1190/"
+        }
+      ]
+    }
+  ],
+  "attack_techniques_observed": [
+    {
+      "technique_id": "T1190",
+      "name": "Exploit Public-Facing Application",
+      "tactic": "Initial Access",
+      "url": "https://attack.mitre.org/techniques/T1190/"
+    }
+  ],
+  "strengths": [
+    {
+      "statement": "No strong defensive indicators were detected heuristically.",
+      "evidence_basis": "inferred",
+      "evidence": []
+    }
+  ],
+  "weaknesses_risk_hotspots": {
+    "weaknesses": [
+      {
+        "title": "Debug mode or unrestricted management endpoints enabled",
+        "rule_id": "debug-enabled",
+        "taxonomy": {
+          "cwe": [
+            "CWE-489",
+            "CWE-215"
+          ],
+          "owasp": [
+            "A05:2021",
+            "API8:2023"
+          ],
+          "asvs": [
+            "V14.3.2"
+          ],
+          "attack": [
+            "T1190"
+          ]
+        },
+        "severity": "medium",
+        "confidence": "medium",
+        "evidence_basis": "heuristic_static",
+        "claim_support": "not_assessed",
+        "claim_support_terms": [],
+        "surface_association": "unknown",
+        "candidate_surfaces": [
+          {
+            "route": "/records",
+            "method": "GET",
+            "file": "app.py",
+            "association": "prose_overlap_candidate_only"
+          }
+        ],
+        "candidate_surfaces_truncated": false,
+        "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+        "evidence": [
+          "app.py:7 \u2014 app.run(debug=True)"
+        ],
+        "locations": [
+          {
+            "file": "app.py",
+            "line": 7,
+            "fingerprint": "14220c815ef5e8f5"
+          }
+        ],
+        "mitigation": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE.",
+        "attack_techniques": [
+          {
+            "technique_id": "T1190",
+            "name": "Exploit Public-Facing Application",
+            "tactic": "Initial Access",
+            "url": "https://attack.mitre.org/techniques/T1190/"
+          }
+        ]
+      }
+    ],
+    "risk_hotspots": [
+      {
+        "surface": {
+          "method": "GET",
+          "route": "/records",
+          "file": "app.py",
+          "category": "public_api",
+          "risk": "low",
+          "exposure": "public"
+        },
+        "evidence_class": "static_observed",
+        "notes": [
+          "Public application routes are initial footholds for probing input handling and authorization gaps.",
+          "No auth indicators were observed near this route.",
+          "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence."
+        ]
+      }
+    ]
+  },
+  "evidence_chains": [],
+  "recommendations": [
+    {
+      "priority": "medium",
+      "evidence_basis": "heuristic_static",
+      "claim_support": "not_assessed",
+      "claim_support_terms": [],
+      "surface_association": "unknown",
+      "candidate_surfaces": [
+        {
+          "route": "/records",
+          "method": "GET",
+          "file": "app.py",
+          "association": "prose_overlap_candidate_only"
+        }
+      ],
+      "candidate_surfaces_truncated": false,
+      "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+      "action": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE.",
+      "linked_finding": "Debug mode or unrestricted management endpoints enabled"
+    }
+  ],
+  "raw_structured_signals": {
+    "scan": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\provider-faults\\actual01-unavailable\\fixture-repository",
+      "signals": [
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "route",
+          "label": "GET /records",
+          "file": "app.py",
+          "line": 3,
+          "confidence": 0.7,
+          "evidence_text": null,
+          "properties": {
+            "method": "GET",
+            "path": "/records",
+            "auth": "unknown"
+          },
+          "observation_id": "obs-e1a0e2dc0d64033d7d6cf2c446c083c951ee7ac165b5d5ddc2f7bdf350443481",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python-web",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "app.py",
+              "line": 3,
+              "location_reason": null,
+              "evidence_text": null,
+              "properties": {
+                "method": "GET",
+                "path": "/records",
+                "auth": "unknown"
+              }
+            }
+          ],
+          "conflicts": []
+        }
+      ],
+      "scanned_files": [
+        "app.py",
+        "config.yaml"
+      ],
+      "resource_limit_events": [],
+      "resource_limit_scopes": [
+        "config_scanner.file_bytes",
+        "repo_index.file_bytes",
+        "repo_index.index_bytes"
+      ],
+      "resource_limit_reporting": "complete",
+      "languages": [
+        "python"
+      ],
+      "routes": [
+        {
+          "path": "/records",
+          "method": "GET",
+          "file": "app.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "external_calls": [],
+      "databases": [],
+      "auth_hints": [],
+      "service_hints": [],
+      "edge_hints": [],
+      "entrypoint_hints": [],
+      "protocol_hints": [],
+      "framework_hints": [],
+      "secret_hints": [],
+      "taint_chains": [],
+      "dependencies": [],
+      "vulnerabilities": [],
+      "authz_candidates": [],
+      "crypto_weaknesses": [],
+      "web_hardening_issues": [
+        {
+          "kind": "debug_enabled",
+          "file": "app.py",
+          "line": 7,
+          "evidence_text": "app.run(debug=True)",
+          "severity": "medium"
+        }
+      ],
+      "code_weaknesses": [],
+      "workflow_issues": [],
+      "supply_chain_issues": [],
+      "secret_history": [],
+      "anomalies": [],
+      "limitations": [],
+      "analyzer_errors": [],
+      "files_scanned": 2,
+      "scan_snapshot": {
+        "snapshot_id": "6ecac4e45726e5b7368d2bedfaa11c1d97c10cca19c29a9e5e57be35564d635c",
+        "files": {
+          "app.py": "52bdc2001a40e1fede49b9ab751f9c75334c4d8b23fa1a2fdb71643607c58fc9",
+          "config.yaml": "bcde946bda8af6d2f9f55231a6bb79b64a27b9c3c7d17873c7b3bc3ba4848489"
+        },
+        "raw_files": {
+          "app.py": "52bdc2001a40e1fede49b9ab751f9c75334c4d8b23fa1a2fdb71643607c58fc9",
+          "config.yaml": "bcde946bda8af6d2f9f55231a6bb79b64a27b9c3c7d17873c7b3bc3ba4848489"
+        },
+        "total_size": 220,
+        "index_config": {
+          "capture_sdk_sources": 1,
+          "include_tests": 0,
+          "include_vendored": 0,
+          "index_byte_budget": 0,
+          "index_file_limit": 100000,
+          "max_file_bytes": 2000000
+        },
+        "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+      }
+    },
+    "attack_surfaces": [
+      {
+        "route": "/records",
+        "method": "GET",
+        "file": "app.py",
+        "category": "public_api",
+        "exposure": "public",
+        "risk": "low",
+        "auth_signals": [],
+        "auth": "unknown",
+        "data_store_interaction": false,
+        "outbound_integration": false,
+        "relationship_basis": "unknown",
+        "context_signals": [],
+        "rationale": [
+          "Public application routes are initial footholds for probing input handling and authorization gaps.",
+          "No auth indicators were observed near this route.",
+          "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+          "Exposure is a static inference; deployment reachability has not been observed."
+        ],
+        "line": 3,
+        "evidence_class": "static_observed"
+      }
+    ],
+    "findings": [
+      {
+        "title": "Debug mode or unrestricted management endpoints enabled",
+        "severity": "medium",
+        "rule_id": "debug-enabled",
+        "entity_id": null,
+        "evidence": [
+          "app.py:7 \u2014 app.run(debug=True)"
+        ],
+        "locations": [
+          {
+            "file": "app.py",
+            "line": 7,
+            "fingerprint": "14220c815ef5e8f5"
+          }
+        ],
+        "mitigation": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE.",
+        "confidence": "medium",
+        "attack_techniques": [
+          {
+            "technique_id": "T1190",
+            "name": "Exploit Public-Facing Application",
+            "tactic": "Initial Access",
+            "url": "https://attack.mitre.org/techniques/T1190/"
+          }
+        ],
+        "tags": [
+          "web-hardening"
+        ],
+        "score": 37,
+        "exploitability": null,
+        "exploitability_tier": null,
+        "exploitability_reference": null,
+        "code_flows": [],
+        "taxonomy": {
+          "cwe": [
+            "CWE-489",
+            "CWE-215"
+          ],
+          "owasp": [
+            "A05:2021",
+            "API8:2023"
+          ],
+          "asvs": [
+            "V14.3.2"
+          ],
+          "attack": [
+            "T1190"
+          ]
+        }
+      }
+    ],
+    "attack_paths": [],
+    "assets": [],
+    "controls": [
+      {
+        "id": "control:absent:rate_limiting",
+        "kind": "rate_limiting",
+        "name": "Rate limiting",
+        "strength": "absent",
+        "scope": "global",
+        "placements": [],
+        "evidence": [],
+        "notes": "Public routes observed without any rate-limiting markers."
+      }
+    ],
+    "notable_observations": [],
+    "detection_opportunities": [
+      {
+        "id": "detect:findings:residual",
+        "title": "Detection coverage for findings without a paired insight",
+        "rationale": "These findings did not generate cross-cutting insights but are still actionable with runtime telemetry.",
+        "signal_kind": "log",
+        "suggested_rule": "Add per-finding logging at the affected handler with a structured `{finding_id, route, status_code}` payload, and aggregate in the SIEM.",
+        "related_insight_ids": [],
+        "related_finding_titles": [
+          "Debug mode or unrestricted management endpoints enabled"
+        ],
+        "related_rule_ids": [
+          "debug-enabled"
+        ],
+        "attack_techniques": [
+          {
+            "technique_id": "T1190",
+            "name": "Exploit Public-Facing Application",
+            "tactic": "Initial Access",
+            "url": "https://attack.mitre.org/techniques/T1190/"
+          }
+        ]
+      }
+    ]
+  },
+  "limitations_meta": {
+    "analysis_mode": "heuristic",
+    "defensive_only": true,
+    "notes": [
+      "static_observed describes source declarations, never runtime reachability; exposure is inferred or unknown.",
+      "Same-file context and repository counts do not establish route ownership or auth enforcement.",
+      "Low-quality paths (tests/fixtures/mocks/examples) are retained in raw signals but separated in evidence class counts.",
+      "Use this artifact as a triage source-of-truth; validate high-priority items with repository context and runtime controls.",
+      "Assets, controls, and notable observations are heuristic overlays; absent-control entries indicate scanner did not find evidence, not necessarily that the control is missing in production.",
+      "ATT&CK technique mappings and detection opportunities are derived from insight kinds and finding-title keywords; treat them as triage hooks for SIEM/detection-engineering work, not authoritative MITRE mappings.",
+      "claim_support fields are closed-set token checks: supported_by_cited_evidence only means the cited evidence text names an identifier, route, or secret-kind the claim names; they never verify a claim's conclusion, and not_assessed never means a claim is false."
+    ]
+  }
+}

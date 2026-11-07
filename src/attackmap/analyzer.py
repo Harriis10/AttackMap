@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from collections import Counter
 
-import networkx as nx
-
 from .models import AttackSurface, AuthHint, Route, ScanResult
+from .topology import ServiceGraph, build_service_graph
 
 
 # Bounded line window used to attribute auth hints to a specific route
@@ -75,9 +74,32 @@ def identify_attack_surfaces(scan: ScanResult) -> list[AttackSurface]:
 
     for route in scan.routes:
         path_lower = route.path.lower()
-        auth_signals = _auth_hints_for_route(route, scan.auth_hints, auth_hints_by_file)
-        supporting_signals = sorted(supporting_hints_by_file.get(route.file, set())) or sorted(
-            {hint.hint for hint in all_supporting_hints}
+        # A plugin-declared route auth state (#256) beats the ±40-line file
+        # window, which lets a route inherit its neighbour's guard.
+        if route.auth == "required":
+            auth_signals = sorted(set(route.guards)) or ["plugin_declared_auth"]
+        elif route.auth == "anonymous":
+            auth_signals = []
+        else:
+            auth_signals = _auth_hints_for_route(route, scan.auth_hints, auth_hints_by_file)
+        supporting_signals = sorted(supporting_hints_by_file.get(route.file, set()))
+        # Same-file signals remain context, not proof of route ownership. Use
+        # only explicitly route-linked chains for the relationship flags.
+        chains = [
+            chain for chain in scan.taint_chains
+            if chain.route_file == route.file and chain.route_path == route.path
+            and chain.route_method == route.method and not chain.speculative
+        ]
+        data_store_interaction = any(chain.sink_kind in {"sql_execute", "nosql_injection"} for chain in chains)
+        outbound_integration = any(chain.sink_kind == "ssrf" for chain in chains)
+        context_signals = [f"same-file hint (ownership unknown): {signal}" for signal in supporting_signals]
+        context_signals.extend(
+            f"same-file datastore (ownership unknown): {db.kind}"
+            for db in scan.databases if db.file == route.file
+        )
+        context_signals.extend(
+            f"same-file outbound call (ownership unknown): {call.target}"
+            for call in scan.external_calls if call.file == route.file
         )
         rationale: list[str] = []
         exposure: AttackSurface["exposure"] = "public"
@@ -109,16 +131,16 @@ def identify_attack_surfaces(scan: ScanResult) -> list[AttackSurface]:
             rationale.append("Upload and import flows often lead to parser abuse or untrusted file handling.")
         elif any(segment in path_lower for segment in ("/internal", "/debug")):
             category = "internal"
-            exposure = "internal"
+            exposure = "unknown"
             risk = "medium"
-            rationale.append("Internal or debug routes are risky if they become reachable from untrusted networks.")
+            rationale.append("An internal/debug path name does not establish a network boundary; exposure is unknown.")
         elif any(segment in path_lower for segment in ("/health", "/ready", "/live", "/metrics")):
             category = "health"
             risk = "low"
             rationale.append("Operational endpoints reveal limited attack surface but may disclose useful reconnaissance details.")
         else:
             category = "public_api"
-            risk = "medium" if scan.databases or scan.external_calls else "low"
+            risk = "medium" if data_store_interaction or outbound_integration else "low"
             rationale.append("Public application routes are initial footholds for probing input handling and authorization gaps.")
 
         if has_internal_handler_hint and category not in {"admin", "auth", "webhook"}:
@@ -129,14 +151,17 @@ def identify_attack_surfaces(scan: ScanResult) -> list[AttackSurface]:
             rationale.append("Service-level handler metadata suggests this route is internal-facing (worker/event/internal handler path).")
 
         if auth_signals:
-            rationale.append(f"Auth indicators observed: {', '.join(auth_signals)}.")
+            rationale.append(f"Static auth indicators: {', '.join(auth_signals)}; enforcement is {route.auth}.")
         else:
             rationale.append("No auth indicators were observed near this route.")
 
-        if scan.databases:
-            rationale.append("Datastore usage was detected elsewhere in the repository, so route-to-data flows are plausible.")
-        if scan.external_calls:
-            rationale.append("Outbound HTTP calls were detected, creating trust boundaries to third-party systems.")
+        if data_store_interaction:
+            rationale.append("A route-linked static chain suggests datastore access; runtime reachability is unverified.")
+        if outbound_integration:
+            rationale.append("A route-linked static chain suggests outbound access; runtime reachability is unverified.")
+        if not data_store_interaction and not outbound_integration:
+            rationale.append("Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.")
+        rationale.append("Exposure is a static inference; deployment reachability has not been observed.")
 
         surfaces.append(
             AttackSurface(
@@ -148,8 +173,11 @@ def identify_attack_surfaces(scan: ScanResult) -> list[AttackSurface]:
                 exposure=exposure,
                 risk=risk,
                 auth_signals=auth_signals,
-                data_store_interaction=bool(scan.databases),
-                outbound_integration=bool(scan.external_calls),
+                auth=route.auth,
+                data_store_interaction=data_store_interaction,
+                outbound_integration=outbound_integration,
+                relationship_basis="inferred_route_chain" if data_store_interaction or outbound_integration else "unknown",
+                context_signals=sorted(set(context_signals)),
                 rationale=rationale,
             )
         )
@@ -157,16 +185,16 @@ def identify_attack_surfaces(scan: ScanResult) -> list[AttackSurface]:
     return surfaces
 
 
-def summarize_architecture(scan: ScanResult, graph: nx.DiGraph) -> str:
+def summarize_architecture(scan: ScanResult, graph: ServiceGraph | None = None) -> str:
     route_count = len(scan.routes)
     dbs = sorted({db.kind for db in scan.databases})
     external_targets = sorted({call.target for call in scan.external_calls})
     auth_summary = sorted({hint.hint for hint in scan.auth_hints})
     secret_count = len(scan.secret_hints)
+    service_graph = graph if isinstance(graph, ServiceGraph) else build_service_graph(scan)
     graph_edges = sorted(
-        f"{source} -> {target} ({data['relation']})"
-        for source, target, data in graph.edges(data=True)
-        if "relation" in data
+        f"{edge.source} -> {edge.target} ({edge.kind})"
+        for edge in service_graph.edges
     )
 
     lines = [
@@ -227,16 +255,16 @@ def _risk_rank(value: str) -> int:
 
 
 def _surface_summary(surface: AttackSurface) -> str:
-    traits: list[str] = []
+    traits: list[str] = [f"evidence: {surface.evidence_class}", f"auth enforcement: {surface.auth}"]
     if surface.auth_signals:
         traits.append(f"auth signals: {', '.join(surface.auth_signals)}")
     else:
         traits.append("no auth signals observed")
 
     if surface.data_store_interaction:
-        traits.append("data store reachable")
+        traits.append("inferred datastore relationship")
     if surface.outbound_integration:
-        traits.append("external trust boundary")
+        traits.append("inferred outbound relationship")
 
     return "; ".join(traits)
 
@@ -249,15 +277,19 @@ def summarize_attack_surface(scan: ScanResult, attack_surfaces: list[AttackSurfa
     high_risk = [surface for surface in ordered_surfaces if surface.risk == "high"]
     auth_and_admin = [surface for surface in ordered_surfaces if surface.category in {"auth", "admin"}]
     public_entry_points = [surface for surface in ordered_surfaces if surface.exposure == "public" and surface.category not in {"auth", "admin", "health"}]
-    operational_routes = [surface for surface in ordered_surfaces if surface.category in {"health", "internal"}]
+    operational_routes = [
+        surface for surface in ordered_surfaces
+        if surface.category in {"health", "internal"} or surface.exposure in {"internal", "unknown"}
+    ]
 
     lines = [
         "# Attack Surface",
         "",
         "## Priority View",
         f"- High-risk entry points: {len(high_risk)}",
-        f"- Public routes detected: {sum(1 for surface in ordered_surfaces if surface.exposure == 'public')}",
-        f"- Internal-only routes detected: {sum(1 for surface in ordered_surfaces if surface.exposure == 'internal')}",
+        f"- Public exposure candidates (static inference): {sum(1 for surface in ordered_surfaces if surface.exposure == 'public')}",
+        f"- Internal exposure candidates (static inference): {sum(1 for surface in ordered_surfaces if surface.exposure == 'internal')}",
+        f"- Routes with unknown exposure: {sum(1 for surface in ordered_surfaces if surface.exposure == 'unknown')}",
         f"- Routes with likely data access: {sum(1 for surface in ordered_surfaces if surface.data_store_interaction)}",
         f"- Routes with outbound trust boundaries: {sum(1 for surface in ordered_surfaces if surface.outbound_integration)}",
     ]
@@ -291,7 +323,7 @@ def summarize_attack_surface(scan: ScanResult, attack_surfaces: list[AttackSurfa
     else:
         lines.append("- No additional public application routes were classified")
 
-    lines.extend(["", "## Operational And Internal Routes"])
+    lines.extend(["", "## Operational, Internal, And Unknown-Exposure Routes"])
     if operational_routes:
         for surface in operational_routes[:10]:
             lines.append(
@@ -301,7 +333,7 @@ def summarize_attack_surface(scan: ScanResult, attack_surfaces: list[AttackSurfa
     else:
         lines.append("- No health, metrics, debug, or internal routes were classified")
 
-    lines.extend(["", "## External Dependencies"])
+    lines.extend(["", "## External Dependencies", "- Repository context; route ownership is not established by these signals."])
     if external_targets:
         for target in external_targets[:25]:
             lines.append(f"- {target}")

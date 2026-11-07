@@ -14,6 +14,9 @@ Supported lockfiles:
     - poetry.lock          (Poetry)           → pypi
     - uv.lock              (uv)               → pypi
     - Cargo.lock           (Cargo)            → cargo
+    - composer.lock        (Composer)         → composer   (#255)
+    - packages.lock.json   (NuGet)            → nuget      (#255)
+    - gradle.lockfile      (Gradle)           → maven      (#255)
 
 Go is intentionally NOT resolved from ``go.sum``: that file is a checksum
 history and can retain modules absent from the current build list, so emitting
@@ -34,12 +37,18 @@ import tomllib
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+from .index import PassSources
+from .safe_fs import is_unsafe_link
 from .models import DependencyHint
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 # Ecosystems whose manifests carry only ranges — a lockfile here supersedes
 # the same-directory manifest.
-SUPERSEDING_ECOSYSTEMS = frozenset({"npm", "pypi", "cargo"})
+SUPERSEDING_ECOSYSTEMS = frozenset({"npm", "pypi", "cargo", "composer"})
 
 _LOCKFILE_NAMES = {
     "package-lock.json",
@@ -47,6 +56,9 @@ _LOCKFILE_NAMES = {
     "poetry.lock",
     "uv.lock",
     "Cargo.lock",
+    "composer.lock",
+    "packages.lock.json",
+    "gradle.lockfile",
 }
 
 _MAX_DEPTH = 4  # slightly deeper than manifests — lockfiles can nest
@@ -71,24 +83,37 @@ class _Graph:
     roots: set[str] = field(default_factory=set)
 
 
-def parse_lockfiles(root: str | Path) -> tuple[list[DependencyHint], set[tuple[str, str]]]:
+def parse_lockfiles(
+    root: str | Path, index: "RepoIndex | None" = None
+) -> tuple[list[DependencyHint], set[tuple[str, str]]]:
     """Walk ``root`` for lockfiles.
 
     Returns ``(hints, superseded)`` where ``superseded`` is a set of
     ``(ecosystem, directory)`` pairs — the range-only manifests in those exact
     directories should be dropped in favour of the exact resolution.
+
+    Lockfile *content* resolves through the run's captured index when one is
+    given or pinned for this root (C33/AM047); the walk still enumerates the
+    live tree. Invalid lockfiles are skipped without superseding manifest
+    ranges. This legacy return type does not report semantic
+    dependency-coverage diagnostics.
     """
     root_path = Path(root).resolve()
-    if not root_path.exists() or not root_path.is_dir():
+    sources = PassSources.for_root(root_path, index)
+    if not sources.is_dir(root_path):
         return [], set()
 
     hints: list[DependencyHint] = []
     superseded: set[tuple[str, str]] = set()
-    for lockfile in _iter_lockfiles(root_path):
+    for lockfile in _iter_lockfiles(root_path, sources):
         rel = str(lockfile.relative_to(root_path)).replace("\\", "/")
         directory = str(Path(rel).parent).replace("\\", "/")
         try:
-            graph = _parse_lockfile(lockfile)
+            text = sources.text(lockfile)
+            if text is None:
+                # Unreadable, or not part of the captured snapshot (C33/AM047).
+                continue
+            graph = _parse_lockfile(lockfile, text, sources)
         except (OSError, UnicodeDecodeError, ValueError, tomllib.TOMLDecodeError, json.JSONDecodeError):
             continue
         if graph is None or not graph.instances:
@@ -102,16 +127,19 @@ def parse_lockfiles(root: str | Path) -> tuple[list[DependencyHint], set[tuple[s
     return hints, superseded
 
 
-def _iter_lockfiles(root: Path):
+def _iter_lockfiles(root: Path, sources: PassSources | None = None):
+    sources = sources or PassSources.for_root(root)
     def walk(directory: Path, depth: int):
         try:
-            entries = list(directory.iterdir())
+            entries = sources.children(directory)
         except (OSError, PermissionError):
             return
         for entry in entries:
             if entry.name in {".git", "node_modules", "__pycache__", "dist", "build", ".venv", "venv", "target", "vendor"}:
                 continue
-            if entry.is_dir():
+            if sources.unsafe(entry):
+                continue
+            if sources.is_dir(entry):
                 if depth < _MAX_DEPTH:
                     yield from walk(entry, depth + 1)
             elif entry.name in _LOCKFILE_NAMES:
@@ -120,19 +148,32 @@ def _iter_lockfiles(root: Path):
     yield from walk(root, 1)
 
 
-def _parse_lockfile(path: Path) -> _Graph | None:
+def _parse_lockfile(path: Path, text: str | None = None, sources: PassSources | None = None) -> _Graph | None:
+    """Parse one lockfile. ``text`` is the (snapshot-pinned) content; ``None``
+    without a live fallback means the file is outside the captured snapshot."""
     name = path.name
     if name == "package-lock.json":
-        return _parse_package_lock(path)
+        return _parse_package_lock(path, text)
     if name == "pnpm-lock.yaml":
-        return _parse_pnpm_lock(path)
+        return _parse_pnpm_lock(path, text)
     if name == "poetry.lock":
-        return _parse_poetry_lock(path)
+        return _parse_poetry_lock(path, text)
     if name == "uv.lock":
-        return _parse_uv_lock(path)
+        return _parse_uv_lock(path, text)
     if name == "Cargo.lock":
-        return _parse_cargo_lock(path)
+        return _parse_cargo_lock(path, text)
+    if name == "composer.lock":
+        return _parse_composer_lock(path, text, sources)
+    if name == "packages.lock.json":
+        return _parse_nuget_lock(path, text)
+    if name == "gradle.lockfile":
+        return _parse_gradle_lockfile(path, text)
     return None
+
+
+def _lockfile_text(path: Path, text: str | None) -> str:
+    """Pre-resolved snapshot text, or the live read for direct callers."""
+    return text if text is not None else path.read_text(encoding="utf-8")
 
 
 # --- Graph → hints ---------------------------------------------------------
@@ -192,15 +233,21 @@ def _shortest_paths(graph: _Graph, roots: set[str], names: set[str]) -> dict[str
 # --- npm: package-lock.json ------------------------------------------------
 
 
-def _parse_package_lock(path: Path) -> _Graph:
-    data = json.loads(path.read_text(encoding="utf-8"))
+def _parse_package_lock(path: Path, text: str | None = None) -> _Graph:
+    data = _npm_mapping(json.loads(_lockfile_text(path, text)), "root")
     graph = _Graph(ecosystem="npm")
-    packages = data.get("packages")
-    if isinstance(packages, dict):
+    if "packages" in data:
+        packages = _npm_mapping(data["packages"], "packages")
         _parse_package_lock_v3(packages, graph)
     else:
-        _parse_package_lock_v1(data.get("dependencies") or {}, graph)
+        _parse_package_lock_v1(_npm_mapping(data.get("dependencies", {}), "dependencies"), graph)
     return graph
+
+
+def _npm_mapping(value: object, field: str) -> dict:
+    if not isinstance(value, dict):
+        raise ValueError(f"package-lock.json {field} must be an object")
+    return value
 
 
 def _pkg_name_from_path(pkg_path: str) -> str | None:
@@ -214,13 +261,17 @@ def _pkg_name_from_path(pkg_path: str) -> str | None:
 
 def _parse_package_lock_v3(packages: dict, graph: _Graph) -> None:
     # The "" entry is the root project; its deps are the direct dependencies.
-    root_meta = packages.get("") or {}
+    root_meta = _npm_mapping(packages.get("", {}), "root package")
     for section in ("dependencies", "devDependencies"):
-        for dep in (root_meta.get(section) or {}):
+        for dep in _npm_mapping(root_meta.get(section, {}), section):
             graph.roots.add(dep)
     for pkg_path, meta in packages.items():
-        if pkg_path == "" or not isinstance(meta, dict):
+        if pkg_path == "":
             continue
+        meta = _npm_mapping(meta, "package metadata")
+        children = set()
+        for section in ("dependencies", "optionalDependencies", "peerDependencies"):
+            children.update(_npm_mapping(meta.get(section, {}), section))
         name = _pkg_name_from_path(pkg_path)
         version = meta.get("version")
         if not name or not isinstance(version, str):
@@ -228,37 +279,35 @@ def _parse_package_lock_v3(packages: dict, graph: _Graph) -> None:
         dev = bool(meta.get("dev", False))
         # Keyed by (name, version): a hoisted x@2 and a nested x@1 both survive.
         graph.instances[(name, version)] = graph.instances.get((name, version), False) or dev
-        children = set()
-        for section in ("dependencies", "optionalDependencies", "peerDependencies"):
-            children.update((meta.get(section) or {}).keys())
         if children:
             graph.edges.setdefault(name, set()).update(children)
 
 
 def _parse_package_lock_v1(deps: dict, graph: _Graph, *, is_root: bool = True) -> None:
     for name, meta in deps.items():
-        if not isinstance(meta, dict):
-            continue
+        meta = _npm_mapping(meta, "dependency metadata")
+        requires = _npm_mapping(meta.get("requires", {}), "requires")
         version = meta.get("version")
         if isinstance(version, str):
             dev = bool(meta.get("dev", False))
             graph.instances[(name, version)] = graph.instances.get((name, version), False) or dev
             if is_root:
                 graph.roots.add(name)
-            requires = meta.get("requires") or {}
-            if isinstance(requires, dict) and requires:
+            if requires:
                 graph.edges.setdefault(name, set()).update(requires.keys())
-        nested = meta.get("dependencies")
-        if isinstance(nested, dict):
+        if "dependencies" in meta:
+            nested = _npm_mapping(meta["dependencies"], "nested dependencies")
             _parse_package_lock_v1(nested, graph, is_root=False)
 
 
 # --- npm: pnpm-lock.yaml ---------------------------------------------------
 
-_PNPM_PKG_KEY_RE = re.compile(r"^/?(?P<name>@?[^@/][^@]*(?:/[^@]+)?)@(?P<version>[^(]+)")
+# `[^@]*` already spans the scoped `/name` part; the old extra `(?:/[^@]+)?`
+# made a long slash-heavy key backtrack quadratically (#236).
+_PNPM_PKG_KEY_RE = re.compile(r"^/?(?P<name>@?[^@/][^@]*)@(?P<version>[^(]+)")
 
 
-def _parse_pnpm_lock(path: Path) -> _Graph | None:
+def _parse_pnpm_lock(path: Path, text: str | None = None) -> _Graph | None:
     try:
         import yaml
     except ImportError:  # pragma: no cover - PyYAML is a declared dependency
@@ -271,7 +320,7 @@ def _parse_pnpm_lock(path: Path) -> _Graph | None:
     try:
         documents = [
             doc
-            for doc in yaml.safe_load_all(path.read_text(encoding="utf-8"))
+            for doc in yaml.safe_load_all(_lockfile_text(path, text))
             if isinstance(doc, dict)
         ]
     except yaml.YAMLError:
@@ -325,8 +374,8 @@ def _absorb_pnpm_document(data: dict, graph: _Graph) -> None:
 # --- pypi: poetry.lock / uv.lock; cargo: Cargo.lock (all TOML [[package]]) --
 
 
-def _parse_toml_packages(path: Path, ecosystem: str) -> _Graph:
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
+def _parse_toml_packages(path: Path, ecosystem: str, text: str | None = None) -> _Graph:
+    data = tomllib.loads(_lockfile_text(path, text))
     graph = _Graph(ecosystem=ecosystem)
     packages = data.get("package")
     if not isinstance(packages, list):
@@ -392,13 +441,115 @@ def _toml_dep_names(deps) -> set[str]:
     return names
 
 
-def _parse_poetry_lock(path: Path) -> _Graph:
-    return _parse_toml_packages(path, "pypi")
+def _parse_poetry_lock(path: Path, text: str | None = None) -> _Graph:
+    return _parse_toml_packages(path, "pypi", text)
 
 
-def _parse_uv_lock(path: Path) -> _Graph:
-    return _parse_toml_packages(path, "pypi")
+def _parse_uv_lock(path: Path, text: str | None = None) -> _Graph:
+    return _parse_toml_packages(path, "pypi", text)
 
 
-def _parse_cargo_lock(path: Path) -> _Graph:
-    return _parse_toml_packages(path, "cargo")
+def _parse_cargo_lock(path: Path, text: str | None = None) -> _Graph:
+    return _parse_toml_packages(path, "cargo", text)
+
+
+# --- composer: composer.lock (#255) ----------------------------------------
+
+
+def _composer_platform(name: str) -> bool:
+    lowered = name.lower()
+    return lowered == "php" or lowered.startswith(("ext-", "lib-", "composer-"))
+
+
+def _parse_composer_lock(path: Path, text: str | None = None, sources: PassSources | None = None) -> _Graph:
+    data = json.loads(_lockfile_text(path, text))
+    graph = _Graph(ecosystem="composer")
+    if not isinstance(data, dict):
+        return graph
+    for section, dev in (("packages", False), ("packages-dev", True)):
+        packages = data.get(section)
+        if not isinstance(packages, list):
+            continue
+        for pkg in packages:
+            if not isinstance(pkg, dict):
+                continue
+            name, version = pkg.get("name"), pkg.get("version")
+            if not isinstance(name, str) or not isinstance(version, str):
+                continue
+            # Packagist advisories use bare versions; composer.lock keeps the
+            # tag's `v` (symfony's `v5.4.1`).
+            version = version[1:] if version[:1] in {"v", "V"} and version[1:2].isdigit() else version
+            graph.instances[(name, version)] = graph.instances.get((name, version), False) or dev
+            requires = pkg.get("require")
+            if isinstance(requires, dict):
+                children = {str(c) for c in requires if not _composer_platform(str(c))}
+                if children:
+                    graph.edges.setdefault(name, set()).update(children)
+    # Direct deps come from the sibling composer.json when present.
+    manifest = path.with_name("composer.json")
+    try:
+        manifest_data = {}
+        if sources is not None:
+            manifest_data = json.loads(sources.text(manifest) or "{}")
+        elif manifest.is_file():
+            manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, ValueError):
+        manifest_data = {}
+    if isinstance(manifest_data, dict):
+        for section in ("require", "require-dev"):
+            block = manifest_data.get(section)
+            if isinstance(block, dict):
+                graph.roots.update(str(n) for n in block if not _composer_platform(str(n)))
+    return graph
+
+
+# --- nuget: packages.lock.json (#255) --------------------------------------
+
+
+def _parse_nuget_lock(path: Path, text: str | None = None) -> _Graph:
+    data = json.loads(_lockfile_text(path, text))
+    graph = _Graph(ecosystem="nuget")
+    frameworks = data.get("dependencies") if isinstance(data, dict) else None
+    if not isinstance(frameworks, dict):
+        return graph
+    for packages in frameworks.values():  # one block per target framework
+        if not isinstance(packages, dict):
+            continue
+        for name, pkg in packages.items():
+            if not isinstance(pkg, dict):
+                continue
+            kind = str(pkg.get("type", ""))
+            version = pkg.get("resolved")
+            if kind == "Project" or not isinstance(version, str) or not version:
+                continue  # a project reference is the repo's own code
+            graph.instances.setdefault((str(name), version), False)
+            if kind == "Direct":
+                graph.roots.add(str(name))
+            children = pkg.get("dependencies")
+            if isinstance(children, dict) and children:
+                graph.edges.setdefault(str(name), set()).update(str(c) for c in children)
+    return graph
+
+
+# --- maven: gradle.lockfile (#255) -----------------------------------------
+
+
+def _parse_gradle_lockfile(path: Path, text: str | None = None) -> _Graph:
+    """``group:artifact:version=conf1,conf2`` lines. Gradle's lockfile doesn't
+    record the graph, so every entry is treated as direct; one used only by
+    test configurations is marked dev."""
+    graph = _Graph(ecosystem="maven")
+    for raw in _lockfile_text(path, text).splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or line.startswith("empty="):
+            continue
+        coord, _, confs = line.partition("=")
+        parts = coord.split(":")
+        if len(parts) != 3 or not all(parts):
+            continue
+        name, version = f"{parts[0]}:{parts[1]}", parts[2]
+        conf_list = [c.strip() for c in confs.split(",") if c.strip()]
+        dev = bool(conf_list) and all(c.lower().startswith("test") for c in conf_list)
+        graph.instances[(name, version)] = graph.instances.get((name, version), True) and dev
+        graph.roots.add(name)
+    return graph

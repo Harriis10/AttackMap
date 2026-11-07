@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="49" time="34.466" timestamp="2026-10-23T13:15:22.562949+02:00" hostname="corpsec"><testcase classname="tests.test_analyzer_run_ledger" name="test_selection_is_pending_and_flaky_detector_is_not_called_again" time="0.060" /><testcase classname="tests.test_analyzer_run_ledger" name="test_automatic_decisions_distinguish_opt_in_unmatched_and_detect_error" time="0.043" /><testcase classname="tests.test_analyzer_run_ledger" name="test_explicit_opt_in_still_runs_and_public_list_api_is_preserved" time="0.022" /><testcase classname="tests.test_analyzer_run_ledger" name="test_analysis_failure_does_not_erase_sibling_success_or_merge_priority" time="0.145" /><testcase classname="tests.test_analyzer_run_ledger" name="test_strict_failure_keeps_pending_siblings_and_never_claims_completion" time="0.030" /><testcase classname="tests.test_analyzer_run_ledger" name="test_plan_rejects_a_different_capture_even_for_the_same_root" time="0.031" /><testcase classname="tests.test_analyzer_run_ledger" name="test_new_scan_uses_new_detection_instead_of_reusing_previous_plan" time="0.035" /><testcase classname="tests.test_analyzer_run_ledger" name="test_all_unmatched_is_terminal_without_claiming_any_analysis" time="0.035" /><testcase classname="tests.test_analyzer_run_ledger" name="test_isolated_outcome_distinguishes_host_request_from_analyzer_execution[True]" time="0.024" /><testcase classname="tests.test_analyzer_run_ledger" name="test_isolated_outcome_distinguishes_host_request_from_analyzer_execution[False]" time="0.036" /><testcase classname="tests.test_analyzer_run_ledger" name="test_captured_input_failure_does_not_claim_host_or_analyzer_started" time="0.020" /><testcase classname="tests.test_analyzer_run_ledger" name="test_actual_discovery_origin_is_retained_without_another_entry_point_load" time="0.019" /><testcase classname="tests.test_analyzer_run_ledger" name="test_supplied_name_collision_never_borrows_builtin_origin" time="0.018" /><testcase classname="tests.test_analyzer_run_ledger" name="test_supplied_subclass_is_its_own_implementation_not_builtin_provenance" time="0.016" /><testcase classname="tests.test_analyzer_run_ledger" name="test_plan_rejects_other_repository_and_conflicting_instances_without_consuming" time="0.101" /><testcase classname="tests.test_analyzer_run_ledger" name="test_metadata_default_version_is_unknown_unless_explicitly_declared[True]" time="0.032" /><testcase classname="tests.test_analyzer_run_ledger" name="test_metadata_default_version_is_unknown_unless_explicitly_declared[False]" time="0.030" /><testcase classname="tests.test_analyzer_run_ledger" name="test_monotonic_timing_order_counts_and_safe_live_progress" time="0.067" /><testcase classname="tests.test_analyzer_run_ledger" name="test_legacy_ledger_loads_with_absent_details_and_events_are_bounded" time="0.019" /><testcase classname="tests.test_analyzer_run_ledger" name="test_nonfinite_or_negative_observed_times_are_rejected[-1.0]" time="0.004" /><testcase classname="tests.test_analyzer_run_ledger" name="test_nonfinite_or_negative_observed_times_are_rejected[inf]" time="0.007" /><testcase classname="tests.test_analyzer_run_ledger" name="test_nonfinite_or_negative_observed_times_are_rejected[nan]" time="0.010" /><testcase classname="tests.test_analyzer_run_ledger" name="test_provenance_failure_is_timed_and_recorded_before_strict_raise" time="0.018" /><testcase classname="tests.test_analyzer_run_ledger" name="test_detection_and_selection_stage_feed_is_ordered_and_private" time="0.051" /><testcase classname="tests.test_pipeline_analyzer_ledger" name="test_pipeline_detects_once_and_report_manifest_share_observed_outcomes" time="0.856" /><testcase classname="tests.test_pipeline_analyzer_ledger" name="test_pipeline_preserves_automatic_skips_and_detect_error_without_claiming_success" time="0.598" /><testcase classname="tests.test_pipeline_analyzer_ledger" name="test_all_unmatched_publishes_decisions_and_retains_empty_legacy_selected_list" time="0.688" /><testcase classname="tests.test_pipeline_analyzer_ledger" name="test_selected_analysis_failure_remains_failed_in_both_artifacts" time="0.950" /><testcase classname="tests.test_pipeline_analyzer_ledger" name="test_deadline_before_scan_records_selected_but_unexecuted_analyzer" time="0.743" /><testcase classname="tests.test_pipeline_analyzer_ledger" name="test_selection_progress_exists_before_detection_and_stops_on_failure[True]" time="0.152" /><testcase classname="tests.test_pipeline_analyzer_ledger" name="test_selection_progress_exists_before_detection_and_stops_on_failure[False]" time="0.157"><failure message="AttributeError: 'Progress' object has no attribute 'begin'">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/ledger-live-final-20261023/test_selection_progress_exists1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002872AC120B0&gt;
+selection_failure = False
+
+    @pytest.mark.parametrize("selection_failure", [True, False])
+    def test_selection_progress_exists_before_detection_and_stops_on_failure(tmp_path, monkeypatch, selection_failure):
+        class Progress:
+            def __init__(self):
+                self.labels = []
+                self.done_calls = 0
+            def stage(self, label):
+                self.labels.append(label)
+            def done(self):
+                self.done_calls += 1
+        progress = Progress()
+        monkeypatch.setattr("attackmap.pipeline.create_progress", lambda *args, **kwargs: progress)
+        if selection_failure:
+            def unavailable(*args, **kwargs):
+                progress.stage("Analyzer discovery started")
+                raise ValueError("PIPELINE_LEDGER_PRIVATE")
+            monkeypatch.setattr("attackmap.pipeline.resolve_run_analyzers", unavailable)
+            with pytest.raises(ValueError, match="PIPELINE_LEDGER_PRIVATE"):
+                _run(tmp_path, plugins=[CountingPlugin()], monkeypatch=monkeypatch)
+            assert progress.labels == ["Analyzer discovery started"]
+        else:
+&gt;           _run(tmp_path, plugins=[CountingPlugin()], monkeypatch=monkeypatch)
+
+tests\test_pipeline_analyzer_ledger.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_pipeline_analyzer_ledger.py:41: in _run
+    state = run_scan(AnalyzeOptions(repo_path=repo, output=output, analyzers=plugins if explicit else None,
+src\attackmap\pipeline.py:1072: in run_scan
+    return _run_scan_published(options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\attackmap\pipeline.py:1089: in _run_scan_published
+    return _run_scan(options, state=state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\attackmap\pipeline.py:481: in _run_scan
+    _timed(state, "scan_and_merge", _scan)
+src\attackmap\pipeline.py:260: in _timed
+    fn()
+src\attackmap\pipeline.py:469: in _scan
+    state.scan = analyze_repository(
+src\attackmap\analyzers.py:923: in analyze_repository
+    run_repo_passes(merged, repo_root, progress=progress, recall=recall, index=index)
+src\attackmap\scanner.py:1014: in run_repo_passes
+    result.anomalies = result.anomalies + find_anomalies(result, root_path, progress=progress)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+scan = ScanResult(root='C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\ledger-live-final-20261023\\test_se...'analysis', state='succeeded', elapsed_ms=2.218900015577674, error_type=None)])]), files_scanned=1, scan_snapshot=None)
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp039-python-20261023/ledger-live-final-20261023/test_selection_progress_exists1/repo')
+progress = &lt;test_pipeline_analyzer_ledger.test_selection_progress_exists_before_detection_and_stops_on_failure.&lt;locals&gt;.Progress object at 0x000002872AAB7770&gt;
+index = None
+
+    def find_anomalies(
+        scan: ScanResult,
+        root: str | Path | None = None,
+        progress: "_Progress | None" = None,
+        index: "RepoIndex | None" = None,
+    ) -&gt; list[Anomaly]:
+        """Return within-repo consistency outliers for the routes in ``scan``.
+    
+        On a large route surface the per-cohort source-window reads dominate this
+        pass, so when a ``progress`` reporter is supplied it drives a determinate
+        bar over the cohorts (rather than an open-ended spinner). Source-window
+        *content* resolves through the run's captured index when one is given or
+        pinned for this root (C33/AM047): a mid-run edit cannot change the
+        peer-group signals this pass compares.
+        """
+        root_path = Path(root or scan.root).resolve()
+        sources = PassSources.for_root(root_path, index)
+    
+        routes = [r for r in scan.routes if not is_test_file(r.file)]
+        groups: dict[str, list[Route]] = {}
+        for route in routes:
+            key = _peer_key(route.path)
+            if key:
+                groups.setdefault(key, []).append(route)
+    
+        # Per-file line cache (read each source file at most once) and the sorted
+        # set of route lines per file, used to bound each handler's signal span.
+        line_cache: dict[str, list[str]] = {}
+        file_route_lines: dict[str, list[int]] = {}
+        for route in routes:
+            if route.line is not None:
+                file_route_lines.setdefault(route.file, []).append(route.line)
+        for lines in file_route_lines.values():
+            lines.sort()
+    
+        ctx = _SignalCtx(root_path, line_cache, file_route_lines, sources)
+    
+        if progress is not None:
+&gt;           progress.begin(len(groups), "Anomaly / outlier detection")
+            ^^^^^^^^^^^^^^
+E           AttributeError: 'Progress' object has no attribute 'begin'
+
+src\attackmap\anomalies.py:187: AttributeError</failure></testcase><testcase classname="tests.test_single_pass" name="test_each_repo_pass_runs_exactly_once" time="0.790" /><testcase classname="tests.test_single_pass" name="test_repo_passes_see_merged_routes" time="0.367" /><testcase classname="tests.test_single_pass" name="test_single_done_progress_event" time="0.338" /><testcase classname="tests.test_progress" name="test_disabled_when_not_a_tty" time="0.012" /><testcase classname="tests.test_progress" name="test_disabled_when_explicitly_off" time="0.002" /><testcase classname="tests.test_progress" name="test_renders_bar_and_percentage_on_tty" time="0.002" /><testcase classname="tests.test_progress" name="test_stage_renders_and_stops_cleanly" time="0.034" /><testcase classname="tests.test_progress" name="test_fmt_duration" time="0.004" /><testcase classname="tests.test_progress" name="test_truncate_keeps_tail" time="0.003" /><testcase classname="tests.test_progress" name="test_scan_repo_drives_progress_without_error" time="0.199" /><testcase classname="tests.test_progress" name="test_scan_repo_unaffected_without_progress" time="0.105" /><testcase classname="tests.test_progress" name="test_json_progress_emits_ndjson_lifecycle" time="0.015" /><testcase classname="tests.test_progress" name="test_json_progress_throttles_but_keeps_count_accurate" time="0.009" /><testcase classname="tests.test_progress" name="test_json_progress_survives_closed_stream" time="0.002" /><testcase classname="tests.test_progress" name="test_create_progress_selects_sink" time="0.003" /><testcase classname="tests.test_pipeline" name="test_analyze_report_json_keys_locked" time="3.068" /><testcase classname="tests.test_pipeline" name="test_run_manifest_always_written_including_markdown_format" time="2.116" /><testcase classname="tests.test_pipeline" name="test_run_scan_returns_state_without_typer" time="2.620" /></testsuite></testsuites>

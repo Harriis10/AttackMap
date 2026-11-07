@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, get_args
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
+
+from .redact import redact_list, redact_text
+from .analyzer_run_ledger import AnalyzerRunLedger
 
 
 # Provenance field. Present on every analyzer-emitted signal so downstream
@@ -14,15 +17,84 @@ from pydantic import BaseModel, Field
 _PROVENANCE_FIELD = Field(default=None, exclude=True, repr=False)
 
 
+RouteAuth = Literal["required", "anonymous", "unknown"]
+
+
+# Package ecosystems a `DependencyHint` / `Vulnerability` may carry (#255).
+# Exported from `attackmap.sdk`; `cve.py` maps each to its OSV.dev ecosystem
+# (or marks it inventory-only when OSV has none).
+DependencyEcosystem = Literal[
+    "pypi",
+    "npm",
+    "go",
+    "cargo",
+    "composer",
+    "swiftpm",
+    "maven",
+    "nuget",
+    "conan",
+    "vcpkg",
+    "gem",
+    "cocoapods",
+    "hex",
+    "pub",
+]
+DEPENDENCY_ECOSYSTEMS: tuple[str, ...] = get_args(DependencyEcosystem)
+
+
 class Route(BaseModel):
     path: str
     method: str = "ANY"
     file: str
     line: int | None = None
     source_analyzer: str | None = _PROVENANCE_FIELD
+    # Route-level auth as the plugin resolved it (#256): `required` (a guard
+    # such as [Authorize] / @PreAuthorize / an auth middleware applies),
+    # `anonymous` (explicitly public, e.g. [AllowAnonymous]), or `unknown`
+    # (not determined — core falls back to its own resolution).
+    auth: RouteAuth = "unknown"
+    # Names of the guards that apply, e.g. ["[Authorize(Policy=Admin)]"].
+    guards: list[str] = Field(default_factory=list)
+    # Source text that established `auth` (redacted like other evidence).
+    guard_evidence: str | None = None
+
+    @model_validator(mode="after")
+    def _redact_guard_evidence(self) -> "Route":
+        if self.guard_evidence:
+            object.__setattr__(self, "guard_evidence", redact_text(self.guard_evidence))
+        return self
 
 
-class ExternalCall(BaseModel):
+# Fields that carry text copied out of the scanned repository. Every model
+# with one of these redacts it at construction time (#235), so no detector —
+# core or plugin — can put a raw credential into a report, SARIF, PR comment
+# or LLM pack.
+_EVIDENCE_TEXT_FIELDS = ("evidence_text", "db_evidence", "sanitizer_evidence", "target")
+_EVIDENCE_LIST_FIELDS = ("evidence",)
+
+
+class _RedactedEvidence(BaseModel):
+    @model_validator(mode="after")
+    def _redact_evidence(self):  # type: ignore[no-untyped-def]
+        fields = type(self).model_fields
+        for name in _EVIDENCE_TEXT_FIELDS:
+            if name in fields:
+                value = getattr(self, name)
+                if isinstance(value, str):
+                    redacted = redact_text(value)
+                    if redacted != value:
+                        object.__setattr__(self, name, redacted)
+        for name in _EVIDENCE_LIST_FIELDS:
+            if name in fields:
+                value = getattr(self, name)
+                if isinstance(value, list) and value and all(isinstance(v, str) for v in value):
+                    redacted_list = redact_list(value)
+                    if redacted_list != value:
+                        object.__setattr__(self, name, redacted_list)
+        return self
+
+
+class ExternalCall(_RedactedEvidence):
     target: str
     file: str
     line: int | None = None
@@ -35,7 +107,7 @@ class ExternalCall(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class DatabaseHint(BaseModel):
+class DatabaseHint(_RedactedEvidence):
     kind: str
     file: str
     line: int | None = None
@@ -43,7 +115,7 @@ class DatabaseHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class AuthHint(BaseModel):
+class AuthHint(_RedactedEvidence):
     hint: str
     file: str
     line: int | None = None
@@ -52,7 +124,7 @@ class AuthHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class ServiceHint(BaseModel):
+class ServiceHint(_RedactedEvidence):
     hint: str
     file: str
     line: int | None = None
@@ -61,7 +133,7 @@ class ServiceHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class EdgeHint(BaseModel):
+class EdgeHint(_RedactedEvidence):
     hint: str
     file: str
     line: int | None = None
@@ -70,7 +142,7 @@ class EdgeHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class EntrypointHint(BaseModel):
+class EntrypointHint(_RedactedEvidence):
     hint: str
     file: str
     line: int | None = None
@@ -79,7 +151,7 @@ class EntrypointHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class ProtocolHint(BaseModel):
+class ProtocolHint(_RedactedEvidence):
     hint: str
     file: str
     line: int | None = None
@@ -88,7 +160,7 @@ class ProtocolHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class FrameworkHint(BaseModel):
+class FrameworkHint(_RedactedEvidence):
     hint: str
     file: str
     line: int | None = None
@@ -97,7 +169,7 @@ class FrameworkHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class SecretHint(BaseModel):
+class SecretHint(_RedactedEvidence):
     name: str
     file: str
     line: int | None = None
@@ -112,7 +184,25 @@ class SecretHint(BaseModel):
     kind: str = "env_reference"
 
 
-class DependencyHint(BaseModel):
+class SecretHistoryHit(_RedactedEvidence):
+    """A hard-coded secret found in git history (#252, ``--secrets-history``).
+
+    ``name`` is the masked value; ``introduced_in`` is the oldest scanned
+    commit that added it; ``still_in_head`` is False when a later commit
+    removed it from the file (it remains in every clone's history).
+    """
+
+    name: str
+    kind: str
+    file: str
+    line: int | None = None
+    introduced_in: str
+    still_in_head: bool
+    evidence_text: str | None = None
+    source_analyzer: str | None = _PROVENANCE_FIELD
+
+
+class DependencyHint(_RedactedEvidence):
     """A single third-party dependency declared in a manifest or lockfile.
 
     Manifests (#48) carry version *ranges* verbatim (``^4.16.0``, ``>=2,<3``,
@@ -123,7 +213,7 @@ class DependencyHint(BaseModel):
 
     name: str
     version: str
-    ecosystem: Literal["pypi", "npm", "go", "cargo", "composer", "swiftpm"]
+    ecosystem: DependencyEcosystem
     file: str
     line: int | None = None
     # dev / build-only dependency (``devDependencies``, ``require-dev``,
@@ -142,7 +232,7 @@ class DependencyHint(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class CodeWeakness(BaseModel):
+class CodeWeakness(_RedactedEvidence):
     """A novel vulnerability-class weakness in source (#77).
 
     Emitted by the built-in `weaknesses` finder — bug classes beyond the
@@ -158,6 +248,9 @@ class CodeWeakness(BaseModel):
         "redos",
         "insecure_upload",
         "graphql_exposure",
+        "graphql_no_query_limits",
+        "graphql_batching",
+        "prompt_injection_attempt",
     ]
     file: str
     line: int | None = None
@@ -207,7 +300,7 @@ class Anomaly(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class WebHardeningIssue(BaseModel):
+class WebHardeningIssue(_RedactedEvidence):
     """A web-hardening misconfiguration (#71).
 
     Emitted by the built-in web-hardening finder. Detects
@@ -218,7 +311,10 @@ class WebHardeningIssue(BaseModel):
 
     kind: Literal[
         "cors_wildcard_credentials",
+        "cors_wildcard_origin",
+        "cors_untrusted_origin",
         "csrf_disabled",
+        "csrf_unprotected_session",
         "insecure_cookie",
         "weak_csp",
         "debug_enabled",
@@ -230,7 +326,33 @@ class WebHardeningIssue(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class WorkflowIssue(BaseModel):
+class SupplyChainIssue(_RedactedEvidence):
+    """A dependency supply-chain risk beyond CVEs (#247).
+
+    Emitted by the built-in, offline ``supply_chain`` pass over manifests,
+    lockfiles and package-manager configs: dependency confusion, typosquat
+    candidates, mutable VCS/URL dependencies, install scripts, unlocked
+    manifests and insecure registries.
+    """
+
+    kind: Literal[
+        "dependency_confusion",
+        "typosquat_candidate",
+        "mutable_vcs_dependency",
+        "install_script",
+        "unlocked_manifest",
+        "insecure_registry",
+    ]
+    file: str
+    line: int | None = None
+    package: str | None = None
+    ecosystem: str | None = None
+    evidence_text: str | None = None
+    severity: Literal["low", "medium", "high"] = "medium"
+    source_analyzer: str | None = _PROVENANCE_FIELD
+
+
+class WorkflowIssue(_RedactedEvidence):
     """A CI-workflow security issue in a GitHub Actions file (#142).
 
     Emitted by the built-in workflow scanner over ``.github/workflows/*.yml``.
@@ -248,6 +370,18 @@ class WorkflowIssue(BaseModel):
         "script_injection",
         "broad_permissions",
         "self_hosted_pr",
+        # #246
+        "workflow_run_artifact_poisoning",
+        "issue_comment_pr_checkout",
+        "github_script_injection",
+        "github_env_injection",
+        "default_token_permissions",
+        "oidc_on_untrusted_trigger",
+        "secrets_inherit",
+        "checkout_persist_credentials",
+        "cache_poisoning_pr_target",
+        "docker_action_unpinned",
+        "curl_pipe_shell",
     ]
     file: str
     line: int | None = None
@@ -259,7 +393,7 @@ class WorkflowIssue(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class CryptoWeakness(BaseModel):
+class CryptoWeakness(_RedactedEvidence):
     """An insecure-cryptography or weak-randomness usage (#70).
 
     Emitted by the built-in crypto finder. Heuristic and regex-based;
@@ -282,7 +416,7 @@ class CryptoWeakness(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class BolaCandidate(BaseModel):
+class BolaCandidate(_RedactedEvidence):
     """A route that may be missing object-level authorization (#69).
 
     Emitted by the authz analyzer when a route takes a resource
@@ -305,7 +439,19 @@ class BolaCandidate(BaseModel):
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
-class TaintChain(BaseModel):
+class TaintFlowStep(_RedactedEvidence):
+    """One step of an intra-procedural flow (#239): where the tainted value
+    came from, each assignment it passed through, any sanitizer/guard bound to
+    it, and the sink. Rendered as SARIF ``codeFlows``. ``evidence_text`` is
+    the code at that step (redacted like other evidence)."""
+
+    file: str
+    line: int | None = None
+    kind: Literal["source", "propagation", "sanitizer", "guard", "sink"]
+    evidence_text: str | None = None
+
+
+class TaintChain(_RedactedEvidence):
     """Cross-file data-flow evidence: a route reaches a sink via imports.
 
     Emitted by the lite taint analyzer (see #45). Each entry names the
@@ -328,6 +474,17 @@ class TaintChain(BaseModel):
         "ssrf",
         "nosql_injection",
         "open_redirect",
+        # #240 — `dynamic_open` stays as the schema-compatible alias of
+        # `path_traversal` (#200).
+        "path_traversal",
+        "zip_slip",
+        "code_injection",
+        "expression_injection",
+        "jndi_injection",
+        "ldap_injection",
+        "xpath_injection",
+        "header_injection",
+        "regex_injection",
     ]
     sink_file: str
     sink_line: int | None = None
@@ -352,6 +509,15 @@ class TaintChain(BaseModel):
     # leads for the verifier to adjudicate, not asserted flows: they are kept
     # out of the `--fail-on-new-high` gate and clearly labelled in reports.
     speculative: bool = False
+    # Intra-procedural flow (#239). Set when a request-derived value is traced
+    # (through local assignments) into the sink's dangerous argument — or, for
+    # a sanitized chain, into the sanitizer/guard that neutralizes it.
+    # `source_kind` is the catalog kind (query, body, path_param, header,
+    # cookie, upload_filename, message); `source_line` is in `sink_file`.
+    # None when no flow was established (reachability-only chain).
+    source_kind: str | None = None
+    source_line: int | None = None
+    flow: list[TaintFlowStep] = Field(default_factory=list)
     source_analyzer: str | None = _PROVENANCE_FIELD
 
 
@@ -372,7 +538,7 @@ class Vulnerability(BaseModel):
     affected_range: str = ""  # human-readable "affected [lower, upper)" text
     package_name: str
     package_version: str
-    ecosystem: Literal["pypi", "npm", "go", "cargo", "composer", "swiftpm"]
+    ecosystem: DependencyEcosystem
     # Lockfile provenance (#143): False when the vulnerable package is a
     # transitive dependency; ``resolution_path`` is its chain from a direct
     # dependency (``"express > body-parser > qs"``) so the finding can say how
@@ -398,7 +564,39 @@ SignalKind = Literal[
 ]
 
 
-class Signal(BaseModel):
+SourceRole = Literal["production", "test", "fixture", "mock", "example", "generated", "unknown"]
+
+
+class SignalClassification(BaseModel):
+    classification_version: Literal["1.0"] | None = None
+    source_role: SourceRole = "unknown"
+    evidence_kind: Literal["static_extraction", "unknown"] = "unknown"
+    classification_basis: Literal["unknown", "path_convention", "detector_owned", "artifact_manifest"] = "unknown"
+
+    @model_validator(mode="after")
+    def _require_positive_production_ownership(self):
+        if self.source_role == "production" and self.classification_basis != "detector_owned":
+            self.source_role = "unknown"
+        return self
+
+
+class SignalOrigin(SignalClassification):
+    analyzer: str | None = None
+    analyzer_version: str | None = None
+    metadata_status: Literal["known", "legacy_unknown"] = "legacy_unknown"
+    file: str | None = None
+    line: int | None = None
+    location_reason: str | None = None
+    evidence_text: str | None = None
+    properties: dict[str, str] = Field(default_factory=dict)
+
+
+class SignalConflict(BaseModel):
+    field: str
+    values: list[str] = Field(default_factory=list)
+
+
+class Signal(_RedactedEvidence, SignalClassification):
     """Unified view of a single static-analysis signal.
 
     Synthesized from the typed hint lists on `ScanResult` via `all_signals()`.
@@ -415,6 +613,9 @@ class Signal(BaseModel):
     confidence: float = 0.7
     evidence_text: str | None = None
     properties: dict[str, str] = Field(default_factory=dict)
+    observation_id: str | None = None
+    origins: list[SignalOrigin] = Field(default_factory=list)
+    conflicts: list[SignalConflict] = Field(default_factory=list)
 
     def location(self) -> str:
         """Stable `file:line` reference if line known, else just file."""
@@ -429,10 +630,22 @@ class AttackSurface(BaseModel):
     exposure: Literal["public", "internal", "unknown"] = "public"
     risk: Literal["low", "medium", "high"]
     auth_signals: list[str] = Field(default_factory=list)
+    # Nearby hints are candidates; only an analyzer-resolved route declaration
+    # establishes an auth requirement. Unknown does not mean unauthenticated.
+    auth: RouteAuth = "unknown"
     data_store_interaction: bool = False
     outbound_integration: bool = False
+    relationship_basis: Literal["unknown", "inferred_route_chain"] = "unknown"
+    context_signals: list[str] = Field(default_factory=list)
     rationale: list[str] = Field(default_factory=list)
     line: int | None = None
+
+    @computed_field
+    @property
+    def evidence_class(self) -> str:
+        from .evidence import surface_evidence_class
+
+        return surface_evidence_class(self)
 
     def location(self) -> str:
         return f"{self.file}:{self.line}" if self.line is not None else self.file
@@ -462,6 +675,68 @@ class ExploitabilityFactor(BaseModel):
     detail: str = ""  # concrete evidence for this factor
 
 
+class ExploitabilityChainIdentity(BaseModel):
+    """The typed taint merge identity, not an observation/prose similarity key."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    route_method: str
+    route_path: str
+    route_file: str
+    sink_kind: str
+    sink_file: str
+    sink_line: int | None = None
+
+
+class ExploitabilityScoreReference(BaseModel):
+    """Producer-local integrity reference; never publisher/runtime attestation."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    version: Literal["route-sink/v1"] = "route-sink/v1"
+    score_id: str = Field(pattern=r"^score/v1:[0-9a-f]{64}$")
+    repository_root: str | None = None
+    snapshot_id: str | None = None
+    scope: Literal["repository_snapshot", "unverified"]
+    chain: ExploitabilityChainIdentity
+
+    @staticmethod
+    def context(repository_root: str | None, snapshot_id: str | None) -> tuple[str | None, str | None, str]:
+        import re
+
+        root = repository_root if isinstance(repository_root, str) and repository_root.strip() else None
+        if root is not None and any(ord(c) < 32 for c in root):
+            root = None
+        snapshot = snapshot_id if isinstance(snapshot_id, str) and re.fullmatch(r"[0-9a-f]{64}", snapshot_id) else None
+        absolute = root is not None and (root.startswith("/") or re.match(r"^[A-Za-z]:[/\\]", root) is not None)
+        return root, snapshot, "repository_snapshot" if absolute and snapshot is not None else "unverified"
+
+    @staticmethod
+    def identity(repository_root: str | None, snapshot_id: str | None, chain: ExploitabilityChainIdentity) -> str:
+        import hashlib
+        import json
+
+        payload = ["route-sink/v1", repository_root, snapshot_id, chain.model_dump()]
+        encoded = json.dumps(payload, sort_keys=True, ensure_ascii=True, separators=(",", ":")).encode()
+        return "score/v1:" + hashlib.sha256(encoded).hexdigest()
+
+    @classmethod
+    def from_chain(cls, chain: TaintChain, *, repository_root: str | None, snapshot_id: str | None):
+        root, snapshot, scope = cls.context(repository_root, snapshot_id)
+        key = ExploitabilityChainIdentity(**{name: getattr(chain, name) for name in ExploitabilityChainIdentity.model_fields})
+        return cls(score_id=cls.identity(root, snapshot, key), repository_root=root,
+                   snapshot_id=snapshot, scope=scope, chain=key)
+
+    @model_validator(mode="after")
+    def _consistent_reference(self):
+        root, snapshot, scope = self.context(self.repository_root, self.snapshot_id)
+        if root != self.repository_root or snapshot != self.snapshot_id:
+            raise ValueError("Unsupported score reference context")
+        if self.scope == "repository_snapshot" and scope != self.scope:
+            raise ValueError("Snapshot-scoped score reference needs absolute repository and snapshot identity")
+        if self.score_id != self.identity(root, snapshot, self.chain):
+            raise ValueError("Score reference does not match its producer identity")
+        return self
+
+
 class ExploitabilityScore(BaseModel):
     """A fused 'exploitable now' score for one route→sink combination (#79).
 
@@ -478,12 +753,57 @@ class ExploitabilityScore(BaseModel):
     raw_score: int  # pre-clamp sum of factor points
     tier: ExploitabilityTier
     factors: list[ExploitabilityFactor] = Field(default_factory=list)
+    producer_reference: ExploitabilityScoreReference | None = None
 
 
-class Finding(BaseModel):
+def title_slug(title: str) -> str:
+    """Legacy rule id: the slugified finding title (pre-#223)."""
+    import re as _re
+
+    slug = _re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+    return slug or "finding"
+
+
+def finding_rule_id(finding: "Finding") -> str:
+    """The finding's stable rule id, or its title slug when it has none."""
+    return finding.rule_id or title_slug(finding.title)
+
+
+class FindingLocation(BaseModel):
+    """A file (and line, when known) a finding applies to (#214). Carried
+    structurally so SARIF, suppression and diffing don't have to parse
+    evidence prose."""
+
+    file: str
+    line: int | None = None
+    # Instance identity across runs (#222): rule + file + normalized source
+    # line, without the line number. Set by `fingerprint.assign_fingerprints`.
+    fingerprint: str | None = None
+
+
+class FindingTaxonomy(BaseModel):
+    """Standard ids for a finding's rule (#250), looked up by `rule_id` in
+    `attackmap.taxonomy` — never inferred from title or evidence text."""
+
+    cwe: list[str] = Field(default_factory=list)  # ["CWE-918"]
+    owasp: list[str] = Field(default_factory=list)  # ["A10:2021", "API7:2023"]
+    asvs: list[str] = Field(default_factory=list)  # ASVS 4.0.3, ["V12.6.1"]
+    attack: list[str] = Field(default_factory=list)  # ["T1190", "T1552.005"]
+
+
+class Finding(_RedactedEvidence):
     title: str
     severity: Literal["low", "medium", "high"]
+    # Stable, short detector id (#223) — SARIF ruleId and suppress `rule:`.
+    # Titles are prose and may be reworded; this never changes. `None` for
+    # findings from callers that don't set one (falls back to the title slug).
+    rule_id: str | None = None
+    # Stable detector-owned entity key for rules emitting multiple findings.
+    # Aggregate rules leave this unset; never derive it from display prose.
+    entity_id: str | None = None
     evidence: list[str] = Field(default_factory=list)
+    # Every location the finding covers — not capped like `evidence` (#214).
+    locations: list[FindingLocation] = Field(default_factory=list)
     mitigation: str
     confidence: Literal["low", "medium", "high"] = "medium"
     attack_techniques: list[AttackTechnique] = Field(default_factory=list)
@@ -500,6 +820,42 @@ class Finding(BaseModel):
     # findings that sit on a route→sink path; `None` when not applicable.
     exploitability: int | None = None
     exploitability_tier: ExploitabilityTier | None = None
+    # Exact producer decision; absent on legacy findings. Never infer from value.
+    exploitability_reference: ExploitabilityScoreReference | None = None
+    # Source→sink steps behind a taint finding (#239), one list per traced
+    # flow; emitted as SARIF `codeFlows` on the matching sink result.
+    code_flows: list[list[TaintFlowStep]] = Field(default_factory=list)
+    # CWE / OWASP / ASVS / ATT&CK ids for `rule_id` (#250). Filled from the
+    # registry on construction; `None` for rules it doesn't know.
+    taxonomy: FindingTaxonomy | None = None
+
+    @model_validator(mode="after")
+    def _apply_rule_taxonomy(self) -> "Finding":
+        from .taxonomy import ATTACK_TECHNIQUES, attack_url, taxonomy_for
+
+        entry = taxonomy_for(self.rule_id)
+        if entry is None:
+            return self
+        if self.taxonomy is None:
+            object.__setattr__(
+                self,
+                "taxonomy",
+                FindingTaxonomy(
+                    cwe=entry.cwe_ids, owasp=list(entry.owasp), asvs=list(entry.asvs), attack=list(entry.attack)
+                ),
+            )
+        if entry.attack:
+            # The registry is authoritative for ATT&CK on registered rules.
+            object.__setattr__(
+                self,
+                "attack_techniques",
+                [
+                    AttackTechnique(technique_id=tid, name=name, tactic=tactic, url=attack_url(tid))
+                    for tid in entry.attack
+                    for name, tactic in [ATTACK_TECHNIQUES[tid]]
+                ],
+            )
+        return self
 
 
 class AttackPath(BaseModel):
@@ -520,7 +876,7 @@ AssetKind = Literal[
 ]
 
 
-class Asset(BaseModel):
+class Asset(_RedactedEvidence):
     id: str
     kind: AssetKind
     name: str
@@ -549,7 +905,7 @@ ControlKind = Literal[
 ControlStrength = Literal["strong", "moderate", "weak", "absent"]
 
 
-class Control(BaseModel):
+class Control(_RedactedEvidence):
     id: str
     kind: ControlKind
     name: str
@@ -575,7 +931,7 @@ InsightKind = Literal[
 ]
 
 
-class Insight(BaseModel):
+class Insight(_RedactedEvidence):
     id: str
     kind: InsightKind
     title: str
@@ -604,11 +960,88 @@ class DetectionOpportunity(BaseModel):
     suggested_rule: str  # human-readable rule sketch (Sigma/KQL/Splunk-style)
     related_insight_ids: list[str] = Field(default_factory=list)
     related_finding_titles: list[str] = Field(default_factory=list)
+    # Rule ids of the linked findings (#250), linked via the taxonomy registry.
+    related_rule_ids: list[str] = Field(default_factory=list)
     attack_techniques: list[AttackTechnique] = Field(default_factory=list)
+
+
+class AnalyzerError(BaseModel):
+    """An analyzer whose ``analyze()`` raised or returned something unusable
+    (#220). The scan carries on without it; this records the gap."""
+
+    analyzer: str
+    error_type: str
+    message: str = ""
+
+
+ResourceLimitScope = Literal["repo_index.file_bytes", "repo_index.index_bytes", "repo_index.index_files", "config_scanner.file_bytes"]
+
+
+class ResourceLimitEvent(BaseModel):
+    """An observed byte- or file-limit branch, never a claim about uninstrumented limits."""
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    schema_version: Literal["1.0"] = "1.0"
+    event_id: str = Field(pattern=r"^[0-9a-f]{64}$")
+    category: Literal["file_bytes", "index_bytes", "index_files"]
+    producer: Literal["repo_index", "config_scanner"]
+    limit: int = Field(gt=0, strict=True)
+    unit: Literal["bytes", "files"] = "bytes"
+    action: Literal["skipped_file", "skipped_remaining_files"] = "skipped_file"
+    observed_bytes: int | None = Field(default=None, ge=0, strict=True)
+    observed_files: int | None = Field(default=None, ge=0, strict=True)
+
+    @classmethod
+    def skipped_file(cls, *, producer: str, category: str, relative: str,
+                     limit: int, observed_bytes: int | None = None) -> ResourceLimitEvent:
+        import hashlib
+        import json
+        identity = ["resource-limit/1.0", producer, category, relative.replace("\\", "/"), limit, observed_bytes]
+        event_id = hashlib.sha256(json.dumps(identity, ensure_ascii=True, separators=(",", ":")).encode()).hexdigest()
+        return cls(event_id=event_id, producer=producer, category=category,
+                   limit=limit, observed_bytes=observed_bytes)
+
+
+class ScanSnapshotIdentity(BaseModel):
+    """Content identity of the one file snapshot a run analyzed (C33/AM047).
+
+    Built by the repo index at index time; deterministic passes read the
+    indexed text, so their evidence references this snapshot. ``files`` maps
+    repo-relative paths to the established decoded-content hash (SDK-only binary
+    paths use their byte hash). ``raw_files`` additionally binds original input
+    bytes, including newlines and encoding. ``index_config`` records the limits
+    that decided file acceptance, and ``config_identity`` hashes them.
+    """
+
+    snapshot_id: str
+    files: dict[str, str] = Field(default_factory=dict)
+    # Additive exact-byte basis for SDK inputs. Empty preserves legacy text-only identity.
+    raw_files: dict[str, str] = Field(default_factory=dict)
+    total_size: int = 0
+    index_config: dict[str, int] = Field(default_factory=dict)
+    config_identity: str = ""
+
+    @model_validator(mode="after")
+    def _validate_raw_snapshot_paths(self):
+        for relative, digest in self.raw_files.items():
+            path = Path(relative)
+            if (relative not in self.files or path.is_absolute() or path.drive
+                    or any(part in {"", ".", ".."} for part in path.parts)
+                    or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest)):
+                raise ValueError("Raw snapshot hashes require captured relative paths and lowercase SHA-256")
+        return self
 
 
 class ScanResult(BaseModel):
     root: str
+    signals: list[Signal] = Field(default_factory=list)
+    # None means the analyzer did not enumerate coverage; hint locations are
+    # never substituted for the set of files actually scanned.
+    scanned_files: list[str] | None = None
+    resource_limit_events: list[ResourceLimitEvent] = Field(default_factory=list)
+    # Completeness applies ONLY to listed producer/category scopes, never all
+    # resource limits, analyzer coverage, timeouts or provider allowances.
+    resource_limit_scopes: list[ResourceLimitScope] = Field(default_factory=list)
+    resource_limit_reporting: Literal["complete", "partial", "unknown"] = "unknown"
     languages: list[str] = Field(default_factory=list)
     routes: list[Route] = Field(default_factory=list)
     external_calls: list[ExternalCall] = Field(default_factory=list)
@@ -628,8 +1061,22 @@ class ScanResult(BaseModel):
     web_hardening_issues: list[WebHardeningIssue] = Field(default_factory=list)
     code_weaknesses: list[CodeWeakness] = Field(default_factory=list)
     workflow_issues: list[WorkflowIssue] = Field(default_factory=list)
+    supply_chain_issues: list[SupplyChainIssue] = Field(default_factory=list)
+    secret_history: list[SecretHistoryHit] = Field(default_factory=list)
     anomalies: list[Anomaly] = Field(default_factory=list)
+    # What the scan deliberately did not analyze (e.g. symlinks that point out
+    # of the repo, #234) — so a clean report isn't mistaken for full coverage.
+    limitations: list[str] = Field(default_factory=list)
+    # Analyzers that failed and were skipped (#220).
+    analyzer_errors: list[AnalyzerError] = Field(default_factory=list)
+    # Selection and observed invocation outcomes; absence means legacy/unknown.
+    analyzer_run_ledger: AnalyzerRunLedger | None = None
     files_scanned: int = 0
+    # Content identity of the analyzed file snapshot (C33/AM047): set by the
+    # index; the artifact manifest verifies the working tree against it at
+    # publication and marks drifted runs incomplete instead of publishing
+    # silently mixed revisions.
+    scan_snapshot: ScanSnapshotIdentity | None = None
 
     @property
     def root_path(self) -> Path:
@@ -638,9 +1085,9 @@ class ScanResult(BaseModel):
     def all_signals(self) -> list[Signal]:
         """Synthesize the unified Signal stream from typed hint lists.
 
-        Cheap O(n) view — does not mutate `self`. Order: routes, external calls,
-        databases, then the hint families (auth, service, edge, entrypoint,
-        protocol, framework, secret) in that order.
+        Does not mutate `self`. Preserved normalized observations take
+        precedence over their lossy typed representatives; output uses stable
+        canonical ordering and retains corroborating origins and conflicts.
         """
         signals: list[Signal] = []
         for r in self.routes:
@@ -650,7 +1097,7 @@ class ScanResult(BaseModel):
                     label=f"{r.method} {r.path}",
                     file=r.file,
                     line=r.line,
-                    properties={"method": r.method, "path": r.path},
+                    properties={"method": r.method, "path": r.path, "auth": r.auth},
                 )
             )
         for ext in self.external_calls:
@@ -661,6 +1108,7 @@ class ScanResult(BaseModel):
                     file=ext.file,
                     line=ext.line,
                     evidence_text=ext.evidence_text,
+                    properties={"method": ext.method or "unknown"},
                 )
             )
         for db in self.databases:
@@ -738,4 +1186,5 @@ class ScanResult(BaseModel):
                     },
                 )
             )
-        return signals
+        from .signal_provenance import normalized_view
+        return normalized_view(self, signals)

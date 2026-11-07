@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "scope": "Test-fixture assertions for additive broker diagnostic context only; no production changes or full gate acceptance",
+  "terminal": {
+    "tool_exec": "f4d122",
+    "exit_code": 0,
+    "passed": 11,
+    "seconds": 0.87
+  },
+  "files": {
+    "tests/test_desktop_worker.py": "ecaea55866de429dcf5f2799f23f9ea6e1bf7da7bdc2873d5891ecf448ca0a50",
+    ".pytest_cache/m3-broker-additive-context.log": "2e0f243ac1155d1b27843f6a9e9d631d2a2a1d82085cc68f23d6c6a5b2ba4573",
+    ".pytest_cache/m3-broker-additive-context.xml": "ab13dbc469ba8fb18696cf9f4053d58dc309091f6e18c2fc2a3a1c29868a15c1"
+  },
+  "preserved_negative_runs": [
+    {
+      "python": "311",
+      "path": ".pytest_cache/m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e/py311/regular/pytest.log",
+      "exists": true,
+      "sha256": "5d9a0c3150c6173db5a39cbc8f43eec1101515c933ec01d2f8bbc29ddec9adf5",
+      "scope": "Four full-regular failures confirmed by authoritative root terminal traces: stale exact diagnostic kwargs assertions (three cancel parameters and launch failure). Other failures are separate."
+    },
+    {
+      "python": "312",
+      "path": ".pytest_cache/m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e/py312/regular/pytest.log",
+      "exists": true,
+      "sha256": "842e1c331e60012600dfea57b027ebb6a3da28518955ac824886324bc306ad64",
+      "scope": "Four full-regular failures confirmed by authoritative root terminal traces: stale exact diagnostic kwargs assertions (three cancel parameters and launch failure). Other failures are separate."
+    },
+    {
+      "python": "313",
+      "path": ".pytest_cache/m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e/py313/regular/pytest.log",
+      "exists": true,
+      "sha256": "2b452a596e9b95624350ab995738106743c5629830bd96bac41b9a40bb92c738",
+      "scope": "Four full-regular failures confirmed by authoritative root terminal traces: stale exact diagnostic kwargs assertions (three cancel parameters and launch failure). Other failures are separate."
+    }
+  ],
+  "assertions": [
+    "exactly one diagnostic",
+    "original state and error None",
+    "validated typed unknown worker stage and absent duration",
+    "unknown analyzer/coverage/resource facts, no fabricated counts/items/scopes",
+    "existing terminal identity/revisions/cancel/admission/publication assertions retained"
+  ]
+}

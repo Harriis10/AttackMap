@@ -1,0 +1,813 @@
+{
+  "provenance": "Byte copy and explicitly limited projection of maintained UI fixture; rows without IDs use source fields, never fabricated IDs.",
+  "reports": {
+    "report-nonempty-legacy.json": {
+      "sections": {
+        "findings": {
+          "state": "present",
+          "count": 2,
+          "identity_fields": [
+            "id"
+          ],
+          "source_keys_in_order": [
+            [
+              "a1"
+            ],
+            [
+              "a2"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "id": "a1",
+              "title": "NoSQL injection on feedback",
+              "rule_id": "nosql-injection",
+              "severity": "high",
+              "evidence": [
+                "POST /api/Feedbacks"
+              ],
+              "mitigation": "Validate filters.",
+              "locations": [
+                {
+                  "file": "routes/feedback.ts",
+                  "line": 12
+                }
+              ]
+            },
+            {
+              "id": "a2",
+              "title": "SSRF on chat",
+              "rule_id": "ssrf",
+              "severity": "high",
+              "evidence": [
+                "POST /rest/chat"
+              ],
+              "mitigation": "Allow-list URLs.",
+              "locations": [
+                {
+                  "file": "routes/chat.ts",
+                  "line": 149
+                }
+              ]
+            }
+          ]
+        },
+        "suppressed_findings": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "id"
+          ],
+          "source_keys_in_order": [
+            [
+              "s1"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "id": "s1",
+              "title": "Old XSS",
+              "rule_id": "xss",
+              "severity": "low",
+              "reason": "accepted in tests",
+              "mitigation": "n/a",
+              "locations": []
+            }
+          ]
+        },
+        "attack_paths": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "name"
+          ],
+          "source_keys_in_order": [
+            [
+              "Public feedback to datastore"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "name": "Public feedback to datastore",
+              "steps": [
+                {
+                  "stage": "Entry",
+                  "detail": "POST /api/Feedbacks"
+                }
+              ],
+              "impact": "Data integrity"
+            }
+          ]
+        },
+        "attack_surfaces": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "method",
+            "route",
+            "file"
+          ],
+          "source_keys_in_order": [
+            [
+              "POST",
+              "/api/Feedbacks",
+              "routes/feedback.ts"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "file": "routes/feedback.ts",
+              "route": "/api/Feedbacks",
+              "method": "POST",
+              "category": "api",
+              "exposure": "public"
+            }
+          ]
+        },
+        "exploitability": {
+          "state": "present",
+          "count": 4,
+          "identity_fields": [
+            "subject"
+          ],
+          "source_keys_in_order": [
+            [
+              "POST /api/Feedbacks → nosql_injection"
+            ],
+            [
+              "POST /rest/chat → ssrf"
+            ],
+            [
+              "GET /api/Users → sql_execute"
+            ],
+            [
+              "POST /rest/user/login → eval"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "subject": "POST /api/Feedbacks → nosql_injection",
+              "route": "/api/Feedbacks",
+              "method": "POST",
+              "sink_kind": "nosql_injection",
+              "location": "routes/feedback.ts:12",
+              "score": 100,
+              "raw_score": 100,
+              "tier": "critical",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 25,
+                  "detail": "NoSQL injection"
+                },
+                {
+                  "name": "public exposure",
+                  "points": 20,
+                  "detail": "public"
+                }
+              ]
+            },
+            {
+              "subject": "POST /rest/chat → ssrf",
+              "route": "/rest/chat",
+              "method": "POST",
+              "sink_kind": "ssrf",
+              "location": "routes/chat.ts:149",
+              "score": 98,
+              "raw_score": 98,
+              "tier": "critical",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 20,
+                  "detail": "SSRF"
+                }
+              ]
+            },
+            {
+              "subject": "GET /api/Users → sql_execute",
+              "route": "/api/Users",
+              "method": "GET",
+              "sink_kind": "sql_execute",
+              "location": "routes/user.ts:40",
+              "score": 93,
+              "raw_score": 93,
+              "tier": "critical",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 35,
+                  "detail": "SQL"
+                }
+              ]
+            },
+            {
+              "subject": "POST /rest/user/login → eval",
+              "route": "/rest/user/login",
+              "method": "POST",
+              "sink_kind": "eval",
+              "location": "routes/login.ts:8",
+              "score": 90,
+              "raw_score": 90,
+              "tier": "high",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 35,
+                  "detail": "eval"
+                }
+              ]
+            }
+          ]
+        },
+        "scan.routes": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "method",
+            "path",
+            "file",
+            "line"
+          ],
+          "source_keys_in_order": [
+            [
+              "POST",
+              "/api/Feedbacks",
+              "routes/feedback.ts",
+              12
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "method": "POST",
+              "path": "/api/Feedbacks",
+              "file": "routes/feedback.ts",
+              "line": 12
+            }
+          ]
+        },
+        "scan.secret_hints": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "name",
+            "kind",
+            "file",
+            "line"
+          ],
+          "source_keys_in_order": [
+            [
+              "API_KEY",
+              "generic",
+              "config/index.ts",
+              4
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "name": "API_KEY",
+              "kind": "generic",
+              "file": "config/index.ts",
+              "line": 4
+            }
+          ]
+        },
+        "scan.dependencies": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "ecosystem",
+            "name",
+            "version"
+          ],
+          "source_keys_in_order": [
+            [
+              "npm",
+              "express",
+              "4.18.0"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "name": "express",
+              "version": "4.18.0",
+              "ecosystem": "npm"
+            }
+          ]
+        },
+        "scan.taint_chains": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "sink_kind",
+            "file",
+            "line"
+          ],
+          "source_keys_in_order": [
+            [
+              "nosql_injection",
+              "routes/feedback.ts",
+              12
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "sink_kind": "nosql_injection",
+              "file": "routes/feedback.ts",
+              "line": 12
+            }
+          ]
+        },
+        "scan.vulnerabilities": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "scan.workflow_issues": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "scan.analyzer_errors": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        }
+      },
+      "ai": {
+        "defensive_review_llm": {
+          "state": "present",
+          "value": ""
+        },
+        "provider_metadata": {
+          "state": "missing"
+        },
+        "live_response_claim": false
+      }
+    },
+    "report-partial-legacy.json": {
+      "sections": {
+        "findings": {
+          "state": "present",
+          "count": 2,
+          "identity_fields": [
+            "id"
+          ],
+          "source_keys_in_order": [
+            [
+              "a1"
+            ],
+            [
+              "a2"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "id": "a1",
+              "title": "NoSQL injection on feedback",
+              "rule_id": "nosql-injection",
+              "severity": "high",
+              "evidence": [
+                "POST /api/Feedbacks"
+              ],
+              "mitigation": "Validate filters.",
+              "locations": [
+                {
+                  "file": "routes/feedback.ts",
+                  "line": 12
+                }
+              ]
+            },
+            {
+              "id": "a2",
+              "title": "SSRF on chat",
+              "rule_id": "ssrf",
+              "severity": "high",
+              "evidence": [
+                "POST /rest/chat"
+              ],
+              "mitigation": "Allow-list URLs.",
+              "locations": [
+                {
+                  "file": "routes/chat.ts",
+                  "line": 149
+                }
+              ]
+            }
+          ]
+        },
+        "suppressed_findings": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "id"
+          ],
+          "source_keys_in_order": [
+            [
+              "s1"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "id": "s1",
+              "title": "Old XSS",
+              "rule_id": "xss",
+              "severity": "low",
+              "reason": "accepted in tests",
+              "mitigation": "n/a",
+              "locations": []
+            }
+          ]
+        },
+        "attack_paths": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "name"
+          ],
+          "source_keys_in_order": [
+            [
+              "Public feedback to datastore"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "name": "Public feedback to datastore",
+              "steps": [
+                {
+                  "stage": "Entry",
+                  "detail": "POST /api/Feedbacks"
+                }
+              ],
+              "impact": "Data integrity"
+            }
+          ]
+        },
+        "attack_surfaces": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "method",
+            "route",
+            "file"
+          ],
+          "source_keys_in_order": [
+            [
+              "POST",
+              "/api/Feedbacks",
+              "routes/feedback.ts"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "file": "routes/feedback.ts",
+              "route": "/api/Feedbacks",
+              "method": "POST",
+              "category": "api",
+              "exposure": "public"
+            }
+          ]
+        },
+        "exploitability": {
+          "state": "present",
+          "count": 4,
+          "identity_fields": [
+            "subject"
+          ],
+          "source_keys_in_order": [
+            [
+              "POST /api/Feedbacks → nosql_injection"
+            ],
+            [
+              "POST /rest/chat → ssrf"
+            ],
+            [
+              "GET /api/Users → sql_execute"
+            ],
+            [
+              "POST /rest/user/login → eval"
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "subject": "POST /api/Feedbacks → nosql_injection",
+              "route": "/api/Feedbacks",
+              "method": "POST",
+              "sink_kind": "nosql_injection",
+              "location": "routes/feedback.ts:12",
+              "score": 100,
+              "raw_score": 100,
+              "tier": "critical",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 25,
+                  "detail": "NoSQL injection"
+                },
+                {
+                  "name": "public exposure",
+                  "points": 20,
+                  "detail": "public"
+                }
+              ]
+            },
+            {
+              "subject": "POST /rest/chat → ssrf",
+              "route": "/rest/chat",
+              "method": "POST",
+              "sink_kind": "ssrf",
+              "location": "routes/chat.ts:149",
+              "score": 98,
+              "raw_score": 98,
+              "tier": "critical",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 20,
+                  "detail": "SSRF"
+                }
+              ]
+            },
+            {
+              "subject": "GET /api/Users → sql_execute",
+              "route": "/api/Users",
+              "method": "GET",
+              "sink_kind": "sql_execute",
+              "location": "routes/user.ts:40",
+              "score": 93,
+              "raw_score": 93,
+              "tier": "critical",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 35,
+                  "detail": "SQL"
+                }
+              ]
+            },
+            {
+              "subject": "POST /rest/user/login → eval",
+              "route": "/rest/user/login",
+              "method": "POST",
+              "sink_kind": "eval",
+              "location": "routes/login.ts:8",
+              "score": 90,
+              "raw_score": 90,
+              "tier": "high",
+              "factors": [
+                {
+                  "name": "sink danger",
+                  "points": 35,
+                  "detail": "eval"
+                }
+              ]
+            }
+          ]
+        },
+        "scan.routes": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "method",
+            "path",
+            "file",
+            "line"
+          ],
+          "source_keys_in_order": [
+            [
+              "POST",
+              "/api/Feedbacks",
+              "routes/feedback.ts",
+              12
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "method": "POST",
+              "path": "/api/Feedbacks",
+              "file": "routes/feedback.ts",
+              "line": 12
+            }
+          ]
+        },
+        "scan.secret_hints": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "name",
+            "kind",
+            "file",
+            "line"
+          ],
+          "source_keys_in_order": [
+            [
+              "API_KEY",
+              "generic",
+              "config/index.ts",
+              4
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "name": "API_KEY",
+              "kind": "generic",
+              "file": "config/index.ts",
+              "line": 4
+            }
+          ]
+        },
+        "scan.dependencies": {
+          "state": "missing"
+        },
+        "scan.taint_chains": {
+          "state": "present",
+          "count": 1,
+          "identity_fields": [
+            "sink_kind",
+            "file",
+            "line"
+          ],
+          "source_keys_in_order": [
+            [
+              "nosql_injection",
+              "routes/feedback.ts",
+              12
+            ]
+          ],
+          "rows_in_source_order": [
+            {
+              "sink_kind": "nosql_injection",
+              "file": "routes/feedback.ts",
+              "line": 12
+            }
+          ]
+        },
+        "scan.vulnerabilities": {
+          "state": "missing"
+        },
+        "scan.workflow_issues": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "scan.analyzer_errors": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        }
+      },
+      "ai": {
+        "defensive_review_llm": {
+          "state": "present",
+          "value": ""
+        },
+        "provider_metadata": {
+          "state": "missing"
+        },
+        "live_response_claim": false
+      }
+    },
+    "report-empty.json": {
+      "sections": {
+        "findings": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [
+            "id"
+          ],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "suppressed_findings": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [
+            "id"
+          ],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "attack_paths": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [
+            "name"
+          ],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "attack_surfaces": {
+          "state": "missing"
+        },
+        "exploitability": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [
+            "subject"
+          ],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "scan.routes": {
+          "state": "missing"
+        },
+        "scan.secret_hints": {
+          "state": "missing"
+        },
+        "scan.dependencies": {
+          "state": "missing"
+        },
+        "scan.taint_chains": {
+          "state": "missing"
+        },
+        "scan.vulnerabilities": {
+          "state": "missing"
+        },
+        "scan.workflow_issues": {
+          "state": "missing"
+        },
+        "scan.analyzer_errors": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        }
+      },
+      "ai": {
+        "defensive_review_llm": {
+          "state": "missing"
+        },
+        "provider_metadata": {
+          "state": "missing"
+        },
+        "live_response_claim": false
+      }
+    },
+    "report-missing-sections.json": {
+      "sections": {
+        "findings": {
+          "state": "present",
+          "count": 0,
+          "identity_fields": [
+            "id"
+          ],
+          "source_keys_in_order": [],
+          "rows_in_source_order": []
+        },
+        "suppressed_findings": {
+          "state": "missing"
+        },
+        "attack_paths": {
+          "state": "missing"
+        },
+        "attack_surfaces": {
+          "state": "missing"
+        },
+        "exploitability": {
+          "state": "missing"
+        },
+        "scan.routes": {
+          "state": "missing"
+        },
+        "scan.secret_hints": {
+          "state": "missing"
+        },
+        "scan.dependencies": {
+          "state": "missing"
+        },
+        "scan.taint_chains": {
+          "state": "missing"
+        },
+        "scan.vulnerabilities": {
+          "state": "missing"
+        },
+        "scan.workflow_issues": {
+          "state": "missing"
+        },
+        "scan.analyzer_errors": {
+          "state": "missing"
+        }
+      },
+      "ai": {
+        "defensive_review_llm": {
+          "state": "missing"
+        },
+        "provider_metadata": {
+          "state": "missing"
+        },
+        "live_response_claim": false
+      }
+    }
+  }
+}

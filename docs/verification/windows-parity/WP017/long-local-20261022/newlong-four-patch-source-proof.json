@@ -1,0 +1,106 @@
+{
+  "scope": "Read-only final four-patch review, no imports/tests/application/runtime",
+  "source_files_unchanged": true,
+  "source_count": 13,
+  "combined_git_apply_check_exit_code": 0,
+  "schema_exact_three_maximum_changes_only": true,
+  "tests_executed": false,
+  "source_checks": [
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ParitySmokeTimeouts.cs",
+      "frozen_sha256": "c428d3081f0ae8d442302948078289bec38a61f09cec8690ae59d78a16546bc1",
+      "current_sha256": "c428d3081f0ae8d442302948078289bec38a61f09cec8690ae59d78a16546bc1",
+      "unchanged": true
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ProviderConfiguration.cs",
+      "frozen_sha256": "13d8863576081aa6781ba8b76d85fdc7dbddf2912ffb1b0b32e2ca8cbaf7f929",
+      "current_sha256": "13d8863576081aa6781ba8b76d85fdc7dbddf2912ffb1b0b32e2ca8cbaf7f929",
+      "unchanged": true
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ProviderSettingsView.cs",
+      "frozen_sha256": "49bd8d3053fdf3df97bc3ffb13d5dbd45d3f43b7ca0009152e38df17ddc6e0ff",
+      "current_sha256": "49bd8d3053fdf3df97bc3ffb13d5dbd45d3f43b7ca0009152e38df17ddc6e0ff",
+      "unchanged": true
+    },
+    {
+      "path": "desktop/windows/NativeAiOptions.Tests/Program.cs",
+      "frozen_sha256": "ad0765e09773fbb1c4d772dd5038d3ff23fc9882c3181b0ae575d20f68709bd2",
+      "current_sha256": "ad0765e09773fbb1c4d772dd5038d3ff23fc9882c3181b0ae575d20f68709bd2",
+      "unchanged": true
+    },
+    {
+      "path": "schemas/run-fleet-request.schema.json",
+      "frozen_sha256": "275e66cbcfabe69da1819023d2143bdedca8be2dce4e9e40929b6ab14e48e06c",
+      "current_sha256": "275e66cbcfabe69da1819023d2143bdedca8be2dce4e9e40929b6ab14e48e06c",
+      "unchanged": true
+    },
+    {
+      "path": "schemas/run-request.schema.json",
+      "frozen_sha256": "389c1a89b6f498ad3bd73ec99845825ed25c9adb3d484176fbb2be73570a5ab9",
+      "current_sha256": "389c1a89b6f498ad3bd73ec99845825ed25c9adb3d484176fbb2be73570a5ab9",
+      "unchanged": true
+    },
+    {
+      "path": "src/attackmap/provider_options.py",
+      "frozen_sha256": "0a3eacb5fc5ed068af0083126f9b8ad49c0b9054954566ed54048c55a0a2c3d3",
+      "current_sha256": "0a3eacb5fc5ed068af0083126f9b8ad49c0b9054954566ed54048c55a0a2c3d3",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_local_provider_timeouts.py",
+      "frozen_sha256": "ef74f01083aba50ee4c2d69e3d7b9e8847e2502ffcaaedf50407cb594cf1da75",
+      "current_sha256": "ef74f01083aba50ee4c2d69e3d7b9e8847e2502ffcaaedf50407cb594cf1da75",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_provider_options.py",
+      "frozen_sha256": "f7aa02be20a2a795067458ea27ad84f3a25f648a94badd642f2413bd5b24f4a6",
+      "current_sha256": "f7aa02be20a2a795067458ea27ad84f3a25f648a94badd642f2413bd5b24f4a6",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_wp017_native_runner.py",
+      "frozen_sha256": "e209c2069001cc330acea867d1015c74c2bbb6e0821c6298fd447d854b7163a7",
+      "current_sha256": "e209c2069001cc330acea867d1015c74c2bbb6e0821c6298fd447d854b7163a7",
+      "unchanged": true
+    },
+    {
+      "path": "tools/run_wp017_native_modes.py",
+      "frozen_sha256": "da2d34c55ad4237ac1a1b586ab59cfd13d056073d657ead75ebfe92758199fcc",
+      "current_sha256": "da2d34c55ad4237ac1a1b586ab59cfd13d056073d657ead75ebfe92758199fcc",
+      "unchanged": true
+    },
+    {
+      "path": "tools/test_verify_wp017_live.py",
+      "frozen_sha256": "e671bf44253b21c497053b40fff3f7519f4435dd381a9b415ad10b331134f532",
+      "current_sha256": "e671bf44253b21c497053b40fff3f7519f4435dd381a9b415ad10b331134f532",
+      "unchanged": true
+    },
+    {
+      "path": "tools/verify_wp017_live.py",
+      "frozen_sha256": "d921acd61a5c5f81e717db8e63d9231cc9bc3c5b5cf105d18227979808cfad72",
+      "current_sha256": "d921acd61a5c5f81e717db8e63d9231cc9bc3c5b5cf105d18227979808cfad72",
+      "unchanged": true
+    }
+  ],
+  "patches": [
+    {
+      "path": "newlong-budget-core.patch",
+      "sha256": "0203daf0d55f9cd06e27b6f8e29e77131f5c5b84da596d5499fb090cdddadca1"
+    },
+    {
+      "path": "newlong-budget-native.patch",
+      "sha256": "068817229f9a491a9155e7fc8b7ba9f1f5b7048bc98defcc0bc664f9a0993e2d"
+    },
+    {
+      "path": "newlong-budget-runner.patch",
+      "sha256": "ac5f30a4973176bcd95c9d4a33187c73af74808eea5f9d079dd8ac268cfac3b1"
+    },
+    {
+      "path": "newlong-budget-schema.patch",
+      "sha256": "3f2a5efafe24dd42400a61be2531bf910a0649b6931771e16d58b12243be25d1"
+    }
+  ]
+}

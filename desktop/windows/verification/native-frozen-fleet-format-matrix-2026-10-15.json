@@ -1,0 +1,1482 @@
+{
+  "scope": "Actual final frozen Windows fleet formats; two tiny owned repos; no AI/CVE; no benchmark or platform acceptance claim",
+  "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+  "engine_sha256": "354bf73fec42c857d09782975c0419a29b3f6953e90ed2c620292a72bc9e5c7a",
+  "formats": [
+    "all",
+    "json",
+    "markdown"
+  ],
+  "runs": [
+    {
+      "format": "all",
+      "workers": 1,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 0.024,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-all-1",
+        "--format",
+        "all",
+        "--fleet-workers",
+        "1",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "b3957196493880b5ff2c73e1704777681dd8605e86cd68a706682303d29bc970",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "eccc8552ef7fc1efe72e0c6d1c32fb69c489b15392105de093924f618161bc03",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-all-1\\20261015T140932-c11d6c24\\service-one\\20261015T140932-c11d6c24"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "55010c126250c7f71d2da1d779fc16404881d6d9cb2291be06792638467e78c6",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-all-1\\20261015T140932-c11d6c24\\slu-ba-dv\\20261015T140932-c11d6c24"
+        }
+      ]
+    },
+    {
+      "format": "all",
+      "workers": 2,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 5.508,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-all-2",
+        "--format",
+        "all",
+        "--fleet-workers",
+        "2",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "12b16fa75c32bd22575a7cf3fb07ec37770b578b6a4f6775f1677fb318c8f42e",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "afaf4055987fb94bd3e78d5b50fcf3ae6d27d05cdcc7df39c135680816ac08f3",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-all-2\\20261015T141018-27c7cab4\\service-one\\20261015T141018-27c7cab4"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "7389a33afa4b488adb9f577b89d4caf4134653d229832b6399a3e1ab61b314a2",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-all-2\\20261015T141018-27c7cab4\\slu-ba-dv\\20261015T141018-27c7cab4"
+        }
+      ]
+    },
+    {
+      "format": "json",
+      "workers": 1,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 7.461,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-json-1",
+        "--format",
+        "json",
+        "--fleet-workers",
+        "1",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "6b8b84aada1d528eedc0e3deab4f04c559c8506dd8a92e39f96342cd2f5da2bc",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "74ffbcae26d6b9472848a39d5ba607f0ace37744b3d271093de0bd94e12b5efe",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-json-1\\20261015T141025-502cca1a\\service-one\\20261015T141025-502cca1a"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "6a7df2d9e7cd195f80ebc230eea22b4ef5526b34fae4e6740b990b1f9a1e85ef",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-json-1\\20261015T141025-502cca1a\\slu-ba-dv\\20261015T141025-502cca1a"
+        }
+      ]
+    },
+    {
+      "format": "json",
+      "workers": 2,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 5.804,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-json-2",
+        "--format",
+        "json",
+        "--fleet-workers",
+        "2",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "3d288bd0d42fdd891a7b024e06b5172acc15c7f13e6299d20ab430fe8bd0fa6e",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "66f32c167d7cf223893e1363b1c10ae401740abe377a485007cd007b3cb0db70",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-json-2\\20261015T141032-1f437265\\service-one\\20261015T141032-1f437265"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "7013077f8cce620aa327a4fd37d6fe77bbf9252708f7f1116f891f8b57af8a37",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-json-2\\20261015T141032-1f437265\\slu-ba-dv\\20261015T141032-1f437265"
+        }
+      ]
+    },
+    {
+      "format": "markdown",
+      "workers": 1,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 3.939,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-markdown-1",
+        "--format",
+        "markdown",
+        "--fleet-workers",
+        "1",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "bfc291f274d3d46aa2dfa72fab99a4a5aa0f5dd5d6e97175b2de7fc6e01d61be",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "9fda44f6a78b05a6db0f51365a412b8bc095f8ad632b3ca5b7b63ba1da88d225",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-markdown-1\\20261015T141037-f62a3d4d\\service-one\\20261015T141037-f62a3d4d"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "6fc58d5c1bc1ccaf446ff87c28d639e71b218f90c7d4dd37f0be925129e333eb",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-markdown-1\\20261015T141037-f62a3d4d\\slu-ba-dv\\20261015T141037-f62a3d4d"
+        }
+      ]
+    },
+    {
+      "format": "markdown",
+      "workers": 2,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 5.913,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-final\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-markdown-2",
+        "--format",
+        "markdown",
+        "--fleet-workers",
+        "2",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "7f09b5baad1db856d20bc3993312ee737ba9a4d7eba509ff9b7ae0226e1fcb12",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "4924df602706e9bb93c7a14d3871ae830c2a69aeb8f0bb1989a5d9565d09f9f4",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-markdown-2\\20261015T141041-4c7756d6\\service-one\\20261015T141041-4c7756d6"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces \u017elu\u0165ou\u010dk\u00fd\\slu\u017eba dv\u011b",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "78648cc3e5d9aaaed710f31d6c0f91bd50c3d1976c61cdf447dd9f1ad70b090d",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\output-markdown-2\\20261015T141041-4c7756d6\\slu-ba-dv\\20261015T141041-4c7756d6"
+        }
+      ]
+    }
+  ],
+  "serial_parallel_normalized_equal": true,
+  "cross_format_normalized_equal": true,
+  "all_manifest_artifact_hashes_verified": true,
+  "failure_case": {
+    "status": "passed serial and two-worker",
+    "fixture": "Valid JSON [] in package-lock.json is unsupported dependency-lock root shape; actual child fails without code injection.",
+    "results": [
+      {
+        "workers": 2,
+        "exit_code": 1,
+        "partial_summary": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\failure-output\\20261015T141113-c81a7c04\\fleet-summary.json",
+        "successful_sibling": "service-one",
+        "failed_child": "controlled-bad-lockfile",
+        "successful_sibling_manifest_sha256": "ea64756a5ffbe7152b48121d3b3870c7466309cfb7ff86e5b9bced1187f0a960",
+        "diagnostic": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\failure-output\\diagnostics\\20261015T141113-c81a7c04\\terminal-diagnostic.json",
+        "diagnostic_sha256": "0e0426e798a44eb683975b858f2c691bbc0dcbef76589dcb85e482278a70b33e",
+        "no_parent_current": true,
+        "no_top_level_partial_summary_export": true
+      },
+      {
+        "workers": 1,
+        "exit_code": 1,
+        "partial_summary": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\failure-serial-output\\20261015T141210-9954cc19\\fleet-summary.json",
+        "successful_sibling": "service-one",
+        "failed_child": "controlled-bad-lockfile",
+        "successful_sibling_manifest_sha256": "77ad11b9e4ca0b10a756d6da9ddc5d998453a96a5bfdd360e49b605404bb3531",
+        "diagnostic": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\failure-serial-output\\diagnostics\\20261015T141210-9954cc19\\terminal-diagnostic.json",
+        "diagnostic_sha256": "29c3c202962d839cd9dd0ed8cc14a32cb368526161ce4efe2014adeaec5aba5d",
+        "no_parent_current": true,
+        "no_top_level_partial_summary_export": true
+      }
+    ],
+    "limitation": "This verifies fault containment, not desired malformed-lockfile analyzer recovery. Generic worker failure did not expose source contents."
+  },
+  "limitations": [
+    "Concurrent Python platform regression load; timings are diagnostic only.",
+    "No UI, clean-host, signing, macOS or full M3 acceptance."
+  ],
+  "source_proof_not_duplicate": "Prior frozen proofs covered one-repo native/action parity; no frozen fleet presentation matrix was present in verification inventory.",
+  "normalization": "Exact sectioned findings arrays and scan.scanned_files/files_scanned/root per repo; parent/child pointer manifest SHA plus all listed artifact hashes checked. Timings not used for acceptance.",
+  "timing_note": "First all/serial execution output reused after harness pointer-name correction; its recorded validation elapsed time is not execution duration.",
+  "verified_utc": "2026-10-15T14:12:11.311200+00:00"
+}

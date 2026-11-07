@@ -1,0 +1,39 @@
+{
+  "task_id": "WP044-shared-datastore-contract",
+  "owner": "/root/roadmap_nonhttp",
+  "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "status": "prepared_contract_only",
+  "whole_task_status": "IN_PROGRESS",
+  "final_commit_or_diff_hash": "working-tree-content-sha256:2dff02c86b6154df368f30b7c2b22fa5fc6ac46a2dda95922747903cf872501f",
+  "paths_changed": [
+    "src/attackmap/fleet_resource_identity.py",
+    "src/attackmap/fleet_architecture.py",
+    "tests/test_fleet_resource_identity.py",
+    "tests/test_fleet_architecture.py",
+    "docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/"
+  ],
+  "leases_released": true,
+  "lease_note": "Assigned source/test paths and own evidence only; root owns shared tracker changes.",
+  "tests_executed": [
+    {"command": ".venv/Scripts/python.exe -m pytest tests/test_fleet_resource_identity.py tests/test_fleet_architecture.py -q --basetemp=.tmp/roadmap-next-20261023-nonhttp-01 --junitxml=docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/tests-01.xml", "result": "85 PASS; shared pytest cache ACL warning"},
+    {"command": ".venv/Scripts/python.exe -m pytest tests/test_fleet_resource_identity.py tests/test_fleet_architecture.py -q -p no:cacheprovider --basetemp=.tmp/roadmap-next-20261023-nonhttp-02 --junitxml=docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/tests-02.xml", "result": "95 PASS"},
+    {"command": ".venv/Scripts/python.exe -m pytest tests/test_fleet_resource_identity.py tests/test_fleet_architecture.py -q -p no:cacheprovider --basetemp=.tmp/roadmap-next-20261023-nonhttp-03 --junitxml=docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/tests-03.xml", "result": "96 PASS; zero warnings/failures/errors/skips"},
+    {"command": ".venv/Scripts/python.exe docs/verification/windows-parity/ROADMAP-NEXT-20261023/nonhttp/verify_contract.py", "result": "PASS after correcting verifier repository-parent depth; complete graph unchanged except additive contract metadata"}
+  ],
+  "tests_not_executed": ["actual scanner extraction", "real production fleet", "native build/mapping", "GUI visual/manual/accessibility", "frozen/package/release/clean-host", "macOS", "broad regression suite"],
+  "live_provider_calls": 0,
+  "scanner_executions": 0,
+  "manual_checks": [],
+  "package_id": null,
+  "run_ids": [],
+  "evidence": ["tests-03.xml", "verification.json", "source-before.json", "source-after.json", "fleet16-before.json", "fleet16-after.json", "shared-datastore-declaration.schema.json", "fixture-paired.json", "fixture-different-port.json", "fixture-ambiguous.json", "CONTRACT.md"],
+  "limitations": [
+    "Prepared extraction contract is not emitted by any existing scanner and is not integrated into the fleet pipeline.",
+    "Explicit declarations project undirected declared associations only; no observed/runtime or producer-consumer flow claim.",
+    "Identifier fields must contain non-secret public identities. Connection strings, credentials, raw snippets and unknown fields are forbidden.",
+    "Public projection exceptions are sanitized. Direct Pydantic ValidationError.errors/json can include input values; see CONTRACT.md.",
+    "Production non-HTTP connectivity stays unanalysed. Queue, RPC/protobuf/OpenAPI, representative fleet, native and release gates remain open.",
+    "Existing architecture/test files were untracked dirty inputs; no reset, commit or unrelated edit was performed."
+  ],
+  "next_action": "Implement one extractor that emits exact qualified non-secret identity and operation with source provenance and child-snapshot binding; independently verify paired real repositories before integrating a fleet adapter or changing capability status."
+}

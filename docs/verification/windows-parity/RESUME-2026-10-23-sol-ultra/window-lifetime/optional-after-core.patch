@@ -1,0 +1,28 @@
+--- a/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs
++++ b/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs
+@@ -133,7 +133,7 @@
+     }
+     private void CaptureWindowPlacement()
+     {
+-        if (!placementPersistenceEnabled || ((FrameworkElement)Content).XamlRoot == null || AppWindow.Presenter is not Microsoft.UI.Windowing.OverlappedPresenter presenter || presenter.State != Microsoft.UI.Windowing.OverlappedPresenterState.Restored) return;
++        if (actionLifetime.IsCancellationRequested || !placementPersistenceEnabled || ((FrameworkElement)Content).XamlRoot == null || AppWindow.Presenter is not Microsoft.UI.Windowing.OverlappedPresenter presenter || presenter.State != Microsoft.UI.Windowing.OverlappedPresenterState.Restored) return;
+         double scale = ((FrameworkElement)Content).XamlRoot.RasterizationScale;
+         int width = (int)Math.Round(AppWindow.Size.Width / scale), height = (int)Math.Round(AppWindow.Size.Height / scale);
+         if (width < 1024 || height < 700 || width > 16384 || height > 16384) return;
+@@ -415,6 +415,7 @@
+     private async void LoadFixture(object sender, RoutedEventArgs args) => await LoadData();
+     private async Task LoadData()
+     {
++        if (actionLifetime.IsCancellationRequested) return;
+         long current = ++generation;
+         try
+         {
+@@ -445,7 +446,7 @@
+         }
+         catch (Exception error) when (error is IOException or JsonException or UnauthorizedAccessException)
+         {
+-            Status.Text = $"Fixture unavailable ({error.GetType().Name}). Generate it and retry Load fixture.";
++            if (!actionLifetime.IsCancellationRequested && current == generation) Status.Text = $"Fixture unavailable ({error.GetType().Name}). Generate it and retry Load fixture.";
+         }
+     }
+     private async void SmokeLoaded(object sender, RoutedEventArgs args)

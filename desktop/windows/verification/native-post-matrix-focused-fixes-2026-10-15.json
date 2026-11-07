@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "scope": "Focused post-matrix correctness and test hermeticity fixes; not a new full matrix acceptance result.",
+  "results": [
+    {
+      "python": "311",
+      "official_analyzers": 15,
+      "uuid_and_publication": {
+        "passed": 65,
+        "seconds": 19.37,
+        "log": {
+          "path": ".pytest_cache/m3-matrix-py311/runid-verified-py311.log",
+          "sha256": "aeea4ff2b939275c4aaccd5f65c25384567da8cba0613a8816c49d785bc040b0",
+          "bytes": 102
+        },
+        "terminal": {
+          "path": ".pytest_cache/m3-matrix-py311/runid-verified-py311-exit.json",
+          "sha256": "96e43da9fe19f5c1dbd873a499e717ad44542c9aad954114996e170be17abb21",
+          "bytes": 76
+        },
+        "test_files": [
+          "tests/test_artifact_manifest.py",
+          "tests/test_artifact_publisher.py",
+          "tests/test_pipeline_publication.py",
+          "tests/test_fleet_publication.py",
+          "tests/test_artifact_schemas.py"
+        ],
+        "source_import_scope": "Owner confirms absolute workspace/src PYTHONPATH set before python -m pytest; no explicit pre-import assertion in these 65-case runs. Fresh full reruns add that guard."
+      },
+      "hermetic_test_suites": {
+        "passed": 85,
+        "seconds": 73.07,
+        "log": {
+          "path": ".pytest_cache/m3-hermetic-311.log",
+          "sha256": "4ba782b1734a69ce831d06c42c42a0b059783e9783f85bfb17f6e8417e1b14a3",
+          "bytes": 193
+        },
+        "junit": {
+          "path": ".pytest_cache/m3-hermetic-311.xml",
+          "sha256": "3da975273ee1bcf29e4a4dfc70d49c4ccbe7faa6c8565d95678839007fcbb6a5",
+          "bytes": 10723
+        },
+        "terminal_exit_code": 0,
+        "import_evidence": "Authoritative exec output preceding original test process printed workspace src/attackmap/__init__.py and official_analyzers 15; output not separately captured in raw pytest log.",
+        "interpreter": ".pytest_cache\\m3-matrix-py311\\venv\\Scripts\\python.exe"
+      },
+      "lockfile_and_sbom": {
+        "passed": 61,
+        "seconds": 1.33,
+        "evidence_kind": "agent-reported authoritative tool result",
+        "reported_by": "/root/shared_supervision_sol",
+        "raw_log_available": false,
+        "import_validation": "Process PYTHONPATH=workspace/src before Python startup; assert attackmap.__file__ resolves inside workspace/src, then pytest.main.",
+        "limitation": "No standalone raw log was retained; do not present this report as a raw transcript."
+      }
+    },
+    {
+      "python": "312",
+      "official_analyzers": 15,
+      "uuid_and_publication": {
+        "passed": 65,
+        "seconds": 26.59,
+        "log": {
+          "path": ".pytest_cache/m3-matrix-py312/runid-verified-py312.log",
+          "sha256": "fc9e9badefcf24bf56e611d6a2f4b5d6fd3e2f3ac9fb35484140e08fe37d27ed",
+          "bytes": 102
+        },
+        "terminal": {
+          "path": ".pytest_cache/m3-matrix-py312/runid-verified-py312-exit.json",
+          "sha256": "9cbfe1f45aad56610b1ee0aa0c508690230ce240b3f2ecdd4f4d295ac728ce6f",
+          "bytes": 77
+        },
+        "test_files": [
+          "tests/test_artifact_manifest.py",
+          "tests/test_artifact_publisher.py",
+          "tests/test_pipeline_publication.py",
+          "tests/test_fleet_publication.py",
+          "tests/test_artifact_schemas.py"
+        ],
+        "source_import_scope": "Owner confirms absolute workspace/src PYTHONPATH set before python -m pytest; no explicit pre-import assertion in these 65-case runs. Fresh full reruns add that guard."
+      },
+      "hermetic_test_suites": {
+        "passed": 85,
+        "seconds": 93.95,
+        "log": {
+          "path": ".pytest_cache/m3-hermetic-312.log",
+          "sha256": "ec29cefe62a47c29b1a69cf70651a1e327de92735fb8a242ac85dc39f1a10e06",
+          "bytes": 193
+        },
+        "junit": {
+          "path": ".pytest_cache/m3-hermetic-312.xml",
+          "sha256": "eccbab27dcdf10955f4d19d26073730666bfb6222bd502d831865a86929adba6",
+          "bytes": 10723
+        },
+        "terminal_exit_code": 0,
+        "import_evidence": "Authoritative exec output preceding original test process printed workspace src/attackmap/__init__.py and official_analyzers 15; output not separately captured in raw pytest log.",
+        "interpreter": ".pytest_cache\\m3-matrix-py312\\venv\\Scripts\\python.exe"
+      },
+      "lockfile_and_sbom": {
+        "passed": 61,
+        "seconds": 1.48,
+        "evidence_kind": "agent-reported authoritative tool result",
+        "reported_by": "/root/shared_supervision_sol",
+        "raw_log_available": false,
+        "import_validation": "Process PYTHONPATH=workspace/src before Python startup; assert attackmap.__file__ resolves inside workspace/src, then pytest.main.",
+        "limitation": "No standalone raw log was retained; do not present this report as a raw transcript."
+      }
+    },
+    {
+      "python": "313",
+      "official_analyzers": 15,
+      "uuid_and_publication": {
+        "passed": 65,
+        "seconds": 24.37,
+        "log": {
+          "path": ".pytest_cache/m3-matrix-py311/runid-verified-py313.log",
+          "sha256": "a4e19037eaaf4779ba72c41e0301b82981ae8efcf5bfa89a9ac61c6496e8f403",
+          "bytes": 102
+        },
+        "terminal": {
+          "path": ".pytest_cache/m3-matrix-py311/runid-verified-py313-exit.json",
+          "sha256": "19ac0730f8c993fff8289b8cdff7c6ecec96319eca0624a920ae7a811cb0f430",
+          "bytes": 77
+        },
+        "test_files": [
+          "tests/test_artifact_manifest.py",
+          "tests/test_artifact_publisher.py",
+          "tests/test_pipeline_publication.py",
+          "tests/test_fleet_publication.py",
+          "tests/test_artifact_schemas.py"
+        ],
+        "source_import_scope": "Owner confirms absolute workspace/src PYTHONPATH set before python -m pytest; no explicit pre-import assertion in these 65-case runs. Fresh full reruns add that guard."
+      },
+      "hermetic_test_suites": {
+        "passed": 85,
+        "seconds": 88.54,
+        "log": {
+          "path": ".pytest_cache/m3-hermetic-313.log",
+          "sha256": "4c4dd5d5629465fc4c959d0c5365abbd11962cddd86a98d9f269b703e264bdbc",
+          "bytes": 193
+        },
+        "junit": {
+          "path": ".pytest_cache/m3-hermetic-313.xml",
+          "sha256": "25cd096b239f3f27336478b8a94da53628ee562b6f088283c3229cd66ede772a",
+          "bytes": 10723
+        },
+        "terminal_exit_code": 0,
+        "import_evidence": "Authoritative exec output preceding original test process printed workspace src/attackmap/__init__.py and official_analyzers 15; output not separately captured in raw pytest log.",
+        "interpreter": ".pytest_cache\\m3-frozen-engine\\venv\\Scripts\\python.exe"
+      },
+      "lockfile_and_sbom": {
+        "passed": 61,
+        "seconds": 1.32,
+        "evidence_kind": "agent-reported authoritative tool result",
+        "reported_by": "/root/shared_supervision_sol",
+        "raw_log_available": false,
+        "import_validation": "Process PYTHONPATH=workspace/src before Python startup; assert attackmap.__file__ resolves inside workspace/src, then pytest.main.",
+        "limitation": "No standalone raw log was retained; do not present this report as a raw transcript."
+      }
+    }
+  ],
+  "current_source_hashes": [
+    {
+      "path": "src/attackmap/artifact_manifest.py",
+      "sha256": "5370128119d4390dc6f16eb39011f8c1180084467191a04c9ada607e16b6654c",
+      "bytes": 13009
+    },
+    {
+      "path": "src/attackmap/lockfiles.py",
+      "sha256": "42786605aab36e315e0ad4355165f473d4fa5a39bec986fe31aa6cae67911eba",
+      "bytes": 21606
+    },
+    {
+      "path": "tests/test_artifact_manifest.py",
+      "sha256": "5571db235e06424c514b8e702caa047302d2a1fe8792a326ff17a3d6115648b4",
+      "bytes": 7249
+    },
+    {
+      "path": "tests/test_lockfiles.py",
+      "sha256": "d24e14e38b4ea9044d7453ef0d1f5b1462407103dfb98fb6d31a72fbe9a33002",
+      "bytes": 19686
+    },
+    {
+      "path": "tests/test_output_exclusion.py",
+      "sha256": "d8feba291f24d5e37de94bef15231d3c78ea460944a9fbfd5a8f5fe3ce1f05c4",
+      "bytes": 11159
+    },
+    {
+      "path": "tests/test_suggest.py",
+      "sha256": "41a1d8829e5cd947e88f80c45fad654f8cd6184d2d2cb2f98abe8b0c3510fd0c",
+      "bytes": 12260
+    },
+    {
+      "path": "tests/test_supply_chain.py",
+      "sha256": "92151a22381bd625e72362a780ed3e667a8b76da4a962add9e93357b2658c72f",
+      "bytes": 8245
+    }
+  ],
+  "fix_meaning": {
+    "uuid": "UTC timestamp plus full UUID4 hex suffix; 1000 generated IDs under frozen wall-clock fixture remain unique.",
+    "hermetic_tests": "Four missing-plugin tests explicitly mock intended absence at existing availability/registry seams. Root output test selects enumerating built-in python-web and asserts exact app.py scanned_files and repository index, retaining count assertion without legacy duplicate-count assumptions.",
+    "npm_lockfile": "Current malformed lockfile input handling tested with SBOM coverage; production fix belongs to lockfile owner."
+  },
+  "preserved_negative_evidence": [
+    {
+      "path": ".pytest_cache/m3-matrix-py311/pytest.log",
+      "sha256": "5b5ae660e1f6f2ff1dc7f88dbe9ab04c116d725c29712d9cffe052a206780622",
+      "bytes": 10474
+    },
+    {
+      "path": ".pytest_cache/m3-matrix-py312/pytest.log",
+      "sha256": "87f975cff28a3e9d73aefc8824b4f153290ec87e46c68ff3316232cef5852f1b",
+      "bytes": 10474
+    }
+  ],
+  "invocation_and_import_corrections": {
+    "uuid_initial": "runid-py*.log invocation failed exit4 because tests/test_atomic_publication.py does not exist; subsequent runid-verified logs are the actual 65-case execution.",
+    "lockfile_initial": "First 3.11 and 3.12 focused attempts had 18 failed/43 passed while importing old installed wheel. Owner diagnosed site-packages/attackmap/lockfiles.py:213 AttributeError. These failures are preserved in agent tool history, not erased or classified as current source regressions.",
+    "lockfile_corrected": "Set process PYTHONPATH before interpreter startup plus explicit loaded-source assertion; current source 61 passed each.",
+    "hermetic": "Current workspace src import and fifteen official analyzers printed by each original process; no network or real pip install."
+  },
+  "release_freshness": {
+    "historical_zip": "dev-20261015140602-9e90f29e.zip",
+    "historical_engine_sha256": "354bf73fec42c857d09782975c0419a29b3f6953e90ed2c620292a72bc9e5c7a",
+    "historical_engine_current": false,
+    "reason": "Engine predates UUID and npm lockfile production fixes. Native production DLL4106281b6d04e7d19bfff127d852eb10feee0ab21d21028b3a92d7f0c2d145bb remains current.",
+    "next_engine": ".pytest_cache/m3-frozen-post-matrix",
+    "packaging_gate": "Await all authoritative full-run and fresh-engine proofs plus root stable handshake; no new package produced by this audit.",
+    "full313_environment_limit": "Original shared build venv focused85 pass does not imply full test dependencies. Root subsequently reported full313 collection stopped with three missing-jsonschema errors; this is not a completed full regression. No shared build dependency modifications by this agent."
+  }
+}

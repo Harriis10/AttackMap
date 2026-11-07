@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-15T16:34:44.679799+00:00",
+  "scope": "Default analyzer warning/progress privacy only; structured AnalyzerError payload and strict exception semantics preserved",
+  "exitCode": 0,
+  "interpreter": ".pytest_cache/m3-matrix-py313/venv/Scripts/python.exe",
+  "log": {
+    "path": ".pytest_cache/m3-analyzer-log-privacy-final.log",
+    "sha256": "1e0b669819a576aedf7e48c69b2dc96cfda4e3b4c5ffab7fa5b767080b4b11c2"
+  },
+  "junit": {
+    "path": ".pytest_cache/m3-analyzer-log-privacy-final.xml",
+    "sha256": "e56d1d30e421326d976132da6dcfa18b76c0bb0537ecf4ad4d04fbc7e2b55041"
+  },
+  "sources": [
+    {
+      "path": "src/attackmap/analyzers.py",
+      "sha256": "0775000039e5e52579e461931d748467f7dc09a94425e15fba03cbe7ddfe24c3"
+    },
+    {
+      "path": "tests/test_analyzer_log_privacy.py",
+      "sha256": "93e7a07dedb78d33acf5ed882491b7eb90ebb51bc370f155d92a7d61ac06f9a2"
+    }
+  ],
+  "changes": "Entry-point load/init/metadata, detect and analyze warnings contain safe bounded analyzer identity/exception class/generic category only; third-party and duplicate warning identities sanitized; default failed progress also excludes odd class/name text. No raw exception text repeated.",
+  "assertions": [
+    "Sentinel credentials and arbitrary source/path excerpt absent from caplog",
+    "Valid bounded identity and RuntimeError/ValueError category remain useful",
+    "Malformed entrypoint name and custom exception __name__ fall back to unknown/Exception",
+    "Structured AnalyzerError analyzer,error_type,redacted message unchanged",
+    "strict=True raises same original exception"
+  ],
+  "negativeAttempt": {
+    "log": {
+      "path": ".pytest_cache/m3-analyzer-log-privacy.log",
+      "sha256": "43cfef2beaa2fbf8c9f053d46690829e294938b1b756b0ebbfff1e6f6ce9f720"
+    },
+    "result": "1failed60passed2optionalPHPskips; new Progress fake omitted begin(); fixed fixture only. Final all15 pinned environment used."
+  },
+  "limits": [
+    "This does not sanitize structured AnalyzerError messages or arbitrary plugin stdout/stderr; existing structured-error semantics intentionally retained",
+    "No new debug/verbose mode, dependency changes or global logging infrastructure",
+    "No full C15/platform/frozen/package acceptance claim"
+  ],
+  "passed": 63,
+  "seconds": 3.21,
+  "authoritativeExecution": {
+    "toolChunk": "6fa00c",
+    "synchronousTerminal": true,
+    "sessionId": null,
+    "wrapperExitCode": 0,
+    "toolExitCode": 0
+  }
+}

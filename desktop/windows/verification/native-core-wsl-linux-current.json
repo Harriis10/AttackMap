@@ -1,0 +1,82 @@
+{
+  "scope": "Ubuntu 24.04 WSL2, Python 3.12.3, ordinary ubuntu uid1000; copied dirty workspace subset, not clean Git or standalone Linux/Windows11/macOS acceptance",
+  "environment": {
+    "distro": "artex-roadmap-tests-01a12aef",
+    "python": "3.12.3",
+    "node": "22.23.2",
+    "uid": 1000,
+    "homePreserved": "/home/ubuntu",
+    "analyzerPinsVerified": 15,
+    "noRemoteAI": true,
+    "globalInstalls": false
+  },
+  "initialFull": {
+    "session": 63935,
+    "exitCode": 1,
+    "passed": 3188,
+    "failed": 6,
+    "skipped": 5,
+    "seconds": 79.94,
+    "evidence": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-wsl-linux-qa\\attempt-bc455506600d46638e7e867dfd831ede",
+    "failures": {
+      "missingExamplesCopy": 3,
+      "posixIncompleteProcessFakes": 2,
+      "unreadablePluginSummaryAssertion": 1
+    }
+  },
+  "focusedAfterOwnedFix": {
+    "session": 30543,
+    "exitCode": 1,
+    "passed": 120,
+    "failed": 2,
+    "skipped": 1,
+    "seconds": 10.52,
+    "evidence": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-wsl-linux-qa\\attempt-19cc185a04f9438289983d9409a622f1",
+    "originalOwnedFiveFailuresNowPass": true,
+    "remaining": [
+      "unreadable summary fixed-count assertion (shared owner)",
+      "concurrently changed exploitability empty-state wording assertion (root owner)"
+    ]
+  },
+  "windowsFocused": {
+    "passed": 2,
+    "seconds": 0.74,
+    "normalUser": true,
+    "restrictedAttempts": "Two setup ACL failures before test execution; no test regressions"
+  },
+  "skips": [
+    "Windows Job Object lifecycle proof",
+    "Authenticated live Claude CLI opt-in",
+    "Windows O_NOFOLLOW-specific export proof",
+    "Windows DPAPI boundary",
+    "Windows job containment"
+  ],
+  "changes": {
+    "tests/test_ui.py": "f47ae824d73f0b26728795001f2dcd705bd38c1396d891ebcf4f9647e6c54229",
+    "tests/test_ui_supervision.py": "e00314c6c50f5791e04f2db5be027bae019ecaf392bfad10483828267780f9e5"
+  },
+  "pending": "Full Linux snapshot passed; later scan_timing changes require separate focused verification. Not clean-Git or native Linux OS distribution acceptance.",
+  "fullRerun": {
+    "session": 56771,
+    "exitCode": 0,
+    "passed": 3195,
+    "failed": 0,
+    "skipped": 5,
+    "seconds": 98.84,
+    "evidence": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-wsl-linux-qa\\attempt-c80c1bf54ef9470bb848c6c1c5fe7295",
+    "inputFiles": 570,
+    "srcTestsFilesBeforeAfter": 434,
+    "inventoriesUnchanged": true,
+    "snapshotScope": "Copied dirty workspace current at launch; excludes subsequent scan_timing production changes",
+    "files": {
+      "pytest.log": "fb5270330aad916ebd2798b716c12b10f190f4f161c8c6f7757ac94d723a1807",
+      "results.xml": "f7b1f3a970934637334cfc5f2b17e70ef1118c11a1e51ccaa844e77a538cb756",
+      "source-inventory.json": "f2ea2f63c154a39537a02e3f40da54c3c1c72c95bcdb2c9932c8c55d6496cbc0",
+      "source-test-before.json": "485f5240ec0512d936b66571a66bd990f37c49c88ce2f11028ff6872ebc7ebfb",
+      "source-test-after.json": "485f5240ec0512d936b66571a66bd990f37c49c88ce2f11028ff6872ebc7ebfb",
+      "inventory-verification.json": "1267665c2d733ec2ebd68f6fec5abdb6b22ce1eedc71063f4edf41c29cee2d4f",
+      "setup-proof.json": "aa438fd6b487c411d6e9451249988fe846048f91afbf48a44ea8a9fa897a64f9",
+      "exit-code.json": "574049a0ae2cdde150c1daa7141ccec457a94ce7256a6d8b771b27a88ce5abeb"
+    }
+  }
+}

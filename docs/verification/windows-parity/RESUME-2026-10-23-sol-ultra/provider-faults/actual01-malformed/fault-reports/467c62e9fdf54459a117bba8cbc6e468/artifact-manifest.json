@@ -1,0 +1,226 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_type": "attackmap_artifact_manifest",
+  "generation_id": "467c62e9fdf54459a117bba8cbc6e468",
+  "engine_version": "1.5.1",
+  "created_at": "2026-10-23T07:55:33Z",
+  "exit_state": {
+    "exit_code": 0,
+    "status": "succeeded"
+  },
+  "run_identity": {
+    "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\provider-faults\\actual01-malformed\\fixture-repository",
+    "repo_name": "fixture-repository",
+    "analyzers": [
+      {
+        "name": "python-web",
+        "version": "0.1.0",
+        "description": "Built-in analyzer for Python web frameworks and related security signals.",
+        "scope": "Python source files handled by the current scanner-backed web heuristics.",
+        "ecosystems": [
+          "python",
+          "fastapi",
+          "flask"
+        ]
+      },
+      {
+        "name": "config",
+        "version": "0.1.0",
+        "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+        "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+        "ecosystems": [
+          "yaml",
+          "toml",
+          "json",
+          "ini",
+          "env"
+        ]
+      }
+    ],
+    "analyzer_identity": "1db84958907fe5bfb0720adc9036f744bac0c05d8491809c93b78c1592d284c1",
+    "snapshot": {
+      "snapshot_id": "6ecac4e45726e5b7368d2bedfaa11c1d97c10cca19c29a9e5e57be35564d635c",
+      "file_count": 2,
+      "total_size": 220,
+      "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5",
+      "index_config": {
+        "capture_sdk_sources": 1,
+        "include_tests": 0,
+        "include_vendored": 0,
+        "index_byte_budget": 0,
+        "index_file_limit": 100000,
+        "max_file_bytes": 2000000
+      },
+      "verification": {
+        "state": "verified",
+        "checked_files": 2,
+        "changed": [],
+        "deleted": [],
+        "added": [],
+        "basis": "sha256 of utf-8 text under index acceptance rules",
+        "excluded_paths": [
+          "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\provider-faults\\actual01-malformed\\fault-reports\\467c62e9fdf54459a117bba8cbc6e468"
+        ]
+      }
+    }
+  },
+  "sections": [
+    {
+      "name": "scan",
+      "path": "scan.json",
+      "format": "json",
+      "role": "structured-scan-result",
+      "checksum": "5787f37d17db25ceb87a2eabbcdd9d44ca0789095ea0a978e19dbf40c9284c36",
+      "size_bytes": 3339
+    },
+    {
+      "name": "findings",
+      "path": "findings.json",
+      "format": "json",
+      "role": "findings-array",
+      "checksum": "41af120236b185dc04228c93c6b5c8e33d42f52d5523932a94612c577cf863d8",
+      "size_bytes": 6390
+    },
+    {
+      "name": "attack_paths",
+      "path": "attack_paths.json",
+      "format": "json",
+      "role": "attack-paths-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "name": "attack_surfaces",
+      "path": "attack_surfaces.json",
+      "format": "json",
+      "role": "attack-surfaces-array",
+      "checksum": "7799b7517891cf6529b8028b2c5ba15f4861a85ef75a1cc9f25bbe1455790a51",
+      "size_bytes": 779
+    },
+    {
+      "name": "exploitability",
+      "path": "exploitability.json",
+      "format": "json",
+      "role": "exploitability-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "name": "suppressed_findings",
+      "path": "suppressed_findings.json",
+      "format": "json",
+      "role": "suppressed-findings-array",
+      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "name": "defensive_review",
+      "path": "defensive-review.json",
+      "format": "json",
+      "role": "defensive-review-structured",
+      "checksum": "8e39d1643abe05a5fe3eab12f278b70c289a5f2f21e611b9cbe4164b4d1fc4fc",
+      "size_bytes": 15329
+    },
+    {
+      "name": "review_context_pack",
+      "path": "review-context-pack.json",
+      "format": "json",
+      "role": "review-context-pack",
+      "checksum": "7f0aa585dbeaad86710451d334d5dc076f81602fea02f02787fa1e8cd69be4d9",
+      "size_bytes": 18724
+    }
+  ],
+  "compatibility_exports": [
+    {
+      "name": "legacy_report",
+      "path": "attackmap-report.json",
+      "format": "json",
+      "role": "monolithic-legacy-report",
+      "checksum": "b992605f9baff73905a286c7daae1ac5afb0af8fe8bac7984a590ccbaf6b216c",
+      "size_bytes": 52250
+    },
+    {
+      "name": "run-manifest.json",
+      "path": "run-manifest.json",
+      "format": "json",
+      "role": "compatibility-export",
+      "checksum": "1d971e660cbc8f321b66f9af61b76c46e86d0f42a88fe0ecbe4f6197e0531ba5",
+      "size_bytes": 5150
+    },
+    {
+      "name": "attackmap-report.sarif",
+      "path": "attackmap-report.sarif",
+      "format": "sarif",
+      "role": "compatibility-export",
+      "checksum": "6297a96fd30644f17354a31b5491a0baa73286f47322609433ba7f5ed1162cfd",
+      "size_bytes": 5131
+    },
+    {
+      "name": "architecture.md",
+      "path": "architecture.md",
+      "format": "md",
+      "role": "compatibility-export",
+      "checksum": "b924cd9ef5f3ef5a1ac179f2bb9a6dfdbeea2dc6100e5f563290ba938a3ba278",
+      "size_bytes": 749
+    },
+    {
+      "name": "attack-surface.md",
+      "path": "attack-surface.md",
+      "format": "md",
+      "role": "compatibility-export",
+      "checksum": "46202b7bd81aed983733f0c8c17002b69dd3ba1cedc90864fbfebdaf271dc52b",
+      "size_bytes": 978
+    },
+    {
+      "name": "defensive-review.md",
+      "path": "defensive-review.md",
+      "format": "md",
+      "role": "compatibility-export",
+      "checksum": "ec99183f91cbc4eaa9694d39bead4b92bda3a8d74ef84454e63bf690dde75a7e",
+      "size_bytes": 2975
+    },
+    {
+      "name": "attackmap-exploitability.md",
+      "path": "attackmap-exploitability.md",
+      "format": "md",
+      "role": "compatibility-export",
+      "checksum": "ea1354339fabe2e2c4e938c6c2e592e65f70e02ee610b0b71334ed6d6bde3d32",
+      "size_bytes": 237
+    },
+    {
+      "name": "attackmap-paths.md",
+      "path": "attackmap-paths.md",
+      "format": "md",
+      "role": "compatibility-export",
+      "checksum": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+      "size_bytes": 71
+    },
+    {
+      "name": "attackmap-topology.md",
+      "path": "attackmap-topology.md",
+      "format": "md",
+      "role": "compatibility-export",
+      "checksum": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+      "size_bytes": 71
+    },
+    {
+      "name": "attackmap-paths.dot",
+      "path": "attackmap-paths.dot",
+      "format": "dot",
+      "role": "compatibility-export",
+      "checksum": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+      "size_bytes": 130
+    },
+    {
+      "name": "attackmap-topology.dot",
+      "path": "attackmap-topology.dot",
+      "format": "dot",
+      "role": "compatibility-export",
+      "checksum": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+      "size_bytes": 123
+    }
+  ],
+  "publication": {
+    "immutable": true
+  }
+}

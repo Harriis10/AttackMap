@@ -1,0 +1,66 @@
+{
+  "scope": "Harness profile-layout regression; no native app/provider execution",
+  "red": {
+    "exit_code": 1,
+    "failed_known_folder_subtests": 2,
+    "hresult": -2147024893,
+    "known_folder_paths_empty": true
+  },
+  "green": {
+    "exit_code": 0,
+    "tests_passed": 30,
+    "subtests_passed": 25,
+    "seconds": 3.63,
+    "both_known_folder_hresult": 0,
+    "known_paths_match_environment": true,
+    "owned_cleanup_verified": true
+  },
+  "files": {
+    "tools/run_wp017_native_modes.py": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tools\\run_wp017_native_modes.py",
+      "sha256": "43c267614ae85a9c34fe6ea66cabd7c5ea4833accb68b76afc4be55892feec5d"
+    },
+    "tests/test_wp017_native_runner.py": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_wp017_native_runner.py",
+      "sha256": "3fc1b0ea3e684cead990fc1ee7b6f9c4c503c9441b45dc7d60cf2a266f497145"
+    }
+  },
+  "release_inputs_sha256": "ce7398c65cf4fb2c402c1f0891151ae2e370226546a93fd0a0c5cebd4a619498",
+  "runner_excluded_from_release_inputs": true,
+  "package_identity": {
+    "passed": true,
+    "scope": "Complete pinned package byte consistency; source lock consistency when RequiredBundled; acceptance separate",
+    "package_id": "dev-20261022113134-4de136c6",
+    "manifest": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\astra-packages-20261022\\dev-20261022113134-4de136c6\\package-manifest.json",
+      "sha256": "d62a6c7f432cfab616cafda64978eb4cfc7a5b0e2167151737c9df848f4af087"
+    },
+    "files_verified": 821,
+    "release_lock": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp024-astra-fresh-20261022-01\\release-lock.json",
+      "sha256": "6873ddb1cb00af1dc1a91b6337559e7166b4bc7aea6f914d526616d450f33ade"
+    },
+    "kind": null,
+    "native_build": null,
+    "engine_build": null,
+    "identities": {
+      "AttackMap.NativeSpike.exe": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\astra-packages-20261022\\dev-20261022113134-4de136c6\\app\\AttackMap.NativeSpike.exe",
+        "sha256": "81ed7619e1ce5ebcbdc905f784a57d55234a2b03d416f46a77a0a57ef7e734fc"
+      },
+      "AttackMap.NativeSpike.dll": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\astra-packages-20261022\\dev-20261022113134-4de136c6\\app\\AttackMap.NativeSpike.dll",
+        "sha256": "12f5e4231138af1c8922fac7787c4c04a41db94c9cc343ae1641bcfe62584289"
+      },
+      "engine/attackmap.exe": {
+        "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\astra-packages-20261022\\dev-20261022113134-4de136c6\\app\\engine\\attackmap.exe",
+        "sha256": "f4ce2e74446198e667cef7e134dbd74654d5e03ec9d9efcaa364235c2cf11107"
+      }
+    },
+    "accepted_wp017": false,
+    "accepted_manual_ui": false,
+    "accepted_same_source": false,
+    "accepted_release": false,
+    "accepted_clean_host": false
+  }
+}

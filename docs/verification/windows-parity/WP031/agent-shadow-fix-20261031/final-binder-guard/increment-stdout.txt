@@ -1,0 +1,86 @@
+# AttackMap detector evaluation � corpus `attackmap-local-increment-20261031` v0.1.0
+
+Schema 1.0.0. 27 labeled expectations across 3 repositories (16 positive, 10 negative, 1 clean-repository cases).
+
+**Matching unit** (fixed in advance, per C27): a labeled expectation is matched when a finding of the same canonical family cites the case's repository-relative file, confirmed by exact route + method, or a line within `line_window` when the finding cites no route. Findings are deduplicated by stable `finding_id` before counting. TP = matched positive, FN = unmatched positive, FP = violated negative expectation or clean repo with any same-family finding. This is stricter than `bench` precision: a grouped finding that over-cites a labeled-clean twin is penalized here.
+
+## Split (repository-level, frozen)
+
+- seed `20261011`, holdout fraction 50%
+- tuning repositories (1): dvwa-upstream-slice
+- holdout repositories (2): attackmap-clean-catalog, juice-shop-upstream-slice
+
+## Distance to C27 targets
+
+| Dimension | Target | Delivered | Short |
+|---|---|---|---|
+| Repositories | 30 | 3 | 27 |
+| Positive cases | 300 | 16 | 284 |
+| Negative cases | 300 | 10 | 290 |
+| Clean repositories | 10 | 1 | 9 |
+
+Every advertised family is listed below regardless of score or sample count. A family is **experimental** below 30 positive and 30 negative labeled cases (C27); per-family corpus totals:
+
+| Family | Positive cases | Negative cases | Gap to 30/30 |
+|---|---|---|---|
+| `bola` | 1 | 1 | +29 positive / +29 negative |
+| `crypto` | 3 | 0 | +27 positive / +30 negative |
+| `injection` | 12 | 7 | +18 positive / +23 negative |
+| `unauth_state_change` | 0 | 2 | +30 positive / +28 negative |
+| `webhook_exposure` | 0 | 0 | +30 positive / +30 negative |
+
+## Tuning side
+
+| Family | TP | FP | FN | Precision [95% CI] | Recall [95% CI] | P/N/clean samples | Status |
+|---|---|---|---|---|---|---|---|
+| `bola` | 0 | 0 | 0 | � | � | 0/0/0 | experimental |
+| `crypto` | 0 | 0 | 1 | � | 0% [0%, 79%] | 1/0/0 | experimental |
+| `injection` | 0 | 0 | 9 | � | 0% [0%, 30%] | 9/4/0 | experimental |
+| `unauth_state_change` | 0 | 0 | 0 | � | � | 0/0/0 | experimental |
+| `webhook_exposure` | 0 | 0 | 0 | � | � | 0/0/0 | experimental |
+
+## Holdout side
+
+| Family | TP | FP | FN | Precision [95% CI] | Recall [95% CI] | P/N/clean samples | Status |
+|---|---|---|---|---|---|---|---|
+| `bola` | 0 | 0 | 1 | � | 0% [0%, 79%] | 1/1/1 | experimental |
+| `crypto` | 0 | 0 | 2 | � | 0% [0%, 66%] | 2/0/1 | experimental |
+| `injection` | 0 | 0 | 3 | � | 0% [0%, 56%] | 3/3/1 | experimental |
+| `unauth_state_change` | 0 | 0 | 0 | � | � | 0/2/1 | experimental |
+| `webhook_exposure` | 0 | 0 | 0 | � | � | 0/0/1 | experimental |
+
+## Per-case results
+
+- `dvwa-sqli-low` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-sqli-medium` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-sqli-impossible` [tuning] negative (injection): respected (no finding fired)
+- `dvwa-sqli-constant-query` [tuning] negative (injection): respected (no finding fired)
+- `dvwa-blind-sqli-low` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-blind-sqli-medium` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-blind-sqli-high` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-blind-sqli-impossible` [tuning] negative (injection): respected (no finding fired)
+- `dvwa-exec-low` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-redirect-low` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-redirect-medium` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-redirect-high` [tuning] positive (injection): MISSED (positive expectation)
+- `dvwa-redirect-impossible` [tuning] negative (injection): respected (no finding fired)
+- `dvwa-static-token-key` [tuning] positive (crypto): MISSED (positive expectation)
+- `juice-search-sqli` [holdout] positive (injection): MISSED (positive expectation)
+- `juice-login-sqli` [holdout] positive (injection): MISSED (positive expectation)
+- `juice-redirect-substring` [holdout] positive (injection): MISSED (positive expectation)
+- `juice-basket-ownership` [holdout] positive (bola): MISSED (positive expectation)
+- `juice-search-fixed-query` [holdout] negative (injection): respected (no finding fired)
+- `juice-address-orm-query` [holdout] negative (injection): respected (no finding fired)
+- `juice-address-owner` [holdout] negative (bola): respected (no finding fired)
+- `juice-address-delete-auth` [holdout] negative (unauth_state_change): respected (no finding fired)
+- `juice-password-update-orm` [holdout] negative (injection): respected (no finding fired)
+- `juice-password-update-auth` [holdout] negative (unauth_state_change): respected (no finding fired)
+- `juice-password-md5` [holdout] positive (crypto): MISSED (positive expectation)
+- `juice-static-jwt-key` [holdout] positive (crypto): MISSED (positive expectation)
+- `clean-public-catalog` [holdout] clean (any family): clean (no scored-family findings)
+
+## Corpus notes
+
+Labels and membership frozen from source before the first evaluation of this increment. Original v0.2.0 corpus and its split are unchanged. Source slices preserve exact Git objects but omit app dependencies and are not runnable full upstream repositories. All labels await independent human review; no mature-family claim.
+
+Written to: C:\Projects\INPROGRESS\AttackMap\docs\verification\windows-parity\WP031\agent-shadow-fix-20261031\final-binder-guard\evaluation-increment

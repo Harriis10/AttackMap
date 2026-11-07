@@ -1,0 +1,280 @@
+{
+  "$defs": {
+    "FleetChildEvent": {
+      "properties": {
+        "schema_version": {
+          "const": "1.4",
+          "default": "1.4",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "run_id": {
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "repository_id": {
+          "minLength": 1,
+          "title": "Repository Id",
+          "type": "string"
+        },
+        "generation": {
+          "minimum": 1,
+          "title": "Generation",
+          "type": "integer"
+        },
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "kind": {
+          "const": "fleet_child",
+          "default": "fleet_child",
+          "title": "Kind",
+          "type": "string"
+        },
+        "child_repository_id": {
+          "title": "Child Repository Id",
+          "type": "string"
+        },
+        "child_repository_path": {
+          "title": "Child Repository Path",
+          "type": "string"
+        },
+        "child_run_id": {
+          "title": "Child Run Id",
+          "type": "string"
+        },
+        "child_output_id": {
+          "title": "Child Output Id",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "queued",
+            "running",
+            "completed",
+            "failed",
+            "cancelled",
+            "skipped"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "completed_units": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Completed Units"
+        },
+        "total_units": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Units"
+        },
+        "manifest_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Path"
+        },
+        "manifest_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Sha256"
+        }
+      },
+      "required": [
+        "run_id",
+        "repository_id",
+        "generation",
+        "revision",
+        "child_repository_id",
+        "child_repository_path",
+        "child_run_id",
+        "child_output_id",
+        "state"
+      ],
+      "title": "FleetChildEvent",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.4",
+      "default": "1.4",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "repository_id": {
+      "minLength": 1,
+      "title": "Repository Id",
+      "type": "string"
+    },
+    "generation": {
+      "minimum": 1,
+      "title": "Generation",
+      "type": "integer"
+    },
+    "revision": {
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "fleet_terminal",
+      "default": "fleet_terminal",
+      "title": "Kind",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "completed",
+        "failed",
+        "cancelled"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "execution_outcome": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "title": "Execution Outcome",
+      "type": "string"
+    },
+    "policy_outcome": {
+      "default": "not_evaluated",
+      "enum": [
+        "not_evaluated",
+        "passed",
+        "failed"
+      ],
+      "title": "Policy Outcome",
+      "type": "string"
+    },
+    "artifact_readiness": {
+      "default": "unavailable",
+      "enum": [
+        "pending",
+        "ready",
+        "unavailable"
+      ],
+      "title": "Artifact Readiness",
+      "type": "string"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "fleet_outcome": {
+      "enum": [
+        "succeeded",
+        "partial",
+        "failed",
+        "cancelled"
+      ],
+      "title": "Fleet Outcome",
+      "type": "string"
+    },
+    "children": {
+      "items": {
+        "$ref": "#/$defs/FleetChildEvent"
+      },
+      "maxItems": 16,
+      "minItems": 2,
+      "title": "Children",
+      "type": "array"
+    },
+    "index_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Index Path"
+    },
+    "index_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Index Sha256"
+    }
+  },
+  "required": [
+    "run_id",
+    "repository_id",
+    "generation",
+    "revision",
+    "state",
+    "execution_outcome",
+    "fleet_outcome",
+    "children"
+  ],
+  "title": "FleetTerminal",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

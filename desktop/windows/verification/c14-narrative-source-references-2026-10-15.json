@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "scope": "Offline selected narrative source-reference classification and generation-to-persistence verification",
+  "terminal": {
+    "tool_exec": "ccf245",
+    "exit_code": 0,
+    "passed": 9,
+    "seconds": 1.74
+  },
+  "checks": [
+    "Valid producer IDs cannot validate source file/line spans",
+    "No captured selected narrative snapshot spans => source references unresolved/unvalidated",
+    "No live source reads",
+    "Times/HTTP URLs excluded from file/line candidates",
+    "Original prose preserved under notice",
+    "Actual fake-provider generation wrapper and atomic pipeline persist separate metadata and warning"
+  ],
+  "files": {
+    "src/attackmap/llm_review.py": "fc4656707a23997f031ea298896bef525492fd6d65db77056efc9ea00bfa9ef4",
+    "tests/test_narrative_citations.py": "36cf10cc70206d14a7ad2941c9a1306f481af28d5eabeda0a0d996a8ba9496c6",
+    ".pytest_cache/narrative-source-references.log": "df7f5ce538fe5331c821efb03ce120fc8eafe1f86ea9fab2ed69f712d257bed9",
+    ".pytest_cache/narrative-source-references.xml": "c57dd19930e8b0bf2098214ffdd12c6d39446855779c2237e4a6eddaf6f1225c"
+  },
+  "post_run_change": "Removed one unused test local variable only; source unchanged after run",
+  "limitations": [
+    "No model call/frozen build/package validation",
+    "Claim support remains not_assessed",
+    "Bare filenames and prose line-number descriptions are not mechanically parsed as exact spans"
+  ]
+}

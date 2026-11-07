@@ -1,0 +1,85 @@
+{
+  "integrity_audit": "PASS",
+  "detector_calls": 0,
+  "provider_calls": 0,
+  "scope": "Frozen increment integrity and source-linked machine-authored labels; not independent human adjudication or C27 acceptance",
+  "increment": {
+    "repositories": 3,
+    "expectations": 27,
+    "counts": {
+      "positive": 16,
+      "negative": 10,
+      "clean": 1
+    },
+    "source_files": 26,
+    "families": {
+      "bola": {
+        "positive": 1,
+        "negative": 1
+      },
+      "clean": {
+        "clean": 1
+      },
+      "crypto": {
+        "positive": 3
+      },
+      "injection": {
+        "positive": 12,
+        "negative": 7
+      },
+      "unauth_state_change": {
+        "negative": 2
+      }
+    }
+  },
+  "split": {
+    "seed": 20261011,
+    "holdout_fraction": 0.5,
+    "tuning_repositories": [
+      "dvwa-upstream-slice"
+    ],
+    "holdout_repositories": [
+      "attackmap-clean-catalog",
+      "juice-shop-upstream-slice"
+    ],
+    "tuning_expectations": 14,
+    "holdout_expectations": 13,
+    "actual_holdout_ratio": 0.6666666666666666
+  },
+  "checks": {
+    "json_schema": "PASS",
+    "frozen_manifest_provenance_and_baseline_hashes": "PASS",
+    "source_hashes_git_blobs_and_line_anchors": "PASS",
+    "repository_and_lineage_disjointness": "PASS",
+    "complete_source_inventory_and_licenses": "PASS",
+    "duplicate_same_family_entities": "PASS",
+    "cross_split_normalized_code_duplicates": [],
+    "baseline_code_duplicates": []
+  },
+  "combined_arithmetic_inventory_only": {
+    "repositories": 16,
+    "expectations": 73,
+    "counts": {
+      "positive": 41,
+      "negative": 29,
+      "clean": 3
+    },
+    "numeric_deficits": {
+      "repositories": 14,
+      "positive": 259,
+      "negative": 271,
+      "clean": 7
+    }
+  },
+  "independent_human_review": "PENDING",
+  "c27_accepted": false,
+  "limits": [
+    "Both upstreams are intentionally vulnerable training applications, not production-diverse repositories",
+    "Slices omit dependencies; scanning them does not prove full-application behavior",
+    "Near-twins from one upstream remain on the same split side; labels are correlated",
+    "Juice Shop was a prior integration target; this is a frozen future regression split, not a previously unseen blind benchmark",
+    "Exact and whitespace-normalized hashes cannot establish semantic independence or absence of unrecorded shared lineage",
+    "Freeze is reproducible integrity evidence, not a cryptographically attested historical timestamp",
+    "Combined counts are logical source-slice identities, not 16 accepted independently reviewed production repositories"
+  ]
+}

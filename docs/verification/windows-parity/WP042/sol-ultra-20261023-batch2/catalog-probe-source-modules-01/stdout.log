@@ -1,0 +1,130 @@
+[
+  {
+    "name": "javascript-web",
+    "display_name": "JavaScript / TypeScript Web Analyzer",
+    "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+    "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+    "ecosystems": [
+      "javascript",
+      "typescript",
+      "express",
+      "fastify",
+      "koa",
+      "node"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "php-web",
+    "display_name": "PHP Web Analyzer",
+    "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+    "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+    "ecosystems": [
+      "php"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "python-web",
+    "display_name": "Python Web Analyzer",
+    "description": "Built-in analyzer for Python web frameworks and related security signals.",
+    "scope": "Python source files handled by the current scanner-backed web heuristics.",
+    "ecosystems": [
+      "python",
+      "fastapi",
+      "flask"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "config",
+    "display_name": "Config File Analyzer",
+    "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+    "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+    "ecosystems": [
+      "yaml",
+      "toml",
+      "json",
+      "ini",
+      "env"
+    ],
+    "enabled_by_default": true,
+    "priority": 30,
+    "experimental": false
+  },
+  {
+    "name": "python-service",
+    "display_name": "Python Services Ecosystem Analyzer",
+    "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+    "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+    "ecosystems": [
+      "python",
+      "fastapi",
+      "flask",
+      "django",
+      "celery"
+    ],
+    "enabled_by_default": true,
+    "priority": 50,
+    "experimental": true
+  },
+  {
+    "name": "php-laminas",
+    "display_name": "PHP Laminas (Zend MVC) Analyzer",
+    "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+    "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+    "ecosystems": [
+      "php",
+      "laminas",
+      "zend-mvc"
+    ],
+    "enabled_by_default": true,
+    "priority": 60,
+    "experimental": true
+  },
+  {
+    "name": "default",
+    "display_name": "Default Analyzer",
+    "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+    "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+    "ecosystems": [],
+    "enabled_by_default": true,
+    "priority": 100,
+    "experimental": false
+  },
+  {
+    "name": "node-atproto",
+    "display_name": "Node / ATProto Overlay Analyzer",
+    "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+    "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+    "ecosystems": [
+      "javascript",
+      "typescript",
+      "atproto",
+      "xrpc",
+      "node-service"
+    ],
+    "enabled_by_default": true,
+    "priority": 150,
+    "experimental": true
+  },
+  {
+    "name": "omeka-s",
+    "display_name": "Omeka S Analyzer",
+    "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+    "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+    "ecosystems": [
+      "php",
+      "omeka-s"
+    ],
+    "enabled_by_default": true,
+    "priority": 160,
+    "experimental": true
+  }
+]

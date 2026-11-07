@@ -1,0 +1,20 @@
+..............FF                                                         [100%]
+================================== FAILURES ===================================
+_____ test_actual_scanner_serial_opt_in_publishes_partial_diagnostics[32] _____
+tests\test_fleet_input_budget.py:185: in test_actual_scanner_serial_opt_in_publishes_partial_diagnostics
+    assert manifest["diagnostic_context"]["coverage"]["status"] == "partial"
+E   AssertionError: assert 'unknown' == 'partial'
+E     
+E     - partial
+E     + unknown
+_____ test_actual_scanner_serial_opt_in_publishes_partial_diagnostics[1] ______
+tests\test_fleet_input_budget.py:185: in test_actual_scanner_serial_opt_in_publishes_partial_diagnostics
+    assert manifest["diagnostic_context"]["coverage"]["status"] == "partial"
+E   AssertionError: assert 'unknown' == 'partial'
+E     
+E     - partial
+E     + unknown
+=========================== short test summary info ===========================
+FAILED tests/test_fleet_input_budget.py::test_actual_scanner_serial_opt_in_publishes_partial_diagnostics[32]
+FAILED tests/test_fleet_input_budget.py::test_actual_scanner_serial_opt_in_publishes_partial_diagnostics[1]
+2 failed, 14 passed in 10.30s

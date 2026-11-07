@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: split
+  namespace: preview
+spec:
+  rules:
+    - host: edge.PRODUCTION.internal
+      http:
+        paths:
+          - path: /Api
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8443
+          - path: /Worker
+            backend:
+              service:
+                name: worker
+                port:
+                  number: 9000

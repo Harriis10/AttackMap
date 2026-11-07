@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="3.214" timestamp="2026-10-31T10:14:07.857832+01:00" hostname="corpsec"><testcase classname="tests.test_wp032_multibackend_proxy" name="test_effective_alias_merge_preserves_negative_proxy_evidence[merge-empty]" time="0.205"><failure message="assert False&#10; +  where False = all(&lt;generator object test_effective_alias_merge_preserves_negative_proxy_evidence.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B3766330&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-merge-red-20261031/test_effective_alias_merge_pre0')
+mode = 'merge-empty'
+
+    @pytest.mark.parametrize("mode", ["merge-empty", "merge-host", "conflict-fallback"])
+    def test_effective_alias_merge_preserves_negative_proxy_evidence(tmp_path, mode):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("identity-collision.conf",))
+        kwargs = {"merge-empty": {}, "merge-host": {"hosts": {"api": "api"}},
+                  "conflict-fallback": {"hosts": {"safe.production.internal": "worker"}}}[mode]
+        effective, _ = _effective_deployment_aliases(ScanRequest(
+            repo_paths=[root / name for name in scans], output=tmp_path / "reports",
+            deployment_aliases=DeploymentAliases(**kwargs)))
+        links = resolve(scans, effective, "https://api/Api/Items/42")
+&gt;       assert all(link.resolution == "candidate" for link in links)
+E       assert False
+E        +  where False = all(&lt;generator object test_effective_alias_merge_preserves_negative_proxy_evidence.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B3766330&gt;)
+
+tests\test_wp032_multibackend_proxy.py:152: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_effective_alias_merge_preserves_negative_proxy_evidence[merge-host]" time="0.053"><failure message="assert False&#10; +  where False = all(&lt;generator object test_effective_alias_merge_preserves_negative_proxy_evidence.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B37671D0&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-merge-red-20261031/test_effective_alias_merge_pre1')
+mode = 'merge-host'
+
+    @pytest.mark.parametrize("mode", ["merge-empty", "merge-host", "conflict-fallback"])
+    def test_effective_alias_merge_preserves_negative_proxy_evidence(tmp_path, mode):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("identity-collision.conf",))
+        kwargs = {"merge-empty": {}, "merge-host": {"hosts": {"api": "api"}},
+                  "conflict-fallback": {"hosts": {"safe.production.internal": "worker"}}}[mode]
+        effective, _ = _effective_deployment_aliases(ScanRequest(
+            repo_paths=[root / name for name in scans], output=tmp_path / "reports",
+            deployment_aliases=DeploymentAliases(**kwargs)))
+        links = resolve(scans, effective, "https://api/Api/Items/42")
+&gt;       assert all(link.resolution == "candidate" for link in links)
+E       assert False
+E        +  where False = all(&lt;generator object test_effective_alias_merge_preserves_negative_proxy_evidence.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B37671D0&gt;)
+
+tests\test_wp032_multibackend_proxy.py:152: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_effective_alias_merge_preserves_negative_proxy_evidence[conflict-fallback]" time="0.084"><failure message="assert False&#10; +  where False = all(&lt;generator object test_effective_alias_merge_preserves_negative_proxy_evidence.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B3767B90&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-merge-red-20261031/test_effective_alias_merge_pre2')
+mode = 'conflict-fallback'
+
+    @pytest.mark.parametrize("mode", ["merge-empty", "merge-host", "conflict-fallback"])
+    def test_effective_alias_merge_preserves_negative_proxy_evidence(tmp_path, mode):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("identity-collision.conf",))
+        kwargs = {"merge-empty": {}, "merge-host": {"hosts": {"api": "api"}},
+                  "conflict-fallback": {"hosts": {"safe.production.internal": "worker"}}}[mode]
+        effective, _ = _effective_deployment_aliases(ScanRequest(
+            repo_paths=[root / name for name in scans], output=tmp_path / "reports",
+            deployment_aliases=DeploymentAliases(**kwargs)))
+        links = resolve(scans, effective, "https://api/Api/Items/42")
+&gt;       assert all(link.resolution == "candidate" for link in links)
+E       assert False
+E        +  where False = all(&lt;generator object test_effective_alias_merge_preserves_negative_proxy_evidence.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B3767B90&gt;)
+
+tests\test_wp032_multibackend_proxy.py:152: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_effective_aliases_retains_negative_only_config" time="0.037"><failure message="assert False&#10; +  where False = all(&lt;generator object test_effective_aliases_retains_negative_only_config.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B488DFF0&gt;)">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-multibackend-merge-red-20261031/test_effective_aliases_retains0')
+
+    def test_effective_aliases_retains_negative_only_config(tmp_path):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("identity-collision.conf",))
+        for file in (root / "caller/safe.conf", root / "api/service.yaml", root / "worker/service.yaml"):
+            file.unlink()
+        effective, _ = _effective_deployment_aliases(ScanRequest(
+            repo_paths=[root / name for name in scans], output=tmp_path / "reports"))
+        links = resolve(scans, effective, "https://api/Api/Items/42")
+&gt;       assert all(link.resolution == "candidate" for link in links)
+E       assert False
+E        +  where False = all(&lt;generator object test_effective_aliases_retains_negative_only_config.&lt;locals&gt;.&lt;genexpr&gt; at 0x00000205B488DFF0&gt;)
+
+tests\test_wp032_multibackend_proxy.py:165: AssertionError</failure></testcase></testsuite></testsuites>

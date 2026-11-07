@@ -1,0 +1,134 @@
+{
+  "stages": [
+    {
+      "name": "fleet",
+      "milliseconds": 126265.94
+    },
+    {
+      "name": "publication",
+      "milliseconds": 2151.527
+    }
+  ],
+  "diagnostic_context": {
+    "context_version": "1.0",
+    "outcome": "completed",
+    "policy_outcome": "unknown",
+    "stages": [
+      {
+        "stage_id": "fleet",
+        "outcome": "completed",
+        "duration_milliseconds": 126266
+      },
+      {
+        "stage_id": "publication",
+        "outcome": "completed",
+        "duration_milliseconds": 2151.527
+      }
+    ],
+    "analyzers": {
+      "status": "unknown",
+      "requested_count": null,
+      "items": [],
+      "truncated": false
+    },
+    "coverage": {
+      "status": "unknown",
+      "accepted_file_count": null,
+      "legacy_files_scanned_count": null,
+      "analyzer_error_count": null,
+      "limitation_count": null,
+      "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+    },
+    "resource_events": {
+      "status": "unknown",
+      "scopes": [],
+      "items": [],
+      "truncated": false,
+      "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+    },
+    "fleet": {
+      "status": "complete",
+      "requested_count": 3,
+      "completed_count": 3,
+      "failed_count": 0,
+      "cancelled_count": 0,
+      "children": [
+        {
+          "index": 0,
+          "outcome": "completed",
+          "coverage": {
+            "status": "partial",
+            "accepted_file_count": null,
+            "legacy_files_scanned_count": 3,
+            "analyzer_error_count": 0,
+            "limitation_count": 1,
+            "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+          },
+          "resource_events": {
+            "status": "partial",
+            "scopes": [
+              "repo_index.file_bytes",
+              "repo_index.index_bytes"
+            ],
+            "items": [],
+            "truncated": false,
+            "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+          }
+        },
+        {
+          "index": 1,
+          "outcome": "completed",
+          "coverage": {
+            "status": "partial",
+            "accepted_file_count": null,
+            "legacy_files_scanned_count": 3,
+            "analyzer_error_count": 0,
+            "limitation_count": 1,
+            "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+          },
+          "resource_events": {
+            "status": "partial",
+            "scopes": [
+              "repo_index.file_bytes",
+              "repo_index.index_bytes"
+            ],
+            "items": [],
+            "truncated": false,
+            "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+          }
+        },
+        {
+          "index": 2,
+          "outcome": "completed",
+          "coverage": {
+            "status": "partial",
+            "accepted_file_count": null,
+            "legacy_files_scanned_count": 3,
+            "analyzer_error_count": 0,
+            "limitation_count": 1,
+            "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+          },
+          "resource_events": {
+            "status": "partial",
+            "scopes": [
+              "repo_index.file_bytes",
+              "repo_index.index_bytes"
+            ],
+            "items": [],
+            "truncated": false,
+            "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+          }
+        }
+      ],
+      "truncated": false
+    }
+  },
+  "fleet_resource_admission": {
+    "policy": "count_only",
+    "memory_qualification": "unknown",
+    "os_enforced": false,
+    "limitation": "Worker count and deadlines do not bound fleet or retained-parent memory",
+    "worker_limit": 1,
+    "hard_worker_timeout_seconds": 600
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\long-local-20261022\\newlong-core-tests-01\\pytest-temp",
+    "--junitxml",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\long-local-20261022\\newlong-core-tests-01\\results.xml",
+    "tests/test_provider_options.py",
+    "tests/test_local_provider_timeouts.py",
+    "tests/test_ai_budget.py",
+    "tests/test_llm_review.py",
+    "tests/test_hunt_harness.py",
+    "tests/test_run_contract.py",
+    "tests/test_fleet_schema_contract.py",
+    "tests/test_desktop_fleet.py",
+    "tests/test_desktop_ai_modes.py",
+    "tests/test_desktop_options.py",
+    "tests/test_desktop_action_review.py"
+  ],
+  "cwd": "C:\\Projects\\INPROGRESS\\AttackMap",
+  "timeout_seconds": 600,
+  "scope": "Focused deterministic Python verification; no live provider, native GUI or build requested"
+}

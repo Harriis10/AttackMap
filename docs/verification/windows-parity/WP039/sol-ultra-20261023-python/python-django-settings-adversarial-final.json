@@ -1,0 +1,222 @@
+{
+  "scope": "Static source extraction only; specimens are not executed.",
+  "source_sha256": "cdca2a0981cd4e68fcc069e9c4121eb221a2acd40c4007ce2516a7fc849f849c",
+  "results": [
+    {
+      "case": "valid-control",
+      "expected_auth": "required",
+      "actual_auth": [
+        "required"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "LoginRequiredMiddleware (settings MIDDLEWARE)"
+          ],
+          "guard_evidence": "ordered Django authentication/login middleware for this URLconf tree: project/settings.py:2"
+        }
+      ],
+      "limitations": [],
+      "files": {
+        "project/settings.py": "0c3a597c7dc97175f145d5ae913be5a8ce3068c3bf19db5c023f9a2b926e6fc4",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    },
+    {
+      "case": "delete-middleware",
+      "expected_auth": "unknown",
+      "actual_auth": [
+        "unknown"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "limitations": [
+        "ecosystem_python: project/settings.py: dynamic or ambiguous Django MIDDLEWARE; no settings auth inference"
+      ],
+      "files": {
+        "project/settings.py": "b215f411fdec75de84e5aebbdf98b9cf9af9cd0ffa952cec29345ac487ecdb23",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    },
+    {
+      "case": "delete-root",
+      "expected_auth": "unknown",
+      "actual_auth": [
+        "unknown"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "limitations": [
+        "ecosystem_python: project/settings.py: dynamic or ambiguous Django ROOT_URLCONF; no settings auth inference"
+      ],
+      "files": {
+        "project/settings.py": "f7927ed294fd5a8bfe00ae921efb795d32c58a20c0ee8b1e23037c43b418450b",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    },
+    {
+      "case": "function-rebinding",
+      "expected_auth": "unknown",
+      "actual_auth": [
+        "unknown"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "limitations": [
+        "ecosystem_python: project/settings.py: dynamic or ambiguous Django MIDDLEWARE; no settings auth inference"
+      ],
+      "files": {
+        "project/settings.py": "95a29fc623a0e63d574eb4cf8b7abd79bf88a91b03015f5c1ff7c3556d81b157",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    },
+    {
+      "case": "import-rebinding",
+      "expected_auth": "unknown",
+      "actual_auth": [
+        "unknown"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "limitations": [
+        "ecosystem_python: project/settings.py: dynamic or ambiguous Django MIDDLEWARE; no settings auth inference"
+      ],
+      "files": {
+        "project/settings.py": "4cae8c2f5521f8b2cffce7957a752780e5490b6e99bcf6a43303b959ba66a034",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    },
+    {
+      "case": "except-capture",
+      "expected_auth": "unknown",
+      "actual_auth": [
+        "unknown"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "limitations": [
+        "ecosystem_python: project/settings.py: dynamic or ambiguous Django MIDDLEWARE; no settings auth inference"
+      ],
+      "files": {
+        "project/settings.py": "e76924ae6295f9feaa90db2ad45e7f799d17a88cbd3016253b23829a2f34c765",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    },
+    {
+      "case": "match-capture",
+      "expected_auth": "unknown",
+      "actual_auth": [
+        "unknown"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "limitations": [
+        "ecosystem_python: project/settings.py: dynamic or ambiguous Django MIDDLEWARE; no settings auth inference"
+      ],
+      "files": {
+        "project/settings.py": "e3419f5ba898e41e4c272762a6d3d9c8ca66c025eaf7906c4ab9119cf99a4f7d",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    },
+    {
+      "case": "match-mapping-rest",
+      "expected_auth": "unknown",
+      "actual_auth": [
+        "unknown"
+      ],
+      "pass": true,
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "limitations": [
+        "ecosystem_python: project/settings.py: dynamic or ambiguous Django MIDDLEWARE; no settings auth inference"
+      ],
+      "files": {
+        "project/settings.py": "4cd1bd171ae41f7c7d920de5432730508fcfcf31d3c3c2ea6ccb0c0fb25faeeb",
+        "project/urls.py": "06fede7a988291bdf94d698c97c346e0e247fe3d341b57c2072898e38fdd0f19",
+        "app/views.py": "720b7ed0ae80a43de272eefa8f49e58a49ab8c88aa5d1a466895ac2195c5a106"
+      }
+    }
+  ]
+}

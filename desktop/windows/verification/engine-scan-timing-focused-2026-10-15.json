@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T15:21:16.010621+00:00",
+  "status": "passed",
+  "scope": "Focused source Python3.13 timing verification; not full regression or frozen/native acceptance",
+  "authoritative_run": {
+    "passed": 99,
+    "seconds": 51.09,
+    "raw_log": ".pytest_cache\\m3-engine-scan-timing-proof\\pytest.log",
+    "log_sha256": "90a6a2194b31320d0eb9f95f9a24129537971ded9830c8550d277bb02c2f98e9",
+    "exit_code_file": ".pytest_cache\\m3-engine-scan-timing-proof\\exit-code.txt",
+    "environment": "PYTHONPATH absolute workspace/src; pytest -o pythonpath same; import guard asserted attackmap.__file__ inside src and printed in raw log",
+    "basetemp": "C:/tmp/attackmap-scan-timestamps-durable-20261015"
+  },
+  "prior_overlapping_runs": [
+    {
+      "passed": 92,
+      "seconds": 44.31
+    },
+    {
+      "passed": 59,
+      "seconds": 13.69
+    },
+    {
+      "passed": 12,
+      "seconds": 2.82
+    }
+  ],
+  "counts_not_additive": true,
+  "canonical_fixture": {
+    "path": ".pytest_cache\\m3-engine-scan-timing-proof\\canonical-generation\\20261015T151947-f8c3f784a7a540b6ba9aebbe83a11e02",
+    "source": "C:\\tmp\\attackmap-scan-timestamps-durable-20261015\\test_run_scan_returns_state_wi0\\reports\\20261015T151947-f8c3f784a7a540b6ba9aebbe83a11e02",
+    "manifest_sha256": "c6e00cd393d4d5a72c41a3197c6bbc9e76b641f5b092c6070abef9faadf4880f",
+    "all_listed_artifact_hashes_verified": true,
+    "scan_timing": {
+      "schema_version": "1.0",
+      "clock": "engine_utc",
+      "scope": "analysis_pipeline_before_publication",
+      "started_at": "2026-10-15T15:19:47.365214+00:00",
+      "finished_at": "2026-10-15T15:19:47.415712+00:00",
+      "outcome": "completed"
+    }
+  },
+  "source_hashes": {
+    "src/attackmap/pipeline.py": "1ddc71d709ead53d8a861ef4cb1b431a331f978cef0f7876c22bf62044cb8674",
+    "src/attackmap/artifact_publisher.py": "f078f018c32f3f8dfd72b12c42f9bcecc3ff76ab5f155da69cb73947f5e6f81a",
+    "tests/test_pipeline.py": "97d2b6e9f76c58e58d8a39078e83f044ac7d78bf3213fa0687c9b7283ddd1424",
+    "tests/test_pipeline_publication.py": "dc4a3b21fe0bcdc552c72c2ec62ede018cfac888148a43a79b1652920537f151",
+    "tests/test_artifact_publisher.py": "11ed94afd21c6c0d5e5aa626264be4bb12d7f01fdfcbb87ff141e0586a3ec509",
+    "tests/test_fleet_publication.py": "e7a96e68dfa18bc4bca83223909ec36822917b7c2ba71d164f2f8183f6abb16a"
+  },
+  "limitations": [
+    "Current Linux copied full suite predates this change.",
+    "Errors before writable base/RunState setup lack interval/diagnostic.",
+    "Diagnostic writes best effort when storage unsafe/unwritable.",
+    "atomic_output=False failures do not gain persistent timing diagnostics; successful non-atomic manifests contain timing.",
+    "Legacy and fleet-parent intervals remain unknown; publication created_at is distinct."
+  ]
+}

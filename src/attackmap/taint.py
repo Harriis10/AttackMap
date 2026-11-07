@@ -34,8 +34,12 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 
-from .models import Route, ScanResult, TaintChain
-from .srcpaths import is_infra_route, is_test_file, is_vendored_file
+from .safe_fs import is_contained, is_oversized, max_file_bytes, read_repo_text, walk_repo
+from .models import Route, ScanResult, TaintChain, TaintFlowStep
+from .srcpaths import JS_TS_SUFFIXES, is_infra_route, is_test_file, is_vendored_file, line_number
+from .taint_flow import REST, FileFlow, SinkFlow
+from .taint_sinks import SINKS, all_sinks
+from .taint_sources import GO, JS, PHP, PY, lang_for_suffix
 
 _MAX_HOPS = 2
 # Bound the sweep so a deeply-linked monorepo can't blow up the scan.
@@ -95,10 +99,15 @@ def recall_config() -> RecallConfig:
     )
 
 _PY_SUFFIXES = {".py"}
-_JS_TS_SUFFIXES = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"}
+_JS_TS_SUFFIXES = JS_TS_SUFFIXES
 _GO_SUFFIXES = {".go"}
 _PHP_SUFFIXES = {".php"}
-_SUPPORTED_SUFFIXES = _PY_SUFFIXES | _JS_TS_SUFFIXES | _GO_SUFFIXES | _PHP_SUFFIXES
+# Java (#239): indexed for same-file (0-hop) flows. Imports are not resolved,
+# so a Java sink is only reached from a route in the same file.
+_JAVA_SUFFIXES = {".java"}
+# C# and Ruby (#240): indexed for same-file sinks only, like Java.
+_SAME_FILE_ONLY_SUFFIXES = _JAVA_SUFFIXES | {".cs", ".rb"}
+_SUPPORTED_SUFFIXES = _PY_SUFFIXES | _JS_TS_SUFFIXES | _GO_SUFFIXES | _PHP_SUFFIXES | _SAME_FILE_ONLY_SUFFIXES
 
 # --- Import extraction -----------------------------------------------------
 
@@ -198,165 +207,14 @@ _TAINTED = (
 )
 
 
-_SINK_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    (
-        "sql_execute",
-        re.compile(
-            r"\b(?:cursor|conn|connection|db|session|engine|client|pool)"
-            r"\.(?:execute|query|exec_driver_sql)\s*\(",
-        ),
-    ),
-    (
-        # Go database/sql (#102): db/tx/stmt.Query|Exec (+Context/Row variants).
-        # Title-case methods + a db-ish receiver avoid `url.Query()` etc.
-        "sql_execute",
-        re.compile(
-            r"\b(?:db|conn|tx|stmt|dbx|sqlx|pool|database|store|dao)"
-            r"\.(?:Query|QueryRow|QueryContext|QueryRowContext|Exec|ExecContext)\s*\(",
-        ),
-    ),
-    (
-        "subprocess_shell",
-        re.compile(
-            r"subprocess\.(?:run|call|Popen|check_output|check_call)"
-            r"\s*\([^)]*shell\s*=\s*True",
-            re.DOTALL,
-        ),
-    ),
-    (
-        "subprocess_shell",
-        re.compile(r"child_process\s*\.\s*exec\s*\("),
-    ),
-    (
-        # Go os/exec (#102): exec.Command / exec.CommandContext.
-        "subprocess_shell",
-        re.compile(r"\bexec\.Command(?:Context)?\s*\("),
-    ),
-    (
-        # PHP SQL (#103): mysqli_query / pg_query, PDO/db ->query|exec (NOT
-        # ->prepare, which is safe), and Laravel raw DB::select|statement|raw.
-        # Parameterized-query-gated with PHP-aware detection.
-        "sql_execute",
-        re.compile(
-            r"\b(?:mysqli_query|pg_query)\s*\("
-            r"|\$\w+->(?:query|exec)\s*\("
-            r"|\bDB::(?:select|statement|insert|update|delete|raw|unprepared)\s*\(",
-            re.IGNORECASE,
-        ),
-    ),
-    (
-        # PHP shell execution (#103).
-        "subprocess_shell",
-        re.compile(r"\b(?:system|shell_exec|passthru|proc_open|popen)\s*\("),
-    ),
-    (
-        # PHP object deserialization (#103).
-        "unsafe_deserialization",
-        re.compile(r"\bunserialize\s*\("),
-    ),
-    (
-        "eval",
-        re.compile(r"(?<![\w.])eval\s*\("),
-    ),
-    (
-        "exec",
-        re.compile(r"(?<![\w.])exec\s*\("),
-    ),
-    (
-        "dynamic_open",
-        # `open(...)` with a request-shaped identifier in the args
-        # (heuristic; misses variables assigned from tainted input).
-        re.compile(rf"(?<![\w.])open\s*\([^)]*{_TAINTED}"),
-    ),
-    # --- unsafe deserialization (#68) --------------------------------------
-    # Dangerous regardless of args: attacker-controlled bytes into any of
-    # these is arbitrary-code / object-injection territory.
-    (
-        "unsafe_deserialization",
-        # pickle / cPickle .load / .loads
-        re.compile(r"\b(?:cPickle|pickle)\.loads?\s*\("),
-    ),
-    (
-        "unsafe_deserialization",
-        # yaml.load WITHOUT a Safe loader in the same call, plus the
-        # explicitly-unsafe helper.
-        re.compile(r"\byaml\.load\s*\((?![^)]*(?:Safe|Loader\s*=))"),
-    ),
-    (
-        "unsafe_deserialization",
-        re.compile(r"\byaml\.unsafe_load\s*\("),
-    ),
-    (
-        "unsafe_deserialization",
-        re.compile(r"\bmarshal\.loads?\s*\("),
-    ),
-    (
-        "unsafe_deserialization",
-        # Ruby Marshal.load, Java ObjectInputStream, PHP unserialize,
-        # JS node-serialize .unserialize
-        re.compile(r"\bMarshal\.load\s*\(|\bObjectInputStream\b|\bunserialize\s*\("),
-    ),
-    # --- server-side template injection (#68) ------------------------------
-    (
-        "ssti",
-        # Flask/Jinja render_template_string with request-shaped input,
-        # or a Jinja Template() constructed straight from request input.
-        re.compile(rf"\brender_template_string\s*\([^)]*{_TAINTED}"),
-    ),
-    (
-        "ssti",
-        re.compile(rf"\bTemplate\s*\([^)]*{_TAINTED}"),
-    ),
-    # --- server-side request forgery (#68) ---------------------------------
-    # Outbound HTTP where a request container access flows into the call.
-    # A constant URL is fine, so these are gated on _TAINTED.
-    (
-        "ssrf",
-        re.compile(
-            rf"\brequests\.(?:get|post|put|delete|patch|head|request)\s*\([^)]*{_TAINTED}"
-        ),
-    ),
-    (
-        "ssrf",
-        re.compile(rf"\bhttpx\.(?:get|post|put|delete|patch|head|request|Client)\s*\([^)]*{_TAINTED}"),
-    ),
-    (
-        "ssrf",
-        re.compile(rf"\b(?:urlopen|urlretrieve)\s*\([^)]*{_TAINTED}"),
-    ),
-    (
-        "ssrf",
-        # JS: axios.get(req...), fetch(req...), http.get(req...)
-        re.compile(
-            rf"\b(?:axios\s*\.\s*(?:get|post|put|delete|patch|head|request)|fetch|http\.(?:get|request))\s*\([^)]*{_TAINTED}"
-        ),
-    ),
-    # --- NoSQL injection (#68) ---------------------------------------------
-    (
-        "nosql_injection",
-        # Passing a request object straight into a Mongo query filter.
-        re.compile(
-            rf"\.(?:find|findOne|findOneAndUpdate|update|updateOne|updateMany|remove|deleteOne|deleteMany|aggregate|count|countDocuments)\s*\(\s*{_TAINTED}"
-        ),
-    ),
-    (
-        "nosql_injection",
-        # $where with any interpolation is an injection risk.
-        re.compile(r"\$where"),
-    ),
-    # --- open redirect (#77) -----------------------------------------------
-    # A request-derived value flowing into a redirect. Constant redirect
-    # targets are fine, so gated on a request container access.
-    (
-        "open_redirect",
-        re.compile(rf"\bredirect\s*\([^)]*{_TAINTED}"),
-    ),
-    (
-        "open_redirect",
-        # Express/Koa: res.redirect(req.query.url) ; also res.location(...)
-        re.compile(rf"\bres\s*\.\s*(?:redirect|location)\s*\([^)]*{_TAINTED}"),
-    ),
-)
+_TAINTED_RE = re.compile(_TAINTED)
+
+
+# Sink signatures live in the declarative registry `taint_sinks.yaml` (#240),
+# loaded and validated by `taint_sinks`; plugins add entries through the
+# `attackmap.taint_sinks` entry-point group. `SINKS` is the core table.
+_SINK_PATTERNS = SINKS
+_LEGACY_LANGS = frozenset({PY, JS, GO, PHP})
 
 
 # --- Capability-reach patterns (#148b) -------------------------------------
@@ -389,19 +247,19 @@ _CAPABILITY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 
-# --- Sanitizer / validator awareness (#137) --------------------------------
-# When a known neutralizer for a sink kind appears in the sink file, the
-# tainted value is likely escaped/validated/bound/allow-listed before the
-# sink — so the chain is marked `sanitized` and its confidence downgraded
-# (kept as evidence, not dropped). The import-graph walk is file-granular,
-# so detection is file-granular too: a sink-appropriate neutralizer anywhere
-# in the sink file counts. This trades a little recall for precision, which
-# is the whole point of the pass (precision-first).
+# --- Sanitizer / validator awareness (#137, #239) ---------------------------
+# Sanitizers are bound to the flow (#239): when the enclosing function can be
+# analyzed, a neutralizer counts only if the tainted value passes through it
+# (or a dominating guard checks it) on the way to the sink — see
+# `taint_flow` and the catalog in `taint_sources`. This file-granular table is
+# only the FALLBACK for sinks whose enclosing function can't be determined
+# (module-level code, unparseable files): a sink-appropriate neutralizer
+# anywhere in the file then marks the chain sanitized and downgrades it.
 #
-# To extend: add a `(label, regex)` entry under the relevant sink kind. Keep
-# patterns HIGH-SIGNAL and sink-appropriate — a vague `validate(` would hide
-# real bugs (a false negative is worse than a downgrade here), so only match
-# neutralizers whose presence genuinely implies the sink is defended.
+# Keep patterns HIGH-SIGNAL and sink-appropriate — a vague `validate(` would
+# hide real bugs. `re.escape`/`html.escape` don't neutralize SSTI, and a bare
+# `ipaddress.ip_address(` (often just logging) doesn't neutralize SSRF without
+# an address-class decision, so neither counts (#239).
 _SANITIZER_PATTERNS: dict[str, tuple[tuple[str, re.Pattern[str]], ...]] = {
     "subprocess_shell": (
         ("shlex.quote", re.compile(r"\bshlex\.quote\s*\(")),
@@ -415,20 +273,15 @@ _SANITIZER_PATTERNS: dict[str, tuple[tuple[str, re.Pattern[str]], ...]] = {
     "dynamic_open": (
         ("werkzeug.secure_filename", re.compile(r"\bsecure_filename\s*\(")),
         ("os.path.basename", re.compile(r"\bos\.path\.basename\s*\(")),
-        ("path allow-list (realpath+startswith)", re.compile(r"\brealpath\s*\(")),
     ),
     "ssti": (
-        ("markupsafe.escape", re.compile(r"\b(?:markupsafe\.)?escape\s*\(")),
+        ("markupsafe.escape", re.compile(r"\b(?:markupsafe|Markup)\.escape\s*\(|(?<![\w.])escape\s*\(")),
         ("bleach.clean", re.compile(r"\bbleach\.clean\s*\(")),
     ),
-    "open_redirect": (
-        ("is_safe_url", re.compile(r"\bis_safe_url\s*\(")),
-        ("url_has_allowed_host_and_scheme", re.compile(r"\burl_has_allowed_host_and_scheme\s*\(")),
-    ),
-    "ssrf": (
-        ("ipaddress.ip_address guard", re.compile(r"\bipaddress\.ip_address\s*\(")),
-        ("allow-list check", re.compile(r"\b(?:is_allowed_url|allowed_hosts|url_allowlist)\b")),
-    ),
+    # A file-level match cannot prove guard polarity, dominance or value
+    # identity. Unsupported flow frontends must not suppress on guard text.
+    "open_redirect": (),
+    "ssrf": (),
     "nosql_injection": (
         ("mongo-sanitize", re.compile(r"\b(?:mongoSanitize|mongo_sanitize|sanitize)\s*\(")),
     ),
@@ -437,7 +290,7 @@ _SANITIZER_PATTERNS: dict[str, tuple[tuple[str, re.Pattern[str]], ...]] = {
 
 def _find_sanitizer(kind: str, content: str) -> str | None:
     """Return a label for the first sink-appropriate neutralizer present in
-    `content`, or None. File-granular, matching the walk's granularity."""
+    `content`, or None. File-granular — the fallback when no flow is known."""
     for label, pattern in _SANITIZER_PATTERNS.get(kind, ()):
         if pattern.search(content):
             return label
@@ -451,6 +304,7 @@ def analyze_taint(
     scan: ScanResult,
     root: str | Path | None = None,
     recall: RecallConfig = DEFAULT_RECALL,
+    index: object | None = None,
 ) -> list[TaintChain]:
     """Walk the import graph from each route's file, emit TaintChains.
 
@@ -461,15 +315,25 @@ def analyze_taint(
     extra reach is tagged ``speculative`` on the returned chains (#148a).
     """
     root_path = Path(root or scan.root).resolve()
-    if not root_path.exists():
+    from .index import active_index_for
+    if index is None:
+        index = active_index_for(root_path)
+    if index is None and not root_path.exists():
         return []
 
-    files = _index_repo(root_path)
+    files = _files_from_index(index, root_path) if index is not None else _index_repo(root_path)
     if not files:
         return []
 
-    graph = _build_import_graph(files, root_path)
-    sinks_by_file = _find_sinks(files, root_path, recall)
+    graph = _build_import_graph(files, root_path, index=index)
+    sinks_by_file = _find_sinks(files, root_path, recall, index=index, graph=graph)
+
+    # Route lines per file, so a same-file flow is attributed only to the
+    # route whose handler encloses the sink (#239).
+    route_lines: dict[str, list[int]] = {}
+    for r in scan.routes:
+        if r.line is not None:
+            route_lines.setdefault(_normalize_rel(r.file), []).append(r.line)
 
     seen: set[tuple[str, str, str, int | None]] = set()
     chains: list[TaintChain] = []
@@ -497,10 +361,7 @@ def analyze_taint(
         seed_files = [route_file]
         if Path(route_file).suffix in _JS_TS_SUFFIXES:
             if route_file not in import_cache:
-                try:
-                    rf_content = files[route_file].read_text(encoding="utf-8")
-                except (OSError, UnicodeDecodeError):
-                    rf_content = ""
+                rf_content = _index_content(index, route_file, files[route_file]) or ""
                 content_cache[route_file] = rf_content
                 import_cache[route_file] = _named_import_modules(
                     rf_content, route_file, files, root_path
@@ -512,7 +373,9 @@ def analyze_taint(
                 seed_files = handler_seeds
 
         for seed in seed_files:
-            for chain in _walk_from_route(route, seed, graph, sinks_by_file, recall):
+            for chain in _walk_from_route(
+                route, seed, graph, sinks_by_file, recall, route_lines.get(route_file, [])
+            ):
                 key = (
                     f"{chain.route_method} {chain.route_path}",
                     chain.sink_file,
@@ -532,6 +395,29 @@ def analyze_taint(
 # --- Internals -------------------------------------------------------------
 
 
+def _files_from_index(index: object, root: Path) -> dict[str, Path]:
+    """Use a shared RepoIndex instead of walking again."""
+    out: dict[str, Path] = {}
+    for item in getattr(index, "files", ()):
+        rel = _normalize_rel(item.rel)
+        if Path(rel).suffix not in _SUPPORTED_SUFFIXES:
+            continue
+        if is_test_file(rel) or is_vendored_file(rel):
+            continue
+        out[rel] = item.path
+    return out
+
+
+def _index_content(index: object | None, rel: str, abs_path: Path) -> str | None:
+    if index is not None:
+        text = getattr(index, "text_of", lambda _r: None)(rel)
+        return text
+    try:
+        return abs_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+
+
 def _index_repo(root: Path) -> dict[str, Path]:
     """Return {rel_path: abs_path} for every taint-relevant source file."""
     out: dict[str, Path] = {}
@@ -542,8 +428,8 @@ def _index_repo(root: Path) -> dict[str, Path]:
         "bower_components", "vendor", "third_party", "third-party",
         "external", "externals", "jspm_packages", "site-packages",
     }
-    for path in root.rglob("*"):
-        if not path.is_file() or path.suffix not in _SUPPORTED_SUFFIXES:
+    for path in walk_repo(root):
+        if path.suffix not in _SUPPORTED_SUFFIXES or is_oversized(path):
             continue
         try:
             if any(part in skip_dirs for part in path.relative_to(root).parts):
@@ -564,12 +450,14 @@ def _normalize_rel(rel: str) -> str:
     return rel.replace("\\", "/")
 
 
-def _go_module_path(root: Path) -> str | None:
+def _go_module_path(root: Path, index: object | None = None) -> str | None:
     """The module path declared in go.mod, if present (e.g. github.com/x/y)."""
-    gomod = root / "go.mod"
+    from .index import PassSources
+    sources = PassSources.for_root(root, index)
     try:
-        if gomod.is_file():
-            m = _GO_MODULE_RE.search(gomod.read_text(encoding="utf-8", errors="ignore"))
+        text = sources.gated_text("go.mod", max_bytes=max_file_bytes(), errors="ignore")
+        if text is not None:
+            m = _GO_MODULE_RE.search(text)
             if m:
                 return m.group("mod")
     except OSError:
@@ -613,12 +501,14 @@ _PHP_REQUIRE_RE = re.compile(
 )
 
 
-def _php_psr4_map(root: Path) -> dict[str, str]:
+def _php_psr4_map(root: Path, index: object | None = None) -> dict[str, str]:
     """namespace-prefix → directory from composer.json PSR-4 autoload."""
-    composer = root / "composer.json"
+    from .index import PassSources
+    sources = PassSources.for_root(root, index)
     out: dict[str, str] = {}
     try:
-        data = json.loads(composer.read_text(encoding="utf-8", errors="ignore"))
+        text = sources.gated_text("composer.json", max_bytes=max_file_bytes(), errors="ignore")
+        data = json.loads(text or "{}")
     except (OSError, ValueError):
         return out
     for section in ("autoload", "autoload-dev"):
@@ -656,7 +546,7 @@ def _resolve_php_imports(
     return out
 
 
-def _build_import_graph(files: dict[str, Path], root: Path) -> dict[str, set[str]]:
+def _build_import_graph(files: dict[str, Path], root: Path, index: object | None = None) -> dict[str, set[str]]:
     """rel_path -> set of rel_paths this file imports (intra-repo only).
 
     For Python and JS/TS, import edges are pruned to those whose bound symbols
@@ -665,13 +555,12 @@ def _build_import_graph(files: dict[str, Path], root: Path) -> dict[str, set[str
     not resolved here, so every edge is kept as a fallback.
     """
     graph: dict[str, set[str]] = {rel: set() for rel in files}
-    go_module = _go_module_path(root)
+    go_module = _go_module_path(root, index)
     go_dirs = _go_dir_index(files)
-    php_psr4 = _php_psr4_map(root)
+    php_psr4 = _php_psr4_map(root, index)
     for rel, abs_path in files.items():
-        try:
-            content = abs_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+        content = _index_content(index, rel, abs_path)
+        if content is None:
             continue
         if abs_path.suffix in _PY_SUFFIXES:
             edges = _resolve_py_imports_named(content, rel, files)
@@ -680,6 +569,8 @@ def _build_import_graph(files: dict[str, Path], root: Path) -> dict[str, set[str
             graph[rel].update(_resolve_go_imports(content, go_module, go_dirs))
         elif abs_path.suffix in _PHP_SUFFIXES:
             graph[rel].update(_resolve_php_imports(content, rel, files, root, php_psr4))
+        elif abs_path.suffix in _SAME_FILE_ONLY_SUFFIXES:
+            continue  # same-file flows only (#239, #240)
         else:  # JS/TS
             edges = _resolve_js_imports_named(content, rel, files, root)
             graph[rel].update(_prune_unused_edges(edges, content, ".js"))
@@ -854,7 +745,12 @@ def _named_import_modules(
     out: dict[str, str] = {}
     for regex in (_JS_NAMED_IMPORT_RE, _JS_REQUIRE_BIND_RE):
         for match in regex.finditer(content):
-            rel = _resolve_js_target((from_dir / match.group("path")).resolve(), files, root)
+            spec = match.group("path")
+            if not spec.startswith((".", "/")):
+                # Bare specifier (`require("path")`, `from "express"`) is a
+                # package, never a sibling file that happens to share its name.
+                continue
+            rel = _resolve_js_target((from_dir / spec).resolve(), files, root)
             if rel is None:
                 continue
             for name in _binding_names(match.group("clause")):
@@ -1023,33 +919,94 @@ def _is_parameterized_sql(content: str, match: re.Match[str], suffix: str = "") 
     return _SQL_PLACEHOLDER_RE.search(args) is not None
 
 
-def _find_sinks(
-    files: dict[str, Path], root: Path, recall: RecallConfig = DEFAULT_RECALL
-) -> dict[str, list[tuple[str, int, str, str | None, bool]]]:
-    """rel_path -> list of (sink_kind, line_number, evidence_snippet, sanitizer_label, relaxed).
+@dataclass
+class _SinkHit:
+    kind: str
+    line: int
+    snippet: str
+    # Neutralizer label: flow-bound when `flow` is known, else the file-level
+    # fallback (#137).
+    sanitizer: str | None
+    # Recall only: kept because a gate was lifted (#148a/b) → speculative.
+    relaxed: bool
+    # Intra-procedural verdict for this call (#239); None when the enclosing
+    # function couldn't be analyzed.
+    flow: SinkFlow | None = None
+    # The request gate was satisfied only by the traced flow (no same-call
+    # request token) — such a hit belongs to the handler that encloses it.
+    flow_only: bool = False
 
-    `sanitizer_label` is set when a sink-appropriate neutralizer is present in
-    the same file (#137) — the walk uses it to mark the chain sanitized.
-    `relaxed` is True (recall only) when the hit was kept only because a gate was
-    lifted — the static-literal suppression (#148a) or the request-token gate a
-    capability-reach hit bypasses (#148b) — and the walk marks chains from such
-    hits speculative.
+
+def _call_paren(content: str, match: re.Match[str]) -> int:
+    """Offset of the sink call's opening paren: the one ending the match, the
+    first inside it, or one right after it — else -1 (not a call)."""
+    end = match.end()
+    if end > match.start() and content[end - 1] == "(":
+        return end - 1
+    inside = content.find("(", match.start(), end)
+    if inside != -1:
+        return inside
+    after = end
+    while after < len(content) and content[after] in " \t":
+        after += 1
+    return after if after < len(content) and content[after] == "(" else -1
+
+
+def _line_end(content: str, offset: int) -> int:
+    end = content.find("\n", offset)
+    return len(content) if end == -1 else end
+
+
+def _find_sinks(
+    files: dict[str, Path], root: Path, recall: RecallConfig = DEFAULT_RECALL,
+    index: object | None = None,
+    graph: dict[str, set[str]] | None = None,
+) -> dict[str, list[_SinkHit]]:
+    """rel_path -> sink hits.
+
+    Request-gated sinks fire on the legacy same-call request token or on an
+    intra-procedural flow from a source into the dangerous argument (#239).
+    Each hit carries that flow (source kind/line, steps) and a flow-bound
+    sanitizer label; files whose functions can't be analyzed fall back to the
+    file-granular sanitizer table. ``relaxed`` is True (recall only) when the
+    hit was kept only because a gate was lifted — the static-literal
+    suppression (#148a) or the request-token gate a capability-reach hit
+    bypasses (#148b) — and the walk marks chains from such hits speculative.
     """
-    out: dict[str, list[tuple[str, int, str, str | None, bool]]] = {}
+    out: dict[str, list[_SinkHit]] = {}
+    flow_cache: dict[str, FileFlow] = {}
+    contents: dict[str, str] = {}
+    importers: dict[str, list[str]] = {rel: [] for rel in files}
+    if graph:
+        for src, dests in graph.items():
+            for dest in dests:
+                importers.setdefault(dest, []).append(src)
     for rel, abs_path in files.items():
-        try:
-            content = abs_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+        content = _index_content(index, rel, abs_path)
+        if content is None:
             continue
-        hits: list[tuple[str, int, str, str | None, bool]] = []
-        # Per-file sanitizer lookup is memoized per sink kind — the same file
-        # may hold several sinks of one kind.
+        contents[rel] = content
+        flow_cache[rel] = FileFlow(content, abs_path.suffix)
+    for rel, abs_path in files.items():
+        content = contents.get(rel)
+        if content is None:
+            continue
+        suffix = abs_path.suffix
+        lang = lang_for_suffix(suffix)
+        flows = flow_cache[rel]
+        hits: list[_SinkHit] = []
+        # Fallback per-file sanitizer lookup, memoized per sink kind.
         sanitizer_by_kind: dict[str, str | None] = {}
         # (kind, line) already emitted by the gated pass — so a capability-reach
         # hit never duplicates a request-derived sink at the same spot.
         emitted: set[tuple[str, int]] = set()
-        for kind, pattern in _SINK_PATTERNS:
-            for match in pattern.finditer(content):
+        for sink in all_sinks():
+            if lang not in sink.langs:
+                continue
+            if sink.requires is not None and sink.requires.search(content) is None:
+                continue
+            kind = sink.kind
+            for match in sink.pattern.finditer(content):
                 # A "dangerous-regardless" sink whose argument is a static
                 # literal / local-file read (#88 follow-up): the default pass
                 # suppresses it; recall keeps it as a speculative lead.
@@ -1058,17 +1015,65 @@ def _find_sinks(
                     if not recall.include_static_args:
                         continue
                     relaxed = True
-                # Suppress parameterized SQL — bind params / builder / placeholders
-                # only — vs. raw string-built queries (#101). This is a
-                # correctness filter (bound params aren't injectable), not a
-                # conservatism knob, so it holds even under recall.
-                if kind == "sql_execute" and _is_parameterized_sql(content, match, abs_path.suffix):
+                paren = _call_paren(content, match)
+                # The call's argument text (or, for a statement sink, the rest
+                # of the line) — what `when`/`unless` and the token gate read.
+                if sink.args == REST or paren < 0:
+                    arg_lo, arg_hi = match.end(), _line_end(content, match.end())
+                    token_hi = arg_hi
+                else:
+                    arg_lo = paren + 1
+                    arg_hi = arg_lo + len(_extract_call_arg(content, paren))
+                    first_close = content.find(")", arg_lo)
+                    token_hi = len(content) if first_close == -1 else first_close
+                arg_text = content[arg_lo:arg_hi]
+                if sink.when is not None and sink.when.search(arg_text) is None:
                     continue
-                line = content.count("\n", 0, match.start()) + 1
+                if sink.unless is not None and sink.unless.search(arg_text) is not None:
+                    continue
                 snippet = _line_snippet(content, match.start())
-                if kind not in sanitizer_by_kind:
-                    sanitizer_by_kind[kind] = _find_sanitizer(kind, content)
-                hits.append((kind, line, snippet, sanitizer_by_kind[kind], relaxed))
+                flow = flows.sink_flow(kind, paren, sink.args, snippet, match.start(), match.end())
+                if lang == PY and importers.get(rel) and (flow is None or not (flow.tainted or flow.sanitized)):
+                    py = flows.py_impl()
+                    callee = py.enclosing_fn(line_number(content, match.start())) if py is not None else None
+                    extra: dict = {}
+                    if py is not None and callee is not None:
+                        cname = getattr(callee, "name", None)
+                        for src in importers.get(rel, ()):
+                            other = flow_cache.get(src)
+                            opy = other.py_impl() if other is not None else None
+                            if opy is None or not cname:
+                                continue
+                            for key, atoms in opy.taint_into_name(cname, callee).items():
+                                extra[key] = extra.get(key, []) + atoms
+                        if extra:
+                            flow = flows.sink_flow(
+                                kind, paren, sink.args, snippet, match.start(), match.end(), extra
+                            )
+                traced = flow is not None and (flow.tainted or flow.sanitized)
+                flow_only = False
+                if sink.gate == "tainted":
+                    # The pre-#239 same-call gate: a request-container token
+                    # between the call's paren and its first `)`.
+                    legacy_ok = sink.token_gate and _TAINTED_RE.search(content, arg_lo, token_hi) is not None
+                    if not legacy_ok:
+                        if not traced:
+                            continue
+                        flow_only = True
+                # Suppress parameterized SQL — bind params / builder / placeholders
+                # only — vs. raw string-built queries (#101). A traced flow into the
+                # query argument itself overrides it: `$db->query($sql)` with a
+                # request-built `$sql` is injectable whatever the call looks like.
+                if kind == "sql_execute" and not traced and _is_parameterized_sql(content, match, suffix):
+                    continue
+                if flow is not None:
+                    sanitizer = flow.sanitizer if flow.sanitized else None
+                else:
+                    if kind not in sanitizer_by_kind:
+                        sanitizer_by_kind[kind] = _find_sanitizer(kind, content)
+                    sanitizer = sanitizer_by_kind[kind]
+                line = line_number(content, match.start())
+                hits.append(_SinkHit(kind, line, snippet, sanitizer, relaxed, flow, flow_only))
                 emitted.add((kind, line))
 
         # Capability-reach pass (#148b, recall only): the bare-call form of the
@@ -1079,14 +1084,14 @@ def _find_sinks(
         # a file-level sanitizer token must not mark it sanitized (which would
         # make generate_findings drop it and silently lose the capability
         # inventory this pass exists to produce).
-        if recall.capability_reach:
+        if recall.capability_reach and lang in _LEGACY_LANGS:
             for kind, pattern in _CAPABILITY_PATTERNS:
                 for match in pattern.finditer(content):
-                    line = content.count("\n", 0, match.start()) + 1
+                    line = line_number(content, match.start())
                     if (kind, line) in emitted:
                         continue
                     snippet = _line_snippet(content, match.start())
-                    hits.append((kind, line, snippet, None, True))
+                    hits.append(_SinkHit(kind, line, snippet, None, True))
                     emitted.add((kind, line))
         if hits:
             out[rel] = hits
@@ -1108,8 +1113,9 @@ def _walk_from_route(
     route: Route,
     route_file: str,
     graph: dict[str, set[str]],
-    sinks_by_file: dict[str, list[tuple[str, int, str, str | None, bool]]],
+    sinks_by_file: dict[str, list[_SinkHit]],
     recall: RecallConfig = DEFAULT_RECALL,
+    route_lines: list[int] | None = None,
 ) -> list[TaintChain]:
     """BFS out from route_file, up to ``recall.max_hops``. Emit chains at each
     sink; tag as speculative any chain that only exists because a recall knob
@@ -1118,7 +1124,11 @@ def _walk_from_route(
     (#148a). Comparing against the default-reachable set covers both the deeper
     hops and the widened visit cap precisely — a fan-out-heavy graph can push a
     within-two-hops sink past the 40-file budget, and that reach is speculative
-    too."""
+    too.
+
+    Same-file flows are attributed to the route whose handler encloses the
+    sink (#239): when the sink sits in *another* route's handler, this route
+    gets no flow (and no chain at all if the flow was the only gate)."""
     # The set of files the conservative pass would actually process — computed
     # only when a knob is widened (otherwise nothing is speculative and the
     # traversals are identical).
@@ -1127,6 +1137,7 @@ def _walk_from_route(
         if recall.aggressive
         else None
     )
+    route_lines = route_lines or []
 
     visited: dict[str, int] = {route_file: 0}
     parents: dict[str, str] = {}
@@ -1137,35 +1148,61 @@ def _walk_from_route(
         current = queue.popleft()
         current_hops = visited[current]
 
-        for kind, line, snippet, sanitizer, relaxed in sinks_by_file.get(current, []):
+        for hit in sinks_by_file.get(current, []):
+            flow = hit.flow
+            if current_hops == 0 and flow is not None and flow.span is not None:
+                lo, hi = flow.span
+                in_handler = route.line is None or lo <= route.line <= hi
+                other_handler = any(lo <= ln <= hi for ln in route_lines if ln != route.line)
+                if not in_handler and other_handler:
+                    if hit.flow_only:
+                        continue  # another route's input, not this one's
+                    flow = None
             confidence = _confidence_for_hops(current_hops)
-            if sanitizer is not None:
+            if flow is not None and flow.tainted:
+                # A traced source→sink flow is stronger evidence than reach.
+                confidence = round(min(0.9, confidence + 0.15), 2)
+                if flow.one_hop:
+                    # One-hop call is evidenced but weaker than a same-function flow.
+                    confidence = round(confidence * 0.75, 2)
+            if hit.sanitizer is not None:
                 # A neutralizer is present at the sink — likely defended.
                 # Downgrade well below the HIGH threshold, keep as evidence.
                 confidence = round(confidence * 0.4, 2)
             # A relaxed-gate hit, or a sink the conservative pass would never
             # have reached, is a discovery lead — mark it and dock confidence so
             # it can't clear the HIGH bar until the verifier confirms it.
-            speculative = relaxed or (
+            speculative = hit.relaxed or (
                 default_reachable is not None and current not in default_reachable
             )
             if speculative:
                 confidence = round(confidence * 0.5, 2)
+            traced = flow is not None and (flow.tainted or flow.sanitized)
             chains.append(
                 TaintChain(
                     route_path=route.path,
                     route_method=route.method,
                     route_file=route_file,
-                    sink_kind=kind,  # type: ignore[arg-type]
+                    sink_kind=hit.kind,  # type: ignore[arg-type]
                     sink_file=current,
-                    sink_line=line,
+                    sink_line=hit.line,
                     hops=current_hops,
                     files=_reconstruct_path(route_file, current, parents),
-                    evidence_text=snippet,
+                    evidence_text=hit.snippet,
                     confidence=confidence,
-                    sanitized=sanitizer is not None,
-                    sanitizer_evidence=sanitizer,
+                    sanitized=hit.sanitizer is not None,
+                    sanitizer_evidence=hit.sanitizer,
                     speculative=speculative,
+                    source_kind=flow.source_kind if traced and flow is not None else None,
+                    source_line=flow.source_line if traced and flow is not None else None,
+                    flow=(
+                        [
+                            TaintFlowStep(file=current, line=ln, kind=k, evidence_text=note)  # type: ignore[arg-type]
+                            for ln, k, note in flow.steps
+                        ]
+                        if traced and flow is not None
+                        else []
+                    ),
                 )
             )
 

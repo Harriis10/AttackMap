@@ -2,6 +2,8 @@ from pathlib import Path
 
 import json
 
+import pytest
+
 from attackmap.review_eval import evaluate_review_text, load_eval_fixture, run_evaluation, run_evaluation_suite
 
 
@@ -163,3 +165,62 @@ def test_v1_rubric_is_marked_deprecated() -> None:
     fixture = load_eval_fixture(_fixture_path())
     assert fixture.get("deprecated") is True
     assert "v2" in fixture.get("deprecation_note", "")
+
+
+# ---------------------------------------------------------------------------
+# AM016/C14: reference validity is not claim support. The rubric rejects
+# reviews that attach proof verbs to citations, in either order.
+# ---------------------------------------------------------------------------
+
+
+def _support_status(review_text: str, fixture_overrides: dict | None = None) -> dict:
+    fixture = load_eval_fixture(_fixture_path())
+    fixture.update(fixture_overrides or {})
+    result = evaluate_review_text(review_text, fixture)
+    return {check["name"]: check for check in result["checks"]}["claim_support_discipline"]
+
+
+GOOD_BODY = """
+OBSERVED: Signing checks are referenced near request handling.
+See finding:1. INFERRED: effective enforcement remains unverified.
+
+## Strengths
+
+- Signing signals support defensive checks when correctly enforced.
+
+## Weaknesses / Risk Hotspots
+
+- Weak auth on public XRPC handlers.
+
+## Prioritized Recommendations
+
+- Enforce service auth checks.
+"""
+
+
+@pytest.mark.parametrize("line", [
+    "This weakness is proven by finding:1.",
+    "finding:1 confirms the missing authorization.",
+    "surface:2 establishes the trust boundary crossing.",
+    "The chain is demonstrated by path:1 in production.",
+])
+def test_proof_verbs_attached_to_citations_fail(line: str) -> None:
+    check = _support_status(GOOD_BODY.replace("See finding:1.", f"See finding:1. {line}"))
+    assert check["passed"] is False
+    assert line.strip()[:40] in check["details"]["citation_overclaim_lines"][0][:60]
+
+
+def test_hedged_citations_pass_the_discipline_check() -> None:
+    check = _support_status(GOOD_BODY)
+    assert check["passed"] is True
+    assert check["details"]["citation_overclaim_lines"] == []
+    # Overclaim verbs far from any citation are prose, not citation overclaims.
+    distant = _support_status(GOOD_BODY + "\nThe runtime configuration independently proves nothing here; verify by hand.")
+    assert distant["passed"] is True
+
+
+def test_claim_support_discipline_verb_set_is_fixture_configurable() -> None:
+    text = GOOD_BODY.replace("See finding:1.", "See finding:1. finding:1 shows the gap.")
+    assert _support_status(text)["passed"] is True  # "shows" is not a default proof verb
+    narrowed = _support_status(text, {"expectations": {"claim_support": {"citation_overclaim_verbs": ["shows"]}}})
+    assert narrowed["passed"] is False

@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="21" time="4.748" timestamp="2026-10-31T10:27:25.957306+01:00" hostname="corpsec"><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-host-http]" time="0.093"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations0')
+prefix = 'http://', declaration = 'host', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+        assert api.destination == authority  # Preserve the declared authority spelling.
+        worker = next(link for link in links if link.server_repo == "worker")
+        assert (worker.resolution, worker.resolution_reason) == ("candidate", "unresolved_host")
+        if blocked:
+&gt;           assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E           AssertionError: assert ('observed', '') == ('candidate',...ous_identity')
+E             
+E             At index 0 diff: 'observed' != 'candidate'
+E             Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:190: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-host-https]" time="0.051"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations1')
+prefix = 'https://', declaration = 'host', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+        assert api.destination == authority  # Preserve the declared authority spelling.
+        worker = next(link for link in links if link.server_repo == "worker")
+        assert (worker.resolution, worker.resolution_reason) == ("candidate", "unresolved_host")
+        if blocked:
+&gt;           assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E           AssertionError: assert ('observed', '') == ('candidate',...ous_identity')
+E             
+E             At index 0 diff: 'observed' != 'candidate'
+E             Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:190: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-host-scheme-less]" time="0.113"><failure message="StopIteration">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations2')
+prefix = '', declaration = 'host', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+&gt;       api = next(link for link in links if link.server_repo == "api")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_wp032_multibackend_proxy.py:185: StopIteration</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-proxy-http]" time="0.082"><failure message="AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed_via_proxy' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations3')
+prefix = 'http://', declaration = 'proxy', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+        assert api.destination == authority  # Preserve the declared authority spelling.
+        worker = next(link for link in links if link.server_repo == "worker")
+        assert (worker.resolution, worker.resolution_reason) == ("candidate", "unresolved_host")
+        if blocked:
+&gt;           assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E           AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ous_identity')
+E             
+E             At index 0 diff: 'observed_via_proxy' != 'candidate'
+E             Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:190: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-proxy-https]" time="0.061"><failure message="AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed_via_proxy' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations4')
+prefix = 'https://', declaration = 'proxy', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+        assert api.destination == authority  # Preserve the declared authority spelling.
+        worker = next(link for link in links if link.server_repo == "worker")
+        assert (worker.resolution, worker.resolution_reason) == ("candidate", "unresolved_host")
+        if blocked:
+&gt;           assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E           AssertionError: assert ('observed_via_proxy', '') == ('candidate',...ous_identity')
+E             
+E             At index 0 diff: 'observed_via_proxy' != 'candidate'
+E             Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:190: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-proxy-scheme-less]" time="0.090"><failure message="StopIteration">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations5')
+prefix = '', declaration = 'proxy', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+&gt;       api = next(link for link in links if link.server_repo == "api")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_wp032_multibackend_proxy.py:185: StopIteration</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-port-http]" time="0.081"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations6')
+prefix = 'http://', declaration = 'port', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+        assert api.destination == authority  # Preserve the declared authority spelling.
+        worker = next(link for link in links if link.server_repo == "worker")
+        assert (worker.resolution, worker.resolution_reason) == ("candidate", "unresolved_host")
+        if blocked:
+&gt;           assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E           AssertionError: assert ('observed', '') == ('candidate',...ous_identity')
+E             
+E             At index 0 diff: 'observed' != 'candidate'
+E             Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:190: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-port-https]" time="0.061"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations7')
+prefix = 'https://', declaration = 'port', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+        assert api.destination == authority  # Preserve the declared authority spelling.
+        worker = next(link for link in links if link.server_repo == "worker")
+        assert (worker.resolution, worker.resolution_reason) == ("candidate", "unresolved_host")
+        if blocked:
+&gt;           assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E           AssertionError: assert ('observed', '') == ('candidate',...ous_identity')
+E             
+E             At index 0 diff: 'observed' != 'candidate'
+E             Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:190: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[rejected-host-port-scheme-less]" time="0.051"><failure message="StopIteration">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations8')
+prefix = '', declaration = 'port', blocked = True
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+&gt;       api = next(link for link in links if link.server_repo == "api")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_wp032_multibackend_proxy.py:185: StopIteration</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-host-http]" time="0.051" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-host-https]" time="0.045" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-host-scheme-less]" time="0.049"><failure message="StopIteration">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations11')
+prefix = '', declaration = 'host', blocked = False
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+&gt;       api = next(link for link in links if link.server_repo == "api")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_wp032_multibackend_proxy.py:185: StopIteration</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-proxy-http]" time="0.044" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-proxy-https]" time="0.051" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-proxy-scheme-less]" time="0.049"><failure message="StopIteration">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations14')
+prefix = '', declaration = 'proxy', blocked = False
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+&gt;       api = next(link for link in links if link.server_repo == "api")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_wp032_multibackend_proxy.py:185: StopIteration</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-port-http]" time="0.151" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-port-https]" time="0.044" /><testcase classname="tests.test_wp032_multibackend_proxy" name="test_trailing_dot_declarations_cannot_bypass_unresolved_proxy[unrelated-rejected-host-port-scheme-less]" time="0.068"><failure message="StopIteration">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_trailing_dot_declarations17')
+prefix = '', declaration = 'port', blocked = False
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    @pytest.mark.parametrize("declaration", ["host", "proxy", "port"])
+    @pytest.mark.parametrize("blocked", [True, False], ids=["rejected-host", "unrelated-rejected-host"])
+    def test_trailing_dot_declarations_cannot_bypass_unresolved_proxy(tmp_path, prefix, declaration, blocked):
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        extracted, _ = extract_deployment_aliases([root / name for name in scans])
+        dotted = f"{TARGET}."
+        kwargs = {"host": {"hosts": {dotted: "api"}}, "proxy": {"proxies": {dotted: "api"}},
+                  "port": {"host_ports": {f"{dotted}:8443": "api"}}}[declaration]
+        aliases = replace(extracted, **kwargs, service_protocols={},
+                          unresolved_proxies=extracted.unresolved_proxies if blocked else ("unrelated.internal",))
+        authority = f'{dotted}{":8443" if declaration == "port" else ""}'
+        links = resolve(scans, aliases, f"{prefix}{authority}/Api/Items/42")
+&gt;       api = next(link for link in links if link.server_repo == "api")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_wp032_multibackend_proxy.py:185: StopIteration</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_cli_dotted_host_merge_cannot_override_unresolved_config_proxy[http]" time="0.225"><failure message="AssertionError: assert ('candidate',...eme_mismatch') == ('candidate',...ous_identity')&#10;  &#10;  At index 1 diff: 'scheme_mismatch' != 'ambiguous_identity'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_cli_dotted_host_merge_can0')
+prefix = 'http://'
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    def test_cli_dotted_host_merge_cannot_override_unresolved_config_proxy(tmp_path, prefix):
+        from attackmap.cli import _parse_deployment_aliases
+    
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        dotted = f"{TARGET}."
+        cli_aliases = _parse_deployment_aliases([f"{dotted}=api"], [], [], [], [])
+        effective, _ = _effective_deployment_aliases(ScanRequest(
+            repo_paths=[root / name for name in scans], output=tmp_path / "reports",
+            deployment_aliases=cli_aliases))
+        assert effective.hosts[dotted] == "api"
+        assert effective.unresolved_proxies == (TARGET,)
+        links = resolve(scans, effective, f"{prefix}{dotted}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+&gt;       assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E       AssertionError: assert ('candidate',...eme_mismatch') == ('candidate',...ous_identity')
+E         
+E         At index 1 diff: 'scheme_mismatch' != 'ambiguous_identity'
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:217: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_cli_dotted_host_merge_cannot_override_unresolved_config_proxy[https]" time="0.040"><failure message="AssertionError: assert ('observed', '') == ('candidate',...ous_identity')&#10;  &#10;  At index 0 diff: 'observed' != 'candidate'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_cli_dotted_host_merge_can1')
+prefix = 'https://'
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    def test_cli_dotted_host_merge_cannot_override_unresolved_config_proxy(tmp_path, prefix):
+        from attackmap.cli import _parse_deployment_aliases
+    
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        dotted = f"{TARGET}."
+        cli_aliases = _parse_deployment_aliases([f"{dotted}=api"], [], [], [], [])
+        effective, _ = _effective_deployment_aliases(ScanRequest(
+            repo_paths=[root / name for name in scans], output=tmp_path / "reports",
+            deployment_aliases=cli_aliases))
+        assert effective.hosts[dotted] == "api"
+        assert effective.unresolved_proxies == (TARGET,)
+        links = resolve(scans, effective, f"{prefix}{dotted}/Api/Items/42")
+        api = next(link for link in links if link.server_repo == "api")
+&gt;       assert (api.resolution, api.resolution_reason) == ("candidate", "ambiguous_identity")
+E       AssertionError: assert ('observed', '') == ('candidate',...ous_identity')
+E         
+E         At index 0 diff: 'observed' != 'candidate'
+E         Use -v to get more diff
+
+tests\test_wp032_multibackend_proxy.py:217: AssertionError</failure></testcase><testcase classname="tests.test_wp032_multibackend_proxy" name="test_cli_dotted_host_merge_cannot_override_unresolved_config_proxy[scheme-less]" time="0.043"><failure message="StopIteration">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-dot-red-qualified01-20261031/test_cli_dotted_host_merge_can2')
+prefix = ''
+
+    @pytest.mark.parametrize("prefix", ["http://", "https://", ""], ids=["http", "https", "scheme-less"])
+    def test_cli_dotted_host_merge_cannot_override_unresolved_config_proxy(tmp_path, prefix):
+        from attackmap.cli import _parse_deployment_aliases
+    
+        root = tmp_path / "fleet"
+        scans = materialize(root, ("mixed-upstream.conf",))
+        dotted = f"{TARGET}."
+        cli_aliases = _parse_deployment_aliases([f"{dotted}=api"], [], [], [], [])
+        effective, _ = _effective_deployment_aliases(ScanRequest(
+            repo_paths=[root / name for name in scans], output=tmp_path / "reports",
+            deployment_aliases=cli_aliases))
+        assert effective.hosts[dotted] == "api"
+        assert effective.unresolved_proxies == (TARGET,)
+        links = resolve(scans, effective, f"{prefix}{dotted}/Api/Items/42")
+&gt;       api = next(link for link in links if link.server_repo == "api")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_wp032_multibackend_proxy.py:216: StopIteration</failure></testcase></testsuite></testsuites>

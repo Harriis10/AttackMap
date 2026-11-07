@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T14:57:50.538120+00:00",
+  "scope": "Read-only current-source copy audit, CLI summary/help, Markdown ranking/PR summary, retained web overview/ranking, native root adapters and view disclosures. No runtime UI execution or full C03/C07 gate acceptance.",
+  "method": "CodeGraph first; targeted source inspection where graph results omitted requested files.",
+  "issues": [
+    {
+      "path": "src/attackmap/ui/web/src/app.js",
+      "line": 54,
+      "current_copy": "Most exploitable now",
+      "recommendation": "Highest static route-to-sink risk score; add Static heuristic ranking; runtime exploitability not verified.",
+      "reason": "renderOverview topPath is selected from deterministic exploitability rows; now implies present runtime state without local qualification.",
+      "priority": "high"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "line": 149,
+      "current_copy": "# Most exploitable now",
+      "recommendation": "Use Highest static route-to-sink risk scores and qualify deterministic heuristic scoring, not verified runtime exploitability.",
+      "reason": "The following factor-sum explanation establishes deterministic calculation, not runtime validity. Empty and nonempty outputs should both retain the qualifier.",
+      "priority": "high"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "line": 335,
+      "current_copy": "Most exploitable now:",
+      "recommendation": "Highest static finding risk scores:; add a concise static/heuristic/not runtime verification summary.",
+      "reason": "Console summary is standalone and has no static disclaimer; missing coverage is reported separately.",
+      "priority": "high"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "line": 250,
+      "current_copy": "### Most exploitable now",
+      "recommendation": "Highest static finding risk scores",
+      "reason": "PR summary has an appropriate heuristic-static/not-proof footer at273; headline should agree without removing numeric scores or tiers.",
+      "priority": "medium"
+    },
+    {
+      "path": "src/attackmap/cli.py",
+      "line": 300,
+      "current_copy": "CONFIRMED / REFUTED / NEEDS HUMAN REVIEW",
+      "recommendation": "Model assessment: CONFIRMED / REFUTED / NEEDS HUMAN REVIEW; not runtime verification.",
+      "reason": "--verify help can be read independently; --verify-runs help305 already supplies model-assessment caveat.",
+      "priority": "medium"
+    },
+    {
+      "path": "src/attackmap/ui/web/src/app.js",
+      "line": 30,
+      "current_copy": "populated exploitability list has score/tier/factors only",
+      "recommendation": "Add persistent Static route-to-sink heuristic ranking; not verified runtime reachability/exploitability qualifier.",
+      "reason": "Empty-state21 explains taint chains, but populated view does not locally disclose static/model classification.",
+      "priority": "medium"
+    }
+  ],
+  "appropriate_existing_copy": [
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/OverviewAdapter.cs",
+      "line": 14,
+      "finding": "Explicit static analysis does not establish runtime behavior/control enforcement; supplied core order preserved."
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/StructureAdapter.cs",
+      "line": 23,
+      "finding": "Supplied static records, missing relationships unknown, no runtime verification."
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/FindingContextFormatter.cs",
+      "line": 17,
+      "finding": "Candidates are not verified associations; static flow not runtime reachability/trust proof."
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml",
+      "line": 96,
+      "finding": "Exact-generation text may contain model assessments, not runtime verification."
+    },
+    {
+      "path": "src/attackmap/cli.py",
+      "line": 305,
+      "finding": "Strict-majority outcomes explicitly model assessments, not verified exploitability."
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "line": 273,
+      "finding": "PR footer heuristic static, confidence-tiered, not proof."
+    }
+  ],
+  "not_blanket_errors": [
+    "Exploitability as an existing deterministic score field/algorithm can remain if its heuristic-static scope is explicit.",
+    "Native verified selected-run text/artifacts describes integrity, not finding truth; surrounding static/model disclaimers make distinction explicit.",
+    "Known advisory label describes external advisory matching, not demonstrated exploitability."
+  ],
+  "limitations": [
+    "No exhaustive generated hunt/model-response prose audit; raw model text may require separate provenance-aware review.",
+    "No source changes, tests, build, package publication, runtime assertions, or classification gate closure."
+  ],
+  "inspected_files": [
+    {
+      "path": "src/attackmap/ui/web/src/app.js",
+      "sha256": "d86161dd7636d53b60923416cada445a19466db6e9c3f455a5b2d2d1d7095910"
+    },
+    {
+      "path": "src/attackmap/ui/web/index.html",
+      "sha256": "6322b37c5667eb5bf806fd882af13dda4f454f2686a42d1cf87b8f5c3f2ca467"
+    },
+    {
+      "path": "src/attackmap/ui/report.py",
+      "sha256": "92cca8c2a1e6c50aa4f5bac6bf43ffcd665cb1f3304e9ae6b11cb3b2fa5cee32"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "sha256": "0546f53bc78c6307fc138e965db3213f096b295c14db6bd9fbceb07369fc96e6"
+    },
+    {
+      "path": "src/attackmap/cli.py",
+      "sha256": "8d1a844c44e3345e23740f3be9919d280a34891cdf0a8446f3ed3bc092fc6454"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml",
+      "sha256": "77ea2331a22cfb78db5a500cae6479d2329e98bd040129196d0775fb16ea48f5"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs",
+      "sha256": "089e0d23a735f91be3b94aa6a0b1b72c36b81933b199491e8facf1af4bee180d"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/ReportAdapter.cs",
+      "sha256": "0a133cefd36831af73b0bedd4359c9da17439ae9ac26d02cfa15c77d4952b3f3"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/OverviewAdapter.cs",
+      "sha256": "8946af4bfa93140fe9477fc358361dedc9877c426f998b1f5697a41c23821699"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/StructureAdapter.cs",
+      "sha256": "493261417dc1c074dba594674486ba02179284e4bc45bb706c6811ac2d1f3f4c"
+    },
+    {
+      "path": "desktop/windows/AttackMap.NativeSpike/FindingContextFormatter.cs",
+      "sha256": "421990cf839e2771cdb3af46a5ced537f5388b11afdd77cee22c266b103fddf4"
+    }
+  ]
+}

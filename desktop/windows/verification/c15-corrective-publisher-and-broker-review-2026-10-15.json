@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "recorded_utc": "2026-10-15T16:55:15.945457+00:00",
+  "scope": "Independent bounded read-only corrective review; reviewer executed no tests and changed no production, test, or runner files",
+  "result": "pass",
+  "bindings": [
+    {
+      "path": "desktop/windows/verification/publisher-junction-crossversion-fix-2026-10-15.json",
+      "sha256": "3cba9b564a7cd26365f26c093f745ade6729234bf1d24cc0d63b25d2aaf625b4"
+    },
+    {
+      "path": "src/attackmap/artifact_publisher.py",
+      "sha256": "8121f68ac61e8229e4882fc6104f22d3f43ba857836ad7e5a90917baadb67494"
+    },
+    {
+      "path": "tests/test_artifact_publisher.py",
+      "sha256": "07c3e34cb7a1d58edbd9d5b3332b1a39a2a959b1b6c0764353488f3fed99d381"
+    },
+    {
+      "path": ".pytest_cache/m3-publisher-junction311.log",
+      "sha256": "41a9c372dd9101098325011dd9a20d4eb191a9513defc28ba07d9c28b3dddac9"
+    },
+    {
+      "path": ".pytest_cache/m3-publisher-junction311.xml",
+      "sha256": "18160f3d17f4b08aba6a355ff9029348edc0c4d0bb2c98ad26499194132c603a"
+    },
+    {
+      "path": ".pytest_cache/m3-publisher-junction313.log",
+      "sha256": "d4935086c819d39ec1c7393713af54c977969e6627a10ee33977ecccbcc2a5d9"
+    },
+    {
+      "path": ".pytest_cache/m3-publisher-junction313.xml",
+      "sha256": "188127f1ff84d1f4a9fa54d853952ff91121c36d762c3973a6ef2ce173c2b6e2"
+    },
+    {
+      "path": "desktop/windows/verification/c15-broker-additive-context-fixtures-2026-10-15.json",
+      "sha256": "fcde7fe621ba6bbdc23ae6c4e94d43c0ba7d9311962ca68b566f2d9f5528bf99"
+    },
+    {
+      "path": "tests/test_desktop_worker.py",
+      "sha256": "ecaea55866de429dcf5f2799f23f9ea6e1bf7da7bdc2873d5891ecf448ca0a50"
+    },
+    {
+      "path": ".pytest_cache/m3-broker-additive-context.log",
+      "sha256": "2e0f243ac1155d1b27843f6a9e9d631d2a2a1d82085cc68f23d6c6a5b2ba4573"
+    },
+    {
+      "path": ".pytest_cache/m3-broker-additive-context.xml",
+      "sha256": "ab13dbc469ba8fb18696cf9f4053d58dc309091f6e18c2fc2a3a1c29868a15c1"
+    }
+  ],
+  "publisher_review": {
+    "lines": "src/attackmap/artifact_publisher.py:34-48",
+    "findings": [],
+    "verified_invariants": [
+      "Lexical absolute path components checked root to leaf before descendant traversal",
+      "Missing components allowed; other lstat IO errors fail closed with UnsafePathError",
+      "Symlink mode, reparse attribute and reparse tag rejected without Path.is_junction dependency",
+      "Tests cover actual output-base and ancestor junctions, normal missing parents, IO denial and parent-before-child ordering"
+    ],
+    "author_test_results": [
+      "Python 3.11: 60 passed, zero skips, 15.80 seconds",
+      "Python 3.13: 60 passed, zero skips, 13.59 seconds"
+    ]
+  },
+  "broker_fixture_review": {
+    "findings": [],
+    "verified_invariants": [
+      "Exactly one diagnostic; original terminal state and error None retained",
+      "Typed unknown worker context requires absent duration, unknown coverage/analyzers/resources and no fabricated facts",
+      "Existing terminal identity, revisions, cancellation, admission and publication assertions retained"
+    ],
+    "author_test_result": "11 passed in 0.87 seconds"
+  },
+  "limitations": [
+    "No independent test campaign performed by reviewer; author results bound to preserved raw logs and exact source hashes",
+    "No race-free confinement claim against concurrent filesystem path replacement",
+    "No frozen build, complete corrective matrix, macOS adapter or M3/C15 acceptance claim",
+    "Original failed regular matrix and skipped limits phases remain preserved separately"
+  ]
+}

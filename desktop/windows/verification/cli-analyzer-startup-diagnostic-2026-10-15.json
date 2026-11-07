@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T15:26:04.471649+00:00",
+  "scope": "Ordinary single-repository CLI module preflight plus public atomic service requested-analyzer failure; no fleet CLI preflight/non-atomic behavior expansion.",
+  "verification": {
+    "passed": 30,
+    "seconds": 3.9,
+    "raw_log": ".pytest_cache\\m3-engine-scan-timing-proof\\cli-startup-diagnostic-pytest.log",
+    "log_sha256": "fbd6a6344511e82d3dcf36e3b106c8c81ff29802b450ab3df2eec7a5c6003e39",
+    "environment": "PYTHONPATH absolute workspace/src and pytest -o pythonpath same; .venv Python3.13"
+  },
+  "assertions": [
+    "Original BadParameter details and CLI exit2 unchanged",
+    "Generic diagnostic excludes exception sentinel",
+    "Prior current pointer unchanged/valid",
+    "Unwritable output preserves original usage error",
+    "Hidden direct-generation-output performs no diagnostic write",
+    "Service runidentity traversal cannot escape output"
+  ],
+  "source_hashes": {
+    "src/attackmap/cli.py": "5e96d1d105bed4a413e74fc119d3cf4a93590255a34b65fb202162b9b93ca9fe",
+    "src/attackmap/scan_service.py": "38bb3d899373972be8ac3d4bcf497bbeada0df0c1dbb3cf41e767373d6dd1124",
+    "tests/test_cli_validation.py": "83740568151788d35d862cf793ea570dcd4a316afabef10be8f7bbaf59314e65",
+    "tests/test_scan_service.py": "30fef25175ae19cc6b6a433af0e9e63123eae712c1306ca45ea73a5d87df2baf"
+  },
+  "limitations": [
+    "Best-effort diagnostics only when output is safe/writable",
+    "No actual scan timestamp when analysis never starts",
+    "No full regression/frozen acceptance claim",
+    "Fleet CLI _select_modules preflight remains a separately scoped path"
+  ]
+}

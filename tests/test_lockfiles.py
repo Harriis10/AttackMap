@@ -5,8 +5,52 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from attackmap.lockfiles import parse_lockfiles
 from attackmap.sbom import analyze_sbom
+
+
+@pytest.mark.parametrize("payload", [
+    [], None, "invalid", 1, True,
+    {"packages": []}, {"packages": None}, {"dependencies": ["express"]},
+    {"packages": {"": "invalid"}},
+    {"packages": {"": {"dependencies": ["express"]}}},
+    {"packages": {"node_modules/express": {"version": "4.18.2"}, "node_modules/bad": []}},
+    {"packages": {"node_modules/express": {"version": "4.18.2", "dependencies": []}}},
+    {"packages": {"node_modules/express": {"version": "4.18.2", "optionalDependencies": "bad"}}},
+    {"packages": {"node_modules/express": {"version": "4.18.2", "peerDependencies": None}}},
+    {"dependencies": {"express": {"version": "4.18.2"}, "bad": []}},
+    {"dependencies": {"express": {"version": "4.18.2", "requires": ["bad"]}}},
+    {"dependencies": {"express": {"version": "4.18.2", "dependencies": "bad"}}},
+])
+def test_malformed_npm_shapes_do_not_emit_partial_graph_or_supersede_ranges(tmp_path: Path, payload) -> None:
+    from attackmap.lockfiles import _parse_package_lock
+
+    lock = tmp_path / "package-lock.json"
+    lock.write_text(json.dumps(payload), encoding="utf-8")
+    (tmp_path / "package.json").write_text(json.dumps({"dependencies": {"express": "^4.18.0"}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="must be an object"):
+        _parse_package_lock(lock)
+    hints, superseded = parse_lockfiles(tmp_path)
+    assert hints == []
+    assert superseded == set()
+    hints = analyze_sbom(tmp_path)
+    assert [(hint.name, hint.version, hint.file, hint.resolved) for hint in hints] == [("express", "^4.18.0", "package.json", False)]
+
+
+def test_malformed_npm_lock_preserves_valid_sibling_resolution(tmp_path: Path) -> None:
+    invalid, valid = tmp_path / "invalid", tmp_path / "valid"
+    invalid.mkdir(); valid.mkdir()
+    (invalid / "package-lock.json").write_text("[]", encoding="utf-8")
+    (invalid / "package.json").write_text(json.dumps({"dependencies": {"express": "^4.18.0"}}), encoding="utf-8")
+    _write_package_lock_v3(valid)
+    hints, superseded = parse_lockfiles(tmp_path)
+    assert superseded == {("npm", "valid")}
+    assert hints and all(hint.file == "valid/package-lock.json" for hint in hints)
+    sbom = analyze_sbom(tmp_path)
+    express = {(hint.file, hint.version, hint.resolved) for hint in sbom if hint.name == "express"}
+    assert express == {("invalid/package.json", "^4.18.0", False), ("valid/package-lock.json", "4.18.2", True)}
 
 
 def _by_name(hints):
@@ -400,3 +444,80 @@ def test_go_mod_marked_resolved_with_direct_flag(tmp_path: Path) -> None:
     assert by_name["github.com/gin-gonic/gin"].resolved is True
     assert by_name["github.com/gin-gonic/gin"].direct is True
     assert by_name["golang.org/x/sys"].direct is False  # // indirect
+
+
+# --- composer.lock / packages.lock.json / gradle.lockfile (#255) -----------
+
+
+def test_composer_lock_resolves_direct_transitive_and_dev(tmp_path: Path) -> None:
+    (tmp_path / "composer.json").write_text(json.dumps({
+        "require": {"php": ">=8.1", "symfony/http-kernel": "^5.4"},
+        "require-dev": {"phpunit/phpunit": "^9.5"},
+    }), encoding="utf-8")
+    (tmp_path / "composer.lock").write_text(json.dumps({
+        "packages": [
+            {"name": "symfony/http-kernel", "version": "v5.4.1",
+             "require": {"php": ">=7.2.5", "symfony/http-foundation": "^5.3.7"}},
+            {"name": "symfony/http-foundation", "version": "v5.4.0"},
+        ],
+        "packages-dev": [{"name": "phpunit/phpunit", "version": "9.5.10"}],
+    }), encoding="utf-8")
+    hints, superseded = parse_lockfiles(tmp_path)
+    by = _by_name(hints)
+    assert {h.ecosystem for h in hints} == {"composer"}
+    assert by["symfony/http-kernel"].version == "5.4.1" and by["symfony/http-kernel"].direct
+    assert not by["symfony/http-foundation"].direct
+    assert by["symfony/http-foundation"].via == "symfony/http-kernel > symfony/http-foundation"
+    assert by["phpunit/phpunit"].dev and by["phpunit/phpunit"].resolved
+    assert ("composer", ".") in superseded
+    # The lockfile supersedes the same-directory composer.json ranges.
+    sbom = analyze_sbom(tmp_path)
+    assert all(h.file == "composer.lock" for h in sbom if h.ecosystem == "composer")
+
+
+def test_nuget_packages_lock_json(tmp_path: Path) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "packages.lock.json").write_text(json.dumps({
+        "version": 1,
+        "dependencies": {
+            "net8.0": {
+                "Newtonsoft.Json": {"type": "Direct", "requested": "[13.0.1, )", "resolved": "13.0.1"},
+                "Microsoft.Extensions.Logging": {
+                    "type": "Direct", "resolved": "8.0.0",
+                    "dependencies": {"System.Text.Encodings.Web": "4.5.0"},
+                },
+                "System.Text.Encodings.Web": {"type": "Transitive", "resolved": "4.5.0"},
+                "MyApp.Core": {"type": "Project"},
+            }
+        },
+    }), encoding="utf-8")
+    hints, _ = parse_lockfiles(tmp_path)
+    by = _by_name(hints)
+    assert set(by) == {"Newtonsoft.Json", "Microsoft.Extensions.Logging", "System.Text.Encodings.Web"}
+    assert {h.ecosystem for h in hints} == {"nuget"}
+    assert by["Newtonsoft.Json"].direct and by["Newtonsoft.Json"].version == "13.0.1"
+    enc = by["System.Text.Encodings.Web"]
+    assert not enc.direct and enc.via == "Microsoft.Extensions.Logging > System.Text.Encodings.Web"
+    assert enc.file == "src/packages.lock.json"
+
+
+def test_gradle_lockfile_maps_to_maven(tmp_path: Path) -> None:
+    (tmp_path / "gradle.lockfile").write_text(
+        "# This is a Gradle generated file for dependency locking.\n"
+        "org.apache.logging.log4j:log4j-core:2.14.1=compileClasspath,runtimeClasspath\n"
+        "junit:junit:4.13.2=testCompileClasspath,testRuntimeClasspath\n"
+        "empty=annotationProcessor\n",
+        encoding="utf-8",
+    )
+    by = _by_name(parse_lockfiles(tmp_path)[0])
+    assert by["org.apache.logging.log4j:log4j-core"].ecosystem == "maven"
+    assert by["org.apache.logging.log4j:log4j-core"].version == "2.14.1"
+    assert not by["org.apache.logging.log4j:log4j-core"].dev
+    assert by["junit:junit"].dev
+
+
+def test_malformed_new_lockfiles_are_skipped(tmp_path: Path) -> None:
+    (tmp_path / "composer.lock").write_text("{nope", encoding="utf-8")
+    (tmp_path / "packages.lock.json").write_text("[1, 2]", encoding="utf-8")
+    (tmp_path / "gradle.lockfile").write_text("garbage line\n:::\n", encoding="utf-8")
+    assert parse_lockfiles(tmp_path)[0] == []

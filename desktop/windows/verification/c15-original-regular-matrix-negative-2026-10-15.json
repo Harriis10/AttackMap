@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T16:50:52.520002+00:00",
+  "status": "failed_regular_phase_matrix",
+  "complete_matrix_pass": false,
+  "complete_test_coverage_claim": false,
+  "limits_executed": false,
+  "limits_omission_reason": "Root stopped original campaign after known regular-phase production failures; no limits or fullcoverage pass is claimed. Corrective fresh root must run both jobs.",
+  "original_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e",
+  "original_seal_sha256": "1083ab315c08ab4c5c32158e6d158189db887dc19b7272052e5e1bd48d5cbc11",
+  "summary": {
+    "path": ".pytest_cache\\m3-c15-matrix-cb657357b999435b86ad55b829aa2d1c\\original-7469-regular-terminal-summary.json",
+    "sha256": "cafaeae6e7dabeb4c6acad68babf58aa82237ae421939b6b0a9c0a4157785ced"
+  },
+  "results": {
+    "311": {
+      "exit": {
+        "exit_code": 1,
+        "source_unchanged": true,
+        "source_changes": [],
+        "finished_utc": "2026-10-15T16:48:02.778179+00:00"
+      },
+      "actual_regular_collected": 3282,
+      "full_collection_inventory_count": 3289,
+      "outcomes": {
+        "setup:passed": 3278,
+        "call:passed": 3273,
+        "teardown:passed": 3282,
+        "call:failed": 5,
+        "setup:skipped": 4
+      },
+      "failures": [
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[cancel\\n]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.013493900012690574,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.011164199997438118,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[ignored\\ncancel\\n]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.011609100009081885,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_launch_failure_is_single_generic_terminal",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.018887500002165325,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_diagnostic_adapters.py::test_windows_junction_preflight_does_not_write_redirected_output",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.0766396000108216,
+          "skip_reason": null,
+          "wasxfail": null
+        }
+      ],
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0003468000068096444,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0006914999976288527,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0003893999964930117,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00046300000394694507,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "missing_call_without_documented_setup_skip": [],
+      "deselected": [],
+      "collection_reports": [],
+      "junit": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "5",
+          "skipped": "4",
+          "tests": "3282",
+          "time": "536.736",
+          "timestamp": "2026-10-15T18:39:03.918171+02:00",
+          "hostname": "corpsec"
+        }
+      ],
+      "full_collection_capture_sha256": "01f16f82bc35a46995c523c9647561f982eb2ce889772b5311a58d5033583fe7",
+      "evidence": {
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py311\\regular\\pytest.log": "5d9a0c3150c6173db5a39cbc8f43eec1101515c933ec01d2f8bbc29ddec9adf5",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py311\\regular\\capture.json": "afbf0012f1d5bdd2ce883d578fb3f74a37631403a6d477c87c6260f352eb8a3c",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py311\\regular\\outcomes.jsonl": "0e3d5265a15da17fea74dcbecaa97b14642dff915625c8c752038a5c2ec4b2a6",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py311\\regular\\exit-code.json": "feaee18d4ca215678e3aea9ee1fd6711f369ada1c65c96c8f4312a5354f1f59f",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py311\\regular\\results.xml": "c6f510e783fd0275b9dedd28711f6761e7cd0602f9ad76286dc9094528de775d",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py311\\regular\\source-test-before.json": "82b01735f7247376653e38150a0725563145b016e1bcb8842cc27d954df36639",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py311\\regular\\source-test-after.json": "82b01735f7247376653e38150a0725563145b016e1bcb8842cc27d954df36639"
+      }
+    },
+    "312": {
+      "exit": {
+        "exit_code": 1,
+        "source_unchanged": true,
+        "source_changes": [],
+        "finished_utc": "2026-10-15T16:49:16.885581+00:00"
+      },
+      "actual_regular_collected": 3282,
+      "full_collection_inventory_count": 3289,
+      "outcomes": {
+        "setup:passed": 3278,
+        "call:passed": 3274,
+        "teardown:passed": 3282,
+        "call:failed": 4,
+        "setup:skipped": 4
+      },
+      "failures": [
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[cancel\\n]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.018137399994884618,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.01460409999708645,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[ignored\\ncancel\\n]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.015551999997114763,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_launch_failure_is_single_generic_terminal",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.02517259999876842,
+          "skip_reason": null,
+          "wasxfail": null
+        }
+      ],
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.000381799996830523,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0004211000050418079,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00025099999038502574,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0004945999971823767,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "missing_call_without_documented_setup_skip": [],
+      "deselected": [],
+      "collection_reports": [],
+      "junit": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "4",
+          "skipped": "4",
+          "tests": "3282",
+          "time": "607.697",
+          "timestamp": "2026-10-15T18:39:04.950327+02:00",
+          "hostname": "corpsec"
+        }
+      ],
+      "full_collection_capture_sha256": "01f16f82bc35a46995c523c9647561f982eb2ce889772b5311a58d5033583fe7",
+      "evidence": {
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py312\\regular\\pytest.log": "842e1c331e60012600dfea57b027ebb6a3da28518955ac824886324bc306ad64",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py312\\regular\\capture.json": "16471de10fa7c6a136a6e622192dcd7348835b10dbcc6ebad02135b8c1821dc2",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py312\\regular\\outcomes.jsonl": "405ba7a4c82503dd74a01d0038489df37395aef9f161d9a72d8df0c15c9b38f8",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py312\\regular\\exit-code.json": "c15b56483f434e97bd7fb1e63aeb84b4559aeb74b92ab1e0c2eadc0099cec455",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py312\\regular\\results.xml": "335d36fed19fa75bd03d1a9de1dc02cec5d38e0a51b950003393b72500a3bca6",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py312\\regular\\source-test-before.json": "82b01735f7247376653e38150a0725563145b016e1bcb8842cc27d954df36639",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py312\\regular\\source-test-after.json": "82b01735f7247376653e38150a0725563145b016e1bcb8842cc27d954df36639"
+      }
+    },
+    "313": {
+      "exit": {
+        "exit_code": 1,
+        "source_unchanged": true,
+        "source_changes": [],
+        "finished_utc": "2026-10-15T16:48:47.170033+00:00"
+      },
+      "actual_regular_collected": 3282,
+      "full_collection_inventory_count": 3289,
+      "outcomes": {
+        "setup:passed": 3278,
+        "call:passed": 3274,
+        "teardown:passed": 3282,
+        "call:failed": 4,
+        "setup:skipped": 4
+      },
+      "failures": [
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[cancel\\n]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.017392000008840114,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.019148799998220056,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_cancel_or_eof_emits_cancelling_then_verified_terminal[ignored\\ncancel\\n]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.018881199997849762,
+          "skip_reason": null,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_desktop_worker.py::test_launch_failure_is_single_generic_terminal",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.030519099993398413,
+          "skip_reason": null,
+          "wasxfail": null
+        }
+      ],
+      "skip_reports": [
+        {
+          "nodeid": "tests/test_llm_cli_isolation.py::test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.0003539000026648864,
+          "skip_reason": "Skipped: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_sdk_fs.py::test_unreadable_file_returns_none",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00038279998989310116,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_ui_export.py::test_export_endpoint_rejects_symlinked_path",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00029969999741297215,
+          "skip_reason": "Skipped: Windows tests run without symlink creation privileges",
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/test_unreadable_and_fleet_failures.py::test_unreadable_file_is_skipped_and_reported",
+          "when": "setup",
+          "outcome": "skipped",
+          "duration": 0.00037850000080652535,
+          "skip_reason": "Skipped: chmod 000 is not enforced on Windows or for root",
+          "wasxfail": null
+        }
+      ],
+      "missing_call_without_documented_setup_skip": [],
+      "deselected": [],
+      "collection_reports": [],
+      "junit": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "4",
+          "skipped": "4",
+          "tests": "3282",
+          "time": "580.531",
+          "timestamp": "2026-10-15T18:39:04.799254+02:00",
+          "hostname": "corpsec"
+        }
+      ],
+      "full_collection_capture_sha256": "01f16f82bc35a46995c523c9647561f982eb2ce889772b5311a58d5033583fe7",
+      "evidence": {
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py313\\regular\\pytest.log": "2b452a596e9b95624350ab995738106743c5629830bd96bac41b9a40bb92c738",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py313\\regular\\capture.json": "8cb67c9763be05a63d6e37adc76f9e500194d3861e243c464abef05f8530d29a",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py313\\regular\\outcomes.jsonl": "f83453a60ae80feee344580a730b96e4c3e6ba97202ac80172baff38c52c06a0",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py313\\regular\\exit-code.json": "52b30acd1007040fd0648df9a6b1c5d74326b34b6d2510118506141b3537d123",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py313\\regular\\results.xml": "d6ebcd84039f0d4088c9f4d997cd7a402ae3505b866da927faf3d48f786b8efd",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py313\\regular\\source-test-before.json": "82b01735f7247376653e38150a0725563145b016e1bcb8842cc27d954df36639",
+        ".pytest_cache\\m3-c15-matrix-7469a1cd2d60449db6dec5c1c965db8e\\py313\\regular\\source-test-after.json": "82b01735f7247376653e38150a0725563145b016e1bcb8842cc27d954df36639"
+      }
+    }
+  },
+  "failure_scopes": [
+    {
+      "versions": [
+        "311",
+        "312",
+        "313"
+      ],
+      "nodes": "Three parametrized cancel/EOF cases and one launch-failure case in tests/test_desktop_worker.py",
+      "observed": "Exact mocked write_diagnostic kwargs assertions expected state-only dictionaries but now receive error=None and typed DiagnosticContext. Earlier state/terminal assertions passed. This traceback alone does not establish a worker cleanup production failure.",
+      "traceback_lines": {
+        "py313_regular_pytest_log": [
+          110,
+          122
+        ]
+      }
+    },
+    {
+      "versions": [
+        "311"
+      ],
+      "node": "tests/test_diagnostic_adapters.py::test_windows_junction_preflight_does_not_write_redirected_output",
+      "observed": "Actual owned junction target gained reports directory despite expected empty target. Independently confirmed marker+terminaldiagnostic writes by the version probe.",
+      "independent_proof": "desktop/windows/verification/python-junction-startup-version-probe-2026-10-15.json"
+    }
+  ],
+  "preservation": "All original logs,captures,collectionnodeids,JUnit,sourceinventories andseal retained. Evidence hashes reverified; original source/test/schema/fixture/config inventories unchanged per phase. No repair or limits pass retroactively inferred.",
+  "next_required": "Corrective fresh sealed source must execute regular and limits jobs in full, then exactdisjointunion verifier per interpreter.",
+  "limits": [
+    "No source/test edits or test campaign by this summarization.",
+    "Regular counts exclude test_scan_limits.py; full collection is inventory only, not execution.",
+    "Known negative source not rerun partially to claim a full repaired matrix."
+  ]
+}

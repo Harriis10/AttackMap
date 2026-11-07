@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T16:21:13.940143+00:00",
+  "scope": "Focused C15 CLI/service/desktop diagnostic producer behavior; no whole-batch, full regression, frozen engine or package acceptance claim.",
+  "original_focused_run": {
+    "session": 51335,
+    "exit_code": 0,
+    "passed": 49,
+    "seconds": 38.15,
+    "test_files": [
+      "tests/test_diagnostic_adapters.py",
+      "tests/test_desktop_options.py",
+      "tests/test_desktop_publication.py",
+      "tests/test_fleet_publication.py",
+      "tests/test_application_boundary.py",
+      "tests/test_supply_chain.py"
+    ],
+    "raw_log": {
+      "path": ".pytest_cache/m3-diagnostic-adapters-final.log",
+      "sha256": "fc0f88c5c321c4ce08fdf0d13e5bd89fb57489465b99200a0a829ad174ffdaf9",
+      "size_bytes": 102
+    },
+    "limit": "Publisher/context implementation received later identity/timing hardening; this original 49-pass result is not represented as covering those later changes."
+  },
+  "post_identity_adapter_subset": {
+    "exit_code": 0,
+    "passed": 11,
+    "seconds": 1.37,
+    "test_files": [
+      "tests/test_diagnostic_adapters.py"
+    ],
+    "raw_log": {
+      "path": ".pytest_cache/m3-diagnostic-identity-fixtures.log",
+      "sha256": "01588c1330852ee1033f9a8aa659e6ff5ae5f90023b2d37c86333b6a7c91c05f",
+      "size_bytes": 101
+    },
+    "scope": "Owned adapter fixtures pass against observed current stricter publisher; not a repeat of the full49 or whole integrated batch.",
+    "observed_dependency_hashes": [
+      {
+        "path": "src/attackmap/artifact_publisher.py",
+        "sha256": "88cd8317f8dd1a567b72066019d618112919dd54017920a22f410f967fdd99ee",
+        "size_bytes": 22995
+      },
+      {
+        "path": "src/attackmap/diagnostics.py",
+        "sha256": "80053b060b4117108cbd8e8ab551293b1c1d7f7ec96b0424446f21552fe615a3",
+        "size_bytes": 13315
+      },
+      {
+        "path": "src/attackmap/models.py",
+        "sha256": "150efc96ea93d15d998f13fa7c4a5f569f07ebf84b191be1db4b6bdcc2fa9c29",
+        "size_bytes": 41740
+      }
+    ]
+  },
+  "owned_producer_source_hashes": [
+    {
+      "path": "src/attackmap/cli.py",
+      "sha256": "60afa532a198b400dd39432db71db6b7c88583ca2283ba0457dab70c06d8de09",
+      "size_bytes": 36951
+    },
+    {
+      "path": "src/attackmap/scan_service.py",
+      "sha256": "c36334281280eae7c41173e8c83c954d80cc0713da7a884cca7be21fb7ff0cd1",
+      "size_bytes": 29478
+    },
+    {
+      "path": "src/attackmap/desktop_worker.py",
+      "sha256": "86713bf107bb120a0ea8772c8544f92350e4121c4bfeccfc1150c763171af0cd",
+      "size_bytes": 11971
+    },
+    {
+      "path": "tests/test_diagnostic_adapters.py",
+      "sha256": "b309714f5ead170e2f32e19990af9228d1ab5552a1b23e171b12129ef89fe336",
+      "size_bytes": 9428
+    }
+  ],
+  "hash_scope": "Producer/test files unchanged since the final49 run; hashes recorded now. Original49 dependency hashes were not captured at execution and are not reconstructed.",
+  "behavior_verified": [
+    "CLI and service preserve original typed selection errors while measuring failed preflight stage before diagnostic IO; diagnostic excludes sentinel strings and raw paths.",
+    "Desktop invalid request/repository and actual engine missing-analyzer startup emit owned safe diagnostics; transport terminal remains schema1.1 and engine emits no outer terminal.",
+    "Broker failure/cancellation recover actual staged enumerated coverage and completed stage duration; malformed/oversized metadata stays unknown without sentinel leakage.",
+    "Nested worker startup context reaches outer broker diagnostic instead of bare overwrite.",
+    "Partial fleet records requested and actual completed/failed indexed child outcomes and known child coverage; absent child information and parent aggregate coverage remain unknown.",
+    "Existing publication/current pointer, options, application seam and supply-chain tests passed in original49 scope."
+  ],
+  "fixture_contract": {
+    "nested_terminal_diagnostic": "Produced by actual write_diagnostic(stage, matching_run_id, state=failed, context=...), including schema_version1.1, matchingrun_id/state/artifact_readiness. No manually fabricated bare terminal payload.",
+    "other_staged_files": "Manual run-manifest.json fixtures represent stage metadata, not terminal envelopes. Intentionally invalid/oversized context fixtures remain invalid to verify unknown fallback.",
+    "fixture_changes_needed_for_identity_rule": false
+  },
+  "prior_attempts": [
+    {
+      "raw_log": {
+        "path": ".pytest_cache/m3-diagnostic-adapters.log",
+        "sha256": "7b98b442800359ad0356726f964a3e7ee1cd7d8506d1ca94cd70f938e9b3ff09",
+        "size_bytes": 6311
+      },
+      "result": "Four collection errors from transient shared diagnostics.py indentation during concurrent patch; not a producer regression or pass."
+    },
+    {
+      "raw_log": {
+        "path": ".pytest_cache/m3-diagnostic-adapters-corrected.log",
+        "sha256": "0864994f155caf9a42cb7515c5724a91ab8f339051042f5e1ac01f3e844225ad",
+        "size_bytes": 8901
+      },
+      "result": "41passed5failed; five new fixture requests omitted requiredrevision, corrected before final49."
+    },
+    {
+      "raw_log": {
+        "path": ".pytest_cache/m3-diagnostic-adapter-fixtures.log",
+        "sha256": "3ad500b808ea6aa21f11d73609eebd6a4e22b3aa0befda0b1098ed35fc16ebd1",
+        "size_bytes": 100
+      },
+      "result": "Corrected initial8owned fixture cases passed before three additional boundary cases."
+    }
+  ],
+  "remaining_validation": "Root integrated run must validate the complete sealed publisher/context/resources/pipeline/adapter batch; no new freeze or package produced here."
+}

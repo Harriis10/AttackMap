@@ -1,0 +1,43 @@
+{
+  "task": "WP010",
+  "status": "IMPLEMENTED/MANUAL_PENDING",
+  "scope": "New native diagram parser/manifest reader/view plus isolated contract tests and standalone synthetic preview; product navigation wiring is integrator-owned",
+  "contract_tests": {
+    "project": "desktop/windows/Diagram.Tests/Diagram.Tests.csproj",
+    "sdk": ".tools/dotnet/dotnet.exe",
+    "artifacts": "docs/verification/windows-parity/WP010/test-build",
+    "compile_errors": 0,
+    "compile_warnings": 0,
+    "exit_code": 0,
+    "checks_passed": 20,
+    "coverage": ["Core path node/edge order", "Core labeled directed/undirected/parallel topology edges", "Deterministic layout", "Complete accepted source alternative", "Literal hostile label", "Hostile directive fallback", "Unknown/malformed syntax fallback", "Empty and large input bounds", "Local-only path preflight", "Captured manifest/report/diagram binding", "Unverified/missing artifact states", "Report and diagram tamper rejection", "Supplied report limitations warning"]
+  },
+  "preview": {
+    "project": "desktop/windows/Diagram.Tests/Preview/Diagram.Preview.csproj",
+    "artifacts": "docs/verification/windows-parity/WP010/preview-build",
+    "build_status": "PASS",
+    "compile_errors": 0,
+    "compile_warnings": 0,
+    "build_elapsed_seconds": 333.45,
+    "launch_record": "docs/verification/windows-parity/WP010/preview-launch.json",
+    "startup_status": "NOT_ACCEPTED: no window handle observed; processes 21184 and 15084 exited before later checks; PID 17268 remained alive after bounded 20-second check with handle zero",
+    "startup_cause": "Unresolved; no cause inferred from unavailable CUA",
+    "diagnostic_changes": "Unhandled exception logging only in isolated preview Program.cs; no further launch after coordinator stop",
+    "diagnostic_rebuild": {"exit_code": 0, "warnings": 0, "errors": 0, "elapsed_seconds": 83.95},
+    "cleanup_record": "docs/verification/windows-parity/WP010/preview-cleanup.json",
+    "fixture": "Synthetic standalone topology; optional --dark --empty --hostile --large",
+    "product_raw_source_bypass": "Absent; synthetic preview entry point compiled only with DIAGRAM_STANDALONE_PREVIEW"
+  },
+  "renderer": {
+    "browser_or_webview": false,
+    "scripts_or_uri_navigation": false,
+    "network_client_or_remote_resources": false,
+    "new_external_dependencies": false,
+    "layout": "Fixed declaration-order grid",
+    "ui_created_joins_or_scores": false,
+    "export": "Complete displayed inert text event; host picker/destination guard required"
+  },
+  "acceptance_not_claimed": ["Actual visual review", "Keyboard or Narrator acceptance", "Contrast and scaling acceptance", "Runtime with network disabled", "Integrated report navigation and export picker"],
+  "limitations": ["Strict core Mermaid subset; unsupported valid Mermaid uses complete source fallback", "4 MiB selected diagram read bound; larger artifacts require raw artifact workflow", "Visual layout limited to 120 nodes / 240 edges; full accepted source retained", "Text export only; no image/PDF export added", "Native CUA APIs unavailable in this environment"],
+  "shared_paths_edited": false
+}

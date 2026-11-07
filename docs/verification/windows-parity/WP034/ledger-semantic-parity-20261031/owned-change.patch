@@ -1,0 +1,167 @@
+--- a/tests/test_fleet_parallelism.py
++++ b/tests/test_fleet_parallelism.py
+@@ -2,6 +2,8 @@
+ 
+ from __future__ import annotations
+ 
++from copy import deepcopy
++import math
+ import subprocess
+ import json
+ import time
+@@ -208,6 +210,142 @@
+     assert summary.fleet_summary_path is not None
+ 
+ 
++def _scan_semantics(scan: dict[str, Any]) -> dict[str, Any]:
++    """Compare full scan data except independently measured ledger clocks."""
++    result = deepcopy(scan)
++    ledger = result.get("analyzer_run_ledger")
++    if ledger is None:
++        return result
++    for row in ledger["entries"]:
++        timings = [(row, key) for key in ("detect_duration_ms", "analysis_duration_ms")
++                   if row.get(key) is not None]
++        events = row.get("lifecycle_events", [])
++        elapsed = [event["elapsed_ms"] for event in events]
++        timings.extend((event, "elapsed_ms") for event in events)
++        for record, key in timings:
++            value = record[key]
++            assert type(value) in (int, float) and math.isfinite(value) and value >= 0, (
++                f"Invalid ledger {key}: {value!r}"
++            )
++            record[key] = 0.0
++        assert elapsed == sorted(elapsed), "Ledger lifecycle times are out of order"
++    return result
++
++
++@pytest.fixture
++def ledger_scan() -> dict[str, Any]:
++    from attackmap.analyzer_run_ledger import AnalyzerRunLedger, AnalyzerRunRecord
++    from attackmap.models import ScanResult
++
++    ledger = AnalyzerRunLedger(
++        selection_mode="automatic", resolution_complete=True, execution_complete=True,
++        entries=[AnalyzerRunRecord(
++            name="example", version="1.0", origin="plugin",
++            implementation={"module": "example", "qualname": "Plugin"},
++            implementation_sha256="a" * 64, package={"name": "example", "version": "1.0"},
++            entry_point={"name": "example", "value": "example:Plugin"},
++            provenance={"pin_status": "matched", "content_verified": False},
++            selection="selected", applicability="applicable", execution="succeeded",
++            analysis_started=True, execution_mode="in_process", detect_duration_ms=1.0,
++            analysis_duration_ms=2.0,
++            signal_counts={"routes": 1, "external_calls": 0, "databases": 0,
++                           "auth_hints": 0, "secret_hints": 0},
++            lifecycle_events=[
++                {"stage": "detect", "state": "started", "elapsed_ms": 0.0},
++                {"stage": "detect", "state": "applicable", "elapsed_ms": 1.0},
++                {"stage": "selection", "state": "selected", "elapsed_ms": 1.0},
++                {"stage": "analysis", "state": "started", "elapsed_ms": 2.0},
++                {"stage": "analysis", "state": "succeeded", "elapsed_ms": 4.0},
++            ],
++        )],
++    )
++    return ScanResult(root="repo", files_scanned=1, analyzer_run_ledger=ledger).model_dump(mode="json")
++
++
++def test_scan_semantics_normalizes_only_present_clocks_without_mutating_input(ledger_scan):
++    original = deepcopy(ledger_scan)
++    parallel = deepcopy(ledger_scan)
++    row = parallel["analyzer_run_ledger"]["entries"][0]
++    row["detect_duration_ms"] = 20.0
++    row["analysis_duration_ms"] = 30.0
++    for event in row["lifecycle_events"]:
++        event["elapsed_ms"] = 10.0 + event["elapsed_ms"] * 5
++    assert _scan_semantics(ledger_scan) == _scan_semantics(parallel)
++    assert ledger_scan == original
++    assert row["detect_duration_ms"] == 20.0
++
++
++@pytest.mark.parametrize("field", ["detect_duration_ms", "analysis_duration_ms"])
++def test_scan_semantics_preserves_unknown_and_missing_clocks(ledger_scan, field):
++    unknown = deepcopy(ledger_scan)
++    unknown["analyzer_run_ledger"]["entries"][0][field] = None
++    absent = deepcopy(unknown)
++    del absent["analyzer_run_ledger"]["entries"][0][field]
++    assert _scan_semantics(unknown)["analyzer_run_ledger"]["entries"][0][field] is None
++    assert _scan_semantics(ledger_scan) != _scan_semantics(unknown)
++    assert _scan_semantics(unknown) != _scan_semantics(absent)
++
++
++@pytest.mark.parametrize("field", ["detect_duration_ms", "analysis_duration_ms", "elapsed_ms"])
++@pytest.mark.parametrize("value", [-1.0, float("nan"), float("inf"), "1"])
++def test_scan_semantics_rejects_invalid_clocks(ledger_scan, field, value):
++    row = ledger_scan["analyzer_run_ledger"]["entries"][0]
++    record = row["lifecycle_events"][0] if field == "elapsed_ms" else row
++    record[field] = value
++    with pytest.raises(AssertionError, match="Invalid ledger"):
++        _scan_semantics(ledger_scan)
++
++
++def test_scan_semantics_rejects_unknown_or_reversed_lifecycle_times(ledger_scan):
++    events = ledger_scan["analyzer_run_ledger"]["entries"][0]["lifecycle_events"]
++    events[0]["elapsed_ms"] = None
++    with pytest.raises(AssertionError, match="Invalid ledger elapsed_ms"):
++        _scan_semantics(ledger_scan)
++    events[0]["elapsed_ms"] = 2.0
++    with pytest.raises(AssertionError, match="lifecycle times are out of order"):
++        _scan_semantics(ledger_scan)
++
++
++@pytest.mark.parametrize("field,value", [
++    ("name", "other"), ("version", "2.0"), ("origin", "supplied"),
++    ("implementation", {"module": "other", "qualname": "Plugin"}),
++    ("implementation_sha256", "b" * 64), ("package", None), ("entry_point", None),
++    ("provenance", {"pin_status": "mismatched", "content_verified": False}),
++    ("selection", "skipped"), ("applicability", "unmatched"), ("execution", "failed"),
++    ("analysis_started", False), ("execution_mode", "isolated"),
++    ("skip_reason", "pipeline_deadline"),
++    ("error", {"stage": "analysis", "error_type": "RuntimeError"}), ("signal_counts", None),
++])
++def test_scan_semantics_preserves_analyzer_identity_and_outcomes(ledger_scan, field, value):
++    changed = deepcopy(ledger_scan)
++    changed["analyzer_run_ledger"]["entries"][0][field] = value
++    assert _scan_semantics(ledger_scan) != _scan_semantics(changed)
++
++
++@pytest.mark.parametrize("change", ["completion", "lifecycle_state", "lifecycle_order", "provenance_clock", "scan"])
++def test_scan_semantics_preserves_ledger_structure_events_and_other_scan_data(ledger_scan, change):
++    changed = deepcopy(ledger_scan)
++    ledger = changed["analyzer_run_ledger"]
++    row = ledger["entries"][0]
++    if change == "completion":
++        ledger["execution_complete"] = False
++    elif change == "lifecycle_state":
++        row["lifecycle_events"][-1]["state"] = "failed"
++    elif change == "lifecycle_order":
++        # Equal elapsed times must not erase the original event order.
++        row["lifecycle_events"][1:3] = reversed(row["lifecycle_events"][1:3])
++    elif change == "provenance_clock":
++        row["provenance"]["elapsed_ms"] = 50.0
++    else:
++        changed["files_scanned"] = 2
++    assert _scan_semantics(ledger_scan) != _scan_semantics(changed)
++
++
++def test_scan_semantics_preserves_absent_or_unknown_ledger():
++    assert _scan_semantics({}) == {}
++    assert _scan_semantics({"analyzer_run_ledger": None}) == {"analyzer_run_ledger": None}
++
++
+ @pytest.mark.parametrize("output_format", ["all", "json", "markdown"])
+ def test_fleet_real_workers_match_serial(tmp_path: Path, output_format: str) -> None:
+     """Interchange preserves models even when no JSON presentation is emitted."""
+@@ -233,9 +371,11 @@
+                 output_format=output_format, max_workers=workers, no_progress=True,
+             ))
+             assert summary.exit_code == 0
++    assert len(fleets) == 2
++    assert len(fleets[0].results) == len(fleets[1].results) == len(repos)
+     for serial, parallel in zip(fleets[0].results, fleets[1].results):
+         assert serial.repo_id == parallel.repo_id
+-        assert serial.scan.model_dump(mode="json") == parallel.scan.model_dump(mode="json")
++        assert _scan_semantics(serial.scan.model_dump(mode="json")) == _scan_semantics(parallel.scan.model_dump(mode="json"))
+         assert [f.model_dump(mode="json") for f in serial.findings] == [f.model_dump(mode="json") for f in parallel.findings]
+         assert [p.model_dump(mode="json") for p in serial.attack_paths] == [p.model_dump(mode="json") for p in parallel.attack_paths]
+         assert serial.suppressed_count == parallel.suppressed_count

@@ -1,0 +1,186 @@
+{
+  "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-l-frozen-20261021-04\\fleet-fixtures\\repository-3",
+  "signals": [
+    {
+      "classification_version": "1.0",
+      "source_role": "unknown",
+      "evidence_kind": "static_extraction",
+      "classification_basis": "unknown",
+      "kind": "framework",
+      "label": "flask",
+      "file": "app.py",
+      "line": 1,
+      "confidence": 0.7,
+      "evidence_text": "from flask import Flask, request",
+      "properties": {},
+      "observation_id": "obs-c75d21491dfa5fa72847f318f9f27b48c5a880ff9d737d34d4d86b83fdaf932e",
+      "origins": [
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "analyzer": "python",
+          "analyzer_version": "0.1.0",
+          "metadata_status": "known",
+          "file": "app.py",
+          "line": 1,
+          "location_reason": null,
+          "evidence_text": "from flask import Flask, request",
+          "properties": {}
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "classification_version": "1.0",
+      "source_role": "unknown",
+      "evidence_kind": "static_extraction",
+      "classification_basis": "unknown",
+      "kind": "framework",
+      "label": "wsgi_app:flask",
+      "file": "app.py",
+      "line": 2,
+      "confidence": 0.9,
+      "evidence_text": "Flask() application object",
+      "properties": {},
+      "observation_id": "obs-e9f13bffad65b2c37c343a5409a6cd6d24eae258cb07a98d4b2c92b69d36529c",
+      "origins": [
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "analyzer": "python-service",
+          "analyzer_version": "0.1.0",
+          "metadata_status": "known",
+          "file": "app.py",
+          "line": 2,
+          "location_reason": null,
+          "evidence_text": "Flask() application object",
+          "properties": {}
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "classification_version": "1.0",
+      "source_role": "unknown",
+      "evidence_kind": "static_extraction",
+      "classification_basis": "unknown",
+      "kind": "route",
+      "label": "GET /status",
+      "file": "app.py",
+      "line": 3,
+      "confidence": 0.7,
+      "evidence_text": null,
+      "properties": {
+        "method": "GET",
+        "path": "/status",
+        "auth": "unknown"
+      },
+      "observation_id": "obs-767f3b1ed73aaf19bd74ecdfa3265792b9e57a3e9250b2904ed9d61f5a3f8cfd",
+      "origins": [
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "analyzer": "python-web",
+          "analyzer_version": "0.1.0",
+          "metadata_status": "known",
+          "file": "app.py",
+          "line": 3,
+          "location_reason": null,
+          "evidence_text": null,
+          "properties": {
+            "method": "GET",
+            "path": "/status",
+            "auth": "unknown"
+          }
+        }
+      ],
+      "conflicts": []
+    }
+  ],
+  "scanned_files": null,
+  "resource_limit_events": [],
+  "resource_limit_scopes": [
+    "repo_index.file_bytes",
+    "repo_index.index_bytes"
+  ],
+  "resource_limit_reporting": "partial",
+  "languages": [
+    "python"
+  ],
+  "routes": [
+    {
+      "path": "/status",
+      "method": "GET",
+      "file": "app.py",
+      "line": 3,
+      "auth": "unknown",
+      "guards": [],
+      "guard_evidence": null
+    }
+  ],
+  "external_calls": [],
+  "databases": [],
+  "auth_hints": [],
+  "service_hints": [],
+  "edge_hints": [],
+  "entrypoint_hints": [],
+  "protocol_hints": [],
+  "framework_hints": [
+    {
+      "hint": "flask",
+      "file": "app.py",
+      "line": 1,
+      "evidence_text": "from flask import Flask, request",
+      "confidence": 0.7
+    },
+    {
+      "hint": "wsgi_app:flask",
+      "file": "app.py",
+      "line": 2,
+      "evidence_text": "Flask() application object",
+      "confidence": 0.9
+    }
+  ],
+  "secret_hints": [],
+  "taint_chains": [],
+  "dependencies": [],
+  "vulnerabilities": [],
+  "authz_candidates": [],
+  "crypto_weaknesses": [],
+  "web_hardening_issues": [],
+  "code_weaknesses": [],
+  "workflow_issues": [],
+  "supply_chain_issues": [],
+  "secret_history": [],
+  "anomalies": [],
+  "limitations": [
+    "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+  ],
+  "analyzer_errors": [],
+  "files_scanned": 3,
+  "scan_snapshot": {
+    "snapshot_id": "970027b6342c78b588d68f5241865acb2eb477776201088490307502fc3cb6ea",
+    "files": {
+      "app.py": "354ccb53d01e16bb3d4229b15722254d180dcfc7252896ef6ffecfb988e4ab50"
+    },
+    "raw_files": {
+      "app.py": "354ccb53d01e16bb3d4229b15722254d180dcfc7252896ef6ffecfb988e4ab50"
+    },
+    "total_size": 147,
+    "index_config": {
+      "capture_sdk_sources": 1,
+      "include_tests": 0,
+      "include_vendored": 0,
+      "index_byte_budget": 0,
+      "index_file_limit": 100000,
+      "max_file_bytes": 2000000
+    },
+    "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+  }
+}

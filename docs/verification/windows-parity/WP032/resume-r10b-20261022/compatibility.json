@@ -1,0 +1,1422 @@
+{
+  "auth_hints:absent": {
+    "equal": true,
+    "canonical": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "auth_hints:empty": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": ""
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.49999999999999994,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service inferred from repository layout: layout",
+            "database hint elsewhere in repo: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: layout",
+            "database sink in service layout: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "auth_hints:case_duplicate": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "auth"
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth",
+            "database sink in service auth: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "auth"
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth",
+            "database sink in service auth: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "auth_hints:spaced": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "auth "
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth "
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth ",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth ",
+            "database sink in service auth : postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "auth "
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth "
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth ",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth ",
+            "database sink in service auth : postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "auth_hints:ambiguous": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "beta"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "beta",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "beta",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: beta",
+            "database sink in service beta: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": null
+      },
+      "threat_map": {
+        "services/layout/app.py": null
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "beta",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "auth_hints:empty_named": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "alpha",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: alpha",
+            "database sink in service alpha: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "alpha",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: alpha",
+            "database sink in service alpha: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "auth_hints:named_empty": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": ""
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.49999999999999994,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service inferred from repository layout: layout",
+            "database hint elsewhere in repo: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "alpha",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: alpha",
+            "database sink in service alpha: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "service_hints:absent": {
+    "equal": true,
+    "canonical": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "service_hints:empty": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": ""
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.49999999999999994,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service inferred from repository layout: layout",
+            "database hint elsewhere in repo: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: layout",
+            "database sink in service layout: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "service_hints:case_duplicate": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "auth"
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth",
+            "database sink in service auth: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "auth"
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth",
+            "database sink in service auth: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "service_hints:spaced": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "auth "
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth "
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth ",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth ",
+            "database sink in service auth : postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "auth "
+      },
+      "threat_map": {
+        "services/layout/app.py": "auth "
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "auth ",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: auth ",
+            "database sink in service auth : postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "service_hints:ambiguous": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "beta"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "beta",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "beta",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: beta",
+            "database sink in service beta: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": null
+      },
+      "threat_map": {
+        "services/layout/app.py": null
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "beta",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "service_hints:empty_named": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "alpha",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: alpha",
+            "database sink in service alpha: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "alpha",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: alpha",
+            "database sink in service alpha: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "service_hints:named_empty": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": ""
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "layout",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.49999999999999994,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service inferred from repository layout: layout",
+            "database hint elsewhere in repo: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": [
+        {
+          "route_method": "GET",
+          "route_path": "/api",
+          "route_file": "services/layout/app.py",
+          "entry_service": "alpha",
+          "next_service": null,
+          "sink": "database",
+          "confidence": 0.8,
+          "evidence": [
+            "route GET /api in services/layout/app.py",
+            "entry service from file-local hint: alpha",
+            "database sink in service alpha: postgresql (services/layout/app.py)"
+          ],
+          "env_risk": null
+        }
+      ]
+    }
+  },
+  "edge_hints:absent": {
+    "equal": true,
+    "canonical": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "edge_hints:empty": {
+    "equal": true,
+    "canonical": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {},
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "edge_hints:case_duplicate": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "auth"
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "auth"
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "edge_hints:spaced": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "auth "
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "auth "
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "auth",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "edge_hints:ambiguous": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "beta",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": null
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "beta",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "edge_hints:empty_named": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  },
+  "edge_hints:named_empty": {
+    "equal": false,
+    "canonical": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          },
+          {
+            "name": "layout",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    },
+    "candidate": {
+      "topology_map": {
+        "services/layout/app.py": "alpha"
+      },
+      "threat_map": {
+        "services/layout/app.py": "layout"
+      },
+      "graph": {
+        "nodes": [
+          {
+            "name": "alpha",
+            "role": "service",
+            "files_seen": [
+              "services/layout/app.py"
+            ]
+          }
+        ],
+        "edges": []
+      },
+      "chains": []
+    }
+  }
+}

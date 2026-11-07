@@ -1,0 +1,23 @@
+# C28 config-extraction fixture: a k8s Ingress whose rule host fronts exactly
+# one backend service. The host is extracted as a declared proxy
+# (auth.ingress.cluster.local -> auth-api); the backend-protocol annotation
+# re-declares https (deduped with the Service's appProtocol, which outranks
+# it). spec.tls would describe the client->ingress leg — never extracted.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: auth-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  rules:
+    - host: auth.ingress.cluster.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-api
+                port:
+                  number: 8443

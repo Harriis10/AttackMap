@@ -1,0 +1,257 @@
+{
+  "engine_version": "1.5.1",
+  "diagnostic_context": {
+    "context_version": "1.0",
+    "outcome": "completed",
+    "policy_outcome": "passed",
+    "stages": [
+      {
+        "stage_id": "request_validation",
+        "outcome": "completed",
+        "duration_milliseconds": 0
+      },
+      {
+        "stage_id": "select_analyzers",
+        "outcome": "completed",
+        "duration_milliseconds": 2616
+      },
+      {
+        "stage_id": "scan_and_merge",
+        "outcome": "completed",
+        "duration_milliseconds": 36235
+      },
+      {
+        "stage_id": "cve",
+        "outcome": "completed",
+        "duration_milliseconds": 47
+      },
+      {
+        "stage_id": "translate",
+        "outcome": "completed",
+        "duration_milliseconds": 196
+      },
+      {
+        "stage_id": "suppress",
+        "outcome": "completed",
+        "duration_milliseconds": 175
+      },
+      {
+        "stage_id": "publish",
+        "outcome": "completed",
+        "duration_milliseconds": 1214
+      },
+      {
+        "stage_id": "llm",
+        "outcome": "completed",
+        "duration_milliseconds": 88111
+      },
+      {
+        "stage_id": "analysis_pipeline",
+        "outcome": "completed",
+        "duration_milliseconds": 128598
+      },
+      {
+        "stage_id": "publication",
+        "outcome": "completed",
+        "duration_milliseconds": 751.121
+      }
+    ],
+    "analyzers": {
+      "status": "complete",
+      "requested_count": null,
+      "items": [
+        {
+          "name": "python",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "javascript-web",
+          "version": "0.2.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "python-web",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "terraform",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "config",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "iac",
+          "version": "0.1.0",
+          "version_status": "declared"
+        },
+        {
+          "name": "default",
+          "version": "0.1.0",
+          "version_status": "declared"
+        }
+      ],
+      "truncated": false
+    },
+    "coverage": {
+      "status": "partial",
+      "accepted_file_count": null,
+      "legacy_files_scanned_count": 899,
+      "analyzer_error_count": 0,
+      "limitation_count": 3,
+      "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+    },
+    "resource_events": {
+      "status": "partial",
+      "scopes": [
+        "config_scanner.file_bytes",
+        "repo_index.file_bytes",
+        "repo_index.index_bytes"
+      ],
+      "items": [
+        {
+          "schema_version": "1.0",
+          "event_id": "121908bd01492a2209accf122f114eaf3714985a11a29b384b2b734ab9fcceb6",
+          "category": "file_bytes",
+          "producer": "repo_index",
+          "limit": 2000000,
+          "unit": "bytes",
+          "action": "skipped_file",
+          "observed_bytes": 3740605,
+          "observed_files": null
+        },
+        {
+          "schema_version": "1.0",
+          "event_id": "28a33bf70198cc0b1a8d0c4cfbd8ceb55e259629c13093e6315f986f3c861848",
+          "category": "file_bytes",
+          "producer": "repo_index",
+          "limit": 2000000,
+          "unit": "bytes",
+          "action": "skipped_file",
+          "observed_bytes": 2232676,
+          "observed_files": null
+        }
+      ],
+      "truncated": false,
+      "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+    },
+    "fleet": {
+      "status": "not_started",
+      "requested_count": null,
+      "completed_count": null,
+      "failed_count": null,
+      "cancelled_count": null,
+      "children": [],
+      "truncated": false
+    }
+  },
+  "scan_timing": {
+    "schema_version": "1.0",
+    "clock": "engine_utc",
+    "scope": "analysis_pipeline_before_publication",
+    "started_at": "2026-10-22T07:48:44.926378+00:00",
+    "finished_at": "2026-10-22T07:50:53.524713+00:00",
+    "outcome": "completed"
+  },
+  "analyzers": [
+    {
+      "name": "python",
+      "version": "0.1.0"
+    },
+    {
+      "name": "javascript-web",
+      "version": "0.2.0"
+    },
+    {
+      "name": "python-web",
+      "version": "0.1.0"
+    },
+    {
+      "name": "terraform",
+      "version": "0.1.0"
+    },
+    {
+      "name": "config",
+      "version": "0.1.0"
+    },
+    {
+      "name": "iac",
+      "version": "0.1.0"
+    },
+    {
+      "name": "default",
+      "version": "0.1.0"
+    }
+  ],
+  "stages": [
+    {
+      "name": "request_validation",
+      "milliseconds": 0
+    },
+    {
+      "name": "select_analyzers",
+      "milliseconds": 2616
+    },
+    {
+      "name": "scan_and_merge",
+      "milliseconds": 36235
+    },
+    {
+      "name": "cve",
+      "milliseconds": 47
+    },
+    {
+      "name": "translate",
+      "milliseconds": 196
+    },
+    {
+      "name": "suppress",
+      "milliseconds": 175
+    },
+    {
+      "name": "publish",
+      "milliseconds": 1214
+    },
+    {
+      "name": "llm",
+      "milliseconds": 88111
+    },
+    {
+      "name": "publication",
+      "milliseconds": 751.121
+    }
+  ],
+  "files_scanned": 899,
+  "analyzer_errors": [],
+  "limitation_count": 3,
+  "findings_by_severity": {
+    "high": 20,
+    "medium": 14,
+    "low": 6
+  },
+  "llm_usage": {
+    "input_tokens": 6273,
+    "output_tokens": 3536
+  },
+  "ai_allowance": {
+    "token_allowance_kind": "output_tokens",
+    "max_calls": 8,
+    "calls_reserved": 1,
+    "output_token_limit": 32000,
+    "output_tokens_charged_or_reserved": 3536,
+    "reported_output_tokens": 3536,
+    "unknown_output_usage_calls": 0,
+    "output_limit_violations": 0,
+    "remaining_seconds": 471.40023289999226,
+    "usage_status": "reported"
+  },
+  "time_budget": {
+    "seconds": 600,
+    "exceeded": false
+  }
+}

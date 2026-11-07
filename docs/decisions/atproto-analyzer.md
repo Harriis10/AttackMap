@@ -1,3 +1,7 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](../README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # Decision: AT Protocol / Bluesky analyzer coverage
 
 **Status:** Decided
@@ -20,8 +24,8 @@ already consumes those, `atproto_namespace:*`, `atproto_protocol:xrpc`, and
 `atproto_service_note:*` / `atproto_service_edge:*` — producing full "AT
 Protocol namespace trust-chain abuse" attack paths.
 
-A dedicated overlay analyzer, `attackmap-analyzer-atproto` (0.1.0), already
-exists on PyPI. It's a thin layer over `attackmap-analyzer-node-service` that
+A dedicated overlay analyzer, [`attackmap-analyzer-atproto`](https://github.com/mlaify/attackmap-analyzer-atproto)
+(0.1.0), already exists. It's a thin layer over `attackmap-analyzer-node-service` that
 adds AT-Protocol-specific hint prefixes on files that look like ATProto
 services.
 
@@ -39,7 +43,7 @@ split:
 
 The alternative — a heavy dedicated analyzer for the full stack — would
 duplicate ~80% of what node-service already does and lock ATProto detection
-behind a separate PyPI project that most users wouldn't install. The current
+behind a separate package that most users wouldn't install. The current
 split lets any node-service-analyzed repo get partial ATProto benefits when
 the overlay is present, and full benefits when both are.
 
@@ -51,9 +55,9 @@ the overlay is present, and full benefits when both are.
 - **Every gap the FINDINGS document flagged is either resolved
   (XRPC handlers) or can be resolved incrementally as new overlay hints without
   a new analyzer package.**
-- **PyPI slot economics.** Each PyPI project has its own Trusted Publisher
-  registration, release workflow, `pip install` line. A new analyzer costs
-  more than a hint set added to an existing one.
+- **Per-package overhead.** Each analyzer is its own repo with its own CI,
+  releases, and install line. A new analyzer costs more than a hint set added
+  to an existing one.
 
 ## Follow-up work
 

@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "scope": "Final stable batch includes canonical SARIF version and citation formatting source fix; dedicated frozen candidate not deployed",
+  "candidate_engine_sha256": "788572853653643fcab399c1ab8457071f32753d7d87594b9bc0f98bf29e387a",
+  "build_proof_sha256": "8aed1fbd299636343ed842fd9b74edc883d9186461b715537c178e32a7dea160",
+  "payload_files_independently_rehashed": 265,
+  "core_origins_standard_proof": 128,
+  "batch_module_origins_current_snapshot_exact": [
+    {
+      "module": "attackmap.citations",
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-citation-freeze-20261107-01\\source\\src\\attackmap\\citations.py",
+      "sha256": "d67648ec5d6a293a5329cc259b7a3c0da5deaa62408bca321c7febc77c956e4b"
+    },
+    {
+      "module": "attackmap.sarif",
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-citation-freeze-20261107-01\\source\\src\\attackmap\\sarif.py",
+      "sha256": "77d206a804d5913ec62885ac519e651bcf2d2916165cf8de809cf6efc1067ddb"
+    },
+    {
+      "module": "attackmap.llm_review",
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-citation-freeze-20261107-01\\source\\src\\attackmap\\llm_review.py",
+      "sha256": "afee9fcccf5040aa5cd3ac0288a12223f86d2a264339bd0a1dadc368536f3774"
+    }
+  ],
+  "actual_cli_sarif_runs": [
+    {
+      "run": "source01",
+      "verification_path": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\verification.json",
+      "cli_version": "attackmap 1.5.1",
+      "sarif_driver_version": "1.5.1",
+      "findings": 1,
+      "sarif_results": 2,
+      "version_and_scan_natural_job_active": 0
+    },
+    {
+      "run": "frozen01",
+      "verification_path": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\verification.json",
+      "cli_version": "attackmap 1.5.1",
+      "sarif_driver_version": "1.5.1",
+      "findings": 1,
+      "sarif_results": 2,
+      "version_and_scan_natural_job_active": 0
+    }
+  ],
+  "raw_sarif_bytes_exact": true,
+  "sarif_sha256": "3a154cae58cf4e0811b14b97f35bb92bf7c4b7e386b9d09db299021e6b394caa",
+  "version_normalization_performed": false,
+  "source_citation_validation": {
+    "proof": "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\independent-review.json",
+    "exact_captured_context_sha256": "53a47cc944e36377031cbfb8437cbf5cc18ccd105b076b563072d9fd7f5515e6",
+    "actual_label_occurrences": 9,
+    "actual_ids": [
+      "finding:1",
+      "finding:2",
+      "finding:4"
+    ],
+    "negative_api_and_narrative_cases": 9,
+    "claim_support": "not_assessed",
+    "source_location_validation": "unvalidated"
+  },
+  "frozen_citation_functional_validation_performed": false,
+  "new_llm_or_provider_calls": 0,
+  "native134_unchanged": true,
+  "user_engine_unchanged_sha256": "e5de74f18990a0b4d7b37740f219cbc6c9bad03265031d2b8fa4f237ff4bff4c",
+  "candidate_deployed": false,
+  "whole_wp017_accepted": false,
+  "whole_wp022_accepted": false,
+  "bound_evidence_sha256": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\pre-runtime-pins.json": "34919e7f575af954073f00ab645e1a7c346e64245b2161812be43fcebd1a8e33",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-citation-freeze-20261107-01\\build-proof.json": "8aed1fbd299636343ed842fd9b74edc883d9186461b715537c178e32a7dea160",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\freeze-command01\\batch-module-origins.json": "4763286c986d35432290a8d260105454e9017b3748da2088359dc3054f6cb4d7",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\citations.py": "d67648ec5d6a293a5329cc259b7a3c0da5deaa62408bca321c7febc77c956e4b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-citation-freeze-20261107-01\\source\\src\\attackmap\\citations.py": "d67648ec5d6a293a5329cc259b7a3c0da5deaa62408bca321c7febc77c956e4b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\sarif.py": "77d206a804d5913ec62885ac519e651bcf2d2916165cf8de809cf6efc1067ddb",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-citation-freeze-20261107-01\\source\\src\\attackmap\\sarif.py": "77d206a804d5913ec62885ac519e651bcf2d2916165cf8de809cf6efc1067ddb",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\llm_review.py": "afee9fcccf5040aa5cd3ac0288a12223f86d2a264339bd0a1dadc368536f3774",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp017-citation-freeze-20261107-01\\source\\src\\attackmap\\llm_review.py": "afee9fcccf5040aa5cd3ac0288a12223f86d2a264339bd0a1dadc368536f3774",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\freeze-command01\\verification.json": "035e6e7ebecc03d453c4a21c67a8fbd8068364bdd938390b1d52614dea1e84b3",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\verification.json": "83bce520780cdc6b3ac4f08f530942c05ff07d89c9db2e8e75b06645b757185b",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\inputs-before.json": "f49915aa78ea681ce3b1dce9b5db40fdcdb54c66a895dba9ab06775f62f19532",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\inputs-after.json": "f3134166422d03e4cf6253ba1ba09538a8eb3951b2763e6fc304a93eab670263",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\version\\process.json": "883bd197a120abd0737b67564333184eec593646c6ceaacbdf7a8c97e1c74053",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\scan\\process.json": "5721009ed14f64ec627a1543196ee7e33b04737a0d9da0148087b4befad643fe",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\scan\\reports\\20261107T090601-1e65fd7aff294e388f34c0b48b349e62\\attackmap-report.sarif": "3a154cae58cf4e0811b14b97f35bb92bf7c4b7e386b9d09db299021e6b394caa",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\source01\\scan\\reports\\20261107T090601-1e65fd7aff294e388f34c0b48b349e62\\artifact-manifest.json": "f362a8762adf2ea66b77789e74f4405e6456d6c18891e9e778d1c2b51df86040",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\verification.json": "e47298f162fb4270172c5d85ed469e2d88295425c5b900efb1e4e1dfc01cbae3",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\inputs-before.json": "5cddff22af5d1c3a4fa10b6e6f630b9a8830ad5ceaa76bfab8fd2466ed12edee",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\inputs-after.json": "c5362a6245d8dd47a4292339a9662c052a8d7113477b261a06ab63a572ad6b2c",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\version\\process.json": "3d9527be532f64c35641344411aa5cc521dce45948a74cb81de98f09da70f4eb",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\scan\\process.json": "ea648ae4b1a083c21ab0ffac5ec3f7097af10f4283d2e768bb6d0c2d2ff4d475",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\scan\\reports\\20261107T090618-8593bff20b584ef49c79ca4476ed4b4e\\attackmap-report.sarif": "3a154cae58cf4e0811b14b97f35bb92bf7c4b7e386b9d09db299021e6b394caa",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\bundle\\frozen01\\scan\\reports\\20261107T090618-8593bff20b584ef49c79ca4476ed4b4e\\artifact-manifest.json": "93c0112e7a3172f39e1012aa3e752716d6be361b95edac972dda15dad42395e6",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\independent-review.json": "ca34eb696d2bbc8e65bd969c6dcfe61154b5b6c3d48f01ccf8935403d1f68a6a",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp005-closeout-20261107\\native-build01\\snapshot-inputs.json": "5014c44b4f3fedf72c93ea163ff51f3f3369975093cc1245603a0b1563e5b59d",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp022-sarif-version-20261107\\verification.json": "0636d2d4a33a2bef1c0491b826d77af978bf9362515906b869dff5e6656ac636",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp017-citation-label-20261107\\offline-actual-validation.json": "bf32b2ba4496c73ffafe763d9002cdda7275f9739c3630a448d18862a33c1d9f"
+  },
+  "limits": [
+    "Frozen module origin/source hashes establish inclusion of the accepted citation source, not execution of the citation formatting path inside the frozen application.",
+    "Actual source offline replay and actual frozen CLI/SARIF scans are separate proof types; no new model response or AI accuracy claim.",
+    "Raw SARIF byte equality applies to the tiny shared config fixture only; no whole-report/provenance parity claim.",
+    "No GUI/pixel/keyboard/Narrator or selected-artifact export workflow acceptance. User application and original model text/metadata unchanged.",
+    "Earlier e5de user engine and562d metadata-only qualification remain separate retained checkpoints; final candidate was not deployed."
+  ]
+}

@@ -1,11 +1,38 @@
 from __future__ import annotations
 
+from .finding_identity import dependency_entity_id
+
 from dataclasses import dataclass
 
 from .analyzer import identify_attack_surfaces
 from .exploitability import best_by_sink_kind, score_exploitability
-from .models import AttackPath, AttackSurface, AttackTechnique, Finding, Route, ScanResult, TaintChain
+from .models import (
+    AttackPath,
+    AttackSurface,
+    AttackTechnique,
+    Finding,
+    FindingLocation,
+    Route,
+    ScanResult,
+    TaintChain,
+    TaintFlowStep,
+)
+from .srcpaths import evidence_locations
+from .taint_sinks import canonical_kind
 from .route_auth_fusion import synthesize_unauthenticated_routes
+from .taxonomy import cwe_tag, taxonomy_for
+from .rules import (
+    ANOMALY_FINDING_SPEC as _ANOMALY_FINDING_SPEC,
+    CODE_WEAKNESS_FINDING_SPEC as _CODE_WEAKNESS_FINDING_SPEC,
+    CRYPTO_FINDING_SPEC as _CRYPTO_FINDING_SPEC,
+    FLOW_FINDING_SPEC as _FLOW_FINDING_SPEC,
+    SUPPLY_CHAIN_FINDING_SPEC as _SUPPLY_CHAIN_FINDING_SPEC,
+    TAINT_FINDING_SPEC as _TAINT_FINDING_SPEC,
+    TAINT_SINK_LABEL as _TAINT_SINK_LABEL,
+    WEB_HARDENING_FINDING_SPEC as _WEB_HARDENING_FINDING_SPEC,
+    WORKFLOW_FINDING_SPEC as _WORKFLOW_FINDING_SPEC,
+    rule_catalog as _registry_catalog,
+)
 
 LOW_QUALITY_SEGMENTS = ("/tests/", "/__tests__/", "/fixtures/", "/mocks/", "/examples/")
 
@@ -50,6 +77,34 @@ def _action_step(label: str, action: str) -> str:
     return f"{label}: {action}"
 
 
+def _rule_slug_kind(kind: str) -> str:
+    """Rule id for a spec-driven detector family (#223): its kind, dashed."""
+    return kind.replace("_", "-")
+
+
+def _locs(items, file_attr: str = "file", line_attr: str = "line") -> list[FindingLocation]:
+    """Structured locations for every item behind a finding (#214)."""
+    out: list[FindingLocation] = []
+    seen: set[tuple[str, int | None]] = set()
+    for item in items:
+        file = getattr(item, file_attr, None)
+        if not file:
+            continue
+        line = getattr(item, line_attr, None)
+        key = (file, line)
+        if key not in seen:
+            seen.add(key)
+            out.append(FindingLocation(file=file, line=line))
+    return out
+
+
+def _fill_missing_locations(findings: list[Finding]) -> None:
+    """Findings without structured locations fall back to evidence parsing."""
+    for finding in findings:
+        if not finding.locations:
+            finding.locations = [FindingLocation(file=f, line=l) for f, l in evidence_locations(finding.evidence)]
+
+
 def _finding_evidence(surface: AttackSurface) -> str:
     details: list[str] = [_surface_label(surface)]
     if surface.auth_signals:
@@ -57,9 +112,9 @@ def _finding_evidence(surface: AttackSurface) -> str:
     else:
         details.append("no auth signals observed")
     if surface.data_store_interaction:
-        details.append("data store reachable")
+        details.append("inferred datastore relationship")
     if surface.outbound_integration:
-        details.append("external integration reachable")
+        details.append("inferred outbound relationship")
     return "; ".join(details)
 
 
@@ -167,6 +222,10 @@ class AtprotoChain:
     confidence: float
     evidence: list[str]
     env_risk: str | None = None
+
+
+# SecretHint kinds that name a secret without containing its value.
+NON_LITERAL_SECRET_KINDS = frozenset({"env_reference", "env_template"})
 
 
 def _extract_prefixed_hints(scan: ScanResult, prefix: str) -> list[tuple[str, str]]:
@@ -280,6 +339,11 @@ def _file_service_map(scan: ScanResult) -> dict[str, str]:
         if inferred:
             mapping[path] = inferred
     return mapping
+
+
+def _sink_on_chain(evidence: list[str]) -> bool:
+    """False when the chain's sink was only borrowed from elsewhere in the repo."""
+    return not any("elsewhere in repo" in item for item in evidence)
 
 
 def _build_service_chains(scan: ScanResult) -> list[ServiceChain]:
@@ -565,341 +629,81 @@ def confidence_bucket(value: float) -> str:
     return "low"
 
 
-_TAINT_SINK_LABEL: dict[str, str] = {
-    "sql_execute": "database (SQL execute)",
-    "subprocess_shell": "command execution",
-    "eval": "code eval",
-    "exec": "code exec",
-    "dynamic_open": "filesystem open",
-    "unsafe_deserialization": "unsafe deserialization",
-    "ssti": "template injection",
-    "ssrf": "outbound request (SSRF)",
-    "nosql_injection": "NoSQL query",
-    "open_redirect": "redirect target",
-}
+
+# Cap on per-route flow lines cited in one aggregated taint finding, and on
+# the SARIF codeFlows it carries.
+_MAX_FLOW_EVIDENCE = 10
+_MAX_CODE_FLOWS = 20
 
 
-# Per-sink-kind specification for the dedicated taint findings (#68).
-# Each dangerous sink kind reachable from a route produces one aggregated
-# Finding. `severity` is the Finding severity; `technique` is an ATT&CK
-# reference. Sinks NOT in this table (sql_execute, dynamic_open) are
-# surfaced through the probable-chain finding path instead of a dedicated
-# finding.
-_TAINT_FINDING_SPEC: dict[str, dict[str, str]] = {
-    "eval": {
-        "severity": "high",
-        "title": "Request-reachable code execution via eval",
-        "mitigation": "Never pass request-derived data to eval. Use a domain-specific parser or an explicit allow-list of operations.",
-        "technique_id": "T1059",
-        "technique_name": "Command and Scripting Interpreter",
-        "tactic": "Execution",
-    },
-    "exec": {
-        "severity": "high",
-        "title": "Request-reachable code execution via exec",
-        "mitigation": "Never pass request-derived data to exec. Refactor to call named functions selected via a validated allow-list.",
-        "technique_id": "T1059",
-        "technique_name": "Command and Scripting Interpreter",
-        "tactic": "Execution",
-    },
-    "subprocess_shell": {
-        "severity": "high",
-        "title": "Request-reachable OS command execution",
-        "mitigation": "Prefer argv-list subprocess calls with shell=False. Never interpolate request data into a shell string; validate and constrain any external command inputs.",
-        "technique_id": "T1059",
-        "technique_name": "Command and Scripting Interpreter",
-        "tactic": "Execution",
-    },
-    "unsafe_deserialization": {
-        "severity": "high",
-        "title": "Request-reachable unsafe deserialization",
-        "mitigation": "Do not deserialize attacker-controlled data with pickle/marshal/yaml.load/ObjectInputStream/unserialize. Use a data-only format (JSON) with a schema, or a safe loader (yaml.safe_load).",
-        "technique_id": "T1059",
-        "technique_name": "Command and Scripting Interpreter",
-        "tactic": "Execution",
-    },
-    "ssti": {
-        "severity": "high",
-        "title": "Request-reachable server-side template injection",
-        "mitigation": "Never render request-derived strings as templates. Pass untrusted data as template *variables* (auto-escaped), not as the template source.",
-        "technique_id": "T1059",
-        "technique_name": "Command and Scripting Interpreter",
-        "tactic": "Execution",
-    },
-    "ssrf": {
-        "severity": "medium",
-        "title": "Request-reachable server-side request forgery (SSRF)",
-        "mitigation": "Validate and allow-list outbound destinations, resolve and pin DNS, block link-local/metadata ranges (169.254.0.0/16, fd00::/8), and disable redirects to internal hosts.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "nosql_injection": {
-        "severity": "medium",
-        "title": "Request-reachable NoSQL injection",
-        "mitigation": "Never pass a raw request object as a query filter. Cast and validate each field, reject operator keys ($where, $gt, ...) in user input, and disable server-side JavaScript execution.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "open_redirect": {
-        "severity": "medium",
-        "title": "Request-reachable open redirect",
-        "mitigation": "Never redirect to a request-derived URL directly. Redirect only to a server-side allow-list of paths/hosts, or map an opaque key to the destination; reject absolute URLs and protocol-relative (`//`) targets.",
-        "technique_id": "T1204",
-        "technique_name": "User Execution",
-        "tactic": "Execution",
-    },
-}
+def _flow_evidence(chains: list[TaintChain]) -> list[str]:
+    """One `flow:` evidence line per distinct route with a traced source (#239)."""
+    lines: list[str] = []
+    seen: set[tuple[str, str, str, int | None]] = set()
+    traced = [c for c in chains if c.source_kind]
+    for c in sorted(traced, key=lambda c: (c.hops, c.route_file, c.sink_line or 0, c.route_path)):
+        key = (c.route_method, c.route_path, c.sink_file, c.sink_line)
+        if key in seen:
+            continue
+        seen.add(key)
+        if len(lines) == _MAX_FLOW_EVIDENCE:
+            lines.append(f"+{len(traced) - _MAX_FLOW_EVIDENCE} more traced flow(s)")
+            break
+        lines.append(
+            f"flow: {c.route_method} {c.route_path} — {c.source_kind} source at "
+            f"{c.sink_file}:{c.source_line} → sink at {c.sink_file}:{c.sink_line}"
+        )
+    return lines
 
 
-# Per-kind spec for insecure-crypto findings (#70). One aggregated
-# finding per crypto weakness kind present in the scan.
-_CRYPTO_FINDING_SPEC: dict[str, dict[str, str]] = {
-    "weak_password_hash": {
-        "severity": "high",
-        "title": "Weak password hashing (MD5/SHA-1)",
-        "mitigation": "Hash passwords with a memory-hard KDF — argon2id, scrypt, or bcrypt — never a bare MD5/SHA-1/SHA-256 digest. Migrate existing hashes on next login.",
-        "technique_id": "T1110.002",
-        "technique_name": "Brute Force: Password Cracking",
-        "tactic": "Credential Access",
-    },
-    "weak_cipher": {
-        "severity": "high",
-        "title": "Weak or broken cipher (DES/3DES/RC4/Blowfish)",
-        "mitigation": "Replace legacy ciphers with AES-256-GCM (or ChaCha20-Poly1305). DES/3DES/RC4 are cryptographically broken.",
-        "technique_id": "T1600",
-        "technique_name": "Weaken Encryption",
-        "tactic": "Defense Evasion",
-    },
-    "ecb_mode": {
-        "severity": "medium",
-        "title": "Insecure ECB block-cipher mode",
-        "mitigation": "ECB leaks plaintext structure. Use an authenticated mode (AES-GCM) with a unique per-message nonce; in Java, always specify the transformation explicitly (e.g. \"AES/GCM/NoPadding\").",
-        "technique_id": "T1600",
-        "technique_name": "Weaken Encryption",
-        "tactic": "Defense Evasion",
-    },
-    "static_iv_salt": {
-        "severity": "medium",
-        "title": "Hard-coded IV or salt",
-        "mitigation": "Generate the IV/nonce and salt randomly per operation with a CSPRNG and store/transmit them alongside the ciphertext. A static IV/salt defeats the primitive's security.",
-        "technique_id": "T1600",
-        "technique_name": "Weaken Encryption",
-        "tactic": "Defense Evasion",
-    },
-    "insecure_random": {
-        "severity": "medium",
-        "title": "Insecure randomness for a security value",
-        "mitigation": "Use a CSPRNG for tokens/keys/salts/nonces/OTPs: `secrets` (Python), `crypto.randomBytes` (Node), `crypto/rand` (Go). `Math.random`/`random`/`rand`/`mt_rand` are predictable.",
-        "technique_id": "T1600",
-        "technique_name": "Weaken Encryption",
-        "tactic": "Defense Evasion",
-    },
-    "insecure_tls": {
-        "severity": "high",
-        "title": "TLS certificate/hostname verification disabled",
-        "mitigation": "Never disable certificate or hostname verification (`verify=False`, `rejectUnauthorized: false`, `InsecureSkipVerify: true`) or use deprecated TLS/SSL versions. Fix the trust store instead of turning off validation.",
-        "technique_id": "T1557",
-        "technique_name": "Adversary-in-the-Middle",
-        "tactic": "Credential Access",
-    },
-}
+def _code_flows(chains: list[TaintChain]) -> list[list[TaintFlowStep]]:
+    """Distinct traced flows (by sink + source) for SARIF codeFlows."""
+    out: list[list[TaintFlowStep]] = []
+    seen: set[tuple[str, int | None, int | None]] = set()
+    for c in chains:
+        if not c.flow:
+            continue
+        key = (c.sink_file, c.sink_line, c.source_line)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(list(c.flow))
+        if len(out) == _MAX_CODE_FLOWS:
+            break
+    return out
 
 
-# Per-kind spec for web-hardening findings (#71).
-_WEB_HARDENING_FINDING_SPEC: dict[str, dict[str, str]] = {
-    "cors_wildcard_credentials": {
-        "severity": "high",
-        "title": "CORS allows credentials with a wildcard/reflected origin",
-        "mitigation": "Never combine `Access-Control-Allow-Credentials: true` with a `*` or reflected origin. Allow-list explicit trusted origins; if credentials aren't needed, drop the credentials flag.",
-        "technique_id": "T1539",
-        "technique_name": "Steal Web Session Cookie",
-        "tactic": "Credential Access",
-    },
-    "csrf_disabled": {
-        "severity": "medium",
-        "title": "CSRF protection disabled or exempted",
-        "mitigation": "Keep CSRF protection on for cookie-authenticated, state-changing routes. If an endpoint is a token-authenticated API that legitimately doesn't need it, scope the exemption narrowly and document why.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "insecure_cookie": {
-        "severity": "medium",
-        "title": "Session cookie set without secure flags",
-        "mitigation": "Set `HttpOnly`, `Secure`, and `SameSite=Lax` (or `Strict`) on session cookies. `SameSite=None` must always be paired with `Secure`.",
-        "technique_id": "T1539",
-        "technique_name": "Steal Web Session Cookie",
-        "tactic": "Credential Access",
-    },
-    "weak_csp": {
-        "severity": "medium",
-        "title": "Content-Security-Policy allows unsafe-inline/unsafe-eval",
-        "mitigation": "Remove `'unsafe-inline'` and `'unsafe-eval'` from the CSP; use nonces or hashes for inline scripts. These directives largely defeat CSP's XSS protection.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "debug_enabled": {
-        "severity": "medium",
-        "title": "Debug mode or unrestricted management endpoints enabled",
-        "mitigation": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-}
 
 
-# Per-kind spec for novel vuln-class findings (#77).
-_CODE_WEAKNESS_FINDING_SPEC: dict[str, dict[str, str]] = {
-    "prototype_pollution": {
-        "severity": "high",
-        "title": "Prototype pollution",
-        "mitigation": "Never write attacker-controlled keys to `__proto__`/`constructor.prototype` or deep-merge a raw request object. Use a null-prototype object (`Object.create(null)`), a Map, or a merge that rejects `__proto__`/`constructor` keys.",
-        "technique_id": "T1059.007",
-        "technique_name": "Command and Scripting Interpreter: JavaScript",
-        "tactic": "Execution",
-    },
-    "mass_assignment": {
-        "severity": "high",
-        "title": "Mass assignment / overposting",
-        "mitigation": "Never bind a whole request body to a model. Explicitly allow-list assignable fields (serializers, DTOs, strong params with a field list) so attackers can't set privileged attributes (is_admin, role, owner_id).",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "jwt_weakness": {
-        "severity": "high",
-        "title": "JWT verification weakness (alg=none / signature not verified)",
-        "mitigation": "Pin an explicit allow-list of signing algorithms (never include `none`), always verify the signature, and reject tokens whose header `alg` isn't expected. Don't decode without verifying.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "xxe": {
-        "severity": "high",
-        "title": "XML external entity (XXE) processing enabled",
-        "mitigation": "Disable DTD/external-entity resolution in the XML parser (lxml `resolve_entities=False`, Java `disallow-doctype-decl`/secure processing, PHP keep `libxml_disable_entity_loader` default). Prefer a data format without entities where possible.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "redos": {
-        "severity": "medium",
-        "title": "Regular expression vulnerable to catastrophic backtracking (ReDoS)",
-        "mitigation": "Rewrite the pattern to avoid nested quantifiers ((a+)+, (.*)*) and ambiguous alternation; use possessive quantifiers/atomic groups, a linear-time engine (RE2), or cap the length of user-supplied strings matched against it.",
-        "technique_id": "T1499",
-        "technique_name": "Endpoint Denial of Service",
-        "tactic": "Impact",
-    },
-    "insecure_upload": {
-        "severity": "high",
-        "title": "Uploaded file persisted with a client-controlled name/path",
-        "mitigation": "Never derive the stored path from the client filename. Generate a server-side name, store outside the web root, validate content type/size, and strip path separators before use.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "graphql_exposure": {
-        "severity": "low",
-        "title": "GraphQL introspection / playground enabled",
-        "mitigation": "Disable introspection and the GraphiQL/playground UI in production, and add query depth/complexity limits to prevent schema disclosure and expensive-query DoS.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-}
+
+
+
+
+# Methods a forged cross-site request can use to change state (#244). `ANY`
+# covers routers that don't record a method (Django URLconfs).
+_CSRF_MUTATING_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE", "ANY"})
+
+
+
 
 
 # Rank for picking the most severe issue in an aggregated group.
 _SEVERITY_ORDER = {"low": 0, "medium": 1, "high": 2}
 
 
-# CI-workflow security (#142). Severity is taken from the emitted issues (some
-# kinds tier per instance — e.g. unpinned semver tag vs. branch ref), so the
-# spec carries only the taxonomy, title, remediation, and ATT&CK mapping.
-_WORKFLOW_FINDING_SPEC: dict[str, dict[str, str]] = {
-    "script_injection": {
-        "title": "CI script injection via untrusted context in a run: step",
-        "mitigation": "Never interpolate `${{ github.event.* }}` / `github.head_ref` directly into a run: script — a crafted issue/PR title or branch name runs arbitrary shell. Bind the value to an `env:` variable and reference it as `\"$ENVVAR\"` so it's passed as data, not expanded into the command.",
-        "technique_id": "T1059",
-        "technique_name": "Command and Scripting Interpreter",
-        "tactic": "Execution",
-    },
-    "pr_target_checkout": {
-        "title": "pull_request_target checks out untrusted PR code",
-        "mitigation": "`pull_request_target` runs with the base repo's secrets in scope. Don't check out and build the PR head ref in that context. Use `pull_request` for untrusted code, or check out only the base ref and never run fork-supplied build/test scripts with secrets available.",
-        "technique_id": "T1195",
-        "technique_name": "Supply Chain Compromise",
-        "tactic": "Initial Access",
-    },
-    "unpinned_action": {
-        "title": "Unpinned GitHub Action (not pinned to a commit SHA)",
-        "mitigation": "Pin third-party actions to a full 40-character commit SHA (`uses: org/action@<sha>`), not a moving tag or branch. A tag/branch lets the action owner — or anyone who compromises them — change what runs in your pipeline. Dependabot can keep the pinned SHAs updated.",
-        "technique_id": "T1195.001",
-        "technique_name": "Supply Chain Compromise: Compromise Software Dependencies and Development Tools",
-        "tactic": "Initial Access",
-    },
-    "secret_in_run": {
-        "title": "Secret interpolated into a run: shell step",
-        "mitigation": "Don't expand `${{ secrets.* }}` directly into a run: script — it can leak via the command line (`ps`), step logs, or a child process. Pass the secret through the step's `env:` block and reference it as an environment variable.",
-        "technique_id": "T1552",
-        "technique_name": "Unsecured Credentials",
-        "tactic": "Credential Access",
-    },
-    "broad_permissions": {
-        "title": "Over-broad GITHUB_TOKEN permissions (write-all)",
-        "mitigation": "Set least-privilege `permissions:` per job (default to `contents: read` and grant only what a job needs). `write-all` gives a compromised step or action full write access to the repo, releases, packages, and more.",
-        "technique_id": "T1078",
-        "technique_name": "Valid Accounts",
-        "tactic": "Privilege Escalation",
-    },
-    "self_hosted_pr": {
-        "title": "Self-hosted runner exposed to pull-request code",
-        "mitigation": "Self-hosted runners on a `pull_request`/`pull_request_target` trigger let fork PRs run arbitrary code on your infrastructure (and persist between jobs). Use ephemeral GitHub-hosted runners for public-repo PR workflows, or gate self-hosted jobs behind an environment/approval and never on `pull_request_target`.",
-        "technique_id": "T1584.004",
-        "technique_name": "Compromise Infrastructure: Server",
-        "tactic": "Resource Development",
-    },
-}
+def _cwe_tags(kind: str) -> list[str]:
+    """`external/cwe/cwe-NNN` finding tags from the taxonomy registry."""
+    entry = taxonomy_for(_rule_slug_kind(kind))
+    return [cwe_tag(c) for c in entry.cwe] if entry else []
 
 
-_ANOMALY_FINDING_SPEC: dict[str, dict[str, str]] = {
-    "auth_outlier": {
-        "severity": "high",
-        "title": "Authorization outlier — route missing an auth check its siblings enforce",
-        "mitigation": "Confirm whether the flagged route is intended to be public. If not, apply the same auth/authorization guard its sibling routes use (decorator, middleware, or policy). Inconsistent enforcement across a resource cohort is a common source of broken access control.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "validation_outlier": {
-        "severity": "medium",
-        "title": "Validation outlier — handler skips input validation its peers apply",
-        "mitigation": "Apply the same input validation/schema its sibling handlers use. An unvalidated state-changing endpoint among validated peers is a likely gap for injection or malformed-input bugs.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "method_outlier": {
-        "severity": "medium",
-        "title": "Method outlier — lone state-changing endpoint in a read-only cohort",
-        "mitigation": "Verify the state-changing endpoint is intended and adequately protected. A single write method among an otherwise read-only resource cohort can indicate an accidentally-exposed mutation.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-    "invariant_violation": {
-        "severity": "high",
-        "title": "Invariant violation — handler reaches a dangerous sink without the guard its peers apply",
-        "mitigation": "Confirm whether the flagged handler should reach this sink unguarded. If not, apply the same auth/validation guard its sibling handlers place before the sink. A mined invariant broken by a single site is a common shape for a forgotten check on an injection or access-control path.",
-        "technique_id": "T1190",
-        "technique_name": "Exploit Public-Facing Application",
-        "tactic": "Initial Access",
-    },
-}
+
+
+
+
+
+
+
 
 
 def _numeric_to_confidence(value: float) -> str:
@@ -1094,9 +898,18 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
     surfaces = attack_surfaces if attack_surfaces is not None else identify_attack_surfaces(scan)
     runtime_surfaces = [surface for surface in surfaces if not _is_low_quality_source(surface.file)]
     findings: list[Finding] = []
-    atproto_chains = _build_atproto_chains(scan)
-    service_chains = _build_service_chains(scan)
-    chains = _build_probable_chains(scan) if _is_framework_mvc_scan(scan) else []
+    # Chain *findings* need evidence for every hop (#258 follow-up): a sink found
+    # only "elsewhere in repo" is not on the chain, and an "inter-service" chain
+    # needs an actual inter-service edge. Attack paths keep the looser chains.
+    atproto_chains = [c for c in _build_atproto_chains(scan) if _sink_on_chain(c.evidence)]
+    service_chains = [
+        c for c in _build_service_chains(scan) if c.next_service and _sink_on_chain(c.evidence)
+    ]
+    chains = (
+        [c for c in _build_probable_chains(scan) if _sink_on_chain(c.evidence)]
+        if _is_framework_mvc_scan(scan)
+        else []
+    )
     webhook_surfaces = [
         surface
         for surface in runtime_surfaces
@@ -1104,6 +917,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         and surface.exposure == "public"
         and surface.method in {"POST", "PUT", "PATCH", "DELETE", "ANY"}
         and (surface.data_store_interaction or surface.outbound_integration)
+        and surface.auth != "required"
         and not any(signal in {"jwt", "oauth", "authorization", "service_auth"} for signal in surface.auth_signals)
     ]
     admin_surfaces = [surface for surface in runtime_surfaces if surface.category == "admin"]
@@ -1118,14 +932,18 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         surface
         for surface in runtime_surfaces
         if surface.exposure == "public" and surface.outbound_integration
+        and surface.auth != "required"
+        and not any(signal in {"jwt", "oauth", "bearer", "token"} for signal in surface.auth_signals)
     ]
 
     if webhook_surfaces:
         findings.append(
             Finding(
                 title="Public webhook endpoint may trust attacker-controlled events",
+                rule_id="public-webhook",
                 severity="high",
                 evidence=[_finding_evidence(surface) for surface in webhook_surfaces[:10]],
+                locations=_locs(webhook_surfaces),
                 mitigation="Require signature verification before processing webhook payloads, reject replays, and keep any downstream state change behind strict validation.",
                 confidence="high",
                 tags=["exposed-endpoint", "auth-missing"],
@@ -1136,8 +954,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Administrative routes appear reachable from the main application surface",
+                rule_id="exposed-admin-route",
                 severity="high",
                 evidence=[_finding_evidence(surface) for surface in admin_surfaces[:10]],
+                locations=_locs(admin_surfaces),
                 mitigation="Require strong authentication and explicit server-side authorization on every admin action, and move admin routes behind a narrower exposure boundary where possible.",
                 confidence="high",
                 tags=["exposed-endpoint", "auth-missing", "privileged"],
@@ -1148,8 +968,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Upload or import routes expand attacker-controlled input handling",
+                rule_id="upload-route",
                 severity="high",
                 evidence=[_finding_evidence(surface) for surface in upload_surfaces[:10]],
+                locations=_locs(upload_surfaces),
                 mitigation="Constrain accepted formats, isolate parsers, scan uploaded content, and treat imported files as untrusted all the way through storage and processing.",
                 confidence="medium",
                 tags=["exposed-endpoint", "input-handling"],
@@ -1160,8 +982,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Authentication routes were detected without strong nearby auth controls",
+                rule_id="weak-auth-route",
                 severity="medium",
                 evidence=[_finding_evidence(surface) for surface in auth_surfaces[:10]],
+                locations=_locs(auth_surfaces),
                 mitigation="Review these routes for rate limiting, credential validation, token or session handling, and the exact point where trust is established server-side.",
                 confidence="medium",
                 tags=["exposed-endpoint", "auth-missing"],
@@ -1174,12 +998,14 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
     # the general public_api mutating-route case with per-route chain resolution.
     findings.extend(synthesize_unauthenticated_routes(scan, runtime_surfaces))
 
-    if public_integration_surfaces and not any(h.hint in {"jwt", "oauth", "bearer", "token"} for h in scan.auth_hints):
+    if public_integration_surfaces:
         findings.append(
             Finding(
                 title="Public routes appear to influence outbound integrations without clear auth signals",
+                rule_id="unauth-outbound-integration",
                 severity="medium",
                 evidence=[_finding_evidence(surface) for surface in public_integration_surfaces[:10]],
+                locations=_locs(public_integration_surfaces),
                 mitigation="Check how outbound requests are authenticated, signed, and authorized, and confirm that untrusted route input cannot directly steer third-party actions.",
                 confidence="medium",
                 tags=["integration-risk", "auth-missing"],
@@ -1190,8 +1016,11 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
     # severity — exposure is broader than env references (visible to
     # anyone with repo read access, not just runtime access) — and their
     # own tags so downstream triage and reporting can distinguish them.
-    hardcoded_secrets = [h for h in scan.secret_hints if h.kind != "env_reference"]
-    env_reference_secrets = [h for h in scan.secret_hints if h.kind == "env_reference"]
+    # `env_template` is a variable *declared* in a template such as
+    # `.env.example` (iac plugin): a name, not a value, so it belongs with the
+    # env references rather than the HIGH hard-coded-literal finding.
+    hardcoded_secrets = [h for h in scan.secret_hints if h.kind not in NON_LITERAL_SECRET_KINDS]
+    env_reference_secrets = [h for h in scan.secret_hints if h.kind in NON_LITERAL_SECRET_KINDS]
 
     if hardcoded_secrets:
         # Group by kind for evidence line density; still cap at 10 total.
@@ -1202,15 +1031,45 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Hard-coded secret literals were found in source or config",
+                rule_id="hardcoded-secret",
                 severity="high",
                 evidence=evidence_lines,
+                locations=_locs(hardcoded_secrets),
                 mitigation=(
                     "Rotate every detected credential immediately, purge it from git history, "
                     "and move to environment-injected or vault-managed values. Anyone with read "
                     "access to the repository already has these secrets."
                 ),
-                confidence="high",
+                # Keyword-proximity assignments alone (#252) are a weaker signal.
+                confidence="high" if any(h.confidence >= 0.6 for h in hardcoded_secrets) else "medium",
                 tags=["secret-exposure", "data-risk", "hardcoded-literal"],
+            )
+        )
+
+    # Secrets in git history (#252, opt-in --secrets-history). One finding;
+    # evidence says whether each value is still in HEAD.
+    if scan.secret_history:
+        history = scan.secret_history
+        removed = sum(1 for h in history if not h.still_in_head)
+        findings.append(
+            Finding(
+                title="Hard-coded secrets were found in git history",
+                rule_id="secret-in-git-history",
+                severity="high",
+                evidence=[
+                    f"[{h.kind}] {h.name} in {h.file} — introduced in {h.introduced_in[:12]}, "
+                    f"{'still in HEAD' if h.still_in_head else 'removed from HEAD (still in history)'}"
+                    for h in history[:10]
+                ]
+                + ([f"+{len(history) - 10} more"] if len(history) > 10 else []),
+                locations=_locs(history),
+                mitigation=(
+                    "Rotate every listed credential: removing it in a later commit does not revoke it, and "
+                    f"{removed} of {len(history)} survive only in history, where every clone and fork keeps them. "
+                    "Then rewrite history (git filter-repo) if the repository is shared, and add a pre-commit secret scanner."
+                ),
+                confidence="high",
+                tags=["secret-exposure", "data-risk", "git-history"],
             )
         )
 
@@ -1218,8 +1077,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Secret-bearing environment variables are referenced in executable paths",
+                rule_id="secret-env-reference",
                 severity="medium",
                 evidence=[f"{hint.name} in {hint.file}" for hint in env_reference_secrets[:10]],
+                locations=_locs(env_reference_secrets),
                 mitigation="Confirm these secrets are injected securely, never logged or returned, rotated regularly, and scoped only to the privileges each route actually needs.",
                 confidence="high",
                 tags=["secret-exposure"],
@@ -1230,8 +1091,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Public routes likely sit close to sensitive data operations",
+                rule_id="public-data-route",
                 severity="medium",
                 evidence=[_finding_evidence(surface) for surface in public_data_surfaces[:10]],
+                locations=_locs(public_data_surfaces),
                 mitigation="Validate untrusted input before it reaches business logic, enforce authorization at the route boundary, and verify that downstream queries or writes stay parameterized.",
                 confidence="medium",
                 tags=["exposed-endpoint", "data-risk"],
@@ -1243,6 +1106,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="AT Protocol XRPC surface chains into a downstream trust boundary",
+                rule_id="atproto-trust-chain",
                 severity="high" if top_atproto_chain.sink in {"database", "privileged downstream action"} else "medium",
                 evidence=[f"confidence={top_atproto_chain.confidence:.2f}", *top_atproto_chain.evidence[:6]],
                 mitigation=(
@@ -1259,6 +1123,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Inter-service trust chain reaches a sensitive downstream sink",
+                rule_id="service-trust-chain",
                 severity="high" if top_service_chain.sink in {"database", "privileged downstream action"} else "medium",
                 evidence=[f"confidence={top_service_chain.confidence:.2f}", *top_service_chain.evidence[:6]],
                 mitigation=(
@@ -1275,6 +1140,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Framework route-to-service chain reaches a sensitive sink",
+                rule_id="framework-sink-chain",
                 severity="high" if top_chain.sink in {"database", "privileged action"} else "medium",
                 evidence=[f"confidence={top_chain.confidence:.2f}", *top_chain.evidence[:6]],
                 mitigation=(
@@ -1323,6 +1189,8 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title=f"Vulnerable dependency: {name}@{version} ({eco})",
+                rule_id="vulnerable-dependency",
+                entity_id=dependency_entity_id(eco, name, version),
                 severity=finding_severity,  # type: ignore[arg-type]
                 evidence=[
                     f"{len(pkg_vulns)} known advisor{'y' if len(pkg_vulns) == 1 else 'ies'} for "
@@ -1375,8 +1243,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
             findings.append(
                 Finding(
                     title=f"Possible broken object-level authorization (BOLA/IDOR) on {verb} routes",
+                    rule_id=f"bola-{verb}",
                     severity=severity,  # type: ignore[arg-type]
                     evidence=evidence,
+                    locations=_locs(group, "route_file", "route_line"),
                     mitigation=(
                         "Enforce an object-level authorization check on every access: confirm the "
                         "authenticated principal owns or may access the requested resource id "
@@ -1415,8 +1285,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title=spec["title"],
+                rule_id=_rule_slug_kind(kind),
                 severity=spec["severity"],  # type: ignore[arg-type]
                 evidence=evidence,
+                locations=_locs(items),
                 mitigation=spec["mitigation"],
                 confidence="medium",
                 tags=["insecure-crypto"],
@@ -1439,6 +1311,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         items = web_by_kind.get(kind)
         if not items:
             continue
+        if kind == "csrf_unprotected_session" and not any(
+            r.method.upper() in _CSRF_MUTATING_METHODS for r in scan.routes
+        ):
+            continue  # no state-changing route to forge a request against
         evidence = [
             f"{i.file}:{i.line} — {i.evidence_text}" if i.evidence_text else f"{i.file}:{i.line}"
             for i in items[:10]
@@ -1448,8 +1324,11 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title=spec["title"],
-                severity=spec["severity"],  # type: ignore[arg-type]
+                rule_id=_rule_slug_kind(kind),
+                # Some kinds tier per instance (CORS: credentials or not, #244).
+                severity=max((i.severity for i in items), key=_SEVERITY_ORDER.__getitem__),  # type: ignore[arg-type]
                 evidence=evidence,
+                locations=_locs(items),
                 mitigation=spec["mitigation"],
                 confidence="medium",
                 tags=["web-hardening"],
@@ -1481,8 +1360,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title=spec["title"],
+                rule_id=_rule_slug_kind(kind),
                 severity=spec["severity"],  # type: ignore[arg-type]
                 evidence=evidence,
+                locations=_locs(items),
                 mitigation=spec["mitigation"],
                 confidence="medium",
                 tags=["novel-vuln"],
@@ -1519,11 +1400,50 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title=spec["title"],
+                rule_id=_rule_slug_kind(kind),
                 severity=severity,  # type: ignore[arg-type]
                 evidence=evidence,
+                locations=_locs(items),
                 mitigation=spec["mitigation"],
                 confidence="high",
-                tags=["ci-security", "supply-chain"],
+                tags=["ci-security", "supply-chain", *_cwe_tags(kind)],
+                attack_techniques=[
+                    AttackTechnique(
+                        technique_id=spec["technique_id"],
+                        name=spec["technique_name"],
+                        tactic=spec["tactic"],
+                        url=f"https://attack.mitre.org/techniques/{spec['technique_id'].replace('.', '/')}/",
+                    )
+                ],
+            )
+        )
+
+    # Dependency supply-chain risk (#247). One aggregated finding per kind,
+    # severity the max over that kind's issues.
+    supply_by_kind: dict[str, list] = {}
+    for issue in scan.supply_chain_issues:
+        supply_by_kind.setdefault(issue.kind, []).append(issue)
+    for kind, spec in _SUPPLY_CHAIN_FINDING_SPEC.items():
+        items = supply_by_kind.get(kind)
+        if not items:
+            continue
+        severity = max((i.severity for i in items), key=_SEVERITY_ORDER.__getitem__)
+        evidence = []
+        for i in items[:10]:
+            loc = f"{i.file}:{i.line}" if i.line else i.file
+            evidence.append(f"{loc} — {i.evidence_text}" if i.evidence_text else loc)
+        if len(items) > 10:
+            evidence.append(f"+{len(items) - 10} more occurrence(s)")
+        findings.append(
+            Finding(
+                title=spec["title"],
+                rule_id=_rule_slug_kind(kind),
+                severity=severity,  # type: ignore[arg-type]
+                evidence=evidence,
+                locations=_locs(items),
+                mitigation=spec["mitigation"],
+                confidence="medium" if kind == "typosquat_candidate" else "high",
+                tags=["supply-chain", "dependency-risk", *_cwe_tags(kind)],
                 attack_techniques=[
                     AttackTechnique(
                         technique_id=spec["technique_id"],
@@ -1561,8 +1481,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title=spec["title"],
+                rule_id=_rule_slug_kind(kind),
                 severity=spec["severity"],  # type: ignore[arg-type]
                 evidence=evidence,
+                locations=_locs(items, "route_file", "route_line"),
                 mitigation=spec["mitigation"],
                 confidence=_numeric_to_confidence(items[0].confidence),
                 tags=["anomaly"],
@@ -1583,10 +1505,20 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
     # route, ordered by the spec's declaration.
     taint_by_kind: dict[str, list] = {}
     speculative_by_kind: dict[str, list] = {}
+    flow_by_kind: dict[str, list] = {}
     for chain in scan.taint_chains:
         # Sanitized chains (#137) are neutralized before the sink — keep them
         # as evidence in scan.taint_chains but don't raise a finding for them.
         if chain.sanitized:
+            continue
+        flow_kind = canonical_kind(chain.sink_kind)
+        if flow_kind in _FLOW_FINDING_SPEC:
+            # Reach alone isn't a finding for SQL / generic file opens — only a
+            # traced flow (#239). The #240 path sinks (send_file, sendFile,
+            # include…) are request-gated already, so their chains count.
+            confirmed = chain.source_kind or chain.sink_kind not in ("sql_execute", "dynamic_open")
+            if confirmed and not chain.speculative:
+                flow_by_kind.setdefault(flow_kind, []).append(chain)
             continue
         if chain.sink_kind not in _TAINT_FINDING_SPEC:
             continue
@@ -1612,10 +1544,13 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
             evidence.append(
                 f"+{len(kind_chains) - 1} more route(s) reach a {_TAINT_SINK_LABEL.get(kind, kind)} sink"
             )
+        evidence += _flow_evidence(kind_chains)
         taint_finding = Finding(
             title=spec["title"],
+            rule_id=_rule_slug_kind(kind),
             severity=spec["severity"],  # type: ignore[arg-type]
             evidence=evidence,
+            locations=_locs(kind_chains, "sink_file", "sink_line") + _locs(kind_chains, "route_file", "route_line"),
             mitigation=spec["mitigation"],
             confidence="medium",
             tags=["taint-chain", "input-handling", "data-risk"],
@@ -1628,8 +1563,43 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
                 )
             ],
         )
+        taint_finding.code_flows = _code_flows(kind_chains)
         taint_findings_by_kind[kind] = taint_finding
         findings.append(taint_finding)
+
+    # Flow-confirmed SQL injection / path traversal (#239): one aggregated
+    # finding per kind, citing each traced route→source→sink.
+    for kind, spec in _FLOW_FINDING_SPEC.items():
+        kind_chains = flow_by_kind.get(kind)
+        if not kind_chains:
+            continue
+        top = min(kind_chains, key=lambda c: (c.hops, -c.confidence))
+        evidence = [
+            f"route {top.route_method} {top.route_path} in {top.route_file}",
+            f"sink at {top.sink_file}:{top.sink_line} ({_TAINT_SINK_LABEL.get(kind, kind)})",
+            f"import path: {' → '.join(top.files)} ({top.hops} hop(s))",
+        ] + _flow_evidence(kind_chains)
+        flow_finding = Finding(
+            title=spec["title"],
+            rule_id=spec["rule_id"],
+            severity=spec["severity"],  # type: ignore[arg-type]
+            evidence=evidence,
+            locations=_locs(kind_chains, "sink_file", "sink_line") + _locs(kind_chains, "route_file", "route_line"),
+            mitigation=spec["mitigation"],
+            confidence="high" if any(c.confidence >= 0.75 for c in kind_chains) else "medium",
+            tags=["taint-chain", "taint-flow", "input-handling", "data-risk"],
+            attack_techniques=[
+                AttackTechnique(
+                    technique_id=spec["technique_id"],
+                    name=spec["technique_name"],
+                    tactic=spec["tactic"],
+                    url=f"https://attack.mitre.org/techniques/{spec['technique_id'].replace('.', '/')}/",
+                )
+            ],
+            code_flows=_code_flows(kind_chains),
+        )
+        taint_findings_by_kind[kind] = flow_finding
+        findings.append(flow_finding)
 
     # Exploitability fusion (#79): attach the best 'exploitable now' score for
     # each sink kind to its aggregated taint finding, so triage can lead with
@@ -1641,6 +1611,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
             if scored is not None:
                 finding.exploitability = scored.score
                 finding.exploitability_tier = scored.tier
+                finding.exploitability_reference = scored.producer_reference
 
     # Speculative recall findings (#148a). One low-severity, clearly-marked
     # finding per sink kind reached only via a widened recall knob (deeper hop
@@ -1664,8 +1635,10 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title=f"Speculative reach to a {label} sink (recall mode)",
+                rule_id=f"speculative-{_rule_slug_kind(kind)}",
                 severity="low",
                 evidence=evidence,
+                locations=_locs(kind_chains, "sink_file", "sink_line") + _locs(kind_chains, "route_file", "route_line"),
                 mitigation=(
                     "Recall mode widened taint discovery to surface this reach; provenance "
                     "is unconfirmed. Verify whether untrusted input actually reaches the sink "
@@ -1688,6 +1661,7 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
         findings.append(
             Finding(
                 title="Heuristic scan found only a limited attack surface",
+                rule_id="limited-surface",
                 severity="low",
                 evidence=["No major route, secret, or integration patterns triggered a stronger finding."],
                 mitigation="Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
@@ -1695,6 +1669,8 @@ def generate_findings(scan: ScanResult, attack_surfaces: list[AttackSurface] | N
                 tags=["weak-signal"],
             )
         )
+
+    _fill_missing_locations(findings)
 
     # #4: attach numeric score for triage ordering, then sort by
     # (severity, -score, title). Same-severity findings surface in
@@ -2070,3 +2046,9 @@ def generate_attack_paths(scan: ScanResult, attack_surfaces: list[AttackSurface]
     # extras are usually redundant noise that downstream review surfaces
     # via findings anyway.
     return paths[:MAX_ATTACK_PATHS]
+
+
+def rule_catalog() -> list[tuple[str, str, str]]:
+    """Every core rule id with its finding title and severity (#223), for
+    `attackmap rules` and the docs. Family specs are expanded per kind."""
+    return _registry_catalog()

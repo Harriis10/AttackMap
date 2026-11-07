@@ -1,0 +1,357 @@
+{
+  "classification": "WP039 preparatory extraction-only source slice; no whole-task or platform/maturity acceptance",
+  "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "source_before_sha256": "8b2f3e131bf14e9b87145d6a12df77688841612b2570eb94c4322efaa9b6f0cc",
+  "source_after_sha256": "0a07ba2174996189cd2b5e4c4c817cccb6c2679f3d0d048001a22395eff9360d",
+  "files": {
+    "src/attackmap/ecosystem_node_atproto.py": "0a07ba2174996189cd2b5e4c4c817cccb6c2679f3d0d048001a22395eff9360d",
+    "tests/test_ecosystem_node_atproto.py": "68c2ee411b09a3030f34a78024c23afa2ea8b8c505ea3b3dc494a37b7d24fa13",
+    "tests/test_ecosystem_node_atproto_routes.py": "ed88d4412100328a6d4fe59d0d9be8e0511f284f22f492716a169a5a90f920e7"
+  },
+  "paired_cases": {
+    "subscription_required": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "authVerifier"
+          ],
+          "guard_evidence": "auth verifier 'authVerifier' in registration (src/handler.ts:3)"
+        }
+      ],
+      "before_raw_merge_route_count": 2,
+      "after_raw_merge_route_count": 2
+    },
+    "subscription_null": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_raw_merge_route_count": 2,
+      "after_raw_merge_route_count": 2
+    },
+    "query_null_negative": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "null"
+          ],
+          "guard_evidence": "auth verifier 'null' in registration (src/handler.ts:3)"
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_raw_merge_route_count": 3,
+      "after_raw_merge_route_count": 3
+    },
+    "query_required": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "authVerifier"
+          ],
+          "guard_evidence": "auth verifier 'authVerifier' in registration (src/handler.ts:3)"
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "authVerifier"
+          ],
+          "guard_evidence": "auth verifier 'authVerifier' in registration (src/handler.ts:3)"
+        }
+      ],
+      "before_raw_merge_route_count": 3,
+      "after_raw_merge_route_count": 3
+    },
+    "query_optional": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "ctx"
+          ],
+          "guard_evidence": "auth verifier 'ctx' in registration (src/handler.ts:3)"
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_raw_merge_route_count": 3,
+      "after_raw_merge_route_count": 3
+    },
+    "query_unrelated_mount": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "required",
+          "guards": [
+            "unrelatedAuth"
+          ],
+          "guard_evidence": "inferred: middleware 'unrelatedAuth' mounted at '/xrpc/com.example.events.stream' (src/unrelated.ts:2)"
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_raw_merge_route_count": 4,
+      "after_raw_merge_route_count": 4
+    },
+    "subscription_optional": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_raw_merge_route_count": 2,
+      "after_raw_merge_route_count": 2
+    },
+    "subscription_unrelated_mount": {
+      "input_hashes_unchanged": true,
+      "before_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "GET",
+          "file": "lexicons/com.example.events.stream.json",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "after_builtin": [
+        {
+          "path": "/xrpc/com.example.events.stream",
+          "method": "WS",
+          "file": "src/handler.ts",
+          "line": 3,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "before_raw_merge_route_count": 3,
+      "after_raw_merge_route_count": 3
+    }
+  },
+  "focused_tests": {
+    "passed": 68,
+    "xml": "node-focused-tests.xml",
+    "source_sha256": "0a07ba2174996189cd2b5e4c4c817cccb6c2679f3d0d048001a22395eff9360d"
+  },
+  "baseline_tests": {
+    "failed": 17,
+    "passed": 2,
+    "deselected": 25,
+    "xml": "node-before-tests.xml"
+  },
+  "regex_tests": {
+    "passed": 24,
+    "deselected": 683,
+    "xml": "node-regex-tests.xml",
+    "source_stage_sha256": "9bb0a70e69c1b573f67132be8731ee0c26d049be21857ecf58868dfb36982983",
+    "qualification": "Final NUL rejection changed no regex declarations"
+  },
+  "independent_review": {
+    "reviewer": "/root",
+    "source_sha256": "0a07ba2174996189cd2b5e4c4c817cccb6c2679f3d0d048001a22395eff9360d",
+    "escaped_property_and_slash_NUL_review_fixes_accepted": true
+  },
+  "installed_plugins_verified_against_pinned_git_blobs": {
+    "atproto": {
+      "commit": "d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+      "git_blob": "dec4a613504be4bc6d4c4913ca59179d488c4469",
+      "installed_file_sha256": "8a49d7172201fc2c77bd9b7dbb21ce5ae788dc65e98e349e18013253ce0608c1"
+    },
+    "node-service": {
+      "commit": "8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+      "git_blob": "133b37ddfe0c6d8bc588439c91574eae241dd0f7",
+      "installed_file_sha256": "1b193f1a5086843019cab1f318b8872e476e265ba44105545d0a3001008dce26"
+    }
+  },
+  "existing_fixture_files": [
+    {
+      "path": "tests/fixtures/atproto-service/lexicons/com.example.moderation.report.json",
+      "current_sha256": "02173facac2279b5fb6f96be76214407b13ed5523042e3ef82c8a21d2bc1ea33",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/lexicons/com.example.profile.get.json",
+      "current_sha256": "7364fb3488461a61e332a420eade0790c2e6d9e20c0e155edc98d190fd93b529",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/lexicons/com.example.status.list.json",
+      "current_sha256": "5dba768d92d2dd262416bcb541da143fbfbdf70a7be3c3c3bd54207c0e40f928",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/lexicons/com.example.status.post.json",
+      "current_sha256": "9a1d9a862ba37f8f34d92695a92fbd27528f70f8ceb178f25fb9ee150afa01ec",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/package.json",
+      "current_sha256": "1b0f87808b930c7d04db4ef80c2e8f5ab4f84a70ac0595ed75b8a1601d18a91f",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/auth.ts",
+      "current_sha256": "eade4c3e555b3afc716573a1d55db92d328718995bbda839dd76b5d293f29bc8",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/context.ts",
+      "current_sha256": "1eff7a975b84275dc23a5d870a87e9fffd373dc82ec42699147ad3424ca5f014",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/db.ts",
+      "current_sha256": "886999aa76556323f122977e8afce14804ec4fe36e2598eaefc58d62aefeb5f4",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/feed-gen.ts",
+      "current_sha256": "2f4b393100c65d0ce8e1df8a1f0950da30613c4361c60b48a9f5fb0a7f0bf6f2",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/firehose.ts",
+      "current_sha256": "c78f150a036801996b7e24b986147e8aff77b9450d91cb6663e84ee04f76c7c5",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/identity.ts",
+      "current_sha256": "875d7a2a4283471f14e5d018f342bac8ce7ac165b1acdf8f3ae9e8f99c856f57",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/index.ts",
+      "current_sha256": "8e3e1c7e0e8f6f1fafadbee0611b8cc77c9eda48c71c7a81a22ebf4709e9ea19",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/pds-client.ts",
+      "current_sha256": "c5e1c9c0ca6c8b3dbeec3db8b26e5bb6d653aa8bc76c90ff579f800990f42532",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/status.ts",
+      "current_sha256": "558d8abc81bd001a937d89567151152920b1fce225174a8dc0bde4868736acb7",
+      "unchanged_from_base_normalized_lf": true
+    },
+    {
+      "path": "tests/fixtures/atproto-service/src/xrpc-methods.ts",
+      "current_sha256": "45ef0410362146582fd244ee5def069b4ae698c8c3577f9ba054619b1a27256e",
+      "unchanged_from_base_normalized_lf": true
+    }
+  ],
+  "fresh_frozen_after_verification": "not performed by this agent; root integration gate remains",
+  "live_provider_calls": false,
+  "whole_WP039_acceptance": false,
+  "whole_WP042_acceptance": false
+}

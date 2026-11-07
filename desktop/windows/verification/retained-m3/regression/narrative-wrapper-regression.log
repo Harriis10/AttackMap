@@ -1,0 +1,127 @@
+F........F............F.......F....................                      [100%]
+================================== FAILURES ===================================
+____ test_generate_llm_review_returns_markdown_and_passes_expected_kwargs _____
+
+    def test_generate_llm_review_returns_markdown_and_passes_expected_kwargs() -> None:
+        fake_message = _FakeMessage(
+            content=[
+                _FakeBlock(type="thinking"),
+                _FakeBlock(type="text", text="# Defensive Review\n\nBody."),
+            ],
+            usage=_FakeUsage(input_tokens=1234, output_tokens=567, cache_read_input_tokens=42),
+        )
+        client = _FakeClient(fake_message)
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            client=client,
+        )
+    
+>       assert result.markdown == "# Defensive Review\n\nBody."
+E       AssertionError: assert '> Evidence r...view\n\nBody.' == '# Defensive Review\n\nBody.'
+E         
+E         + > Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Defensive Review
+E           
+E           Body.
+
+tests\test_llm_review.py:130: AssertionError
+________ test_cli_backend_parses_result_field_and_passes_correct_flags ________
+
+    def test_cli_backend_parses_result_field_and_passes_correct_flags() -> None:
+        payload = {
+            "type": "result",
+            "subtype": "success",
+            "is_error": False,
+            "result": "# Review\n\nNarrative body.",
+            "stop_reason": "end_turn",
+            "usage": {"input_tokens": 12, "output_tokens": 34},
+            "modelUsage": {"claude-opus-4-7[1m]": {"inputTokens": 12}},
+        }
+        runner, captured = _make_cli_runner(json.dumps(payload))
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            backend="cli",
+            cli_runner=runner,
+        )
+    
+        assert result.backend == "cli"
+>       assert result.markdown == "# Review\n\nNarrative body."
+E       AssertionError: assert '> Evidence r...rrative body.' == '# Review\n\nNarrative body.'
+E         
+E         + > Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Review
+E           
+E           Narrative body.
+
+tests\test_llm_review.py:308: AssertionError
+_________ test_openai_api_returns_markdown_and_passes_expected_kwargs _________
+
+    def test_openai_api_returns_markdown_and_passes_expected_kwargs() -> None:
+        response = _FakeOpenAIResponse(
+            output_text="# Defensive Review\n\nBody.",
+            usage=_FakeOpenAIUsage(input_tokens=100, output_tokens=200),
+        )
+        client = _FakeOpenAIClient(response)
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            provider="openai",
+            openai_client=client,
+        )
+    
+        assert result.backend == "api"
+>       assert result.markdown == "# Defensive Review\n\nBody."
+E       AssertionError: assert '> Evidence r...view\n\nBody.' == '# Defensive Review\n\nBody.'
+E         
+E         + > Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Defensive Review
+E           
+E           Body.
+
+tests\test_llm_review.py:525: AssertionError
+________ test_codex_cli_backend_reads_stdout_and_passes_correct_flags _________
+
+    def test_codex_cli_backend_reads_stdout_and_passes_correct_flags() -> None:
+        runner, captured = _make_cli_runner("# Review\n\nCodex narrative body.")
+    
+        result = generate_llm_review(
+            _trivial_scan(),
+            _surfaces(),
+            _findings(),
+            [],
+            provider="openai",
+            backend="cli",
+            codex_runner=runner,
+        )
+    
+        assert result.backend == "cli"
+>       assert result.markdown == "# Review\n\nCodex narrative body."
+E       AssertionError: assert '> Evidence r...rrative body.' == '# Review\n\n...rrative body.'
+E         
+E         + > Evidence reference check: missing. Claim support and source-location validity are not assessed.
+E         + 
+E           # Review
+E           
+E           Codex narrative body.
+
+tests\test_llm_review.py:664: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_llm_review.py::test_generate_llm_review_returns_markdown_and_passes_expected_kwargs
+FAILED tests/test_llm_review.py::test_cli_backend_parses_result_field_and_passes_correct_flags
+FAILED tests/test_llm_review.py::test_openai_api_returns_markdown_and_passes_expected_kwargs
+FAILED tests/test_llm_review.py::test_codex_cli_backend_reads_stdout_and_passes_correct_flags
+4 failed, 47 passed in 20.81s

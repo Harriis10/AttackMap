@@ -1,0 +1,32 @@
+{
+  "commands": [
+    {
+      "name": "build",
+      "argv": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+        "build",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeAiOptions.Tests\\NativeAiOptions.Tests.csproj",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-p:UseSharedCompilation=false",
+        "-nodeReuse:false"
+      ],
+      "timeout": 300
+    },
+    {
+      "name": "tests",
+      "argv": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeAiOptions.Tests\\bin\\Debug\\net8.0\\NativeAiOptions.Tests.exe"
+      ],
+      "timeout": 120
+    }
+  ],
+  "environment": {
+    "DOTNET_ROOT": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet",
+    "DOTNET_CLI_HOME": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet-home",
+    "NUGET_PACKAGES": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\nuget-packages",
+    "TEMP": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\long-local-20261022\\newlong-native-tests-01\\temp",
+    "TMP": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\long-local-20261022\\newlong-native-tests-01\\temp"
+  },
+  "scope": "Offline native console assertions only; no full WinUI build, GUI or provider"
+}

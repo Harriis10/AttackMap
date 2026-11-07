@@ -1,0 +1,113 @@
+{
+  "created_utc": "2026-10-31T09:25:28.549009+00:00",
+  "scope": "WP034 legacy positional ScanRequest compatibility correction",
+  "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "head": "4ea5e49ade229fc0432d68ce0f7e99bcf87b545d",
+  "source_sha256": {
+    "src/attackmap/scan_service.py": "b9654b7f6009810108e8b874b9db1c5c7d47b7d6c8cbd364b406863f5ce2d0b6",
+    "tests/test_fleet_input_budget.py": "b54e03a2a5b419ef8485b817b43bef48486dbb7a55dc14611dd00df1f1935eb1"
+  },
+  "scan_request_signature": {
+    "field_count": 56,
+    "deployment_aliases_zero_based_position": 54,
+    "fleet_input_byte_budget_zero_based_position": 55,
+    "tail": [
+      "fleet_memory_policy",
+      "deployment_aliases",
+      "fleet_input_byte_budget"
+    ],
+    "input_budget_default": null
+  },
+  "executed": {
+    "red": {
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "junit_seconds": 1.764,
+      "failed_cases": [
+        "test_legacy_positional_request_keeps_final_deployment_aliases"
+      ],
+      "skipped_cases": []
+    },
+    "focused": {
+      "tests": 25,
+      "passed": 25,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_seconds": 10.394,
+      "failed_cases": [],
+      "skipped_cases": []
+    },
+    "regression": {
+      "tests": 97,
+      "passed": 93,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 1,
+      "junit_seconds": 131.549,
+      "failed_cases": [
+        "test_fleet_real_workers_match_serial[all]",
+        "test_fleet_real_workers_match_serial[json]",
+        "test_fleet_real_workers_match_serial[markdown]"
+      ],
+      "skipped_cases": [
+        "test_unreadable_file_is_skipped_and_reported"
+      ]
+    }
+  },
+  "noncounted_attempts": [
+    {
+      "file": "noncounted-red-temp-acl.txt",
+      "cause": "pytest basetemp PermissionError WinError 5; no useful product reproduction"
+    }
+  ],
+  "temp_workaround": "elevated local pytest processes with one fresh unique workspace basetemp per run; no old temp reset",
+  "retained_original_regression": {
+    "tests": 94,
+    "passed": 90,
+    "failed": 3,
+    "errors": 0,
+    "skipped": 1,
+    "junit_seconds": 159.333,
+    "failed_cases": [
+      "test_fleet_real_workers_match_serial[all]",
+      "test_fleet_real_workers_match_serial[json]",
+      "test_fleet_real_workers_match_serial[markdown]"
+    ],
+    "skipped_cases": [
+      "test_unreadable_file_is_skipped_and_reported"
+    ]
+  },
+  "retained_original_bounded_final": {
+    "tests": 93,
+    "passed": 92,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 1,
+    "junit_seconds": 56.571,
+    "failed_cases": [],
+    "skipped_cases": [
+      "test_unreadable_file_is_skipped_and_reported"
+    ]
+  },
+  "retained_baseline_ledger_differences": {
+    "entries": 45,
+    "telemetry_key_counts": {
+      "detect_duration_ms": 9,
+      "elapsed_ms": 33,
+      "analysis_duration_ms": 3
+    },
+    "original_readme_count": 44,
+    "corrected_count": 45
+  },
+  "provider_calls_made": false,
+  "limitations": [
+    "three ordinary raw-ledger equality tests still fail",
+    "constructor regression stubs fleet dispatch; existing alias resolution integration is separately included",
+    "no memory scale, finite default, native UI, frozen package, cross-platform or release qualification"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "wp043-context-snapshot-focus-verification-v1",
+  "date": "2026-10-31",
+  "status": "deterministic-harness-passed-awaiting-independent-review",
+  "shell": "C:\\Windows\\System32\\cmd.exe",
+  "elevated": true,
+  "command": "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe -m pytest tests/test_wp043_live_capture.py -q -p no:cacheprovider --junitxml=docs/verification/windows-parity/WP043/context-snapshot-focus-20261031/harness-tests.xml",
+  "exitCode": 0,
+  "pytest": {
+    "passed": 98,
+    "subtestsPassed": 91,
+    "durationSeconds": 6.28
+  },
+  "junit": {
+    "path": "docs/verification/windows-parity/WP043/context-snapshot-focus-20261031/harness-tests.xml",
+    "sha256": "fe0737585e905e0a3f8ac10a275ee94dd22fd548821881fa71ff2db97434db27",
+    "tests": 189,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "timestamp": "2026-10-31T13:11:51.324560+01:00"
+  },
+  "sources": [
+    {
+      "path": "tools/capture_wp043_live.py",
+      "sha256": "51245dc4046b750d885e8375a4bcb6b4bc55622c8747c6c0ea2150f810c78628"
+    },
+    {
+      "path": "tests/test_wp043_live_capture.py",
+      "sha256": "72c18604ad3f50430fb850eb71ebaec09c52c2f37846aa5536921538566d3fa3"
+    }
+  ],
+  "diffCheck": "passed",
+  "liveCapture": "not-run",
+  "independentReview": "pending",
+  "nativeRenderingAcceptance": "not-established",
+  "realUiaProvider": "not-exercised",
+  "lmStudioRequests": 0
+}

@@ -1,0 +1,158 @@
+[
+  {
+    "id": "F01",
+    "owner_task": "WP023",
+    "fixture": "events.json; terminal-*.json; identities.json",
+    "procedure": "Scan temporary repository outside source; cancel owned scan; verify terminal and prior displayed generation retained on failure."
+  },
+  {
+    "id": "F02",
+    "owner_task": "WP006",
+    "fixture": "events.json",
+    "procedure": "Show 1/4 bounded progress, unbounded stage with no ETA, reject duplicate/stale and cancelling regression; visually inspect actual native progress."
+  },
+  {
+    "id": "F03",
+    "owner_task": "WP003/WP006",
+    "fixture": "request-current.json; request-sentinels.json",
+    "procedure": "Compare Automatic empty modules with explicit modules; real modules discovery lists absent/failed/opt-in reasons; never installs automatically."
+  },
+  {
+    "id": "F04",
+    "owner_task": "WP004/WP005/WP009",
+    "fixture": "request-current.json; request-sentinels.json",
+    "procedure": "Round-trip every current ScanOptions sentinel, inspect CVE disabled versus empty versus failed; no network during fixture validation."
+  },
+  {
+    "id": "F05",
+    "owner_task": "WP008/WP023",
+    "fixture": "../desktop-workflows/current.json",
+    "procedure": "Match manifest finding IDs and order, preserve unknown evidence and long Unicode source location; keyboard select detail and inspect source warning."
+  },
+  {
+    "id": "F06",
+    "owner_task": "WP011",
+    "fixture": "../desktop-workflows/current.json; report-missing-sections.json",
+    "procedure": "Overview matches supplied counts/order, missing strengths/top risk remain unavailable; drill down and return preserves selection."
+  },
+  {
+    "id": "F07",
+    "owner_task": "WP007/WP008",
+    "fixture": "report-nonempty-legacy.json; report-partial-legacy.json; report-expectations.json",
+    "procedure": "Compare report-expectations.json exact path name, step order, exploitability subject/score/factors and source order; rows without IDs keep source keys. Empty/missing distinct; no runtime compromise claim."
+  },
+  {
+    "id": "F08",
+    "owner_task": "WP007/WP009",
+    "fixture": "report-nonempty-legacy.json; report-partial-legacy.json; report-expectations.json",
+    "procedure": "Compare canonical legacy attack_surfaces and scan.routes exact source keys, method/path/file/line and ordered rows; native filter retains total."
+  },
+  {
+    "id": "F09",
+    "owner_task": "WP007/WP009",
+    "fixture": "report-nonempty-legacy.json; report-partial-legacy.json; report-expectations.json",
+    "procedure": "Compare canonical legacy dependency ecosystem/name/version; explicit empty vulnerabilities versus absent section in partial report. No CVE lookup success claim."
+  },
+  {
+    "id": "F10",
+    "owner_task": "WP007/WP009",
+    "fixture": "report-nonempty-legacy.json; report-partial-legacy.json; report-expectations.json",
+    "procedure": "Compare canonical legacy secret hints and taint source keys/rows; workflow_issues/analyzer_errors explicitly empty, full analyzer inventory absent. No invented analyzer success or secret value."
+  },
+  {
+    "id": "F11",
+    "owner_task": "WP010",
+    "fixture": "report-missing-sections.json",
+    "procedure": "On actual host render offline Mermaid, empty, malformed, oversized and hostile script/URL cases; verify network disabled, text alternative, keyboard and export. Renderer fixture corpus belongs WP010."
+  },
+  {
+    "id": "F12",
+    "owner_task": "WP016",
+    "fixture": "report-nonempty-legacy.json; report-partial-legacy.json; report-expectations.json",
+    "procedure": "Compare canonical legacy defensive_review_llm empty string and missing provider metadata; empty text is not completed model response. Selected generation UI and live AI metadata acceptance remain required."
+  },
+  {
+    "id": "F13",
+    "owner_task": "WP014/WP015",
+    "fixture": "providers/*.json",
+    "procedure": "Review/Hunt/Hunt+verify/Remediate/Triage mode matrix pending new supported request schema; current worker review only. Reject unavailable modes before spawn; actual local-model responses required per enabled mode."
+  },
+  {
+    "id": "F14",
+    "owner_task": "WP014/WP015",
+    "fixture": "request-sentinels.json",
+    "procedure": "Jury/effort/fast/backend schema pending WP004; capability disables unsupported combinations; new nondefault sentinels must prove service delivery before acceptance."
+  },
+  {
+    "id": "F15",
+    "owner_task": "WP015/WP017",
+    "fixture": "providers/*.json",
+    "procedure": "Current provider matrix is validation-only. Real HTTP test uses 127.0.0.1:1234/v1 cyberstag-security-26b-a4b-v1; inspect credential protected storage and no secret logging on actual Windows host."
+  },
+  {
+    "id": "F16",
+    "owner_task": "WP012",
+    "fixture": "../desktop-workflows/suppressed.json; ../desktop-workflows/suppressions.yaml",
+    "procedure": "Match active/suppressed ordered IDs; explicit suppress_file pending WP004; temporary baseline preview/apply/undo/rescan with modified-baseline conflict."
+  },
+  {
+    "id": "F17",
+    "owner_task": "WP013",
+    "fixture": "../desktop-workflows/previous.json; ../desktop-workflows/current.json; ../desktop-workflows/expected.json; identities.json",
+    "procedure": "Use exact maintained diff expectations, title/line drift and partial coverage; baseline policy pending WP004; policy-failed terminal remains completed."
+  },
+  {
+    "id": "F18",
+    "owner_task": "WP013",
+    "fixture": "identity-paths.json",
+    "procedure": "Two same-name repositories remain distinct by full canonical identity; reopening recents never automatically scans or contacts provider."
+  },
+  {
+    "id": "F19",
+    "owner_task": "WP018/WP019",
+    "fixture": "identities.json; identity-paths.json",
+    "procedure": "Fleet wire schema and typed result pending WP018. Test same-name repos and per-repo failure/cancel/AI budget without mixing IDs, generations or aggregating unknown as zero."
+  },
+  {
+    "id": "F20",
+    "owner_task": "WP020",
+    "fixture": "identities.json",
+    "procedure": "Actual watcher: debounce bursts, one pending rescan, own-output exclusion, stop/cancel and repo switch; compare two completed generations; no synthetic event implies filesystem acceptance."
+  },
+  {
+    "id": "F21",
+    "owner_task": "WP021",
+    "fixture": "identity-paths.json",
+    "procedure": "Optional fleet-watch extension: actual independent repo events/failures and owned watcher disposal. Not existing Mac parity acceptance."
+  },
+  {
+    "id": "F22",
+    "owner_task": "WP022",
+    "fixture": "manifest.json; identities.json",
+    "procedure": "Actual selected-generation JSON/MD/HTML/PDF/SARIF exports preserve bytes/identity; pointer advancing to generation 2 never changes selected generation 1 export; inspect missing renderer recovery."
+  },
+  {
+    "id": "F23",
+    "owner_task": "WP003/WP005",
+    "fixture": "request-current.json; request-previous.json; request-unsupported-major.json",
+    "procedure": "Probe actual engine identity and capabilities; missing/malformed/future major fails before dispatch, cache invalidated by engine replacement, no provider call."
+  },
+  {
+    "id": "F24",
+    "owner_task": "WP023/WP028/WP038",
+    "fixture": "manifest.json; identities.json; terminal-*.json",
+    "procedure": "Actual generation publication/pin/retention: alter report byte and reject hash, old generation remains selected on failure, diagnostics redact secrets; manifest here is fixture index, not engine artifact manifest."
+  },
+  {
+    "id": "F25",
+    "owner_task": "WP024/WP025/WP038",
+    "fixture": null,
+    "procedure": "Host-only: sealed candidate checksum/signature, clean install/upgrade/repair/uninstall/rollback, bundled engine, SBOM and supported Windows scope; actual Mac signing separately."
+  },
+  {
+    "id": "F26",
+    "owner_task": "WP026/WP027",
+    "fixture": null,
+    "procedure": "Host/human-only: actual native previews two themes/two sizes, keyboard/Narrator/high contrast/scaling, task study and required beta duration; record participants and failures honestly."
+  }
+]

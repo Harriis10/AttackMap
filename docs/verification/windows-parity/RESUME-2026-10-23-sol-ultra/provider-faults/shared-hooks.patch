@@ -1,0 +1,47 @@
+diff --git a/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs b/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs
+--- a/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs
++++ b/desktop/windows/AttackMap.NativeSpike/MainWindow.xaml.cs
+@@ -42,6 +42,13 @@ public sealed partial class MainWindow : Window
+     public MainWindow()
+     {
+         var startup = Environment.GetCommandLineArgs();
++        providerFaultQa = ReadProviderFaultSmokeArguments(startup);
++        if (providerFaultQa is { } providerQa)
++        {
++            settings = new LocalSettingsStore(providerQa.SettingsPath);
++            placementStore = new WindowPlacementStore(providerQa.WindowPath);
++            recentStore = new HistoryPrep.RecentRepositoriesStore(providerQa.RecentPath);
++        }
+         int settingsIndex = Array.IndexOf(startup, "--settings-smoke");
+         if (settingsIndex < 0) settingsIndex = Array.IndexOf(startup, "--startup-smoke");
+         if (settingsIndex >= 0 && settingsIndex + 1 < startup.Length) settings = new LocalSettingsStore(Path.GetFullPath(startup[settingsIndex + 1]));
+@@ -87,6 +94,8 @@ public sealed partial class MainWindow : Window
+             ((FrameworkElement)Content).Loaded += CaptureRetentionLoaded;
+         else if (startup.Contains("--capture-reports-artifacts"))
+             ((FrameworkElement)Content).Loaded += CaptureReportsArtifactsLoaded;
++        else if (providerFaultQa != null)
++            ((FrameworkElement)Content).Loaded += ProviderFaultSmokeLoaded;
+         else if (startup.Contains("--fault-smoke"))
+             ((FrameworkElement)Content).Loaded += SmokeLoaded;
+         else if (startup.Contains("--expanded-accessibility-smoke"))
+@@ -270,7 +279,7 @@ public sealed partial class MainWindow : Window
+             capabilityCache.Current!.RequireSupport(activeScanOptions, modules);
+             analyzerSelection.ValidateForScan();
+             using var preflightRequest = JsonDocument.Parse(NativeScanRequest.Serialize("native_preflight", repository, output, current, activeScanOptions, modules));
+-            var preflight = await DesktopActionRunner.Run(executable, "preflight", new { request = preflightRequest.RootElement, expected_identity = capabilityCache.Current.ExpectedIdentity }, cancellationToken: admission.Token);
++            var preflight = await DesktopActionRunner.Run(executable, "preflight", new { request = preflightRequest.RootElement, expected_identity = capabilityCache.Current.ExpectedIdentity }, outputBase: providerFaultQa?.ActionDirectory, cancellationToken: admission.Token);
+             CheckScanAdmission(current, repository, executable, admission.Token);
+             if (!preflight.GetProperty("supported").GetBoolean()) throw new InvalidDataException("Selected engine or request changed since discovery; check compatibility again. No scan was started.");
+             var elapsed = System.Diagnostics.Stopwatch.StartNew();
+diff --git a/desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs b/desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs
+--- a/desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs
++++ b/desktop/windows/AttackMap.NativeSpike/MainWindow.Parity.cs
+@@ -72,7 +72,7 @@ public sealed partial class MainWindow
+         string selected = EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory);
+         capabilityCache.SelectEngine(selected);
+         if (capabilityCache.Current != null) return;
+-        var result = await DesktopActionRunner.Run(selected, "capabilities", new { }, cancellationToken: cancellationToken.CanBeCanceled ? cancellationToken : actionLifetime.Token);
++        var result = await DesktopActionRunner.Run(selected, "capabilities", new { }, outputBase: providerFaultQa?.ActionDirectory, cancellationToken: cancellationToken.CanBeCanceled ? cancellationToken : actionLifetime.Token);
+         if (actionLifetime.IsCancellationRequested || EngineCapabilities.ResolveEngine(PythonPath.Text, AppContext.BaseDirectory) != selected) throw new InvalidDataException("Engine selection changed during discovery. Retry explicitly.");
+         var capabilities = EngineCapabilities.Parse(result.GetRawText());
+         capabilityCache.Store(selected, capabilities);

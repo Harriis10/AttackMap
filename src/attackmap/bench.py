@@ -141,7 +141,8 @@ def load_benchmark(path: str | Path) -> Benchmark:
 
 # --- matching ----------------------------------------------------------------
 
-_LOC_RE = re.compile(r"([\w./\\-]+\.[A-Za-z0-9_]+):(\d+)")
+# Start only at a token boundary so a long path-like token is scanned once (#236).
+_LOC_RE = re.compile(r"(?<![\w./\\-])([\w./\\-]+\.[A-Za-z0-9_]+):(\d+)")
 _ROUTE_RE = re.compile(r"\b(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\s+(/[^\s,;]*)", re.IGNORECASE)
 
 
@@ -304,7 +305,7 @@ def findings_for_repo(root: str | Path) -> list[dict[str, Any]]:
     out = []
     for f in generate_findings(scan):
         d = f.model_dump()
-        d["id"] = finding_id(f.title)
+        d["id"] = finding_id(f)
         out.append(d)
     return out
 

@@ -1,0 +1,48 @@
+{
+  "scope": "WP030 bounded corpus and focused verification; not C27 closure",
+  "input_sha256": {
+    "fixtures/evaluation/increment-20261031/bundle.schema.json": "f2f93d85e11c11c1e66dacf662848b0d5c52ca153032084a272a22dee34ce4e9",
+    "fixtures/evaluation/increment-20261031/corpus.json": "264925fe342b082e0a44381c08c8ac3b6de053597d4b139ca339bbed9d90d76d",
+    "fixtures/evaluation/increment-20261031/provenance.json": "9db4ad902859d01789540abbe64b9451a3328442a26a58650c1d484ac5337c40",
+    "fixtures/evaluation/increment-20261031/freeze.json": "bada041d944ecd3bc97cd0bf324e9622a64702047b520e64bbf3d2b1eb71ad86",
+    "tests/test_evaluation.py": "0866d0bdb74a76ed2ac3a90fe2e387f5079bbe709f2dca5f5a6b1c68e5ffcc72",
+    "tests/test_evaluation_increment.py": "e2d046c6a4c8ae9f7ef614ac2e6492ceb970f44c690944e99783f211fffbca81",
+    "docs/verification/windows-parity/WP030/agent-20261031/audit_increment.py": "da8edcd6f65698fe35ab2fbfcbd13bc16a92a81920455a251e4239d6834f3131",
+    "docs/verification/windows-parity/WP030/agent-20261031/prepare_increment.py": "98cee0f3d5c1d261f3dc00365db2bb75abf01f64db029a940cb31f5807e43e25"
+  },
+  "test_runs": {
+    "focused-tests.xml": {
+      "tests": 34,
+      "errors": 27,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 7
+    },
+    "focused-tests-final.xml": {
+      "tests": 34,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 34
+    },
+    "focused-tests-qualified.xml": {
+      "tests": 36,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 36
+    },
+    "increment-tests-final.xml": {
+      "tests": 9,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 9
+    }
+  },
+  "final_distinct_test_count": 36,
+  "final_increment_test_count": 9,
+  "test_runs_are_overlapping_not_additive": true,
+  "provider_calls": 0,
+  "c27_accepted": false
+}

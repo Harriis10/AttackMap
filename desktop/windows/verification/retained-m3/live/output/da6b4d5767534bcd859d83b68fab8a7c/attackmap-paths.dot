@@ -1,0 +1,17 @@
+digraph AttackPaths {
+  rankdir=TB;
+  node [shape=box, style=rounded];
+  subgraph cluster_p1 {
+    label="Distributed service trust-chain abuse";
+    style=rounded;
+    p1_0 [label="Entry: Attacker reaches EXPOSE container:80 in infrastructure/docker-compose.yml"];
+    p1_1 [label="Service entry: Request is handled by service `juice-shop-net`"];
+    p1_2 [label="Sink: Influence reaches database, creating a plausible unauthorized downstream action path"];
+    p1_3 [label="Evidence: confidence=0.80; route EXPOSE container:80 in infrastructure/docker-compose.yml; entry service from file-local hint: juice-shop-net; database sink in service juice-shop-net: redis (infrastructure/docker-compose.yml)"];
+    p1_4 [label="Impact: A public API foothold can propagate across `juice-shop-net` and affect database if service boundaries or downstream trust checks are weak.", style="rounded,filled", fillcolor="#fee", color="#c33"];
+    p1_0 -> p1_1;
+    p1_1 -> p1_2;
+    p1_2 -> p1_3;
+    p1_3 -> p1_4;
+  }
+}

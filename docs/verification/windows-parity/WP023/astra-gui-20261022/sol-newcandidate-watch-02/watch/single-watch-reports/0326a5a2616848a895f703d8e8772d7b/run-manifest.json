@@ -1,0 +1,146 @@
+{
+  "engine_version": "1.5.1",
+  "diagnostic_context": {
+    "context_version": "1.0",
+    "outcome": "completed",
+    "policy_outcome": "passed",
+    "stages": [
+      {
+        "stage_id": "request_validation",
+        "outcome": "completed",
+        "duration_milliseconds": 0
+      },
+      {
+        "stage_id": "select_analyzers",
+        "outcome": "completed",
+        "duration_milliseconds": 119
+      },
+      {
+        "stage_id": "scan_and_merge",
+        "outcome": "completed",
+        "duration_milliseconds": 89
+      },
+      {
+        "stage_id": "translate",
+        "outcome": "completed",
+        "duration_milliseconds": 0
+      },
+      {
+        "stage_id": "suppress",
+        "outcome": "completed",
+        "duration_milliseconds": 0
+      },
+      {
+        "stage_id": "publish",
+        "outcome": "completed",
+        "duration_milliseconds": 98
+      },
+      {
+        "stage_id": "analysis_pipeline",
+        "outcome": "completed",
+        "duration_milliseconds": 310
+      },
+      {
+        "stage_id": "publication",
+        "outcome": "completed",
+        "duration_milliseconds": 91.941
+      }
+    ],
+    "analyzers": {
+      "status": "complete",
+      "requested_count": null,
+      "items": [
+        {
+          "name": "python-web",
+          "version": "0.1.0",
+          "version_status": "declared"
+        }
+      ],
+      "truncated": false
+    },
+    "coverage": {
+      "status": "complete",
+      "accepted_file_count": 1,
+      "legacy_files_scanned_count": 1,
+      "analyzer_error_count": 0,
+      "limitation_count": 0,
+      "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+    },
+    "resource_events": {
+      "status": "complete",
+      "scopes": [
+        "repo_index.file_bytes",
+        "repo_index.index_bytes"
+      ],
+      "items": [],
+      "truncated": false,
+      "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+    },
+    "fleet": {
+      "status": "not_started",
+      "requested_count": null,
+      "completed_count": null,
+      "failed_count": null,
+      "cancelled_count": null,
+      "children": [],
+      "truncated": false
+    }
+  },
+  "scan_timing": {
+    "schema_version": "1.0",
+    "clock": "engine_utc",
+    "scope": "analysis_pipeline_before_publication",
+    "started_at": "2026-10-22T22:16:35.712044+00:00",
+    "finished_at": "2026-10-22T22:16:36.022145+00:00",
+    "outcome": "completed"
+  },
+  "analyzers": [
+    {
+      "name": "python-web",
+      "version": "0.1.0"
+    }
+  ],
+  "stages": [
+    {
+      "name": "request_validation",
+      "milliseconds": 0
+    },
+    {
+      "name": "select_analyzers",
+      "milliseconds": 119
+    },
+    {
+      "name": "scan_and_merge",
+      "milliseconds": 89
+    },
+    {
+      "name": "translate",
+      "milliseconds": 0
+    },
+    {
+      "name": "suppress",
+      "milliseconds": 0
+    },
+    {
+      "name": "publish",
+      "milliseconds": 98
+    },
+    {
+      "name": "publication",
+      "milliseconds": 91.941
+    }
+  ],
+  "files_scanned": 1,
+  "analyzer_errors": [],
+  "limitation_count": 0,
+  "findings_by_severity": {
+    "high": 0,
+    "medium": 0,
+    "low": 1
+  },
+  "llm_usage": {},
+  "time_budget": {
+    "seconds": 600,
+    "exceeded": false
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-15",
+  "status": "implementation ready; awaiting root performance-smoke hook/build/run",
+  "harnessSyntax": "PowerShell parser passed",
+  "referenceFixtureSha256": "612d12c9b56bfa98ccb7061e81b67120bc738759e9731737ab1fe9d1ada658ba",
+  "referenceBytes": 20971520,
+  "referenceFindings": 10000,
+  "referenceObservations": 50000,
+  "protocol": {
+    "freshProcesses": 30,
+    "loadTrials": 30,
+    "interactionWarmups": 10,
+    "filterSamples": 100,
+    "detailSamples": 100,
+    "openCloseCycles": 100
+  },
+  "timingSynchronization": "Two low-priority UI dispatcher turns; no fixed sleeps or forced GC in latency samples",
+  "cycleRequirement": "Root closeReport callback must clear underlying report/list state; probe verifies snapshot.Total=0",
+  "startupLimitation": "Process-creation UTC to Loaded entry marker only; not primary-action acceptance",
+  "hostLimitation": "Windows 10 evidence provisional; qualifying Windows 11 hardware/SSD evidence required",
+  "acceptance": "unmeasured"
+}

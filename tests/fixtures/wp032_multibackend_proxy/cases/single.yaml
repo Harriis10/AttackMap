@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: single
+  namespace: production
+spec:
+  rules:
+    - host: EDGE.production.internal.
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8443

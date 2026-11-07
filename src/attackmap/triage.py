@@ -58,7 +58,7 @@ def rank_findings(findings: list[Finding]) -> list[Finding]:
     seen: set[str] = set()
     unique: list[Finding] = []
     for finding in findings:
-        fid = finding_id(finding.title)
+        fid = finding_id(finding)
         if fid in seen:
             continue
         seen.add(fid)
@@ -132,7 +132,7 @@ def render_triage_fallback(scan: ScanResult, findings: list[Finding]) -> str:
         lines.append("")
         for finding in group:
             rank += 1
-            fid = finding_id(finding.title)
+            fid = finding_id(finding)
             lines.append(
                 f"{rank}. `{fid}` — **{finding.title}** ({_metrics_suffix(finding)})"
             )
@@ -144,7 +144,7 @@ def render_triage_fallback(scan: ScanResult, findings: list[Finding]) -> str:
     lines.append("## Start here")
     lines.append("")
     lines.append(
-        f"Top priority: `{finding_id(top.title)}` — **{top.title}** "
+        f"Top priority: `{finding_id(top)}` — **{top.title}** "
         f"(cluster: {top_label}). Work the shortlist top-down."
     )
     lines.append("")

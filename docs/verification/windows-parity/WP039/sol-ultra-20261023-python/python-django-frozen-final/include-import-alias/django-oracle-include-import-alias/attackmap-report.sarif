@@ -1,0 +1,71 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "AttackMap",
+          "version": "0.0.0-dev",
+          "informationUri": "https://github.com/mlaify/AttackMap",
+          "rules": [
+            {
+              "id": "limited-surface",
+              "name": "Heuristic scan found only a limited attack surface",
+              "shortDescription": {
+                "text": "Heuristic scan found only a limited attack surface"
+              },
+              "fullDescription": {
+                "text": "Heuristic scan found only a limited attack surface"
+              },
+              "help": {
+                "text": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "markdown": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries."
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "properties": {
+                "tags": [
+                  "weak-signal"
+                ],
+                "security-severity": "1.5"
+              }
+            }
+          ]
+        }
+      },
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "description": {
+            "text": "Root of the scanned repository."
+          }
+        }
+      },
+      "results": [
+        {
+          "ruleId": "limited-surface",
+          "level": "note",
+          "message": {
+            "text": "Heuristic scan found only a limited attack surface",
+            "markdown": "**Heuristic scan found only a limited attack surface**\n\nTreat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries."
+          },
+          "partialFingerprints": {
+            "attackmapInstance/v1": "85fa3293373dc333840a6eff15a6b014"
+          },
+          "properties": {
+            "tags": [
+              "weak-signal"
+            ],
+            "security-severity": "1.5",
+            "confidence": "low",
+            "rank": 5.0,
+            "evidence": [
+              "No major route, secret, or integration patterns triggered a stronger finding."
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

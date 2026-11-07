@@ -111,7 +111,8 @@ def build_service_graph(scan: ScanResult) -> ServiceGraph:
     """
     graph = ServiceGraph()
     nodes: dict[str, ServiceNode] = {}
-    file_to_service = _file_service_map(scan)
+    services_by_file = _file_service_names(scan)
+    file_to_service = {file: names[0] for file, names in services_by_file.items()}
 
     def _record_node(name: str, role: str = "service", file: str | None = None) -> None:
         name = name.strip().lower()
@@ -134,7 +135,7 @@ def build_service_graph(scan: ScanResult) -> ServiceGraph:
         if hint[0].startswith("service_role:"):
             role = hint[0].removeprefix("service_role:")
             # Attach role to whichever service the same file names.
-            for file_service_name in _services_in_file(hint[1], scan):
+            for file_service_name in services_by_file.get(hint[1], ()):
                 _record_node(file_service_name, role=role, file=hint[1])
     # 3) Fallback nodes from repo layout: each unique file in services/*,
     # packages/*, apps/* implies a node named after the directory.
@@ -249,31 +250,30 @@ def _infer_from_layout(path: str) -> str | None:
     return None
 
 
-def _file_service_map(scan: ScanResult) -> dict[str, str]:
-    """Best-guess service name per file, resolved by explicit
-    ``service_name:<slug>`` hints first, then repo-layout fallback."""
-    mapping: dict[str, str] = {}
+def _file_service_names(scan: ScanResult) -> dict[str, tuple[str, ...]]:
+    """Index topology's ordered, distinct nonempty names by exact file key.
+
+    Keep lower-only normalization: whitespace is significant here. Empty names
+    are ignored by topology, unlike threat_model's explicit empty marker.
+    Conflicting names retain their order; this index does not choose a new
+    ownership policy.
+    """
+    names_by_file: dict[str, dict[str, None]] = {}
     for hint_value, hint_file in _iter_hints(scan):
         if hint_value.startswith("service_name:"):
             name = hint_value.removeprefix("service_name:").lower()
-            if name and hint_file not in mapping:
-                mapping[hint_file] = name
-    return mapping
+            if name:
+                names_by_file.setdefault(hint_file, {}).setdefault(name, None)
+    return {file: tuple(names) for file, names in names_by_file.items()}
+
+
+def _file_service_map(scan: ScanResult) -> dict[str, str]:
+    """First nonempty explicit topology owner; callers apply layout fallback."""
+    return {file: names[0] for file, names in _file_service_names(scan).items()}
 
 
 def _services_in_file(file: str, scan: ScanResult) -> list[str]:
-    names: list[str] = []
-    seen: set[str] = set()
-    for hint_value, hint_file in _iter_hints(scan):
-        if hint_file != file:
-            continue
-        if not hint_value.startswith("service_name:"):
-            continue
-        name = hint_value.removeprefix("service_name:").lower()
-        if name and name not in seen:
-            seen.add(name)
-            names.append(name)
-    return names
+    return list(_file_service_names(scan).get(file, ()))
 
 
 def _service_owning_file(file: str, file_to_service: dict[str, str]) -> str | None:
@@ -283,9 +283,8 @@ def _service_owning_file(file: str, file_to_service: dict[str, str]) -> str | No
 
 
 def _service_from_url(target: str) -> str | None:
-    """Extract a service slug from an outbound URL. Mirrors the same
-    lightweight heuristic the node-service analyzer uses so both agree
-    on what constitutes a peer name."""
+    """Infer a peer slug from the complete first DNS label of an outbound URL.
+    This remains a naming heuristic, not an observed service identity."""
     try:
         host = urlparse(target).hostname or ""
     except ValueError:
@@ -294,7 +293,7 @@ def _service_from_url(target: str) -> str | None:
         return None
     if host in {"localhost", "127.0.0.1"}:
         return "local-service"
-    return host.split(".")[0].split("-")[0].lower()
+    return host.split(".")[0].lower()
 
 
 def _service_from_env_name(env_name: str) -> str | None:

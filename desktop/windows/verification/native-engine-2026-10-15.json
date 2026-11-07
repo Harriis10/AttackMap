@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-15",
+  "sdk": "8.0.426",
+  "windowsAppSdk": "2.4.0",
+  "build": "Release win-x64 unpackaged self-contained",
+  "reportSha256": "BCC0A8815C6E8ACFDBA962F6AF51989EBD3F8DE5CDE856C0EE32E10B4C1EF263",
+  "reportSmoke": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "legacyIntegrity": "unverified"
+  },
+  "syntheticSmoke": {
+    "passed": true,
+    "loaded": 10000,
+    "filtered": 1,
+    "selected": "synthetic-00042",
+    "shellDestinations": 6
+  },
+  "acceptance": "Native Loaded/filter/selection only; keyboard Narrator performance and installer acceptance unmeasured",
+  "adapterChecks": {
+    "passed": 7,
+    "command": "dotnet run --project desktop/windows/ReportAdapter.Tests"
+  },
+  "restrictedScanAttempt": {
+    "state": "stalled before artifacts; owned process tree cleanup verified",
+    "nativePid": 42220,
+    "trackedPythonPids": [
+      4828,
+      33432,
+      40936,
+      43004
+    ],
+    "requestPath": ".pytest_cache/m3-native-scan/native-request.json",
+    "stagingId": "fffeb414158843dcb44b02808a71a016",
+    "limitation": "Restricted sandbox; LocalAppData initial attempt denied. Actual native scan acceptance not established by this attempt.",
+    "cleanup": "Native PID42220 identity reverified by normal-user CIM, native process stopped to force control EOF; after 7s all five tracked PIDs absent. Broker/job cleaned engine; no descendant Kill issued."
+  },
+  "nativeLiveScan": {
+    "passed": true,
+    "mode": "normal-user escalated execution outside restricted sandbox",
+    "repository": "C:\\tmp\\juice-shop",
+    "runId": "e53ed4e064a94e83b5818e54f82275fc",
+    "outputPath": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-native-scan",
+    "pointerVerified": true,
+    "manifestSha256": "cb22bed979fc4221734c05cf6e5730e4933c5ac6d70b8e96ae2c8f686b3d0bb6",
+    "verifiedArtifactCount": 19,
+    "reportSha256": "1a76a4035682dd6de39a1486d98c2a2b7c0488fa11f875b2770e00ff90c6e99d",
+    "reportBytes": 12874040,
+    "nativeLoadedFindings": 18,
+    "filesScanned": 862,
+    "llmUsage": {},
+    "analyzerErrors": [],
+    "limitationCount": 3,
+    "nativeSmoke": {
+      "passed": true,
+      "loaded": 18,
+      "error": null
+    },
+    "processExit": "Native smoke exited after terminal report import; no python processes remain"
+  }
+}

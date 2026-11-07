@@ -8,16 +8,21 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from .index import IndexedFile, RepoIndex
     from .progress import ScanProgress
 
+from .srcpaths import JS_TS_SUFFIXES, in_skipped_dir, is_skipped_dir, line_number
+from .redact import mask_secret
+from .safe_fs import is_oversized, max_file_bytes, walk_repo
 from .anomalies import find_anomalies
 from .authz import analyze_authz
 from .crypto import find_crypto_weaknesses
 from .sbom import analyze_sbom
+from .supply_chain import scan_supply_chain
 from .workflow_scanner import scan_workflows
 from .srcpaths import is_test_file, is_vendored_file
 from .weaknesses import find_code_weaknesses
-from .webhardening import find_web_hardening_issues
+from .webhardening import find_web_hardening_issues, has_csrf_protection
 from .sdk.models import AuthHint, DatabaseHint, ExternalCall, Route, ScanResult, SecretHint
 from .taint import DEFAULT_RECALL, analyze_taint, recall_config
 
@@ -68,12 +73,14 @@ GO_ROUTE_PATTERN = re.compile(
 )
 _GO_ANY_METHODS = {"any", "all", "handle", "handlefunc"}
 
+# (?<!\w) + possessive \w++: never restart mid-word, so a long word can't
+# trigger quadratic backtracking (#236).
 FASTAPI_ROUTER_PATTERN = re.compile(
-    r"(\w+)\s*=\s*APIRouter\(\s*(?:[^)]*?\bprefix\s*=\s*['\"]([^'\"]*)['\"])?",
+    r"(?<!\w)(\w++)\s*+=\s*+APIRouter\(\s*(?:[^)]*?\bprefix\s*=\s*['\"]([^'\"]*)['\"])?",
     re.IGNORECASE | re.DOTALL,
 )
 FASTAPI_INCLUDE_ROUTER_PATTERN = re.compile(
-    r"(\w+)\.include_router\(\s*(\w+)(?:\s*,\s*prefix\s*=\s*['\"]([^'\"]*)['\"])?",
+    r"(?<!\w)(\w++)\.include_router\(\s*(\w+)(?:\s*,\s*prefix\s*=\s*['\"]([^'\"]*)['\"])?",
     re.IGNORECASE,
 )
 FASTAPI_DECORATOR_PATTERN = re.compile(
@@ -85,11 +92,11 @@ FASTAPI_API_ROUTE_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 FLASK_BLUEPRINT_PATTERN = re.compile(
-    r"(\w+)\s*=\s*Blueprint\(\s*['\"][^'\"]+['\"]\s*,\s*[^,]+(?:,\s*url_prefix\s*=\s*['\"]([^'\"]*)['\"])?",
+    r"(?<!\w)(\w++)\s*+=\s*+Blueprint\(\s*['\"][^'\"]+['\"]\s*,\s*[^,]+(?:,\s*url_prefix\s*=\s*['\"]([^'\"]*)['\"])?",
     re.IGNORECASE | re.DOTALL,
 )
 FLASK_REGISTER_BLUEPRINT_PATTERN = re.compile(
-    r"(\w+)\.register_blueprint\(\s*(\w+)(?:\s*,\s*url_prefix\s*=\s*['\"]([^'\"]*)['\"])?",
+    r"(?<!\w)(\w++)\.register_blueprint\(\s*(\w+)(?:\s*,\s*url_prefix\s*=\s*['\"]([^'\"]*)['\"])?",
     re.IGNORECASE,
 )
 FLASK_ROUTE_PATTERN = re.compile(
@@ -330,6 +337,27 @@ HARDCODED_SECRET_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     # to a JSON header. Recognized by shape here; verified for shape
     # (base64url + non-trivial length) in the extractor below.
     (re.compile(r"\b(eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})\b"), "jwt"),
+    # --- #252: credential families without a classic prefix -------------
+    # AWS secret access key: 40 chars, only trusted next to its key name.
+    (re.compile(r"(?i)aws_?secret_?(?:access_?)?key['\"]?\s{0,5}(?::=|=>|[:=])\s{0,5}['\"]?([A-Za-z0-9/+=]{40})(?![A-Za-z0-9/+=])"), "aws_secret_access_key"),
+    # Azure storage / Service Bus connection-string keys.
+    (re.compile(r"(?i)\bAccountKey=([A-Za-z0-9+/]{40,100}={0,2})"), "azure_storage_account_key"),
+    (re.compile(r"(?i)\bSharedAccessKey=([A-Za-z0-9+/]{40,64}={0,2})"), "azure_shared_access_key"),
+    # Azure AD (Entra) client secret: 3 chars, a digit, `Q~`, 31-34 chars.
+    (re.compile(r"(?<![A-Za-z0-9_~.-])([A-Za-z0-9_~.]{3}\dQ~[A-Za-z0-9_~.-]{31,34})(?![A-Za-z0-9_~.-])"), "azure_ad_client_secret"),
+    # Datadog API / application keys (hex, keyed by name).
+    (re.compile(r"(?i)\b(?:dd|datadog)_?(?:api|app(?:lication)?)_?key['\"]?\s{0,5}[:=]\s{0,5}['\"]?([a-f0-9]{32}(?:[a-f0-9]{8})?)\b"), "datadog_key"),
+    # Heroku platform API key (new format).
+    (re.compile(r"\b(HRKU-AA[0-9A-Za-z_-]{58})\b"), "heroku_api_key"),
+    # DigitalOcean personal / OAuth / refresh tokens.
+    (re.compile(r"\b(do[opr]_v1_[a-f0-9]{64})\b"), "digitalocean_token"),
+    # HashiCorp Vault service / batch tokens.
+    (re.compile(r"\b(hv[sb]\.[A-Za-z0-9_-]{24,})\b"), "vault_token"),
+    # .npmrc registry auth: `//registry.npmjs.org/:_authToken=…`, `_auth=`/`_password=`.
+    (re.compile(r":_authToken\s{0,5}=\s{0,5}([A-Za-z0-9._~+/=-]{8,})"), "npm_auth_token"),
+    (re.compile(r"(?m)^\s{0,8}(?:\S{0,200}:)?_(?:auth|password)\s{0,5}=\s{0,5}([A-Za-z0-9+/=]{8,})"), "npm_basic_auth"),
+    # Docker registry auth blob in `.dockercfg` / `config.json`.
+    (re.compile(r"\"auth\"\s{0,5}:\s{0,5}\"([A-Za-z0-9+/]{12,}={0,2})\""), "docker_registry_auth"),
 ]
 
 # Minimum length for the high-entropy fallback. Under this, entropy
@@ -348,9 +376,7 @@ _SNIPPET_MAX_CHARS = 160
 
 def _line_of(content: str, offset: int) -> int:
     """1-indexed line number for a character offset within content."""
-    if offset <= 0:
-        return 1
-    return content.count("\n", 0, offset) + 1
+    return line_number(content, offset)
 
 
 def _line_snippet(content: str, offset: int, *, max_chars: int = _SNIPPET_MAX_CHARS) -> str:
@@ -370,17 +396,25 @@ def _redacted_snippet(
 ) -> str:
     """Line snippet with the matched secret masked in place. Evidence text
     is serialized into report.json, so the raw credential must never survive
-    into it — only the redacted head/tail form does."""
+    into it. (Every other credential on the line is masked too, by the
+    evidence redaction in ``models`` — #235.)"""
     snippet = _line_snippet(content, offset)
     if redact and literal in snippet:
         snippet = snippet.replace(literal, _redact_secret(literal))
     return snippet
 
 
+# Package-manager trees (pnpm, venvs) are full of symlinks; don't list those
+# as scan limitations.
+_NOISY_SYMLINK_PARTS = {"node_modules", ".git", ".venv", "venv", "dist", "build", "__pycache__"}
+
+
 def should_scan(path: Path) -> bool:
+    """``path`` is relative to the scanned root (#215): only directories
+    inside the repo decide whether a file is skipped."""
     if path.name.startswith("."):
         return False
-    if any(part in {"node_modules", ".git", ".venv", "dist", "build"} for part in path.parts):
+    if in_skipped_dir(path):
         return False
     return path.suffix in CODE_EXTENSIONS
 
@@ -432,6 +466,8 @@ def _extract_methods(args: str, default_method: str = "ANY") -> list[str]:
 
 
 def _python_route_prefixes(content: str) -> dict[str, str]:
+    from collections import defaultdict, deque
+
     local_prefixes: dict[str, str] = {}
 
     for match in FASTAPI_ROUTER_PATTERN.finditer(content):
@@ -440,29 +476,41 @@ def _python_route_prefixes(content: str) -> dict[str, str]:
     for match in FLASK_BLUEPRINT_PATTERN.finditer(content):
         local_prefixes[match.group(1)] = match.group(2) or ""
 
+    # A child can have several mounted URLs, which this per-file map cannot
+    # represent. Keep its local prefix rather than repeatedly overwriting it.
+    # Process each edge once; cyclic/ambiguous ancestry also stays local.
+    incoming = defaultdict(list)
+    descendants = defaultdict(list)
+    for pattern, override in ((FASTAPI_INCLUDE_ROUTER_PATTERN, False),
+                              (FLASK_REGISTER_BLUEPRINT_PATTERN, True)):
+        for match in pattern.finditer(content):
+            parent, child, extra = match.groups()
+            incoming[child].append((parent, extra, override))
+            descendants[parent].append(child)
     prefixes = dict(local_prefixes)
-    updated = True
-    while updated:
-        updated = False
-
-        for match in FASTAPI_INCLUDE_ROUTER_PATTERN.finditer(content):
-            parent_name, child_name, extra_prefix = match.groups()
-            parent_prefix = prefixes.get(parent_name, "")
-            child_prefix = local_prefixes.get(child_name, "")
-            combined = _join_route_parts(parent_prefix, _join_route_parts(extra_prefix or "", child_prefix))
-            if prefixes.get(child_name) != combined:
-                prefixes[child_name] = combined
-                updated = True
-
-        for match in FLASK_REGISTER_BLUEPRINT_PATTERN.finditer(content):
-            parent_name, child_name, extra_prefix = match.groups()
-            parent_prefix = prefixes.get(parent_name, "")
-            child_prefix = local_prefixes.get(child_name, "")
-            combined = _join_route_parts(parent_prefix, _join_route_parts(extra_prefix or "", child_prefix))
-            if prefixes.get(child_name) != combined:
-                prefixes[child_name] = combined
-                updated = True
-
+    blocked = {child for child, edges in incoming.items() if len(edges) != 1}
+    ready = deque(blocked | {child for child, edges in incoming.items()
+                            if len(edges) == 1 and edges[0][0] not in incoming})
+    processed = set()
+    while ready:
+        child = ready.popleft()
+        if child in processed:
+            continue
+        processed.add(child)
+        if child not in blocked:
+            parent, extra, override = incoming[child][0]
+            if parent in blocked:
+                blocked.add(child)
+            else:
+                local = local_prefixes.get(child, "")
+                suffix = extra if override and extra is not None else _join_route_parts(extra or "", local)
+                combined = _join_route_parts(prefixes.get(parent, ""), suffix)
+                if len(combined) <= 16_384:
+                    prefixes[child] = combined
+                else:
+                    blocked.add(child)
+        ready.extend(descendants[child])
+    # Nodes not processed are cycles or descendants of cycles.
     return prefixes
 
 
@@ -617,7 +665,7 @@ def _extract_php_routes(content: str, file: str) -> list[Route]:
 def extract_routes(content: str, file: str, suffix: str) -> list[Route]:
     if suffix == ".py":
         return _extract_python_routes(content, file)
-    if suffix in {".js", ".ts", ".tsx"}:
+    if suffix in JS_TS_SUFFIXES:
         return _extract_javascript_routes(content, file)
     if suffix == ".go":
         return _extract_go_routes(content, file)
@@ -694,125 +742,287 @@ def scan_repo(
     progress: "ScanProgress | None" = None,
     recall: bool = False,
 ) -> ScanResult:
-    root_path = Path(root).resolve()
-    result = ScanResult(root=str(root_path))
+    """Per-file signal extraction plus the whole-repo passes, for callers that
+    scan a repo directly. ``analyze_repository`` instead runs ``scan_files``
+    per analyzer and ``run_repo_passes`` once on the merged result (#219)."""
+    result = scan_files(root, suffixes=suffixes, progress=progress)
+    run_repo_passes(result, Path(result.root), progress=progress, recall=recall)
+    if progress is not None:
+        progress.done()
+    return result
 
-    # Materialize the scannable file list first so progress has a total to
-    # compute a percentage and ETA against. The extra directory walk is cheap
-    # next to reading + regex-scanning each file.
-    scan_files = [
-        p for p in root_path.rglob("*") if p.is_file() and should_scan_with_suffixes(p, suffixes)
+
+def scan_files(
+    root: str | Path,
+    suffixes: set[str] | None = None,
+    progress: "ScanProgress | None" = None,
+    index: "RepoIndex | None" = None,
+    incremental: bool | None = None,
+    cache_dir: str | Path | None = None,
+) -> ScanResult:
+    """The per-file pass: routes, calls, hints, secrets and per-file weakness
+    detectors for files with ``suffixes``. No whole-repo passes (#219).
+
+    ``incremental=True`` (default off, C34/AM048) reuses cached per-file
+    results for files whose content, suffix, engine, pass configuration and
+    source-role policy are unchanged; the same activation is requested by
+    ``ATTACKMAP_INCREMENTAL=1`` (what the CLI ``--incremental`` flag sets, so
+    fleet worker subprocesses inherit it). The cache lives under
+    ``cache_dir`` (or a temp-derived location outside the scanned repo) and
+    is an optimization only: any doubt means full recompute of the file.
+    """
+    from .index import RepoIndex
+
+    root_path = Path(root).resolve()
+    result = ScanResult(root=str(root_path), scanned_files=[])
+    if index is None:
+        index = RepoIndex.build(root_path)
+        result.limitations.extend(index.limitations)
+        if index.snapshot is not None:
+            result.scan_snapshot = index.snapshot.identity()
+    result.resource_limit_events = list(index.resource_limit_events)
+    result.resource_limit_scopes = list(index.resource_limit_scopes)
+    result.resource_limit_reporting = index.resource_limit_reporting
+
+    indexed = [
+        item
+        for item in index.files
+        if should_scan_with_suffixes(Path(item.rel), suffixes)
+        and item.suffix in CODE_EXTENSIONS
     ]
     if progress is not None:
-        progress.begin(len(scan_files))
+        progress.begin(len(indexed))
 
-    for file_path in scan_files:
+    from .incremental import enabled_by_env
+
+    cache = (
+        _open_incremental_cache(root_path, cache_dir)
+        if (enabled_by_env() if incremental is None else incremental)
+        else None
+    )
+
+    csrf_protected = False
+    for item in indexed:
         if progress is not None:
-            progress.advance(str(file_path.relative_to(root_path)))
+            progress.advance(item.rel)
 
         result.files_scanned += 1
-        language = CODE_EXTENSIONS[file_path.suffix]
+        result.scanned_files.append(item.rel.replace("\\", "/"))
+        language = CODE_EXTENSIONS[item.suffix]
         if language not in result.languages:
             result.languages.append(language)
 
-        try:
-            content = file_path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
-            continue
+        signals, file_csrf = _cached_file_signals(item, cache, suffixes)
+        result.routes.extend(signals["routes"])
+        result.external_calls.extend(signals["external_calls"])
+        result.databases.extend(signals["databases"])
+        result.auth_hints.extend(signals["auth_hints"])
+        result.secret_hints.extend(signals["secret_hints"])
+        result.crypto_weaknesses.extend(signals["crypto_weaknesses"])
+        result.web_hardening_issues.extend(signals["web_hardening_issues"])
+        result.code_weaknesses.extend(signals["code_weaknesses"])
+        csrf_protected = csrf_protected or file_csrf
 
-        relative = str(file_path.relative_to(root_path))
-        # Routes declared in test/spec or vendored files aren't real attack
-        # surface — Laravel/Go/pytest test helpers call `.get('/x')` heavily
-        # (#113). Skip them by default (ATTACKMAP_INCLUDE_TESTS / _VENDORED opt in).
-        if not is_test_file(relative) and not is_vendored_file(relative):
-            file_routes = extract_routes(content, relative, file_path.suffix)
-            result.routes.extend(file_routes)
+    if cache is not None:
+        cache.save()
 
-        for pattern in EXTERNAL_CALL_PATTERNS:
-            for match in pattern.finditer(content):
-                target, method = _external_call_fields(match)
-                result.external_calls.append(
-                    ExternalCall(
-                        target=target,
-                        method=method,
-                        file=relative,
-                        line=_line_of(content, match.start()),
-                        evidence_text=_line_snippet(content, match.start()),
-                    )
-                )
-
-        lowered = content.lower()
-        _append_unique_database_hints(result, relative, content, lowered)
-        _append_unique_auth_hints(result, relative, content, lowered)
-
-        for pattern in SECRET_PATTERNS:
-            for match in pattern.finditer(content):
-                result.secret_hints.append(
-                    SecretHint(
-                        name=match.groups()[0],
-                        file=relative,
-                        line=_line_of(content, match.start()),
-                        evidence_text=_line_snippet(content, match.start()),
-                        kind="env_reference",
-                    )
-                )
-
-        _append_hardcoded_secret_hints(result, relative, content)
-
-        # The weakness passes below are noise in test scaffolding (#67) and in
-        # vendored/minified third-party code (#95) — a bug in a dependency the
-        # project doesn't maintain isn't this repo's finding. Skip both by
-        # default (ATTACKMAP_INCLUDE_TESTS / ATTACKMAP_INCLUDE_VENDORED opt in).
-        if not is_test_file(relative) and not is_vendored_file(relative):
-            # Insecure crypto / weak randomness (#70). Content is already
-            # read, so this rides the per-file pass rather than re-walking.
-            result.crypto_weaknesses.extend(find_crypto_weaknesses(content, relative))
-            # Web-hardening gaps (#71): CORS, CSRF, cookies, CSP, debug.
-            result.web_hardening_issues.extend(find_web_hardening_issues(content, relative))
-            # Novel vuln classes (#77): proto pollution, mass assignment, JWT, XXE.
-            result.code_weaknesses.extend(find_code_weaknesses(content, relative))
-
+    if csrf_protected:
+        # A CSRF defence anywhere in the repo (#244) — session config and CSRF
+        # middleware often live in different files — clears the inference.
+        result.web_hardening_issues = [
+            i for i in result.web_hardening_issues if i.kind != "csrf_unprotected_session"
+        ]
     result.languages.sort()
+    result.scanned_files = sorted(set(result.scanned_files))
+    result.files_scanned = len(result.scanned_files)
+    return result
+
+
+def _open_incremental_cache(root_path: Path, cache_dir: str | Path | None):
+    """The per-file result cache, or None when caching cannot be used safely."""
+    from .incremental import PerFileCache, default_cache_dir
+
+    if cache_dir is not None:
+        location = Path(cache_dir) / "per-file-cache.json"
+    else:
+        derived = default_cache_dir(root_path)
+        if derived is None:
+            return None  # derived location would land inside the repo: skip
+        location = derived / "per-file-cache.json"
+    try:
+        return PerFileCache.open(location)
+    except Exception:
+        return None  # optimization only: never fail the scan over the cache
+
+
+def _cached_file_signals(item: "IndexedFile", cache, suffixes: set[str] | None):
+    """One file's per-file signals — from the cache when provably fresh,
+    else freshly computed (and cached for the next run)."""
+    from .incremental import FileCacheKey, dump_payload, load_payload
+
+    if cache is not None:
+        from .index import content_sha256
+
+        content_sha = item.sha256 or content_sha256(item.text)
+        key = FileCacheKey(
+            rel=item.rel,
+            suffix=item.suffix,
+            content_sha256=content_sha,
+            pass_suffixes=frozenset(suffixes) if suffixes is not None else None,
+            engine=cache.engine,
+            policy=cache.policy,
+        )
+        payload = cache.get(key)
+        if payload is not None:
+            rebuilt = load_payload(payload)
+            if rebuilt is not None:
+                return rebuilt
+        signals, csrf_protected = _analyze_indexed_file(item)
+        cache.put(key, dump_payload(signals, csrf_protected))
+        return signals, csrf_protected
+    return _analyze_indexed_file(item)
+
+
+def _analyze_indexed_file(item: "IndexedFile") -> tuple[dict[str, list], bool]:
+    """Per-file extraction isolated from the accumulating result.
+
+    Output depends only on ``(item.text, item.rel, item.suffix)`` and the
+    env-driven source-role policy — no cross-file state is read — which is
+    exactly the property the incremental cache (C34/AM048) relies on: the
+    helpers below dedupe within this file only, because every hint key
+    embeds the file path.
+    """
+    content = item.text
+    relative = item.rel
+    stub = ScanResult(root="", scanned_files=[])
+
+    # Routes declared in test/spec or vendored files aren't real attack
+    # surface — Laravel/Go/pytest test helpers call `.get('/x')` heavily
+    # (#113). Skip them by default (ATTACKMAP_INCLUDE_TESTS / _VENDORED opt in).
+    first_party = not is_test_file(relative) and not is_vendored_file(relative)
+    if first_party:
+        stub.routes.extend(extract_routes(content, relative, item.suffix))
+
+    for pattern in EXTERNAL_CALL_PATTERNS:
+        for match in pattern.finditer(content):
+            target, method = _external_call_fields(match)
+            stub.external_calls.append(
+                ExternalCall(
+                    target=target,
+                    method=method,
+                    file=relative,
+                    line=_line_of(content, match.start()),
+                    evidence_text=_line_snippet(content, match.start()),
+                )
+            )
+
+    lowered = content.lower()
+    _append_unique_database_hints(stub, relative, content, lowered)
+    _append_unique_auth_hints(stub, relative, content, lowered)
+
+    for pattern in SECRET_PATTERNS:
+        for match in pattern.finditer(content):
+            stub.secret_hints.append(
+                SecretHint(
+                    name=match.groups()[0],
+                    file=relative,
+                    line=_line_of(content, match.start()),
+                    evidence_text=_line_snippet(content, match.start()),
+                    kind="env_reference",
+                )
+            )
+
+    # The keyword-proximity and URL-credential rules (#252) are skipped in
+    # test/vendored code, where fake credential fixtures are the norm.
+    _append_hardcoded_secret_hints(stub, relative, content, generic=first_party, urls=first_party)
+
+    csrf_protected = False
+    # The weakness passes below are noise in test scaffolding (#67) and in
+    # vendored/minified third-party code (#95) — a bug in a dependency the
+    # project doesn't maintain isn't this repo's finding. Skip both by
+    # default (ATTACKMAP_INCLUDE_TESTS / ATTACKMAP_INCLUDE_VENDORED opt in).
+    if first_party:
+        # Insecure crypto / weak randomness (#70). Content is already
+        # read, so this rides the per-file pass rather than re-walking.
+        stub.crypto_weaknesses.extend(find_crypto_weaknesses(content, relative))
+        # Web-hardening gaps (#71): CORS, CSRF, cookies, CSP, debug.
+        stub.web_hardening_issues.extend(find_web_hardening_issues(content, relative))
+        csrf_protected = has_csrf_protection(content)
+        # Novel vuln classes (#77): proto pollution, mass assignment, JWT, XXE.
+        stub.code_weaknesses.extend(find_code_weaknesses(content, relative))
+
+    signals = {
+        family: list(getattr(stub, family))
+        for family in (
+            "routes",
+            "external_calls",
+            "databases",
+            "auth_hints",
+            "secret_hints",
+            "crypto_weaknesses",
+            "web_hardening_issues",
+            "code_weaknesses",
+        )
+    }
+    return signals, csrf_protected
+
+
+def run_repo_passes(
+    result: ScanResult,
+    root_path: Path,
+    progress: "ScanProgress | None" = None,
+    recall: bool = False,
+    index: "RepoIndex | None" = None,
+) -> ScanResult:
+    """Whole-repo passes over an assembled result — run once per scan, after
+    every analyzer's per-file output is merged, so taint/authz/anomalies see
+    the full route set (#219)."""
     # Taint pass runs after regular signal extraction — it needs the
     # route list to know where to seed source flows from (#45). This is the
     # slow tail on big monorepos (import-graph walk), so it gets its own
     # progress stage.
     if progress is not None:
         progress.stage("Taint / data-flow analysis")
-    result.taint_chains = analyze_taint(
-        result, root_path, recall=recall_config() if recall else DEFAULT_RECALL
+    result.taint_chains = result.taint_chains + analyze_taint(
+        result, root_path, recall=recall_config() if recall else DEFAULT_RECALL, index=index
     )
     # SBOM inventory: direct-dep parse of manifest files (#48, slice 1).
     if progress is not None:
         progress.stage("Dependency inventory (SBOM)")
-    result.dependencies = analyze_sbom(root_path)
+    result.dependencies = result.dependencies + analyze_sbom(root_path)
+    # Supply-chain risk beyond CVEs (#247): offline, over the same manifests.
+    if progress is not None:
+        progress.stage("Dependency supply-chain risk")
+    result.supply_chain_issues = result.supply_chain_issues + scan_supply_chain(
+        root_path, result.dependencies
+    )
     # CI workflow security (#142): parse .github/workflows for unpinned actions,
     # pull_request_target checkouts, secrets/injectable context in run steps,
     # over-broad permissions, and self-hosted runners on PR triggers.
     if progress is not None:
         progress.stage("CI workflow security")
-    result.workflow_issues = scan_workflows(root_path)
+    result.workflow_issues = result.workflow_issues + scan_workflows(root_path)
     # BOLA/IDOR: routes with an id param reaching a datastore with no
     # ownership check nearby (#69). Runs after taint so it can reuse
     # sql_execute reachability.
     if progress is not None:
         progress.stage("Authorization (BOLA/IDOR)")
-    result.authz_candidates = analyze_authz(result, root_path)
+    result.authz_candidates = result.authz_candidates + analyze_authz(result, root_path)
     # Anomaly / outlier pass (#78): the odd-one-out among sibling routes.
     # Runs last so the full route list is assembled into cohorts. It drives its
     # own determinate per-cohort progress (the slow tail on big route surfaces).
-    result.anomalies = find_anomalies(result, root_path, progress=progress)
-    if progress is not None:
-        progress.done()
+    result.anomalies = result.anomalies + find_anomalies(result, root_path, progress=progress)
+    # Pin the run to the content snapshot its per-file pass read (C33/AM047):
+    # merged results are stamped here because per-analyzer stamps would not
+    # survive merge_analyzer_results.
+    if index is not None and index.snapshot is not None:
+        result.scan_snapshot = index.snapshot.identity()
     return result
 
 
 def _redact_secret(value: str) -> str:
-    """Show first 4 and last 4 characters of a secret literal, mask the
-    middle. Never emit the raw value to reports."""
-    if len(value) <= 8:
-        return "…"
-    return f"{value[:4]}…{value[-4:]}"
+    """Display form of a secret: at most its first 4 characters (#235)."""
+    return mask_secret(value)
 
 
 def _shannon_entropy(value: str) -> float:
@@ -858,57 +1068,126 @@ def _looks_like_secret_candidate(value: str) -> bool:
     return True
 
 
-def _append_hardcoded_secret_hints(result: ScanResult, relative: str, content: str) -> None:
-    """Emit SecretHint records for literals pasted into source or config
-    (#39). Provider-prefixed patterns fire first; a Shannon-entropy
-    fallback catches high-entropy literals that don't match a known
-    provider. Both redact the value before it lands in evidence_text.
-    """
-    seen: set[tuple[str, str, int]] = {
-        (hint.kind, hint.file, hint.line or 0) for hint in result.secret_hints
-    }
-    matched_spans: list[tuple[int, int]] = []  # positions of provider matches
+# --- #252: prefix-less credentials ----------------------------------------
+
+# Credentials embedded in a URL (`https://user:pass@host`). Kept out of the
+# redaction token list: `redact._URI_USERINFO` already masks userinfo.
+_BASIC_AUTH_URL_RE = re.compile(
+    r"\b(?P<scheme>[a-zA-Z][a-zA-Z0-9+.-]{1,15})://[^\s:/@'\"]{1,128}:(?P<secret>[^\s/@'\"]{3,256})@[A-Za-z0-9.\[-]"
+)
+# Keyword-proximity assignment of a quoted literal to a credential-named key.
+_CREDENTIAL_ASSIGN_RE = re.compile(
+    r"(?<![\w.-])(?P<key>[\w.-]{0,40}?(?:password|passwd|pwd|secret|token|api[_-]?key)[\w.-]{0,40}?)['\"]?"
+    r"\s{0,5}(?::=|=>|[:=])\s{0,5}(?P<q>['\"])(?P<secret>[^'\"\s]{8,128})(?P=q)",
+    re.IGNORECASE,
+)
+# GCP service-account key file: the type marker plus an embedded private key.
+_GCP_SA_TYPE_RE = re.compile(r"\"type\"\s{0,5}:\s{0,5}\"service_account\"")
+_GCP_SA_KEY_RE = re.compile(r"\"private_key\"\s{0,5}:\s{0,5}\"(?P<secret>-----BEGIN [A-Z ]{0,20}PRIVATE KEY-----[^\"]{0,8000})\"")
+
+# Values that are placeholders, templates or references, not credentials.
+_PLACEHOLDER_WORDS = (
+    "changeme", "change_me", "change-me", "example", "placeholder", "dummy", "sample", "your_", "your-",
+    "yourpass", "xxxx", "redacted", "replace", "secret_here", "token_here", "password_here", "insert",
+    "fake", "mock",
+)
+_PLACEHOLDER_EXACT = frozenset({
+    "password", "passwd", "secret", "token", "apikey", "api_key", "api-key", "pass", "none", "null",
+    "undefined", "test", "testing", "default", "notasecret",
+})
+# Key names that carry a secret's *metadata*, not the secret.
+_NON_SECRET_KEY_PARTS = (
+    "name", "field", "header", "param", "type", "url", "uri", "path", "file", "_id", "env", "var",
+    "label", "prompt", "length", "regex", "pattern", "prefix", "endpoint", "hash", "policy",
+    "expir", "ttl", "count", "format", "placeholder", "message", "error", "hint", "reset", "column",
+    "table", "kind", "mode", "style", "class", "selector", "route", "template", "strength", "rule",
+)
+_IDENTIFIER_VALUE_RE = re.compile(
+    r"^(?:[a-z][a-z0-9]*(?:[_-][a-z0-9]+)+|[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+|[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+|[a-z]+(?:[A-Z][a-z0-9]+)+)$"
+)
+
+
+def is_placeholder_secret(value: str) -> bool:
+    """A credential-shaped value that is a placeholder, template, env lookup
+    or masked value rather than a real secret."""
+    trimmed = value.strip()
+    lowered = trimmed.lower()
+    if not trimmed or lowered in _PLACEHOLDER_EXACT:
+        return True
+    if trimmed.startswith(("${", "{{", "<", "%(", "$", "%", "#{", "@{")) or trimmed.endswith(("}", ">")):
+        return True
+    if any(word in lowered for word in _PLACEHOLDER_WORDS):
+        return True
+    if len(set(trimmed)) <= 2 or "***" in trimmed or "…" in trimmed:
+        return True
+    return False
+
+
+def _credential_assignment_ok(key: str, value: str) -> bool:
+    key_l = key.lower()
+    if any(part in key_l for part in _NON_SECRET_KEY_PARTS):
+        return False
+    if is_placeholder_secret(value) or value.lower() == key_l:
+        return False
+    if _IDENTIFIER_VALUE_RE.match(value):
+        return False  # an identifier / env-var name / dotted reference
+    if "/" in value or "://" in value or value.startswith(("http", ".")):
+        return False
+    if value.replace(".", "").replace("-", "").replace("_", "").isdigit():
+        return False
+    return True
+
+
+def iter_secret_matches(
+    content: str, *, entropy: bool = True, generic: bool = True, urls: bool = True
+):
+    """Yield ``(kind, literal, offset, confidence)`` for every hard-coded
+    credential in ``content``: provider patterns, URL userinfo passwords,
+    GCP service-account keys, then (opt.) the keyword-proximity assignment
+    and the high-entropy fallback. ``literal`` is the raw secret — callers
+    must mask it before it leaves the process (#235)."""
+    matched_spans: list[tuple[int, int]] = []
+
+    def _overlaps(start: int, end: int) -> bool:
+        return any(s < end and start < e for s, e in matched_spans)
+
+    # A GCP service-account key file is reported as such, not as a bare PEM.
+    if _GCP_SA_TYPE_RE.search(content):
+        key = _GCP_SA_KEY_RE.search(content)
+        if key:
+            matched_spans.append((key.start("secret"), key.end("secret")))
+            yield "gcp_service_account_key", key.group("secret"), key.start(), 1.0
 
     for pattern, kind in HARDCODED_SECRET_PATTERNS:
         for match in pattern.finditer(content):
             literal = match.group(1)
+            if kind == "pem_private_key" and _overlaps(match.start(1), match.end(1)):
+                continue
             # JWT shape needs additional verification — the base-64 header
             # segment must decode to something starting with `{` and
-            # containing an "alg" key. Reject anything that just happens
-            # to look like the shape.
+            # containing an "alg" key.
             if kind == "jwt" and not _is_jwt_shape(literal):
                 continue
-            line = _line_of(content, match.start())
-            key = (kind, relative, line)
-            if key in seen:
+            if kind in {"npm_auth_token", "npm_basic_auth", "docker_registry_auth"} and is_placeholder_secret(literal):
                 continue
-            seen.add(key)
-            matched_spans.append((match.start(), match.end()))
-            # PEM only captures the (non-secret) header line — keep it verbatim.
-            # Everything else is redacted in both the name *and* the evidence
-            # snippet so the raw credential never reaches report.json.
-            redact = kind != "pem_private_key"
-            display_name = _redact_secret(literal) if redact else literal
-            result.secret_hints.append(
-                SecretHint(
-                    name=display_name,
-                    file=relative,
-                    line=line,
-                    evidence_text=_redacted_snippet(content, match.start(), literal, redact=redact),
-                    confidence=1.0,
-                    kind=kind,
-                )
-            )
+            matched_spans.append((match.start(1), match.end(1)))
+            yield kind, literal, match.start(), 1.0
 
-    # High-entropy fallback — only if no provider match was already found
-    # at this position, to avoid double-emitting the same literal.
-    def _overlaps_matched(pos: int) -> bool:
-        return any(start <= pos < end for start, end in matched_spans)
+    for match in (_BASIC_AUTH_URL_RE.finditer(content) if urls else ()):
+        literal = match.group("secret")
+        if is_placeholder_secret(literal) or _overlaps(match.start("secret"), match.end("secret")):
+            continue
+        host = content[match.end("secret") + 1 : match.end("secret") + 64].split("/", 1)[0].split(":", 1)[0]
+        if host.lower() in {"localhost", "127.0.0.1", "0.0.0.0", "[::1]"}:
+            continue  # a local dev DSN
+        matched_spans.append((match.start("secret"), match.end("secret")))
+        yield "basic_auth_url", literal, match.start("secret"), 0.9
 
-    for match in _QUOTED_LITERAL.finditer(content):
+    # High-entropy fallback — only where no stronger match already fired.
+    for match in (_QUOTED_LITERAL.finditer(content) if entropy else ()):
         literal = match.group(1)
         pos = match.start(1)
-        if _overlaps_matched(pos):
+        if _overlaps(pos, match.end(1)):
             continue
         if not _looks_like_secret_candidate(literal):
             continue
@@ -916,19 +1195,51 @@ def _append_hardcoded_secret_hints(result: ScanResult, relative: str, content: s
             continue  # base64/base32/hex alphabet constant, not a secret (#96)
         if _shannon_entropy(literal) < _ENTROPY_THRESHOLD:
             continue
-        line = _line_of(content, pos)
-        key = ("high_entropy", relative, line)
-        if key in seen:
+        matched_spans.append((pos, match.end(1)))
+        yield "high_entropy", literal, pos, 0.7
+
+    if generic:
+        for match in _CREDENTIAL_ASSIGN_RE.finditer(content):
+            literal = match.group("secret")
+            if _overlaps(match.start("secret"), match.end("secret")):
+                continue
+            if not _credential_assignment_ok(match.group("key"), literal):
+                continue
+            matched_spans.append((match.start("secret"), match.end("secret")))
+            yield "credential_assignment", literal, match.start("secret"), 0.5
+
+
+def _append_hardcoded_secret_hints(
+    result: ScanResult, relative: str, content: str, *, entropy: bool = True, generic: bool = True,
+    urls: bool = True,
+) -> None:
+    """Emit SecretHint records for literals pasted into source or config
+    (#39, #252). Every value is redacted before it lands in a hint."""
+    seen: set[tuple[str, str, int]] = {
+        (hint.kind, hint.file, hint.line or 0) for hint in result.secret_hints
+    }
+    # A line that already carries a secret hint (e.g. a config DB URL
+    # password) doesn't get a second, weaker one.
+    lines_with_hint = {hint.line for hint in result.secret_hints if hint.file == relative}
+    for kind, literal, offset, confidence in iter_secret_matches(content, entropy=entropy, generic=generic, urls=urls):
+        line = _line_of(content, offset)
+        key = (kind, relative, line)
+        if key in seen or (confidence < 1.0 and line in lines_with_hint):
             continue
         seen.add(key)
+        lines_with_hint.add(line)
+        # PEM only captures the (non-secret) header line — keep it verbatim.
+        # Everything else is redacted in both the name *and* the evidence
+        # snippet so the raw credential never reaches report.json.
+        redact = kind != "pem_private_key"
         result.secret_hints.append(
             SecretHint(
-                name=_redact_secret(literal),
+                name=_redact_secret(literal) if redact else literal,
                 file=relative,
                 line=line,
-                evidence_text=_redacted_snippet(content, pos, literal),
-                confidence=0.7,
-                kind="high_entropy",
+                evidence_text=_redacted_snippet(content, offset, literal, redact=redact),
+                confidence=confidence,
+                kind=kind,
             )
         )
 

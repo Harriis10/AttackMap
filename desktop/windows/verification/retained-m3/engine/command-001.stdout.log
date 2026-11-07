@@ -1,0 +1,399 @@
+                                                                               
+ Usage: attackmap.exe analyze [OPTIONS] [paths]...                             
+                                                                               
+┌─ Arguments ─────────────────────────────────────────────────────────────────┐
+│   paths      <str>  Path(s) to the repository(ies) to analyze. Pass two or  │
+│                     more for a cross-repo fleet scan (#146a): each is       │
+│                     scanned into its own report subdirectory and a fleet    │
+│                     summary is written alongside. Defaults to '.'.          │
+└─────────────────────────────────────────────────────────────────────────────┘
+┌─ Options ───────────────────────────────────────────────────────────────────┐
+│ --output               -o      <str>                 Directory for          │
+│                                                      generated reports.     │
+│                                                      [default: reports]     │
+│ --format                       <str>                 Which report artifacts │
+│                                                      to write: 'all'        │
+│                                                      (default), 'json'      │
+│                                                      (machine-readable      │
+│                                                      *.json + SARIF), or    │
+│                                                      'markdown'             │
+│                                                      (human-readable *.md + │
+│                                                      Graphviz *.dot).       │
+│                                                      Opt-in outputs         │
+│                                                      (--baseline diff,      │
+│                                                      --pr-comment, LLM      │
+│                                                      passes) are always     │
+│                                                      written.               │
+│                                                      [default: all]         │
+│ --module               -m      <str>                 Analyzer module(s) to  │
+│                                                      run. Repeat to select  │
+│                                                      multiple. A missing    │
+│                                                      official analyzer is   │
+│                                                      installed (at its      │
+│                                                      pinned commit) only    │
+│                                                      with --install-missing │
+│                                                      or after an            │
+│                                                      interactive            │
+│                                                      confirmation.          │
+│ --install-missing                                    Install missing        │
+│                                                      official analyzers     │
+│                                                      named by --module,     │
+│                                                      pinned to the commits  │
+│                                                      in attackmap's plugin  │
+│                                                      lock.                  │
+│ --trusted-analyzers-…                                Load only official     │
+│                                                      AttackMap analyzer     │
+│                                                      plugins; skip any      │
+│                                                      other installed        │
+│                                                      package that registers │
+│                                                      one (also via          │
+│                                                      ATTACKMAP_TRUSTED_ANA… │
+│ --llm                                                Generate a narrative   │
+│                                                      defensive review by    │
+│                                                      calling Claude with    │
+│                                                      the evidence pack.     │
+│                                                      Auth resolves          │
+│                                                      automatically:         │
+│                                                      ANTHROPIC_API_KEY →    │
+│                                                      ANTHROPIC_AUTH_TOKEN → │
+│                                                      `claude` CLI           │
+│                                                      (subscription auth).   │
+│                                                      Force a backend with   │
+│                                                      --llm-backend.         │
+│ --llm-provider                 <str>                 LLM provider for       │
+│                                                      --llm/--hunt/--remedi… │
+│                                                      'claude' (default,     │
+│                                                      Anthropic) or 'openai' │
+│                                                      (OpenAI/Codex).        │
+│                                                      [default: claude]      │
+│ --llm-model                    <str>                 Model ID for --llm.    │
+│                                                      Claude provider: e.g.  │
+│                                                      claude-opus-4-8        │
+│                                                      (default),             │
+│                                                      claude-fable-5,        │
+│                                                      claude-sonnet-5,       │
+│                                                      claude-opus-4-7.       │
+│                                                      OpenAI provider: e.g.  │
+│                                                      gpt-5-codex (default), │
+│                                                      gpt-5.5, gpt-5.4,      │
+│                                                      gpt-5.4-mini — any     │
+│                                                      model ID is passed     │
+│                                                      through verbatim.      │
+│ --llm-effort                   <str>                 Effort for --llm:      │
+│                                                      low|medium|high|xhigh… │
+│                                                      Defaults to high. For  │
+│                                                      OpenAI, xhigh/max      │
+│                                                      clamp to high          │
+│                                                      (Responses API         │
+│                                                      reasoning effort tops  │
+│                                                      out at high).          │
+│ --llm-backend                  <str>                 Which backend --llm    │
+│                                                      uses. Claude: 'auto'   │
+│                                                      tries                  │
+│                                                      ANTHROPIC_API_KEY →    │
+│                                                      ANTHROPIC_AUTH_TOKEN → │
+│                                                      `claude` CLI; 'api'    │
+│                                                      forces the SDK; 'cli'  │
+│                                                      forces the `claude`    │
+│                                                      CLI. OpenAI: 'auto'    │
+│                                                      tries OPENAI_API_KEY   │
+│                                                      then the `codex` CLI;  │
+│                                                      'api' forces the       │
+│                                                      OpenAI SDK; 'cli'      │
+│                                                      forces `codex exec`    │
+│                                                      (your `codex login`    │
+│                                                      subscription).         │
+│                                                      [default: auto]        │
+│ --llm-speed                    <str>                 LLM output speed:      │
+│                                                      'standard' (default)   │
+│                                                      or 'fast'. Fast mode   │
+│                                                      (~2.5x output speed,   │
+│                                                      premium price) applies │
+│                                                      only to Opus 4.8/4.7   │
+│                                                      via the API backend;   │
+│                                                      other models/backends  │
+│                                                      fall back to standard. │
+│                                                      [default: standard]    │
+│ --hunt                                               Vulnerability-hypothe… │
+│                                                      mode (#80): have       │
+│                                                      Claude reason over the │
+│                                                      full evidence pack as  │
+│                                                      a red-team analyst and │
+│                                                      propose ranked,        │
+│                                                      human-verifiable       │
+│                                                      exploit-chain          │
+│                                                      HYPOTHESES (leads, not │
+│                                                      detections) to         │
+│                                                      vulnerability-hypothe… │
+│                                                      Uses the same LLM      │
+│                                                      auth/backend as --llm. │
+│ --verify                                             With --hunt: obtain a  │
+│                                                      model assessment of    │
+│                                                      each hypothesis        │
+│                                                      against source at      │
+│                                                      cited locations —      │
+│                                                      CONFIRMED / REFUTED /  │
+│                                                      NEEDS HUMAN REVIEW     │
+│                                                      (#hunt-verify).        │
+│                                                      AttackMap feeds code   │
+│                                                      excerpts to the model; │
+│                                                      this does not          │
+│                                                      establish verified     │
+│                                                      runtime                │
+│                                                      exploitability.        │
+│ --verify-votes                 <int>                 With --hunt --verify:  │
+│                                                      number of independent  │
+│                                                      skeptic passes to      │
+│                                                      adjudicate each        │
+│                                                      hypothesis. Each model │
+│                                                      assessment requires a  │
+│                                                      strict majority of     │
+│                                                      planned votes. Missing │
+│                                                      or failed votes        │
+│                                                      abstain; ties and      │
+│                                                      no-majority outcomes   │
+│                                                      are INCONCLUSIVE.      │
+│                                                      Model assessment does  │
+│                                                      not establish verified │
+│                                                      exploitability.        │
+│                                                      [default: 3]           │
+│ --hunt-lenses                  <int>                 With --hunt --verify:  │
+│                                                      run N independent      │
+│                                                      generation passes,     │
+│                                                      each specialised in a  │
+│                                                      distinct failure mode  │
+│                                                      (auth-bypass, TOCTOU,  │
+│                                                      IDOR, deserialization, │
+│                                                      SSRF, secret-misuse),  │
+│                                                      then dedupe across     │
+│                                                      them before verifying  │
+│                                                      (#147b). 1 = a single  │
+│                                                      generalist pass. Costs │
+│                                                      one extra LLM call per │
+│                                                      lens.                  │
+│                                                      [default: 1]           │
+│ --hunt-rounds                  <int>                 With --hunt --verify:  │
+│                                                      loop generation for up │
+│                                                      to N rounds,           │
+│                                                      accumulating new       │
+│                                                      (deduped) leads while  │
+│                                                      a completeness critic  │
+│                                                      seeds each next round  │
+│                                                      with untried angles;   │
+│                                                      stops early once a     │
+│                                                      round finds nothing    │
+│                                                      new (#147c). 1 = a     │
+│                                                      single round.          │
+│                                                      [default: 1]           │
+│ --hunt-budget                  <int>                 With --hunt-rounds:    │
+│                                                      stop launching new     │
+│                                                      hunting rounds after   │
+│                                                      this many output       │
+│                                                      tokens (0 disables     │
+│                                                      only this hunt         │
+│                                                      sublimit; the          │
+│                                                      whole-scan AI          │
+│                                                      allowance still        │
+│                                                      applies).              │
+│                                                      [default: 0]           │
+│ --ai-max-calls                 <int range>           Per-repository         │
+│                                [1<=x<=64]            whole-scan provider    │
+│                                                      attempt limit shared   │
+│                                                      by narrative,          │
+│                                                      hunt/jury, remediation │
+│                                                      and triage. Fleet AI   │
+│                                                      features are           │
+│                                                      unsupported.           │
+│                                                      [default: 8]           │
+│ --ai-output-tokens             <int range>           Whole-scan             │
+│                                [1<=x<=256000]        OUTPUT-token           │
+│                                                      allowance; API backend │
+│                                                      required. Does not cap │
+│                                                      input tokens, hidden   │
+│                                                      reasoning or billing.  │
+│                                                      [default: 32000]       │
+│ --ai-timeout-seconds           <int range>           Whole-scan elapsed AI  │
+│                                [1<=x<=86400]         allowance in seconds;  │
+│                                                      no provider attempt    │
+│                                                      begins after its       │
+│                                                      deadline.              │
+│                                                      [default: 600]         │
+│ --remediate                                          Remediation mode       │
+│                                                      (#106): have Claude    │
+│                                                      propose concrete,      │
+│                                                      review-first fixes per │
+│                                                      finding (suggested     │
+│                                                      diffs / precise        │
+│                                                      instructions, grounded │
+│                                                      in evidence) to        │
+│                                                      remediation.md. Uses   │
+│                                                      the same LLM           │
+│                                                      auth/backend as --llm. │
+│ --triage                                             Triage mode (#145):    │
+│                                                      cluster, de-duplicate, │
+│                                                      and rank the EXISTING  │
+│                                                      heuristic findings     │
+│                                                      into a prioritized     │
+│                                                      shortlist (citing real │
+│                                                      finding IDs) at        │
+│                                                      triage.md. LLM-backed  │
+│                                                      when available;        │
+│                                                      degrades to a          │
+│                                                      deterministic          │
+│                                                      score-ordered fallback │
+│                                                      when no backend is     │
+│                                                      present.               │
+│ --recall                                             Recall mode (#148a):   │
+│                                                      widen taint discovery  │
+│                                                      — deeper import-hop    │
+│                                                      depth and surfacing    │
+│                                                      reaches the default    │
+│                                                      pass conservatively    │
+│                                                      hides. The extra reach │
+│                                                      is marked SPECULATIVE  │
+│                                                      and kept out of        │
+│                                                      --fail-on-new-high;    │
+│                                                      pair with --hunt       │
+│                                                      --verify to adjudicate │
+│                                                      it. Off by default     │
+│                                                      (higher recall, lower  │
+│                                                      precision).            │
+│ --baseline                     <str>                 Path to a prior        │
+│                                                      `attackmap-report.jso… │
+│                                                      When set, emit a diff  │
+│                                                      (new/persisted/resolv… │
+│                                                      alongside the fresh    │
+│                                                      report.                │
+│ --diff-output                  <str>                 Path to write the      │
+│                                                      Markdown diff.         │
+│                                                      Defaults to            │
+│                                                      <output>/attackmap-di… │
+│                                                      when --baseline is     │
+│                                                      set.                   │
+│ --fail-on-new-high                                   Exit non-zero if the   │
+│                                                      diff introduces any    │
+│                                                      new HIGH-severity      │
+│                                                      findings. Requires     │
+│                                                      --baseline.            │
+│ --suppress-from-ref            <str>                 Trust only             │
+│                                                      suppressions that      │
+│                                                      exist at this git ref  │
+│                                                      (e.g. the PR's base    │
+│                                                      branch). Suppress-file │
+│                                                      entries and inline     │
+│                                                      directives added since │
+│                                                      are reported as        │
+│                                                      pending and not        │
+│                                                      applied.               │
+│ --allow-pr-suppressi…                                With                   │
+│                                                      --suppress-from-ref,   │
+│                                                      apply suppressions     │
+│                                                      added since the ref    │
+│                                                      anyway (they are still │
+│                                                      listed).               │
+│ --strict-suppressions                                Exit 2 if any          │
+│                                                      suppression has        │
+│                                                      expired (past its      │
+│                                                      `expires:` / `until=`  │
+│                                                      date).                 │
+│ --strict-analyzers                                   Fail fast if any       │
+│                                                      analyzer raises or     │
+│                                                      returns an invalid     │
+│                                                      result, instead of     │
+│                                                      skipping it and        │
+│                                                      listing it under       │
+│                                                      analyzer_errors (for   │
+│                                                      plugin development and │
+│                                                      CI).                   │
+│ --fail-on-new-suppre…                                Exit non-zero if a     │
+│                                                      finding active in the  │
+│                                                      baseline is suppressed │
+│                                                      in this run (e.g. a    │
+│                                                      suppression added by   │
+│                                                      the PR). Requires      │
+│                                                      --baseline.            │
+│ --secrets-history              <int>                 Also scan the patches  │
+│                                                      of the last N commits  │
+│                                                      (all refs) for         │
+│                                                      hard-coded secrets,    │
+│                                                      reporting the          │
+│                                                      introducing commit and │
+│                                                      whether each is still  │
+│                                                      in HEAD. Off by        │
+│                                                      default (0); capped at │
+│                                                      5000 commits and 64 MB │
+│                                                      of patch text. Git     │
+│                                                      runs with hooks,       │
+│                                                      pagers, external diff  │
+│                                                      and textconv disabled. │
+│                                                      [default: 0]           │
+│ --cve                                                Cross-reference SBOM   │
+│                                                      entries against        │
+│                                                      OSV.dev and surface    │
+│                                                      vulnerable             │
+│                                                      dependencies as        │
+│                                                      findings. Cached under │
+│                                                      ~/.attackmap/cache/os… │
+│                                                      (24h TTL). Off by      │
+│                                                      default because it     │
+│                                                      does network I/O.      │
+│ --no-progress                                        Disable the live       │
+│                                                      progress bar / ETA     │
+│                                                      during scanning.       │
+│                                                      Progress auto-disables │
+│                                                      when stderr isn't a    │
+│                                                      terminal (CI, piped    │
+│                                                      output).               │
+│ --progress-format              <str>                 Progress reporting:    │
+│                                                      'auto' (TTY bar when   │
+│                                                      stderr is a terminal), │
+│                                                      'tty' (always the      │
+│                                                      bar), 'json'           │
+│                                                      (newline-delimited     │
+│                                                      JSON events on stderr, │
+│                                                      for GUI/tool           │
+│                                                      front-ends), or        │
+│                                                      'none'. --no-progress  │
+│                                                      is equivalent to       │
+│                                                      'none'.                │
+│                                                      [default: auto]        │
+│ --pr-comment                   <str>                 Write a Markdown PR    │
+│                                                      summary comment to     │
+│                                                      this path (for the     │
+│                                                      GitHub Action / bot to │
+│                                                      post). Includes the    │
+│                                                      baseline diff and top  │
+│                                                      exploitability when    │
+│                                                      available.             │
+│ --no-suppress                                        Ignore all             │
+│                                                      suppressions — the     │
+│                                                      .attackmap-suppress.y… │
+│                                                      baseline and inline    │
+│                                                      `attackmap:ignore`     │
+│                                                      directives (#144). Use │
+│                                                      for a full, unfiltered │
+│                                                      audit.                 │
+│ --suppress-file                <str>                 Path to a suppression  │
+│                                                      baseline, overriding   │
+│                                                      auto-discovery of      │
+│                                                      .attackmap-suppress.y… │
+│                                                      at the repo root       │
+│                                                      (#144).                │
+│ --run-id                       <str>                 Optional run           │
+│                                                      identifier written     │
+│                                                      into                   │
+│                                                      artifact-manifest.jso… │
+│                                                      Useful for GUI/CI      │
+│                                                      correlation.           │
+│ --fleet-workers                <int>                 Maximum parallel       │
+│                                                      repository scans in    │
+│                                                      multi-repo mode.       │
+│                                                      Default 1 (serial).    │
+│                                                      Capped by              │
+│                                                      ATTACKMAP_FLEET_MAX_W… │
+│                                                      if set.                │
+│                                                      [default: 1]           │
+│ --help                                               Show this message and  │
+│                                                      exit.                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T15:28:21.317586+00:00",
+  "scope": "Both ordinary and fleet CLI requested-module preflight plus atomic service requested-module failure. Shared CLI wrapper preserves interactive selection policy, original BadParameter and exit2.",
+  "verification": {
+    "passed": 57,
+    "skipped": 1,
+    "seconds": 26.3,
+    "raw_log": ".pytest_cache\\m3-engine-scan-timing-proof\\all-cli-startup-diagnostic-pytest.log",
+    "log_sha256": "eef657aa94d8d47ea675f583427147b3e8facdc4671e678e2418801649efe6b1",
+    "environment": "PYTHONPATH absoluteworkspace/src; pytest -o pythonpath same; .venv Python3.13"
+  },
+  "callsites": {
+    "raw_select_modules": "cli.py72 only inside shared wrapper",
+    "fleet": "cli.py222",
+    "single_repository": "cli.py531"
+  },
+  "assertions": [
+    "Single and two-repository CLI preserve prior verified current generation",
+    "Generic persisted diagnostic excludes sentinel exception details",
+    "Safe/writable atomic output only, direct-generation suppresses all diagnostic writes",
+    "Unwritable diagnostic storage preserves original CLI error",
+    "Service validated/provided or generated identity, traversal rejected",
+    "No invented scan timestamp before analysis"
+  ],
+  "source_hashes": {
+    "src/attackmap/cli.py": "b2fd7f3b7bc9a72bf8afc6493f87e4ebf8598ba80a43d06b5bb833ad4a5e9263",
+    "src/attackmap/scan_service.py": "38bb3d899373972be8ac3d4bcf497bbeada0df0c1dbb3cf41e767373d6dd1124",
+    "tests/test_cli_validation.py": "e4a06e7aa0d76eb562ea2d81da5f5369f43c60b66f35bac573346f818ff88ab0",
+    "tests/test_scan_service.py": "30fef25175ae19cc6b6a433af0e9e63123eae712c1306ca45ea73a5d87df2baf"
+  },
+  "limitations": [
+    "Best-effort diagnostics when storage safe/writable",
+    "Other CLI argument/parser failures outside modulepreflight not expanded",
+    "No full regression/frozen/native gate claim"
+  ]
+}

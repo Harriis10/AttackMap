@@ -1,4 +1,4 @@
-from attackmap.models import AttackSurface, AuthHint, DatabaseHint, ExternalCall, Route, ScanResult, ServiceHint
+from attackmap.models import AttackSurface, AuthHint, DatabaseHint, ExternalCall, Route, ScanResult, ServiceHint, TaintChain
 from attackmap.recon_to_analysis import to_attack_paths, to_attack_surface, to_findings, translate_recon
 
 
@@ -8,6 +8,7 @@ def test_translate_recon_produces_surface_findings_and_paths() -> None:
         routes=[Route(path="/webhook/stripe", method="POST", file="api/webhooks.py")],
         external_calls=[ExternalCall(target="https://api.stripe.com/v1/events", file="api/webhooks.py")],
         databases=[DatabaseHint(kind="postgresql", file="db/client.py")],
+        taint_chains=[TaintChain(route_path="/webhook/stripe", route_method="POST", route_file="api/webhooks.py", sink_kind="ssrf", sink_file="api/webhooks.py", hops=0)],
         files_scanned=3,
         languages=["python"],
     )
@@ -21,6 +22,24 @@ def test_translate_recon_produces_surface_findings_and_paths() -> None:
     assert any("webhook" in finding.title.lower() for finding in outputs.findings)
 
 
+def test_non_auth_controller_hint_does_not_authenticate_surface_or_paths() -> None:
+    """A leftover controller:* hint in auth_hints must not make the surface
+    look authenticated, and attack paths must use that same surface view."""
+    scan = ScanResult(
+        root=".",
+        routes=[Route(path="/items", method="GET", file="app/routes.py", line=10)],
+        auth_hints=[AuthHint(hint="controller:Admin", file="app/routes.py", line=10)],
+        files_scanned=1,
+        languages=["python"],
+    )
+    outputs = translate_recon(scan)
+    assert outputs.attack_surfaces
+    surface = outputs.attack_surfaces[0]
+    assert "controller:Admin" not in surface.auth_signals
+    from_paths = to_attack_paths(scan, outputs.attack_surfaces)
+    assert [p.model_dump() for p in from_paths] == [p.model_dump() for p in outputs.attack_paths]
+
+
 def test_translation_helpers_are_consistent_with_full_translation() -> None:
     scan = ScanResult(
         root=".",
@@ -31,7 +50,7 @@ def test_translation_helpers_are_consistent_with_full_translation() -> None:
 
     attack_surfaces = to_attack_surface(scan)
     findings = to_findings(scan, attack_surfaces)
-    attack_paths = to_attack_paths(scan)
+    attack_paths = to_attack_paths(scan, attack_surfaces)
     outputs = translate_recon(scan)
 
     assert [surface.model_dump() for surface in attack_surfaces] == [

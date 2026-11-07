@@ -175,6 +175,36 @@ def test_query_param_bola_surface_excluded() -> None:
     assert find_cross_boundary_flows([_link()], [("server", server)]) == []
 
 
+def test_via_proxy_link_creates_no_flow_or_trust_gap() -> None:
+    # An observed_via_proxy seam (C28) must not fire trust-path findings: the
+    # declared proxy is an intermediary core does not model, and it may itself
+    # be the enforcement point. The same seam resolved directly fires both.
+    def seam(resolution: str, **kw) -> ContractLink:
+        return ContractLink(
+            client_repo="client", server_repo="server", method="POST",
+            path_template="api/orders/*", client_target="http://edge.internal/api/orders/",
+            client_file="c.py", client_line=4, server_route_path="/api/orders/<id>",
+            server_file="s.py", server_line=5, client_method="POST",
+            resolution=resolution, **kw,
+        )
+
+    proxied = seam("observed_via_proxy", proxy_host="edge.internal",
+                   alias_provenance="proxies:edge.internal")
+    server = ScanResult(
+        root="server",
+        routes=[_route("/api/orders/<id>", "POST")],
+        taint_chains=[_taint_chain("/api/orders/<id>", route_method="POST")],
+    )
+    scans = [("client", ScanResult(root="client")), ("server", server)]
+    auth = {"server": {("s.py", "POST", "/api/orders/<id>"): False}}
+    assert find_cross_boundary_flows([proxied], scans) == []
+    assert find_trust_gaps([proxied], scans, auth) == []
+    # Control: the identical seam resolved directly fires both.
+    direct = seam("observed")
+    assert len(find_cross_boundary_flows([direct], scans)) == 1
+    assert len(find_trust_gaps([direct], scans, auth)) == 1
+
+
 def test_taint_severity_derived_from_sink() -> None:
     server = ScanResult(root="server", taint_chains=[_taint_chain("/api/orders/<id>", sink="ssrf")])
     flows = find_cross_boundary_flows([_link()], [("server", server)])

@@ -1,5 +1,32 @@
 # AGENTS.md
 
+## Documentation authority — 2026-10-20
+
+For planning and agent execution, start with [the current documentation index](docs/README.md).
+The only active implementation plan is:
+
+- [Windows parity roadmap](docs/roadmap-windows-parity-2026-10-20.md): checkpoints, scope, and acceptance gates.
+- [Windows parity TODO](docs/windows-parity-todo.md): executable WP001–WP044 task definitions.
+- [Windows parity backlog](docs/windows-parity-backlog.json): dependencies, ownership, and parallel-work leases.
+
+The [dated audit](docs/windows-parity-audit-2026-10-20.md), its
+[source manifest](docs/windows-parity-sources-2026-10-20.json), and
+[plan validation](docs/verification/windows-parity/plan-validation-2026-10-20.json)
+support that plan; they do not prove new runtime acceptance.
+
+All other pre-existing documentation is OLD / HISTORICAL and IRRELEVANT as an
+independent source of agent tasks, priorities, delivery status, or release approval.
+Do not resume its TODOs, copy its completion claims, or let an old handoff override
+the active plan. This applies also to documents outside `docs/`, old READMEs,
+`old_docs/`, and retained verification notes.
+Read historical technical contracts, C01–C40 criteria, or evidence only when an
+active WP task needs that reference; verify implementation claims against current
+code. Criteria remain applicable only in the scope incorporated by the new plan.
+Preserve Windows M3 acceptance and the removal of Windows C26.
+Do not modify retained evidence or fixture data merely to add archival labels.
+This section changes documentation authority, not repository instructions,
+security/contribution policies, or the contents of historical evidence.
+
 ## Project
 AttackMap is an open-source defensive security analysis engine.
 
@@ -197,6 +224,15 @@ Prefer reusable general capabilities first, then thin protocol/application overl
 - keep naming consistent with the current architecture
 
 ## Testing expectations
+For live AI integration tests, use the local LM Studio OpenAI-compatible
+endpoint `http://127.0.0.1:1234/v1` and its running model
+`cyberstag-security-26b-a4b-v1`. Do not switch to a remote AI provider for
+testing unless the user explicitly requests it. Deterministic unit tests
+should continue to use fixtures or fake providers where appropriate.
+
+Use `C:\tmp\juice-shop` as the targeted real-repository integration test.
+Keep generated test reports outside that repository.
+
 When making changes:
 - update or add focused tests
 - use small fixtures
@@ -209,6 +245,9 @@ Prefer:
 - targeted integration-style checks when appropriate
 
 ## Workflow expectations
+When delegating future work to subagents, use the `gpt-6.1-sol` model
+(GPT-6.1 Sol), as requested by the user on 2026-10-15.
+
 Before changing code:
 1. inspect relevant files
 2. summarize current behavior
@@ -244,3 +283,13 @@ A task is done when:
 - output quality or modeling quality is measurably improved
 - limitations are stated honestly
 - the next incremental step is clear
+
+## M3 user steering — 2026-10-15
+
+Prioritize visible desktop workflows and real local-model integration. Report
+fixture/unit checks separately from actual LM Studio HTTP calls and completed
+model responses; fixture passes never prove live provider integration. Avoid
+repeating full regression matrices after every small change. Use focused checks
+while integrating a batch, then run required broad verification at a stable
+checkpoint. GUI work must produce a visible preview and actual visual review;
+compilation or internal control assertions alone do not prove its appearance.

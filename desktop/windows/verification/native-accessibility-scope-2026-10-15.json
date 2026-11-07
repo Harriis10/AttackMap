@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-15",
+  "implementation": "NativeAccessibility.Bind / ApplyNames / Audit",
+  "sourceSha256": "f46e898d2cc51edbbd46b71ebf86179106ad731a7b12a3950a728778eb414c18",
+  "sourceGuardChecks": 12,
+  "nativeCompilation": "pending root build slot",
+  "runtimeAudit": "pending root Loaded hook",
+  "manualKeyboard": "not run",
+  "manualNarrator": "not run",
+  "contrast": "not measured",
+  "shortcuts": {
+    "open_report": "Ctrl+O",
+    "choose_repository": "Ctrl+Shift+O",
+    "scan": "F5",
+    "cancel": "Escape",
+    "export": "Ctrl+E",
+    "settings": "Ctrl+Comma",
+    "history": "Ctrl+H"
+  },
+  "scope": "Loaded visible interactive controls only; collapsed descendants and non-tab-stop template parts excluded. Popups/dialogs/virtualized rows need separate manual task checks.",
+  "limitations": [
+    "Source checks are not runtime accessibility validation",
+    "Disabled controls do not produce focusability issues",
+    "Scan/cancel accelerators ignore unavailable/disabled primary controls",
+    "No full C24 acceptance claim"
+  ]
+}

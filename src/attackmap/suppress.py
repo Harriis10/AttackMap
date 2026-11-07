@@ -17,35 +17,54 @@ suppress:
   - id: 1a2b3c4d5e6f7a8b
     reason: accepted risk, tracked in JIRA-1234
 
-  # by rule (a slug of the finding title — matches the SARIF ruleId)
-  - rule: hardcoded-secret-literals
+  # by rule id (the stable detector id — `attackmap rules` lists them; it is
+  # also the SARIF ruleId)
+  - rule: hardcoded-secret
     reason: test fixtures only, never shipped
     paths: ["tests/fixtures/**"]     # optional: scope the rule to paths
+    expires: 2026-12-31              # optional (#238): not applied after this
+    owner: platform-team             # optional: who accepted the risk
+    ticket: https://tracker.example/SEC-123
 
   # by path only (any finding whose evidence is *entirely* within paths)
   - path: "vendor/**"
     reason: third-party code, out of scope
 ```
 
-``paths``/``path`` are globs. A path selector matches a finding only when
-**every** file its evidence cites falls under the glob — so a finding that
-also touches live code is never silently hidden. ``*`` matches across path
-separators (``vendor/*`` covers the whole subtree); ``**`` is accepted as a
-synonym for ``*``.
+``paths``/``path`` are globs: ``*`` matches within one directory and ``**``
+across directories (``vendor/**`` covers the subtree, ``vendor/*`` only its
+direct files). A glob that matches everything (``*``, ``**``, ``**/*``) is
+rejected. A path selector suppresses only the finding instances it covers —
+other instances of the same finding stay active.
+
+Entries past ``expires`` are not applied and are warned about
+(``--strict-suppressions`` makes that exit 2). With
+``--suppress-from-ref <ref>`` (the GitHub Action passes the PR's base branch),
+only entries that already exist at ``<ref>`` apply; ones added since are
+reported as *pending* (``--allow-pr-suppressions`` applies them anyway).
 
 ## 2. Inline directives
 
 ```python
-API_KEY = "…"  # attackmap:ignore[hardcoded-secret-literals] rotated, staging only
+API_KEY = "…"  # attackmap:ignore[hardcoded-secret] rotated, staging only
 ```
 
-A directive in file ``X`` contributes a path selector for ``X`` (optionally
-scoped to the bracketed rule; a bare ``attackmap:ignore`` matches any rule).
-Because findings aggregate every site of an issue-type, an inline directive
-suppresses a finding only when *all* of the finding's cited files carry a
-matching directive (or are covered by a baseline path glob). For a
-single-file finding one directive is enough; a multi-file finding needs the
-directive in each cited file, or a baseline ``path`` entry.
+A directive covers only the finding **instance on its own line or the line
+below it** (#224) — put it at the end of the flagged line, or on its own line
+just above. Other findings in the same file, and instances added later, stay
+active. A finding with several instances is suppressed when every instance is
+covered; partly covered findings stay active with the covered instances
+removed. Name the rule (``attackmap rules`` lists ids); a bare
+``attackmap:ignore`` matches any rule on that line and is warned about.
+
+Inline directives accept an expiry in their reason:
+``# attackmap:ignore[weak-password-hash] legacy hash until=2026-12-31``.
+
+For file-wide scope use the explicit form:
+
+```python
+# attackmap:ignore-file[hardcoded-secret] fixture keys, never deployed
+```
 
 ## Semantics
 
@@ -58,13 +77,18 @@ reason. Suppression counts are printed in the run summary.
 
 from __future__ import annotations
 
-import fnmatch
+from datetime import date, datetime
+
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .srcpaths import evidence_locations
+from .gitref import added_lines, show_file, validate_ref
+from .safe_fs import contained_file, read_repo_text
 from .diff import finding_id
-from .models import Finding
+from .finding_identity import legacy_finding_id
+from .models import Finding, finding_rule_id, title_slug
 
 __all__ = [
     "Suppression",
@@ -86,15 +110,7 @@ SUPPRESS_FILENAMES = (".attackmap-suppress.yaml", ".attackmap-suppress.yml")
 # directive token, so it works across languages. Rule list is optional; a
 # bare `attackmap:ignore` matches any rule.
 INLINE_DIRECTIVE = re.compile(
-    r"attackmap:ignore(?:\[\s*([a-z0-9_.,\s-]*?)\s*\])?[ \t:-]*(.*?)\s*(?:\*/)?$",
-    re.IGNORECASE,
-)
-
-# Lift file paths out of evidence strings — mirrors sarif._LOCATION_FROM_EVIDENCE
-# but captures the path only (line numbers are irrelevant to suppression).
-_EVIDENCE_PATH = re.compile(
-    r"(?:in|at)\s+`?([\w./_\\-]+\.(?:py|js|jsx|ts|tsx|mjs|cjs|go|rs|php|java|kt|"
-    r"cs|cpp|c|h|hpp|yml|yaml|json|toml|env|sh|dockerfile))`?(?::\d+)?",
+    r"attackmap:ignore(?:-file)?(?:\[\s*([a-z0-9_.,\s-]*?)\s*\])?[ \t:-]*(.*?)\s*(?:\*/)?$",
     re.IGNORECASE,
 )
 
@@ -115,24 +131,61 @@ def rule_slug(title: str) -> str:
     return slug or "finding"
 
 
+def _instances(finding: Finding) -> list[tuple[str, int | None]]:
+    """``(file, line)`` per instance: structured locations (#214), else the
+    locations cited in evidence."""
+    if finding.locations:
+        return [(loc.file.replace("\\", "/"), loc.line) for loc in finding.locations]
+    return [(f.replace("\\", "/"), l) for f, l in evidence_locations(finding.evidence)]
+
+
 def _evidence_paths(finding: Finding) -> list[str]:
-    """Best-effort set of source files a finding's evidence cites."""
+    """Source files a finding covers: structured `Finding.locations` (#214),
+    else the files cited in its evidence (shared parser, #213)."""
+    pairs = (
+        [(loc.file, loc.line) for loc in finding.locations]
+        if finding.locations
+        else evidence_locations(finding.evidence)
+    )
     paths: list[str] = []
-    seen: set[str] = set()
-    for line in finding.evidence:
-        for match in _EVIDENCE_PATH.finditer(line):
-            path = match.group(1).replace("\\", "/")
-            if path not in seen:
-                seen.add(path)
-                paths.append(path)
+    for file, _line in pairs:
+        path = file.replace("\\", "/")
+        if path not in paths:
+            paths.append(path)
     return paths
 
 
+def _glob_regex(glob: str) -> re.Pattern[str]:
+    """``*`` matches within one path segment, ``**`` across segments (#238),
+    ``?`` one non-separator character."""
+    out: list[str] = []
+    i = 0
+    while i < len(glob):
+        if glob.startswith("**/", i):
+            out.append("(?:.*/)?")
+            i += 3
+        elif glob.startswith("**", i):
+            out.append(".*")
+            i += 2
+        elif glob[i] == "*":
+            out.append("[^/]*")
+            i += 1
+        elif glob[i] == "?":
+            out.append("[^/]")
+            i += 1
+        else:
+            out.append(re.escape(glob[i]))
+            i += 1
+    return re.compile("".join(out))
+
+
 def _glob_match(path: str, glob: str) -> bool:
-    """Glob match where ``*`` spans path separators. ``**`` is treated as a
-    synonym for ``*`` so both ``vendor/*`` and ``vendor/**`` cover a subtree."""
-    normalized = glob.replace("**", "*")
-    return fnmatch.fnmatch(path, normalized)
+    return _glob_regex(glob.strip().lstrip("./")).fullmatch(path.lstrip("./")) is not None
+
+
+def is_match_everything_glob(glob: str) -> bool:
+    """`*`, `**`, `**/*`, `/` … — a glob that would silence the whole repo."""
+    return not glob.strip().strip("/").replace("*", "").replace("/", "").replace(".", "")
 
 
 @dataclass(frozen=True)
@@ -148,16 +201,25 @@ class Suppression:
     id: str | None = None
     rule: str | None = None
     path: str | None = None
+    # Inline directives (#224) cover only the instance on their own line or
+    # the line below; `attackmap:ignore-file` (and suppress-file `path:`
+    # entries) leave this None and cover the whole file.
+    line: int | None = None
+    # Governance metadata (#238). An entry past `expires` is not applied.
+    expires: date | None = None
+    owner: str | None = None
+    ticket: str | None = None
     origin: str = "file"  # "file" | "inline"
     source: str = ""  # human-readable declaration site
 
     def label(self) -> str:
+        where = f"{self.path}:{self.line}" if self.line is not None else self.path
         if self.id:
             sel = f"id={self.id}"
         elif self.path and self.rule:
-            sel = f"rule={self.rule} path={self.path}"
+            sel = f"rule={self.rule} path={where}"
         elif self.path:
-            sel = f"path={self.path}"
+            sel = f"path={where}"
         else:
             sel = f"rule={self.rule}"
         return f"{sel} ({self.origin})"
@@ -179,6 +241,8 @@ class SuppressionOutcome:
     active: list[Finding]
     suppressed: list[SuppressedFinding]
     warnings: list[str] = field(default_factory=list)
+    # Post-match notices (#223): legacy selectors and entries matching nothing.
+    notices: list[str] = field(default_factory=list)
 
     @property
     def count(self) -> int:
@@ -196,7 +260,19 @@ class SuppressionOutcome:
 class SuppressionSet:
     """Resolves whether a finding is suppressed and by which selector(s)."""
 
-    def __init__(self, suppressions: list[Suppression]) -> None:
+    def __init__(self, suppressions: list[Suppression], *, id_aliases: dict[str, str] | None = None) -> None:
+        self._all = list(suppressions)
+        # Governance (#238), filled by collect_suppressions.
+        self.pending: list[Suppression] = []
+        self.pending_applied = False
+        self.expired: list[Suppression] = []
+        self._used: set[int] = set()
+        # Legacy title-slug selectors that matched, keyed by selector →
+        # the stable rule id to use instead (#223).
+        self.legacy_selectors: dict[str, str] = {}
+        self.id_aliases = dict(id_aliases or {})
+        self.legacy_ids: dict[str, str] = {}
+        self.ambiguous_legacy_ids: set[str] = set()
         self._by_id: dict[str, list[Suppression]] = {}
         self._rule_only: list[Suppression] = []  # rule set, no path → whole-rule
         self._path: list[Suppression] = []  # path set (optional rule scope)
@@ -210,39 +286,82 @@ class SuppressionSet:
 
     def match(self, finding: Finding) -> list[Suppression]:
         """Return the suppressions that cover ``finding`` (empty = active)."""
-        fid = finding_id(finding.title)
-        rule = rule_slug(finding.title)
+        hits = self._match(finding)
+        self._used.update(id(s) for s in hits)
+        return hits
+
+    def mark_used(self, sups) -> None:  # type: ignore[no-untyped-def]
+        self._used.update(id(s) for s in sups)
+
+    def unused(self) -> list[Suppression]:
+        """Entries that matched no finding in this run (#223)."""
+        return [s for s in self._all if id(s) not in self._used]
+
+    def _rule_ok(self, selector_rule: str | None, finding: Finding) -> bool:
+        """A ``None`` selector is a wildcard. Otherwise it must equal the stable
+        rule id, or — deprecated — the finding's title slug."""
+        if selector_rule is None:
+            return True
+        selector = rule_slug(selector_rule)
+        stable = finding_rule_id(finding)
+        if selector == stable:
+            return True
+        legacy = title_slug(finding.title)
+        if finding.rule_id and selector == legacy:
+            self.legacy_selectors[selector] = stable
+            return True
+        return False
+
+    def _match(self, finding: Finding) -> list[Suppression]:
+        fid = finding_id(finding)
 
         exact = self._by_id.get(fid, [])
+        for old, target in self.id_aliases.items():
+            if target == fid and old in self._by_id:
+                exact = [*exact, *self._by_id[old]]
+                self.legacy_ids[old] = fid
+        old = legacy_finding_id(finding.title)
+        if (old != fid and old in self._by_id and old not in self.id_aliases
+                and old not in self.ambiguous_legacy_ids):
+            exact = [*exact, *self._by_id[old]]
+            self.legacy_ids[old] = fid
         if exact:
             return list(exact)
 
-        rule_hits = [s for s in self._rule_only if _rule_matches(s.rule, rule)]
+        rule_hits = [s for s in self._rule_only if self._rule_ok(s.rule, finding)]
         if rule_hits:
             return rule_hits
 
-        # Path coverage: the finding is suppressed only if EVERY file it cites
-        # is covered by a rule-compatible path selector. A finding with no
-        # citable path can never be path-suppressed (only by id/rule).
-        candidates = [s for s in self._path if _rule_matches(s.rule, rule)]
-        if not candidates:
+        # Path coverage: the finding is suppressed only if EVERY instance it
+        # covers is covered — by a path glob / `ignore-file` directive for its
+        # file, or by a line-scoped inline directive on its line (or the line
+        # above it, #224). A finding with no citable location can never be
+        # path-suppressed (only by id/rule).
+        coverage = self.instance_coverage(finding)
+        if not coverage or any(c is None for c in coverage):
             return []
-        paths = _evidence_paths(finding)
-        if not paths:
-            return []
-        contributing: list[Suppression] = []
-        for path in paths:
-            covering = next((s for s in candidates if _glob_match(path, s.path or "")), None)
-            if covering is None:
-                return []  # a cited file is outside every glob → keep finding
-            if covering not in contributing:
-                contributing.append(covering)
-        return contributing
+        return list(dict.fromkeys(coverage))  # type: ignore[arg-type]
 
-
-def _rule_matches(selector_rule: str | None, finding_rule: str) -> bool:
-    """A ``None`` selector rule is a wildcard; otherwise slug-equal."""
-    return selector_rule is None or rule_slug(selector_rule) == finding_rule
+    def instance_coverage(self, finding: Finding) -> list[Suppression | None]:
+        """Per instance of ``finding``, the path/inline suppression covering
+        it (or None). Empty when the finding has no citable location."""
+        candidates = [s for s in self._path if self._rule_ok(s.rule, finding)]
+        instances = _instances(finding)
+        if not candidates or not instances:
+            return [None] * len(instances)
+        out: list[Suppression | None] = []
+        for file, line in instances:
+            covering = None
+            for sup in candidates:
+                if sup.line is not None:
+                    if file == sup.path and line is not None and line in (sup.line, sup.line + 1):
+                        covering = sup
+                        break
+                elif _glob_match(file, sup.path or ""):
+                    covering = sup
+                    break
+            out.append(covering)
+        return out
 
 
 def apply_suppressions(
@@ -250,21 +369,49 @@ def apply_suppressions(
 ) -> SuppressionOutcome:
     active: list[Finding] = []
     suppressed: list[SuppressedFinding] = []
+    legacy_targets: dict[str, set[str]] = {}
+    for finding in findings:
+        legacy_targets.setdefault(legacy_finding_id(finding.title), set()).add(finding_id(finding))
+    suppset.ambiguous_legacy_ids.update(old for old, targets in legacy_targets.items() if len(targets) > 1)
     for finding in findings:
         matched = suppset.match(finding)
+        if not matched:
+            # Instance-level inline directives (#224): drop just the covered
+            # locations and keep the finding active for the rest.
+            coverage = suppset.instance_coverage(finding)
+            if finding.locations and len(coverage) == len(finding.locations) and any(coverage):
+                suppset.mark_used(c for c in coverage if c is not None)
+                finding = finding.model_copy(
+                    update={"locations": [loc for loc, c in zip(finding.locations, coverage) if c is None]}
+                )
         if matched:
             suppressed.append(
                 SuppressedFinding(
                     finding=finding,
-                    id=finding_id(finding.title),
-                    rule=rule_slug(finding.title),
+                    id=finding_id(finding),
+                    rule=finding_rule_id(finding),
                     reason="; ".join(dict.fromkeys(m.reason for m in matched if m.reason)),
                     matched=matched,
                 )
             )
         else:
             active.append(finding)
-    return SuppressionOutcome(active=active, suppressed=suppressed, warnings=warnings or [])
+    notices: list[str] = []
+    for old in sorted(suppset.ambiguous_legacy_ids & suppset._by_id.keys()):
+        notices.append(f"Legacy id '{old}' matches multiple rules; review and replace it with an explicit stable id.")
+    for old, stable in sorted(suppset.legacy_ids.items()):
+        notices.append(f"id '{old}' is a legacy title-based reference; replace it with stable id '{stable}'.")
+    for selector, stable in sorted(suppset.legacy_selectors.items()):
+        notices.append(
+            f"rule '{selector}' is a legacy title-based selector; use the stable rule id "
+            f"'{stable}' (title selectors will stop working in a future release)"
+        )
+    for sup in suppset.unused():
+        where = f" at {sup.source}" if sup.source else ""
+        notices.append(f"suppression {sup.label()}{where} matched no findings")
+    return SuppressionOutcome(
+        active=active, suppressed=suppressed, warnings=warnings or [], notices=notices
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -272,7 +419,22 @@ def apply_suppressions(
 # ---------------------------------------------------------------------------
 
 
-def _load_yaml_entries(path: Path, warnings: list[str]) -> list[Suppression]:
+_FINDING_ID_RE = re.compile(r"^[0-9a-f]{16}$")
+_SUPPORTED_VERSIONS = {1}
+
+
+def _str_list(value: object) -> list[str] | None:
+    """A ``paths`` value as a list of strings, or None when malformed."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list) and all(isinstance(v, str) for v in value):
+        return list(value)
+    return None
+
+
+def _load_yaml_entries(path: Path, warnings: list[str], *, root: Path | None = None) -> list[Suppression]:
+    """Parse a suppress file. Never raises (#225): every problem becomes a
+    ``Suppression warning`` and the offending entry (or file) is skipped."""
     try:
         import yaml  # type: ignore[import-untyped]
     except ImportError:
@@ -282,13 +444,36 @@ def _load_yaml_entries(path: Path, warnings: list[str]) -> list[Suppression]:
         )
         return []
     try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as exc:  # type: ignore[attr-defined]
+        # A repo-provided suppress file is read like any repo file: never
+        # through a symlink out of the repo (#234).
+        text = read_repo_text(root, path) if root is not None else path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        warnings.append(f"{path.name} is not valid UTF-8; suppressions ignored")
+        return []
+    except OSError as exc:
+        warnings.append(f"Failed to parse {path.name}: {exc}")
+        return []
+    return parse_suppress_text(text, path.name, warnings)
+
+
+def parse_suppress_text(text: str, name: str, warnings: list[str]) -> list[Suppression]:
+    """Parse suppress-file content (from disk or from a git ref)."""
+    import yaml  # type: ignore[import-untyped]
+
+    path = Path(name)
+    try:
+        data = yaml.safe_load(text)
+    except yaml.YAMLError as exc:  # type: ignore[attr-defined]
         warnings.append(f"Failed to parse {path.name}: {exc}")
         return []
 
     if isinstance(data, dict):
-        entries = data.get("suppress") or data.get("suppressions") or []
+        version = data.get("version", 1)
+        if version not in _SUPPORTED_VERSIONS:
+            warnings.append(f"{path.name}: unknown version {version!r} (supported: 1); reading it as version 1")
+        entries = data.get("suppress", data.get("suppressions", []))
+        if entries is None:
+            entries = []
     elif isinstance(data, list):
         entries = data
     elif data is None:
@@ -296,48 +481,114 @@ def _load_yaml_entries(path: Path, warnings: list[str]) -> list[Suppression]:
     else:
         warnings.append(f"{path.name}: expected a list or a mapping with 'suppress:'")
         return []
+    if not isinstance(entries, list):
+        warnings.append(f"{path.name}: 'suppress' must be a list of entries, got {type(entries).__name__}")
+        return []
 
     suppressions: list[Suppression] = []
-    for raw in entries:
+    for index, raw in enumerate(entries, start=1):
+        where = f"{path.name} entry {index}"
         if not isinstance(raw, dict):
-            warnings.append(f"{path.name}: skipping non-mapping entry {raw!r}")
+            warnings.append(f"{where}: skipping non-mapping entry {raw!r}")
             continue
-        reason = str(raw.get("reason", "")).strip()
+        reason = raw.get("reason", "")
+        if not isinstance(reason, str) or not reason.strip():
+            warnings.append(f"{where}: skipping entry without a text 'reason'")
+            continue
+        reason = reason.strip()
+
         sup_id = raw.get("id")
+        if sup_id is not None:
+            if not isinstance(sup_id, str):
+                warnings.append(
+                    f"{where}: id {sup_id!r} was read as {type(sup_id).__name__}, not text — quote it "
+                    "(e.g. id: \"0123456789abcdef\"); YAML turns digit-only or 0-prefixed ids into numbers"
+                )
+                continue
+            if not _FINDING_ID_RE.match(sup_id.strip()):
+                warnings.append(f"{where}: id {sup_id!r} is not a 16-hex finding id; skipping")
+                continue
+            sup_id = sup_id.strip()
+
         rule = raw.get("rule")
-        globs = raw.get("paths")
-        if globs is None and raw.get("path") is not None:
-            globs = raw.get("path")
-        glob_list = [globs] if isinstance(globs, str) else list(globs or [])
-
-        if not reason:
-            warnings.append(f"{path.name}: skipping entry without a 'reason' ({raw!r})")
+        if rule is not None and (not isinstance(rule, str) or not rule.strip()):
+            warnings.append(f"{where}: 'rule' must be a rule id string (see `attackmap rules`); skipping")
             continue
+
+        globs = raw.get("paths", raw.get("path"))
+        glob_list: list[str] = []
+        if globs is not None:
+            parsed = _str_list(globs)
+            if parsed is None:
+                warnings.append(f"{where}: 'paths' must be a string or a list of strings, got {globs!r}; skipping")
+                continue
+            glob_list = [g for g in parsed if g.strip()]
+            broad = [g for g in glob_list if is_match_everything_glob(g)]
+            if broad:
+                warnings.append(
+                    f"{where}: path {broad[0]!r} would suppress every file in the repo; rejected — "
+                    "scope it (e.g. 'tests/fixtures/**') or use a 'rule:' entry"
+                )
+                continue
+
+        expires = _parse_date(raw.get("expires"))
+        if raw.get("expires") is not None and expires is None:
+            warnings.append(f"{where}: 'expires' must be a YYYY-MM-DD date; skipping")
+            continue
+        owner = raw.get("owner") if isinstance(raw.get("owner"), str) else None
+        ticket = raw.get("ticket") if isinstance(raw.get("ticket"), str) else None
+
         if not (sup_id or rule or glob_list):
-            warnings.append(f"{path.name}: skipping entry with no selector (id/rule/path)")
+            warnings.append(f"{where}: skipping entry with no selector (id/rule/path)")
             continue
 
-        source = f"{path.name}"
+        source = where
+        meta = {"expires": expires, "owner": owner, "ticket": ticket, "origin": "file", "source": source}
         if sup_id:
-            suppressions.append(
-                Suppression(reason=reason, id=str(sup_id), origin="file", source=source)
-            )
+            suppressions.append(Suppression(reason=reason, id=sup_id, **meta))
         if glob_list:
             for glob in glob_list:
-                suppressions.append(
-                    Suppression(
-                        reason=reason,
-                        rule=str(rule) if rule else None,
-                        path=str(glob),
-                        origin="file",
-                        source=source,
-                    )
-                )
+                suppressions.append(Suppression(reason=reason, rule=rule, path=glob, **meta))
         elif rule:
-            suppressions.append(
-                Suppression(reason=reason, rule=str(rule), origin="file", source=source)
-            )
+            suppressions.append(Suppression(reason=reason, rule=rule, **meta))
     return suppressions
+
+
+def _parse_date(value: object) -> date | None:
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+_UNTIL = re.compile(r"\buntil=(\d{4}-\d{2}-\d{2})\b")
+
+
+def drop_expired(
+    suppressions: list[Suppression], warnings: list[str], *, today: date | None = None
+) -> tuple[list[Suppression], list[Suppression]]:
+    """Split into (live, expired). Expired entries are not applied — the
+    finding comes back — and each is reported (#238)."""
+    today = today or date.today()
+    live: list[Suppression] = []
+    expired: list[Suppression] = []
+    for sup in suppressions:
+        if sup.expires is not None and sup.expires < today:
+            expired.append(sup)
+            owner = f" (owner: {sup.owner})" if sup.owner else ""
+            warnings.append(
+                f"suppression {sup.label()} at {sup.source} expired on {sup.expires.isoformat()}{owner}; "
+                "no longer applied"
+            )
+        else:
+            live.append(sup)
+    return live, expired
 
 
 def load_suppress_file(
@@ -351,12 +602,14 @@ def load_suppress_file(
         return _load_yaml_entries(explicit, warnings)
     for name in SUPPRESS_FILENAMES:
         candidate = root / name
-        if candidate.exists():
-            return _load_yaml_entries(candidate, warnings)
+        if candidate.exists() or candidate.is_symlink():
+            return _load_yaml_entries(candidate, warnings, root=root)
     return []
 
 
-def scan_inline_suppressions(root: Path, findings: list[Finding]) -> list[Suppression]:
+def scan_inline_suppressions(
+    root: Path, findings: list[Finding], warnings: list[str] | None = None
+) -> list[Suppression]:
     """Scan the files cited by ``findings`` for inline ``attackmap:ignore``
     directives. Only cited files are read — this is both efficient and
     inherently scoped to what could actually be suppressed.
@@ -369,9 +622,9 @@ def scan_inline_suppressions(root: Path, findings: list[Finding]) -> list[Suppre
     for rel in sorted(cited):
         if any(part in _SKIP_INLINE_PARTS for part in Path(rel).parts):
             continue
-        file_path = (root / rel)
+        file_path = contained_file(root, rel)
         try:
-            if not file_path.is_file():
+            if file_path is None:
                 continue
             text = file_path.read_text(encoding="utf-8", errors="replace")
         except OSError:
@@ -384,23 +637,32 @@ def scan_inline_suppressions(root: Path, findings: list[Finding]) -> list[Suppre
                 continue
             rules_raw, reason = match.group(1), (match.group(2) or "").strip()
             source = f"{rel}:{lineno}"
+            file_wide = "attackmap:ignore-file" in line.lower()
+            scope_line = None if file_wide else lineno
             rule_tokens = [r.strip() for r in (rules_raw or "").split(",") if r.strip()]
-            if rule_tokens:
-                for token in rule_tokens:
-                    suppressions.append(
-                        Suppression(
-                            reason=reason,
-                            rule=token,
-                            path=rel,
-                            origin="inline",
-                            source=source,
-                        )
-                    )
-            else:
+            if not rule_tokens and warnings is not None:
+                warnings.append(
+                    f"bare attackmap:ignore{'-file' if file_wide else ''} at {source} matches every rule; "
+                    "name the rule (attackmap:ignore[rule-id]) — see `attackmap rules`"
+                )
+            until = _UNTIL.search(reason)
+            for token in rule_tokens or [None]:
                 suppressions.append(
-                    Suppression(reason=reason, path=rel, origin="inline", source=source)
+                    Suppression(
+                        reason=reason,
+                        rule=token,
+                        path=rel,
+                        line=scope_line,
+                        expires=_parse_date(until.group(1)) if until else None,
+                        origin="inline",
+                        source=source,
+                    )
                 )
     return suppressions
+
+
+def _selector_key(sup: Suppression) -> tuple:
+    return (sup.id, sup.rule and rule_slug(sup.rule), sup.path, sup.line)
 
 
 def collect_suppressions(
@@ -409,10 +671,56 @@ def collect_suppressions(
     *,
     enable_inline: bool = True,
     explicit_file: Path | None = None,
+    trusted_ref: str | None = None,
+    allow_pr_suppressions: bool = False,
+    id_aliases: dict[str, str] | None = None,
 ) -> tuple[SuppressionSet, list[str]]:
-    """Gather baseline-file + inline suppressions into a ready-to-apply set."""
+    """Gather suppress-file + inline suppressions into a ready-to-apply set.
+
+    With ``trusted_ref`` (#238) only suppressions that already exist at that
+    git ref (the PR's base) take effect. Entries added or changed since, and
+    inline directives on lines added since, are *pending*: reported on the
+    returned set's ``pending`` list and not applied, unless
+    ``allow_pr_suppressions``. Expired entries are never applied.
+
+    ``id_aliases`` carries baseline-derived legacy-id migration aliases
+    (``attackmap.finding_identity.legacy_id_aliases``) so suppressions
+    recorded against pre-migration title ids keep applying to the stable
+    identity across title edits; ambiguous records never acquire an alias.
+    """
     warnings: list[str] = []
     suppressions = load_suppress_file(root, warnings, explicit=explicit_file)
-    if enable_inline:
-        suppressions.extend(scan_inline_suppressions(root, findings))
-    return SuppressionSet(suppressions), warnings
+    inline = scan_inline_suppressions(root, findings, warnings) if enable_inline else []
+    pending: list[Suppression] = []
+
+    if trusted_ref is not None:
+        validate_ref(root, trusted_ref)
+        trusted_keys: set[tuple] = set()
+        source_file = explicit_file if explicit_file is not None else next(
+            (root / n for n in SUPPRESS_FILENAMES if (root / n).exists()), None
+        )
+        names = [source_file.name] if source_file is not None and explicit_file is None else list(SUPPRESS_FILENAMES)
+        for name in names:
+            text = show_file(root, trusted_ref, name)
+            if text is not None:
+                trusted_keys = {_selector_key(s) for s in parse_suppress_text(text, name, [])}
+                break
+        pending.extend(s for s in suppressions if _selector_key(s) not in trusted_keys)
+        added_by_file: dict[str, set[int]] = {}
+        for sup in inline:
+            if sup.path not in added_by_file:
+                added_by_file[sup.path or ""] = added_lines(root, trusted_ref, sup.path or "")
+            directive_line = int(sup.source.rsplit(":", 1)[1]) if ":" in sup.source else None
+            if directive_line in added_by_file[sup.path or ""]:
+                pending.append(sup)
+        if not allow_pr_suppressions:
+            pending_ids = {id(s) for s in pending}
+            suppressions = [s for s in suppressions if id(s) not in pending_ids]
+            inline = [s for s in inline if id(s) not in pending_ids]
+
+    live, expired = drop_expired(suppressions + inline, warnings)
+    suppset = SuppressionSet(live, id_aliases=id_aliases)
+    suppset.pending = pending
+    suppset.pending_applied = allow_pr_suppressions
+    suppset.expired = expired
+    return suppset, warnings

@@ -1,0 +1,113 @@
+Window: "AttackMap", App: AttackMap.NativeSpike.exe.
+	0 Okno AttackMap Secondary Actions: Raise
+		1 Podokno
+			2 Podokno
+				3 řádek nabídek Application commands ID: CommandMenu
+					4 položka nabídky File
+					5 položka nabídky Scan
+					6 položka nabídky View
+				7 vlastní ID: Navigation
+					8 tlačítko Zpět ID: NavigationViewBackButton
+					9 tlačítko Zavřít navigaci ID: TogglePaneButton
+						10 text ID: PaneTitleTextBlock
+					11 okno Secondary Actions: Raise ID: PaneRoot
+						12 text AttackMap
+						13 text Security workspace
+						14 podokno ID: MenuItemsScrollViewer
+							15 skupina ID: MenuItemsHost
+								16 položka seznamu (selectable) Overview
+								17 položka seznamu (selectable) Findings
+								18 položka seznamu (selectable) Architecture
+								19 položka seznamu (selectable) Inventory
+								20 položka seznamu (selectable) Reports
+								21 položka seznamu (selectable) History
+								22 položka seznamu (selectable) Scan options
+								23 položka seznamu (selectable) Risk and paths
+								24 položka seznamu (selectable) Evidence inventory
+								25 položka seznamu (selectable) Diagrams
+								26 položka seznamu (selectable) Fleet
+								27 položka seznamu (selectable) Suppressions
+						28 podokno ID: FooterItemsScrollViewer
+							29 skupina ID: FooterMenuItemsHost
+								30 položka seznamu (selectable) Nastavení ID: SettingsItem
+					31 text No repository selected ID: WorkspaceLabel
+					32 tlačítko Open canonical AttackMap JSON report
+					33 tlačítko Choose repository
+					34 tlačítko (disabled) Start scan ID: scan
+					35 tlačítko Cancel ID: cancel
+					36 text Fleet ID: Heading
+					37 text Open a canonical report, scan locally, or select a finding for evidence and reasoned suppression. ID: Status
+					38 podokno
+						39 text Fleet workspace
+						40 text Explicitly select 2–16 local repositories. Fleet AI, baselines, custom suppressions and secret history are unsupported. Partial runs remain diagnostic and never replace a current analysis.
+						41 tlačítko Add repository…
+						42 tlačítko Remove selected
+						43 tlačítko Scan fleet
+						44 tlačítko Cancel fleet
+						45 číselník (disabled, settable, float) Whole fleet allowance (seconds) Value: 1200
+							46 text Whole fleet allowance (seconds)
+							47 upravit (disabled, settable, string) Whole fleet allowance (seconds) Minimum1 Maximum86400 Value: 1200 ID: InputBox
+						48 číselník (disabled, settable, float) Concurrent repository workers (1–4) Value: 2
+							49 text Concurrent repository workers (1–4)
+							50 upravit (disabled, settable, string) Concurrent repository workers (1–4) Minimum1 Maximum4 Value: 2 ID: InputBox
+						51 text Fleet allowance: 1200 s total; at most 2 repository worker(s). Each child has its own captured snapshot. Count admission does not prove an OS memory cap.
+						52 zaškrtávací políčko Watch selected repositories
+						53 text Fleet watch is off. Enable it explicitly to request rescans after changes.
+						54 text Watching requests full fleet rescans. Unsupported roots require manual rescans.
+						55 seznam
+							757 položka seznamu (selectable) C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\team-a\service
+								1337 text C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\team-a\service ID: FleetRepositoryPath
+							759 položka seznamu (selectable) C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\team-b\service
+								1338 text C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\team-b\service ID: FleetRepositoryPath
+							761 položka seznamu (selectable) C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-02
+								1339 text C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-02 ID: FleetRepositoryPath
+							763 položka seznamu (selectable) C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-03
+								1340 text C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-03 ID: FleetRepositoryPath
+							765 položka seznamu (selectable) C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-04
+								1341 text C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-04 ID: FleetRepositoryPath
+							767 položka seznamu (selectable) C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-05
+								1342 text C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-05 ID: FleetRepositoryPath
+						88 text Fleet: running. 16 selected repositories. No complete fleet generation published by this view.
+						1343 text 77cccf94a2fc4f9d8ca67d3c097cfe37: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\team-a\service
+						1344 tlačítko (disabled) Open verified repository result
+						1345 text 681cac9e2981437a96ce48113cdc43b7: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\team-b\service
+						1346 tlačítko (disabled) Open verified repository result
+						1347 text 427b6b20d663430b92198e935b798831: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-02
+						1348 tlačítko (disabled) Open verified repository result
+						1349 text 014a318f78c1471eae2719660891d1a1: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-03
+						1350 tlačítko (disabled) Open verified repository result
+						1351 text de06dd7316e84245976e59cbf641e2e8: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-04
+						1352 tlačítko (disabled) Open verified repository result
+						1353 text 452799b6b8b44879a299b541b12a6ef4: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-05
+						1354 tlačítko (disabled) Open verified repository result
+						1355 text 5a4303f704cf4ff99820357380f86752: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-06
+						1356 tlačítko (disabled) Open verified repository result
+						1357 text 7bba44a0c9a442bd9f2f8be42bf76d82: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-07
+						1358 tlačítko (disabled) Open verified repository result
+						1359 text 1b5c0b29eee4433e9aac1b198d4c8244: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-08
+						1360 tlačítko (disabled) Open verified repository result
+						1361 text 40d333dbd0db4097bd36eba468748e49: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-09
+						1362 tlačítko (disabled) Open verified repository result
+						1363 text 12a9d43323d8469492ee5b23d2c358bd: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-10
+						1364 tlačítko (disabled) Open verified repository result
+						1365 text be53832627544f548a12ad92315e43aa: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-11
+						1366 tlačítko (disabled) Open verified repository result
+						1367 text 626116af23c84d26a5d3dde7bb79bac4: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-12
+						1368 tlačítko (disabled) Open verified repository result
+						1369 text c383045c3a8c434c927d2a66e87ff377: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-13
+						1370 tlačítko (disabled) Open verified repository result
+						1371 text b4515767c4f545398f62d09fbedafd00: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-14
+						1372 tlačítko (disabled) Open verified repository result
+						1373 text f8a95268bce74fd698183a50bcc62bd7: completed C:\Projects\INPROGRESS\AttackMap\.tmp\wp043-fleet16-20261023\integration\corpus\repo-15
+						1374 tlačítko (disabled) Open verified repository result
+						89 posuvník (settable, float) Svisle Value: 0 ID: VerticalScrollBar
+		90 Záhlaví (settable, string) Value: AttackMap
+			91 Řádek nabídek Systém ID: MenuBar
+				92 Příkaz v nabídce Systém
+			93 tlačítko Minimalizovat
+			94 tlačítko Maximalizovat
+			95 tlačítko Zavřít
+
+Document text: ```
+2
+```

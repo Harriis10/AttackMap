@@ -1,0 +1,23 @@
+{
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\engine-analyzers-final\\dist\\attackmap\\attackmap.exe",
+    "analyze",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\django-cases\\commented-path",
+    "--analyzer-profile",
+    "python@1.0",
+    "--output",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP039\\sol-ultra-20261023-python\\python-django-frozen-final\\commented-path",
+    "--format",
+    "json",
+    "--strict-analyzers",
+    "--trusted-analyzers-only",
+    "--no-progress",
+    "--time-budget-seconds",
+    "45",
+    "--run-id",
+    "django-oracle-commented-path"
+  ],
+  "exit_code": 0,
+  "stdout": "Scanned 16 files\r\nDetected languages: python\r\nRoutes: 1\r\nExternal calls: 0\r\nDatastores: 0\r\n\r\nHeuristic static analysis; runtime reachability and exploitability are not verified.\r\nFindings:\r\n- [LOW] Heuristic scan found only a limited attack surface\r\n\r\nAttack paths:\r\n\r\nNot analyzed: 1 Unique-file coverage unavailable (details under scan.limitations in attackmap-report.json).\r\n\r\nReports written to: C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP039\\sol-ultra-20261023-python\\python-django-frozen-final\\commented-path\\django-oracle-commented-path\r\n",
+  "stderr": "Skipping duplicate analyzer name 'omeka-s'.\r\nSkipping duplicate analyzer name 'php-laminas'.\r\nSkipping duplicate analyzer name 'php-web'.\r\nAnalyzer profile python@1.0: python, python-web, config, python-service, default. Repository detection still applies.\r\nExperimental modules selected: python-service.\r\n"
+}

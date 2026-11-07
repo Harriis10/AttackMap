@@ -1,0 +1,72 @@
+--- a/src/attackmap/scan_service.py
++++ b/src/attackmap/scan_service.py
+@@ -377,7 +377,7 @@
+         argv.append("--strict-suppressions")
+     if request.strict_analyzers:
+         argv.append("--strict-analyzers")
+-    if request.fleet_supervised and request.isolated_analyzers:
++    if request.isolated_analyzers:
+         argv.append("--isolated-analyzers")
+     if request.fleet_supervised and request.time_budget_seconds is not None:
+         argv.extend(["--time-budget-seconds", str(request.time_budget_seconds)])
+diff --git a/tests/test_fleet_parallelism.py b/tests/test_fleet_parallelism.py
+index 8108880..2c4e692 100644
+--- a/tests/test_fleet_parallelism.py
++++ b/tests/test_fleet_parallelism.py
+@@ -417,10 +417,11 @@ def test_fleet_parallel_reports_failed_repo(
+     assert summary.fleet_summary_path is not None
+ 
+ 
++@pytest.mark.parametrize("isolated", [False, True])
+ def test_cli_fleet_workers_spawns_parallel_subprocesses(
+-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
++    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, isolated: bool
+ ) -> None:
+-    """The --fleet-workers CLI option is wired into the shared fleet runner."""
++    """Ordinary parallel CLI workers preserve the requested isolation policy."""
+     from typer.testing import CliRunner
+ 
+     from attackmap.cli import app
+@@ -452,10 +453,42 @@ def test_cli_fleet_workers_spawns_parallel_subprocesses(
+             "2",
+             "--format",
+             "json",
++            *(["--isolated-analyzers"] if isolated else []),
+         ],
+     )
+     assert result.exit_code == 0, result.output
+     assert len(commands) == 2
+     for argv in commands:
+         assert "analyze" in argv
++        assert argv.count("--isolated-analyzers") == int(isolated)
++
++
++@pytest.mark.parametrize("isolated", [False, True])
++def test_cli_serial_fleet_preserves_isolation_policy(monkeypatch, tmp_path, isolated):
++    from typer.testing import CliRunner
++
++    from attackmap.cli import app
++
++    repos = [tmp_path / name for name in ("a", "b")]
++    for repo in repos:
++        repo.mkdir()
++    options_seen = []
++
++    def fake_scan(options):
++        options_seen.append(options)
++        return _make_state(options)
++
++    def unexpected_worker(*args, **kwargs):
++        raise AssertionError("Ordinary serial fleet must retain its in-process scan path")
++
++    monkeypatch.setattr(scan_service, "run_scan", fake_scan)
++    monkeypatch.setattr(scan_service, "_run_supervised_worker", unexpected_worker)
++    result = CliRunner().invoke(app, [
++        "analyze", *map(str, repos), "--output", str(tmp_path / "out"),
++        "--fleet-workers", "1", "--format", "json",
++        *(["--isolated-analyzers"] if isolated else []),
++    ])
++    assert result.exit_code == 0, result.output
++    assert len(options_seen) == 2
++    assert all(options.isolated_analyzers is isolated for options in options_seen)
+ 

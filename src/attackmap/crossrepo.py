@@ -38,9 +38,14 @@ from .srcpaths import is_test_file
 # file open are MEDIUM (narrower or lower-impact). `sql_execute` is HIGH — across
 # a trust boundary a raw query on caller-supplied data is the classic injection.
 _HIGH_SINKS = frozenset(
-    {"sql_execute", "subprocess_shell", "eval", "exec", "unsafe_deserialization", "ssti"}
+    {
+        "sql_execute", "subprocess_shell", "eval", "exec", "unsafe_deserialization", "ssti",
+        "code_injection", "expression_injection", "jndi_injection", "zip_slip",
+    }
 )
-_MEDIUM_SINKS = frozenset({"ssrf", "nosql_injection", "dynamic_open"})
+_MEDIUM_SINKS = frozenset(
+    {"ssrf", "nosql_injection", "dynamic_open", "path_traversal", "ldap_injection", "xpath_injection"}
+)
 _DANGEROUS_SINKS = _HIGH_SINKS | _MEDIUM_SINKS
 
 _WRITE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
@@ -67,12 +72,13 @@ class CrossBoundaryFlow:
     severity: str  # "high" | "medium"
 
 
-def _route_taint(scan: ScanResult, route: str, method: str) -> TaintChain | None:
+def _route_taint(scan: ScanResult, route: str, method: str, route_file: str) -> TaintChain | None:
     """The most-direct unsanitized dangerous sink the given server route reaches."""
     candidates = [
         c
         for c in scan.taint_chains
         if c.route_path == route
+        and c.route_file == route_file
         and not c.sanitized
         and c.sink_kind in _DANGEROUS_SINKS
         and _method_ok(method, c.route_method)
@@ -82,10 +88,11 @@ def _route_taint(scan: ScanResult, route: str, method: str) -> TaintChain | None
     return min(candidates, key=lambda c: (c.hops, -c.confidence))
 
 
-def _route_bola(scan: ScanResult, route: str, method: str):
+def _route_bola(scan: ScanResult, route: str, method: str, route_file: str):
     for cand in scan.authz_candidates:
         if (
             cand.route_path == route
+            and cand.route_file == route_file
             and not cand.has_ownership_check
             and cand.reaches_db
             # Only a path-param object id is provably the value the caller
@@ -133,6 +140,11 @@ def find_cross_boundary_flows(
     flows: list[CrossBoundaryFlow] = []
     seen: set[tuple] = set()
     for link in links:
+        if link.resolution != "observed":
+            continue  # Candidate links never support observed trust paths (C28);
+            # observed_via_proxy stops here too — the declared proxy is an
+            # intermediary core does not model, and it may itself enforce the
+            # controls this pass would report as missing.
         server_scan = scan_by_repo.get(link.server_repo)
         if server_scan is None:
             continue
@@ -143,8 +155,8 @@ def find_cross_boundary_flows(
         if not _carries_path_value(link):
             continue
 
-        chain = _route_taint(server_scan, link.server_route_path, link.method)
-        bola = _route_bola(server_scan, link.server_route_path, link.method)
+        chain = _route_taint(server_scan, link.server_route_path, link.method, link.server_file)
+        bola = _route_bola(server_scan, link.server_route_path, link.method, link.server_file)
         if chain is None and bola is None:
             continue
 
@@ -246,6 +258,10 @@ def find_trust_gaps(
     out: list[TrustGap] = []
     seen: set[tuple] = set()
     for link in links:
+        if link.resolution != "observed":
+            continue  # Candidate links never support observed trust paths (C28);
+            # observed_via_proxy stops here too — a declared proxy may be the
+            # authentication point this pass would report as missing.
         server = scan_by_repo.get(link.server_repo)
         if server is None:
             continue
@@ -302,7 +318,7 @@ def find_cross_repo_anomalies(
     # (template, method) -> repo -> list[has_auth] ; a representative route per
     # (template, method, repo). Method is part of the cohort key so a GET and a
     # POST on the same path aren't treated as the same route (they aren't).
-    cohort: dict[tuple[str, str], dict[str, list[bool]]] = {}
+    cohort: dict[tuple[str, str], dict[str, list[bool | None]]] = {}
     example: dict[tuple[str, str, str], Route] = {}
     for repo, scan in repo_scans:
         amap = auth_by_repo.get(repo, {})
@@ -313,12 +329,15 @@ def find_cross_repo_anomalies(
             if template is None:
                 continue
             key = (template, (r.method or "ANY").upper())
-            authed = amap.get((r.file, r.method, r.path), False)
+            authed = amap.get((r.file, r.method, r.path))
             cohort.setdefault(key, {}).setdefault(repo, []).append(authed)
             example.setdefault((*key, repo), r)
 
     out: list[CrossRepoAnomaly] = []
     for (template, method), by_repo in cohort.items():
+        # Missing signals cannot establish either enforcement or omission.
+        # Require complete evidence for every route in a repository's cohort.
+        by_repo = {repo: flags for repo, flags in by_repo.items() if all(type(flag) is bool for flag in flags)}
         if len(by_repo) < 3:  # need enough siblings to establish a norm
             continue
         enforcing = {repo for repo, flags in by_repo.items() if all(flags)}

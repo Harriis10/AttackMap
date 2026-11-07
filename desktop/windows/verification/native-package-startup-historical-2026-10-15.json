@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "verified_utc": "2026-10-15T13:41:42.601813+00:00",
+  "scope": "Versioned historical unsigned development package: installed happy-path startup, report import and engine relocation checks. Subsequent C22 exit-code guard fix is not included.",
+  "package_id": "dev-20261015133653-558f82ef",
+  "archive_path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\development-packages\\dev-20261015133653-558f82ef.zip",
+  "archive_sha256": "0973b75564f06241bf061614ad6d7f45bb1a390736c68896a7b103c5e26e8741",
+  "archive_bytes": 119766456,
+  "installed_native_dll_sha256": "b36bcb6271e4675a2ee473ca8bb2af90f98911c1e70ea95354f79ee0830a6903",
+  "package_manifest_sha256": "5680f45c746feca35d70b03f562047a9d676a954d9bac42dec9f1d6e6f123300",
+  "engine": {
+    "version": "attackmap 1.5.1",
+    "executable_sha256": "354bf73fec42c857d09782975c0419a29b3f6953e90ed2c620292a72bc9e5c7a",
+    "modules": 19
+  },
+  "startup_process": {
+    "exit_code": 0,
+    "exited": true,
+    "pid": 66288,
+    "no_restart": true,
+    "settings_path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-last-package-1c67b9efd2434fad987043eece98aceb\\fresh-settings-15a995986afc462f8f348d8cf205f624.json"
+  },
+  "startup_smoke": {
+    "passed": true,
+    "bundledEngine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-last-package-1c67b9efd2434fad987043eece98aceb\\install\\versions\\dev-20261015133653-558f82ef\\app\\engine\\attackmap.exe",
+    "automaticScan": false,
+    "aiEnabled": false,
+    "cveEnabled": false,
+    "personalSettingsRead": false,
+    "manualStartupAcceptance": false
+  },
+  "report_process": {
+    "exit_code": 0,
+    "exited": true,
+    "pid": 67420,
+    "no_restart": true
+  },
+  "report_smoke": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "findingViewport": {
+      "width": 1055,
+      "height": 391,
+      "listHeight": 337,
+      "inspectorWidth": 519,
+      "stacked": false
+    },
+    "reviewVisible": true,
+    "sourceLocations": [
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 634,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      },
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 635,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      }
+    ],
+    "legacyIntegrity": "unverified",
+    "runSummary": "Selected repository: none\nRun state: Idle\nDisplayed report: Legacy import; run identity unavailable\nReport repository: C:\\tmp\\juice-shop\nScan timestamp unavailable; opened (client UTC): 2026-10-15T13:40:12.6850951Z",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "checks": {
+    "installation_payload_hashes_verified": true,
+    "actual_installed_default_engine_selected": true,
+    "no_automatic_scan": true,
+    "ai_and_cve_off": true,
+    "personal_settings_not_read_by_startup_hook": true,
+    "settings_fixture_remained_nonexistent": true,
+    "installed_canonical_report_18": true,
+    "installed_engine_19_modules": true,
+    "only_exact_test_owned_report_smoke_removed": true
+  },
+  "related_coupled_scan_evidence": "native-installed-engine-composition-2026-10-15.json",
+  "limitations": [
+    "A subsequent C22 fault harness found completed envelopes followed by exit7 were accepted by these native runners. A corrected native build/package is pending; this ZIP is historical and must not be presented as current fault-qualified source.",
+    "The actual coupled Juice Shop scan belongs to the preceding archive/assembly in the linked evidence, using this identical frozen engine. It was not repeated for Overview/startup-only changes.",
+    "Windows 11 is unavailable; qualifying-host C26 and manual visual/accessibility workflows remain open.",
+    "No signed public release, clean-machine prerequisite, live AI, four-week study or M4 acceptance claim."
+  ]
+}

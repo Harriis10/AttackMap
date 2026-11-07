@@ -46,10 +46,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from .index import PassSources
+from .taint_sinks import kind_label
 from .models import Anomaly, Route, ScanResult
 from .srcpaths import is_test_file
 
 if TYPE_CHECKING:
+    from .index import RepoIndex
     from .progress import JsonScanProgress, ScanProgress
 
     _Progress = ScanProgress | JsonScanProgress
@@ -62,6 +65,9 @@ class _SignalCtx:
     root: Path
     line_cache: dict[str, list[str]]
     file_route_lines: dict[str, list[int]]
+    # Snapshot-pinned content view (C33/AM047); resolved lazily so contexts
+    # built without one (older callers) behave exactly as before.
+    sources: "PassSources | None" = None
 
 # Auth / authorization signal near a handler. Intentionally broad: a false
 # *presence* only suppresses an outlier (fewer findings), so recall here
@@ -144,14 +150,19 @@ def find_anomalies(
     scan: ScanResult,
     root: str | Path | None = None,
     progress: "_Progress | None" = None,
+    index: "RepoIndex | None" = None,
 ) -> list[Anomaly]:
     """Return within-repo consistency outliers for the routes in ``scan``.
 
     On a large route surface the per-cohort source-window reads dominate this
     pass, so when a ``progress`` reporter is supplied it drives a determinate
-    bar over the cohorts (rather than an open-ended spinner).
+    bar over the cohorts (rather than an open-ended spinner). Source-window
+    *content* resolves through the run's captured index when one is given or
+    pinned for this root (C33/AM047): a mid-run edit cannot change the
+    peer-group signals this pass compares.
     """
     root_path = Path(root or scan.root).resolve()
+    sources = PassSources.for_root(root_path, index)
 
     routes = [r for r in scan.routes if not is_test_file(r.file)]
     groups: dict[str, list[Route]] = {}
@@ -170,7 +181,7 @@ def find_anomalies(
     for lines in file_route_lines.values():
         lines.sort()
 
-    ctx = _SignalCtx(root_path, line_cache, file_route_lines)
+    ctx = _SignalCtx(root_path, line_cache, file_route_lines, sources)
 
     if progress is not None:
         progress.begin(len(groups), "Anomaly / outlier detection")
@@ -215,7 +226,10 @@ def route_auth_signals(
             file_route_lines.setdefault(route.file, []).append(route.line)
     for lines in file_route_lines.values():
         lines.sort()
-    ctx = _SignalCtx(root_path, line_cache, file_route_lines)
+    # No explicit index here: content pins to the ambient index for this root
+    # when the fleet layer runs inside a scan thread (C33/AM047), else reads live.
+    sources = PassSources.for_root(root_path)
+    ctx = _SignalCtx(root_path, line_cache, file_route_lines, sources)
     return {
         (r.file, r.method, r.path): _route_has_signal(r, ctx, _AUTH_MARKERS) for r in routes
     }
@@ -431,7 +445,7 @@ def _invariant_violations(scan: ScanResult, ctx: _SignalCtx) -> list[Anomaly]:
                 unguarded.append(handler)
         if not _is_outlier_split(len(guarded), len(unguarded), len(handlers)):
             continue
-        label = _SINK_LABELS.get(kind, kind)
+        label = _SINK_LABELS.get(kind) or kind_label(kind)
         invariant = (
             f"{len(guarded)} of {len(handlers)} handlers that reach a {label} sink "
             f"apply an auth/validation guard before it"
@@ -623,13 +637,9 @@ def _span_bounds(line: int, lines: list[str], route_lines: list[int]) -> tuple[i
 def _file_lines(rel_file: str, ctx: _SignalCtx) -> list[str]:
     if rel_file in ctx.line_cache:
         return ctx.line_cache[rel_file]
-    path = ctx.root / rel_file
-    lines: list[str] = []
-    try:
-        if path.is_file() and path.stat().st_size <= _MAX_FILE_BYTES:
-            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
-    except (OSError, ValueError):
-        lines = []
+    sources = ctx.sources if ctx.sources is not None else PassSources.for_root(ctx.root)
+    text = sources.gated_text(rel_file, max_bytes=_MAX_FILE_BYTES, errors="ignore")
+    lines = text.splitlines() if text is not None else []
     ctx.line_cache[rel_file] = lines
     return lines
 

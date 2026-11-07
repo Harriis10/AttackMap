@@ -1,0 +1,78 @@
+{
+  "scan": {
+    "root": "identity-matrix-fixture",
+    "files_scanned": 3,
+    "scanned_files": [
+      "src/search.py",
+      "src/x.py",
+      "src/y.py"
+    ],
+    "signals": [],
+    "limitations": [],
+    "analyzer_errors": []
+  },
+  "findings": [
+    {
+      "title": "SQL query built from user input",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "SYNTHETIC fixture mitigation; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "rule_id": "sql-injection",
+      "entity_id": "route:/search",
+      "locations": [
+        {
+          "file": "src/search.py",
+          "line": 5
+        }
+      ],
+      "id": "8215fc62a3fbef7d"
+    },
+    {
+      "title": "Legacy plugin finding without rule",
+      "severity": "medium",
+      "confidence": "medium",
+      "mitigation": "SYNTHETIC fixture mitigation; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "id": "2cbef0947a320e0c"
+    },
+    {
+      "title": "Shared prose title",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "SYNTHETIC fixture mitigation; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "rule_id": "rule-x",
+      "locations": [
+        {
+          "file": "src/x.py",
+          "line": 1
+        }
+      ],
+      "id": "74a031af3f0b5f03"
+    },
+    {
+      "title": "Shared prose title",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "SYNTHETIC fixture mitigation; no security conclusion is claimed.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "rule_id": "rule-y",
+      "locations": [
+        {
+          "file": "src/y.py",
+          "line": 1
+        }
+      ],
+      "id": "74a031af3f0b5f03"
+    }
+  ]
+}

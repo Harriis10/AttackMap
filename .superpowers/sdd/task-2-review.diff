@@ -1,0 +1,553 @@
+Task 2 review package
+Base/head Git revision: 507bddacd72a246a136ca2d46faad2aa661806c1 (unchanged; commits forbidden)
+Scope: reconstructed post-Task-1/pre-Task-2 baseline versus current untracked files.
+
+--- a/tools/capture_wp043_live.py
++++ b/tools/capture_wp043_live.py
+@@ -8,20 +8,21 @@
+ 
+ import argparse
+ from abc import ABC, abstractmethod
+ from dataclasses import dataclass
+ import hashlib
+ import importlib.util
+ import json
+ import os
+ from pathlib import Path
+ import stat
++import struct
+ import subprocess
+ import time
+ from typing import Callable, Iterable, TypeVar
+ 
+ 
+ SCHEMA_VERSION = "wp043-live-evidence-v1"
+ DESTINATIONS = (
+     "Overview",
+     "Findings",
+     "Architecture",
+@@ -434,20 +435,88 @@
+         if (
+             detail.get("probeId") in started
+             and detail.get("displayedReadHash") == expected_report_hash
+             and detail.get("navigationRevision") == navigation_revision
+             and detail.get("findingRevision") == finding_revision
+         ):
+             return event
+     return None
+ 
+ 
++def _detail_root_render_terminal(
++    events: list[dict], after_sequence: int, expected_run_id: str,
++    expected_report_hash: str, navigation_revision: int, finding_revision: int,
++) -> dict | None:
++    started = {
++        event["detail"].get("probeId"): _sequence(event)
++        for event in events
++        if _sequence(event) > after_sequence
++        and event.get("kind") == "detail-root-render-capture-started"
++        and event.get("runId") == expected_run_id
++        and isinstance(event.get("detail"), dict)
++        and event["detail"].get("displayedReadHash") == expected_report_hash
++        and event["detail"].get("navigationRevision") == navigation_revision
++        and event["detail"].get("findingRevision") == finding_revision
++        and isinstance(event["detail"].get("probeId"), str)
++        and bool(event["detail"]["probeId"])
++    }
++    for event in events:
++        if (
++            _sequence(event) <= after_sequence
++            or event.get("kind") not in {"detail-root-render-capture-completed", "detail-root-render-capture-failed"}
++            or event.get("runId") != expected_run_id or not isinstance(event.get("detail"), dict)
++        ):
++            continue
++        detail = event["detail"]
++        if (
++            detail.get("probeId") in started
++            and _sequence(event) > started[detail.get("probeId")]
++            and detail.get("displayedReadHash") == expected_report_hash
++            and detail.get("navigationRevision") == navigation_revision
++            and detail.get("findingRevision") == finding_revision
++        ):
++            return event
++    return None
++
++
++def _detail_root_png(diagnostics_dir: Path, event: dict, prefix: str) -> tuple[Path, int, int, float]:
++    file_name = event.get(prefix + "FileName")
++    width = event.get(prefix + "Width")
++    height = event.get(prefix + "Height")
++    scale = event.get("scale")
++    if (
++        not isinstance(file_name, str) or Path(file_name).name != file_name
++        or Path(file_name).suffix.lower() != ".png"
++        or not isinstance(width, int) or isinstance(width, bool)
++        or not isinstance(height, int) or isinstance(height, bool)
++        or not 0 < width <= 16384 or not 0 < height <= 16384
++        or width * height * 4 > 128 * 1024 * 1024
++        or not isinstance(scale, (int, float)) or isinstance(scale, bool)
++        or not 0 < scale < float("inf")
++    ):
++        raise ValueError("F7 Detail/root render metadata exceeds capture bounds")
++    path = _strict_file(diagnostics_dir / file_name, "F7 Detail/root render PNG")
++    if path.parent != diagnostics_dir.resolve() or not 24 <= path.stat().st_size <= 128 * 1024 * 1024:
++        raise ValueError("F7 Detail/root render PNG escaped its directory or exceeds capture bounds")
++    with path.open("rb") as stream:
++        header = stream.read(24)
++        stream.seek(-12, os.SEEK_END)
++        iend = stream.read(12)
++    if (
++        header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR"
++        or struct.unpack(">II", header[16:24]) != (width, height)
++        or iend != b"\x00\x00\x00\x00IEND\xaeB\x60\x82"
++    ):
++        raise ValueError("F7 Detail/root render PNG header, dimensions, or IEND are invalid")
++    return path, width, height, float(scale)
++
++
+ def intervention_acknowledged(
+     events: list[dict],
+     after_sequence: int,
+     key: str,
+     *,
+     expected_run_id: str | None = None,
+ ) -> bool:
+     normalized = key.upper()
+     if normalized not in INTERVENTION_EVENTS:
+         raise ValueError(f"unsupported diagnostic intervention: {key}")
+@@ -632,25 +701,26 @@
+ def run(args: argparse.Namespace, backend: LiveBackend) -> dict:
+     executable = _strict_file(args.executable, "executable")
+     report = _strict_file(args.report, "report")
+     output = validate_new_output(args.output)
+     if not args.native_only or args.theme != "dark":
+         raise ValueError("WP043 live capture requires --native-only --theme dark")
+     if (args.width, args.height, args.rounds) != (1600, 1000, 5):
+         raise ValueError("WP043 live capture requires 1600x1000 and exactly five rounds")
+     if args.detail_spacing_probe_round and args.detail_brush_probe_round:
+         raise ValueError("Detail spacing and brush probes cannot be combined in one run")
+-    if args.detail_render_probe and (
++    if (args.detail_render_probe or args.detail_root_render_probe) and (
+         args.diagnostic_interventions or args.detail_spacing_probe_round
+         or args.detail_brush_probe_round or args.print_window_detail_capture
++        or (args.detail_render_probe and args.detail_root_render_probe)
+     ):
+-        raise ValueError("Detail render probe cannot be combined with other capture or intervention modes")
++        raise ValueError("Detail render probes cannot be combined with other capture or intervention modes")
+ 
+     output.mkdir(parents=True, exist_ok=False)
+     diagnostics_dir = output / "diagnostics"
+     diagnostics_dir.mkdir()
+     captures_dir = output / "captures"
+     captures_dir.mkdir()
+     discarded_dir = output / "discarded"
+     discarded_dir.mkdir()
+     profile = output / "profile"
+     local_app_data = profile / "AppData" / "Local"
+@@ -705,20 +775,21 @@
+         },
+         "diagnostics": str(diagnostics_dir / "render-diagnostics.jsonl"),
+         "captures": [],
+         "discardedCaptures": [],
+         "actions": [],
+         "shortcuts": {},
+         "interventions": {},
+         "detailSpacingProbe": None,
+         "detailBrushProbe": None,
+         "detailRenderProbe": None if not args.detail_render_probe else [],
++        "detailRootRenderProbe": None if not args.detail_root_render_probe else [],
+         "diagramContent": [],
+         "completedRounds": 0,
+         "closedCleanly": False,
+     }
+     environment = os.environ.copy()
+     environment["USERPROFILE"] = str(profile)
+     environment["LOCALAPPDATA"] = str(local_app_data)
+     environment["APPDATA"] = str(roaming_app_data)
+     environment["WEBVIEW2_USER_DATA_FOLDER"] = str(webview_profile)
+     capture_names: set[str] = set()
+@@ -1081,20 +1152,67 @@
+                                 "path": (Path("diagnostics") / file_name).as_posix(),
+                                 "bytes": render_path.stat().st_size,
+                                 "sha256": _sha256(render_path),
+                                 "width": width, "height": height, "scale": scale,
+                             },
+                             "afterCapture": evidence["captures"][-1]["name"],
+                             "afterSequence": after,
+                             "terminalSequence": _sequence(terminal),
+                             "status": "captured-awaiting-visual-review",
+                         })
++                    if args.detail_root_render_probe:
++                        window, events = require_safe_after_transient(window, run_id)
++                        _require_finding_revision(events, finding_revision)
++                        after = _latest_sequence(events)
++                        try:
++                            backend.send_key("F7")
++                            terminal = _wait_for(
++                                lambda: _detail_root_render_terminal(
++                                    fresh_events(run_id), after, run_id, report_hash,
++                                    navigation_revision, finding_revision,
++                                ),
++                                args.action_timeout, poll_interval, "F7 Detail/root render terminal acknowledgment",
++                            )
++                            if terminal.get("kind") != "detail-root-render-capture-completed":
++                                raise RuntimeError("F7 Detail/root render failed before after-capture")
++                            detail_path, detail_width, detail_height, scale = _detail_root_png(
++                                diagnostics_dir, terminal["detail"], "detail")
++                            root_path, root_width, root_height, root_scale = _detail_root_png(
++                                diagnostics_dir, terminal["detail"], "root")
++                            if root_scale != scale:
++                                raise ValueError("F7 Detail/root render scales differ")
++                        except Exception:
++                            raise RuntimeError("F7 Detail/root render did not produce valid bound PNGs") from None
++                        window = capture(
++                            window, detail_capture + "-root-render-after", round_number,
++                            "FindingDetailRootRenderAfter", run_id,
++                            expected_finding_revision=finding_revision,
++                        )
++                        evidence["detailRootRenderProbe"].append({
++                            "round": round_number,
++                            "findingRevision": finding_revision,
++                            "beforeCapture": detail_capture,
++                            "detailRenderCapture": {
++                                "name": detail_path.stem, "path": (Path("diagnostics") / detail_path.name).as_posix(),
++                                "bytes": detail_path.stat().st_size, "sha256": _sha256(detail_path),
++                                "width": detail_width, "height": detail_height, "scale": scale,
++                            },
++                            "rootRenderCapture": {
++                                "name": root_path.stem, "path": (Path("diagnostics") / root_path.name).as_posix(),
++                                "bytes": root_path.stat().st_size, "sha256": _sha256(root_path),
++                                "width": root_width, "height": root_height, "scale": root_scale,
++                            },
++                            "afterCapture": evidence["captures"][-1]["name"],
++                            "afterSequence": after,
++                            "terminalSequence": _sequence(terminal),
++                            "status": "captured-awaiting-visual-review",
++                        })
+                     if args.print_window_detail_capture:
+                         window = capture(
+                             window,
+                             detail_capture + "-printwindow",
+                             round_number,
+                             "FindingDetailPrintWindow",
+                             run_id,
+                             capture_method="PrintWindow",
+                         )
+                     if args.detail_spacing_probe_round == round_number:
+@@ -1504,20 +1622,21 @@
+         }
+ 
+     def send_key(self, key):
+         from pywinauto.keyboard import send_keys
+ 
+         keys = {
+             "ENTER": "{ENTER}",
+             "ESC": "{ESC}",
+             "CTRL+H": "^h",
+             "CTRL+COMMA": "^,",
++            "F7": "{F7}",
+             "F8": "{F8}",
+             "F9": "{F9}",
+             "F10": "{F10}",
+             "F11": "{F11}",
+             "F12": "{F12}",
+         }
+         if key not in keys:
+             raise ValueError(f"Unsupported live key: {key}")
+         send_keys(keys[key], pause=0.05)
+ 
+@@ -1602,20 +1721,22 @@
+     parser.add_argument("--report", type=Path, required=True)
+     parser.add_argument("--output", type=Path, required=True)
+     parser.add_argument("--native-only", action="store_true", required=True)
+     parser.add_argument("--theme", choices=["dark"], required=True)
+     parser.add_argument("--width", type=int, default=1600)
+     parser.add_argument("--height", type=int, default=1000)
+     parser.add_argument("--rounds", type=int, default=5)
+     parser.add_argument("--diagnostic-interventions", action="store_true")
+     parser.add_argument("--detail-render-probe", action="store_true",
+         help="Add non-mutating ImageGrab/RenderTargetBitmap/ImageGrab comparisons for each FindingDetail")
++    parser.add_argument("--detail-root-render-probe", action="store_true",
++        help="Add non-mutating ImageGrab/Detail-RTB/root-RTB/ImageGrab comparisons for each FindingDetail")
+     parser.add_argument("--detail-spacing-probe-round", type=int, choices=range(0, 6), default=0,
+         help="QA-only one-shot F11 Detail CharacterSpacing probe in the selected round; 0 disables it")
+     parser.add_argument("--detail-brush-probe-round", type=int, choices=range(0, 6), default=0,
+         help="QA-only one-shot F12 Detail fresh-brush probe in the selected round; 0 disables it")
+     parser.add_argument("--print-window-detail-capture", action="store_true",
+         help="Add a non-mutating PrintWindow comparison after each FindingDetail screen capture")
+     parser.add_argument("--window-timeout", type=float, default=30.0)
+     parser.add_argument("--action-timeout", type=float, default=10.0)
+     parser.add_argument("--exit-timeout", type=float, default=15.0)
+     return parser
+
+--- a/tests/test_wp043_live_capture.py
++++ b/tests/test_wp043_live_capture.py
+@@ -1,11 +1,12 @@
+ import argparse
++import base64
+ import hashlib
+ import json
+ from pathlib import Path
+ import tempfile
+ import unittest
+ from types import SimpleNamespace
+ 
+ from tools.capture_wp043_live import (
+     LiveBackend,
+     WindowsLiveBackend,
+@@ -88,20 +89,21 @@
+         self.ack_shortcuts = True
+         self.close_cleanly = True
+         self.on_grab = None
+         self.capture_count = 0
+         self.launch_environment = None
+         self.diagram_view = "Interactive architecture"
+         self.diagram_legacy_available = True
+         self.diagram_activation_available = True
+         self.diagnostics_dir = None
+         self.detail_render_probe_failed = False
++        self.detail_root_render_probe_failed = None
+         self.finding_detail_text = "finding-1\nFirst finding\n\nEvidence (engine supplied; classification shown above)\nproof"
+         self.finding_detail_visible = True
+ 
+     def _append(self, kind, **detail):
+         self.events.append(make_event(len(self.events) + 1, kind, **detail))
+ 
+     def launch(self, command, environment, cwd, stdout_path, stderr_path, diagnostics_dir):
+         self.pid = 4242
+         self.alive = True
+         self.report_hash = hashlib.sha256(Path(command[2]).read_bytes()).hexdigest()
+@@ -218,20 +220,40 @@
+             self._append("f10-before-local-spacing")
+             self._append("f10-after-local-spacing")
+         elif key == "F11":
+             self._append("f11-before-detail-spacing")
+             self._append("f11-detail-spacing-changed", targetName="Detail", oldSpacing=0, newSpacing=1)
+             self._append("f11-after-detail-spacing")
+         elif key == "F12":
+             self._append("f12-before-detail-brush")
+             self._append("f12-detail-brush-replaced", targetName="Detail", mutationApplied=True)
+             self._append("f12-after-detail-brush")
++        elif key == "F7":
++            context = dict(
++                probeId=f"root-probe-{self.finding_revision}", generation=1,
++                displayedReadHash=self.report_hash, navigationRevision=self.navigation_revision,
++                findingRevision=self.finding_revision,
++            )
++            self._append("detail-root-render-capture-started", **context)
++            if self.detail_root_render_probe_failed is not None:
++                self._append("detail-root-render-capture-failed", **context, errorType="IOException")
++                return
++            png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=")
++            detail_name = f"detail-root-render-detail-r{self.finding_revision:02d}.png"
++            root_name = f"detail-root-render-root-r{self.finding_revision:02d}.png"
++            (self.diagnostics_dir / detail_name).write_bytes(png)
++            (self.diagnostics_dir / root_name).write_bytes(png)
++            self._append(
++                "detail-root-render-capture-completed", **context,
++                detailFileName=detail_name, rootFileName=root_name,
++                detailWidth=1, detailHeight=1, rootWidth=1, rootHeight=1, scale=1.0,
++            )
+         elif key == "F8":
+             context = dict(
+                 probeId=f"probe-{self.finding_revision}", generation=1,
+                 displayedReadHash=self.report_hash, navigationRevision=self.navigation_revision,
+                 findingRevision=self.finding_revision,
+             )
+             self._append("detail-render-capture-started", **context)
+             if self.detail_render_probe_failed:
+                 self._append("detail-render-capture-failed", **context, errorType="IOException")
+                 return
+@@ -283,20 +305,21 @@
+             output=root / "fresh-output",
+             native_only=True,
+             theme="dark",
+             width=1600,
+             height=1000,
+             rounds=5,
+             diagnostic_interventions=False,
+             detail_spacing_probe_round=0,
+             detail_brush_probe_round=0,
+             detail_render_probe=False,
++            detail_root_render_probe=False,
+             print_window_detail_capture=False,
+             window_timeout=0.02,
+             action_timeout=0.02,
+             exit_timeout=0.02,
+             poll_interval=0,
+             layout_delay=0,
+             placement_delay=0,
+         )
+ 
+     def test_owned_window_requires_pid_visible_and_unique(self):
+@@ -903,20 +926,169 @@
+                 return image
+ 
+         with tempfile.TemporaryDirectory() as temporary:
+             args = self.make_args(Path(temporary))
+             args.detail_render_probe = True
+             evidence = run(args, ChangingFindingBackend())
+             self.assertEqual(evidence["status"], "failed")
+             self.assertIn("finding revision", evidence["error"]["message"])
+             self.assertFalse(evidence["detailRenderProbe"])
+ 
++    def test_detail_root_render_probe_retains_five_a_d_t_b_sets(self):
++        with tempfile.TemporaryDirectory() as temporary:
++            args = self.make_args(Path(temporary))
++            args.detail_root_render_probe = True
++            backend = FakeBackend()
++            evidence = run(args, backend)
++            self.assertEqual(evidence["status"], "independent-live-window-captured")
++            self.assertEqual(len(evidence["captures"]), 80)
++            self.assertEqual(backend.keys.count("F7"), 5)
++            self.assertEqual(backend.keys.count("F8"), 0)
++            self.assertEqual(len(evidence["detailRootRenderProbe"]), 5)
++            for round_number, probe in enumerate(evidence["detailRootRenderProbe"], 1):
++                self.assertEqual(probe["round"], round_number)
++                self.assertEqual(probe["beforeCapture"], f"r{round_number:02d}-02-FindingDetail")
++                self.assertEqual(probe["afterCapture"], f"r{round_number:02d}-02-FindingDetail-root-render-after")
++                for key in ("detailRenderCapture", "rootRenderCapture"):
++                    item = probe[key]
++                    path = args.output / item["path"]
++                    self.assertEqual((item["width"], item["height"]), (1, 1))
++                    self.assertEqual(item["sha256"], hashlib.sha256(path.read_bytes()).hexdigest())
++                self.assertGreater(probe["terminalSequence"], probe["afterSequence"])
++            self.assertFalse(evidence["diagnosticInterventions"])
++
++    def test_detail_root_render_probe_rejects_other_modes_and_ack_anomalies(self):
++        modes = (
++            "detail_render_probe", "diagnostic_interventions", "detail_spacing_probe_round",
++            "detail_brush_probe_round", "print_window_detail_capture",
++        )
++        for mode in modes:
++            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as temporary:
++                args = self.make_args(Path(temporary))
++                args.detail_root_render_probe = True
++                setattr(args, mode, 1 if mode.endswith("_round") else True)
++                with self.assertRaisesRegex(ValueError, "cannot be combined"):
++                    run(args, FakeBackend())
++                self.assertFalse(args.output.exists())
++        for failure in ("detail", "root"):
++            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
++                args = self.make_args(Path(temporary))
++                args.detail_root_render_probe = True
++                backend = FakeBackend()
++                backend.detail_root_render_probe_failed = failure
++                evidence = run(args, backend)
++                self.assertEqual(evidence["status"], "failed")
++                self.assertFalse(any(
++                    item["destination"] == "FindingDetailRootRenderAfter"
++                    for item in evidence["captures"]
++                ))
++                self.assertFalse(evidence["detailRootRenderProbe"])
++
++    def test_stale_detail_root_ack_cannot_release_after_capture(self):
++        class StaleAckBackend(FakeBackend):
++            def send_key(self, key):
++                if key == "F7" and self.keys.count("F7") == 0:
++                    self._append(
++                        "detail-root-render-capture-completed", probeId="stale", generation=1,
++                        displayedReadHash=self.report_hash, navigationRevision=self.navigation_revision,
++                        findingRevision=self.finding_revision, detailFileName="d.png", rootFileName="t.png",
++                        detailWidth=1, detailHeight=1, rootWidth=1, rootHeight=1, scale=1.0,
++                    )
++                    self.keys.append(key)
++                    return
++                super().send_key(key)
++
++        with tempfile.TemporaryDirectory() as temporary:
++            args = self.make_args(Path(temporary))
++            args.detail_root_render_probe = True
++            evidence = run(args, StaleAckBackend())
++            self.assertEqual(evidence["status"], "failed")
++            self.assertFalse(evidence["detailRootRenderProbe"])
++            self.assertFalse(any(
++                item["destination"] == "FindingDetailRootRenderAfter"
++                for item in evidence["captures"]
++            ))
++
++    def test_detail_root_completed_before_started_cannot_release_after_capture(self):
++        class CompletedBeforeStartedBackend(FakeBackend):
++            def send_key(self, key):
++                super().send_key(key)
++                if key == "F7" and self.keys.count("F7") == 1:
++                    started, completed = self.events[-2:]
++                    self.events[-2] = {**completed, "sequence": started["sequence"]}
++                    self.events[-1] = {**started, "sequence": completed["sequence"]}
++
++        with tempfile.TemporaryDirectory() as temporary:
++            args = self.make_args(Path(temporary))
++            args.detail_root_render_probe = True
++            evidence = run(args, CompletedBeforeStartedBackend())
++            self.assertEqual(evidence["status"], "failed")
++            self.assertFalse(evidence["detailRootRenderProbe"])
++            self.assertFalse(any(
++                item["destination"] == "FindingDetailRootRenderAfter"
++                for item in evidence["captures"]
++            ))
++
++    def test_finding_change_during_triplet_invalidates_detail_root_render_probe(self):
++        class ChangingFindingBackend(FakeBackend):
++            def __init__(self):
++                super().__init__()
++                self.changed = False
++
++            def grab(self, window):
++                image = super().grab(window)
++                if self.capture_count == 3 and not self.changed:
++                    self.changed = True
++                    self.select_first_finding(window)
++                return image
++
++        with tempfile.TemporaryDirectory() as temporary:
++            args = self.make_args(Path(temporary))
++            args.detail_root_render_probe = True
++            evidence = run(args, ChangingFindingBackend())
++            self.assertEqual(evidence["status"], "failed")
++            self.assertIn("finding revision", evidence["error"]["message"])
++            self.assertFalse(evidence["detailRootRenderProbe"])
++
++    def test_malformed_detail_root_png_never_claims_after_capture(self):
++        class MalformedPngBackend(FakeBackend):
++            def send_key(self, key):
++                super().send_key(key)
++                if key == "F7" and self.keys.count("F7") == 1:
++                    detail_name = f"detail-root-render-detail-r{self.finding_revision:02d}.png"
++                    with (self.diagnostics_dir / detail_name).open("ab") as stream:
++                        stream.write(b"broken")
++
++        with tempfile.TemporaryDirectory() as temporary:
++            args = self.make_args(Path(temporary))
++            args.detail_root_render_probe = True
++            evidence = run(args, MalformedPngBackend())
++            self.assertEqual(evidence["status"], "failed")
++            self.assertFalse(any(
++                item["destination"] == "FindingDetailRootRenderAfter"
++                for item in evidence["captures"]
++            ))
++            self.assertFalse(evidence["detailRootRenderProbe"])
++
++    def test_round_trip_selection_binds_triplet_to_final_ack_revision(self):
++        class RoundTripBackend(FakeBackend):
++            def select_first_finding(self, window):
++                super().select_first_finding(window)
++                super().select_first_finding(window)
++
++        with tempfile.TemporaryDirectory() as temporary:
++            args = self.make_args(Path(temporary))
++            args.detail_render_probe = True
++            evidence = run(args, RoundTripBackend())
++            self.assertEqual(evidence["status"], "independent-live-window-captured")
++            self.assertEqual([item["findingRevision"] for item in evidence["detailRenderProbe"]], [2, 4, 6, 8, 10])
++
+     def test_dark_theme_requires_matching_diagnostics_snapshot(self):
+         events = [make_event(1, "enabled"), navigation_event(2, "Findings", revision=0)]
+         self.assertTrue(diagnostics_snapshot_ready(events, RUN_ID, REPORT_HASH, "Findings"))
+         self.assertFalse(diagnostics_snapshot_ready([navigation_event(2, "Findings", theme="Light")], RUN_ID, REPORT_HASH, "Findings"))
+         self.assertFalse(diagnostics_snapshot_ready([navigation_event(2, "Findings", report_hash="")], RUN_ID, REPORT_HASH, "Findings"))
+ 
+     def test_finding_detail_requires_new_bound_selection_event(self):
+         event = make_event(
+             9,
+             "finding-selection",
+

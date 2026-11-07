@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "scope": "Actual isolated installed corrected production native startup/report probes; no new repository scan",
+  "package": "dev-20261015140602-9e90f29e",
+  "archive_sha256": "92850510e647796c1b40a9d1e39508417273246ca20c0ac96ca7009709229a5d",
+  "native_dll_sha256": "4106281b6d04e7d19bfff127d852eb10feee0ab21d21028b3a92d7f0c2d145bb",
+  "engine_sha256": "354bf73fec42c857d09782975c0419a29b3f6953e90ed2c620292a72bc9e5c7a",
+  "isolated_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-navigation-package-777d7a4c547f4b86a3d30376f1fde532",
+  "startup": {
+    "passed": true,
+    "bundledEngine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-navigation-package-777d7a4c547f4b86a3d30376f1fde532\\install\\versions\\dev-20261015140602-9e90f29e\\app\\engine\\attackmap.exe",
+    "automaticScan": false,
+    "aiEnabled": false,
+    "cveEnabled": false,
+    "personalSettingsRead": false,
+    "manualStartupAcceptance": false
+  },
+  "startup_process": {
+    "exit_code": 0,
+    "pid": 75940
+  },
+  "report": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "findingViewport": {
+      "width": 1055,
+      "height": 391,
+      "listHeight": 337,
+      "inspectorWidth": 519,
+      "stacked": false
+    },
+    "reviewVisible": true,
+    "sourceLocations": [
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 634,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      },
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 635,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      }
+    ],
+    "legacyIntegrity": "unverified",
+    "runSummary": "Selected repository: none\nRun state: Idle\nDisplayed report: Legacy import; run identity unavailable\nReport repository: C:\\tmp\\juice-shop\nScan timestamp unavailable; opened (client UTC): 2026-10-15T14:08:50.1016382Z",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "report_process": {
+    "exit_code": 0,
+    "pid": 73988
+  },
+  "settings_created": false,
+  "checks": [
+    "Archive manifest validated by installer",
+    "Installed exact bundled engine selected on fresh settings",
+    "No automatic scan; AI and CVE off; personal settings not read",
+    "Installed startup and report processes exited zero",
+    "Existing legacy report loaded 18 findings and defensive review",
+    "Exact test-owned smoke file removed before uninstall"
+  ],
+  "limitations": [
+    "Windows 10 diagnostic host; no Windows 11 qualification",
+    "No new scan: earlier coupled installed native/engine proof remains bound to its recorded native build",
+    "Legacy report integrity and source snapshot hash are explicitly unknown",
+    "No manual startup, Narrator, DPI, save dialog or full C25 acceptance"
+  ],
+  "uninstall_current_pointer_removed": true
+}

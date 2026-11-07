@@ -1,0 +1,1149 @@
+{
+  "version": "1",
+  "pip_version": "26.2.1",
+  "install": [
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_atproto-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "bdb2dd5e0d167b6e6cb3c106196a94999fe45b2b40deeb111592d93cae7c2482"
+          },
+          "hash": "sha256=bdb2dd5e0d167b6e6cb3c106196a94999fe45b2b40deeb111592d93cae7c2482"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-atproto",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Thin AT Protocol overlay analyzer plugin for AttackMap",
+        "description": "# AttackMap ATProto Analyzer\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\n`attackmap-analyzer-atproto` is a thin protocol-aware overlay analyzer for AttackMap.\r\n\r\nIt is designed to enrich Node/TypeScript service scans (such as `node-service`) with\r\nAT Protocol-specific exposure signals:\r\n- protocol namespaces: `com.atproto.*`, `app.bsky.*`, `chat.bsky.*`, `tools.ozone.*`, plus any third-party authority declared by the repo's own lexicon `id`s (e.g. `sh.tangled.*`)\r\n- lexicon-inferred XRPC endpoint surface. Only `defs.main` of type `query` (→ `GET`), `procedure` (→ `POST`) or `subscription` (→ `WS`) is an endpoint; `record`, `object` and defs-only lexicons are not.\r\n- XRPC handler registrations (`server.method(nsid, …)`, generated `server.<nsid>({ auth, handler })`) with their per-endpoint auth:\r\n  - a configured `auth:` verifier is an `atproto_auth:route_verifier:<nsid>` AuthHint\r\n  - a handler with no verifier, or an optional one (`*Optional*`, `nullCreds`), is marked `atproto_route_auth:anonymous:<nsid>` (a ProtocolHint, so core never counts it as an auth control). Core's `Route` model has no auth field yet.\r\n- protocol auth/signing/identity hints (`did:plc` / PLC directory, `@atproto/crypto` and signing/verification APIs; not the bare words \"sign\", \"verify\" or \"plc\")\r\n- `process.env.*` secret references (not arbitrary quoted constants)\r\n- event stream/subscription exposure hints\r\n- service notes that complement service-level analyzers\r\n\r\nThis module is heuristic and intentionally lightweight.\r\n\r\n`detect()` fires on a `lexicons/` directory, an `@atproto/*` (or `@did-plc/*`) dependency in any `package.json`, a lexicon document under a `lexicons/` path, a quoted NSID under a known authority, or an `/xrpc/<nsid>` URL in JS/TS source. Lockfiles (`package-lock.json`, `npm-shrinkwrap.json`) and AttackMap's own report files are never read. Other JSON files are only read to recognize lexicon documents.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-atproto.git\r\n```\r\n\r\n## Usage\r\n\r\n```bash\r\nattackmap analyze /path/to/repo --module node-service --module atproto\r\n```\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-atproto",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-atproto",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-atproto/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-atproto/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_c-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "5cfdf5ab1d4dd105d2785df36f40ae2f067771f49571659250cb2d70f81403c6"
+          },
+          "hash": "sha256=5cfdf5ab1d4dd105d2785df36f40ae2f067771f49571659250cb2d70f81403c6"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-c",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "C ecosystem analyzer plugin for AttackMap (libmicrohttpd, civetweb, mongoose; libcurl; OpenSSL/mbedTLS/libsodium; sqlite3/libpq/mysql/hiredis/mongoc).",
+        "description": "# attackmap-analyzer-c\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nC ecosystem analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nC is more fragmented than language-specific ecosystems — there's no dominant web framework, and routing patterns vary widely. This analyzer captures what regex can reach reliably from common third-party libraries.\r\n\r\n- **Web frameworks** — civetweb (`mg_set_request_handler` extracts routes), libmicrohttpd (`MHD_start_daemon` entrypoint), mongoose (`mg_http_listen` entrypoint + `mg_http_match_uri` pseudo-routes), libonion (`onion_url_add` routes)\r\n- **HTTP clients (external calls)** — libcurl (`curl_easy_setopt(handle, CURLOPT_URL, \"...\")` URL string literals)\r\n- **Databases** — sqlite3 (`sqlite3_open*`), libpq (`PQconnectdb*`, `PQsetdbLogin`), MySQL/MariaDB C client (`mysql_real_connect`, `mariadb_real_connect`), hiredis (`redisConnect*`), MongoDB C driver (`mongoc_client_new`)\r\n- **Auth/crypto** — OpenSSL (TLS context, EVP cipher, RAND), mbedTLS (SSL/X.509), libsodium (`crypto_pwhash`, `crypto_secretbox`, `crypto_aead_*`), Argon2 reference impl (`argon2id_hash_*`), bcrypt-c, scrypt, JWT C libraries (`jwt_encode`, `jwt_decode`)\r\n- **Secrets** — `getenv`, `secure_getenv`, `getenv_s` with secret-shaped names (`*SECRET*`, `*TOKEN*`, `*KEY*`, `*PASSWORD*`, `*PASS*`, `*PWD*`)\r\n- **Service hints** — project name from `CMakeLists.txt` (`project(NAME ...)`)\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers + evidence snippets + confidence) so downstream insights can cite `path/to/file.c:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-c.git\r\n```\r\n\r\nThe analyzer is registered with AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\nThis analyzer is **experimental and opt-in** (`enabled_by_default=False`): installing it does not make it run on every scan. Select it explicitly:\r\n\r\n```bash\r\nattackmap analyze /path/to/c/repo -m c\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when at least one `.c` file is present in the tree (a lone `.h`, such as an ObjC/Swift bridging header, doesn't count), in a single walk, ignoring `_deps/`, `third_party/`, `external/`, `.cache/` and AttackMap's shared skip list (`build/`, `out/`, `vendor/`, `node_modules/`, `.git/`, ...). Skip directories are matched only *inside* the repo, so a checkout under e.g. `/build/...` is still scanned. Files are walked with `attackmap.sdk.iter_repo_files`, which does not follow symlinks out of the repo, and read with `read_source`, which falls back to cp1252/latin-1 for legacy-encoded sources. A `CMakeLists.txt` alongside `.cpp` files (and no `.c` files) is **not** claimed by this analyzer — that's the C++ analyzer's territory.\r\n\r\n### `.h` ownership\r\n\r\n`.h` ownership is decided per repo, by the same rule in both the C and C++ analyzers, so exactly one of them analyzes each header whichever of `-m c` / `-m cpp` is selected:\r\n\r\n- `.h` belongs to **C++** if the repo has any C++ source or header (`.cpp`, `.cc`, `.cxx`, `.hpp`, `.hxx`, `.ipp`, `.tpp`) or a `CMakeLists.txt` that enables CXX (`project(... CXX ...)`, `enable_language(CXX)` or `CMAKE_CXX_STANDARD`). A bare `project(foo)` doesn't count.\r\n- Otherwise `.h` belongs to **C**.\r\n- Files under directories either plugin prunes (`build/`, `third_party/`, `Debug/`, `Release/`, ...) are never markers.\r\n\r\nIn a mixed repo, `.c` files go to C, and `.cpp`/`.hpp`/... plus `.h` go to C++. Running only one of the two analyzers on a mixed repo leaves the other's files unanalyzed. It never double-counts them.\r\n\r\n## Coverage notes\r\n\r\n- **Marked experimental**: regex-based extraction in C has more false positives than language-with-strict-imports analyzers. Keep the confidence-tier model in mind when consuming output (0.6 keyword sweeps vs. 0.85+ canonical function-name hits).\r\n- **Routes**: civetweb / mongoose / libonion all expose path strings explicitly in their routing API; libmicrohttpd does not (single-callback dispatch on `url`). For libmicrohttpd, only the entrypoint is captured — per-route URLs would need to be regexed out of `if (strcmp(url, \"/x\") == 0)` patterns inside the answer-callback.\r\n- **HTTP method on routes**: the C web frameworks covered here don't statically declare HTTP methods at registration time (handlers branch on method internally), so all routes are emitted with method `ANY`.\r\n- **OpenSSL EVP / RAND** signals are confidence 0.8 — they're broad indicators of crypto usage but not strong defensive signals on their own.\r\n- **Authorization / Bearer / api_key keyword matches** are tier-0.6 (low confidence). They're useful as supporting evidence for an auth posture, not as load-bearing.\r\n- **Hardcoded `#define JWT_SECRET \"abc...\"` macros** are not extracted — too noisy. `getenv(\"JWT_SECRET\")` is the canonical pattern we rely on.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-c",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-c",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-c/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-c/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_cpp-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "e63846e9676d53a6bf1d19314df226e87a40ae56272acdc52b4db752d4cbd385"
+          },
+          "hash": "sha256=e63846e9676d53a6bf1d19314df226e87a40ae56272acdc52b4db752d4cbd385"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-cpp",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "C++ ecosystem analyzer plugin for AttackMap (Crow, Pistache, Drogon, cpprestsdk; libcurl/cpr; OpenSSL/Botan/libsodium/Crypto++; libpqxx/mongocxx/redis-plus-plus).",
+        "description": "# attackmap-analyzer-cpp\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nC++ ecosystem analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis analyzer extracts structured signals from C++ source trees (`.cpp`, `.cc`, `.cxx`, `.hpp`, `.hxx`, `.ipp`, `.tpp`):\r\n\r\n- **Web frameworks** — Crow (`CROW_ROUTE` macro with `.methods(\"POST\"_method, ...)` chain), Pistache (`Routes::Get/Post/...`), Drogon (`registerHandler` with explicit method list, `ADD_METHOD_TO`, `METHOD_ADD` relative to the controller's `/namespace/Class` path, and `PATH_ADD`), cpprestsdk / Casablanca (`http_listener(\"https://...\")` URL extraction)\r\n- **HTTP clients (external calls)** — libcurl (`CURLOPT_URL` literals), cpr (`cpr::Get(cpr::Url{\"...\"})`, `cpr::Post(...)`), cpprestsdk (`web::http::client::http_client(URL)`)\r\n- **Databases** — libpqxx (`pqxx::connection`, `pqxx::work`), MySQL X DevAPI (`mysqlx::Session`), mongocxx (`mongocxx::client` + `mongocxx::uri`), redis-plus-plus (`sw::redis::Redis`), SOCI (`soci::session`), sqlite_orm (`sqlite_orm::make_storage`)\r\n- **Auth/crypto** — OpenSSL (TLS / EVP / RAND), Botan (`TLS::Server`, `Cipher_Mode`, `PKCS5_PBKDF2`, `Scrypt`), libsodium (`crypto_pwhash` → argon2, `crypto_secretbox`, AEAD primitives), Crypto++ (`CryptoPP::AES`, `CryptoPP::SHA256`, `CryptoPP::Argon2`, `CryptoPP::HMAC`), JWT C++ libraries (`jwt::create`, `jwt::decode`, `jwt::verify`)\r\n- **Secrets** — `std::getenv`, `getenv` with secret-shaped names\r\n- **Service hints** — project name from `CMakeLists.txt` `project(NAME ...)` declaration\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers + evidence snippets + confidence) so downstream insights can cite `path/to/file.cpp:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-cpp.git\r\n```\r\n\r\nThe analyzer is registered with AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\nThis analyzer is **experimental and opt-in** (`enabled_by_default=False`): installing it does not make it run on every scan. Select it explicitly:\r\n\r\n```bash\r\nattackmap analyze /path/to/cpp/repo -m cpp\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when any `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hxx`, `.ipp`, or `.tpp` file is present, or `.h` headers in a CMake project that enables CXX (one walk), ignoring `_deps/`, `third_party/`, `external/`, `.cache/`, `Debug/`, `Release/` and AttackMap's shared skip list (`build/`, `out/`, `vendor/`, `node_modules/`, `.git/`, ...). Skip directories are matched only *inside* the repo, so a checkout under e.g. `/build/...` is still scanned. Files are walked with `attackmap.sdk.iter_repo_files`, which does not follow symlinks out of the repo, and read with `read_source`, which falls back to cp1252/latin-1 for legacy-encoded sources.\r\n\r\n### `.h` ownership\r\n\r\n`.h` ownership is decided per repo, by the same rule in both the C and C++ analyzers, so exactly one of them analyzes each header whichever of `-m c` / `-m cpp` is selected:\r\n\r\n- `.h` belongs to **C++** if the repo has any C++ source or header (`.cpp`, `.cc`, `.cxx`, `.hpp`, `.hxx`, `.ipp`, `.tpp`) or a `CMakeLists.txt` that enables CXX (`project(... CXX ...)`, `enable_language(CXX)` or `CMAKE_CXX_STANDARD`). A bare `project(foo)` doesn't count.\r\n- Otherwise `.h` belongs to **C**.\r\n- Files under directories either plugin prunes (`build/`, `third_party/`, `Debug/`, `Release/`, ...) are never markers.\r\n\r\nIn a mixed repo, `.c` files go to C, and `.cpp`/`.hpp`/... plus `.h` go to C++. Running only one of the two analyzers on a mixed repo leaves the other's files unanalyzed. It never double-counts them.\r\n\r\nA repo with only `.c` and `.h` files (and no C++ CMake) is not picked up here.\r\n\r\n## Coverage notes\r\n\r\n- **Marked experimental**: like the C analyzer, regex coverage of C++ has more false-positive risk than language-specific analyzers with strict imports. Confidence tiering is the primary defense (0.9 for hash-class auth primitives, 0.85 for canonical TLS / cipher / JWT API hits, 0.6 for keyword sweeps).\r\n- **Crow `.methods(\"X\"_method)` chains**: when present, the route emits one Route per method in the chain. When absent, the route emits with method `ANY`.\r\n- **Drogon `registerHandler`, `ADD_METHOD_TO`, `METHOD_ADD` and `PATH_ADD`**: all shapes are extracted, including the `{Drogon::Get, Drogon::Post}` initializer-list form and multi-method macros (`Put, Patch, \"AuthFilter\"`), which produce one Route per method (`ANY` when none is given). `METHOD_ADD` paths are prefixed with the controller's class path, e.g. `api::v1::User` → `/api/v1/User/{id}`.\r\n- **cpprestsdk listener routes**: only the path component of the listener's URL is extracted as a Route. Per-method handlers (`listener.support(methods::GET, ...)`) are not separately emitted — that would require tracking the listener's lifetime.\r\n- **C++ shares vocabulary with C** (libcurl, OpenSSL, libsodium). Those patterns are duplicated here so a pure-C++ project without the C analyzer installed still gets full coverage. AttackMap's overlay deduplication handles double-firing.\r\n- **Pure-template / header-only ORM** (sqlite_orm, sqlpp11): only basic detection via headers and `make_storage`; column-level extraction is out of scope.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-cpp",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-cpp",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-cpp/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-cpp/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_dotnet-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "c16d47f90fefd30caf4e50c57c0311be1fdd46789c9f968b5e19c596c3eb3173"
+          },
+          "hash": "sha256=c16d47f90fefd30caf4e50c57c0311be1fdd46789c9f968b5e19c596c3eb3173"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-dotnet",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "C# / .NET (ASP.NET Core) ecosystem analyzer plugin for AttackMap (minimal APIs, attribute routing, EF Core, Identity, JwtBearer).",
+        "description": "# attackmap-analyzer-dotnet\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nC# / .NET (ASP.NET Core) ecosystem analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis analyzer extracts structured signals from .NET solutions and projects:\r\n\r\n- **Web frameworks** — ASP.NET Core minimal APIs (`app.MapGet`, `app.MapPost`, `app.MapMethods`, nested `MapGroup` prefixes), attribute routing on controllers (`[HttpGet]`, `[HttpPost]`, `[Route]`, `[AcceptVerbs]`, with class-level `[Route]` prefix joining and `[controller]`/`[action]`/`[area]` token substitution), `MapHub<T>`, `MapControllerRoute`, Razor Pages `@page`; `MapGrpcService<T>` as a protocol hint\r\n- **Databases** — Entity Framework Core (`UseSqlServer` / `UseNpgsql` / `UseMySql` / `UseSqlite`), Dapper, System.Data.SqlClient / Microsoft.Data.SqlClient, Npgsql, MySql.Data / MySqlConnector, MongoDB.Driver, StackExchange.Redis, AWS SDK (S3, DynamoDB)\r\n- **Auth packages** — `AddJwtBearer` (Microsoft.AspNetCore.Authentication.JwtBearer), `AddOpenIdConnect`, ASP.NET Identity (`UserManager`, `SignInManager`, `IdentityUser`, `PasswordHasher`), per-route `[Authorize]` / `[AllowAnonymous]` / `.RequireAuthorization()` / `.AllowAnonymous()`, Duende IdentityServer, BCrypt.Net, Argon2\r\n- **HTTP clients (external calls)** — `HttpClient.GetAsync` / `PostAsync` / `SendAsync`, `HttpRequestMessage`, `RestClient` (RestSharp), `new Uri(...)`\r\n- **Secrets** — `Environment.GetEnvironmentVariable(\"...\")`, `IConfiguration[\"...\"]` / `Configuration[\"...\"]` / `builder.Configuration[\"...\"]` with secret-shaped keys, literal `Password=` in `appsettings*.json` `ConnectionStrings`\r\n- **Service hints** — `<RootNamespace>` and `<AssemblyName>` from `.csproj`\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers, evidence snippets, confidence scores) so downstream insights can cite `path/to/file.cs:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-dotnet.git\r\n```\r\n\r\nThe analyzer is auto-discovered by AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\n```bash\r\n# Auto-discovered when installed:\r\nattackmap analyze /path/to/dotnet/repo\r\n\r\n# Or invoke explicitly:\r\nattackmap analyze /path/to/dotnet/repo --module dotnet\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when any of the following are present, ignoring `bin/`, `obj/`, `.vs/`, `.idea/`, `.git/`, `node_modules/`, `packages/`, `TestResults/`, and `publish/`:\r\n\r\n- A `.csproj`, `.fsproj`, or `.sln` file anywhere in the tree\r\n- A `.cs` file anywhere in the tree\r\n\r\n## Coverage notes\r\n\r\n- **Route templates** follow ASP.NET semantics: a controller annotated with `[Route(\"api/[controller]\")]` causes its `[HttpGet(\"{id:int}\", Name = \"GetUser\")]` action to emit as `/api/Orders/{id:int}`. An action template starting with `/` or `~/` is absolute and replaces the controller prefix. `[controller]` (class name minus `Controller`), `[action]` (method name minus `Async`) and `[area]` (`[Area(\"...\")]`) are substituted case-insensitively. A class prefix applies only inside that class's body. Every emitted path starts with `/`.\r\n- **Minimal API groups**: `var api = app.MapGroup(\"/api\"); var v2 = api.MapGroup(\"/v2\"); v2.MapGet(\"/orders/{id}\", ...)` emits `/api/v2/orders/{id}`. Inline chains (`app.MapGroup(\"/x\").MapGet(\"/y\", ...)`) work too. A group built in another file or by a custom extension method isn't followed.\r\n- **Per-route auth**: each route's effective state is computed. `[AllowAnonymous]` (attribute) or `.AllowAnonymous()` (minimal API, on the endpoint or any enclosing group) wins over `[Authorize]` / `.RequireAuthorization()`, as in ASP.NET. An authorization fallback policy, or `MapControllers().RequireAuthorization()`, makes unmarked routes require auth. A route that requires auth gets an `aspnet_authorize:<METHOD> <path>` auth hint on its own line; an explicitly anonymous route gets an `aspnet_allow_anonymous:<METHOD> <path>` entrypoint hint and no auth hint. Core attributes auth hints to routes by a ±40-line window until `Route` carries an auth field ([mlaify/AttackMap#256](https://github.com/mlaify/AttackMap/issues/256)), so in a compact controller a neighbor's hint can still show up on an anonymous route. `[Authorize]` inherited from a base controller class isn't followed.\r\n- **Connection strings**: `GetConnectionString(\"DefaultConnection\")` names a connection string, so it isn't reported as a secret. A literal `Password=`/`Pwd=` inside an `appsettings*.json` `ConnectionStrings` entry is reported as `connection_string_password` (`kind=\"config_literal\"`); the evidence names the entry, never the value.\r\n- **F# (.fs) projects** are detected via `.fsproj` but route extraction is not yet implemented (Giraffe / Saturn).\r\n- **Razor Pages**: `@page` in a `.cshtml` file emits an `ANY` route from the file's path under `Pages/` (or `Areas/<Area>/Pages/`), with `Index` mapped to its folder and an optional `@page \"template\"` appended (or used as-is when it starts with `/`). Page auth conventions (`AuthorizeFolder`, `[Authorize]` on the PageModel) aren't read yet. Blazor `.razor` components aren't covered.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-dotnet",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-dotnet",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-dotnet/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-dotnet/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_go-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "c092cef4c869bd8ec6d745ae397198131117797cd5458e134c96e7b04016c6fe"
+          },
+          "hash": "sha256=c092cef4c869bd8ec6d745ae397198131117797cd5458e134c96e7b04016c6fe"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-go",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Go ecosystem analyzer plugin for AttackMap (net/http, chi, gin, echo, fiber, gorilla/mux; database/sql, gorm, sqlx, pgx; golang-jwt; resty).",
+        "description": "# attackmap-analyzer-go\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nGo ecosystem analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis analyzer extracts structured signals from Go modules and workspaces:\r\n\r\n- **Web frameworks** — net/http (stdlib), chi, gin, echo, fiber, gorilla/mux (route + entrypoint extraction)\r\n- **Databases** — `database/sql` (Postgres / MySQL / SQLite drivers), gorm (with driver-aware kind inference), sqlx, pgx, mongo-go-driver, go-redis, bbolt, AWS SDK (S3, DynamoDB)\r\n- **Auth packages** — golang-jwt, golang.org/x/oauth2, gorilla/sessions, casbin, x/crypto/bcrypt / scrypt / argon2, go-chi/jwtauth, echo-jwt\r\n- **HTTP clients (external calls)** — net/http (`http.Get` / `http.Post` / `http.NewRequest`), go-resty, grequests\r\n- **Secrets** — `os.Getenv`, `os.LookupEnv`, `godotenv`, `viper.GetString`\r\n- **Service hints** — module name extracted from `go.mod`\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers, evidence snippets, confidence scores) so downstream insights can cite `path/to/file.go:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-go.git\r\n```\r\n\r\nThe analyzer is auto-discovered by AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\n```bash\r\n# Auto-discovered when installed:\r\nattackmap analyze /path/to/go/repo\r\n\r\n# Or invoke explicitly:\r\nattackmap analyze /path/to/go/repo --module go\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when any of the following are present, ignoring `vendor/`, `.git/`, `node_modules/`, `dist/`, and `build/`:\r\n\r\n- A `go.mod` or `go.sum` at the repository root, or anywhere in the tree\r\n- One or more `.go` files in the tree\r\n\r\n## Coverage notes\r\n\r\n- **Framework-aware route extraction**: chi/echo/fiber all use the same title-case verb pattern (`r.Get(...)`, `r.Post(...)`). To avoid mis-attributing generic `.Get(...)` calls (e.g., on a map type) as routes, the analyzer only fires those extractors when the file *also* contains a recognizable framework marker (`go-chi/chi` import, `chi.NewRouter(`, `labstack/echo`, `echo.New(`, etc.).\r\n- **gorilla/mux + net/http**: when both are detected in the same file, only the gorilla extractor runs. The stdlib `HandleFunc` extractor would otherwise double-count the same routes.\r\n- **Method extraction**: gin uses uppercase methods (`r.GET`); chi/echo/fiber use title-case (`r.Get`); gorilla/mux chains `.Methods(\"GET\", \"POST\")` after `HandleFunc`. All three shapes are supported. `http.HandleFunc` has no method information, so those routes are emitted with method `ANY`.\r\n- **chi `Route()` / `Mount()` prefix nesting**: routes inside `r.Route(\"/api\", func(r chi.Router) { ... })` are extracted but the outer `/api` prefix is not currently joined to the inner paths. Roadmap.\r\n- **gRPC**: framework presence and `grpc.NewServer` entrypoint are detected. Per-service / per-method route extraction would require parsing `.proto` files — not yet supported.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-go",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-go",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-go/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-go/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_iac-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "90f18225880cbf9cc79d44f16bf2e5f74c4882a8adc10e3c17fd36b2549313ef"
+          },
+          "hash": "sha256=90f18225880cbf9cc79d44f16bf2e5f74c4882a8adc10e3c17fd36b2549313ef"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-iac",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Infrastructure-as-Code analyzer plugin for AttackMap (Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers)",
+        "description": "# attackmap-analyzer-iac\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nInfrastructure-as-Code analyzer plugin for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nCovers the class of files that live outside application source but drive the actual runtime posture:\r\n\r\n- **Dockerfile** (also `Dockerfile.*`, `Dockerfile-*`, `*.Dockerfile`, `*.dockerfile`, `Containerfile*`): non-root user and healthcheck, both checked on the *final* build stage, including what it inherits from an earlier stage it is built `FROM`; exposed ports; `RUN curl | bash`; `ADD <url>`; base-image pinning, one hint per unpinned image, skipping `scratch` and stage aliases; literal secrets in `ENV`/`ARG`\r\n- **docker-compose** (`docker-compose*.y[a]ml`, `compose*.y[a]ml`, so overrides like `docker-compose.override.yml` too): service list (feeds the topology graph), `env_file` references, host-mount volumes, privileged containers, Docker socket mounts, `cap_add: SYS_ADMIN`/`ALL`, `pid: host`, `seccomp:unconfined`, published ports that bind all interfaces (explicit `0.0.0.0`, or short syntax with no host IP such as `\"5432:5432\"`), `network_mode: host`, and literal secrets in `environment:`\r\n- **GitHub Actions workflows** — `pull_request_target` with checkout, third-party actions pinned by tag vs SHA, secret exposure to fork PRs, step-level `permissions:`\r\n- **`.env` templates** (`.env.example`, `sample.env`) — secret inventory (the shape, not the value)\r\n- **Shell installers** — `curl | bash` patterns, `sudo` scope, TLS material handling\r\n\r\nEmits routes for exposed ports, external calls for third-party actions and `curl` fetches, `SecretHint` for env-template inventory, service-topology hints for compose `services:` — feeding the same pipeline as the source-code analyzers.\r\n\r\n### Posture signals\r\n\r\nEvery signal carries `file`, `line` and `evidence_text`. Signals about something *missing* (no `USER`, no `HEALTHCHECK`, no `permissions:`) point at the final `FROM` line or line 1. The SDK has no weakness/posture signal type yet, so posture items are split by meaning (AttackMap#258):\r\n\r\n| Signal list | Hints |\r\n|---|---|\r\n| `auth_hints` (privilege / authorization) | `dockerfile_no_user_directive`, `dockerfile_user_root`, `compose_privileged_container`, `compose_docker_socket_mount`, `compose_cap_add_sys_admin`, `compose_pid_host`, `compose_seccomp_unconfined`, `shell_sudo_used`, `shell_permissive_chmod`, `gha_pull_request_target_with_checkout`, `gha_no_top_level_permissions` |\r\n| `entrypoint_hints` (network exposure) | `compose_port_binding_all_interfaces:<binding>`, `compose_network_mode_host` |\r\n| `framework_hints` (build, supply-chain and deployment config) | `dockerfile_no_healthcheck`, `dockerfile_run_curl_pipe`, `dockerfile_add_remote`, `dockerfile_base_image_unpinned:<image>`, `compose_env_file_reference`, `compose_host_mount:<host path>`, `gha_third_party_action_tag_pinned:<owner/repo>`, `shell_curl_pipe_installer` |\r\n| `service_hints` | `service_name:<compose service>` |\r\n\r\n`dockerfile_no_user_directive` and `dockerfile_user_root` describe the final stage's effective user (the last `USER`, inherited through `FROM <stage>`). A `USER nobody` in a builder stage doesn't hide a root final image, and `USER root` followed by `USER app` isn't flagged. A final base tagged `:nonroot` counts as setting a user.\r\n\r\nSecret-shaped `ENV`/`ARG` names (`*SECRET*`, `*TOKEN*`, `*PASSWORD*`, `*_KEY`, …) and `environment:` entries with a literal value become `SecretHint(kind=\"hardcoded\")`. `*_FILE` paths, `${VAR}` references, booleans and `ARG` without a default are not flagged.\r\n\r\nBluesky FINDINGS §2 documented this as the biggest coverage gap: `bluesky-social/pds` (a deployment repo) was 95% invisible to AttackMap because every non-JS file was outside the analyzer model. This plugin closes that gap.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-iac.git\r\n# or as part of the bundle\r\npip install \"attackmap[all] @ git+https://github.com/mlaify/AttackMap.git\"\r\n```\r\n\r\n## Usage\r\n\r\nRuns automatically via the `attackmap.analyzers` entry-point group once installed:\r\n\r\n```bash\r\nattackmap analyze /path/to/deployment-repo --output reports\r\n```\r\n\r\n## Contract\r\n\r\nImplements `AnalyzerProtocol` from `attackmap.sdk`. See the [external-analyzer guide](https://github.com/mlaify/AttackMap/blob/main/docs/external-analyzers.md).\r\n\r\n## Scope\r\n\r\n**In:** patterns any competent operator recognizes on inspection — the docker-compose service graph, `pull_request_target` combined with untrusted checkout, non-root User directive presence, curl-piped installer scripts.\r\n\r\n**Out:** deep semantic analysis of container image contents, live registry scanning, executed-runtime introspection. Those belong in other tools; AttackMap's differentiator is narrative attack-path reasoning over the code you can see.\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin",
+          "iac",
+          "docker",
+          "docker-compose",
+          "github-actions"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-iac",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-iac",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-iac/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-iac/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_java_spring-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "087bc02dbe7418377fc90829b071ad8649f448145a1392d04f8add27940f2d5a"
+          },
+          "hash": "sha256=087bc02dbe7418377fc90829b071ad8649f448145a1392d04f8add27940f2d5a"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-java-spring",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Java/Kotlin Spring Boot ecosystem analyzer plugin for AttackMap (Spring MVC routing, JAX-RS, Ktor; Spring Data JPA / Mongo / Redis; Spring Security; jjwt; RestTemplate / WebClient / OkHttp).",
+        "description": "# attackmap-analyzer-java-spring\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nJava and Kotlin Spring Boot ecosystem analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis analyzer extracts structured signals from Maven and Gradle projects:\r\n\r\n- **Web frameworks** — Spring MVC / Spring Boot (annotation routing with class-level `@RequestMapping` prefix joining), JAX-RS / Jersey / Quarkus (`@Path` + `@GET`/`@POST`), Ktor (Kotlin DSL), Javalin, Micronaut\r\n- **Databases** — Spring Data JPA (`@Entity`, `JpaRepository`), Spring Data MongoDB (`@Document`, `MongoRepository`), Spring Data Redis (`RedisTemplate`), JDBC (`DriverManager.getConnection` with driver-aware kind inference), Hibernate, jOOQ, AWS SDK (S3, DynamoDB)\r\n- **Auth packages** — Spring Security (`@PreAuthorize`, `@Secured`, `SecurityFilterChain`, `@EnableWebSecurity`), jjwt / nimbus-jose-jwt, BCrypt / Argon2 / SCrypt password encoders, OAuth2 (`oauth2Login`, `OAuth2AuthenticationToken`)\r\n- **HTTP clients (external calls)** — RestTemplate, WebClient, java.net.http.HttpClient, OkHttpClient, `@FeignClient`, Apache HttpClient\r\n- **Secrets** — `System.getenv`, `@Value(\"${...}\")`, `Environment.getProperty(...)`\r\n- **Service hints** — `<artifactId>` from `pom.xml`, `rootProject.name` from Gradle settings, `spring.application.name` from `application.properties`/`application.yml`\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers, evidence snippets, confidence scores) so downstream insights can cite `path/to/file.java:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-java-spring.git\r\n```\r\n\r\nThe analyzer is auto-discovered by AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\n```bash\r\n# Auto-discovered when installed:\r\nattackmap analyze /path/to/spring/repo\r\n\r\n# Or invoke explicitly:\r\nattackmap analyze /path/to/spring/repo --module java-spring\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when any of the following are present, ignoring `target/`, `build/`, `.gradle/`, `.mvn/`, `.idea/`, `.git/`, `out/`, `bin/`, and `node_modules/`:\r\n\r\n- `pom.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle`, or `settings.gradle.kts` at the root\r\n- `.java`, `.kt`, or `.kts` files anywhere in the tree\r\n\r\n## Coverage notes\r\n\r\n- **Class-level `@RequestMapping` prefix joining**: a class annotated with `@RequestMapping(\"/api/users\")` causes its method-level `@GetMapping(\"/{id}\")` to emit as `/api/users/{id}`. Multiple classes in one file are tracked correctly — the prefix in effect is whichever class declaration most recently preceded the method annotation.\r\n- **`@PostMapping` with no value** (e.g. `@PostMapping public Object create()`) is **not currently extracted** — the regex requires a string argument. Workaround: write `@PostMapping(\"\")` or `@PostMapping(\"/\")`. Roadmap.\r\n- **JAX-RS class + method `@Path` joining**: the first `@Path` in a JAX-RS file is treated as the class-level prefix and joined to subsequent method-level `@Path` annotations. HTTP verb (`@GET`, `@POST`, etc.) is captured by looking ahead from the `@Path` for the next verb annotation within ~800 chars.\r\n- **Kotlin Ktor**: `routing { get(\"/x\") { ... } }` extraction only fires when the file contains an `io.ktor` import or `ktor.server.routing` reference, to avoid mis-attributing `get(...)` calls on Maps and other types.\r\n- **Javalin** and **Micronaut** are similarly framework-gated.\r\n- **OkHttp / java.net.http.HttpClient**: literal-URL builder patterns (`new Request.Builder().url(\"https://...\")`, `HttpRequest.newBuilder(URI.create(\"https://...\"))`) are picked up. Calls where the URL is built by string concatenation are not.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-java-spring",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-java-spring",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-java-spring/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-java-spring/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_node_service-0.2.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "1025b8c7dafe2402967aa820bd9fa3fb23b47a66c33dbaa8f43e0f100d74527f"
+          },
+          "hash": "sha256=1025b8c7dafe2402967aa820bd9fa3fb23b47a66c33dbaa8f43e0f100d74527f"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-node-service",
+        "version": "0.2.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Broad Node.js/TypeScript service analyzer plugin for AttackMap",
+        "description": "# AttackMap Node Service Analyzer\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\n`attackmap-analyzer-node-service` is a broad Node.js/TypeScript backend analyzer module for AttackMap.\r\n\r\nIt is designed for distributed service repositories and emits structured scan signals for:\r\n- service identity and role hints\r\n- route and handler registration hints\r\n- outbound HTTP and env-configured service URLs\r\n- datastore and storage usage hints\r\n- auth/signing/token hints\r\n- lightweight inter-service edge hints\r\n\r\nThis analyzer is intentionally heuristic and incremental. It is not Bluesky-specific.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-node-service.git\r\n```\r\n\r\n## Usage\r\n\r\n```bash\r\nattackmap analyze /path/to/repo --module node-service\r\n```\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-node-service",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-node-service",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-node-service/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-node-service/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_omeka_s-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "a127ed5fcd9448f28f8f416e39405506517981016c96971ef3c6a453cff6cc76"
+          },
+          "hash": "sha256=a127ed5fcd9448f28f8f416e39405506517981016c96971ef3c6a453cff6cc76"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-omeka-s",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Application-aware Omeka S analyzer plugin for AttackMap",
+        "description": "# AttackMap Omeka S Analyzer\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\n`attackmap-analyzer-omeka-s` is an application-aware analyzer module for AttackMap.\r\n\r\nIt focuses on Omeka S and emits structured scan signals for:\r\n- likely admin, site, and API surfaces\r\n- route and controller hints from Laminas-style module config (router `'route' => '/path'` specs; navigation's `'route' => 'admin/my-module'` names a route and is not one)\r\n- secret-shaped env var names (`getenv`, `$_ENV`) containing `SECRET`, `TOKEN`, `KEY`, `PASSWORD` or `PASSWD`, matched case-sensitively; `DB_HOST`-style connection settings are not secrets\r\n- Omeka service usage (for example `Omeka\\\\Connection`)\r\n- module extension points such as navigation and service manager factories\r\n\r\nThis module is intentionally heuristic and incremental.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-omeka-s.git\r\n```\r\n\r\n## Usage with AttackMap\r\n\r\n```bash\r\nattackmap analyze /path/to/repo --module omeka-s\r\n```\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attack-map-analyzer-omeka-s",
+          "Repository, https://github.com/mlaify/attack-map-analyzer-omeka-s",
+          "Issues, https://github.com/mlaify/attack-map-analyzer-omeka-s/issues",
+          "Changelog, https://github.com/mlaify/attack-map-analyzer-omeka-s/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_php_laminas-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "a215cb83b4cf0dd403638dd54b3b6ed5bbdb2c96326ee615818f11d7e368a91b"
+          },
+          "hash": "sha256=a215cb83b4cf0dd403638dd54b3b6ed5bbdb2c96326ee615818f11d7e368a91b"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-php-laminas",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Framework-aware Laminas analyzer plugin for AttackMap",
+        "description": "# attackmap-analyzer-php-laminas\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nFramework-aware Laminas analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis module focuses on structured signal extraction for Laminas/Zend MVC projects:\r\n\r\n- route paths from config arrays (`'route' => '/album[/:id]'`; route *names* such as navigation's `'route' => 'home'` are not routes)\r\n- controller mapping hints\r\n- service-manager mapping hints\r\n- broad PHP security signals (outbound calls, datastore, auth, secret hints)\r\n\r\n## Analyzer identity\r\n\r\n- `name`: `php-laminas`\r\n- `display_name`: `PHP Laminas Analyzer`\r\n- `version`: `0.1.0`\r\n- `experimental`: `true`\r\n- `enabled_by_default`: `false`\r\n\r\n## Detection\r\n\r\n`detect(repo_path)` returns true when one or more Laminas indicators exist:\r\n\r\n- composer dependencies beginning with `laminas/` or `zendframework/`\r\n- a `module/` directory together with `config/application.config.php`\r\n- any `module.config.php` outside `vendor/` (and the other shared skip dirs)\r\n\r\nA generic `src/`, `app/` or `config/` directory on its own is not enough.\r\n\r\n## Notes\r\n\r\nThis analyzer is heuristic and intentionally avoids AST parsing in this first iteration.\r\n\r\nSecret hints are env var names (`getenv`, `$_ENV`, `$_SERVER`) containing `SECRET`, `TOKEN`, `KEY`, `PASSWORD` or `PASSWD`, matched case-sensitively; `DB_HOST`-style connection settings are not secrets. `jwt` needs a JWT library (`Firebase\\JWT\\JWT`, `JWT::decode/encode`, `Lcobucci\\JWT`, `tymon/jwt-auth`), and `auth` needs the `Auth::` facade or a chained `auth()->…` helper.\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-php-laminas",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-php-laminas",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-php-laminas/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-php-laminas/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_php_web-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "9692af3efe83a0486df10f772a7b56e7356c276c8131dd6179bb52b9a9bab5c0"
+          },
+          "hash": "sha256=9692af3efe83a0486df10f772a7b56e7356c276c8131dd6179bb52b9a9bab5c0"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-php-web",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Broad PHP web analyzer plugin for AttackMap",
+        "description": "# attackmap-analyzer-php-web\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nBroad PHP web analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis repository is intentionally separate from AttackMap core. It focuses only on extracting structured signals from PHP repositories:\r\n\r\n- routes\r\n- outbound HTTP calls\r\n- datastore hints\r\n- auth hints\r\n- secret and env usage\r\n\r\nIt does not render reports and does not own global severity policy.\r\n\r\n## Analyzer identity\r\n\r\n- `name`: `php-web`\r\n- `display_name`: `PHP Web Analyzer`\r\n- `version`: `0.1.0`\r\n- `experimental`: `true`\r\n- `enabled_by_default`: `false`\r\n\r\n## Scope\r\n\r\nThis analyzer is broad and heuristic. It is meant to map common PHP web application surfaces before framework-specific analyzers (for example `php-laminas` or `omeka-s`) are added.\r\n\r\n## Detection strategy\r\n\r\n`detect(repo_path)` uses lightweight signals:\r\n\r\n- `composer.json` present, or\r\n- at least one `.php` file outside `vendor/` (and the other shared skip dirs)\r\n\r\nA `src/`, `app/` or `config/` directory on its own is not enough, since Python, Go and Java repos have those too.\r\n\r\n## Extraction strategy\r\n\r\n`analyze(repo_path)` scans `.php` files and emits structured signals using regular-expression heuristics.\r\n\r\nRoute extraction currently includes patterns such as:\r\n\r\n- `Route::get(...)`/`Route::post(...)` style calls\r\n- `$app->get('/path', ...)` style calls. The path must start with `/`, and the receiver must be `$app`, `$router`, `$route`, `$group` or `$r`, a variable assigned from `AppFactory::create()` / `new RouteCollector` / `new App`, or a parameter typed `RouteCollectorProxy` / `RouteCollector` / `App`. This keeps `$request->get('id')` and `$cache->get('k')` out.\r\n- PHP attributes like `#[Route(\"/path\", methods: [\"GET\"]) ]`\r\n- config-style `\"path\" => \"/...\"`, only in files that also declare a `'routes'` / `'router'` key (so Laravel's `config/logging.php` paths aren't routes)\r\n\r\nOutbound calls currently include patterns such as:\r\n\r\n- `curl_init(\"https://...\")`\r\n- `file_get_contents(\"https://...\")`\r\n- common HTTP client calls such as `->request(...)`, `->get(...)`, `->post(...)`\r\n\r\nDatastore/auth/secret hints are similarly heuristic and intended as first-pass signals. Secret hints are env var names (`getenv`, `$_ENV`, `$_SERVER`) containing `SECRET`, `TOKEN`, `KEY`, `PASSWORD` or `PASSWD`. `DB_HOST`-style connection settings are not secrets. `jwt` needs a JWT library (`Firebase\\JWT\\JWT`, `JWT::decode/encode`, `Lcobucci\\JWT`, `tymon/jwt-auth`), and `auth` needs the `Auth::` facade or a chained `auth()->…` helper.\r\n\r\n## Installation\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-php-web.git\r\n```\r\n\r\nFor local development:\r\n\r\n```bash\r\npip install -e .[dev]\r\n```\r\n\r\n## Contract alignment with AttackMap core\r\n\r\nThis package targets the current AttackMap analyzer contract:\r\n\r\n- analyzer exposes metadata via `metadata`\r\n- analyzer implements `detect(repo_path)` and `analyze(repo_path)`\r\n- `analyze` returns AttackMap-style structured scan data (`ScanResult` shape)\r\n\r\nThe package includes a small compatibility layer so tests can run even if AttackMap core is not installed.\r\n\r\n## Future core discovery (documented, not implemented here)\r\n\r\nAttackMap core can discover this analyzer later via one of these options:\r\n\r\n1. entry points (preferred long-term)\r\n2. explicit configured analyzer list\r\n3. namespace/package scanning in `github.com/mlaify`\r\n\r\nThis repository does not implement core-side discovery logic.\r\n\r\n## Limitations\r\n\r\n- regex-based extraction (not AST)\r\n- limited config route parsing\r\n- no framework-specific deep parsing yet\r\n- no dataflow or reachability modeling inside this analyzer\r\n\r\nThese are deliberate to keep this first external analyzer incremental and maintainable.\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-php-web",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-php-web",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-php-web/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-php-web/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_python-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "89723ca15a0c42b4818242bc5c9541a9611de623c7939dd78fc240605a7c6320"
+          },
+          "hash": "sha256=89723ca15a0c42b4818242bc5c9541a9611de623c7939dd78fc240605a7c6320"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-python",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Comprehensive Python ecosystem analyzer plugin for AttackMap (Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp).",
+        "description": "# attackmap-analyzer-python\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nComprehensive Python ecosystem analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis plugin is **additive** over AttackMap's built-in `python-web` analyzer. The built-in handles FastAPI / Flask routes via the core scanner; this plugin adds everything else.\r\n\r\n- **Web frameworks** —\r\n  - **Django** routing (`path(\"users/\", ...)`, `re_path(r\"^api/...$\", ...)`, legacy `url(...)`) gated by `urlpatterns =` in the file\r\n  - **Django REST Framework** routers (`router.register(r'users', UserViewSet)`) and `@api_view(['GET', 'POST'])` decorators\r\n  - **Starlette** `Route(\"/x\", endpoint=h, methods=[\"GET\", \"POST\"])` and `WebSocketRoute(\"/ws/...\")`\r\n  - **AIOHTTP** `app.router.add_get/post/...` and `web.get/post/...` helpers (gated by aiohttp import)\r\n  - **Sanic** `@app.get(\"/x\")`, `@app.post(\"/x\")` (gated by sanic import)\r\n  - **Litestar** (and legacy Starlite) top-level `@get(\"/x\")` / `@post(...)` decorators (gated by litestar/starlite import)\r\n  - **Flask** `app.add_url_rule(\"/x\", view_func=...)` (additive — built-in covers `@app.route`)\r\n- **Databases** —\r\n  - **SQLAlchemy** `create_engine(\"postgresql://...\")` with dialect-aware kind inference (postgresql / mysql / mariadb / sqlite / oracle / sqlserver)\r\n  - **asyncpg** / **psycopg2-3** / **pymysql** / **motor.motor_asyncio** / **pymongo** / **redis.asyncio** / **aioredis** / **sqlmodel** / **tortoise**\r\n  - **boto3 resources/clients** for `dynamodb` and `s3`\r\n  - **Django** `DATABASES` dict in `settings.py` — `ENGINE` value parsed for the kind\r\n- **Auth packages** —\r\n  - **passlib** `CryptContext`, `passlib.hash.argon2/bcrypt/scrypt`\r\n  - **bcrypt** standalone (`bcrypt.hashpw`, `bcrypt.checkpw`)\r\n  - **argon2-cffi** (`from argon2 import PasswordHasher`)\r\n  - **PyJWT** / **python-jose** (`jwt.encode`, `jwt.decode`, `jose.jwt`)\r\n  - **authlib** (`OAuth(...)`, `OAuth2Session(...)`)\r\n  - **fastapi-users** (`BearerTransport`, `JWTStrategy`)\r\n  - **flask-jwt-extended** (`@jwt_required`, `create_access_token`)\r\n  - **django.contrib.auth** (`authenticate`, `make_password`)\r\n  - **casbin** (`Enforcer`)\r\n- **HTTP clients (external calls)** — **httpx** sync + async, **aiohttp.ClientSession**, **urllib.request.urlopen**\r\n- **Secrets** —\r\n  - `os.environ.get(\"X\")` and `os.environ[\"X\"]` with secret-shaped names (built-in only covers `os.getenv`)\r\n  - **pydantic-settings** `BaseSettings` field-name extraction (`jwt_secret: str = ...`)\r\n  - `dotenv_values(...)` accessors with secret-shaped keys\r\n- **Service hints** — `[project] name` from `pyproject.toml`, `[tool.poetry] name`, `name=\"...\"` from `setup.py`, `[metadata] name` from `setup.cfg`, presence of `manage.py` → `framework:django`, Django `INSTALLED_APPS` third-party / local apps\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers, evidence snippets, confidence) so downstream insights can cite `path/to/module.py:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-python.git\r\n```\r\n\r\nThe analyzer is auto-discovered by AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\n```bash\r\n# Auto-discovered when installed:\r\nattackmap analyze /path/to/python/repo\r\n\r\n# Or invoke explicitly:\r\nattackmap analyze /path/to/python/repo --module python\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when any of the following are present, ignoring `.venv/`, `venv/`, `env/`, `.tox/`, `__pycache__/`, `.pytest_cache/`, `dist/`, `build/`, `node_modules/`, `.git/`, `.mypy_cache/`, `.ruff_cache/`, and `site-packages/`:\r\n\r\n- A `pyproject.toml`, `setup.py`, `setup.cfg`, `manage.py`, or `Pipfile` at the root\r\n- Any `.py` file in the tree\r\n\r\n## Coverage notes\r\n\r\n- **Framework-gated extraction**: route extractors for AIOHTTP, Sanic, Litestar, and Starlette only fire when the file imports the corresponding framework. This prevents mis-attributing generic `@get(...)` / `web.get(...)` / `app.get(...)` calls to a framework when they're really custom decorators or method calls.\r\n- **Django routing requires `urlpatterns =`** to be in the file. A bare `path(\"/x\", ...)` in any other context (e.g., `pathlib.Path(\"/x\")` is well-behaved, but a project that also has `from django.urls import path; path(\"/x\", view)` outside a urls.py won't fire — by design).\r\n- **Django settings extraction**: gated by presence of one of `INSTALLED_APPS`, `DATABASES`, `MIDDLEWARE`, or `ROOT_URLCONF`. Built-in Django apps (`django.*`) are filtered out of the INSTALLED_APPS service hints to keep signal high.\r\n- **DRF `@api_view(['GET', 'POST'])`**: emits framework hints (`drf_api_view:GET`, `drf_api_view:POST`) rather than routes — the actual path is in `urls.py`, which is extracted separately.\r\n- **Tornado** is not yet covered — its class-based `RequestHandler` routing requires per-class method extraction (`def get(self): ...`, `def post(self): ...`).\r\n- **pydantic-settings** field extraction matches any class field whose name contains `secret`, `token`, `key`, `password`, `pass`, or `pwd`. False positives are possible (e.g., a non-secret `signing_key` config). Confidence is the standard 0.85.\r\n\r\n## Coexistence with the built-in `python-web` analyzer\r\n\r\nAttackMap ships with a `python-web` built-in that handles FastAPI / Flask via the core scanner. When this plugin is installed, both analyzers run on every Python repo. AttackMap's overlay deduplication merges their output so users see a single unified set of findings — no double-counting.\r\n\r\nThis plugin runs at `priority=10`. AttackMap runs analyzers in `(priority, name)` order across built-ins and plugins and merges first-seen-wins, so this plugin runs before the built-in (`priority=20`) and its richer output wins where they overlap.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-python",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-python",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-python/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-python/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_rust-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "155ead7e654f477c2fbbaee6bc560ac26e93520c7c6067324b244f8070aa41a3"
+          },
+          "hash": "sha256=155ead7e654f477c2fbbaee6bc560ac26e93520c7c6067324b244f8070aa41a3"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-rust",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Rust ecosystem analyzer plugin for AttackMap (axum, actix-web, rocket; sqlx/diesel/sea-orm; jsonwebtoken/argon2; reqwest).",
+        "description": "# attackmap-analyzer-rust\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nRust ecosystem analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis analyzer extracts structured signals from Rust crates and Cargo workspaces:\r\n\r\n- **Web frameworks** — axum, actix-web, rocket (route + entrypoint extraction)\r\n- **Databases** — sqlx (Postgres / MySQL / SQLite), diesel, sea-orm, tokio-postgres, rusqlite, mongodb, redis, deadpool, AWS SDK (S3 / DynamoDB)\r\n- **Auth crates** — jsonwebtoken, argon2 / bcrypt / scrypt / password-hash, oauth2, axum-login, actix-identity, tower-sessions, tower-http auth\r\n- **HTTP clients (external calls)** — reqwest, isahc, surf, ureq\r\n- **Secrets** — `std::env::var`, `dotenv` / `dotenvy`, `env!` macro, `secrecy::SecretString`\r\n- **Service hints** — Cargo `[package].name` and `[workspace].members`\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers, evidence snippets, confidence scores) so downstream insights can cite `path/to/file.rs:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-rust.git\r\n```\r\n\r\nThe analyzer is auto-discovered by AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\n```bash\r\n# Auto-discovered when installed:\r\nattackmap analyze /path/to/rust/repo\r\n\r\n# Or invoke explicitly:\r\nattackmap analyze /path/to/rust/repo --module rust\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when any of the following are present, ignoring `target/`, `.git/`, `node_modules/`, `.cargo/`, and `vendor/`:\r\n\r\n- A `Cargo.toml` or `Cargo.lock` at the repository root, or anywhere in the tree\r\n- One or more `.rs` files in the tree\r\n\r\n## Coverage notes\r\n\r\n- **Warp** is intentionally not covered yet — its filter-based routing makes path extraction unreliable from regex alone.\r\n- **Tide** framework presence is detected via `tide::` imports; route extraction for tide's `app.at(\"/x\").get(...)` chain is on the roadmap.\r\n- Multi-method axum chains like `.route(\"/x\", get(h).post(h2))` produce one `Route` per HTTP verb in the chain, all sharing the same `line`.\r\n- The actix-web attribute regex (`#[get(...)]`) and rocket attribute regex are intentionally identical; rocket emissions only fire when the file also mentions `rocket` somewhere, to avoid double-counting actix routes.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-rust",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-rust",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-rust/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-rust/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_swift-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "051b76d659b0ab12da43983c8e7fc66eeed3fb1f1e528314970d43995db23549"
+          },
+          "hash": "sha256=051b76d659b0ab12da43983c8e7fc66eeed3fb1f1e528314970d43995db23549"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-swift",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Swift ecosystem analyzer plugin for AttackMap (SwiftPM projects, Package.resolved SBOM; server-side Vapor/Hummingbird and iOS/macOS app surface land in later slices).",
+        "description": "# attackmap-analyzer-swift\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nSwift ecosystem analyzer plugin for [AttackMap](https://github.com/mlaify/AttackMap).\r\nAuto-discovered via the `attackmap.analyzers` entry point once installed.\r\n\r\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\r\n\r\n> **Status: early scaffold (v0.1.0).** SwiftPM project detection + a\r\n> `Package.resolved` dependency SBOM. Server-side route extraction and the\r\n> iOS/macOS app attack surface are on the roadmap (below).\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-swift.git    # alongside attackmap\r\n```\r\n\r\nThe analyzer is **experimental and opt-in** (`enabled_by_default=False`): installing\r\nit does not make it run on every scan. Select it explicitly:\r\n\r\n```bash\r\nattackmap analyze /path/to/swift/project -m swift\r\n```\r\n\r\nFiles are walked with `attackmap.sdk.iter_repo_files`: `.build/`, `DerivedData/`,\r\n`Pods/`, `Carthage/` and AttackMap's shared skip list (`build/`, `.git/`,\r\n`node_modules/`, ...) are pruned by their name *inside* the repo, and symlinks out\r\nof the repo are not followed.\r\n\r\n## What it does today\r\n\r\n- **SwiftPM detection** — recognizes `Package.swift`, `.xcodeproj` / `.xcworkspace`,\r\n  and `.swift` sources; emits a `SwiftPM` framework hint.\r\n- **Dependency SBOM** — parses `Package.resolved` (formats **v1**, **v2**, and **v3**,\r\n  including the copy Xcode stashes under `*.xcworkspace/xcshareddata/swiftpm/`) into\r\n  the scan's dependency inventory, marking direct vs. transitive by cross-referencing\r\n  the `Package.swift` manifest. Swift packages are inventoried but not CVE-matched —\r\n  OSV.dev has no SwiftPM ecosystem yet.\r\n- **Framework hints** — flags server-side frameworks (Vapor, Hummingbird, Kitura,\r\n  Perfect) when declared in the manifest.\r\n- **Entrypoints** — `main.swift` and `@main`.\r\n\r\n## Roadmap\r\n\r\n- **Server-side routes** ([AttackMap#187](https://github.com/mlaify/AttackMap/issues/187)) — Vapor / Hummingbird route + auth-middleware extraction.\r\n- **iOS/macOS app attack surface** ([AttackMap#188](https://github.com/mlaify/AttackMap/issues/188)) — URL schemes, universal links, `WKWebView` JS eval, Keychain / `UserDefaults` secrets, App Transport Security exceptions, pasteboard, XPC.\r\n\r\nPart of the [Swift analyzer epic](https://github.com/mlaify/AttackMap/issues/204).\r\n\r\n## Development\r\n\r\n```bash\r\npip install -e \".[dev]\"\r\npytest -q\r\n```\r\n\r\n## License\r\n\r\n[MIT](LICENSE). Copyright (c) 2026 Matthew Davis and AttackMap Contributors.\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin",
+          "swift"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-swift",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-swift",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-swift/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-swift/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    },
+    {
+      "download_info": {
+        "url": "file:///C:/Projects/INPROGRESS/AttackMap/.tools/wp024-wheelhouse/attackmap_analyzer_terraform-0.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "f405fd126eae7f59ee63897dea2ec25c7ad85fc012cb22734920729a09573246"
+          },
+          "hash": "sha256=f405fd126eae7f59ee63897dea2ec25c7ad85fc012cb22734920729a09573246"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "attackmap-analyzer-terraform",
+        "version": "0.1.0",
+        "dynamic": [
+          "license-file"
+        ],
+        "summary": "Terraform / HCL infrastructure-as-code analyzer plugin for AttackMap (AWS, Azure, GCP resources; IAM wildcards; open security groups; secret resources).",
+        "description": "# attackmap-analyzer-terraform\r\n\r\n> [!IMPORTANT]\r\n> **Active development, slow pace.** AttackMap is under active development, but\r\n> progress may be slow until more contributors or co-maintainers join. Help is\r\n> very welcome with the core engine, an analyzer, the macOS app, or the docs —\r\n> see [CONTRIBUTING.md](CONTRIBUTING.md) or open an issue on\r\n> [mlaify/AttackMap](https://github.com/mlaify/AttackMap/issues) to say hello.\r\n> Security reports are still welcome at [security@mlaify.io](mailto:security@mlaify.io).\r\n\r\nTerraform / HCL infrastructure-as-code analyzer for [AttackMap](https://github.com/mlaify/AttackMap).\r\n\r\nThis analyzer is shaped differently from language analyzers — Terraform doesn't have routes in the application sense. Instead, it extracts:\r\n\r\n- **Public ingress** — security groups (`ingress` blocks only; open egress is ignored) and inbound firewall rules with `0.0.0.0/0` / `::/0`, Lambda Function URLs with no auth, API Gateway methods with `authorization = \"NONE\"`, S3 buckets with public ACLs (inline or `aws_s3_bucket_acl`), public bucket policies or disabled public-access blocks → `entrypoint_hints`\r\n- **Asset inventory** — S3 buckets, Azure storage accounts, GCS buckets, KMS keys, Cognito user pools → `service_hints`\r\n- **Databases** — `aws_db_instance` and `aws_rds_cluster` (engine-aware: postgres / mysql / oracle / sqlserver / mariadb), `aws_dynamodb_table`, `aws_elasticache_*`, `aws_documentdb_*`, Azure PostgreSQL/MySQL/CosmosDB, GCP Cloud SQL → `database_hints`\r\n- **Secrets** — `aws_secretsmanager_secret`, `aws_ssm_parameter` (SecureString), `azurerm_key_vault`, plus `variable` blocks marked `sensitive = true` or with secret-shaped names (`*secret*`, `*token*`, `*password*`, `*key*`), and secret-shaped string literals in `.tfvars` (`kind=\"hardcoded\"`) → `secret_hints`\r\n- **IAM blast radius** — Allow statements with `Action \"*\"` (0.7), `Resource \"*\"` (0.5) or unconditioned `Principal \"*\"` (0.7) in `aws_iam_*_policy`, `aws_iam_role` trust/inline policies and `data \"aws_iam_policy_document\"` → `auth_hints`\r\n- **Cognito** — `aws_cognito_user_pool` → `auth_hints`\r\n- **Modules** — `module \"x\" { source = ... }` → `service_hints` keyed `module:x`\r\n- **API Gateway v2 routes** — `aws_apigatewayv2_route` with `route_key = \"POST /charges\"` → actual `Route` entries\r\n\r\nAll emissions populate AttackMap's Signal v2 fields (line numbers + evidence snippets) so downstream insights can cite `infra/main.tf:NN`.\r\n\r\n## Install\r\n\r\n```bash\r\npip install git+https://github.com/mlaify/attackmap-analyzer-terraform.git\r\n```\r\n\r\nThe analyzer is auto-discovered by AttackMap via the `attackmap.analyzers` entry-point group.\r\n\r\n## Usage with AttackMap\r\n\r\n```bash\r\n# Auto-discovered when installed:\r\nattackmap analyze /path/to/terraform/repo\r\n\r\n# Or invoke explicitly:\r\nattackmap analyze /path/to/terraform/repo --module terraform\r\n```\r\n\r\n## Detection\r\n\r\n`detect()` returns true when any `.tf`, `.tf.json`, or `.tfvars` file is present in the tree, ignoring `.terraform/` and AttackMap's shared skip list (`.git/`, `node_modules/`, `vendor/`, `build/`, `dist/`, `out/`, `target/`, ...). Skip directories are matched only *inside* the repo, so a checkout under e.g. `/build/...` is still scanned. Files are walked with `attackmap.sdk.iter_repo_files`, which does not follow symlinks out of the repo.\r\n\r\n## HCL block parsing\r\n\r\nThe analyzer parses HCL block bodies via brace-depth counting (with string-literal awareness so `\"{\" inside strings\"` doesn't throw off the counter). Nested blocks like multiple `ingress { }` blocks inside a security group are handled correctly. **Variable interpolation** (`${var.foo}`, `aws_iam_role.app.id`) is **not resolved** — string literals and direct attribute values are what get extracted.\r\n\r\n## Coverage notes\r\n\r\n- **AWS** is the most thoroughly covered provider. Azure and GCP have basic coverage (NSG/firewall open ingress, Storage Account / GCS bucket as service hints, PostgreSQL/MySQL/CosmosDB/CloudSQL as databases) — extend per resource type as needed.\r\n- **IAM wildcard detection** matches JSON-shaped (`\"Action\": \"*\"`, heredoc or `.tf.json` string) and HCL-shaped (`Action = \"*\"` in `jsonencode`, `actions = [\"*\"]` in `aws_iam_policy_document`) policies. A `policy = data.aws_iam_policy_document.x.json` reference isn't followed; the data source is reported under its own name.\r\n- **`.tf.json`** files get the same analysis as `.tf`. **`.tfvars`** files are checked for secret-shaped string literals (reported as `kind=\"hardcoded\"` with the value redacted).\r\n- **API Gateway v1** routing is partial — only individual `aws_api_gateway_method` resources emit entrypoint hints. Path joining across `aws_api_gateway_resource` chains is not yet implemented (use API Gateway v2 / `aws_apigatewayv2_route` for full path+method extraction).\r\n- **Lambda Function URLs** with `authorization_type = \"NONE\"` are flagged as open entrypoints. IAM-authorized URLs are emitted with the regular `lambda_url:` prefix.\r\n- **Database `publicly_accessible = true`** on `aws_db_instance` produces a separate `rds_publicly_accessible:` entrypoint hint in addition to the standard database hint.\r\n\r\n## License\r\n\r\nMIT\r\n",
+        "description_content_type": "text/markdown",
+        "keywords": [
+          "security",
+          "static-analysis",
+          "appsec",
+          "defensive-security",
+          "attackmap",
+          "attackmap-plugin"
+        ],
+        "author": "AttackMap Contributors",
+        "author_email": "Matthew Davis <mlaify@mlaify.io>",
+        "maintainer_email": "Matthew Davis <mlaify@mlaify.io>",
+        "license": "MIT",
+        "license_file": [
+          "LICENSE"
+        ],
+        "classifier": [
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Intended Audience :: System Administrators",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12",
+          "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Security",
+          "Topic :: Software Development :: Quality Assurance",
+          "Typing :: Typed"
+        ],
+        "requires_dist": [
+          "pydantic>=2.7.0",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"core\"",
+          "pytest>=8.0.0; extra == \"dev\"",
+          "build>=1.2.0; extra == \"dev\"",
+          "attackmap @ git+https://github.com/mlaify/AttackMap.git ; extra == \"dev\""
+        ],
+        "requires_python": ">=3.11",
+        "project_url": [
+          "Homepage, https://github.com/mlaify/attackmap-analyzer-terraform",
+          "Repository, https://github.com/mlaify/attackmap-analyzer-terraform",
+          "Issues, https://github.com/mlaify/attackmap-analyzer-terraform/issues",
+          "Changelog, https://github.com/mlaify/attackmap-analyzer-terraform/blob/main/CHANGELOG.md",
+          "AttackMap core, https://github.com/mlaify/AttackMap"
+        ],
+        "provides_extra": [
+          "core",
+          "dev"
+        ]
+      }
+    }
+  ],
+  "environment": {
+    "implementation_name": "cpython",
+    "implementation_version": "3.13.15",
+    "os_name": "nt",
+    "platform_machine": "AMD64",
+    "platform_release": "10",
+    "platform_system": "Windows",
+    "platform_version": "10.0.19045",
+    "python_full_version": "3.13.15",
+    "platform_python_implementation": "CPython",
+    "python_version": "3.13",
+    "sys_platform": "win32"
+  }
+}

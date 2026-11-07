@@ -1,0 +1,39 @@
+{
+  "scope": "Independent frozen Django oracle provenance snapshot; this is not whole release acceptance",
+  "captured_at": "2026-10-23T11:38:05.8459208Z",
+  "engine_sha256": "6045194b77c0957166a6eb9fece45dbfd9c42441bb9e32cec6d040db6c419b05",
+  "snapshots": [
+    {
+      "name": "build-proof.json",
+      "sha256": "6e63500be47a21b46d6d3f9d21602d7f8af85d8b1cd268432a6f5720119a828e"
+    },
+    {
+      "name": "source-checksums.json",
+      "sha256": "9f4152fbe15962443933fa321cac6bfc6538a547593432990cd7473691f7acdd"
+    },
+    {
+      "name": "release-lock.json",
+      "sha256": "64939b3d0809a7911b9d36cc2c32a8e4cfbf469a5e44682de11087c1d27ff3cb"
+    },
+    {
+      "name": "analyzer-installed-attestation.json",
+      "sha256": "15fff068d64eb865c89a1a34758ce1eae8935cdfb4a93baf24319a775251c8a7"
+    }
+  ],
+  "core_file_count": 135,
+  "captured_and_live_core_mismatches": [
+    {
+      "scope": "live",
+      "file": "src/attackmap/desktop_fleet.py",
+      "expected": "288f8ae35f79ad0aaffc1f6f7ab30ff981b8a6471899a05d320a8fef1e0e5aaa",
+      "actual": "5bd53082d80ef9ea2c7edb2ba8736a0df41c952343e249f1753ae94bb2648d6b"
+    },
+    {
+      "scope": "live",
+      "file": "src/attackmap/fleet.py",
+      "expected": "b4fc8293f90fb9306d63f6fbf45458e7304a64d5213460f56fc9f4a1c2bf238d",
+      "actual": "cb60d3c77d03227441b361706b3837e91a267b1b8fad66e77ecf274ca1130ae7"
+    }
+  ],
+  "release_input_caveat": "Parent reported qualification release_inputs mismatch after parallel native publication. This snapshot preserves exact proof bytes; current core source equality is checked separately and does not assert complete release-input parity."
+}

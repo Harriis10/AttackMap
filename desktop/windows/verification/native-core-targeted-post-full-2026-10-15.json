@@ -1,0 +1,70 @@
+{
+  "scope": "Targeted diagnosis and test-fixture race repair; not replacement for original full matrix negatives",
+  "testOnlyFix": {
+    "path": "tests/test_execution_supervision.py",
+    "sha256": "5121a18fbac6841ded0cbcb508d72c8aaf60b35d0b55aa2ec82946e17b13084e",
+    "behavior": "Atomic sibling PID write+os.replace; per-started-cycle finally invokes production cancellation and verifies cleanup",
+    "originalInvariantsRetained": "50 cycles, request_cancel ack p95<=0.25s, every tree exit<=5s and parent/child dead"
+  },
+  "original313Negative": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-final-source-py313-84563c217d49413fb9fc0a45b763e81a\\pytest.log",
+    "sha256": "4aef6daf2e7236d220a4ae600b3a65b9dbae3dba4bf9c1a86584ebf0d8b68b02"
+  },
+  "failedFixtureProcessAudit": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\py313-controlled-ready-race-process-audit.json",
+    "sha256": "0c8fc87ff100106890f2f4396e62d7c7b917540a882140cf4ff320b1d94421cf"
+  },
+  "isolated312": {
+    "session": 31338,
+    "exitCode": 0,
+    "passed": 3,
+    "seconds": 23.59,
+    "callSeconds": {
+      "long_word": 1.69,
+      "router_assign": 2.4,
+      "many_matches": 19.23
+    },
+    "originalFullElapsedSeconds": {
+      "long_word": 5.0207196,
+      "router_assign": 5.1535374,
+      "many_matches": 26.4767502
+    },
+    "interpretation": "One quieter-host rerun passed unchanged bounds; load sensitivity supported but sole cause and linear scaling not proven",
+    "log": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-full-targeted-6826b26f4652446fa34ccc9c611e4a6c\\py312-pytest.log",
+      "sha256": "f4f80c0396d45e269476ad8afb63f41593f963fa09e607c8fe70d3b57cdd14e8"
+    },
+    "junit": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-full-targeted-6826b26f4652446fa34ccc9c611e4a6c\\py312-results.xml",
+      "sha256": "9ddb01f033f5515ddaeaa73a68e1d8461e11865f628f9fdaed1175694a340454"
+    },
+    "invocation": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-full-targeted-6826b26f4652446fa34ccc9c611e4a6c\\py312-proof.json",
+      "sha256": "619f8759c3566fef651c49edb0e369dd2ab0c1e913c0e4d707267d0730ac3874"
+    }
+  },
+  "targeted313": {
+    "session": 86238,
+    "exitCode": 0,
+    "passed": 1,
+    "cycles": 50,
+    "seconds": 170.58,
+    "acknowledgementP95Seconds": 0.00583,
+    "treeExitP95Seconds": 3.083691,
+    "treeExitMaximumSeconds": 3.12135,
+    "log": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-full-targeted-6826b26f4652446fa34ccc9c611e4a6c\\py313-pytest.log",
+      "sha256": "c3013ab1d32ffa6955ce9a6bb3444c041af172f9b73f7c74375706a691191216"
+    },
+    "junit": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-full-targeted-6826b26f4652446fa34ccc9c611e4a6c\\py313-results.xml",
+      "sha256": "3ac79859a91c18b38aa5de35e625c8e1307a967a5557d116cf9b7d41baf7340a"
+    },
+    "invocation": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-full-targeted-6826b26f4652446fa34ccc9c611e4a6c\\py313-proof.json",
+      "sha256": "3ceafaa22744b55edcc9837fb7bbe5a16ed20d2a8a386564ca0fb31e44fa4cb9"
+    }
+  },
+  "execution": "Sequential312 then313; pinned existing interpreters; explicit live-source import assertion/PYTHONPATH; unique owned TEMP; no algorithm/threshold changes/profiling",
+  "remaining": "Full313 matrix rerun coordinated by root; original312 full failure remains historical negative evidence"
+}

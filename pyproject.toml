@@ -4,17 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "attackmap"
-version = "0.4.29"
+# Single-sourced from src/attackmap/__init__.py (see [tool.setuptools.dynamic]).
+dynamic = ["version"]
 description = "AI-assisted defensive security analyzer for codebases — scans a repository, models assets and controls, finds cross-cutting weaknesses, and generates an evidence-grounded review with MITRE ATT&CK mappings and detection-engineering hints."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-  {name = "Matthew Davis", email = "matthewd@matthewd.xyz"},
+  {name = "Matthew Davis", email = "mlaify@mlaify.io"},
   {name = "AttackMap Contributors"},
 ]
 maintainers = [
-  {name = "Matthew Davis", email = "matthewd@matthewd.xyz"},
+  {name = "Matthew Davis", email = "mlaify@mlaify.io"},
 ]
 keywords = [
   "security",
@@ -61,25 +62,29 @@ llm = [
 ]
 all = [
   "attackmap[llm]",
-  "attackmap-analyzer-python>=0.1.0",
-  "attackmap-analyzer-rust>=0.1.0",
-  "attackmap-analyzer-go>=0.1.0",
-  "attackmap-analyzer-java-spring>=0.1.0",
-  "attackmap-analyzer-dotnet>=0.1.0",
-  "attackmap-analyzer-terraform>=0.1.0",
-  "attackmap-analyzer-c>=0.1.0",
-  "attackmap-analyzer-cpp>=0.1.0",
-  "attackmap-analyzer-swift>=0.1.0",
-  "attackmap-analyzer-node-service>=0.2.0",
-  "attackmap-analyzer-atproto>=0.1.0",
-  "attackmap-analyzer-php-web>=0.1.0",
-  "attackmap-analyzer-php-laminas>=0.1.0",
-  "attackmap-analyzer-omeka-s>=0.1.0",
-  "attackmap-analyzer-iac>=0.1.0",
+  "attackmap-analyzer-python @ git+https://github.com/mlaify/attackmap-analyzer-python.git@1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+  "attackmap-analyzer-rust @ git+https://github.com/mlaify/attackmap-analyzer-rust.git@c2e02d2855e6102153140f2644504b1cc0a95fb8",
+  "attackmap-analyzer-go @ git+https://github.com/mlaify/attackmap-analyzer-go.git@e92fc3de5c34485c4ea06032052ad0f6c21fd133",
+  "attackmap-analyzer-java-spring @ git+https://github.com/mlaify/attackmap-analyzer-java-spring.git@98dec01669ca90216cea4559495ee310224fd8f3",
+  "attackmap-analyzer-dotnet @ git+https://github.com/mlaify/attackmap-analyzer-dotnet.git@a1f00d05bc915940ed684f438c678e696f3de53d",
+  "attackmap-analyzer-terraform @ git+https://github.com/mlaify/attackmap-analyzer-terraform.git@736f2c22051ffca537785edebf941a2d5ddb2487",
+  "attackmap-analyzer-c @ git+https://github.com/mlaify/attackmap-analyzer-c.git@1c2789ef62e57b713789f483b9409a5c64644795",
+  "attackmap-analyzer-cpp @ git+https://github.com/mlaify/attackmap-analyzer-cpp.git@61fa5325696620665bf9ceab10ec7bed378888ec",
+  "attackmap-analyzer-swift @ git+https://github.com/mlaify/attackmap-analyzer-swift.git@bae13e58a49f46c15992197517cf9c036a75d83c",
+  "attackmap-analyzer-node-service @ git+https://github.com/mlaify/attackmap-analyzer-node-service.git@8573b4a8dcefda5518a771c1a84be93b2eb9be05",
+  "attackmap-analyzer-atproto @ git+https://github.com/mlaify/attackmap-analyzer-atproto.git@d2cb6ed6d5e69adf929a1fd7f66947830ecfd5fc",
+  "attackmap-analyzer-php-web @ git+https://github.com/mlaify/attackmap-analyzer-php-web.git@69143bd994ec9111cffc2f78d4020bad611e68c7",
+  "attackmap-analyzer-php-laminas @ git+https://github.com/mlaify/attackmap-analyzer-php-laminas.git@7eac668b6f64a1d3fc3fa731317cb253a98915ce",
+  "attackmap-analyzer-omeka-s @ git+https://github.com/mlaify/attack-map-analyzer-omeka-s.git@6b9e478689a825dbcba655de4ff0bf63a3a3c544",
+  "attackmap-analyzer-iac @ git+https://github.com/mlaify/attackmap-analyzer-iac.git@002efc484fc26ead1243aa34b610ccb2230147b0",
+]
+ui = [
+  "pywebview>=5.0",
 ]
 dev = [
   "pytest>=8.0.0",
   "build>=1.2.0",
+  "jsonschema>=4.0",
 ]
 
 [project.urls]
@@ -97,6 +102,13 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+# Declarative taint sink registry (#240).
+attackmap = ["taint_sinks.yaml", "ui/web/**/*", "ui/fixtures/*.json"]
+
+[tool.setuptools.dynamic]
+version = {attr = "attackmap.__version__"}
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

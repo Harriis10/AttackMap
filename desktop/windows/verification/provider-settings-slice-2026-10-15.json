@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-15",
+  "pythonChecks": {
+    "command": "python -m pytest tests/test_provider_options.py -q",
+    "passed": 24
+  },
+  "nativeConfigurationChecks": {
+    "command": "dotnet run --project desktop/windows/ProviderConfiguration.Tests",
+    "passed": 16
+  },
+  "winUiBuild": {
+    "command": "dotnet build desktop/windows/AttackMap.NativeSpike/AttackMap.NativeSpike.csproj -c Release -p:Platform=x64 --no-restore",
+    "passed": true,
+    "warnings": 0,
+    "errors": 0
+  },
+  "networkCallsInTheseChecks": 0,
+  "defaults": {
+    "enable_ai": false,
+    "provider": "openai",
+    "endpoint": "http://127.0.0.1:1234/v1",
+    "model": "cyberstag-security-26b-a4b-v1",
+    "max_calls": 8,
+    "timeout_seconds": 600,
+    "output_token_limit": 32000
+  },
+  "integrationStatus": "Standalone UserControl and validated models; root owns MainWindow, secure storage, provider actions and broker integration",
+  "limitations": [
+    "No end-to-end provider Save/Test action proof from this slice",
+    "No live external AI tests",
+    "Output allowance does not cap input, reasoning or billing",
+    "No keyboard/Narrator/full C21 acceptance claim"
+  ]
+}

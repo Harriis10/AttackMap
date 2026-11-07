@@ -1,0 +1,679 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-15",
+  "scope": "Windows M3 functional beta acceptance under explicit user decision on 2026-10-15. Original criterion-level and cross-platform evidence statuses are retained; they are not blanket passes.",
+  "status_definitions": {
+    "proven": "Entire stated criterion supported by relevant execution and review artifacts. No criterion is promoted solely from focused tests.",
+    "partial": "Concrete bounded progress exists; stated remaining requirements prevent acceptance.",
+    "unverified": "No qualifying acceptance evidence inspected.",
+    "contradicted": "A current claimed acceptance outcome has an observed conflicting result. Historical failures are retained in limitations even after a bounded correction.",
+    "not_required_for_windows_m3": "Removed by explicit user scope decision; not a verified performance pass. macOS requirements remain separate.",
+    "accepted_with_limitations": "User-accepted functional Windows beta; remaining manual study/UX/accessibility checks deferred to M4, not verified. No global cross-platform acceptance."
+  },
+  "gate_accepted": true,
+  "milestones": {
+    "M0": "partial",
+    "M1": "partial",
+    "M2": "partial",
+    "M3": "Windows accepted_with_limitations on 2026-10-15; macOS/global original acceptance remains open",
+    "M4": "Open, including carried-forward Windows manual validation"
+  },
+  "host": {
+    "observed": "Windows 10 Pro 19045, Dell Precision 7720, i7-7820HQ (4 cores), approximately 64 GiB RAM, SSD",
+    "windows_11": "Unavailable; not required for Windows M3 performance acceptance after user scope change on 2026-10-15.",
+    "macos": "runtime and participant prerequisites unverified"
+  },
+  "baseline": {
+    "current_production_python": "Recorded Windows source snapshots: Python 3.11.9: 3,195 passed, four skipped, 490.05s; Python 3.12: 3,195 passed, four skipped, 548.68s; Python 3.13.15: 3,195 passed, four skipped, 503.60s. Each run guarded source import and loaded 15 official analyzers; source/test inventories stayed unchanged. Later edits require separate validation.",
+    "later_change": "Two fake-analyzer test fixtures scoped to temporary tiny repositories; focused 52 passed, 2 optional PHP skips, 1.49s. Production Python unchanged.",
+    "matrix_limit": "Recorded sealed Windows3.11/3.12/3.13 full source snapshots green; UbuntuWSL3.12 copied snapshot green. Clean-checkout three-OS matrix, Linux3.11/3.13 and macOS remain unverified. Subsequent C15 diagnostic batch requires new verification.",
+    "in_progress_not_evidence": "No full Python run remains pending: 3.11 3195 passed/4 skipped 490.05s; 3.12 3195 passed/4 skipped 548.68s; 3.13 3195 passed/4 skipped 503.60s. Each source/test inventory unchanged. Windows dirty-worktree scope only.",
+    "linux_current_snapshot": "Ubuntu24.04 WSL2 Python3.12.3 ordinaryuid1000:3195passed5skipped98.84s exit0;570copiedinputs,434source/testhashes unchanged. Dirtycopy, excludes subsequent scan_timing changes; no3.11/3.13Linux or macOS result.",
+    "final_source_regression": "Historical original matrix:3113214pass4skip654.08s;3123211pass3timingfails4skip743.70s;3133213pass1PIDfixture race4skip645.05s. Negatives preserved. Corrective complete runs subsequently passed as recorded in corrective_verification; subsequent C15 batch remains outside these snapshots.",
+    "final_linux312": "Finalsource UbuntuWSL3.12.3 ordinaryuid1000 full3213passed5skipped146.53s exit0,434source/testhashesunchanged,117nonmetadatafrozeninputsmatch. Includes timing/startupdiagnostics. OtherLinuxversions/macOS/cleancheckout unverified.",
+    "corrective_verification": "Lastsealedengine source sameacross3greenWindowsfullruns:3113214/4/654.08s;3123214/4/529.34s;3133214/4/496.27s. Sourceinventoriesunchanged;311testfixturepredatesonlyPIDrepair. SubsequentC15diagnosticbatchinprogress notcovered; originalnegatives retained.",
+    "c15_integration": "Integrated source batch:272passed89.02s,19testfiles,15officialplugins,live source imports, pre/post source/tests/contracts unchanged; proof native-c15-integrated-focused-2026-10-15.json. Later audit identified CLI early semantic validation without startup diagnostic; focused correction in progress, outside this passed snapshot. Full new matrix and frozen/package verification pending.",
+    "c15_current_matrix": "Original corrected snapshot7469 regular phases TERMINAL/sourceunchanged:3113273pass5fail4skip537.52s;3123274pass4fail4skip609.45s;3133274pass4fail4skip581.14s. Fourbrokerexactdictassertions each; additional311junctionredirectwrite. All50cancelcycle tests passed. Limits phases intentionally not executed on known failing snapshot, so no complete matrix acceptance. Rootcb657 summary preserves exact inventories/outcomes/log hashes; production/test corrections in progress before newseal.",
+    "c15_corrective_matrix": "Pre-output-root-helper C15 snapshot Windows311/312/313 complete: each3290passed4skipped across two disjointjobs, exactsame3294node inventory and equalunchanged source/test/schema/fixture seals. Proof c15-corrective-three-python-two-phase-2026-10-15.json. Original313readinessfailure retained; quietpassdoesnotprovecause. Later2callsitepreparehelper integration notcovered, no new frozen/package acceptance."
+  },
+  "artifact_freshness": {
+    "historical_reviewed_zip": "dev-20261015134618-c6a071da.zip; native DLL 65603c16a09bb0b1a998d5a2e2a779eda86b7bd30c08308506498155af776f43; later discovered initial Overview/Findings overlap remains in this archive.",
+    "corrected_source": "Approved m3-nine-view production packaged as dev-20261015140602-9e90f29e; DLL 4106281b6d04e7d19bfff127d852eb10feee0ab21d21028b3a92d7f0c2d145bb; archive SHA256 92850510e647796c1b40a9d1e39508417273246ca20c0ac96ca7009709229a5d. Actual isolated installed startup/report probes pass and uninstall completed. No heavy scan repeated.",
+    "immutable_frozen_engine_sha256": "354bf73fec42c857d09782975c0419a29b3f6953e90ed2c620292a72bc9e5c7a",
+    "coupled_proof_limit": "Latest installed candidate scan binds exact ec298 native/ebafb engine; prior coupled proofs remain historical. Neither proves manual UI, Windows11 or macOS acceptance.",
+    "post_matrix": "Reviewed immutable candidate contains UUID/npm-fixed engine and approved native readiness build. All three Windows Python full runs passed for their recorded source/test snapshots. Later source edits do not invalidate historical proofs or imply candidate contains them.",
+    "post_matrix_engine_sha256": "ebafb3277271d6a87703e07e0c4b4b5d21d3d296a0f200990223a439be280013",
+    "current_package": {
+      "id": "dev-20261015155320-502d45eb",
+      "archive_sha256": "3e878dc25d460e26e1a3ded9924a50029c79a0f53b5e5fe57ce5502847e0513c",
+      "native_dll_sha256": "6c10d330a6d2f3f4f59a6a96b48e6d792e9d7fa49116d83b16c6c5577376ae00",
+      "engine_sha256": "b5f839a26d3f2f0bb93a77a555e75fb0b48583b89b30e85688a746f2ee43a7dd",
+      "installed_checks": "Startup/report18/historyfreshness/tiny2UTC+19artifacts/uninstallPASS; unchangedinstallerSHA links priorrollback. Full313pending and C15diagnosticstructuredfields gap open; noM3promotion."
+    },
+    "candidate_binding_scope": "Immutable reviewed candidate dev-20261015144954-78c3f581 binds nativeec298... and engineebafb...; newer source edits may exist. This does not assert universal current source parity.",
+    "later_source_changes": "Legacy static/model wording and native command/error-handling source updates postdate packaged dev-20261015144954-78c3f581. Further engine scan-timing implementation is in progress, not yet verified or packaged.",
+    "sealed_source_engine": {
+      "sha256": "b5f839a26d3f2f0bb93a77a555e75fb0b48583b89b30e85688a746f2ee43a7dd",
+      "proof_root": ".pytest_cache/m3-frozen-final-source-a7cc235cfa7e41c6a465f8ed9b0e3c58",
+      "scope": "Build0/123immutableinputs/103snapshotcoreorigins/nolivesourcediff; boundedCLI+C#checks, threefullWindowsruns pending; newcandidatepackaging pending."
+    },
+    "previous_package": {
+      "id": "dev-20261015144954-78c3f581",
+      "archive_sha256": "47dd5398af7ca91c2bd9c91e65c3fd30d2b1901924bd2537e3573556adf55c34",
+      "native_dll_sha256": "ec298f52fefe3bd5a6aabc623c20ab35d799bb80b83ab3dd257e2ef809a7d68e",
+      "engine_sha256": "ebafb3277271d6a87703e07e0c4b4b5d21d3d296a0f200990223a439be280013",
+      "installed_checks": "Fresh startup/existing report PASS18 plus one actual installed native/frozen Juice Shop scan: original PID70468 exit0,18findings,noerror,current pointer and19artifact hashes verified.",
+      "qa_cleanup": "Scoped isolated QA installation uninstalled after root scan capture; version/current pointer removed; one existing AppData file hash unchanged; separate user preview and package untouched."
+    },
+    "package_history": [
+      {
+        "id": "dev-20261015144954-78c3f581",
+        "archive_sha256": "47dd5398af7ca91c2bd9c91e65c3fd30d2b1901924bd2537e3573556adf55c34",
+        "native_dll_sha256": "ec298f52fefe3bd5a6aabc623c20ab35d799bb80b83ab3dd257e2ef809a7d68e",
+        "engine_sha256": "ebafb3277271d6a87703e07e0c4b4b5d21d3d296a0f200990223a439be280013",
+        "installed_checks": "Fresh startup/existing report PASS18 plus one actual installed native/frozen Juice Shop scan: original PID70468 exit0,18findings,noerror,current pointer and19artifact hashes verified.",
+        "qa_cleanup": "Scoped isolated QA installation uninstalled after root scan capture; version/current pointer removed; one existing AppData file hash unchanged; separate user preview and package untouched."
+      },
+      {
+        "id": "dev-20261015153700-2ef7b386",
+        "archive_sha256": "b8fcb9ec291b6831ab33fc784285365e85be3ba1dc8c70276d12e21aa4f7241a",
+        "native_dll_sha256": "a7201cb2ecddd9eaeabd3481566e7237ce2c4298883c383a5a38fe2f92f5dce9",
+        "engine_sha256": "b5f839a26d3f2f0bb93a77a555e75fb0b48583b89b30e85688a746f2ee43a7dd",
+        "installed_checks": "Startup/defaultnetworkoff/report18/tiny2timedscan+19artifacts/realrollback+rollforward/uninstallPASS; Windowscorrectiveregressionspending, knownhistorybaselinepresentationfixpostdatescandidate; notM3accepted."
+      }
+    ]
+  },
+  "evidence_catalog": {
+    "roadmap": "docs/roadmap-2026-2028.md",
+    "ledger": "docs/windows-m3-acceptance.md",
+    "full": ".pytest_cache/m3-final-integrated-full.log",
+    "matrix": "desktop/windows/verification/plugin-compatibility-build-environment-2026-10-15.json",
+    "guards": "tests/test_taint_guard_safety.py",
+    "isolation": "tests/test_output_exclusion.py",
+    "freshness": "tests/ui_freshness.cjs",
+    "supervision": "tests/test_execution_supervision.py",
+    "atomic": "docs/atomic-artifacts.md",
+    "provenance": "docs/signal-merge-provenance.md",
+    "presentation": "docs/finding-presentation.md",
+    "budget": "docs/ai-budgets.md",
+    "citations": "docs/ai-citations.md",
+    "inventory": "docs/desktop-platform-inventory-2026-10-15.md",
+    "design": "docs/windows-native-design.md",
+    "decision": "docs/decisions/windows-desktop-spike.md",
+    "installed": "desktop/windows/verification/native-exitguard-package-2026-10-15.json",
+    "coupled": "desktop/windows/verification/native-installed-engine-composition-2026-10-15.json",
+    "faults": "desktop/windows/verification/native-fault-composition-exitguard-current.json",
+    "window_fault": "desktop/windows/verification/native-mainwindow-exitguard-runtime-2026-10-15.json",
+    "provider": "desktop/windows/verification/native-provider-roundtrip-2026-10-15.json",
+    "evidence": "desktop/windows/verification/native-c23-report-composition-current.json",
+    "exports": "desktop/windows/verification/native-artifacts-export-runtime-2026-10-15.json",
+    "accessibility": "desktop/windows/verification/native-seven-view-accessibility-2026-10-15.json",
+    "placement": "desktop/windows/verification/native-placement-runtime-2026-10-15.json",
+    "captures": "desktop/windows/verification/native-capture-bounded-review-2026-10-15.json",
+    "visual": "desktop/windows/verification/native-main-view-visual-review-2026-10-15.json",
+    "startup_fix": "desktop/windows/verification/native-initial-navigation-review-2026-10-15.json",
+    "performance": "desktop/windows/verification/native-performance-full-2026-10-15.json",
+    "memory_reprobe": "desktop/windows/verification/native-performance-bounded-buffer-2026-10-15.json",
+    "win11_runbook": "docs/windows-11-beta-validation.md",
+    "nine_visual": "desktop/windows/verification/native-nine-view-visual-review-2026-10-15.json",
+    "nine_integrity": "desktop/windows/verification/native-nine-view-capture-integrity-2026-10-15.json",
+    "expanded_accessibility": "desktop/windows/verification/native-expanded-accessibility-2026-10-15.json",
+    "protected_provider": "desktop/windows/verification/native-protected-provider-current.json",
+    "latest_installed": "desktop/windows/verification/native-nine-view-package-2026-10-15.json",
+    "post_matrix_focused": "desktop/windows/verification/native-post-matrix-focused-fixes-2026-10-15.json",
+    "py313_current_full": ".pytest_cache/m3-matrix-py313/pytest.log",
+    "py313_environment": ".pytest_cache/m3-matrix-py313/environment.json",
+    "py313_source_integrity": ".pytest_cache/m3-matrix-py313/after-run-source-integrity.json",
+    "post_matrix_engine": ".pytest_cache/m3-frozen-post-matrix/engine-verification.json",
+    "current_windows_matrix": "desktop/windows/verification/native-core-python-matrix-current.json",
+    "latest_current_package": "desktop/windows/verification/native-post-matrix-package-2026-10-15.json",
+    "primary_readiness": "desktop/windows/verification/native-primary-readiness-2026-10-15.json",
+    "fleet_formats_current": "desktop/windows/verification/native-frozen-fleet-post-matrix-formats-2026-10-15.json",
+    "fleet_owned_death_current": "desktop/windows/verification/native-frozen-fleet-worker-death-post-matrix-utf8-2026-10-15.json",
+    "installed_candidate_scan": "desktop/windows/verification/native-post-matrix-installed-juice-2026-10-15.json",
+    "native_commands": "desktop/windows/verification/native-command-menus-runtime-2026-10-15.json",
+    "linux_diagnostic": "desktop/windows/verification/native-core-wsl-linux-current.json",
+    "copy_fix": "desktop/windows/verification/output-classification-copy-fix-2026-10-15.json",
+    "scan_timing": "desktop/windows/verification/engine-scan-timing-focused-2026-10-15.json",
+    "native_timing": "desktop/windows/verification/native-scan-timing-and-menu-bindings-2026-10-15.json",
+    "native_positive_timing": "desktop/windows/verification/native-positive-scan-timing-2026-10-15.json",
+    "startup_service": "desktop/windows/verification/requested-analyzer-startup-diagnostic-2026-10-15.json",
+    "startup_cli": "desktop/windows/verification/cli-all-analyzer-startup-diagnostic-2026-10-15.json",
+    "final_visual": "desktop/windows/verification/native-final-content-review-2026-10-15.json",
+    "root_visual_spot": "desktop/windows/verification/native-final-content-root-spot-review-2026-10-15.json",
+    "frozen_cancellation_50": "desktop/windows/verification/native-frozen-cancellation-50-2026-10-15.json",
+    "final_windows_matrix": "desktop/windows/verification/final-source-windows-matrix-2026-10-15.json",
+    "final_linux312": "desktop/windows/verification/final-source-linux312-full-2026-10-15.json",
+    "final_candidate_package": "desktop/windows/verification/native-final-source-candidate-package-2026-10-15.json",
+    "history_baseline_fix": "desktop/windows/verification/native-history-baseline-freshness-2026-10-15.json",
+    "targeted_corrective": "desktop/windows/verification/native-core-targeted-post-full-2026-10-15.json",
+    "history_corrected_package": "desktop/windows/verification/native-history-corrected-candidate-package-2026-10-15.json",
+    "m2_m3_evidence_audit": "desktop/windows/verification/native-m2-m3-final-evidence-audit-2026-10-15.json",
+    "m0_m1_evidence_audit": "desktop/windows/verification/m0-m1-final-evidence-audit-2026-10-15.json"
+  },
+  "criteria": [
+    {
+      "id": "C01",
+      "milestone": "M0",
+      "title": "Release baseline",
+      "status": "partial",
+      "requirement": "Complete supported OS/Python 3.11Ă˘â‚¬â€ś3.13 matrix, zero unexpected failures/collection errors, documented skips and consistent release identity.",
+      "verified_scope": "Fresh Windows Python3.11/3.12/3.13 current-source full runs each3195passed4skipped; guarded live imports and15officialanalyzers. Old negative full logs preserved.",
+      "evidence": [
+        "full",
+        "matrix",
+        "post_matrix_focused",
+        "py313_current_full",
+        "py313_environment",
+        "py313_source_integrity",
+        "current_windows_matrix"
+      ],
+      "limitations": "Current Windows source matrix is green, but macOS/Linux full execution, clean-checkout release identity verification and platform-required skipped checks remain unverified.",
+      "smallest_next_action": "Run clean-checkout release matrix and record required checks without unsupported-host skips."
+    },
+    {
+      "id": "C02",
+      "milestone": "M0",
+      "title": "Guard safety",
+      "status": "partial",
+      "requirement": "Semantic, polarity, dominance and value-aware guards; unsupported cases remain unknown; paired counterexamples across implemented frontends.",
+      "verified_scope": "Focused guard fixtures are included in passing baseline.",
+      "evidence": [
+        "full",
+        "guards"
+      ],
+      "limitations": "A passing aggregate does not map every required case to every frontend.",
+      "smallest_next_action": "Publish per-frontend paired-case coverage including original reversed guard."
+    },
+    {
+      "id": "C03",
+      "milestone": "M0",
+      "title": "Scoped evidence",
+      "status": "partial",
+      "requirement": "Unrelated evidence cannot change route exposure or controls; unknown ownership and static versus runtime labels agree across outputs and AI.",
+      "verified_scope": "Scoped ownership and provenance regression coverage exists.",
+      "evidence": [
+        "full",
+        "provenance",
+        "presentation"
+      ],
+      "limitations": "All-format/prompt ownership matrix and unrelated-file counterexamples are not consolidated as acceptance evidence.",
+      "smallest_next_action": "Bind paired unrelated-file fixtures to JSON/Markdown/native/prompt labels."
+    },
+    {
+      "id": "C04",
+      "milestone": "M0",
+      "title": "Fresh results",
+      "status": "partial",
+      "requirement": "Immutable repository/generation identity; 100 scripted actual-state sequences, prior labels, one active poll and original rescan regression.",
+      "verified_scope": "Legacy web harness contains 100 sequences; native faults preserve prior presentation.",
+      "evidence": [
+        "freshness",
+        "full",
+        "faults",
+        "window_fault"
+      ],
+      "limitations": "Native 100-sequence rapid-scan/navigation/delayed/failed workspace acceptance is not demonstrated.",
+      "smallest_next_action": "Run native actual-state 100-sequence identity campaign."
+    },
+    {
+      "id": "C05",
+      "milestone": "M0",
+      "title": "Scan isolation",
+      "status": "partial",
+      "requirement": "Three unchanged scans with output at root/below/outside retain normalized findings and coverage; positive generated identification preserves legitimate names.",
+      "verified_scope": "Root/nested/outside repeated-scan fixtures and legitimate-name counterexamples pass in current baseline.",
+      "evidence": [
+        "isolation",
+        "full"
+      ],
+      "limitations": "Source fixtures plus one Windows baseline do not prove every supported release environment.",
+      "smallest_next_action": "Retain these tests as required checks in clean supported-platform matrix."
+    },
+    {
+      "id": "C06",
+      "milestone": "M0",
+      "title": "Fleet formats",
+      "status": "partial",
+      "requirement": "Two repositories serial/parallel, all formats, source/frozen Windows with spaces/Unicode; internal JSON and failed-child sibling preservation.",
+      "verified_scope": "Actual frozen ebafb engine: two tiny repos with spaces/Unicode, all/json/markdown x1/2workers (six runs), each exit0; serial/parallel and cross-format normalized equality and artifact hashes verified. Separate UTF8-corrected owned-worker death exit97 yields parent1, explicit failed child, verified successful sibling, diagnostic and no parent current/flat partial export.",
+      "evidence": [
+        "full",
+        "atomic",
+        "coupled",
+        "fleet_formats_current",
+        "fleet_owned_death_current"
+      ],
+      "limitations": "Bounded Windows frozen fixtures use python-web/config modules and no AI/CVE; not all analyzer combinations, UI, supported-OS or clean-host acceptance. Original no-kill attempt retained as negative probe evidence.",
+      "smallest_next_action": "Map current source and frozen fixture results to release requirements and run missing supported-platform cases; do not repeat the already proven six-format matrix without a relevant change."
+    },
+    {
+      "id": "C07",
+      "milestone": "M0",
+      "title": "Honest AI and privacy",
+      "status": "partial",
+      "requirement": "Missing votes abstain; strict planned majority/inconclusive; model assessments not exploit verification; fresh AI off and no credential leaks.",
+      "verified_scope": "Fake-provider regressions and isolated native provider round trip; fresh AI/CVE disabled.",
+      "evidence": [
+        "full",
+        "budget",
+        "citations",
+        "provider",
+        "protected_provider",
+        "latest_installed",
+        "latest_current_package"
+      ],
+      "limitations": "All output/copy/diagnostic sentinel review and macOS specification/runtime parity remain open.",
+      "smallest_next_action": "Record credential-sentinel and vote truth-table results across exposed outputs."
+    },
+    {
+      "id": "C08",
+      "milestone": "M1",
+      "title": "Run protocol",
+      "status": "partial",
+      "requirement": "Versioned identity/revision/execution/policy/readiness; six states, policy failure completed, substage done nonterminal; 1.0Ă˘â‚¬â€ś1.1/additive/legacy/rejection.",
+      "verified_scope": "Native state validator and actual controlled-process fault acceptance, including exit-7 rejection.",
+      "evidence": [
+        "full",
+        "faults",
+        "window_fault",
+        "post_matrix_engine",
+        "installed_candidate_scan"
+      ],
+      "limitations": "Full independently ranged protocol acceptance on both desktops and all terminal policy combinations not proven.",
+      "smallest_next_action": "Complete shared golden protocol cases through both actual desktop adapters."
+    },
+    {
+      "id": "C09",
+      "milestone": "M1",
+      "title": "Process supervision",
+      "status": "partial",
+      "requirement": "One lifecycle; 50 OS cycles meet 250ms ack/5s tree bounds; 20 starts one worker, stubborn trees and bounded queued fleet.",
+      "verified_scope": "Windows source 50-cycle assertions and UI admission tests pass; native childless lifecycle faults pass. Historical timingengine realfrozen ordinarycancellation50/50: observedheld2attackmap+2conhost each; APIreturnp95 .4367ms/observedexitp95 3334.4069ms/max3429.7857ms;20admission1start19reject1request.",
+      "evidence": [
+        "full",
+        "supervision",
+        "window_fault",
+        "fleet_owned_death_current",
+        "frozen_cancellation_50"
+      ],
+      "limitations": "macOS actual-tree proof, real native UI acknowledgement, stubborn-descendant/finalpackage campaign remain absent. Latest50campaign is ordinarybackend on timingengine predating startupdiagnostic changes; observedheldidentity exits plus productioncleanup do not enumerate futureunobserveddescendants.",
+      "smallest_next_action": "Run installed Windows real-descendant cancellation campaign; retain macOS prerequisite."
+    },
+    {
+      "id": "C10",
+      "milestone": "M1",
+      "title": "Atomic results",
+      "status": "partial",
+      "requirement": "One publisher validates complete schema/checksums before pointer; all boundary faults preserve old-or-new complete generation; separate diagnostics and finalized timing.",
+      "verified_scope": "Shared publisher fault tests and installed coupled atomic current verification.",
+      "evidence": [
+        "full",
+        "atomic",
+        "coupled",
+        "installed_candidate_scan",
+        "fleet_owned_death_current"
+      ],
+      "limitations": "Both-OS filesystem fault matrix/power-loss durability not established; flat exports explicitly nonauthoritative.",
+      "smallest_next_action": "Execute supported-OS boundary fault suite and inspect prior pointer after failures."
+    },
+    {
+      "id": "C11",
+      "milestone": "M1",
+      "title": "Source provenance",
+      "status": "partial",
+      "requirement": "Immutable observation IDs, analyzer/version/source role/location/evidence kind; conflicts, corroboration, unique coverage and owned inputs survive permutations.",
+      "verified_scope": "Twelve normalized signal kinds preserve provenance with regression tests.",
+      "evidence": [
+        "full",
+        "provenance"
+      ],
+      "limitations": "Remaining legacy weakness collections and downstream ownership are not fully normalized.",
+      "smallest_next_action": "Inventory remaining legacy collections and add provenance-preserving permutation fixtures."
+    },
+    {
+      "id": "C12",
+      "milestone": "M1",
+      "title": "Evidence ownership",
+      "status": "partial",
+      "requirement": "Core source policy and evidence-ID relationships; unsupported relationships candidates, unknown auth not anonymous; high-priority facts/inferences/assumptions explicit.",
+      "verified_scope": "Presentation exposes candidate/co-location and unknown ownership without strengthening claims.",
+      "evidence": [
+        "full",
+        "presentation"
+      ],
+      "limitations": "Detector-owned controls/trust relationships and exhaustive high-priority golden mappings remain unknown.",
+      "smallest_next_action": "Add detector-owned relationship IDs and golden ownership/source-ranking cases."
+    },
+    {
+      "id": "C13",
+      "milestone": "M1",
+      "title": "Finding identity",
+      "status": "partial",
+      "requirement": "Rule/entity/location identity survives text changes; collision, legacy migration, uncertain rename/move and nearby/duplicate round trips.",
+      "verified_scope": "Identity/migration regression coverage passes current source baseline.",
+      "evidence": [
+        "full",
+        "evidence"
+      ],
+      "limitations": "No consolidated full golden matrix across legacy suppression, rename and all exports.",
+      "smallest_next_action": "Publish required stable-ID and migration golden case results."
+    },
+    {
+      "id": "C14",
+      "milestone": "M1",
+      "title": "AI boundaries",
+      "status": "partial",
+      "requirement": "Shared predispatch call/time/token reservation including retry/verification; unknown usage honest; exact captured evidence references distinct from claim support; minimized source and no repo instruction authority.",
+      "verified_scope": "Shared finite call/deadline/output-token allowance and exact snapshot citation references tested.",
+      "evidence": [
+        "full",
+        "budget",
+        "citations"
+      ],
+      "limitations": "Output-token ceiling is not total input/reasoning budget; narrative claim support is not assessed; snapshot is not whole-repository atomic.",
+      "smallest_next_action": "Define remaining total-token/claim-support policy and test authority/minimization boundaries."
+    },
+    {
+      "id": "C15",
+      "milestone": "M1",
+      "title": "Architecture seams and diagnostics",
+      "status": "partial",
+      "requirement": "Typed service without UI imports, analyzers without global render/score; every attempted run has redacted stage/version/coverage/resource/terminal diagnostics across CLI and desktops.",
+      "verified_scope": "Shared service and separate failed diagnostics; native visible error/diagnostic path with prior preservation. Later typedservice and ordinary/fleetCLI requestedanalyzer preflight failures emit generic redacted diagnostics when atomicoutput writable, preservepriorcurrent and originalerror;57focusedpassed1expectedskip. Additive typed diagnostic context and producer resource events jointly passed272focusedtests89.02s with unchanged source/tests/contracts; native-c15-integrated-focused-2026-10-15.json. This snapshot precedes further startup validation corrections. Default analyzer warning privacy correction passed63focusedtests3.21s; early CLI/service validation correction passed44focusedtests5.70s. These are separate bounded runs, not a combined full regression. Cross-version publisher lstat correction:60passed0skip on31115.80s and31313.59s including actualjunctions; broker additive-context fixtures11passed0.87s.",
+      "evidence": [
+        "full",
+        "atomic",
+        "window_fault",
+        "startup_service",
+        "startup_cli"
+      ],
+      "limitations": "Complete both-client end-to-end proof remains unverified. Known311junction defect has focused corrective evidence; new full matrix/frozen/package verification pending. Publisher conservatively rejects all Windows reparse destinations including benign cloud placeholders; no race-free filesystem confinement claim. Later narrow source review found ordinary atomic service/pipeline initial output markers precede strict publisher validation; shared preparation fix planned, no runtime repro claimed. Quiet313 full rerun remains live; source changes held.",
+      "smallest_next_action": "Correct uncovered startup boundaries/default log source excerpts, verify focused semantics, then fresh full source matrix and frozen/package checks; retain macOS adapter proof as unverified."
+    },
+    {
+      "id": "C16",
+      "milestone": "M2",
+      "title": "Platform inventory",
+      "status": "partial",
+      "requirement": "Pinned actual Windows/macOS source, workflow/options/schema/credential/distribution parity and real host for each runtime claim.",
+      "verified_scope": "Pinned mac source inventory and actual Windows installed runtime records.",
+      "evidence": [
+        "inventory",
+        "installed"
+      ],
+      "limitations": "No macOS runtime host proof; historical inventory predates newer native changes.",
+      "smallest_next_action": "Refresh capability inventory against current native build; verify macOS on real host."
+    },
+    {
+      "id": "C17",
+      "milestone": "M2",
+      "title": "Native design foundations",
+      "status": "partial",
+      "requirement": "Separate Windows/macOS named-token systems and at least twelve inspectable components, native chrome/dialog/focus/contrast/motion reviews.",
+      "verified_scope": "Windows design proposal and actual native captures.",
+      "evidence": [
+        "design",
+        "captures"
+      ],
+      "limitations": "No complete two-platform specimen/design review or measured contrast/motion acceptance.",
+      "smallest_next_action": "Review twelve Windows specimens against tokens and preserve macOS design prerequisite."
+    },
+    {
+      "id": "C18",
+      "milestone": "M2",
+      "title": "Navigation and screens",
+      "status": "partial",
+      "requirement": "Six destinations/settings/workspace, capability map, nine clickable views, task click ceilings and actionable exceptional states.",
+      "verified_scope": "Actual native destination captures; initial navigation and first-action layout corrected.",
+      "evidence": [
+        "design",
+        "startup_fix",
+        "visual"
+      ],
+      "limitations": "Full nine-view exceptional-state/action-click acceptance and deferred capability mapping not verified.",
+      "smallest_next_action": "Record nine-view task and exceptional-state navigation matrix."
+    },
+    {
+      "id": "C19",
+      "milestone": "M2",
+      "title": "Validated prototypes",
+      "status": "unverified",
+      "requirement": "Ten participants split 5 Windows/5 Mac (3 dev/2 security each), six timed tasks, success and median-rating thresholds, no unintended sends/prior confusion, prescribed retests.",
+      "verified_scope": "No participant study artifact inspected.",
+      "evidence": [
+        "roadmap",
+        "decision"
+      ],
+      "limitations": "Participant recruitment, consent, task records, timings, ratings and macOS prototype validation unverified.",
+      "smallest_next_action": "Recruit study participants and run original protocol; do not substitute developer smoke tests.",
+      "windows_manual_validation_destination": "M4 by explicit 2026-10-15 user decision; original criterion evidence status unchanged"
+    },
+    {
+      "id": "C20",
+      "milestone": "M2",
+      "title": "Technology decision",
+      "status": "partial",
+      "requirement": "Timeboxed Windows/macOS spikes, 10k keyboard/screen-reader prototype, controlled worker lifecycle/install package, measured feasibility and rollback decision.",
+      "verified_scope": "Windows WinUI spike, installable development package, virtualized fixture and diagnostic performance measurements.",
+      "evidence": [
+        "decision",
+        "installed",
+        "performance",
+        "latest_installed",
+        "latest_current_package"
+      ],
+      "limitations": "Decision remains open; engineering-day accounting, Narrator and macOS spike absent; package is unsigned development scope.",
+      "smallest_next_action": "Complete Windows feasibility/effort decision and macOS prerequisite evidence."
+    },
+    {
+      "id": "C21",
+      "milestone": "M3",
+      "title": "Desktop parity",
+      "status": "partial",
+      "requirement": "Both native clients complete ten same workflows with settings/CLI/legacy parity and native dialogs/reveal/clipboard/shortcuts/window restoration.",
+      "verified_scope": "Actual Windows scan/action/provider/export and two-process window-placement checks. Fourteen protected-provider checks use actual frozen runner and Windows DPAPI with isolated synthetic credential cleanup. Latest immutable candidate actual installed coupled Juice Shop scan passes18 with canonical current and19verified artifacts. Later QA native File/Scan/View menus expose eight existing commands; metadata and safe Settings/History/missing-repository Scan/disabled Cancel handler checks pass. Reveal false and clipboard/picker exception handling corrected.",
+      "evidence": [
+        "installed",
+        "coupled",
+        "provider",
+        "exports",
+        "placement",
+        "protected_provider",
+        "latest_installed",
+        "latest_current_package",
+        "installed_candidate_scan",
+        "native_commands",
+        "final_candidate_package",
+        "history_corrected_package"
+      ],
+      "limitations": "No end-to-end manual ten-workflow record; popup keyboard interaction, OS picker/reveal/clipboard behavior and macOS parity not closed. Command QA build postdates immutable packaged candidate.",
+      "smallest_next_action": "Execute Windows ten-workflow checklist with native interactions and exact selected generation.",
+      "windows_manual_validation_destination": "M4 by explicit 2026-10-15 user decision; original criterion evidence status unchanged"
+    },
+    {
+      "id": "C22",
+      "milestone": "M3",
+      "title": "Scan experience",
+      "status": "partial",
+      "requirement": "Both clients pass freshness/protocol/supervision; truthful identity/stage/readiness/coverage; actionable retry/redacted diagnostics and previous-report preservation under faults.",
+      "verified_scope": "Fourteen controlled process composition cases plus actual Loaded MainWindow exit-7 preservation/error/retry controls. Later source/native QA adds real engineUTC analysis start/end beforepublication; 99 focusedPython checks,29native parser/integritychecks, actualtinyMainWindow scan2findings matches selectedrunmanifest timestamps and verifies19artifacts. Legacytiming staysunknown.",
+      "evidence": [
+        "faults",
+        "window_fault",
+        "coupled",
+        "installed_candidate_scan",
+        "scan_timing",
+        "native_timing",
+        "native_positive_timing",
+        "final_candidate_package",
+        "history_corrected_package"
+      ],
+      "limitations": "Childless QA broker is not real analyzer/descendant failure; retry/reveal controls were inspected, not actually activated; both-platform sequence matrix open. Timing native/engine QA snapshots postdate immutable userpackage and predate subsequent startupdiagnostic repairs; no latestcompletepackage acceptance.",
+      "smallest_next_action": "Run actual retry/reveal and real-worker cancellation/rapid-workspace fault journeys."
+    },
+    {
+      "id": "C23",
+      "milestone": "M3",
+      "title": "Evidence experience",
+      "status": "partial",
+      "requirement": "Readable claim/priority/confidence/controls/source/trust/recommendation, reasoned reversible suppression, coverage-aware comparison and exact selected-run exports; required adverse golden cases.",
+      "verified_scope": "Seventeen synthetic composition checks, selected-run exports and actual action flows preserve uncertainty. Later native6c10 actualLoadedHistorycontrol baselinechange clearsoldrows/detail/notes, preservesbusy/samebaseline, rejectsoldA andacceptsfreshB; QAcompile/processnaturalexit0.",
+      "evidence": [
+        "presentation",
+        "evidence",
+        "exports",
+        "coupled",
+        "installed_candidate_scan",
+        "history_baseline_fix",
+        "history_corrected_package"
+      ],
+      "limitations": "Priority point contributions and detector-owned control/trust links unknown; native manual full golden/evidence workflows incomplete. Newly demonstrated baseline-selection stalecomparison rows/detail require correction; immutable a720candidate stillhasdefect. Scopedhistoryrepairpassed onnewQA, butimmutablea720candidatepredatesfix; manualhistoryjourney stillopen.",
+      "smallest_next_action": "Complete missing provenance fields or label unavailable, then run adverse native golden workflows."
+    },
+    {
+      "id": "C24",
+      "milestone": "M3",
+      "title": "Accessibility",
+      "status": "partial",
+      "requirement": "Ten keyboard workflows, Narrator/VoiceOver semantics, measured contrast, 200% text/reduced motion/high contrast, zero critical/serious automated issues plus manual checks and 32px actions.",
+      "verified_scope": "Actual loaded report, seven destinations, realized Expanders opened: 188 audited controls, zero scoped semantic/size issues, no QA name repair.",
+      "evidence": [
+        "accessibility",
+        "design",
+        "expanded_accessibility"
+      ],
+      "limitations": "Realized controls only; dialogs/unrealized virtualized items and manual keyboard/Narrator/contrast/200% text/high contrast/reduced motion/macOS acceptance remain open. Expanded helper evidence records QA DLL 25f7e4e40ab34891a3c8fea9b28d974d8366cb087f13d0c6373849920af954a2, distinct from packaged production DLL; no claim of full packaged C24 audit.",
+      "smallest_next_action": "Run manual Windows keyboard/Narrator and 200%/contrast matrix; audit hidden interactive states.",
+      "windows_manual_validation_destination": "M4 by explicit 2026-10-15 user decision; original criterion evidence status unchanged"
+    },
+    {
+      "id": "C25",
+      "milestone": "M3",
+      "title": "Visual quality",
+      "status": "partial",
+      "requirement": "72 reference captures: nine views/two platforms/two themes/two sizes; no blocking defects, exceptional states, live appearance and Windows 100/150/200% scaling.",
+      "verified_scope": "All 36 Windows 10 in-process content captures independently reviewed and integrity-bound to copied production DLL 4106281b6d04e7d19bfff127d852eb10feee0ab21d21028b3a92d7f0c2d145bb: StartWorkspace, seven destinations and scrolled existing FindingDetail, two themes and two sizes. Initial overlap corrected. Later a720native refresh independently reviews36contentcaptures withhashes, plusroot2capture spotreview; no confirmednewmaincontentoverlap.",
+      "evidence": [
+        "captures",
+        "visual",
+        "startup_fix",
+        "nine_visual",
+        "nine_integrity",
+        "latest_installed",
+        "latest_current_package",
+        "final_visual",
+        "root_visual_spot"
+      ],
+      "limitations": "acceptedC25 remains false: in-process content/composition caveat, exceptional states, display scaling/live switch and macOS captures incomplete. FindingDetail is a scrolled existing panel, not a new destination. Historical ZIP retains initial overlap; corrected package installed startup/report checks now pass, without full visual acceptance. Latestrefresh retains unresolvednative transparency/listtransition readability anomalies; expandedtiming andmenupopups notcaptured. No livecontrast conclusion.",
+      "smallest_next_action": "Resolve capture/readability uncertainty with live native review, then complete expanded timing/menu/exceptional states and Windows scaling; retain macOS prerequisite.",
+      "windows_manual_validation_destination": "M4 by explicit 2026-10-15 user decision; original criterion evidence status unchanged"
+    },
+    {
+      "id": "C26",
+      "milestone": "M3",
+      "title": "Desktop performance",
+      "status": "not_required_for_windows_m3",
+      "requirement": "Windows M3 performance qualification removed by user on 2026-10-15. Original macOS fixture, repetitions, hardware and thresholds remain unchanged in the roadmap.",
+      "verified_scope": "Win10 full diagnostic campaign and bounded-buffer one-launch full-interaction reprobe; optimized retained growth 30.625MiB. Current native build also passed 30 fresh visible-window primary ScanButton UI Automation missing-repository responses after layout/two render frames: p95 1575.7296ms.",
+      "evidence": [
+        "performance",
+        "memory_reprobe",
+        "win11_runbook",
+        "primary_readiness"
+      ],
+      "limitations": "Historical full campaign growth50.28125MiB exceeded target; optimized one-launch reprobe30.625MiB passed bounded memory target under competing load. Separate current-candidate30-launch primary control missing-repository responses pass p951575.7296ms after two render frames with visible >=32px control; this is not picker/manual workflow or complete current-build report/interaction/memory qualification. Win11 unavailable; Mac host unverified. Windows qualification language above is historical and superseded by the user scope change; no performance pass is claimed.",
+      "smallest_next_action": "No Windows M3 performance acceptance action required. Retain optional diagnostic evidence; macOS C26 remains unverified.",
+      "windows_m3_required": false
+    }
+  ],
+  "out_of_scope_now": [
+    "Signed public distribution (C29), implemented-beta repeat participant study and four-week beta (M4) remain separate; this audit does not claim them."
+  ],
+  "priority_next_actions": [
+    "M4: complete the carried-forward Windows participant study and manual UX/accessibility checks against the accepted package.",
+    "M4: retain existing release-quality/signing work and address actual beta feedback; do not re-run broad matrices without a change or unresolved failure.",
+    "Keep macOS delivery and original global criterion evidence separately tracked."
+  ],
+  "current_checkpoint": {
+    "as_of": "2026-10-15",
+    "gate_accepted": false,
+    "package_id": "dev-20261015180303-939910bd",
+    "archive_sha256": "2513063208a315b1919e0e98426f29b636434ad1afe511d0cd2d90bdc8a5d601",
+    "engine_sha256": "09d3984f08635e0187997858b91b3e55a324afc932e602aca3d7d2347b5a46d3",
+    "native_dll_sha256": "ad93aa0a33dbd3c5fae41b2ecb15e130b9f269a1fc42c22f92e9748918d90caa",
+    "styled_gui": "User confirmed visible; no full visual acceptance inferred",
+    "bundled_ai_workflow": {
+      "proof": "desktop\\windows\\verification\\bundled-juice-shop-lmstudio-workflow-2026-10-15.json",
+      "sha256": "b12a34c0d9d8315d3d9d8a0a2c24da160fb60df1a50b438082728ef6e32b120c",
+      "result": "One actual local LMStudio bundled JuiceShop run completed; exit0, zero protocol errors, monotonic revisions, one completed+ready terminal, validated generation, final nine-section review",
+      "scope": "Broker/API path, not native button journey; personal settings isolated; no independent server capture"
+    },
+    "windows_matrix": {
+      "proof": "desktop\\windows\\verification\\c15-corrective-three-python-two-phase-2026-10-15.json",
+      "sha256": "c74b01a67cdf63900db521c40d05e5eab114a49c41ba857522b12358be68fe17",
+      "result": "All three interpreters exact3294node union;3290pass4skip each across2jobs",
+      "scope": "Pre-prepare-output-helper snapshot; not full regression for latest helper/AI/style package"
+    },
+    "demonstrated_product_gap": "Actual model final prose includes stronger runtime/exploitation claims than supplied static evidence supports; deterministic partial scope notice does not validate those claims",
+    "external_manual_open": [
+      "Clean-checkout supported OS/Python and macOS adapter proofs",
+      "C19 participants and C20 owner effort/migration decision",
+      "C21 ten manual workflows and dialogs",
+      "C24 keyboard/Narrator/contrast/scaling",
+      "C25 settled full platform/state review"
+    ],
+    "historical_records": "Older baseline/artifact/criterion entries below retain original cutoff; this checkpoint supersedes their pending/current-candidate wording without promoting any gate Windows C26 release blockers are superseded by the explicit 2026-10-15 user scope change.",
+    "historical": true,
+    "superseded_by": "latest_package_checkpoint and scoped Windows closure; historical open requirements are not current Windows M3 blockers"
+  },
+  "latest_package_checkpoint": {
+    "package_id": "dev-20261015190038-5667bbbf",
+    "zip_sha256": "66b93d333e5f0342a1b1fc173e52a7d31986f9a469a44d9409ef2ab78be5003f",
+    "engine_sha256": "81a304b93e1b4f5ff3c762510c362b5f230749f46a522ff0156fef1c8916e870",
+    "native_dll_sha256": "65d3b7d4248696a741cc67b04d1b59023b9cedbb7c858cf2dfb4c5860e6fe690",
+    "scope": "Compact native shell plus saved-generation reopening, flyout lifetime and narrative ID/source-reference checks. Astra source/evidence review; 51 focused tests; frozen actual worker/action and native report smoke pass. Isolated installation/native report smoke and actual installed Juice Shop/LM Studio run passed: exit0, 215.83s, run da6b4d5767534bcd859d83b68fab8a7c, completed/succeeded/ready revision108, validated generation. Eight valid producer IDs; ten unvalidated source refs; claim support not assessed. Remaining Windows manual/study checks moved to M4 by explicit user decision; Windows M3 accepted as functional beta with limitations. Windows C26 removed.",
+    "gate_accepted": true,
+    "installed_live_proof": "desktop/windows/verification/installed-beta-lmstudio-reference-validation-2026-10-15.json",
+    "acceptance_status": "accepted_with_limitations"
+  },
+  "scope_changes": [
+    {
+      "date": "2026-10-15",
+      "authority": "Explicit user instruction",
+      "criterion": "C26",
+      "scope": "Windows M3",
+      "decision": "Remove Windows performance qualification and qualifying Windows 11 host requirement; no replacement Windows 10 performance gate. Preserve optional diagnostic history. Other requirements and macOS C26 unchanged."
+    },
+    {
+      "date": "2026-10-15",
+      "authority": "Explicit user reply to scope question",
+      "scope": "Windows M3 functional beta",
+      "decision": "Close Windows M3 with documented limitations; move remaining manual participant, UX and accessibility validation to M4 without marking it passed.",
+      "package_id": "dev-20261015190038-5667bbbf"
+    }
+  ],
+  "windows_delivery_scope": "Windows M3 functional beta complete by explicit user acceptance on 2026-10-15; manual validation in M4. macOS and unverified original prerequisites are not represented as passed.",
+  "gate_accepted_scope": "Windows M3 functional beta with documented limitations only",
+  "global_cross_platform_m3_accepted": false,
+  "m4_carry_forward": [
+    {
+      "criterion": "C19",
+      "scope": "Windows participant study",
+      "status": "deferred_unverified",
+      "destination": "M4"
+    },
+    {
+      "criterion": "C21/C25",
+      "scope": "Remaining Windows manual workflows, UX, visual states/scaling",
+      "status": "deferred_unverified",
+      "destination": "M4"
+    },
+    {
+      "criterion": "C24",
+      "scope": "Remaining Windows manual accessibility including Narrator",
+      "status": "deferred_unverified",
+      "destination": "M4"
+    }
+  ]
+}

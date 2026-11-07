@@ -1,0 +1,312 @@
+{
+  "status": "FOURTH_OWNED_NEWTARGET_BYTE_FAILURE_RACE_METADATA_CHECKPOINT_PASS_NOT_CANONICAL_OR_C35",
+  "session": 72996,
+  "command": "$env:PYTHONPATH='C:/tmp/attackmap-wp034/10k-20261021-02/source/src'; $env:PYTHONDONTWRITEBYTECODE='1'; & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-prepare-newtarget-prototype.py; if ($LASTEXITCODE -eq 0) { & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-publication-newtarget-prototype.py }",
+  "baseline_source": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+  "owned_candidate": "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\source",
+  "tree_file_count": 138,
+  "changed_files": [
+    "src/attackmap/report.py",
+    "src/attackmap/safe_fs.py"
+  ],
+  "delta": [
+    {
+      "path": "src/attackmap/safe_fs.py",
+      "baseline_sha256": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+      "candidate_sha256": "54fcd1e063b05042cbbfdbdf3dcd6bbde2bde4a2b925d6b61015fe2e2628f949"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "baseline_sha256": "20bd67d3390bfaa7e44bd98024a9f1689d9b2f731766865ec62616801cf4b796",
+      "candidate_sha256": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27"
+    }
+  ],
+  "earlier_artifacts": [
+    {
+      "evidence": "publication-copy-candidate-2026-10-21.json",
+      "recorded_artifacts_unchanged": true
+    },
+    {
+      "evidence": "publication-section-candidate-2026-10-21.json",
+      "recorded_artifacts_unchanged": true
+    },
+    {
+      "evidence": "publication-stagecopy-candidate-2026-10-21.json",
+      "recorded_artifacts_unchanged": true
+    }
+  ],
+  "checks": {
+    "byte_golden_cases_new_targets": 8,
+    "existing_target_no_stage_sentinel": true,
+    "existing_file_id_unchanged": 1125899910589616,
+    "existing_owner_group_dacl_sha256_unchanged": "389fd7ee72a33ab04f4e09e792a00fbdcf615db58c668286a55a459e26283a11",
+    "existing_write_failure_legacy_partial_bytes": 5,
+    "new_target_failure_phases": [
+      {
+        "phase": "encoder",
+        "target_exists": false,
+        "partial_new_target_bytes": null
+      },
+      {
+        "phase": "stage_write",
+        "target_exists": false,
+        "partial_new_target_bytes": null
+      },
+      {
+        "phase": "stage_close",
+        "target_exists": false,
+        "partial_new_target_bytes": null
+      },
+      {
+        "phase": "stage_fdopen",
+        "target_exists": false,
+        "partial_new_target_bytes": null
+      },
+      {
+        "phase": "copy_read",
+        "target_exists": true,
+        "partial_new_target_bytes": 0
+      },
+      {
+        "phase": "copy_write",
+        "target_exists": true,
+        "partial_new_target_bytes": 5
+      }
+    ],
+    "exclusive_stage_collision_foreign_preserved": true,
+    "outside_path_rejected": true,
+    "actual_symlink_results": {
+      "target": "rejected",
+      "directory": "rejected"
+    },
+    "concurrent_target_races": [
+      {
+        "when": "before_final_recheck",
+        "kind": "regular",
+        "failure": "FileExistsError",
+        "actor_preserved": true
+      },
+      {
+        "when": "before_final_recheck",
+        "kind": "symlink",
+        "failure": "UnsafePathError",
+        "actor_preserved": true
+      },
+      {
+        "when": "before_final_recheck",
+        "kind": "hardlink",
+        "failure": "FileExistsError",
+        "actor_preserved": true
+      },
+      {
+        "when": "after_final_recheck_before_open",
+        "kind": "regular",
+        "failure": "FileExistsError",
+        "actor_preserved": true
+      },
+      {
+        "when": "after_final_recheck_before_open",
+        "kind": "symlink",
+        "failure": "UnsafePathError",
+        "actor_preserved": true
+      },
+      {
+        "when": "after_final_recheck_before_open",
+        "kind": "hardlink",
+        "failure": "FileExistsError",
+        "actor_preserved": true
+      }
+    ],
+    "prior_generation_valid_all_checks": true,
+    "permission_assumption": "New target/stage inherit authorized output parent; no ACL equality for temporary versus concurrently created target claimed."
+  },
+  "runs": [
+    {
+      "label": "checks",
+      "number": 0,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 21184512,
+      "whole_child_wall_seconds": 8.940886900003534
+    },
+    {
+      "label": "baseline",
+      "number": 1,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 161091584,
+      "whole_child_wall_seconds": 9.342044600009103
+    },
+    {
+      "label": "candidate",
+      "number": 2,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 124850176,
+      "whole_child_wall_seconds": 11.630627499995171
+    },
+    {
+      "label": "candidate",
+      "number": 3,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 124448768,
+      "whole_child_wall_seconds": 16.57400159999088
+    },
+    {
+      "label": "baseline",
+      "number": 4,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 161140736,
+      "whole_child_wall_seconds": 10.27509490000375
+    }
+  ],
+  "actual_serialization_results": [
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126803968,
+        "working_set_bytes": 92082176,
+        "peak_commit_bytes": 120090624,
+        "private_bytes": 84787200
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 165920768,
+        "working_set_bytes": 93052928,
+        "peak_commit_bytes": 160182272,
+        "private_bytes": 86097920
+      },
+      "wall_seconds": 2.567144399989047,
+      "cpu_seconds": 1.84375,
+      "owned_job_lifetime_peak_commit_bytes": 161091584
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 127086592,
+        "working_set_bytes": 92368896,
+        "peak_commit_bytes": 120430592,
+        "private_bytes": 85270528
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 131264512,
+        "working_set_bytes": 93675520,
+        "peak_commit_bytes": 123957248,
+        "private_bytes": 85843968
+      },
+      "wall_seconds": 3.2123051999951713,
+      "cpu_seconds": 2.4375,
+      "owned_job_lifetime_peak_commit_bytes": 124850176
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126771200,
+        "working_set_bytes": 91918336,
+        "peak_commit_bytes": 120066048,
+        "private_bytes": 84709376
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 130932736,
+        "working_set_bytes": 93614080,
+        "peak_commit_bytes": 123551744,
+        "private_bytes": 85729280
+      },
+      "wall_seconds": 4.169948299997486,
+      "cpu_seconds": 2.65625,
+      "owned_job_lifetime_peak_commit_bytes": 124448768
+    },
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126894080,
+        "working_set_bytes": 92139520,
+        "peak_commit_bytes": 120197120,
+        "private_bytes": 85057536
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 165916672,
+        "working_set_bytes": 93577216,
+        "peak_commit_bytes": 160239616,
+        "private_bytes": 86204416
+      },
+      "wall_seconds": 2.0985908000002382,
+      "cpu_seconds": 1.765625,
+      "owned_job_lifetime_peak_commit_bytes": 161140736
+    }
+  ],
+  "medians_separate_wall_cpu_job_peak": {
+    "baseline": {
+      "cpu_seconds": 1.8046875,
+      "wall_seconds": 2.3328675999946427,
+      "owned_job_lifetime_peak_commit_bytes": 161116160.0
+    },
+    "candidate": {
+      "cpu_seconds": 2.546875,
+      "wall_seconds": 3.6911267499963287,
+      "owned_job_lifetime_peak_commit_bytes": 124649472.0
+    }
+  },
+  "artifacts": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-prepare-newtarget-prototype.py": "0cb665b3e1b549c5830d6ce6f12adb324f278ee60295ab98e8c17f5686a52c61",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-newtarget-prototype.py": "12331e55e385ed5c6fb59e2a7e1c6054ffbd075c822ce1e1d2ba2c4e4b82a4b6",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-newtarget-candidate.diff": "545a749fc802ac0c62fd2791d7bf24afbf4738920384ef9371a8b5662116eb56",
+    "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\source-delta.json": "38b1a40dca3aa563256196a64f1c591491a10b0ae95c0f272a38573628d3adf9",
+    "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\campaign-runs.json": "ad24ab1d992c3b462c8803a2503609324bb68bd760decf3e846cdabdf2d2448a",
+    "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\checks-result.json": "1f5742cc8200a48a571c3210102fd2148db5132cee520d92734ab320147020c1",
+    "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\1-baseline-result.json": "5107905570ba89fa9a18a323f3b209287acd59103c84b3ce2816ce421b9a0f03",
+    "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\2-candidate-result.json": "1b6be6560b619f6424d2e1bea46584a9ff870f8ba9f564d2482e293a8b28a0b6",
+    "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\3-candidate-result.json": "3c69eb0b6352497458c9f9cef2ae99c0d2a19892f36d9a81e3b5c2e9d7f8a533",
+    "C:\\tmp\\attackmap-wp034\\publication-newtarget-candidate-20261021-01\\4-baseline-result.json": "0cbb90016192ec5795d424ac13623c46a97f628d8c3c994661935b76a43a72d7"
+  },
+  "scope": {
+    "existing_or_symlink_initial_entry": "Exact original C dumps + safe_write_text expression, no UUID/stage created or content emitted elsewhere. Preserves original exception ordering/write partial semantics; existing ID and OWNER/GROUP/DACL binary descriptor hash unchanged in actual Windows fixture.",
+    "initially_absent_entry": "Section-C encode to exclusive same-directory owned stage and close; final shared path check and existence refusal; O_CREAT|O_EXCL|O_NOFOLLOW prevents concurrent target truncation. Bounded65536-byte copy; remove only owned stage.",
+    "deliberate_concurrency_change": "An entry appearing during encoding/after final check is refused with FileExistsError or UnsafePathError, not overwritten. No automatic legacy fallback/retry after stage creation. Six deterministic regular/symlink/hardlink pre/post-recheck races preserved actor bytes and previous published generation.",
+    "failure_phase_boundary": "Encoder/stage write/close/fdopen errors leave absent new destination absent. Final-copy read/write errors may leave new0/5B partial file under legacy non-atomic semantics. Previous current pointer unchanged and generation checksum-valid.",
+    "permission_assumption": "New stage and new target are under an authorized parent for report content and inherit parent permissions. No stage ACL equivalence to a concurrent actor target; existing initial targets never stage. Parent ACL mutation/ancestor races are not solved or claimed.",
+    "unchanged": "Ordinary safe_write_text API/checks/flags; report dictionary construction/return/order/newline/default semantics; generation-level publication/pointer/rollback flow; canonical source/tests/defaults/scope."
+  },
+  "logical_io_bytes_actual_report": {
+    "baseline_target_write": 36895649,
+    "new_target_candidate_stage_write": 36895649,
+    "new_target_candidate_stage_read": 36895649,
+    "new_target_candidate_target_write": 36895649,
+    "new_target_extra_logical_transfer_bytes": 73791298,
+    "existing_target_extra_stage_transfer_bytes": 0,
+    "qualification": "No physical disk transfer/caching claim."
+  },
+  "limits": [
+    "Optimized measurement exclusively absent destinations. Existing-target path deliberately retains legacy memory/CPU and has no optimization claim.",
+    "Largest section/scalar remains unbounded; indentation transformation and encoding retain section-sized copies. Job peaks include startup/input decode, not resettable serialization peaks.",
+    "Two ABBA runs per implementation under concurrent host workload; separate CPU/wall/lifetime job metrics. No end-to-end speed, default600s completion, C35 or50k/100k claim.",
+    "Actual existing-target descriptor was read-only inspected (OWNER/GROUP/DACL), not replaced with a specially configured restricted fixture. Race tests asserted actor bytes/presence, not separate actor ACL hashes.",
+    "Eight byte fixture goldens and actual36,895,649-byte/SHA outputs pass; no complete write_reports or full scan invocation. Focused persistent tests and root review remain required after canonical lease release."
+  ]
+}

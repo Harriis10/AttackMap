@@ -1,0 +1,121 @@
+{
+  "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\RESUME-2026-10-23-sol-ultra\\provider-faults\\actual01-pending-cancel\\fixture-repository",
+  "signals": [
+    {
+      "classification_version": "1.0",
+      "source_role": "unknown",
+      "evidence_kind": "static_extraction",
+      "classification_basis": "unknown",
+      "kind": "route",
+      "label": "GET /records",
+      "file": "app.py",
+      "line": 3,
+      "confidence": 0.7,
+      "evidence_text": null,
+      "properties": {
+        "method": "GET",
+        "path": "/records",
+        "auth": "unknown"
+      },
+      "observation_id": "obs-e1a0e2dc0d64033d7d6cf2c446c083c951ee7ac165b5d5ddc2f7bdf350443481",
+      "origins": [
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "analyzer": "python-web",
+          "analyzer_version": "0.1.0",
+          "metadata_status": "known",
+          "file": "app.py",
+          "line": 3,
+          "location_reason": null,
+          "evidence_text": null,
+          "properties": {
+            "method": "GET",
+            "path": "/records",
+            "auth": "unknown"
+          }
+        }
+      ],
+      "conflicts": []
+    }
+  ],
+  "scanned_files": [
+    "app.py",
+    "config.yaml"
+  ],
+  "resource_limit_events": [],
+  "resource_limit_scopes": [
+    "config_scanner.file_bytes",
+    "repo_index.file_bytes",
+    "repo_index.index_bytes"
+  ],
+  "resource_limit_reporting": "complete",
+  "languages": [
+    "python"
+  ],
+  "routes": [
+    {
+      "path": "/records",
+      "method": "GET",
+      "file": "app.py",
+      "line": 3,
+      "auth": "unknown",
+      "guards": [],
+      "guard_evidence": null
+    }
+  ],
+  "external_calls": [],
+  "databases": [],
+  "auth_hints": [],
+  "service_hints": [],
+  "edge_hints": [],
+  "entrypoint_hints": [],
+  "protocol_hints": [],
+  "framework_hints": [],
+  "secret_hints": [],
+  "taint_chains": [],
+  "dependencies": [],
+  "vulnerabilities": [],
+  "authz_candidates": [],
+  "crypto_weaknesses": [],
+  "web_hardening_issues": [
+    {
+      "kind": "debug_enabled",
+      "file": "app.py",
+      "line": 7,
+      "evidence_text": "app.run(debug=True)",
+      "severity": "medium"
+    }
+  ],
+  "code_weaknesses": [],
+  "workflow_issues": [],
+  "supply_chain_issues": [],
+  "secret_history": [],
+  "anomalies": [],
+  "limitations": [],
+  "analyzer_errors": [],
+  "files_scanned": 2,
+  "scan_snapshot": {
+    "snapshot_id": "6ecac4e45726e5b7368d2bedfaa11c1d97c10cca19c29a9e5e57be35564d635c",
+    "files": {
+      "app.py": "52bdc2001a40e1fede49b9ab751f9c75334c4d8b23fa1a2fdb71643607c58fc9",
+      "config.yaml": "bcde946bda8af6d2f9f55231a6bb79b64a27b9c3c7d17873c7b3bc3ba4848489"
+    },
+    "raw_files": {
+      "app.py": "52bdc2001a40e1fede49b9ab751f9c75334c4d8b23fa1a2fdb71643607c58fc9",
+      "config.yaml": "bcde946bda8af6d2f9f55231a6bb79b64a27b9c3c7d17873c7b3bc3ba4848489"
+    },
+    "total_size": 220,
+    "index_config": {
+      "capture_sdk_sources": 1,
+      "include_tests": 0,
+      "include_vendored": 0,
+      "index_byte_budget": 0,
+      "index_file_limit": 100000,
+      "max_file_bytes": 2000000
+    },
+    "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+  }
+}

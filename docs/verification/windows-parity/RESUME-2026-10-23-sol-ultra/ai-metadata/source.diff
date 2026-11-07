@@ -1,0 +1,143 @@
+diff --git a/desktop/windows/AiArtifacts.Tests/Program.cs b/desktop/windows/AiArtifacts.Tests/Program.cs
+index 959ff40..412d573 100644
+--- a/desktop/windows/AiArtifacts.Tests/Program.cs
++++ b/desktop/windows/AiArtifacts.Tests/Program.cs
+@@ -29,6 +29,44 @@ Check(compact.Summary.Contains("Provider: openai (api); model: local") && compac
+ Check(compact.Notice.Contains("bulky_configuration_marker") && compact.Metadata == complete && compact.Markdown == "unchanged narrative", "complete technical detail and artifact bytes preserved");
+ var reported = AiArtifactProjection.Project("review", "text", "{\"backend\":\"api\",\"model\":\"local\",\"usage_status\":\"reported\",\"usage\":{\"input_tokens\":0,\"output_tokens\":12}}");
+ Check(reported.Summary.Contains("input tokens: 0; output tokens: 12"), "reported zero distinct from unknown usage");
++const string scopedAccounting = """
++    {"backend":"api","model":"local","usage":{"input_tokens":506556,"output_tokens":5955},
++     "allowance":{"token_allowance_kind":"output_tokens","usage_status":"reported","unknown_output_usage_calls":0},
++     "citation_context":{"reference_validity":"mechanically_checked","claim_support":"not_assessed"},
++     "failed_passes":0,"abstained_votes":1}
++    """;
++var scoped = AiArtifactProjection.Project("hunt_verify", "saved narrative", scopedAccounting);
++Check(scoped.State == "partial" && scoped.Summary.Contains("Jury abstentions: 1; failed passes: 0"), "accounting does not erase abstention partial state");
++Check(scoped.Summary.Contains("Usage: unknown (artifact metadata); input tokens: 506556; output tokens: 5955"), "numeric aggregate counts do not manufacture artifact usage status");
++Check(scoped.Summary.Contains("Shared output accounting (artifact allowance): reported; unknown output-usage calls: 0"), "shared output settlement has its own scope");
++Check(scoped.Summary.Contains("Reference validity: unknown; Claim support: not assessed") && scoped.Summary.Contains("Captured citation context: mechanically checked (context only)"), "checked context never promoted to output validity or claim support");
++Check(scoped.Notice.Contains("does not establish input or per-call usage") && scoped.Notice.Contains("does not validate references in this output"), "technical notice explains independent metadata scopes");
++Check(scoped.Metadata == scopedAccounting && scoped.Markdown == "saved narrative", "scope presentation leaves artifact bytes unchanged");
++string runAccounting = """
++    {"desktop_ai":{"mode":"hunt_verify","status":"completed","model_output_available":true,
++      "allowance":{"token_allowance_kind":"output_tokens","usage_status":"partial_or_unknown","unknown_output_usage_calls":1}}}
++    """;
++var selectedAccounting = AiArtifactProjection.Project("hunt_verify", "text", scopedAccounting, runAccounting);
++Check(selectedAccounting.State == "partial" && selectedAccounting.Summary.Contains("Shared output accounting (run allowance): partial_or_unknown; unknown output-usage calls: 1"), "matching run allowance projected without promoting completion");
++Check(!selectedAccounting.Summary.Contains("artifact allowance"), "shared accounting identifies which supplied snapshot is displayed");
++var otherModeAccounting = AiArtifactProjection.Project("hunt", "text", scopedAccounting, runAccounting);
++Check(otherModeAccounting.Summary.Contains("artifact allowance") && !otherModeAccounting.Summary.Contains("run allowance"), "different requested mode cannot replace artifact allowance");
++var absentRunAllowance = AiArtifactProjection.Project("hunt_verify", "text", scopedAccounting, "{\"desktop_ai\":{\"mode\":\"hunt_verify\",\"status\":\"partial\"}}");
++Check(absentRunAllowance.Summary.Contains("artifact allowance"), "missing run allowance preserves explicitly supplied artifact snapshot");
++var unknownAllowanceScope = AiArtifactProjection.Project("review", "text", "{\"backend\":\"api\",\"model\":\"local\",\"allowance\":{\"usage_status\":\"reported\"}}");
++Check(unknownAllowanceScope.Summary.Contains("Allowance usage (artifact allowance): reported; scope: unknown") && !unknownAllowanceScope.Summary.Contains("Shared output accounting"), "allowance status alone cannot establish output scope");
++foreach (string invalidCount in new[] { "null", "-1", "1.5", "\"0\"", "true" })
++{
++    var unknownCounter = AiArtifactProjection.Project("review", "text", "{\"backend\":\"api\",\"model\":\"local\",\"allowance\":{\"token_allowance_kind\":\"output_tokens\",\"unknown_output_usage_calls\":" + invalidCount + "}}");
++    Check(unknownCounter.Summary.Contains("unknown output-usage calls: unknown"), "invalid unknown-usage counter is never fabricated as zero");
++}
++var invalidOutputReferences = AiArtifactProjection.Project("review", "text", """
++    {"backend":"api","model":"local","reference_validation":{"reference_validity":"invalid","scope":"selected_prompt_producer_evidence_ids","claim_support":"not_assessed"},
++     "citation_context":{"reference_validity":"mechanically_checked","claim_support":"supported_by_cited_evidence"}}
++    """);
++Check(invalidOutputReferences.Summary.Contains("Reference validity: invalid; Claim support: not assessed"), "context claims do not replace output reference validation");
++Check(invalidOutputReferences.Summary.Contains("Reference check scope: selected prompt producer evidence ids"), "producer evidence ID scope visible separately from source validity");
++Check(!invalidOutputReferences.Summary.Contains("supported by cited evidence"), "context-level support cannot manufacture output claim support");
+ Check(AiArtifactProjection.Unavailable("review", "No supplied output").Summary.Contains("unavailable"), "compact unavailable remains explicit");
+ Check(AiArtifactProjection.Project("review", "", complete).State == "unavailable", "empty output");
+ Check(AiArtifactProjection.Project("review", "text", "{}").State == "unavailable", "missing metadata");
+@@ -79,5 +117,22 @@ try
+     Check(rejected,"tampered report rejected");
+ }
+ finally { Directory.Delete(folder,true); }
+-Console.WriteLine($"PASS {checks} AI artifact projection and captured-generation checks; fixture only; no provider or GUI.");
++if (args.Length > 0)
++{
++    if (args.Length != 3 || args[0] != "--saved-hunt-verify") throw new ArgumentException("Expected --saved-hunt-verify <generation-directory> <projection-json>.");
++    string generation = Path.GetFullPath(args[1]);
++    string[] names = ["vulnerability-hypotheses.meta.json", "vulnerability-hypotheses.md", "run-manifest.json"];
++    var before = names.ToDictionary(name => name, name => ExportSelection.Hash(File.ReadAllBytes(Path.Combine(generation, name))));
++    string savedMetadata = File.ReadAllText(Path.Combine(generation, names[0])), savedMarkdown = File.ReadAllText(Path.Combine(generation, names[1]));
++    var saved = AiArtifactProjection.Project("hunt_verify", savedMarkdown, savedMetadata, File.ReadAllText(Path.Combine(generation, names[2])));
++    Check(saved.State == "partial" && saved.Summary.Contains("Jury abstentions: 1; failed passes: 0"), "retained generation keeps abstention partial state");
++    Check(saved.Summary.Contains("Usage: unknown (artifact metadata); input tokens: 506556; output tokens: 5955"), "actual aggregate count provenance stays explicit");
++    Check(saved.Summary.Contains("Shared output accounting (run allowance): reported; unknown output-usage calls: 0"), "actual shared output accounting shown independently");
++    Check(saved.Summary.Contains("Reference validity: unknown; Claim support: not assessed") && saved.Summary.Contains("Captured citation context: mechanically checked (context only)"), "actual captured context does not establish output references or claims");
++    Check(saved.Metadata == savedMetadata && saved.Markdown == savedMarkdown, "actual model text and metadata projected without rewriting");
++    Check(names.All(name => before[name] == ExportSelection.Hash(File.ReadAllBytes(Path.Combine(generation, name)))), "actual retained generation bytes unchanged");
++    File.WriteAllText(args[2], JsonSerializer.Serialize(new { generation = Path.GetFileName(generation), saved.State, saved.Summary, saved.Notice, source_sha256 = before,
++        scope = "Read-only projection of retained artifacts; no new HTTP, model, GUI, semantic or release acceptance." }, new JsonSerializerOptions { WriteIndented = true }), new UTF8Encoding(false));
++}
++Console.WriteLine($"PASS {checks} AI artifact projection and captured-generation checks; offline only; no provider or GUI.");
+ 
+diff --git a/desktop/windows/AttackMap.NativeSpike/AI/AiArtifactProjection.cs b/desktop/windows/AttackMap.NativeSpike/AI/AiArtifactProjection.cs
+index 33fe4cb..e8b9fb7 100644
+--- a/desktop/windows/AttackMap.NativeSpike/AI/AiArtifactProjection.cs
++++ b/desktop/windows/AttackMap.NativeSpike/AI/AiArtifactProjection.cs
+@@ -25,6 +25,17 @@ public static class AiArtifactProjection
+     private static string Scalar(JsonElement value) => value.ValueKind == JsonValueKind.String ? Brief(value.GetString()!) : "unknown";
+     private static string ProviderName(JsonElement value) => value.ValueKind == JsonValueKind.String ? Scalar(value)
+         : value.ValueKind == JsonValueKind.Object && value.TryGetProperty("provider", out var name) ? Scalar(name) : "unknown";
++    private static string AllowanceUsage(JsonElement metadata, string source)
++    {
++        if (!metadata.TryGetProperty("allowance", out var allowance) || allowance.ValueKind != JsonValueKind.Object) return "";
++        string status = allowance.TryGetProperty("usage_status", out var supplied) ? Scalar(supplied) : "unknown";
++        if (!allowance.TryGetProperty("token_allowance_kind", out var kind) || kind.ValueKind != JsonValueKind.String || kind.GetString() != "output_tokens")
++            return $"\nAllowance usage ({source}): {status}; scope: unknown";
++        string unknownCalls = allowance.TryGetProperty("unknown_output_usage_calls", out var count) && count.ValueKind == JsonValueKind.Number
++            && count.TryGetInt64(out long number) && number >= 0 ? number.ToString(System.Globalization.CultureInfo.InvariantCulture) : "unknown";
++        // The shared ledger settles output reservations only; it cannot prove input or per-call usage.
++        return $"\nShared output accounting ({source}): {status}; unknown output-usage calls: {unknownCalls}";
++    }
+     public static AiArtifactPage Project(string mode, string markdown, string metadata, string? runManifest = null)
+     {
+         using var parsed = JsonDocument.Parse(metadata);
+@@ -39,6 +50,7 @@ public static class AiArtifactProjection
+         }
+         string backend = Text("backend"), state = "available; completion unknown";
+         string requested = "unknown", allowance = Field(root, "allowance"), provider = Field(root, "provider");
++        string allowanceUsage = AllowanceUsage(root, "artifact allowance");
+         string providerName = root.TryGetProperty("provider", out var suppliedProvider) ? ProviderName(suppliedProvider) : "unknown";
+         if (runManifest != null)
+         {
+@@ -58,7 +70,11 @@ public static class AiArtifactProjection
+                     string supplied = ai.TryGetProperty("status", out var status) && status.ValueKind == JsonValueKind.String ? status.GetString()! : "unknown";
+                     state = supplied is "completed" or "partial" or "fallback" or "unavailable" or "not_requested" ? supplied : "unknown";
+                     if (state == "completed" && (!ai.TryGetProperty("model_output_available", out var available) || available.ValueKind != JsonValueKind.True)) state = "completion unknown";
+-                    allowance = Field(ai, "allowance");
++                    if (ai.TryGetProperty("allowance", out var runAllowance) && runAllowance.ValueKind == JsonValueKind.Object)
++                    {
++                        allowance = runAllowance.GetRawText();
++                        allowanceUsage = AllowanceUsage(ai, "run allowance");
++                    }
+                 }
+             }
+         }
+@@ -67,19 +83,23 @@ public static class AiArtifactProjection
+         else if (backend is not ("api" or "cli") || Text("model") == "unknown" || string.IsNullOrWhiteSpace(markdown)) state = "unavailable";
+         else if (failed > 0 || abstained > 0 || Text("stop_reason") is not ("unknown" or "stop" or "end_turn" or "completed")) state = "partial";
+         string references = "unknown", support = "not assessed";
+-        string referenceSummary = "unknown", supportSummary = "not assessed";
++        string referenceSummary = "unknown", supportSummary = "not assessed", referenceScope = "unknown";
+         if (root.TryGetProperty("reference_validation", out var validation) && validation.ValueKind == JsonValueKind.Object)
+         {
+             references = Field(validation, "reference_validity"); support = Field(validation, "claim_support");
+             if (validation.TryGetProperty("reference_validity", out var validity)) referenceSummary = Scalar(validity);
+             if (validation.TryGetProperty("claim_support", out var claim)) supportSummary = Scalar(claim).Replace('_', ' ');
++            if (validation.TryGetProperty("scope", out var scope)) referenceScope = Scalar(scope).Replace('_', ' ');
+         }
+-        string notice = $"State (supplied metadata): {state}\nRequested mode: {requested}; displayed section: {mode}\nProvider: {provider}; model: {Text("model")}; backend: {backend}\nUsage status: {Text("usage_status")}; supplied usage: {Field(root, "usage")}\nAllowance: {allowance}\nReference validity: {references}\nClaim support: {support}\nJury abstentions: {(root.TryGetProperty("abstained_votes", out _) ? abstained.ToString() : "unknown")}; failed passes: {(root.TryGetProperty("failed_passes", out _) ? failed.ToString() : "unknown")}; consensus: {Field(root, "consensus")}\nModel judgements are not confirmed vulnerabilities. Missing votes are abstentions; reference validity does not establish claim support. Unknown usage is not zero. Complete supplied metadata follows.";
++        string contextSummary = root.TryGetProperty("citation_context", out var context) && context.ValueKind == JsonValueKind.Object
++            && context.TryGetProperty("reference_validity", out var contextValidity) ? Scalar(contextValidity).Replace('_', ' ') : "unknown";
++        string citationContext = contextSummary == "unknown" ? "" : $"\nCaptured citation context: {contextSummary} (context only)";
++        string notice = $"State (supplied metadata): {state}\nRequested mode: {requested}; displayed section: {mode}\nProvider: {provider}; model: {Text("model")}; backend: {backend}\nUsage status: {Text("usage_status")} (artifact metadata); supplied usage: {Field(root, "usage")}{allowanceUsage}\nAllowance: {allowance}\nReference validity: {references}; scope: {referenceScope}{citationContext}\nClaim support: {support}\nJury abstentions: {(root.TryGetProperty("abstained_votes", out _) ? abstained.ToString() : "unknown")}; failed passes: {(root.TryGetProperty("failed_passes", out _) ? failed.ToString() : "unknown")}; consensus: {Field(root, "consensus")}\nModel judgements are not confirmed vulnerabilities. Missing votes are abstentions; reference validity does not establish claim support. Shared output accounting does not establish input or per-call usage. A checked citation context does not validate references in this output. Unknown usage is not zero. Complete supplied metadata follows.";
+         string TokenCount(string name) => root.TryGetProperty("usage", out var usage) && usage.ValueKind == JsonValueKind.Object
+             && usage.TryGetProperty(name, out var number) && number.ValueKind == JsonValueKind.Number && number.TryGetInt64(out long count) && count >= 0 ? count.ToString(System.Globalization.CultureInfo.InvariantCulture) : "unknown";
+         string jury = mode == "hunt_verify" || abstained > 0 || failed > 0
+             ? $"\nJury abstentions: {(root.TryGetProperty("abstained_votes", out _) ? abstained.ToString() : "unknown")}; failed passes: {(root.TryGetProperty("failed_passes", out _) ? failed.ToString() : "unknown")}." : "";
+-        string summary = $"{mode} · {state}\nProvider: {providerName} ({Brief(backend)}); model: {Brief(Text("model"))}\nUsage: {Brief(Text("usage_status"))}; input tokens: {TokenCount("input_tokens")}; output tokens: {TokenCount("output_tokens")}\nReference validity: {referenceSummary}; Claim support: {supportSummary}{jury}\nModel judgment only; valid references do not confirm claims. Unknown usage is not zero.";
++        string summary = $"{mode} · {state}\nProvider: {providerName} ({Brief(backend)}); model: {Brief(Text("model"))}\nUsage: {Brief(Text("usage_status"))} (artifact metadata); input tokens: {TokenCount("input_tokens")}; output tokens: {TokenCount("output_tokens")}{allowanceUsage}\nReference validity: {referenceSummary}; Claim support: {supportSummary}\nReference check scope: {referenceScope}{citationContext}{jury}\nModel judgment only; valid references do not confirm claims. Unknown usage is not zero.";
+         return new(mode, ArtifactName(mode), state, notice, markdown, metadata) { Summary = summary };
+     }
+ }

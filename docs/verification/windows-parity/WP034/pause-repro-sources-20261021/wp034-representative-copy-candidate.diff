@@ -1,0 +1,34 @@
+--- sealed-source2/src/attackmap/signal_provenance.py
++++ owned-candidate/src/attackmap/signal_provenance.py
+@@ -48,6 +48,22 @@
+     return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+ 
+ 
++def _copy_merge_representative(signal: Signal) -> Signal:
++    # Unknown mutable state keeps the legacy deep-copy contract.
++    rebuilt = {"properties", "origins", "conflicts"}
++    scalars = (str, int, float, bool, type(None))
++    if (type(signal) is not Signal or signal.__pydantic_extra__ or signal.__pydantic_private__
++            or type(signal.properties) is not dict
++            or any(type(key) is not str or type(value) is not str for key, value in signal.properties.items())
++            or any(type(value) not in scalars for name, value in signal.__dict__.items() if name not in rebuilt)):
++        return signal.model_copy(deep=True)
++    fields_set = signal.model_fields_set.copy()
++    copied = signal.model_copy(deep=False, update={"properties": dict(signal.properties), "origins": [], "conflicts": []})
++    copied.model_fields_set.clear()
++    copied.model_fields_set.update(fields_set)
++    return copied
++
++
+ def merge_normalized_signals(signals: list[Signal]) -> list[Signal]:
+     groups: dict[str, list[Signal]] = defaultdict(list)
+     for signal in signals:
+@@ -55,7 +71,7 @@
+     merged: list[Signal] = []
+     for identity, items in sorted(groups.items()):
+         ordered = sorted(items, key=lambda item: (_canonical(_semantic_dump(item, exclude={"origins", "conflicts", "observation_id"})), _canonical(item.model_dump(include=CLASSIFICATION_FIELDS))))
+-        representative = ordered[0].model_copy(deep=True)
++        representative = _copy_merge_representative(ordered[0])
+         representative.observation_id = "obs-" + hashlib.sha256(identity.encode("utf-8")).hexdigest()
+         origins = {(_canonical(_semantic_dump(origin)), _canonical(origin.model_dump(include=CLASSIFICATION_FIELDS))): origin for item in items for origin in item.origins}
+         representative.origins = [origins[key].model_copy(deep=True) for key in sorted(origins)]

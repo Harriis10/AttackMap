@@ -16,18 +16,28 @@ The user can force a backend via the `backend` argument or the CLI's
 `--llm-backend` flag; "auto" walks the order above and picks the first one
 that resolves.
 
-Optional dependency: `pip install attackmap[llm]` installs the anthropic SDK.
+Optional dependency: `pip install "attackmap[llm] @ git+https://github.com/mlaify/AttackMap.git"` installs the anthropic SDK.
 The CLI backend only requires the `claude` binary on PATH (no SDK install).
 """
 
 from __future__ import annotations
 
 import json
+import ipaddress
 import os
+import re
 import shutil
 import subprocess
-from dataclasses import dataclass
+import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass, replace
+from functools import lru_cache
 from typing import Any, Literal
+from urllib.parse import urlsplit
+
+from .ai_budget import (AiBudget, AiBudgetExhausted, current_budget,
+                        current_reservation, reservation_scope)
 
 from .models import AttackPath, AttackSurface, Finding, ScanResult
 from .review_prompts import (
@@ -40,6 +50,8 @@ from .review_prompts import (
     render_skeptic_prompts,
     render_triage_prompts,
 )
+
+_LLM_INSTALL = 'pip install "attackmap[llm] @ git+https://github.com/mlaify/AttackMap.git"'
 
 DEFAULT_MODEL = "claude-opus-4-8"
 DEFAULT_EFFORT: Literal["low", "medium", "high", "xhigh", "max"] = "high"
@@ -59,6 +71,7 @@ CLAUDE_CLI_TIMEOUT_SECONDS = 600
 # so our extended tiers (xhigh/max) clamp down to "high".
 OPENAI_DEFAULT_MODEL = "gpt-5-codex"
 OPENAI_API_TIMEOUT_SECONDS = 900
+LOCAL_OPENAI_API_TIMEOUT_SECONDS = 3600
 CODEX_CLI_TIMEOUT_SECONDS = 900
 OPENAI_EFFORT_MAP = {
     "low": "low",
@@ -83,6 +96,198 @@ class LlmReviewResult:
     stop_reason: str | None
     usage: dict[str, int]
     backend: Literal["api", "cli"]
+    reference_validation: dict | None = None
+
+    @property
+    def usage_status(self) -> Literal["reported", "partial", "unknown"]:
+        if all(type(self.usage.get(key)) is int and self.usage[key] >= 0
+               for key in ("input_tokens", "output_tokens")):
+            return "reported"
+        return "partial" if self.usage else "unknown"
+
+
+
+def _claim_support_assessments(markdown: str, candidates: list[str]) -> list[dict]:
+    """Per-claim closed-set support assessment for narrative review output.
+
+    The selected narrative prompt supplies no captured snapshot spans, so every
+    cited claim honestly stays 'not_assessed'. Reference validity never implies
+    support, and this never reads live source files to manufacture it.
+    """
+    from .citations import reference_tokens
+
+    candidate_set = set(candidates)
+    assessments: list[dict] = []
+    for line in markdown.splitlines():
+        cited = [token for token in reference_tokens(line, allowed_ids=candidate_set) if token in candidate_set]
+        if not cited:
+            continue
+        if len(assessments) >= 40:
+            break
+        claim = line.strip()[:160]
+        for reference in cited:
+            assessments.append({"claim": claim, "reference": reference,
+                                "claim_support": "not_assessed",
+                                "reason": "no captured source spans in the selected narrative prompt"})
+    return assessments
+
+
+def _validate_narrative_references(result: LlmReviewResult, rendered) -> LlmReviewResult:
+    """Check producer IDs in precisely the selected, sanitized prompt, not claims."""
+    import hashlib
+    from .citations import CitationContext, EvidenceReference, reference_tokens, validate_references
+
+    payload = json.loads(rendered.evidence_json)
+    prefixes = {"findings": "finding", "attack_surfaces": "surface", "attack_paths": "path",
+                "assets": "asset", "controls": "control", "notable_observations": "insight",
+                "detection_opportunities": "detect"}
+    records = {}
+    duplicates = set()
+    for collection, prefix in prefixes.items():
+        for entry in payload.get(collection, []):
+            identity = entry.get("id") if isinstance(entry, dict) else None
+            if not isinstance(identity, str) or not re.fullmatch(re.escape(prefix) + r":[A-Za-z0-9][A-Za-z0-9_.:+/-]*", identity):
+                continue
+            if identity in records:
+                duplicates.add(identity)
+            records[identity] = EvidenceReference(identity, hashlib.sha256(
+                json.dumps(entry, sort_keys=True, ensure_ascii=True).encode()).hexdigest())
+    context = CitationContext("", tuple(value for key, value in records.items() if key not in duplicates), ())
+    candidates = [token for token in reference_tokens(result.markdown, allowed_ids=records)
+                  if token.lower().split(":", 1)[0] in {*prefixes.values(), "find"} and ":" in token]
+    # This status covers producer IDs only. File/line and snapshot support are
+    # separate questions and must not be implied by this check.
+    validated = validate_references(" ".join(candidates), context)
+    allowed = {record.evidence_id for record in context.records}
+    invalid = tuple(dict.fromkeys([*validated.invalid_references,
+                                  *(token for token in candidates if token not in allowed)]))
+    valid = tuple(token for token in candidates if token in allowed)
+    status = "invalid" if invalid else "valid" if valid else "missing"
+    source_tokens = [token for token in reference_tokens(result.markdown, allowed_ids=records)
+                     if token not in candidates and not token.lower().startswith(("http://", "https://"))]
+    source_check = validate_references(" ".join(source_tokens), context)
+    unresolved_sources = list(source_check.invalid_references)
+    metadata = {"reference_validity": status, "scope": "selected_prompt_producer_evidence_ids",
+                "claim_support": "not_assessed",
+                "claim_support_assessments": _claim_support_assessments(result.markdown, candidates),
+                "claim_support_basis": "Reference validity never implies claim support. The "
+                "selected narrative prompt supplies no captured snapshot spans, so every cited "
+                "claim remains not_assessed; this check never reads live source files to "
+                "manufacture support.",
+                "source_location_validation": "unvalidated" if unresolved_sources else "not_assessed",
+                "source_reference_validity": "unresolved" if unresolved_sources else "missing",
+                "source_references": unresolved_sources,
+                "unresolved_source_references": unresolved_sources,
+                "source_reference_scope": "No captured snapshot spans supplied by the selected narrative prompt; live files are not consulted.",
+                "context_sha256": hashlib.sha256(rendered.evidence_json.encode()).hexdigest(),
+                "valid_references": list(dict.fromkeys(valid)), "invalid_references": list(invalid),
+                "allowed_reference_count": len(allowed)}
+    notice = "> Evidence reference check: " + status + ". Claim support and source-location validity are not assessed."
+    if invalid:
+        notice += " Unresolved evidence IDs are present; inspect reference_validation metadata. IDs have not been corrected."
+    if unresolved_sources:
+        notice += " Source file/line references are unresolved: no selected snapshot spans establish their validity."
+    return replace(result, markdown=notice + "\n\n" + result.markdown, reference_validation=metadata)
+
+
+def _provider_call(call, *, max_tokens: int, timeout: float,
+                   budget: AiBudget | None, cli: bool = False) -> LlmReviewResult:
+    if current_budget() is not None and budget is not None and budget is not current_budget():
+        raise LlmReviewError("Cannot replace the active shared AI allowance")
+    ledger = budget or current_budget() or AiBudget(max_calls=1, max_seconds=timeout)
+    if cli and ledger.output_token_limit is not None:
+        raise LlmReviewError("A strict output-token allowance requires the API backend; CLI output limits are unverified.")
+    inherited = current_reservation()
+    owns = inherited is None or inherited.ledger is not ledger
+    reservation = None
+    result = None
+    try:
+        reservation = (ledger.reserve(max_output_tokens=max_tokens, timeout_seconds=timeout)
+                       if owns else inherited)
+        reservation.claim_dispatch()
+        with reservation_scope(reservation):
+            result = call(min(max_tokens, reservation.output_tokens))
+        return result
+    except AiBudgetExhausted as exc:
+        raise LlmReviewError(str(exc)) from exc
+    finally:
+        if owns and reservation is not None:
+            reservation.finish(getattr(result, "usage", None))
+
+
+def _provider_timeout(default: float) -> float:
+    reservation = current_reservation()
+    if reservation is None:
+        return default
+    reservation.check_dispatch()
+    return min(default, reservation.timeout_seconds, reservation.ledger.remaining_seconds)
+
+
+def _controlled_client(client, *, timeout: float = OPENAI_API_TIMEOUT_SECONDS):
+    reservation = current_reservation()
+    if reservation is not None and hasattr(client, "with_options"):
+        return client.with_options(max_retries=0, timeout=_provider_timeout(timeout))
+    return client
+
+
+def _literal_loopback_url(value: str | None) -> bool:
+    if not value:
+        return False
+    try:
+        parsed = urlsplit(value)
+        if parsed.scheme in {"http", "https"} and parsed.hostname == "localhost":
+            return True
+        return (parsed.scheme in {"http", "https"} and parsed.hostname is not None
+                and ipaddress.ip_address(parsed.hostname).is_loopback)
+    except ValueError:
+        return False
+
+
+def _openai_timeout_ceiling(client=None, *, budget: AiBudget | None = None) -> float:
+    """Honor an existing local allowance; never create or reset its deadline."""
+    reservation = current_reservation()
+    ledger = budget or current_budget() or (reservation.ledger if reservation else None)
+    endpoint = str(getattr(client, "base_url", "") if client is not None
+                   else os.environ.get("OPENAI_BASE_URL", ""))
+    if ledger is not None and _literal_loopback_url(endpoint):
+        parsed = urlsplit(endpoint)
+        try:
+            port = parsed.port
+        except ValueError:
+            return OPENAI_API_TIMEOUT_SECONDS
+        if (parsed.scheme == "http" and parsed.username is None and parsed.password is None
+                and (port is None or port > 0)):
+            return LOCAL_OPENAI_API_TIMEOUT_SECONDS
+    return OPENAI_API_TIMEOUT_SECONDS
+
+
+def _normalize_local_endpoint(value: str | None) -> str | None:
+    """Pin the explicitly local hostname to a numeric address without DNS."""
+    if not _literal_loopback_url(value):
+        return value
+    parsed = urlsplit(value)
+    if parsed.username is not None or parsed.password is not None:
+        raise LlmReviewError("Local endpoint URLs cannot contain embedded credentials")
+    if parsed.hostname == "localhost":
+        authority = "127.0.0.1" + (f":{parsed.port}" if parsed.port is not None else "")
+        return parsed._replace(netloc=authority).geturl()
+    return value
+
+
+def _loopback_transport(sdk, base_url: str | None) -> dict:
+    audit_options = {}
+    if getattr(sdk, "__name__", None) == "openai" and os.environ.get("ATTACKMAP_QA_HTTP_AUDIT_DIR"):
+        from .ai_http_audit import client_audit_options
+        audit_options = client_audit_options(base_url)
+    if not _literal_loopback_url(base_url):
+        return {}
+    parsed = urlsplit(base_url)
+    if parsed.username or parsed.password:
+        raise LlmReviewError("Local endpoint URLs cannot contain embedded credentials")
+    factory = getattr(sdk, "DefaultHttpxClient", None)
+    if factory is None:
+        raise LlmReviewError("The SDK cannot isolate the local endpoint from proxy settings; upgrade the SDK.")
+    return {"http_client": factory(trust_env=False, follow_redirects=False, **audit_options)}
 
 
 # ---------- Auth + SDK backend ----------
@@ -96,17 +301,22 @@ def _resolve_sdk_client(api_key: str | None, client: Any | None) -> tuple[Any, s
         import anthropic
     except ImportError as exc:
         raise LlmReviewError(
-            "The anthropic SDK is not installed. Install with `pip install attackmap[llm]` "
+            "The anthropic SDK is not installed. Install with "
+            f"`{_LLM_INSTALL}` "
             "to use the API backend, or ensure the `claude` CLI is on PATH for the CLI backend."
         ) from exc
 
     resolved_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    base_url = _normalize_local_endpoint(os.environ.get("ANTHROPIC_BASE_URL"))
+    if _literal_loopback_url(base_url):
+        return anthropic.Anthropic(api_key="attackmap-local", base_url=base_url,
+            max_retries=0, **_loopback_transport(anthropic, base_url)), "local"
     if resolved_key:
-        return anthropic.Anthropic(api_key=resolved_key), "api_key"
+        return anthropic.Anthropic(api_key=resolved_key, max_retries=0), "api_key"
 
     auth_token = os.environ.get("ANTHROPIC_AUTH_TOKEN")
     if auth_token:
-        return anthropic.Anthropic(auth_token=auth_token), "auth_token"
+        return anthropic.Anthropic(auth_token=auth_token, max_retries=0), "auth_token"
 
     raise LlmReviewError(
         "No API credentials found. Set ANTHROPIC_API_KEY (per-token API billing) or "
@@ -134,7 +344,7 @@ def _usage_dict(usage: Any) -> dict[str, int]:
         "cache_read_input_tokens",
     ):
         value = getattr(usage, field, None)
-        if isinstance(value, int):
+        if type(value) is int and value >= 0:
             out[field] = value
     return out
 
@@ -151,10 +361,12 @@ def _run_via_sdk(
     speed: str = "standard",
 ) -> LlmReviewResult:
     sdk_client, _ = _resolve_sdk_client(api_key, client)
+    sdk_client = _controlled_client(sdk_client)
 
     request_kwargs: dict[str, Any] = {
         "model": model,
         "max_tokens": max_tokens,
+        "timeout": _provider_timeout(CLAUDE_CLI_TIMEOUT_SECONDS),
         "system": [
             {"type": "text", "text": rendered_system, "cache_control": {"type": "ephemeral"}}
         ],
@@ -194,6 +406,106 @@ def _run_via_sdk(
     )
 
 
+# ---------- CLI backend isolation (#232) ----------
+#
+# The CLI backends hand an *agent* the evidence pack, which is derived from an
+# untrusted repository and may carry prompt injection. They are spawned so that
+# nothing from that repository can configure the agent and the agent has as
+# little reach as its CLI allows:
+#   * cwd is a fresh empty temp dir, never the scan root or the caller's cwd,
+#     so project-scoped `.claude/settings.json` (hooks, permissions),
+#     `.mcp.json`, `CLAUDE.md` and `AGENTS.md` are never discovered;
+#   * claude: no built-in tools, user-level settings only, no MCP servers, no
+#     session persistence;
+#   * codex: read-only sandbox rooted at the temp dir, no execpolicy rules,
+#     ephemeral session. Codex has no tool-less mode, so its model can still
+#     run read-only commands as the user; `--llm-backend api` is the only fully
+#     tool-less path for OpenAI (documented in the README);
+#   * the environment is scrubbed of credentials unrelated to the provider.
+# If the installed CLI lacks the hardening flags we refuse to run it rather
+# than fall back to an unhardened invocation.
+
+CLAUDE_CLI_HARDENING_ARGS = (
+    "--tools",
+    "",
+    "--setting-sources",
+    "user",
+    "--strict-mcp-config",
+    "--mcp-config",
+    '{"mcpServers":{}}',
+    "--no-session-persistence",
+)
+_CLAUDE_REQUIRED_FLAGS = ("--tools", "--setting-sources", "--strict-mcp-config", "--no-session-persistence")
+_CODEX_REQUIRED_FLAGS = ("--cd", "--ephemeral", "--ignore-rules", "--sandbox")
+
+# Environment variables whose names look like credentials are not forwarded to
+# the agent, except the ones the selected provider needs to authenticate.
+_SENSITIVE_ENV_RE = re.compile(
+    r"(TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|PRIVATE_KEY|API_KEY|ACCESS_KEY|SESSION_KEY|AUTH)",
+    re.IGNORECASE,
+)
+_CLOUD_ENV_PREFIXES = ("AWS_", "AZURE_", "GOOGLE_", "GCP_", "GCLOUD_", "CLOUDSDK_", "ANTHROPIC_VERTEX_")
+_PROVIDER_ENV_ALLOW = {
+    "claude": frozenset(
+        {"ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN", "ANTHROPIC_BASE_URL"}
+    ),
+    "openai": frozenset({"OPENAI_API_KEY", "OPENAI_BASE_URL", "CODEX_API_KEY"}),
+}
+# Claude Code on Bedrock / Vertex / Foundry authenticates with cloud
+# credentials, so those are kept when the user has opted into a 3P provider.
+_CLAUDE_3P_SWITCHES = ("CLAUDE_CODE_USE_BEDROCK", "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY")
+
+
+def scrub_cli_env(env: dict[str, str], provider: LlmProvider) -> dict[str, str]:
+    """Return a copy of ``env`` without credentials the agent doesn't need."""
+    allow = _PROVIDER_ENV_ALLOW[provider]
+    keep_cloud = provider == "claude" and any(env.get(k) for k in _CLAUDE_3P_SWITCHES)
+    scrubbed: dict[str, str] = {}
+    for name, value in env.items():
+        upper = name.upper()
+        if upper in allow:
+            scrubbed[name] = value
+            continue
+        if upper.startswith(_CLOUD_ENV_PREFIXES):
+            if keep_cloud:
+                scrubbed[name] = value
+            continue
+        if _SENSITIVE_ENV_RE.search(upper):
+            continue
+        scrubbed[name] = value
+    return scrubbed
+
+
+@contextmanager
+def isolated_cli_workdir() -> Iterator[str]:
+    """A throwaway empty working directory for an agent CLI subprocess."""
+    with tempfile.TemporaryDirectory(prefix="attackmap-llm-") as tmp:
+        yield tmp
+
+
+@lru_cache(maxsize=None)
+def _cli_help_text(argv: tuple[str, ...]) -> str:
+    try:
+        with isolated_cli_workdir() as cwd:
+            completed = subprocess.run(
+                list(argv), capture_output=True, text=True, check=False, timeout=30, cwd=cwd
+            )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    return (completed.stdout or "") + (completed.stderr or "")
+
+
+def _require_hardening_flags(name: str, help_argv: tuple[str, ...], flags: tuple[str, ...]) -> None:
+    help_text = _cli_help_text(help_argv)
+    missing = [flag for flag in flags if flag not in help_text]
+    if missing:
+        raise LlmReviewError(
+            f"The installed `{name}` CLI does not support {', '.join(missing)}, which AttackMap "
+            f"needs to run it isolated from the scanned repository. Upgrade `{name}`, or use "
+            "`--llm-backend api`."
+        )
+
+
 # ---------- Claude CLI backend ----------
 
 
@@ -231,6 +543,7 @@ def _run_via_claude_cli(
         "claude",
         "-p",
         "--output-format=json",
+        *CLAUDE_CLI_HARDENING_ARGS,
         "--model",
         model,
         "--system-prompt",
@@ -239,14 +552,18 @@ def _run_via_claude_cli(
 
     try:
         if runner is None:
-            completed = subprocess.run(
-                cmd,
-                input=rendered_user,
-                text=True,
-                capture_output=True,
-                check=False,
-                timeout=CLAUDE_CLI_TIMEOUT_SECONDS,
-            )
+            _require_hardening_flags("claude", ("claude", "--help"), _CLAUDE_REQUIRED_FLAGS)
+            with isolated_cli_workdir() as cwd:
+                completed = subprocess.run(
+                    cmd,
+                    input=rendered_user,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                    timeout=_provider_timeout(CLAUDE_CLI_TIMEOUT_SECONDS),
+                    cwd=cwd,
+                    env=scrub_cli_env(dict(os.environ), "claude"),
+                )
         else:
             completed = runner(cmd, rendered_user)
     except FileNotFoundError as exc:
@@ -312,7 +629,7 @@ def _run_via_claude_cli(
         "cache_read_input_tokens",
     ):
         value = usage_payload.get(field)
-        if isinstance(value, int):
+        if type(value) is int and value >= 0:
             usage[field] = value
 
     cli_model = model
@@ -330,7 +647,7 @@ def _run_via_claude_cli(
     )
 
 
-# ---------- OpenAI SDK backend (Responses API) ----------
+# ---------- OpenAI SDK backend ----------
 
 
 def _resolve_openai_client(api_key: str | None, client: Any | None) -> Any:
@@ -340,17 +657,25 @@ def _resolve_openai_client(api_key: str | None, client: Any | None) -> Any:
         import openai
     except ImportError as exc:
         raise LlmReviewError(
-            "The openai SDK is not installed. Install with `pip install attackmap[llm]` "
+            "The openai SDK is not installed. Install with "
+            f"`{_LLM_INSTALL}` "
             "to use the OpenAI API backend, or install the `codex` CLI for the CLI backend."
         ) from exc
 
-    resolved_key = api_key or os.environ.get("OPENAI_API_KEY")
+    base_url = _normalize_local_endpoint(os.environ.get("OPENAI_BASE_URL"))
+    local = _literal_loopback_url(base_url)
+    resolved_key = "attackmap-local" if local else api_key or os.environ.get("OPENAI_API_KEY")
     if not resolved_key:
         raise LlmReviewError(
             "No OpenAI API credentials found. Set OPENAI_API_KEY, or install the `codex` "
             "CLI and run `codex login` to use --llm-backend cli."
         )
-    return openai.OpenAI(api_key=resolved_key, timeout=OPENAI_API_TIMEOUT_SECONDS)
+    kwargs: dict[str, Any] = {"api_key": resolved_key,
+        "timeout": _provider_timeout(_openai_timeout_ceiling()), "max_retries": 0}
+    if base_url:
+        kwargs["base_url"] = base_url
+    kwargs.update(_loopback_transport(openai, base_url))
+    return openai.OpenAI(**kwargs)
 
 
 def _openai_output_text(response: Any) -> str:
@@ -361,7 +686,11 @@ def _openai_output_text(response: Any) -> str:
     # shapes where the `output_text` convenience isn't populated.
     parts: list[str] = []
     for item in getattr(response, "output", None) or []:
+        if getattr(item, "type", None) != "message":
+            continue
         for block in getattr(item, "content", None) or []:
+            if getattr(block, "type", None) != "output_text":
+                continue
             value = getattr(block, "text", None)
             if isinstance(value, str) and value:
                 parts.append(value)
@@ -372,9 +701,21 @@ def _openai_usage(usage: Any) -> dict[str, int]:
     out: dict[str, int] = {}
     for field in ("input_tokens", "output_tokens"):
         value = getattr(usage, field, None)
-        if isinstance(value, int):
+        if type(value) is int and value >= 0:
             out[field] = value
     return out
+
+
+def _openai_uses_chat_completions(client: Any) -> bool:
+    """Custom remote OpenAI-compatible endpoints default to Chat Completions.
+
+    Keep the established OpenAI and local LM Studio Responses API behavior.
+    Select before sending; never retry evidence through a second API or host.
+    """
+    endpoint = str(getattr(client, "base_url", "") or os.environ.get("OPENAI_BASE_URL", ""))
+    if not endpoint or _literal_loopback_url(endpoint):
+        return False
+    return urlsplit(endpoint).hostname != "api.openai.com"
 
 
 def _run_via_openai_sdk(
@@ -387,32 +728,61 @@ def _run_via_openai_sdk(
     api_key: str | None,
     client: Any | None,
 ) -> LlmReviewResult:
-    oi = _resolve_openai_client(api_key, client)
+    resolved = _resolve_openai_client(api_key, client)
+    timeout = _openai_timeout_ceiling(resolved)
+    oi = _controlled_client(resolved, timeout=timeout)
     reasoning_effort = OPENAI_EFFORT_MAP.get(effort, "high")
 
     try:
-        response = oi.responses.create(
-            model=model,
-            instructions=rendered_system,
-            input=rendered_user,
-            reasoning={"effort": reasoning_effort},
-            max_output_tokens=max_tokens,
-        )
+        chat = _openai_uses_chat_completions(resolved)
+        if chat:
+            response = oi.chat.completions.create(
+                model=model,
+                messages=[{"role": "system", "content": rendered_system},
+                          {"role": "user", "content": rendered_user}],
+                max_tokens=max_tokens,
+                timeout=_provider_timeout(timeout),
+            )
+        else:
+            response = oi.responses.create(
+                model=model,
+                instructions=rendered_system,
+                input=rendered_user,
+                reasoning={"effort": reasoning_effort},
+                max_output_tokens=max_tokens,
+                timeout=_provider_timeout(timeout),
+            )
     except LlmReviewError:
         raise
     except Exception as exc:  # pragma: no cover - surface SDK errors verbatim
         raise LlmReviewError(f"OpenAI API call failed: {exc}") from exc
 
-    markdown = _openai_output_text(response)
+    choice = next(iter(getattr(response, "choices", None) or []), None) if chat else None
+    content = getattr(getattr(choice, "message", None), "content", None)
+    markdown = content.strip() if chat and isinstance(content, str) else "" if chat else _openai_output_text(response)
     if not markdown:
         raise LlmReviewError("OpenAI returned no text content for the review.")
 
-    status = getattr(response, "status", None)
+    status = getattr(choice, "finish_reason", None) if chat else getattr(response, "status", None)
+    reported_usage = getattr(response, "usage", None)
+    if chat:
+        usage = {}
+        for source, target in (("prompt_tokens", "input_tokens"), ("completion_tokens", "output_tokens")):
+            value = getattr(reported_usage, source, None)
+            if type(value) is int and value >= 0:
+                usage[target] = value
+    else:
+        usage = _openai_usage(reported_usage)
+    if '"scope": "partial selected evidence review"' in rendered_user:
+        notice = "> Partial selected-evidence review. Omitted evidence and controls are unknown, not absent. Provider completion does not establish review completeness."
+        if usage.get("output_tokens", 0) >= max_tokens * 0.95:
+            notice += " Output allowance nearly exhausted; this review may be truncated."
+        markdown = notice + "\n\n" + markdown
     return LlmReviewResult(
         markdown=markdown,
         model=str(getattr(response, "model", None) or model),
         stop_reason=status if isinstance(status, str) else None,
-        usage=_openai_usage(getattr(response, "usage", None)),
+        usage=usage,
         backend="api",
     )
 
@@ -458,31 +828,42 @@ def _run_via_codex_cli(
         )
 
     reasoning_effort = OPENAI_EFFORT_MAP.get(effort, "high")
-    cmd = [
-        "codex",
-        "exec",
-        "--model",
-        model,
-        "-c",
-        f'model_reasoning_effort="{reasoning_effort}"',
-        "--sandbox",
-        "read-only",
-        "--skip-git-repo-check",
-        rendered_system,
-    ]
+
+    def build_cmd(cwd: str) -> list[str]:
+        return [
+            "codex",
+            "exec",
+            "--model",
+            model,
+            "-c",
+            f'model_reasoning_effort="{reasoning_effort}"',
+            "--sandbox",
+            "read-only",
+            "--cd",
+            cwd,
+            "--ephemeral",
+            "--ignore-rules",
+            "--skip-git-repo-check",
+            rendered_system,
+        ]
 
     try:
-        if runner is None:
-            completed = subprocess.run(
-                cmd,
-                input=rendered_user,
-                text=True,
-                capture_output=True,
-                check=False,
-                timeout=CODEX_CLI_TIMEOUT_SECONDS,
-            )
-        else:
-            completed = runner(cmd, rendered_user)
+        with isolated_cli_workdir() as cwd:
+            cmd = build_cmd(cwd)
+            if runner is None:
+                _require_hardening_flags("codex", ("codex", "exec", "--help"), _CODEX_REQUIRED_FLAGS)
+                completed = subprocess.run(
+                    cmd,
+                    input=rendered_user,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                    timeout=_provider_timeout(CODEX_CLI_TIMEOUT_SECONDS),
+                    cwd=cwd,
+                    env=scrub_cli_env(dict(os.environ), "openai"),
+                )
+            else:
+                completed = runner(cmd, rendered_user)
     except FileNotFoundError as exc:
         raise LlmReviewError("`codex` CLI was not found on PATH.") from exc
     except subprocess.TimeoutExpired as exc:
@@ -536,6 +917,8 @@ def _resolve_openai_backend(
     # auto
     if client is not None:
         return "api"
+    if _literal_loopback_url(os.environ.get("OPENAI_BASE_URL")):
+        return "api"  # Never fall back from an explicit local endpoint to a cloud CLI.
     has_key = bool(api_key or os.environ.get("OPENAI_API_KEY"))
     # Prefer the API backend only when the openai SDK is importable; otherwise
     # fall back to the `codex` CLI (needs no SDK) so a key set against an
@@ -569,6 +952,8 @@ def _resolve_backend(
     # auto
     if client is not None:
         return "api"
+    if _literal_loopback_url(os.environ.get("ANTHROPIC_BASE_URL")):
+        return "api"
     has_key = bool(
         api_key
         or os.environ.get("ANTHROPIC_API_KEY")
@@ -576,7 +961,7 @@ def _resolve_backend(
     )
     # Prefer the API backend only when the SDK is actually importable. Otherwise
     # fall back to the `claude` CLI (needs no SDK), so a key set against an
-    # SDK-less install (e.g. Homebrew, which doesn't vendor `attackmap[llm]`)
+    # SDK-less install (one without the `llm` extra)
     # still works via subscription auth instead of erroring.
     if has_key and _anthropic_sdk_available():
         return "api"
@@ -615,6 +1000,7 @@ def generate_llm_review(
     lens: str | None = None,
     avoid_titles: list[str] | None = None,
     critic_hint: str | None = None,
+    budget: AiBudget | None = None,
 ) -> LlmReviewResult:
     """Produce a narrative defensive review — or, with ``mode="hunt"``, ranked
     vulnerability hypotheses (#80) — by calling an LLM.
@@ -653,7 +1039,17 @@ def generate_llm_review(
             "remediate": render_remediation_prompts,
             "triage": render_triage_prompts,
         }.get(mode, render_review_prompts)
-        rendered = render(scan, attack_surfaces, findings, attack_paths)
+        endpoint = (str(getattr(openai_client, "base_url", "") or os.environ.get("OPENAI_BASE_URL", ""))
+                    if provider == "openai" else str(getattr(client, "base_url", "") or os.environ.get("ANTHROPIC_BASE_URL", "")))
+        if mode == "review" and backend != "cli" and _literal_loopback_url(endpoint):
+            rendered = render_review_prompts(scan, attack_surfaces, findings, attack_paths,
+                                             max_evidence_chars=14000)
+        else:
+            rendered = render(scan, attack_surfaces, findings, attack_paths)
+
+    def review_call(*args, **kwargs):
+        result = _provider_call(*args, **kwargs)
+        return _validate_narrative_references(result, rendered) if mode in {"review", "remediate", "triage"} else result
 
     if provider == "openai":
         resolved_model = (
@@ -666,22 +1062,22 @@ def generate_llm_review(
                 backend, api_key=api_key, client=openai_client, codex_runner=codex_runner
             )
         if chosen == "api":
-            return _run_via_openai_sdk(
+            return review_call(lambda limit: _run_via_openai_sdk(
                 rendered.system,
                 rendered.user,
                 model=resolved_model,
                 effort=resolved_effort,
-                max_tokens=max_tokens,
+                max_tokens=limit,
                 api_key=api_key,
                 client=openai_client,
-            )
-        return _run_via_codex_cli(
+            ), max_tokens=max_tokens, timeout=_openai_timeout_ceiling(openai_client, budget=budget), budget=budget)
+        return review_call(lambda limit: _run_via_codex_cli(
             rendered.system,
             rendered.user,
             model=resolved_model,
             effort=resolved_effort,
             runner=codex_runner,
-        )
+        ), max_tokens=max_tokens, timeout=CODEX_CLI_TIMEOUT_SECONDS, budget=budget, cli=True)
 
     resolved_model = model or os.environ.get("ATTACKMAP_LLM_MODEL") or DEFAULT_MODEL
     if backend == "cli" and cli_runner is not None:
@@ -690,22 +1086,22 @@ def generate_llm_review(
         chosen_backend = _resolve_backend(backend, api_key=api_key, client=client)
 
     if chosen_backend == "api":
-        return _run_via_sdk(
+        return review_call(lambda limit: _run_via_sdk(
             rendered.system,
             rendered.user,
             model=resolved_model,
             effort=resolved_effort,
-            max_tokens=max_tokens,
+            max_tokens=limit,
             api_key=api_key,
             client=client,
             speed=speed,
-        )
-    return _run_via_claude_cli(
+        ), max_tokens=max_tokens, timeout=CLAUDE_CLI_TIMEOUT_SECONDS, budget=budget)
+    return review_call(lambda limit: _run_via_claude_cli(
         rendered.system,
         rendered.user,
         model=resolved_model,
         runner=cli_runner,
-    )
+    ), max_tokens=max_tokens, timeout=CLAUDE_CLI_TIMEOUT_SECONDS, budget=budget, cli=True)
 
 
 __all__ = [

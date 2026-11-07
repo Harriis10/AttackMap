@@ -1,0 +1,1130 @@
+{
+  "schema_version": "1.5.0",
+  "target_metadata": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\django-cases\\canonical-public-wrapper",
+    "files_scanned": 16,
+    "languages": [
+      "python"
+    ]
+  },
+  "system_overview": {
+    "repository_type": "web/service-facing",
+    "raw_inferred_entry_point_count": 1,
+    "external_call_count": 0,
+    "database_count": 0,
+    "auth_hint_count": 5,
+    "secret_hint_count": 0,
+    "asset_count": 0,
+    "control_count_present": 0,
+    "control_count_absent": 1,
+    "notable_observation_count": 1,
+    "detection_opportunity_count": 1,
+    "attack_techniques_observed_count": 0
+  },
+  "attack_surface": {
+    "total_surfaces": 1,
+    "evidence_class_counts": {
+      "static_observed": 1,
+      "inferred_protocol": 0,
+      "low_quality": 0
+    },
+    "surfaces": [
+      {
+        "method": "ANY",
+        "route": "/public/",
+        "file": "project/urls.py",
+        "line": 4,
+        "category": "public_api",
+        "exposure": "public",
+        "risk": "low",
+        "evidence_class": "static_observed",
+        "auth_signals": [
+          "django_auth",
+          "session_middleware"
+        ],
+        "auth": "unknown",
+        "data_store_interaction": false,
+        "outbound_integration": false,
+        "relationship_basis": "unknown",
+        "context_signals": [
+          "same-file hint (ownership unknown): django",
+          "same-file hint (ownership unknown): django_auth",
+          "same-file hint (ownership unknown): session_middleware"
+        ]
+      }
+    ]
+  },
+  "assets": [],
+  "controls": [
+    {
+      "id": "control:absent:rate_limiting",
+      "kind": "rate_limiting",
+      "name": "Rate limiting",
+      "strength": "absent",
+      "scope": "global",
+      "placements": [],
+      "evidence": [],
+      "notes": "Public routes observed without any rate-limiting markers."
+    }
+  ],
+  "notable_observations": [
+    {
+      "id": "insight:stale-signal",
+      "kind": "stale_or_contradictory_signal",
+      "title": "1 obviously-benign route(s) carry auth signals \u2014 likely scanner false positives",
+      "narrative": "Health, metrics, static-asset, and well-known paths normally do not require authentication. The scanner attached auth signals to these routes anyway, which usually means the auth marker is at file scope (e.g., a global middleware import) rather than route-specific. Treat the auth annotation on these surfaces with skepticism when reading the rest of the report.",
+      "severity": "informational",
+      "confidence": "medium",
+      "evidence": [
+        "ANY /public/ (project/urls.py:4) \u2014 auth_signals present but route looks benign/public: django_auth, session_middleware"
+      ],
+      "related_assets": [],
+      "related_controls": [],
+      "related_routes": [
+        "/public/"
+      ],
+      "suggested_action": "If the auth markers really should not apply to these routes, add per-route metadata the scanner can read (e.g., a `@public` decorator or a routes manifest) so future scans don't double-count file-scope signals.",
+      "attack_techniques": []
+    }
+  ],
+  "detection_opportunities": [
+    {
+      "id": "detect:insight:stale-signal",
+      "title": "Annotate routes so static analysis stops contradicting itself",
+      "rationale": "Stale or contradictory signals don't usually map to a runtime detection; the leverage is in raising the signal-to-noise of future scans.",
+      "signal_kind": "config_audit",
+      "suggested_rule": "Add a route-manifest test that asserts route categories (admin/public/internal/health) match a single source of truth \u2014 e.g., a decorator on the handler that the test reads. Future AttackMap runs will then trust the explicit annotation over heuristic guesses.",
+      "related_insight_ids": [
+        "insight:stale-signal"
+      ],
+      "related_finding_titles": [],
+      "related_rule_ids": [],
+      "attack_techniques": []
+    }
+  ],
+  "attack_techniques_observed": [],
+  "strengths": [
+    {
+      "statement": "Authentication/identity indicators were observed in code signals.",
+      "evidence_basis": "observed",
+      "evidence": [
+        "django_auth",
+        "login_required",
+        "session_middleware"
+      ]
+    }
+  ],
+  "weaknesses_risk_hotspots": {
+    "weaknesses": [
+      {
+        "title": "Heuristic scan found only a limited attack surface",
+        "rule_id": "limited-surface",
+        "taxonomy": null,
+        "severity": "low",
+        "confidence": "low",
+        "evidence_basis": "heuristic_static",
+        "claim_support": "not_assessed",
+        "claim_support_terms": [],
+        "surface_association": "unknown",
+        "candidate_surfaces": [],
+        "candidate_surfaces_truncated": false,
+        "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+        "evidence": [
+          "No major route, secret, or integration patterns triggered a stronger finding."
+        ],
+        "locations": [],
+        "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+        "attack_techniques": []
+      }
+    ],
+    "risk_hotspots": [
+      {
+        "surface": {
+          "method": "ANY",
+          "route": "/public/",
+          "file": "project/urls.py",
+          "category": "public_api",
+          "risk": "low",
+          "exposure": "public"
+        },
+        "evidence_class": "static_observed",
+        "notes": [
+          "Public application routes are initial footholds for probing input handling and authorization gaps.",
+          "Static auth indicators: django_auth, session_middleware; enforcement is unknown.",
+          "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence."
+        ]
+      }
+    ]
+  },
+  "evidence_chains": [],
+  "recommendations": [
+    {
+      "priority": "low",
+      "evidence_basis": "heuristic_static",
+      "claim_support": "not_assessed",
+      "claim_support_terms": [],
+      "surface_association": "unknown",
+      "candidate_surfaces": [],
+      "candidate_surfaces_truncated": false,
+      "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+      "action": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+      "linked_finding": "Heuristic scan found only a limited attack surface"
+    }
+  ],
+  "raw_structured_signals": {
+    "scan": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\django-cases\\canonical-public-wrapper",
+      "signals": [
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "auth",
+          "label": "django_auth",
+          "file": "app/views.py",
+          "line": 1,
+          "confidence": 0.85,
+          "evidence_text": "from django.contrib.auth.decorators import login_required",
+          "properties": {},
+          "observation_id": "obs-218f64ac229347f9bd31cf1e3682498b4bee5ae5b6087a8d300bd49773dedd81",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "app/views.py",
+              "line": 1,
+              "location_reason": null,
+              "evidence_text": "from django.contrib.auth.decorators import login_required",
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "auth",
+          "label": "django_auth",
+          "file": "project/urls.py",
+          "line": 2,
+          "confidence": 0.85,
+          "evidence_text": "from django.contrib.auth.decorators import login_not_required",
+          "properties": {},
+          "observation_id": "obs-92a7567dda449410525bd022c24234e95a1696cf3e8784db5190044a52677927",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "project/urls.py",
+              "line": 2,
+              "location_reason": null,
+              "evidence_text": "from django.contrib.auth.decorators import login_not_required",
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "auth",
+          "label": "login_required",
+          "file": "app/views.py",
+          "line": 4,
+          "confidence": 0.85,
+          "evidence_text": "@login_required",
+          "properties": {},
+          "observation_id": "obs-199a00814dc3a001e3e4ec7acb737cebcacea50f3c4007be3280a37ee7d68a1d",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python-web",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "app/views.py",
+              "line": 4,
+              "location_reason": null,
+              "evidence_text": "@login_required",
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "auth",
+          "label": "session_middleware",
+          "file": "app/views.py",
+          "line": 1,
+          "confidence": 0.85,
+          "evidence_text": "from django.contrib.auth.decorators import login_required",
+          "properties": {},
+          "observation_id": "obs-38788e1f9b2d943f2c5a771105f3e4c4c9a7b6fcde627a149a051ab6067da0c9",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python-web",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "app/views.py",
+              "line": 1,
+              "location_reason": null,
+              "evidence_text": "from django.contrib.auth.decorators import login_required",
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "auth",
+          "label": "session_middleware",
+          "file": "project/urls.py",
+          "line": 2,
+          "confidence": 0.85,
+          "evidence_text": "from django.contrib.auth.decorators import login_not_required",
+          "properties": {},
+          "observation_id": "obs-473943ed23329d9afa64c8b6deda06c670fb03ae91e01afe3eb6682bcf9ebe45",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python-web",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "project/urls.py",
+              "line": 2,
+              "location_reason": null,
+              "evidence_text": "from django.contrib.auth.decorators import login_not_required",
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "framework",
+          "label": "django",
+          "file": "app/views.py",
+          "line": 1,
+          "confidence": 0.7,
+          "evidence_text": "from django.contrib.auth.decorators import login_required",
+          "properties": {},
+          "observation_id": "obs-ea9060b0b8e8bc63c3157e8613d52609a2c511384a2df7aaed3144d45fe9d959",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "app/views.py",
+              "line": 1,
+              "location_reason": null,
+              "evidence_text": "from django.contrib.auth.decorators import login_required",
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "framework",
+          "label": "django",
+          "file": "project/urls.py",
+          "line": 1,
+          "confidence": 0.7,
+          "evidence_text": "from django.urls import path",
+          "properties": {},
+          "observation_id": "obs-f19d88ebad445112eaae99b68b79610edcfc4de86b95df3ffb9e6bcd5f318d9d",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "project/urls.py",
+              "line": 1,
+              "location_reason": null,
+              "evidence_text": "from django.urls import path",
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "route",
+          "label": "ANY /public/",
+          "file": "project/urls.py",
+          "line": 4,
+          "confidence": 0.7,
+          "evidence_text": null,
+          "properties": {
+            "method": "ANY",
+            "path": "/public/",
+            "auth": "unknown"
+          },
+          "observation_id": "obs-450425723a45475f77f16505e17662c16790fdcdebdcda1e4cf25c6b88acf563",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "project/urls.py",
+              "line": 4,
+              "location_reason": null,
+              "evidence_text": null,
+              "properties": {
+                "method": "ANY",
+                "path": "/public/",
+                "auth": "unknown"
+              }
+            },
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python-service",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "project/urls.py",
+              "line": 4,
+              "location_reason": null,
+              "evidence_text": null,
+              "properties": {
+                "method": "ANY",
+                "path": "/public/",
+                "auth": "unknown"
+              }
+            }
+          ],
+          "conflicts": []
+        },
+        {
+          "classification_version": "1.0",
+          "source_role": "unknown",
+          "evidence_kind": "static_extraction",
+          "classification_basis": "unknown",
+          "kind": "service",
+          "label": "package:django-oracle",
+          "file": "pyproject.toml",
+          "line": null,
+          "confidence": 0.7,
+          "evidence_text": null,
+          "properties": {},
+          "observation_id": "obs-7f90e7f6e711ceab56dbfb29d157960083ebfd6a29570a62675116d98e8afa11",
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "analyzer": "python",
+              "analyzer_version": "0.1.0",
+              "metadata_status": "known",
+              "file": "pyproject.toml",
+              "line": null,
+              "location_reason": "Analyzer did not provide a complete file/line location",
+              "evidence_text": null,
+              "properties": {}
+            }
+          ],
+          "conflicts": []
+        }
+      ],
+      "scanned_files": null,
+      "resource_limit_events": [],
+      "resource_limit_scopes": [
+        "config_scanner.file_bytes",
+        "repo_index.file_bytes",
+        "repo_index.index_bytes"
+      ],
+      "resource_limit_reporting": "partial",
+      "languages": [
+        "python"
+      ],
+      "routes": [
+        {
+          "path": "/public/",
+          "method": "ANY",
+          "file": "project/urls.py",
+          "line": 4,
+          "auth": "unknown",
+          "guards": [],
+          "guard_evidence": null
+        }
+      ],
+      "external_calls": [],
+      "databases": [],
+      "auth_hints": [
+        {
+          "hint": "django_auth",
+          "file": "app/views.py",
+          "line": 1,
+          "evidence_text": "from django.contrib.auth.decorators import login_required",
+          "confidence": 0.85
+        },
+        {
+          "hint": "django_auth",
+          "file": "project/urls.py",
+          "line": 2,
+          "evidence_text": "from django.contrib.auth.decorators import login_not_required",
+          "confidence": 0.85
+        },
+        {
+          "hint": "login_required",
+          "file": "app/views.py",
+          "line": 4,
+          "evidence_text": "@login_required",
+          "confidence": 0.85
+        },
+        {
+          "hint": "session_middleware",
+          "file": "app/views.py",
+          "line": 1,
+          "evidence_text": "from django.contrib.auth.decorators import login_required",
+          "confidence": 0.85
+        },
+        {
+          "hint": "session_middleware",
+          "file": "project/urls.py",
+          "line": 2,
+          "evidence_text": "from django.contrib.auth.decorators import login_not_required",
+          "confidence": 0.85
+        }
+      ],
+      "service_hints": [
+        {
+          "hint": "package:django-oracle",
+          "file": "pyproject.toml",
+          "line": null,
+          "evidence_text": null,
+          "confidence": 0.7
+        }
+      ],
+      "edge_hints": [],
+      "entrypoint_hints": [],
+      "protocol_hints": [],
+      "framework_hints": [
+        {
+          "hint": "django",
+          "file": "app/views.py",
+          "line": 1,
+          "evidence_text": "from django.contrib.auth.decorators import login_required",
+          "confidence": 0.7
+        },
+        {
+          "hint": "django",
+          "file": "project/urls.py",
+          "line": 1,
+          "evidence_text": "from django.urls import path",
+          "confidence": 0.7
+        }
+      ],
+      "secret_hints": [],
+      "taint_chains": [],
+      "dependencies": [
+        {
+          "name": "django",
+          "version": "*",
+          "ecosystem": "pypi",
+          "file": "pyproject.toml",
+          "line": null,
+          "dev": false,
+          "resolved": false,
+          "direct": true,
+          "via": null,
+          "evidence_text": "django"
+        }
+      ],
+      "vulnerabilities": [],
+      "authz_candidates": [],
+      "crypto_weaknesses": [],
+      "web_hardening_issues": [],
+      "code_weaknesses": [],
+      "workflow_issues": [],
+      "supply_chain_issues": [],
+      "secret_history": [],
+      "anomalies": [],
+      "limitations": [
+        "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+      ],
+      "analyzer_errors": [],
+      "analyzer_run_ledger": {
+        "schema_version": "1.1",
+        "scope": "analyzer_selection_and_execution",
+        "inventory_scope": "supplied_candidates",
+        "selection_mode": "explicit",
+        "profile_id": "python@1.0",
+        "resolution_complete": true,
+        "execution_complete": true,
+        "entries": [
+          {
+            "name": "python",
+            "version": "0.1.0",
+            "priority": 10,
+            "origin": "plugin",
+            "implementation": {
+              "module": "attackmap_analyzer_python.analyzer",
+              "qualname": "PythonAnalyzer",
+              "source_sha256": "6f66ded3d25f21d24d2414e02084d60c8da6a8f2ede24adaf5bd75ee931a31ea",
+              "source_status": "observed_file"
+            },
+            "implementation_sha256": "2405f8ef35d663e54d3230e0f9447b174b766014517f480494488f5c34acc1aa",
+            "package": {
+              "name": "attackmap-analyzer-python",
+              "version": "0.1.0"
+            },
+            "entry_point": {
+              "name": "python",
+              "group": "attackmap.analyzers",
+              "value": "attackmap_analyzer_python:PythonAnalyzer"
+            },
+            "provenance": {
+              "declared_pin": {
+                "repo": "attackmap-analyzer-python",
+                "package": "attackmap-analyzer-python",
+                "version": "0.1.0",
+                "git_sha": "1bcce0dd5d639cb83ada65cc3f5024bb5a1d9782",
+                "entry_points": [
+                  "python"
+                ]
+              },
+              "installed_source": {
+                "kind": "wheel",
+                "evidence": "distribution_direct_url"
+              },
+              "pin_status": "unverified",
+              "content_verified": false,
+              "errors": []
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null,
+            "detect_duration_ms": 1.373099978081882,
+            "analysis_duration_ms": 18.606900004670024,
+            "signal_counts": {
+              "routes": 1,
+              "external_calls": 0,
+              "databases": 0,
+              "auth_hints": 2,
+              "secret_hints": 0
+            },
+            "lifecycle_events": [
+              {
+                "stage": "detect",
+                "state": "started",
+                "elapsed_ms": 12.48410000698641,
+                "error_type": null
+              },
+              {
+                "stage": "detect",
+                "state": "applicable",
+                "elapsed_ms": 14.392100041732192,
+                "error_type": null
+              },
+              {
+                "stage": "selection",
+                "state": "selected",
+                "elapsed_ms": 14.466700027696788,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "started",
+                "elapsed_ms": 107.04580001765862,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "succeeded",
+                "elapsed_ms": 125.66990003688261,
+                "error_type": null
+              }
+            ]
+          },
+          {
+            "name": "python-web",
+            "version": "0.1.0",
+            "priority": 20,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinPythonWebAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "29772ec771b6a77bdcfa8d51abd64ba82eafcddf17d77d3572089dfea1f73fff",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null,
+            "detect_duration_ms": 2.5833999970927835,
+            "analysis_duration_ms": 19.212300016079098,
+            "signal_counts": {
+              "routes": 0,
+              "external_calls": 0,
+              "databases": 0,
+              "auth_hints": 3,
+              "secret_hints": 0
+            },
+            "lifecycle_events": [
+              {
+                "stage": "detect",
+                "state": "started",
+                "elapsed_ms": 15.473000006750226,
+                "error_type": null
+              },
+              {
+                "stage": "detect",
+                "state": "applicable",
+                "elapsed_ms": 18.10210000257939,
+                "error_type": null
+              },
+              {
+                "stage": "selection",
+                "state": "selected",
+                "elapsed_ms": 18.160800042096525,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "started",
+                "elapsed_ms": 125.79280004138127,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "succeeded",
+                "elapsed_ms": 145.02140000695363,
+                "error_type": null
+              }
+            ]
+          },
+          {
+            "name": "config",
+            "version": "0.1.0",
+            "priority": 30,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinConfigAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "6e79503002967b8ba9bdb5f1b825fab9f0cc53555329e3219aa6321e159ab5cf",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null,
+            "detect_duration_ms": 12.268100050278008,
+            "analysis_duration_ms": 1.441999978851527,
+            "signal_counts": {
+              "routes": 0,
+              "external_calls": 0,
+              "databases": 0,
+              "auth_hints": 0,
+              "secret_hints": 0
+            },
+            "lifecycle_events": [
+              {
+                "stage": "detect",
+                "state": "started",
+                "elapsed_ms": 18.50960002047941,
+                "error_type": null
+              },
+              {
+                "stage": "detect",
+                "state": "applicable",
+                "elapsed_ms": 30.821099993772805,
+                "error_type": null
+              },
+              {
+                "stage": "selection",
+                "state": "selected",
+                "elapsed_ms": 30.888300039805472,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "started",
+                "elapsed_ms": 145.13240003725514,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "succeeded",
+                "elapsed_ms": 146.57829998759553,
+                "error_type": null
+              }
+            ]
+          },
+          {
+            "name": "python-service",
+            "version": "0.1.0",
+            "priority": 50,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "BuiltinPythonServiceAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "098489bad2a1a3ec283e31b4d45c10ca3c9c84d852712469f7fff816559a0e29",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null,
+            "detect_duration_ms": 65.48900000052527,
+            "analysis_duration_ms": 29.72539997426793,
+            "signal_counts": {
+              "routes": 1,
+              "external_calls": 0,
+              "databases": 0,
+              "auth_hints": 0,
+              "secret_hints": 0
+            },
+            "lifecycle_events": [
+              {
+                "stage": "detect",
+                "state": "started",
+                "elapsed_ms": 31.827000027988106,
+                "error_type": null
+              },
+              {
+                "stage": "detect",
+                "state": "applicable",
+                "elapsed_ms": 97.43550000712276,
+                "error_type": null
+              },
+              {
+                "stage": "selection",
+                "state": "selected",
+                "elapsed_ms": 97.5987000274472,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "started",
+                "elapsed_ms": 146.62180002778769,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "succeeded",
+                "elapsed_ms": 176.35240004165098,
+                "error_type": null
+              }
+            ]
+          },
+          {
+            "name": "default",
+            "version": "0.1.0",
+            "priority": 100,
+            "origin": "builtin",
+            "implementation": {
+              "module": "attackmap.analyzers",
+              "qualname": "DefaultAnalyzer",
+              "source_sha256": null,
+              "source_status": "unavailable"
+            },
+            "implementation_sha256": "5664998e7929cc9d74a520d449a6d17ced078f714dc923e48d1946fe5089dddd",
+            "package": {
+              "name": "attackmap",
+              "version": null
+            },
+            "entry_point": null,
+            "provenance": {
+              "pin_status": "not_applicable",
+              "content_verified": false
+            },
+            "selection": "selected",
+            "applicability": "applicable",
+            "execution": "succeeded",
+            "analysis_started": true,
+            "execution_mode": "in_process",
+            "skip_reason": null,
+            "error": null,
+            "detect_duration_ms": 1.3145999982953072,
+            "analysis_duration_ms": 1.8751000170595944,
+            "signal_counts": {
+              "routes": 0,
+              "external_calls": 0,
+              "databases": 0,
+              "auth_hints": 0,
+              "secret_hints": 0
+            },
+            "lifecycle_events": [
+              {
+                "stage": "detect",
+                "state": "started",
+                "elapsed_ms": 98.25740003725514,
+                "error_type": null
+              },
+              {
+                "stage": "detect",
+                "state": "applicable",
+                "elapsed_ms": 99.61540001677349,
+                "error_type": null
+              },
+              {
+                "stage": "selection",
+                "state": "selected",
+                "elapsed_ms": 99.66519998852164,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "started",
+                "elapsed_ms": 176.38970003463328,
+                "error_type": null
+              },
+              {
+                "stage": "analysis",
+                "state": "succeeded",
+                "elapsed_ms": 178.27249999390915,
+                "error_type": null
+              }
+            ]
+          }
+        ]
+      },
+      "files_scanned": 16,
+      "scan_snapshot": {
+        "snapshot_id": "62f0a0dc348a9bdea4362bf8b39a70e0487f00a402ff31e6ebef2c6e7e5dde82",
+        "files": {
+          "app/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "app/views.py": "b0ea32e434d27c8285dbc2d199c02fd444344d6942b24b8866155f12b899b001",
+          "project/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "project/settings.py": "f61db6ce5731b7bf69849f73b644994bb5edb72d0f97227ca2e42797238b2afe",
+          "project/urls.py": "3300e54d3bc7daef57d1a89ee77b1db19cae0d0c3845ae942278c4834c1dda19",
+          "pyproject.toml": "d0d9a386642e5c793133a15093d72e39caf957bce52578272fd88c271868d1f0"
+        },
+        "raw_files": {
+          "app/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "app/views.py": "75c6e46199726a9e388296f5376660c79675e3a6d07bdb449b7da9291faa2d1d",
+          "project/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "project/settings.py": "e49af97d23b6ca6b70a6723add4260e3eb99568a731e52c0bf7543c20c235014",
+          "project/urls.py": "c4e58ea07a9e6590cc59b6a4d12b6d165c588673ace45a67212878c9945869d9",
+          "pyproject.toml": "b0b1687474ac6056670f098033eac896ee2693707da123e14e20aa8c25bd82c3"
+        },
+        "total_size": 560,
+        "index_config": {
+          "capture_sdk_sources": 1,
+          "include_tests": 0,
+          "include_vendored": 0,
+          "index_byte_budget": 0,
+          "index_file_limit": 100000,
+          "max_file_bytes": 2000000
+        },
+        "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+      }
+    },
+    "attack_surfaces": [
+      {
+        "route": "/public/",
+        "method": "ANY",
+        "file": "project/urls.py",
+        "category": "public_api",
+        "exposure": "public",
+        "risk": "low",
+        "auth_signals": [
+          "django_auth",
+          "session_middleware"
+        ],
+        "auth": "unknown",
+        "data_store_interaction": false,
+        "outbound_integration": false,
+        "relationship_basis": "unknown",
+        "context_signals": [
+          "same-file hint (ownership unknown): django",
+          "same-file hint (ownership unknown): django_auth",
+          "same-file hint (ownership unknown): session_middleware"
+        ],
+        "rationale": [
+          "Public application routes are initial footholds for probing input handling and authorization gaps.",
+          "Static auth indicators: django_auth, session_middleware; enforcement is unknown.",
+          "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+          "Exposure is a static inference; deployment reachability has not been observed."
+        ],
+        "line": 4,
+        "evidence_class": "static_observed"
+      }
+    ],
+    "findings": [
+      {
+        "title": "Heuristic scan found only a limited attack surface",
+        "severity": "low",
+        "rule_id": "limited-surface",
+        "entity_id": null,
+        "evidence": [
+          "No major route, secret, or integration patterns triggered a stronger finding."
+        ],
+        "locations": [],
+        "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+        "confidence": "low",
+        "attack_techniques": [],
+        "tags": [
+          "weak-signal"
+        ],
+        "score": 5,
+        "exploitability": null,
+        "exploitability_tier": null,
+        "exploitability_reference": null,
+        "code_flows": [],
+        "taxonomy": null
+      }
+    ],
+    "attack_paths": [],
+    "assets": [],
+    "controls": [
+      {
+        "id": "control:absent:rate_limiting",
+        "kind": "rate_limiting",
+        "name": "Rate limiting",
+        "strength": "absent",
+        "scope": "global",
+        "placements": [],
+        "evidence": [],
+        "notes": "Public routes observed without any rate-limiting markers."
+      }
+    ],
+    "notable_observations": [
+      {
+        "id": "insight:stale-signal",
+        "kind": "stale_or_contradictory_signal",
+        "title": "1 obviously-benign route(s) carry auth signals \u2014 likely scanner false positives",
+        "narrative": "Health, metrics, static-asset, and well-known paths normally do not require authentication. The scanner attached auth signals to these routes anyway, which usually means the auth marker is at file scope (e.g., a global middleware import) rather than route-specific. Treat the auth annotation on these surfaces with skepticism when reading the rest of the report.",
+        "severity": "informational",
+        "confidence": "medium",
+        "evidence": [
+          "ANY /public/ (project/urls.py:4) \u2014 auth_signals present but route looks benign/public: django_auth, session_middleware"
+        ],
+        "related_assets": [],
+        "related_controls": [],
+        "related_routes": [
+          "/public/"
+        ],
+        "suggested_action": "If the auth markers really should not apply to these routes, add per-route metadata the scanner can read (e.g., a `@public` decorator or a routes manifest) so future scans don't double-count file-scope signals.",
+        "attack_techniques": []
+      }
+    ],
+    "detection_opportunities": [
+      {
+        "id": "detect:insight:stale-signal",
+        "title": "Annotate routes so static analysis stops contradicting itself",
+        "rationale": "Stale or contradictory signals don't usually map to a runtime detection; the leverage is in raising the signal-to-noise of future scans.",
+        "signal_kind": "config_audit",
+        "suggested_rule": "Add a route-manifest test that asserts route categories (admin/public/internal/health) match a single source of truth \u2014 e.g., a decorator on the handler that the test reads. Future AttackMap runs will then trust the explicit annotation over heuristic guesses.",
+        "related_insight_ids": [
+          "insight:stale-signal"
+        ],
+        "related_finding_titles": [],
+        "related_rule_ids": [],
+        "attack_techniques": []
+      }
+    ]
+  },
+  "limitations_meta": {
+    "analysis_mode": "heuristic",
+    "defensive_only": true,
+    "notes": [
+      "static_observed describes source declarations, never runtime reachability; exposure is inferred or unknown.",
+      "Same-file context and repository counts do not establish route ownership or auth enforcement.",
+      "Low-quality paths (tests/fixtures/mocks/examples) are retained in raw signals but separated in evidence class counts.",
+      "Use this artifact as a triage source-of-truth; validate high-priority items with repository context and runtime controls.",
+      "Assets, controls, and notable observations are heuristic overlays; absent-control entries indicate scanner did not find evidence, not necessarily that the control is missing in production.",
+      "ATT&CK technique mappings and detection opportunities are derived from insight kinds and finding-title keywords; treat them as triage hooks for SIEM/detection-engineering work, not authoritative MITRE mappings.",
+      "claim_support fields are closed-set token checks: supported_by_cited_evidence only means the cited evidence text names an identifier, route, or secret-kind the claim names; they never verify a claim's conclusion, and not_assessed never means a claim is false."
+    ]
+  }
+}

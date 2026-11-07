@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-api
+  namespace: prod
+spec:
+  ports:
+  - name: web
+    port: 8080
+    appProtocol: http

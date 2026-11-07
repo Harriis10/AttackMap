@@ -1,0 +1,44 @@
+{
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "source_report_sha256": "bcc0a8815c6e8acfdba962f6af51989ebd3f8de5cde856c0ee32e10b4c1ef263",
+  "source_findings": 18,
+  "selected_findings": 1,
+  "partial_review": true,
+  "started_at": "2026-10-15T17:30:18.088514+00:00",
+  "scope": "Actual engine narrative entry with bounded real JuiceShop evidence subset; partial review only, one finding/one surface/one value per scan list; omitted evidence is unknown, not absent",
+  "status": "completed",
+  "usage": {
+    "input_tokens": 4674,
+    "output_tokens": 768
+  },
+  "result_model": "cyberstag-security-26b-a4b-v1",
+  "stop_reason": "completed",
+  "markdown_characters": 2984,
+  "finished_at": "2026-10-15T17:30:55.845447+00:00",
+  "actual_requests": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:1234/v1/responses",
+      "utc": "2026-10-15T17:30:18.246616+00:00",
+      "body_bytes": 17439,
+      "body_sha256": "4c8171aa1292cccb5f1ad7e2edbe98b6495aa49cdfa6fe78fc5dd84fa4f88b74"
+    }
+  ],
+  "original_handle": 43911,
+  "original_process_exit_code": 0,
+  "prompt_characters": 16143,
+  "limitations": [
+    "Partial selected evidence only; omitted controls/evidence remain unknown",
+    "768-token cap; generated text is not independently verified claim support",
+    "Original full-context request timed out; preserved separately",
+    "No remote fallback or production source changes"
+  ],
+  "files": {
+    "defensive-review-llm.md": "f9a2b829a24da193caa96582a9f77478bd027e13e2a23fee796da1408f9bd193",
+    "requests.json": "e240fd7fd9b6f7cdd8bff6b0b48b64f3ba64c2b8e3f466581f40d541cb44c897",
+    "run.log": "dec7895d370fe46e0a21b6f16b20186562e8eac7a946047958c41c6a6cb75862",
+    "run.py": "db93211b64536ec6e6ebd05458b8c96bf91b112f26fc756946e164fc148487c4",
+    "server-events.txt": "58e882e87e09ee30645e9bfca6c8b514344c373520ad1b74fdc4815dc0a29903"
+  }
+}

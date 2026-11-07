@@ -1,0 +1,610 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_name": "attackmap-local-increment-20261031",
+  "corpus_version": "0.1.0",
+  "split_seed": 20261011,
+  "holdout_fraction": 0.5,
+  "line_window": 4,
+  "description": "Separate bounded source-slice increment; upstream training apps and one authored synthetic clean repository. Not production or human-reviewed acceptance.",
+  "notes": "Labels and membership frozen from source before the first evaluation of this increment. Original v0.2.0 corpus and its split are unchanged. Source slices preserve exact Git objects but omit app dependencies and are not runnable full upstream repositories. All labels await independent human review; no mature-family claim.",
+  "cases": [
+    {
+      "case_id": "dvwa-sqli-low",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/sqli/source/low.php",
+      "line": 11,
+      "rationale": "Request id is interpolated into quoted SQL at line 10 and executed by mysqli_query; no binding or validation protects this SQL sink.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli/source/low.php",
+          "line": 11,
+          "text_sha256": "c9e06f09a281fefe1a5342b33cc0272ba90625db2b91a1d04dff8d7aa54c89b6"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-sqli-medium",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/sqli/source/medium.php",
+      "line": 12,
+      "rationale": "mysqli_real_escape_string does not make an unquoted SQL expression safe: POST id remains an expression interpolated at line 11, then executed.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli/source/medium.php",
+          "line": 12,
+          "text_sha256": "ddcd45b717eb5bb0d5005d5bac4e488224554ef62e6ee9936f3af706779ebc32"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-sqli-impossible",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "negative",
+      "file": "vulnerabilities/sqli/source/impossible.php",
+      "line": 18,
+      "rationale": "The id is numeric-checked, integer-converted and bound as PDO::PARAM_INT before execution; the SQLite branch also uses a bound integer. This label concerns SQL injection only.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli/source/impossible.php",
+          "line": 18,
+          "text_sha256": "ad7b9fd5801920ed09ab4acecf61e1decd2b181257ee728d91626e8fbe8ccc23"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-sqli-constant-query",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "negative",
+      "file": "vulnerabilities/sqli/source/medium.php",
+      "line": 55,
+      "rationale": "This separate SELECT COUNT(*) query has constant SQL, independent of the vulnerable request-interpolated query earlier in the same file.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli/source/medium.php",
+          "line": 55,
+          "text_sha256": "c9e06f09a281fefe1a5342b33cc0272ba90625db2b91a1d04dff8d7aa54c89b6"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-blind-sqli-low",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/sqli_blind/source/low.php",
+      "line": 13,
+      "rationale": "GET id enters interpolated SQL at line 11 and mysqli_query at line 13 without parameter binding; error suppression does not prevent SQL injection.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli_blind/source/low.php",
+          "line": 13,
+          "text_sha256": "1c62f9c44394e13b820ec02816764f49abfdfb3e2572514137c71dcbb3bbefe9"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-blind-sqli-medium",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/sqli_blind/source/medium.php",
+      "line": 15,
+      "rationale": "POST id is escaped but interpolated unquoted as an SQL expression at line 13; escaping string delimiters does not enforce a numeric value.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli_blind/source/medium.php",
+          "line": 15,
+          "text_sha256": "1c62f9c44394e13b820ec02816764f49abfdfb3e2572514137c71dcbb3bbefe9"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-blind-sqli-high",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/sqli_blind/source/high.php",
+      "line": 13,
+      "rationale": "Cookie id is untrusted request data interpolated into SQL at line 11 and executed; LIMIT and hidden errors provide no input binding.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli_blind/source/high.php",
+          "line": 13,
+          "text_sha256": "1c62f9c44394e13b820ec02816764f49abfdfb3e2572514137c71dcbb3bbefe9"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-blind-sqli-impossible",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "negative",
+      "file": "vulnerabilities/sqli_blind/source/impossible.php",
+      "line": 19,
+      "rationale": "Numeric validation and integer conversion precede a prepared statement with bound integer id; the SQLite alternative is also parameter-bound.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/sqli_blind/source/impossible.php",
+          "line": 19,
+          "text_sha256": "ad7b9fd5801920ed09ab4acecf61e1decd2b181257ee728d91626e8fbe8ccc23"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-exec-low",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/exec/source/low.php",
+      "line": 10,
+      "rationale": "Request ip is concatenated into shell_exec on both OS branches with no shell argument escaping or constrained parser.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/exec/source/low.php",
+          "line": 10,
+          "text_sha256": "c2bf1a3c1b670490825307510529adbec399ee1bc0420ee7c7f0a9132102285c"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-redirect-low",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/open_redirect/source/low.php",
+      "line": 4,
+      "rationale": "GET redirect is copied into a Location header with no destination allowlist.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/open_redirect/source/low.php",
+          "line": 4,
+          "text_sha256": "d35d556f25c6a766a3fd8cab9aaa95e4f720b0dd7d900200f3f1e0a00d7cdf93"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-redirect-medium",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/open_redirect/source/medium.php",
+      "line": 11,
+      "rationale": "The guard excludes only explicit HTTP/HTTPS text, then forwards the request target to Location; network-path references remain unrestricted.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/open_redirect/source/medium.php",
+          "line": 11,
+          "text_sha256": "d35d556f25c6a766a3fd8cab9aaa95e4f720b0dd7d900200f3f1e0a00d7cdf93"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-redirect-high",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "vulnerabilities/open_redirect/source/high.php",
+      "line": 5,
+      "rationale": "A destination merely containing info.php passes the substring check; it does not enforce an internal origin or a fixed destination.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/open_redirect/source/high.php",
+          "line": 5,
+          "text_sha256": "d35d556f25c6a766a3fd8cab9aaa95e4f720b0dd7d900200f3f1e0a00d7cdf93"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-redirect-impossible",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "injection",
+      "expectation": "negative",
+      "file": "vulnerabilities/open_redirect/source/impossible.php",
+      "line": 18,
+      "rationale": "The request selects a numeric switch branch but every possible Location target is a fixed literal; arbitrary request text never becomes the destination.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/open_redirect/source/impossible.php",
+          "line": 18,
+          "text_sha256": "6d9d10edf4b9fb56e43e5c2a34a582008c7a99fc9f5388a99e0390cd055b6633"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "dvwa-static-token-key",
+      "repository": "dvwa-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/dvwa",
+      "family": "crypto",
+      "expectation": "positive",
+      "file": "vulnerabilities/api/src/Token.php",
+      "line": 10,
+      "rationale": "A public hardcoded ENCRYPTION_KEY is passed directly to token encryption/decryption. The authenticated cipher does not compensate for a publicly known key.",
+      "source_id": "dvwa",
+      "source_anchors": [
+        {
+          "file": "vulnerabilities/api/src/Token.php",
+          "line": 10,
+          "text_sha256": "2506adbd4dedc55e75fada4459e2e66d0ee25b68b119d0f2b811229feeeb265f"
+        },
+        {
+          "file": "vulnerabilities/api/src/Token.php",
+          "line": 25,
+          "text_sha256": "57218199cec39c1f67c7e869a01deab0a96707ffdada469573a9a465c9b37df7"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-search-sqli",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "routes/search.ts",
+      "line": 23,
+      "rationale": "Request q is inserted into raw SQL after only length truncation, without query parameters; the source marks the same raw SQL as an injection challenge.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/search.ts",
+          "line": 23,
+          "text_sha256": "6bd6a0fac66dc4f0811758d8b5fd2ddb276506ae5e4c5bc16659f516070371dc"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-login-sqli",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "routes/login.ts",
+      "line": 34,
+      "rationale": "Request email is embedded directly in the raw login SQL string. Hashing the password does not constrain the email expression.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/login.ts",
+          "line": 34,
+          "text_sha256": "ec011bd726553f89260c63d989701d6069f296a5abd25549720f6c52ccc8f197"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-redirect-substring",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "injection",
+      "expectation": "positive",
+      "file": "routes/redirect.ts",
+      "line": 18,
+      "rationale": "The destination guard accepts any URL containing an allowed URL substring (lib/insecurity.ts:133-138); the route redirects to the complete untrusted destination.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/redirect.ts",
+          "line": 18,
+          "text_sha256": "d99c84dfcd2d1518e192618e6369b200a37c2b86de445d3cab34bf0d12c95903"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "line": 136,
+          "text_sha256": "cfb11958561bf231a47df1a1a0be7d2be277be2945b97295dbcb9126c371d6ed"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-basket-ownership",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "bola",
+      "expectation": "positive",
+      "file": "routes/basket.ts",
+      "line": 19,
+      "rationale": "The basket lookup filters only by request id. Authentication is mounted in server.ts, but the user/basket mismatch only solves a challenge and does not deny the read.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/basket.ts",
+          "line": 19,
+          "text_sha256": "80f707f20b9c49963d8a81078d8e8a41f7efe729538c2c99ffe1bd7c8ad494ba"
+        },
+        {
+          "file": "server.ts",
+          "line": 384,
+          "text_sha256": "bdb2fc54e40537fdc91649eabc167e6e6621524cc4cbe21ae0f39cb9448c0598"
+        },
+        {
+          "file": "routes/basket.ts",
+          "line": 24,
+          "text_sha256": "76a07808241ef646ae26687a77fcd6df1f1337db2e3b7a7254d9315811096b6b"
+        },
+        {
+          "file": "routes/basket.ts",
+          "line": 32,
+          "text_sha256": "756a00b7112d39584cbf5704192eedc3258cdf063c7068d7a2383f01e3120a57"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-search-fixed-query",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "injection",
+      "expectation": "negative",
+      "file": "routes/search.ts",
+      "line": 47,
+      "rationale": "This separate sqlite_master metadata query has constant SQL and no request interpolation, despite the vulnerable search query earlier in the file.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/search.ts",
+          "line": 47,
+          "text_sha256": "37cb5bb9762dcc707fd0ddb7a45cad9178f6a15dcf01a09be9305084af603486"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-address-orm-query",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "injection",
+      "expectation": "negative",
+      "file": "routes/address.ts",
+      "line": 18,
+      "rationale": "The address query passes id and trusted user id as ORM where values, not interpolated SQL text.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/address.ts",
+          "line": 18,
+          "text_sha256": "afce34a18e7d72453352a6acd21293f522aafd77af2af544d4c48284d3964135"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "line": 178,
+          "text_sha256": "7634ff065ecb5e63dd4adb5c921ed045cd434b93e0ab0a0c9e6d282c639222fd"
+        },
+        {
+          "file": "server.ts",
+          "line": 480,
+          "text_sha256": "27b106bea4972624125a17527474097d6257277035c1370b27f86538067f1be8"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-address-owner",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "bola",
+      "expectation": "negative",
+      "file": "routes/address.ts",
+      "line": 18,
+      "rationale": "The read requires both object id and UserId; server.ts mounts appendUserId, which overwrites UserId from the authenticated token map and returns 401 on failure.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/address.ts",
+          "line": 18,
+          "text_sha256": "afce34a18e7d72453352a6acd21293f522aafd77af2af544d4c48284d3964135"
+        },
+        {
+          "file": "server.ts",
+          "line": 480,
+          "text_sha256": "27b106bea4972624125a17527474097d6257277035c1370b27f86538067f1be8"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "line": 178,
+          "text_sha256": "7634ff065ecb5e63dd4adb5c921ed045cd434b93e0ab0a0c9e6d282c639222fd"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "line": 181,
+          "text_sha256": "0e1903a040e58842defa2ee66044f84de549e3a7920c768727382059aadea358"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-address-delete-auth",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "file": "routes/address.ts",
+      "line": 29,
+      "rationale": "Delete uses both id and UserId; the actual route mounts appendUserId which rejects a missing/invalid token-map entry before the delete handler.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/address.ts",
+          "line": 29,
+          "text_sha256": "58a289f26fcf600379b3af70aec4f3c109549648222611563d6d7b8fa254695c"
+        },
+        {
+          "file": "server.ts",
+          "line": 479,
+          "text_sha256": "27ce267af2e63f70475cecfd5458d7f491327ae0071058d866d55b0dca2552c6"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "line": 178,
+          "text_sha256": "7634ff065ecb5e63dd4adb5c921ed045cd434b93e0ab0a0c9e6d282c639222fd"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "line": 181,
+          "text_sha256": "0e1903a040e58842defa2ee66044f84de549e3a7920c768727382059aadea358"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-password-update-orm",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "injection",
+      "expectation": "negative",
+      "file": "routes/changePassword.ts",
+      "line": 51,
+      "rationale": "The update passes password as an ORM attribute value; no request-derived SQL expression is constructed by this update.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/changePassword.ts",
+          "line": 51,
+          "text_sha256": "2c647ee906abd90ef6d49e00d9524e591bfdca3cbd7691ecc1f398e6ac5768ec"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-password-update-auth",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "file": "routes/changePassword.ts",
+      "line": 51,
+      "rationale": "The handler rejects absent or unknown authorization tokens before loading and updating the logged-in user's record. Other password-policy weaknesses are outside this absent-auth label.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "routes/changePassword.ts",
+          "line": 51,
+          "text_sha256": "2c647ee906abd90ef6d49e00d9524e591bfdca3cbd7691ecc1f398e6ac5768ec"
+        },
+        {
+          "file": "routes/changePassword.ts",
+          "line": 28,
+          "text_sha256": "8beec09cd4dc8de804ac2f8feb6e5ef54ac877616645b0f23be3b0469f18869c"
+        },
+        {
+          "file": "routes/changePassword.ts",
+          "line": 34,
+          "text_sha256": "1187d55f66d9263158a758be40feadecd3eaf7df8cb092c6df59885b14b71bbe"
+        },
+        {
+          "file": "routes/changePassword.ts",
+          "line": 45,
+          "text_sha256": "3404e3c781b5150b19d33e9fa072d4fcfaf91fbb38deb909a499f99e06540db4"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-password-md5",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "crypto",
+      "expectation": "positive",
+      "file": "lib/insecurity.ts",
+      "line": 41,
+      "rationale": "The password hash function uses unsalted single-pass MD5 and is used for password comparison in the login and password-change handlers.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "lib/insecurity.ts",
+          "line": 41,
+          "text_sha256": "f19df6cbdadc5204e75c177c66baa24bda153ddb975abd0de2e5973033f9319f"
+        },
+        {
+          "file": "routes/login.ts",
+          "line": 34,
+          "text_sha256": "ec011bd726553f89260c63d989701d6069f296a5abd25549720f6c52ccc8f197"
+        },
+        {
+          "file": "routes/changePassword.ts",
+          "line": 39,
+          "text_sha256": "16224cd0cd544a596d5402fcb7f63308e4d9a71b84617d5b6d3e4ea8cfec13fc"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "juice-static-jwt-key",
+      "repository": "juice-shop-upstream-slice",
+      "path": "fixtures/evaluation/increment-20261031/repos/juice-shop",
+      "family": "crypto",
+      "expectation": "positive",
+      "file": "lib/insecurity.ts",
+      "line": 21,
+      "rationale": "A complete RSA private key is embedded as a source literal and used by authorize to sign service JWTs.",
+      "source_id": "juice-shop",
+      "source_anchors": [
+        {
+          "file": "lib/insecurity.ts",
+          "line": 21,
+          "text_sha256": "fb90db49b1b2eeb3e2cc0096f46f492efc2e4470c1d8d9b52231886e9835850f"
+        },
+        {
+          "file": "lib/insecurity.ts",
+          "line": 54,
+          "text_sha256": "09a72f8f9010de3f54a645798e1b1df09e4db2ef70818464f2dd73b1ae3ff81a"
+        }
+      ],
+      "label_review": "pending_independent_human_review"
+    },
+    {
+      "case_id": "clean-public-catalog",
+      "repository": "attackmap-clean-catalog",
+      "path": "fixtures/evaluation/increment-20261031/repos/clean-catalog",
+      "expectation": "clean",
+      "rationale": "The entire synthetic repository has only public read-only catalog/health routes over constant in-memory data; no database, outbound, filesystem, mutation, cryptography or private object access.",
+      "source_id": "clean-catalog",
+      "label_review": "pending_independent_human_review"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "sbom_kind": "attackmap-windows-development-release",
+  "package_id": "dev-20260101200000-1a2b3c4d",
+  "channel": "unsigned-development",
+  "architecture": "win-x64",
+  "minimum_windows": "10.0.19041.0",
+  "signing": {
+    "status": "unsigned",
+    "note": "Unsigned development-channel package. No Authenticode signature, certificate, publisher identity or timestamp exists; SHA-256 values verify content integrity only and do not authenticate origin. Notarization is not applicable on Windows."
+  },
+  "native_runtime": {
+    "dotnet_self_contained": true,
+    "dotnet_frameworks": [
+      {
+        "name": "Microsoft.NETCore.App",
+        "version": "8.0.32"
+      }
+    ],
+    "windows_app_sdk_self_contained": true,
+    "windows_app_sdk": "2.4.0"
+  },
+  "engine": {
+    "bundled": true,
+    "executable": "app/engine/attackmap.exe",
+    "runtime_kind": "Frozen",
+    "version": "attackmap 1.5.1",
+    "analyzer_count": 19,
+    "run_schema_range": "1.0-1.1",
+    "verification_sha256": "19084f26cf68a4209d0987ed60b508042dd2f678b1bd31171eab88818f60564d",
+    "source_checksums_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "limitations": [
+      "synthetic fixture engine"
+    ]
+  },
+  "python_dependencies": {
+    "status": "known",
+    "source": "pip freeze of the engine freeze venv",
+    "venv": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP024\\focused-final\\test_python_dependencies_known0\\engine-venv",
+    "python_version": "Python 3.13.15",
+    "packages": [
+      "alpha==2.0",
+      "beta @ git+https://example.invalid/beta.git",
+      "zeta==1.0"
+    ],
+    "package_count": 3,
+    "note": "Editable and VCS entries reference the local development snapshot used for the freeze."
+  },
+  "files": [
+    {
+      "path": "AttackMap.NativeSpike.exe",
+      "size_bytes": 30,
+      "sha256": "b458a80fea5c9765913891516a13b13f36be4bcecb80fbb4a13342dc2deb485f"
+    },
+    {
+      "path": "AttackMap.NativeSpike.runtimeconfig.json",
+      "size_bytes": 100,
+      "sha256": "1b47e77e61b50d8efbdeacc4a4003cb5f5eda25ad53510385d601d09c0105ca5"
+    },
+    {
+      "path": "coreclr.dll",
+      "size_bytes": 19,
+      "sha256": "13bea79df4a22404395b032528e02501f9a0810ae504e32c094e4214ce7d619d"
+    },
+    {
+      "path": "engine/attackmap.exe",
+      "size_bytes": 29,
+      "sha256": "b7d5766ea3365e303ea0960c1649674d2ca876460e8b20466b04ccd874ff1a5c"
+    },
+    {
+      "path": "engine/engine-verification.json",
+      "size_bytes": 68,
+      "sha256": "19084f26cf68a4209d0987ed60b508042dd2f678b1bd31171eab88818f60564d"
+    }
+  ],
+  "file_count": 5,
+  "verification": {
+    "manifest_schema_version": 1,
+    "package_manifest_sha256": "7315a17eb769930c4ce0068e55e86b1091279c8cf17dfde7743116881ff3f96f",
+    "files_verified": 5,
+    "bytes_verified": 246,
+    "unexpected_files": [],
+    "installer_script": {
+      "path": "Install-AttackMap.ps1",
+      "size_bytes": 33,
+      "sha256": "b87d3b6aada970db43f45a6a526a16b130b07ca96e9cf9abae7a6a4260651389"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "scope": "Append-only correction of prior successful-review claims; original evidence unchanged",
+  "server_log": "C:\\Users\\Precision\\.lmstudio\\server-logs\\2026-10\\2026-10-15.1.log",
+  "entries": [
+    {
+      "original_handle": 43911,
+      "original_proof": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\live-lmstudio-partial-b743401652e4441ab9e6607b264e864d\\proof.json",
+      "original_proof_sha256": "cc686e4260da9a9d3dfe574d78e9625c143057489d4849be31585cfcf4930d25",
+      "response_id": "resp_c89fba9ef628435a9a6672a15f52e0727811fd8685e0de0a",
+      "provider_status": "completed",
+      "output_types": [
+        "reasoning"
+      ],
+      "final_message_present": false,
+      "reclassification": "Actual local provider request and usage confirmed; reasoning-only output was incorrectly accepted as review; no final review returned.",
+      "usage": {
+        "input_tokens": 4674,
+        "output_tokens": 768,
+        "total_tokens": 5442,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 768
+        }
+      }
+    },
+    {
+      "original_handle": 84784,
+      "original_proof": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\live-lmstudio-production-bounded-787495ba5bfe40738aeefccf5c4b7c24\\proof.json",
+      "original_proof_sha256": "8ffe19663bcf74a86ab7c5ad7106ef3c0c51a81234dec9515e6bc2520006e944",
+      "response_id": "resp_4411013ab617122b7ac8b2ce35f639461f82f99a75659ad2",
+      "provider_status": "completed",
+      "output_types": [
+        "reasoning"
+      ],
+      "final_message_present": false,
+      "reclassification": "Actual local provider request and usage confirmed; reasoning-only output was incorrectly accepted as review; no final review returned.",
+      "usage": {
+        "input_tokens": 5926,
+        "output_tokens": 2048,
+        "total_tokens": 7974,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 2048
+        }
+      }
+    }
+  ],
+  "fix": "llm_review._openai_output_text fallback now accepts message/output_text only, never reasoning items"
+}

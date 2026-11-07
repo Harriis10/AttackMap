@@ -1,0 +1,761 @@
+--- /dev/null
++++ b/AttackMap/Services/SelectedGeneration.swift
+@@ -0,0 +1,301 @@
++// SPDX-License-Identifier: MIT
++// Additive preparation against AttackMap-mac 5f2e8b4d84f9dff06e0f87c69c861a434981bd6a.
++import Foundation
++import CryptoKit
++import Darwin
++
++enum SelectedGenerationError: Error {
++    case unsafePath, unavailable, changed, malformedManifest, unsupportedManifest, oversized, unlistedArtifact
++}
++
++struct SelectedArtifact: Sendable, Equatable {
++    let name: String
++    let path: String
++    let format: String
++    let role: String
++    let checksum: String
++    fileprivate let identity: SelectionFileIdentity
++}
++
++struct SelectedGeneration: Sendable {
++    enum Provenance: Sendable, Equatable { case legacyUnverified, manifestVerified }
++    let reportURL: URL
++    let reportSHA256: String
++    let manifestURL: URL?
++    let manifestSHA256: String?
++    let generationID: String?
++    let repositoryRoot: String?
++    let artifacts: [SelectedArtifact]
++    let provenance: Provenance
++    fileprivate let directoryIdentity: SelectionFileIdentity
++    fileprivate let reportIdentity: SelectionFileIdentity
++    fileprivate let manifestIdentity: SelectionFileIdentity?
++
++    fileprivate init(reportURL: URL, reportSHA256: String, manifestURL: URL?, manifestSHA256: String?,
++        generationID: String?, repositoryRoot: String?, artifacts: [SelectedArtifact], provenance: Provenance,
++        directoryIdentity: SelectionFileIdentity, reportIdentity: SelectionFileIdentity,
++        manifestIdentity: SelectionFileIdentity?) {
++        self.reportURL = reportURL; self.reportSHA256 = reportSHA256
++        self.manifestURL = manifestURL; self.manifestSHA256 = manifestSHA256
++        self.generationID = generationID; self.repositoryRoot = repositoryRoot
++        self.artifacts = artifacts; self.provenance = provenance
++        self.directoryIdentity = directoryIdentity; self.reportIdentity = reportIdentity
++        self.manifestIdentity = manifestIdentity
++    }
++}
++
++enum SelectedGenerationReader {
++    static let reportLimit = 64 * 1024 * 1024
++    static let manifestLimit = 1024 * 1024
++
++    /// displayedReport must be the exact bytes passed to the report decoder.
++    /// Manifest integrity is content identity, not producer authentication.
++    static func capture(reportURL: URL, displayedReport: Data,
++        expectedRepository: String?, expectedGeneration: String?) throws -> SelectedGeneration {
++        guard displayedReport.count <= reportLimit else { throw SelectedGenerationError.oversized }
++        let reportName = try SelectionFiles.basename(reportURL.lastPathComponent)
++        guard reportURL.pathExtension == "json" else { throw SelectedGenerationError.unsafePath }
++        let directory = try SelectionFiles.directory(reportURL.deletingLastPathComponent())
++        defer { Darwin.close(directory.fd) }
++        let report = try SelectionFiles.read(directory.fd, reportName, limit: reportLimit)
++        guard report.data == displayedReport else { throw SelectedGenerationError.changed }
++        let checksum = SelectionFiles.hash(displayedReport)
++        let manifestName = "artifact-manifest.json"
++        // Only ENOENT for this leaf permits legacy import. Invalid/present,
++        // unreadable, redirected and unsupported manifests never downgrade.
++        guard let manifest = try SelectionFiles.readOptional(directory.fd, manifestName, limit: manifestLimit) else {
++            guard expectedGeneration == nil else { throw SelectedGenerationError.unavailable }
++            let artifact = SelectedArtifact(name: "legacy_report", path: reportName, format: "json",
++                role: "monolithic-legacy-report", checksum: checksum, identity: report.identity)
++            return SelectedGeneration(reportURL: reportURL, reportSHA256: checksum, manifestURL: nil,
++                manifestSHA256: nil, generationID: nil, repositoryRoot: nil, artifacts: [artifact],
++                provenance: .legacyUnverified, directoryIdentity: directory.identity,
++                reportIdentity: report.identity, manifestIdentity: nil)
++        }
++        let root = try SelectionJSON.object(manifest.data)
++        guard root["schema_version"] as? String == "1.0.0",
++              root["artifact_type"] as? String == "attackmap_artifact_manifest"
++        else { throw SelectedGenerationError.unsupportedManifest }
++        let generation = try text(root["generation_id"], max: 256)
++        guard let run = root["run_identity"] as? [String: Any] else { throw SelectedGenerationError.malformedManifest }
++        let repository = try text(run["repo_root"], max: 32768)
++        guard expectedGeneration == nil || expectedGeneration == generation,
++              expectedRepository == nil || expectedRepository == repository else { throw SelectedGenerationError.changed }
++        guard let sections = root["sections"] as? [[String: Any]],
++              let exports = root["compatibility_exports"] as? [[String: Any]],
++              sections.count + exports.count <= 512 else { throw SelectedGenerationError.malformedManifest }
++        var names = Set<String>(), paths = Set<String>(), identities = Set<SelectionNodeID>()
++        var artifacts: [SelectedArtifact] = []
++        let formats: Set<String> = ["json", "md", "sarif", "dot", "html", "txt", "svg"]
++        for entry in sections + exports {
++            let name = try text(entry["name"], max: 256)
++            let path = try SelectionFiles.basename(text(entry["path"], max: 255))
++            let format = try text(entry["format"], max: 16)
++            let role = try text(entry["role"], max: 128)
++            let hash = try text(entry["checksum"], max: 64)
++            guard names.insert(name).inserted, paths.insert(path).inserted,
++                  path != manifestName, formats.contains(format), URL(fileURLWithPath: path).pathExtension == format,
++                  role.utf8.allSatisfy({ (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 }),
++                  hash.count == 64, hash.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) })
++            else { throw SelectedGenerationError.malformedManifest }
++            let identity = try SelectionFiles.metadata(directory.fd, path)
++            guard identities.insert(identity.node).inserted else { throw SelectedGenerationError.unsafePath }
++            artifacts.append(SelectedArtifact(name: name, path: path, format: format, role: role,
++                checksum: hash, identity: identity))
++        }
++        let reportExports = exports.filter { $0["path"] as? String == reportName }
++        guard reportExports.count == 1, let bound = artifacts.first(where: { $0.path == reportName }),
++              bound.format == "json", bound.checksum == checksum, bound.identity == report.identity
++        else { throw SelectedGenerationError.malformedManifest }
++        // Catch replacement or mutation during metadata collection.
++        try SelectionFiles.require(directory.fd, reportName, identity: report.identity, hash: checksum, limit: reportLimit)
++        try SelectionFiles.require(directory.fd, manifestName, identity: manifest.identity,
++            hash: SelectionFiles.hash(manifest.data), limit: manifestLimit)
++        return SelectedGeneration(reportURL: reportURL, reportSHA256: checksum,
++            manifestURL: reportURL.deletingLastPathComponent().appendingPathComponent(manifestName),
++            manifestSHA256: SelectionFiles.hash(manifest.data), generationID: generation,
++            repositoryRoot: repository, artifacts: artifacts, provenance: .manifestVerified,
++            directoryIdentity: directory.identity, reportIdentity: report.identity, manifestIdentity: manifest.identity)
++    }
++
++    static func read(_ artifact: SelectedArtifact, from selection: SelectedGeneration) throws -> Data {
++        guard selection.artifacts.contains(artifact) else { throw SelectedGenerationError.unlistedArtifact }
++        let directory = try checkedDirectory(selection)
++        defer { Darwin.close(directory.fd) }
++        try validate(selection, directory: directory.fd)
++        let result = try SelectionFiles.read(directory.fd, artifact.path, limit: reportLimit)
++        guard result.identity == artifact.identity, SelectionFiles.hash(result.data) == artifact.checksum
++        else { throw SelectedGenerationError.changed }
++        try validate(selection, directory: directory.fd)
++        return result.data
++    }
++
++    static func validate(_ selection: SelectedGeneration) throws {
++        let directory = try checkedDirectory(selection)
++        defer { Darwin.close(directory.fd) }
++        try validate(selection, directory: directory.fd)
++    }
++
++    private static func checkedDirectory(_ selection: SelectedGeneration) throws -> SelectionDirectory {
++        let directory = try SelectionFiles.directory(selection.reportURL.deletingLastPathComponent())
++        guard directory.identity.node == selection.directoryIdentity.node else {
++            Darwin.close(directory.fd); throw SelectedGenerationError.changed
++        }
++        return directory
++    }
++    private static func validate(_ selection: SelectedGeneration, directory: Int32) throws {
++        try SelectionFiles.require(directory, selection.reportURL.lastPathComponent,
++            identity: selection.reportIdentity, hash: selection.reportSHA256, limit: reportLimit)
++        if let manifestIdentity = selection.manifestIdentity, let hash = selection.manifestSHA256 {
++            try SelectionFiles.require(directory, "artifact-manifest.json", identity: manifestIdentity, hash: hash, limit: manifestLimit)
++        } else if try SelectionFiles.metadataOptional(directory, "artifact-manifest.json") != nil {
++            throw SelectedGenerationError.changed
++        }
++    }
++    private static func text(_ value: Any?, max: Int) throws -> String {
++        guard let value = value as? String, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, value.utf8.count <= max,
++              !value.unicodeScalars.contains(where: CharacterSet.controlCharacters.contains)
++        else { throw SelectedGenerationError.malformedManifest }
++        return value
++    }
++}
++
++// Internal descriptor helpers shared by the independent export primitive.
++struct SelectionNodeID: Sendable, Hashable { let device: Int64; let inode: UInt64 }
++struct SelectionFileIdentity: Sendable, Equatable {
++    let node: SelectionNodeID
++    let size: Int64
++    let modifiedSeconds: Int64; let modifiedNanos: Int64
++    let changedSeconds: Int64; let changedNanos: Int64
++}
++struct SelectionDirectory { let fd: Int32; let identity: SelectionFileIdentity; let ancestors: [SelectionNodeID] }
++
++enum SelectionFiles {
++    static func hash(_ data: Data) -> String { SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() }
++    static func basename(_ value: String) throws -> String {
++        guard !value.isEmpty, value.utf8.count <= 255, value != ".", value != "..",
++              value.last != ".", value.last != " ",
++              !value.unicodeScalars.contains(where: CharacterSet.controlCharacters.contains),
++              !value.contains(where: { "\\/:*?\"<>|".contains($0) }) else { throw SelectedGenerationError.unsafePath }
++        return value
++    }
++    static func directory(_ url: URL) throws -> SelectionDirectory {
++        guard url.isFileURL, url.host == nil || url.host == "" || url.host == "localhost",
++              url.path.hasPrefix("/"), !url.path.contains("\0") else { throw SelectedGenerationError.unsafePath }
++        let parts = url.path.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
++        guard !parts.contains("."), !parts.contains("..") else { throw SelectedGenerationError.unsafePath }
++        var fd = Darwin.open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC)
++        guard fd >= 0 else { throw SelectedGenerationError.unavailable }
++        do {
++            var ancestors = [try identity(fd, directory: true).node]
++            for part in parts {
++                let next = Darwin.openat(fd, part, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
++                guard next >= 0 else { throw SelectedGenerationError.unsafePath }
++                Darwin.close(fd); fd = next
++                ancestors.append(try identity(fd, directory: true).node)
++            }
++            return SelectionDirectory(fd: fd, identity: try identity(fd, directory: true), ancestors: ancestors)
++        } catch { Darwin.close(fd); throw error }
++    }
++    static func identity(_ fd: Int32, directory: Bool = false) throws -> SelectionFileIdentity {
++        var info = stat()
++        guard Darwin.fstat(fd, &info) == 0 else { throw SelectedGenerationError.unavailable }
++        let kind = info.st_mode & mode_t(S_IFMT)
++        guard kind == mode_t(directory ? S_IFDIR : S_IFREG), directory || info.st_nlink == 1,
++              info.st_size >= 0 else { throw SelectedGenerationError.unsafePath }
++        return SelectionFileIdentity(node: SelectionNodeID(device: Int64(info.st_dev), inode: UInt64(info.st_ino)),
++            size: Int64(info.st_size), modifiedSeconds: Int64(info.st_mtimespec.tv_sec), modifiedNanos: Int64(info.st_mtimespec.tv_nsec),
++            changedSeconds: Int64(info.st_ctimespec.tv_sec), changedNanos: Int64(info.st_ctimespec.tv_nsec))
++    }
++    static func metadataOptional(_ directory: Int32, _ name: String) throws -> SelectionFileIdentity? {
++        let fd = Darwin.openat(directory, try basename(name), O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
++        if fd < 0 { if errno == ENOENT { return nil }; throw SelectedGenerationError.unsafePath }
++        defer { Darwin.close(fd) }
++        return try identity(fd)
++    }
++    static func metadata(_ directory: Int32, _ name: String) throws -> SelectionFileIdentity {
++        guard let result = try metadataOptional(directory, name) else { throw SelectedGenerationError.unavailable }
++        return result
++    }
++    static func readOptional(_ directory: Int32, _ name: String, limit: Int) throws -> (data: Data, identity: SelectionFileIdentity)? {
++        let fd = Darwin.openat(directory, try basename(name), O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
++        if fd < 0 { if errno == ENOENT { return nil }; throw SelectedGenerationError.unsafePath }
++        defer { Darwin.close(fd) }
++        let before = try identity(fd)
++        guard before.size <= Int64(limit) else { throw SelectedGenerationError.oversized }
++        var data = Data(); var buffer = [UInt8](repeating: 0, count: 16384)
++        while true {
++            let count = buffer.withUnsafeMutableBytes { Darwin.read(fd, $0.baseAddress, $0.count) }
++            if count < 0 { if errno == EINTR { continue }; throw SelectedGenerationError.unavailable }
++            if count == 0 { break }
++            guard data.count + count <= limit else { throw SelectedGenerationError.oversized }
++            data.append(contentsOf: buffer.prefix(count))
++        }
++        guard try identity(fd) == before, Int64(data.count) == before.size,
++              try metadata(directory, name) == before else { throw SelectedGenerationError.changed }
++        return (data, before)
++    }
++    static func read(_ directory: Int32, _ name: String, limit: Int) throws -> (data: Data, identity: SelectionFileIdentity) {
++        guard let result = try readOptional(directory, name, limit: limit) else { throw SelectedGenerationError.unavailable }
++        return result
++    }
++    static func require(_ directory: Int32, _ name: String, identity: SelectionFileIdentity, hash: String, limit: Int) throws {
++        let result = try read(directory, name, limit: limit)
++        guard result.identity == identity, Self.hash(result.data) == hash else { throw SelectedGenerationError.changed }
++    }
++}
++
++/// Bounded duplicate-key check before Foundation decoding. All unknown additive
++/// fields remain inert; no caller can deserialize a forged selection record.
++private enum SelectionJSON {
++    static func object(_ data: Data) throws -> [String: Any] {
++        guard !data.isEmpty, data.count <= SelectedGenerationReader.manifestLimit else { throw SelectedGenerationError.oversized }
++        var keys = Keys(bytes: Array(data)); try keys.value(depth: 0); keys.space()
++        guard keys.offset == keys.bytes.count,
++              let object = try JSONSerialization.jsonObject(with: data) as? [String: Any]
++        else { throw SelectedGenerationError.malformedManifest }
++        return object
++    }
++    private struct Keys {
++        let bytes: [UInt8]; var offset = 0
++        mutating func space() { while offset < bytes.count && [9, 10, 13, 32].contains(bytes[offset]) { offset += 1 } }
++        mutating func string() throws -> String {
++            space(); guard offset < bytes.count, bytes[offset] == 34 else { throw SelectedGenerationError.malformedManifest }
++            let start = offset; offset += 1
++            while offset < bytes.count {
++                let byte = bytes[offset]; offset += 1
++                if byte == 92 { guard offset < bytes.count else { throw SelectedGenerationError.malformedManifest }; offset += 1 }
++                else if byte == 34 { return try JSONDecoder().decode(String.self, from: Data(bytes[start..<offset])) }
++            }
++            throw SelectedGenerationError.malformedManifest
++        }
++        mutating func value(depth: Int) throws {
++            space(); guard depth <= 64, offset < bytes.count else { throw SelectedGenerationError.malformedManifest }
++            let first = bytes[offset]
++            if first == 34 { _ = try string(); return }
++            if first == 123 {
++                offset += 1; space(); var seen = Set<String>()
++                if offset < bytes.count && bytes[offset] == 125 { offset += 1; return }
++                while true {
++                    let key = try string(); guard seen.insert(key).inserted else { throw SelectedGenerationError.malformedManifest }
++                    space(); guard offset < bytes.count, bytes[offset] == 58 else { throw SelectedGenerationError.malformedManifest }
++                    offset += 1; try value(depth: depth + 1); space()
++                    guard offset < bytes.count else { throw SelectedGenerationError.malformedManifest }
++                    let delimiter = bytes[offset]; offset += 1
++                    if delimiter == 125 { return }; guard delimiter == 44 else { throw SelectedGenerationError.malformedManifest }
++                }
++            }
++            if first == 91 {
++                offset += 1; space(); if offset < bytes.count && bytes[offset] == 93 { offset += 1; return }
++                while true {
++                    try value(depth: depth + 1); space(); guard offset < bytes.count else { throw SelectedGenerationError.malformedManifest }
++                    let delimiter = bytes[offset]; offset += 1
++                    if delimiter == 93 { return }; guard delimiter == 44 else { throw SelectedGenerationError.malformedManifest }
++                }
++            }
++            let start = offset
++            while offset < bytes.count && ![9, 10, 13, 32, 44, 93, 125].contains(bytes[offset]) { offset += 1 }
++            guard offset > start else { throw SelectedGenerationError.malformedManifest }
++        }
++    }
++}
+--- /dev/null
++++ b/AttackMap/Services/SelectedGenerationExport.swift
+@@ -0,0 +1,56 @@
++// SPDX-License-Identifier: MIT
++import Foundation
++import Darwin
++
++/// Synchronous byte export only. The future native picker host must capture and
++/// recheck its own selection epoch before invoking this primitive.
++enum SelectedGenerationExport {
++    static func copy(_ artifact: SelectedArtifact, from selection: SelectedGeneration, to destination: URL) throws {
++        // Complete source verification occurs before any destination write.
++        let content = try SelectedGenerationReader.read(artifact, from: selection)
++        let name = try SelectionFiles.basename(destination.lastPathComponent)
++        let directory = try SelectionFiles.directory(destination.deletingLastPathComponent())
++        defer { Darwin.close(directory.fd) }
++        let sourceDirectory = try SelectionFiles.directory(selection.reportURL.deletingLastPathComponent())
++        defer { Darwin.close(sourceDirectory.fd) }
++        guard !directory.ancestors.contains(sourceDirectory.identity.node) else { throw SelectedGenerationError.unsafePath }
++        let previous = try SelectionFiles.metadataOptional(directory.fd, name)
++        let temporary = ".attackmap-export-\(UUID().uuidString).tmp"
++        let stage = Darwin.openat(directory.fd, temporary,
++            O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, mode_t(0o600))
++        guard stage >= 0 else { throw SelectedGenerationError.unavailable }
++        var committed = false
++        defer {
++            Darwin.close(stage)
++            if !committed { _ = Darwin.unlinkat(directory.fd, temporary, 0) }
++        }
++        let stageIdentity = try SelectionFiles.identity(stage)
++        try content.withUnsafeBytes { bytes in
++            var offset = 0
++            while offset < bytes.count {
++                let written = Darwin.write(stage, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
++                if written < 0 { if errno == EINTR { continue }; throw SelectedGenerationError.unavailable }
++                guard written > 0 else { throw SelectedGenerationError.unavailable }
++                offset += written
++            }
++        }
++        guard Darwin.fsync(stage) == 0 else { throw SelectedGenerationError.unavailable }
++        let finished = try SelectionFiles.identity(stage)
++        guard finished.node == stageIdentity.node, finished.size == Int64(content.count),
++              try SelectionFiles.metadata(directory.fd, temporary) == finished else { throw SelectedGenerationError.changed }
++        // Verify that the original destination directory is still addressed by
++        // its URL; all writes/rename remain anchored to the opened descriptor.
++        let current = try SelectionFiles.directory(destination.deletingLastPathComponent())
++        defer { Darwin.close(current.fd) }
++        guard current.identity.node == directory.identity.node,
++              try SelectionFiles.metadataOptional(directory.fd, name) == previous else { throw SelectedGenerationError.changed }
++        let recheckedContent = try SelectedGenerationReader.read(artifact, from: selection)
++        guard content == recheckedContent else { throw SelectedGenerationError.changed }
++        let staged = try SelectionFiles.read(directory.fd, temporary, limit: SelectedGenerationReader.reportLimit)
++        guard staged.identity == finished, staged.data == content else { throw SelectedGenerationError.changed }
++        guard Darwin.renameat(directory.fd, temporary, directory.fd, name) == 0 else { throw SelectedGenerationError.unavailable }
++        committed = true
++        // This guarantees atomic visibility, not power-loss durability of the
++        // directory entry; no post-commit error is reported as preserved output.
++    }
++}
+--- /dev/null
++++ b/AttackMapTests/SelectedGenerationExportTests.swift
+@@ -0,0 +1,69 @@
++import XCTest
++@testable import AttackMap
++
++final class SelectedGenerationExportTests: XCTestCase {
++    func testVerifiedCopyAndAtomicReplacementAreByteExact() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture(); let artifact = try fixture.markdown(selected)
++        let destination = fixture.root.appendingPathComponent("export.md")
++        let expected = try SelectedGenerationReader.read(artifact, from: selected)
++        try SelectedGenerationExport.copy(artifact, from: selected, to: destination)
++        XCTAssertEqual(try Data(contentsOf: destination), expected)
++        try Data("old export".utf8).write(to: destination)
++        try SelectedGenerationExport.copy(artifact, from: selected, to: destination)
++        XCTAssertEqual(try Data(contentsOf: destination), expected)
++        XCTAssertFalse(try FileManager.default.contentsOfDirectory(atPath: fixture.root.path).contains { $0.hasPrefix(".attackmap-export-") })
++    }
++    func testSelfAndGenerationDestinationsAreRejectedWithoutMutation() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture(); let artifact = try fixture.markdown(selected)
++        let reportBytes = try Data(contentsOf: fixture.report)
++        for destination in [fixture.report, fixture.generation.appendingPathComponent(artifact.path), fixture.generation.appendingPathComponent("new.md")] {
++            XCTAssertThrowsError(try SelectedGenerationExport.copy(artifact, from: selected, to: destination))
++        }
++        XCTAssertEqual(try Data(contentsOf: fixture.report), reportBytes)
++        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.generation.appendingPathComponent("new.md").path))
++    }
++    func testSymlinkAndHardlinkDestinationsPreserveTargets() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture(); let artifact = try fixture.markdown(selected)
++        let target = fixture.root.appendingPathComponent("keep.txt")
++        try Data("preserve".utf8).write(to: target)
++        let symlink = fixture.root.appendingPathComponent("symlink.md")
++        try FileManager.default.createSymbolicLink(at: symlink, withDestinationURL: target)
++        XCTAssertThrowsError(try SelectedGenerationExport.copy(artifact, from: selected, to: symlink))
++        let hardlink = fixture.root.appendingPathComponent("hardlink.md")
++        try FileManager.default.linkItem(at: target, to: hardlink)
++        XCTAssertThrowsError(try SelectedGenerationExport.copy(artifact, from: selected, to: hardlink))
++        XCTAssertEqual(try Data(contentsOf: target), Data("preserve".utf8))
++    }
++    func testSymlinkDestinationAncestorRejected() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture(); let artifact = try fixture.markdown(selected)
++        let real = fixture.root.appendingPathComponent("real", isDirectory: true)
++        try FileManager.default.createDirectory(at: real, withIntermediateDirectories: true)
++        let alias = fixture.root.appendingPathComponent("alias")
++        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: real)
++        XCTAssertThrowsError(try SelectedGenerationExport.copy(artifact, from: selected, to: alias.appendingPathComponent("new.md")))
++        XCTAssertFalse(FileManager.default.fileExists(atPath: real.appendingPathComponent("new.md").path))
++    }
++    func testTamperedSelectionPreservesExistingDestination() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture(); let artifact = try fixture.markdown(selected)
++        let destination = fixture.root.appendingPathComponent("keep.md")
++        try Data("keep destination".utf8).write(to: destination)
++        try Data("changed".utf8).write(to: fixture.generation.appendingPathComponent("artifact-manifest.json"))
++        XCTAssertThrowsError(try SelectedGenerationExport.copy(artifact, from: selected, to: destination))
++        XCTAssertEqual(try Data(contentsOf: destination), Data("keep destination".utf8))
++        XCTAssertFalse(try FileManager.default.contentsOfDirectory(atPath: fixture.root.path).contains { $0.hasPrefix(".attackmap-export-") })
++    }
++    func testLegacySelectionCopiesOnlyCapturedJSONOutsideSourceDirectory() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        try FileManager.default.removeItem(at: fixture.generation.appendingPathComponent("artifact-manifest.json"))
++        let selected = try fixture.capture(expectedRepository: nil, expectedGeneration: nil)
++        let destination = fixture.root.appendingPathComponent("legacy-unverified.json")
++        try SelectedGenerationExport.copy(selected.artifacts[0], from: selected, to: destination)
++        XCTAssertEqual(try Data(contentsOf: destination), try Data(contentsOf: fixture.report))
++        XCTAssertEqual(selected.provenance, .legacyUnverified)
++    }
++}
+--- /dev/null
++++ b/AttackMapTests/SelectedGenerationTests.swift
+@@ -0,0 +1,176 @@
++import XCTest
++@testable import AttackMap
++
++final class SelectionTestFixture {
++    let root: URL
++    let generation: URL
++    let report: URL
++    static let repository = "C:/synthetic/team-a/sample"
++    static let run = "wp028-owned-generation"
++
++    init() throws {
++        root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath()
++            .appendingPathComponent("attackmap-selection-\(UUID().uuidString)", isDirectory: true)
++        generation = root.appendingPathComponent("generation", isDirectory: true)
++        report = generation.appendingPathComponent("attackmap-report.json")
++        try FileManager.default.createDirectory(at: generation, withIntermediateDirectories: true)
++        let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
++            .appendingPathComponent("Fixtures/SelectedGeneration/current", isDirectory: true)
++        for source in try FileManager.default.contentsOfDirectory(at: fixtures, includingPropertiesForKeys: nil) {
++            try FileManager.default.copyItem(at: source, to: generation.appendingPathComponent(source.lastPathComponent))
++        }
++    }
++    func close() throws {
++        guard root.lastPathComponent.hasPrefix("attackmap-selection-"),
++              UUID(uuidString: String(root.lastPathComponent.dropFirst("attackmap-selection-".count))) != nil
++        else { throw SelectedGenerationError.unsafePath }
++        try FileManager.default.removeItem(at: root)
++    }
++    func capture(expectedRepository: String? = SelectionTestFixture.repository,
++                 expectedGeneration: String? = SelectionTestFixture.run) throws -> SelectedGeneration {
++        try SelectedGenerationReader.capture(reportURL: report, displayedReport: Data(contentsOf: report),
++            expectedRepository: expectedRepository, expectedGeneration: expectedGeneration)
++    }
++    func changeManifest(_ edit: (inout [String: Any]) -> Void) throws {
++        let url = generation.appendingPathComponent("artifact-manifest.json")
++        var value = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as! [String: Any]
++        edit(&value)
++        try JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]).write(to: url)
++    }
++    func markdown(_ selection: SelectedGeneration) throws -> SelectedArtifact {
++        try XCTUnwrap(selection.artifacts.first { $0.path == "defensive-review.md" })
++    }
++}
++
++final class SelectedGenerationTests: XCTestCase {
++    func testProducerFixtureBindsExactReportIdentityAndPreservesOrder() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture()
++        XCTAssertEqual(selected.provenance, .manifestVerified)
++        XCTAssertEqual(selected.generationID, SelectionTestFixture.run)
++        XCTAssertEqual(selected.repositoryRoot, SelectionTestFixture.repository)
++        XCTAssertEqual(Array(selected.artifacts.prefix(6).map(\.path)),
++            ["scan.json", "findings.json", "attack_paths.json", "attack_surfaces.json", "exploitability.json", "suppressed_findings.json"])
++        XCTAssertEqual(try SelectedGenerationReader.read(try fixture.markdown(selected), from: selected),
++            Data("# Synthetic defensive review\n\nFixture only; no scan or provider executed.\n".utf8))
++    }
++    func testAbsentManifestIsExplicitLegacyReportOnly() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        try FileManager.default.removeItem(at: fixture.generation.appendingPathComponent("artifact-manifest.json"))
++        let selected = try fixture.capture(expectedRepository: nil, expectedGeneration: nil)
++        XCTAssertEqual(selected.provenance, .legacyUnverified)
++        XCTAssertNil(selected.generationID)
++        XCTAssertEqual(selected.artifacts.map(\.path), ["attackmap-report.json"])
++        XCTAssertEqual(try SelectedGenerationReader.read(selected.artifacts[0], from: selected), try Data(contentsOf: fixture.report))
++        XCTAssertThrowsError(try fixture.capture()) // live expected generation cannot downgrade
++    }
++    func testInvalidPresentManifestNeverDowngrades() throws {
++        for content in ["{}", "not JSON", #"{"schema_version":"1.0.0","schema_version":"1.0.0"}"#,
++                        #"{"schema_version":"1.0.0","\u0073chema_version":"1.0.0"}"#] {
++            let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++            try Data(content.utf8).write(to: fixture.generation.appendingPathComponent("artifact-manifest.json"))
++            XCTAssertThrowsError(try fixture.capture(expectedRepository: nil, expectedGeneration: nil))
++        }
++    }
++    func testUnknownSchemaGenerationRepositoryAndDisplayedByteMismatchFail() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        XCTAssertThrowsError(try fixture.capture(expectedRepository: "another"))
++        XCTAssertThrowsError(try fixture.capture(expectedGeneration: "another"))
++        XCTAssertThrowsError(try SelectedGenerationReader.capture(reportURL: fixture.report,
++            displayedReport: Data("{}".utf8), expectedRepository: nil, expectedGeneration: nil))
++        try fixture.changeManifest { $0["schema_version"] = "2.0.0" }
++        XCTAssertThrowsError(try fixture.capture())
++    }
++    func testDuplicateAndUnsafeManifestPathsFail() throws {
++        for path in ["../outside.json", "/outside.json", "folder/file.json", "folder\\file.json", "artifact-manifest.json", ".", ".."] {
++            let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++            try fixture.changeManifest { root in
++                var exports = root["compatibility_exports"] as! [[String: Any]]
++                exports[0]["path"] = path; root["compatibility_exports"] = exports
++            }
++            XCTAssertThrowsError(try fixture.capture())
++        }
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        try fixture.changeManifest { root in
++            var exports = root["compatibility_exports"] as! [[String: Any]]
++            exports.append(exports[0]); root["compatibility_exports"] = exports
++        }
++        XCTAssertThrowsError(try fixture.capture())
++    }
++    func testManifestAndReportChangesInvalidateCapturedSelection() throws {
++        for target in ["artifact-manifest.json", "attackmap-report.json"] {
++            let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++            let selected = try fixture.capture(); let markdown = try fixture.markdown(selected)
++            try Data("changed".utf8).write(to: fixture.generation.appendingPathComponent(target))
++            XCTAssertThrowsError(try SelectedGenerationReader.read(markdown, from: selected))
++        }
++    }
++    func testSameBytesAtReplacedArtifactPathAreStale() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture(); let artifact = try fixture.markdown(selected)
++        let path = fixture.generation.appendingPathComponent(artifact.path)
++        let bytes = try Data(contentsOf: path)
++        try FileManager.default.moveItem(at: path, to: fixture.root.appendingPathComponent("old.md"))
++        try bytes.write(to: path)
++        XCTAssertThrowsError(try SelectedGenerationReader.read(artifact, from: selected))
++    }
++    func testArtifactTamperMissingAndUnlistedAdjacentFilesAreRejected() throws {
++        let first = try SelectionTestFixture(); defer { try? first.close() }
++        let other = try SelectionTestFixture(); defer { try? other.close() }
++        let selected = try first.capture(); let artifact = try first.markdown(selected)
++        XCTAssertThrowsError(try SelectedGenerationReader.read(try other.markdown(other.capture()), from: selected))
++        let url = first.generation.appendingPathComponent(artifact.path)
++        try Data("tampered".utf8).write(to: url)
++        XCTAssertThrowsError(try SelectedGenerationReader.read(artifact, from: selected))
++        try FileManager.default.removeItem(at: url)
++        XCTAssertThrowsError(try first.capture())
++    }
++    func testSymlinkLeafAncestorBrokenManifestAndSourceHardlinkRejected() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let selected = try fixture.capture(); let artifact = try fixture.markdown(selected)
++        let leaf = fixture.generation.appendingPathComponent(artifact.path)
++        let moved = fixture.root.appendingPathComponent("original.md")
++        try FileManager.default.moveItem(at: leaf, to: moved)
++        try FileManager.default.createSymbolicLink(at: leaf, withDestinationURL: moved)
++        XCTAssertThrowsError(try SelectedGenerationReader.read(artifact, from: selected))
++        let alias = fixture.root.appendingPathComponent("alias")
++        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: fixture.generation)
++        XCTAssertThrowsError(try SelectedGenerationReader.capture(reportURL: alias.appendingPathComponent("attackmap-report.json"),
++            displayedReport: Data(contentsOf: fixture.report), expectedRepository: nil, expectedGeneration: nil))
++        try FileManager.default.removeItem(at: leaf)
++        try FileManager.default.linkItem(at: moved, to: leaf)
++        XCTAssertThrowsError(try fixture.capture())
++        let manifest = fixture.generation.appendingPathComponent("artifact-manifest.json")
++        try FileManager.default.removeItem(at: manifest)
++        try FileManager.default.createSymbolicLink(at: manifest, withDestinationURL: fixture.root.appendingPathComponent("absent"))
++        XCTAssertThrowsError(try fixture.capture(expectedRepository: nil, expectedGeneration: nil))
++    }
++    func testManifestSizeBoundAndNewManifestInvalidateLegacySelection() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let manifest = fixture.generation.appendingPathComponent("artifact-manifest.json")
++        let original = try Data(contentsOf: manifest)
++        try Data(repeating: 32, count: SelectedGenerationReader.manifestLimit + 1).write(to: manifest)
++        XCTAssertThrowsError(try fixture.capture())
++        try FileManager.default.removeItem(at: manifest)
++        let legacy = try fixture.capture(expectedRepository: nil, expectedGeneration: nil)
++        try original.write(to: manifest)
++        XCTAssertThrowsError(try SelectedGenerationReader.read(legacy.artifacts[0], from: legacy))
++    }
++
++    func testNonregularAndOversizedArtifactsAreRejected() throws {
++        let fixture = try SelectionTestFixture(); defer { try? fixture.close() }
++        let leaf = fixture.generation.appendingPathComponent("defensive-review.md")
++        try FileManager.default.removeItem(at: leaf)
++        try FileManager.default.createDirectory(at: leaf, withIntermediateDirectories: false)
++        XCTAssertThrowsError(try fixture.capture())
++        try FileManager.default.removeItem(at: leaf)
++        XCTAssertTrue(FileManager.default.createFile(atPath: leaf.path, contents: Data()))
++        let handle = try FileHandle(forWritingTo: leaf)
++        try handle.truncate(atOffset: UInt64(SelectedGenerationReader.reportLimit + 1))
++        try handle.close()
++        let selected = try fixture.capture()
++        XCTAssertThrowsError(try SelectedGenerationReader.read(try fixture.markdown(selected), from: selected)) { error in
++            guard let typed = error as? SelectedGenerationError, case .oversized = typed else { return XCTFail("Expected bounded read rejection") }
++        }
++    }
++}
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/artifact-manifest.json
+@@ -0,0 +1,84 @@
++{
++  "schema_version": "1.0.0",
++  "artifact_type": "attackmap_artifact_manifest",
++  "generation_id": "wp028-owned-generation",
++  "engine_version": "fixture-only",
++  "created_at": "2026-10-21T00:00:00Z",
++  "exit_state": {
++    "exit_code": 0,
++    "status": "succeeded"
++  },
++  "run_identity": {
++    "repo_root": "C:/synthetic/team-a/sample",
++    "repo_name": "sample",
++    "analyzers": [],
++    "analyzer_identity": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
++  },
++  "sections": [
++    {
++      "name": "scan",
++      "path": "scan.json",
++      "format": "json",
++      "role": "structured-scan-result",
++      "checksum": "31b19f44753207a9c48bbe6e1e17f4d727a763ccd399acbc6eb6299791f7877d"
++    },
++    {
++      "name": "findings",
++      "path": "findings.json",
++      "format": "json",
++      "role": "findings-array",
++      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
++    },
++    {
++      "name": "attack_paths",
++      "path": "attack_paths.json",
++      "format": "json",
++      "role": "attack-paths-array",
++      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
++    },
++    {
++      "name": "attack_surfaces",
++      "path": "attack_surfaces.json",
++      "format": "json",
++      "role": "attack-surfaces-array",
++      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
++    },
++    {
++      "name": "exploitability",
++      "path": "exploitability.json",
++      "format": "json",
++      "role": "exploitability-array",
++      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
++    },
++    {
++      "name": "suppressed_findings",
++      "path": "suppressed_findings.json",
++      "format": "json",
++      "role": "suppressed-findings-array",
++      "checksum": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
++    }
++  ],
++  "compatibility_exports": [
++    {
++      "name": "legacy_report",
++      "path": "attackmap-report.json",
++      "format": "json",
++      "role": "monolithic-legacy-report",
++      "checksum": "6cf8d45fcd7d2717a78e825f45b8cf6c321630124bc3f0c4ff1991d8893cfea6"
++    },
++    {
++      "name": "run-manifest.json",
++      "path": "run-manifest.json",
++      "format": "json",
++      "role": "compatibility-export",
++      "checksum": "ba1dd1bee8b7fd4880a1469f6f725380102e60025da6a982f8c51b2c01316274"
++    },
++    {
++      "name": "defensive-review.md",
++      "path": "defensive-review.md",
++      "format": "md",
++      "role": "compatibility-export",
++      "checksum": "59400aa7a516412578b3c6aff06a544526b1b52eaa8fab9a021748f7c81eba22"
++    }
++  ]
++}
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/attack_paths.json
+@@ -0,0 +1 @@
++[]
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/attack_surfaces.json
+@@ -0,0 +1 @@
++[]
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/attackmap-report.json
+@@ -0,0 +1,15 @@
++{
++  "scan": {
++    "root": "C:/synthetic/team-a/sample",
++    "files_scanned": 0,
++    "scanned_files": [],
++    "limitations": [
++      "SYNTHETIC empty report; no runtime coverage claim."
++    ],
++    "analyzer_errors": []
++  },
++  "findings": [],
++  "suppressed_findings": [],
++  "attack_paths": [],
++  "exploitability": []
++}
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/defensive-review.md
+@@ -0,0 +1,3 @@
++# Synthetic defensive review
++
++Fixture only; no scan or provider executed.
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/exploitability.json
+@@ -0,0 +1 @@
++[]
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/findings.json
+@@ -0,0 +1 @@
++[]
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/run-manifest.json
+@@ -0,0 +1 @@
++{"stages": []}
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/scan.json
+@@ -0,0 +1,9 @@
++{
++  "root": "C:/synthetic/team-a/sample",
++  "files_scanned": 0,
++  "scanned_files": [],
++  "limitations": [
++    "SYNTHETIC empty report; no runtime coverage claim."
++  ],
++  "analyzer_errors": []
++}
+--- /dev/null
++++ b/AttackMapTests/Fixtures/SelectedGeneration/current/suppressed_findings.json
+@@ -0,0 +1 @@
++[]

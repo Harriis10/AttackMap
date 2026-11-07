@@ -1,0 +1,29 @@
+{
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "tests/test_wp032_unknown_auth_topology.py",
+    "-k",
+    "not dns and not hyphenated",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-r8-strict-temp",
+    "--junitxml",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP032\\r8-strict-bool-20261021-a\\focused.xml"
+  ],
+  "cwd": "C:\\Projects\\INPROGRESS\\AttackMap",
+  "pythonpath": "C:\\Projects\\INPROGRESS\\AttackMap\\src",
+  "pid": 16464,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 55.331,
+  "collected": 38,
+  "failures": 0,
+  "errors": 0,
+  "changed_inputs": []
+}

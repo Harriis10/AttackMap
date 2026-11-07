@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "run_id": "synthetic-run-a1",
+  "repository_id": "synthetic-repo-a",
+  "generation": 1,
+  "revision": 0,
+  "kind": "request",
+  "repository_path": "C:/synthetic/team-a/sample",
+  "output_path": "C:/synthetic/reports/a",
+  "modules": [],
+  "options": {
+    "recall": false,
+    "strict_analyzers": false,
+    "no_suppress": false,
+    "cve": false,
+    "secrets_history": 0,
+    "timeout_seconds": 600,
+    "provider": {
+      "enable_ai": false,
+      "provider": "openai",
+      "endpoint": "http://127.0.0.1:1234/v1",
+      "model": "cyberstag-security-26b-a4b-v1",
+      "max_calls": 8,
+      "timeout_seconds": 600,
+      "output_token_limit": 32000
+    }
+  }
+}

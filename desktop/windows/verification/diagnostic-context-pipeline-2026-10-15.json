@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-15T16:22:20.454848+00:00",
+  "scope": "C15 neutral typed diagnostic context, pipeline and publisher semantic verification; adapters/producers have independent proofs; no full gate/frozen/package acceptance",
+  "authoritativeSession": 14660,
+  "exitCode": 0,
+  "passed": 111,
+  "seconds": 22.37,
+  "log": {
+    "path": ".pytest_cache/m3-c15-context-authoritative.log",
+    "sha256": "8381f4db605d96b51dd9bb54590b9ce9e890b1bebb37210532e47059a92b0b9f"
+  },
+  "junit": {
+    "path": ".pytest_cache/m3-c15-context-authoritative.xml",
+    "sha256": "03ae0a0c57c1fd446418c285e1252051e90d1f736b7f9324fa04cd68580df482"
+  },
+  "inputs": [
+    {
+      "path": "src/attackmap/diagnostics.py",
+      "sha256": "80053b060b4117108cbd8e8ab551293b1c1d7f7ec96b0424446f21552fe615a3"
+    },
+    {
+      "path": "src/attackmap/artifact_publisher.py",
+      "sha256": "88cd8317f8dd1a567b72066019d618112919dd54017920a22f410f967fdd99ee"
+    },
+    {
+      "path": "src/attackmap/pipeline.py",
+      "sha256": "a2058a92cc48b8187b3ef59b91027a05dfd7b1d8f1e102ba6023b3c1d1302179"
+    },
+    {
+      "path": "schemas/diagnostic-context.schema.json",
+      "sha256": "64647ebf9c3fa151c8fff59b74114f5805831b3793d35c345f32b50504b70cd3"
+    },
+    {
+      "path": "fixtures/diagnostics/startup.json",
+      "sha256": "3c577274bd75b18f9df3bf0573d33d98e101d3845cd883928d273cf763780977"
+    },
+    {
+      "path": "tests/test_diagnostic_context.py",
+      "sha256": "77de27cfa26960f7eccd738adcb1f5fc10ca05728738745670c12472d1df4582"
+    },
+    {
+      "path": "tests/test_artifact_publisher.py",
+      "sha256": "f47c4caf0a9905908234f6e118b074ac952e28a56e45058f3019a17fda300b0a"
+    }
+  ],
+  "contextContract": {
+    "version": "1.0",
+    "outerDiagnosticSchemaUnchanged": "1.1",
+    "additiveField": "diagnostic_context",
+    "schemaExactlyMatchesModel": true,
+    "unknownSemantics": "not_started/unknown/partial/complete; None is unavailable, never fabricated zero; accepted-path counts do not imply language/runtime coverage; only named instrumented byte-limit scopes reported",
+    "redaction": "No source excerpts/rawpaths/exceptiontext; startup request text reduced to count; declared analyzer labels/versions only; canonical byteevents contain opaqueIDs/numericcaps/enums",
+    "stageTiming": "Real monotonic durations including failed/cancelled active stage and optional baseline/PR/LLM/hunt/remediation/triage tail; UTC analysis interval retained separately; publication preparation known duration included before hashes",
+    "policy": "Actual high-finding baseline threshold publishes a completed generation with policy_outcome failed; no failed execution diagnostic generated"
+  },
+  "assertedCases": [
+    "Malformedmetadata [None]/number/string/path/None-name do not replace original failure",
+    "Legacy1.25ms duration retained, negative/NaN/infinite/bool/string durations rejected",
+    "Equal partial merge preserves observedresourceunion/scopes/numericcoverage andknownfleetchildfacts",
+    "Actual atomic and non-atomic pipeline midstage exception/cancel retain failedscanstage duration anddeclaredanalyzerversion, preserve no current pointer",
+    "Actual fakeAI-tail cancellation is llm cancelled, not publish cancelled",
+    "Actual policy threshold completes/publishes hashvalidated generation andfailedpolicy",
+    "Bounded1MiB metadataread, unsafe/redirected/foreignnested/foreignprevious/foreignartifactidentity rejected",
+    "SafeUTC timing whitelist drops reversed intervals andarbitraryexisting fields",
+    "Existing richer context survives brokerunknownfallback; exactschemafixture/modelmatch andold outerreader fields preserved"
+  ],
+  "stagedReadScope": "Bounded source-free metadata projection and same-run identity checks only; it does not establish final artifact checksums/publication integrity. Immutable artifacts still require validate_generation/current pointer.",
+  "earlierAttempts": [
+    {
+      "path": ".pytest_cache/m3-c15-context-invocation-missing-file.log",
+      "reason": "Invocationexit4 nonexistenttestfilename; no tests ran; corrected selection includes test_whole_scan_ai_limits.py"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-context-focused-corrected.log",
+      "result": "105pass22.35s beforeadditionalpolicy/identitycases"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-context-final.log",
+      "result": "107pass24.93s"
+    },
+    {
+      "path": ".pytest_cache/m3-c15-context-identity.log",
+      "result": "110pass21.81s"
+    }
+  ],
+  "remaining": [
+    "One integrated focused suite across adapter/resource/context owners required before sourcefreeze",
+    "SupportedOS/fullmatrix/frozenchecks must be refreshed for this batch",
+    "No guarantee for unwritable/unsafe output storage, force-killed process before diagnosticflush, or every parser-invalid request lackingvalidatedrun/outputidentity",
+    "Structuredbyteevents do not cover all time/AI/analyzer/memory limits; uninstrumented scopes remainunknown",
+    "FullC15 bothadapter/defaultlog/sentinel/outcome acceptance remains independent of fieldpresence"
+  ]
+}

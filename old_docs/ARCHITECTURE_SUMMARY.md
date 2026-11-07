@@ -1,4 +1,10 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](../docs/README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # AttackMap Architecture Summary (Current)
+
+> Stale notes — the current architecture is the review that produced RunState, RepoIndex, and the Windows GUI. Do not drive changes from this folder.
 
 ## High-Level Pipeline
 

@@ -1,0 +1,13 @@
+{
+  "scope": "Preflight metadata correction before any increment detector evaluation",
+  "detector_calls_before_correction": 0,
+  "previous_manifest_sha256": "4f90b0fc41e9edd253e21872623705b3130a12cc40568650734f2854e5ac82a5",
+  "corrected_manifest_sha256": "264925fe342b082e0a44381c08c8ac3b6de053597d4b139ca339bbed9d90d76d",
+  "changes": [
+    "DVWA token key primary anchor 11 -> 10; encryption context 26 -> 25",
+    "Juice Shop MD5 primary anchor 40 -> 41",
+    "All line anchors now pin hash of non-empty trimmed UTF-8 source line rather than copying source text"
+  ],
+  "independent_technical_review": "Root agent inspected DVWA SQL and Juice Shop owner/auth source distinctions; this is not independent HUMAN review",
+  "labels_or_sources_changed_in_response_to_detector_output": false
+}

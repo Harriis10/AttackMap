@@ -48,5 +48,13 @@ def test_write_reports_includes_defensive_review_file_and_json_field(tmp_path: P
     assert (tmp_path / "review-context-pack.json").exists()
     payload = json.loads((tmp_path / "attackmap-report.json").read_text(encoding="utf-8"))
     assert payload["defensive_review"] == defensive_review_md
-    assert payload["defensive_review_json"]["schema_version"] == "1.2.0"
+    assert payload["defensive_review_json"]["schema_version"] == "1.5.0"
     assert payload["review_context_pack"]["artifact_type"] == "attackmap_review_context_pack"
+
+
+def test_console_summary_labels_static_scores_without_changing_values() -> None:
+    finding = Finding(title="Synthetic claim", severity="high", mitigation="Review", exploitability=90, exploitability_tier="critical")
+    text = render_console_summary(ScanResult(root="."), [finding], [])
+    assert "Highest static finding risk scores:" in text
+    assert "runtime reachability and exploitability are not verified" in text
+    assert "90/100 [critical] Synthetic claim" in text

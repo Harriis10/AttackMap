@@ -1,0 +1,25 @@
+{
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "-B",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP034\\ledger-semantic-parity-20261031\\run_tests.py",
+    "worker",
+    "tests/test_fleet_input_budget.py",
+    "tests/test_fleet_admission.py",
+    "tests/test_fleet_parallelism.py",
+    "tests/test_fleet_publication.py",
+    "tests/test_scan_service.py",
+    "tests/test_resource_limit_events.py",
+    "tests/test_unreadable_and_fleet_failures.py",
+    "tests/test_desktop_fleet.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--tb=short",
+    "--basetemp=artifacts/wp034-ledger-semantic-parity-20261031/fleet-regression-temp",
+    "--junitxml",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP034\\ledger-semantic-parity-20261031\\fleet-regression.xml"
+  ],
+  "cwd": "C:\\Projects\\INPROGRESS\\AttackMap",
+  "test_file_sha256_before": "d81cc21c3674a24e09cff12a13d3be2f3d3d1928302703ccef813565f609223e"
+}

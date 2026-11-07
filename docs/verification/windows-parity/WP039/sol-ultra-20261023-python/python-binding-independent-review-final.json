@@ -1,0 +1,124 @@
+{
+  "source_sha256": {
+    "src/attackmap/python_route_binding.py": "53e61053dc955ae06de865ab39307153c4ed6391f687a095f6eda34e4df549c9",
+    "src/attackmap/ecosystem_python.py": "fc0f091d9ffc7c43eac6001e0ca4ae99d399a7e0ec48d40690b4171b1a9dc722",
+    "src/attackmap/scanner.py": "5be41db7b72246efe048b01267bac008ed14119e65f9d1f896aa725502ead8ff"
+  },
+  "probes": {
+    "missing-token-control": {
+      "source": "def verify(token=None):\n    if token is None:\n        raise HTTPException(status_code=401)\n",
+      "expected": true,
+      "actual": true,
+      "bound_dependency_guard": [
+        true
+      ]
+    },
+    "present-token-not-equal-none": {
+      "source": "def verify(token=None):\n    if token != None:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "present-token-negated-missing": {
+      "source": "def verify(token=None):\n    if not (token is None):\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "positive-authenticated-not-equal-false": {
+      "source": "def verify(token=None):\n    if user.is_authenticated != False:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "jwt-decode-dead-branch": {
+      "source": "def verify(token=None):\n    try:\n        if False:\n            jwt.decode(token)\n    except Exception:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "jwt-decode-optional-branch": {
+      "source": "def verify(token=None):\n    try:\n        if enable_auth:\n            jwt.decode(token)\n    except Exception:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "early-return-control": {
+      "source": "def verify(token=None):\n    return None\n    if not token:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "conditional-failure-control": {
+      "source": "def verify(token=None):\n    if not token:\n        if enable_auth:\n            raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "jwt-exception-swallowed-before-reject": {
+      "source": "def verify(token=None):\n    try:\n        jwt.decode(token)\n    except jwt.DecodeError:\n        pass\n    except Exception:\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "truthy-credential-default": {
+      "source": "def verify(token=None):\n    if not request.headers.get('Authorization', 'public'):\n        raise HTTPException(status_code=401)\n",
+      "expected": false,
+      "actual": false,
+      "bound_dependency_guard": [
+        false
+      ]
+    },
+    "conflicting-mounts": {
+      "source": "router=APIRouter(prefix='/v1')\napp.include_router(router,prefix='/one')\napp.include_router(router,prefix='/two')\n",
+      "prefixes": {
+        "router": "/v1"
+      }
+    },
+    "two-node-cycle": {
+      "source": "a=APIRouter(prefix='/a')\nb=APIRouter(prefix='/b')\na.include_router(b,prefix='/x')\nb.include_router(a,prefix='/y')\n",
+      "prefixes": {
+        "a": "/a",
+        "b": "/b"
+      }
+    },
+    "self-cycle": {
+      "source": "a=APIRouter(prefix='/a')\na.include_router(a,prefix='/x')\n",
+      "prefixes": {
+        "a": "/a"
+      }
+    },
+    "shadowed-known-route-decorator": {
+      "files": {
+        "views.py": "from flask import Blueprint\nbp=Blueprint('public',__name__)\ndef login_required(fn):\n    return fn\n@bp.route('/public')\n@login_required\ndef public():\n    return {}\n"
+      },
+      "expected_auth": "unknown",
+      "routes": []
+    },
+    "foreign-custom-decorator-collision": {
+      "files": {
+        "views.py": "from flask import Blueprint\nfrom local_wrappers import custom_auth\nbp=Blueprint('public',__name__)\n@bp.route('/public')\n@custom_auth\ndef public():\n    return {}\n",
+        "local_wrappers.py": "def custom_auth(fn):\n    return fn\n",
+        "unrelated.py": "from flask import request,abort\ndef custom_auth(fn):\n    def guarded(*args):\n        if not request.headers.get('Authorization'):\n            abort(401)\n        return fn(*args)\n    return guarded\n"
+      },
+      "expected_auth": "unknown",
+      "routes": []
+    }
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "backend": "api",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "stop_reason": "completed",
+  "usage": {
+    "input_tokens": 6269,
+    "output_tokens": 4188
+  },
+  "usage_status": "reported",
+  "reference_validation": {
+    "reference_validity": "valid",
+    "scope": "selected_prompt_producer_evidence_ids",
+    "claim_support": "not_assessed",
+    "claim_support_assessments": [
+      {
+        "claim": "The analyzed code reveals a high-risk surface characterized by exposed administrative endpoints (`finding:1`), inconsistent authorization enforcement across cri",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "The analyzed code reveals a high-risk surface characterized by exposed administrative endpoints (`finding:1`), inconsistent authorization enforcement across cri",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "The analyzed code reveals a high-risk surface characterized by exposed administrative endpoints (`finding:1`), inconsistent authorization enforcement across cri",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "The analyzed code reveals a high-risk surface characterized by exposed administrative endpoints (`finding:1`), inconsistent authorization enforcement across cri",
+        "reference": "finding:9",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "The analyzed code reveals a high-risk surface characterized by exposed administrative endpoints (`finding:1`), inconsistent authorization enforcement across cri",
+        "reference": "finding:13",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Broken Access Control on Administrative & Critical Resource Paths:** Administrative routes for application version and configuration in `server.ts` (lines",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Broken Access Control on Administrative & Critical Resource Paths:** Administrative routes for application version and configuration in `server.ts` (lines",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Request Input Flows into Filesystem Path Construction:** In `routes/profileImageFileUpload.ts`, the `upload_filename` source from a POST request (line 16)",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Severe Supply Chain Exposure in Core Dependencies:** The project relies on multiple packages with high-severity, publicly known vulnerabilities, including",
+        "reference": "finding:9",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Severe Supply Chain Exposure in Core Dependencies:** The project relies on multiple packages with high-severity, publicly known vulnerabilities, including",
+        "reference": "finding:7",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Severe Supply Chain Exposure in Core Dependencies:** The project relies on multiple packages with high-severity, publicly known vulnerabilities, including",
+        "reference": "finding:13",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Crown Jewels:** No specific asset definitions were included in this evidence subset; however, `finding:1` targets administrative configuration data.",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Observed Controls:** Sibling route patterns in Feedbacks and 2FA cohorts (`finding:2`) indicate an existing authorization framework/middleware is applied ",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Missing Guards (Identified in Scope):** No auth signal was identified for admin routes in `server.ts` (`finding:1`); no path sanitization or basename reso",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Missing Guards (Identified in Scope):** No auth signal was identified for admin routes in `server.ts` (`finding:1`); no path sanitization or basename reso",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Inconsistent but Present Auth Framework:** The existence of auth signals on sibling routes for Feedback and 2FA cohorts (`finding:2`) confirms a capabilit",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Administrative Route Exposure (High Priority):** Admin routes lack observed authentication guards in `server.ts` (`finding:1`). *Priority:* Critical for p",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Path Traversal Sink (High Priority):** Unvalidated request input flows to a filesystem path sink at line 42 of `profileImageFileUpload.ts` (`finding:4`). ",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Auth Bypass Chain (Static Inference):** `server.ts` admin lines (634-635) -> No observed auth signal (`finding:1`) $\\rightarrow$ Unauthorized access poten",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Broken Access Control Chain (Static Inference):** Sibling routes in Feedbacks/2FA cohorts have guards $\\rightarrow$ Target endpoints `POST /api/Feedbacks`",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Filesystem Sink Chain (Source-to-Sink):** `POST /profile/image/file` request parameter `upload_filename` (`routes/profileImageFileUpload.ts:16`) $\\rightar",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "1.  **Remediate Path Traversal:** Apply `path.basename()` or a secure filename utility to the `upload_filename` source in `routes/profileImageFileUpload.ts` bef",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "2.  **Unify Admin Authorization:** Explicitly apply the identified auth middleware/decorators from Feedbacks/2FA cohorts to all routes in `/rest/admin/*`, ensur",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "2.  **Unify Admin Authorization:** Explicitly apply the identified auth middleware/decorators from Feedbacks/2FA cohorts to all routes in `/rest/admin/*`, ensur",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Confidence:** High for identified path traversal (`finding:4`), admin route exposure (`finding:1`), and dependency advisories (Findings 5-13) as these map",
+        "reference": "finding:4",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Confidence:** High for identified path traversal (`finding:4`), admin route exposure (`finding:1`), and dependency advisories (Findings 5-13) as these map",
+        "reference": "finding:1",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      },
+      {
+        "claim": "*   **Confidence:** High for identified path traversal (`finding:4`), admin route exposure (`finding:1`), and dependency advisories (Findings 5-13) as these map",
+        "reference": "finding:2",
+        "claim_support": "not_assessed",
+        "reason": "no captured source spans in the selected narrative prompt"
+      }
+    ],
+    "claim_support_basis": "Reference validity never implies claim support. The selected narrative prompt supplies no captured snapshot spans, so every cited claim remains not_assessed; this check never reads live source files to manufacture support.",
+    "source_location_validation": "unvalidated",
+    "source_reference_validity": "unresolved",
+    "source_references": [
+      "routes/profileImageFileUpload.ts:16"
+    ],
+    "unresolved_source_references": [
+      "routes/profileImageFileUpload.ts:16"
+    ],
+    "source_reference_scope": "No captured snapshot spans supplied by the selected narrative prompt; live files are not consulted.",
+    "context_sha256": "475922bb95d90930f308274584ef8e37ed8351f1994df44b773fbd5bddb645db",
+    "valid_references": [
+      "finding:1",
+      "finding:2",
+      "finding:4",
+      "finding:9",
+      "finding:13",
+      "finding:7"
+    ],
+    "invalid_references": [],
+    "allowed_reference_count": 10
+  }
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.053" timestamp="2026-10-31T10:12:25.445296+01:00" hostname="corpsec"><testcase classname="tests.test_fleet_parallelism" name="test_fleet_real_workers_match_serial[all]" time="12.382"><failure message="AssertionError: assert {'root': 'C:\...nts': [], ...} == {'root': 'C:\...nts': [], ...}&#10;  &#10;  Omitting 32 identical items, use -vv to show&#10;  Differing items:&#10;  {'analyzer_run_ledger': {'schema_version': '1.1', 'scope': 'analyzer_selection_and_execution', 'inventory_scope': 'registered_candidates', 'selection_mode': 'automatic', ...}} != {'analyzer_run_ledger': {'schema_version': '1.1', 'scope': 'analyzer_selection_and_execution', 'inventory_scope': 'registered_candidates', 'selection_mode': 'automatic', ...}}&#10;  Use -v to get more diff">tests\test_fleet_parallelism.py:238: in test_fleet_real_workers_match_serial
+    assert serial.scan.model_dump(mode="json") == parallel.scan.model_dump(mode="json")
+E   AssertionError: assert {'root': 'C:\...nts': [], ...} == {'root': 'C:\...nts': [], ...}
+E     
+E     Omitting 32 identical items, use -vv to show
+E     Differing items:
+E     {'analyzer_run_ledger': {'schema_version': '1.1', 'scope': 'analyzer_selection_and_execution', 'inventory_scope': 'registered_candidates', 'selection_mode': 'automatic', ...}} != {'analyzer_run_ledger': {'schema_version': '1.1', 'scope': 'analyzer_selection_and_execution', 'inventory_scope': 'registered_candidates', 'selection_mode': 'automatic', ...}}
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>

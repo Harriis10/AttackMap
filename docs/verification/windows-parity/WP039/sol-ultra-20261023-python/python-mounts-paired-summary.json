@@ -1,0 +1,256 @@
+{
+  "baseline_source": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\baseline-source\\src\\attackmap\\ecosystem_python.py",
+    "sha256": "d1736b02e0c9ec44143a2808e2c767734c55c8e2b5ed4a540a97c03164d22bea"
+  },
+  "after_source": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\ecosystem_python.py",
+    "sha256": "29079ad382389ddb2a987130642cae0a2f28fb957a15dad3bb94e5b66692a101"
+  },
+  "pairs": {
+    "fastapi-siblings": {
+      "identical_fixture_hashes": true,
+      "sha256": {
+        "main.py": "d592c285ca6e375f557aadfeed401a49c5be6bb729eabb7da07203838b2dfc43",
+        "routers.py": "0871768ceca4f534c64f117c31e9761b974d476c2e51095a5d05b182d8e53288",
+        "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b"
+      },
+      "before": {
+        "routes": [
+          {
+            "path": "/private/item",
+            "method": "GET",
+            "file": "routers.py",
+            "line": 4,
+            "auth": "required"
+          },
+          {
+            "path": "/public/item",
+            "method": "GET",
+            "file": "routers.py",
+            "line": 6,
+            "auth": "required"
+          }
+        ],
+        "mount_hints": [
+          {
+            "hint": "fastapi_router_mount:/api/private",
+            "file": "main.py",
+            "line": 5,
+            "evidence_text": "router 'private' mounted at /api/private (defined in routers.py; per-file route paths carry only the router-local prefix)",
+            "confidence": 0.85
+          }
+        ],
+        "limitations": []
+      },
+      "after": {
+        "routes": [
+          {
+            "path": "/private/item",
+            "method": "GET",
+            "file": "routers.py",
+            "line": 4,
+            "auth": "required"
+          }
+        ],
+        "mount_hints": [
+          {
+            "hint": "fastapi_router_mount:/api/private",
+            "file": "main.py",
+            "line": 5,
+            "evidence_text": "router 'private' mounted at /api/private (defined in routers.py:2; route paths retain per-file extraction; declared wiring only)",
+            "confidence": 0.85
+          }
+        ],
+        "limitations": []
+      },
+      "plugin_routes_before": [],
+      "plugin_routes_after": []
+    },
+    "flask-siblings": {
+      "identical_fixture_hashes": true,
+      "sha256": {
+        "main.py": "156c2d9678fcdccc6a92f5ac3ac6d8809f5f9d213d82b5c287c56a9e3ac0a50c",
+        "views.py": "f8f3a88f6864ba4922c21bd26ccfc596cde7cf3443919a7effb48ce34a923e73"
+      },
+      "before": {
+        "routes": [
+          {
+            "path": "/v1/item",
+            "method": "GET",
+            "file": "views.py",
+            "line": 8,
+            "auth": "required"
+          },
+          {
+            "path": "/public/item",
+            "method": "GET",
+            "file": "views.py",
+            "line": 10,
+            "auth": "required"
+          }
+        ],
+        "mount_hints": [
+          {
+            "hint": "flask_blueprint_mount:/api/v1",
+            "file": "main.py",
+            "line": 4,
+            "evidence_text": "blueprint 'private' mounted at /api/v1 (defined in views.py; per-file route paths carry only the blueprint-local prefix)",
+            "confidence": 0.85
+          }
+        ],
+        "limitations": []
+      },
+      "after": {
+        "routes": [
+          {
+            "path": "/v1/item",
+            "method": "GET",
+            "file": "views.py",
+            "line": 8,
+            "auth": "required"
+          }
+        ],
+        "mount_hints": [
+          {
+            "hint": "flask_blueprint_mount:/api",
+            "file": "main.py",
+            "line": 4,
+            "evidence_text": "blueprint 'private' mounted at /api (defined in views.py:2; registration prefix overrides its default; route paths retain per-file extraction; declared wiring only)",
+            "confidence": 0.85
+          }
+        ],
+        "limitations": []
+      },
+      "plugin_routes_before": [],
+      "plugin_routes_after": []
+    },
+    "unbound-child": {
+      "identical_fixture_hashes": true,
+      "sha256": {
+        "main.py": "f15e438e2aeba9b6cc233dd4970c828f27c929f9e24508175b83f185fc242e95",
+        "routers.py": "2c7c4005d8afb23e8dff77f8cf424b74a4e798a00d9ea2df38a8de42d0802241",
+        "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b"
+      },
+      "before": {
+        "routes": [
+          {
+            "path": "/items/item",
+            "method": "GET",
+            "file": "routers.py",
+            "line": 3,
+            "auth": "required"
+          }
+        ],
+        "mount_hints": [
+          {
+            "hint": "fastapi_router_mount:/unproven/items",
+            "file": "main.py",
+            "line": 4,
+            "evidence_text": "router 'router' mounted at /unproven/items (defined in routers.py; per-file route paths carry only the router-local prefix)",
+            "confidence": 0.85
+          }
+        ],
+        "limitations": []
+      },
+      "after": {
+        "routes": [],
+        "mount_hints": [],
+        "limitations": [
+          "main.py:4: include_router binding/prefix unresolved or nested; no mount/auth certification"
+        ]
+      },
+      "plugin_routes_before": [],
+      "plugin_routes_after": []
+    }
+  },
+  "source_hashes": {
+    "src/attackmap/ecosystem_python.py": "29079ad382389ddb2a987130642cae0a2f28fb957a15dad3bb94e5b66692a101",
+    "src/attackmap/python_route_binding.py": "269f6092a849ca40551b334d1cb4dc37ee0b5563d5d09ac81802077e9f5d55d5",
+    "src/attackmap/scanner.py": "5be41db7b72246efe048b01267bac008ed14119e65f9d1f896aa725502ead8ff",
+    "tests/test_ecosystem_python_mounts.py": "1b78f7dbbac6faf77091227ddc7c615e685d939539ad49212a200f276d18c54c",
+    "tests/test_python_route_binding.py": "399d04d365273f3cf5e1fcf462c293ae9afa15d957d6655f988929dc9ce4594e",
+    "tests/test_python_route_prefixes.py": "4eafc26f2503bc1b917b028160183d015d4c2047ba70a53e8139cd6821b135ce"
+  },
+  "focused_tests": {
+    "command": ".venv/Scripts/python.exe -m pytest tests/test_ecosystem_python.py tests/test_ecosystem_python_mounts.py tests/test_python_route_binding.py tests/test_python_route_prefixes.py -q -p no:cacheprovider --basetemp=.tmp/wp039-python-20261023/pytest-mounts-08 --tb=short",
+    "passed": 84,
+    "seconds": 11.5,
+    "escalated_after": "WinError 5 on owned pytest temp directory",
+    "scope": "auth qualifier and import/mount tests; root integration/frozen verification separate"
+  },
+  "mixed_mount_after": {
+    "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\fastapi-mixed-mounts",
+    "sha256": {
+      "main.py": "1da620be930878a8bd95442ea4717251112a23edc278041d455ca886a110f72e",
+      "routers.py": "2c7c4005d8afb23e8dff77f8cf424b74a4e798a00d9ea2df38a8de42d0802241",
+      "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b"
+    },
+    "results": {
+      "builtin_python_service": {
+        "routes": [],
+        "framework_hints": [
+          {
+            "hint": "asgi_app:fastapi",
+            "file": "main.py",
+            "line": 4,
+            "evidence_text": "FastAPI() application object",
+            "confidence": 0.9
+          },
+          {
+            "hint": "fastapi_router_mount:/private/items",
+            "file": "main.py",
+            "line": 5,
+            "evidence_text": "router 'router' mounted at /private/items (defined in routers.py:2; route paths retain per-file extraction; declared wiring only)",
+            "confidence": 0.85
+          },
+          {
+            "hint": "fastapi_router_mount:/public/items",
+            "file": "main.py",
+            "line": 6,
+            "evidence_text": "router 'router' mounted at /public/items (defined in routers.py:2; route paths retain per-file extraction; declared wiring only)",
+            "confidence": 0.85
+          }
+        ],
+        "auth_hints": [
+          {
+            "hint": "auth_dependency_definition",
+            "file": "guards.py",
+            "line": 2,
+            "evidence_text": "def verify_token verifies caller credentials",
+            "confidence": 0.8
+          }
+        ],
+        "limitations": []
+      },
+      "installed_python_plugin": {
+        "routes": [],
+        "framework_hints": [
+          {
+            "hint": "fastapi",
+            "file": "guards.py",
+            "line": 1,
+            "evidence_text": "from fastapi import HTTPException",
+            "confidence": 0.7
+          },
+          {
+            "hint": "fastapi",
+            "file": "main.py",
+            "line": 1,
+            "evidence_text": "from fastapi import FastAPI, Depends",
+            "confidence": 0.7
+          },
+          {
+            "hint": "fastapi",
+            "file": "routers.py",
+            "line": 1,
+            "evidence_text": "from fastapi import APIRouter",
+            "confidence": 0.7
+          }
+        ],
+        "auth_hints": [],
+        "limitations": []
+      }
+    }
+  }
+}

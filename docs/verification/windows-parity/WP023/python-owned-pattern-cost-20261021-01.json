@@ -1,0 +1,562 @@
+{
+  "context": "Owned sealed source, main thread; concurrent actual native L03 QA; no acceptance/speed claim. Exactly original compiled patterns, no matching semantics changed.",
+  "patterns": [
+    {
+      "name": "authz._OWNERSHIP_MARKERS",
+      "pattern": "\n    current_user | currentUser | \\brequest\\.user\\b | \\breq\\.user\\b | \\bctx\\.user\\b\n    | \\bowner\\b | owner_id | ownerId | userId\n    | account_id | tenant_id | org_id | \\bself\\.user\\b\n    | authorize | authoriz | \\.can\\s*\\( | cannot | \\bpolicy\\b | \\bpolicies\\b\n    | \\bguard\\b | can_access | canAccess | has_access | hasAccess\n    | check_access | verify_owner | assert_owner | ensure_owner\n    | require[s]?_permission | permission_required | requiresAuth | requireAuth\n    | login_required | @authenticated | ensureAuthenticated | is_authorized\n    | scope_to | scoped_to | for_user | belongs_to\n    ",
+      "flags": 98,
+      "wall_seconds": 1.3923690999945393,
+      "process_seconds": 0.90625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[25] auth_middleware",
+      "pattern": "\\b\\w+(?:Auth|Guard)\\s*\\(",
+      "flags": 32,
+      "wall_seconds": 0.18974960000196006,
+      "process_seconds": 0.09375,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[18] mongodb",
+      "pattern": "(?:AsyncIOMotorClient|MongoClient)\\(",
+      "flags": 34,
+      "wall_seconds": 0.13542449999658857,
+      "process_seconds": 0.078125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[23] redis",
+      "pattern": "\\baioredis\\b|from\\s+redis\\s+import",
+      "flags": 34,
+      "wall_seconds": 0.10851520000142045,
+      "process_seconds": 0.078125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[28] session_middleware",
+      "pattern": "\\bexpress-session\\b|require\\(['\\\"]express-session['\\\"]",
+      "flags": 32,
+      "wall_seconds": 0.08276500001375098,
+      "process_seconds": 0.078125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[32] session_middleware",
+      "pattern": "\\bflask_login\\b|from\\s+flask_login\\s+import",
+      "flags": 32,
+      "wall_seconds": 0.08469789999071509,
+      "process_seconds": 0.078125,
+      "span": null
+    },
+    {
+      "name": "authz._GRAPHQL_FIELD_RE",
+      "pattern": "(?<!\\w)(?P<name>\\w++)\\s*+(?:\\((?P<args>[^)]*+)\\))?\\s*+:\\s*(?P<rest>[^\\n]*)",
+      "flags": 32,
+      "wall_seconds": 0.11187160000554286,
+      "process_seconds": 0.078125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[11] postgresql",
+      "pattern": "\\basyncpg\\.connect\\(",
+      "flags": 34,
+      "wall_seconds": 0.0647912999993423,
+      "process_seconds": 0.0625,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[14] sqlite",
+      "pattern": "\\bbetter-sqlite3\\b|new\\s+SQLite3?\\b",
+      "flags": 34,
+      "wall_seconds": 0.10256959999969695,
+      "process_seconds": 0.0625,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[16] mysql",
+      "pattern": "\\bMySQLdb\\.connect\\(",
+      "flags": 34,
+      "wall_seconds": 0.052436300000408664,
+      "process_seconds": 0.046875,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[22] redis",
+      "pattern": "\\bredis\\.from_url\\(",
+      "flags": 34,
+      "wall_seconds": 0.041800399994826876,
+      "process_seconds": 0.046875,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[14] bearer_token",
+      "pattern": "\\bBearer\\s+\\$\\{?[a-z_]",
+      "flags": 32,
+      "wall_seconds": 0.04567609999503475,
+      "process_seconds": 0.046875,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[20] auth_middleware",
+      "pattern": "\\bensureLoggedIn\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.04119679999712389,
+      "process_seconds": 0.046875,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[2] sql",
+      "pattern": "\\bsessionmaker\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.06523699998797383,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[6] sql",
+      "pattern": "\\bdrizzle\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.06909940000332426,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[7] sql",
+      "pattern": "\\bknex\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.0830201000062516,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[13] sqlite",
+      "pattern": "sqlite3\\.connect\\(",
+      "flags": 34,
+      "wall_seconds": 0.05203209999308456,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[15] mysql",
+      "pattern": "\\bmysql\\.connector\\.connect\\(",
+      "flags": 34,
+      "wall_seconds": 0.048326599993743,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[17] mysql",
+      "pattern": "\\baiomysql\\.connect\\(",
+      "flags": 34,
+      "wall_seconds": 0.05001489999995101,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[19] mongodb",
+      "pattern": "\\bpymongo\\.MongoClient\\(",
+      "flags": 34,
+      "wall_seconds": 0.04028429999016225,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[20] mongodb",
+      "pattern": "mongoose\\.connect\\(",
+      "flags": 34,
+      "wall_seconds": 0.02504870000120718,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[3] jwt",
+      "pattern": "\\bjwt\\.(?:decode|encode|verify|sign)\\(",
+      "flags": 34,
+      "wall_seconds": 0.04288030001043808,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[4] jwt",
+      "pattern": "\\bjsonwebtoken\\b",
+      "flags": 34,
+      "wall_seconds": 0.028919000003952533,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[6] oauth",
+      "pattern": "OAuth2PasswordBearer\\(",
+      "flags": 34,
+      "wall_seconds": 0.040063299995381385,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[7] oauth",
+      "pattern": "\\bauthlib\\.\\w+",
+      "flags": 34,
+      "wall_seconds": 0.040776200010441244,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[12] authorization",
+      "pattern": "req\\.get\\(\\s*['\\\"]authorization['\\\"]",
+      "flags": 34,
+      "wall_seconds": 0.023076099998434074,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[13] authorization",
+      "pattern": "Authorization['\\\"]?\\s*\\]",
+      "flags": 34,
+      "wall_seconds": 0.027786299993749708,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[17] passport",
+      "pattern": "\\bpassport\\.use\\(",
+      "flags": 34,
+      "wall_seconds": 0.04617369998595677,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[19] auth_middleware",
+      "pattern": "\\bisAuthenticated\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.03216950000205543,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[21] auth_middleware",
+      "pattern": "\\brequire(?:Auth|Login)\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.03403999999864027,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[22] auth_middleware",
+      "pattern": "\\bwithAuth\\s*[(<]",
+      "flags": 34,
+      "wall_seconds": 0.034747899990179576,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[29] session_state",
+      "pattern": "\\breq\\.session\\.\\w",
+      "flags": 32,
+      "wall_seconds": 0.03579650000028778,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[33] session_middleware",
+      "pattern": "\\bdjango\\.contrib\\.auth\\b",
+      "flags": 32,
+      "wall_seconds": 0.03887379998923279,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[34] mfa",
+      "pattern": "\\bmfa_required\\b|\\btwo_factor\\b|\\btotp_verify\\b",
+      "flags": 34,
+      "wall_seconds": 0.02701859999797307,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[35] password_flow",
+      "pattern": "\\bpassword_hash\\b|\\bpassword_reset\\b|\\bcheck_password\\b",
+      "flags": 34,
+      "wall_seconds": 0.02822310000192374,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[36] password_flow",
+      "pattern": "\\bbcrypt\\.(?:hash|compare)\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.0331644999969285,
+      "process_seconds": 0.03125,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[0] sql",
+      "pattern": "create_engine\\(\\s*['\\\"](?:postgresql|mysql|sqlite|mssql|oracle)\\+?",
+      "flags": 34,
+      "wall_seconds": 0.03376879999996163,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[1] sql",
+      "pattern": "create_async_engine\\(",
+      "flags": 34,
+      "wall_seconds": 0.017650000008870848,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[4] sql",
+      "pattern": "\\bdeclarative_base\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.04175629999372177,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[5] sql",
+      "pattern": "new\\s+PrismaClient\\(",
+      "flags": 34,
+      "wall_seconds": 0.05418849999841768,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[21] redis",
+      "pattern": "redis\\.(?:Redis|StrictRedis)\\(",
+      "flags": 34,
+      "wall_seconds": 0.015388800005894154,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[5] jwt",
+      "pattern": "\\bPyJWT\\b",
+      "flags": 32,
+      "wall_seconds": 0.0311504999990575,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[8] depends_auth",
+      "pattern": "Depends\\(\\s*(?:oauth2_scheme|get_current_user|current_user|verify_token)\\s*\\)",
+      "flags": 34,
+      "wall_seconds": 0.026709900004789233,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[9] authorization",
+      "pattern": "request\\.authorization\\b",
+      "flags": 34,
+      "wall_seconds": 0.017191400009323843,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[10] authorization",
+      "pattern": "request\\.headers\\.get\\(\\s*['\\\"]authorization['\\\"]",
+      "flags": 34,
+      "wall_seconds": 0.01619310000387486,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[11] authorization",
+      "pattern": "req\\.headers\\[\\s*['\\\"]authorization['\\\"]",
+      "flags": 34,
+      "wall_seconds": 0.01689470000565052,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[15] bearer_token",
+      "pattern": "['\\\"]Bearer\\s",
+      "flags": 32,
+      "wall_seconds": 0.017455799999879673,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[16] passport",
+      "pattern": "passport\\.authenticate\\(",
+      "flags": 34,
+      "wall_seconds": 0.020382100003189407,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[23] auth_middleware",
+      "pattern": "\\bauthMiddleware\\b",
+      "flags": 34,
+      "wall_seconds": 0.044660100000328384,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[24] auth_guard",
+      "pattern": "\\bauthGuard\\b|\\bAuthGuard\\b",
+      "flags": 32,
+      "wall_seconds": 0.17942280000715982,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[27] auth_middleware",
+      "pattern": "\\.(?:get|post|put|delete|patch|all)\\(\\s*['\\\"][^'\\\"]*['\\\"]\\s*,[^)\\n]*\\b\\w*(?:[Aa]uth|[Gg]uard|authenticate|authorize)\\w*\\b",
+      "flags": 34,
+      "wall_seconds": 0.0005875999922864139,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[30] session_state",
+      "pattern": "\\brequest\\.session\\.\\w",
+      "flags": 32,
+      "wall_seconds": 0.04755020000447985,
+      "process_seconds": 0.015625,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[3] sql",
+      "pattern": "\\bAsyncSession\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.043220100007602014,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[8] sql",
+      "pattern": "\\.execute\\(\\s*['\\\"]\\s*(?:SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\\b",
+      "flags": 34,
+      "wall_seconds": 0.0005778999911854044,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[9] sql",
+      "pattern": "\\.executemany\\(\\s*['\\\"]",
+      "flags": 34,
+      "wall_seconds": 0.0005443000118248165,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[10] postgresql",
+      "pattern": "psycopg(?:2|3)?\\.connect\\(",
+      "flags": 34,
+      "wall_seconds": 0.047221099986927584,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[12] postgresql",
+      "pattern": "new\\s+Pool\\(",
+      "flags": 34,
+      "wall_seconds": 0.015072199996211566,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.DB_PATTERNS[24] redis",
+      "pattern": "redis\\.createClient\\(",
+      "flags": 34,
+      "wall_seconds": 0.016066299998783506,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[0] login_required",
+      "pattern": "@login_required\\b",
+      "flags": 34,
+      "wall_seconds": 0.000585400004638359,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[1] jwt",
+      "pattern": "@jwt_required\\b",
+      "flags": 34,
+      "wall_seconds": 0.0005868999869562685,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[2] auth_guard",
+      "pattern": "@UseGuards\\(",
+      "flags": 32,
+      "wall_seconds": 0.0005810000002384186,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[18] verify_token",
+      "pattern": "\\b(?:verify|require)Token\\s*\\(",
+      "flags": 34,
+      "wall_seconds": 0.04462960000091698,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[26] auth_middleware",
+      "pattern": "\\.use\\(\\s*[\\w$.]*(?:[Aa]uth|[Gg]uard|passport)",
+      "flags": 34,
+      "wall_seconds": 0.0006007000047247857,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[31] session_middleware",
+      "pattern": "\\bcookie-session\\b",
+      "flags": 32,
+      "wall_seconds": 0.03371510001306888,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "scanner.AUTH_PATTERNS[37] password_flow",
+      "pattern": "\\bargon2\\b",
+      "flags": 32,
+      "wall_seconds": 0.035328099998878315,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "authz._GRAPHQL_SCHEMA_BLOCK_RE",
+      "pattern": "schema\\s*\\{(?P<body>[^}]*)\\}",
+      "flags": 48,
+      "wall_seconds": 0.000596500001847744,
+      "process_seconds": 0.0,
+      "span": null
+    },
+    {
+      "name": "authz._GRAPHQL_AUTH_DIRECTIVE_RE",
+      "pattern": "@(?:auth|authenticated|isAuthenticated|authorized|hasRole|hasScopes?|requiresScopes?|requireAuth|requiresAuth|hasPermission|policy|private|acl)\\b",
+      "flags": 34,
+      "wall_seconds": 0.0005518000107258558,
+      "process_seconds": 0.0,
+      "span": null
+    }
+  ],
+  "hot_pattern": "authz._OWNERSHIP_MARKERS",
+  "scaling": [
+    {
+      "chars": 50000,
+      "wall_seconds": 0.42132090000086464,
+      "process_seconds": 0.234375,
+      "span": null
+    },
+    {
+      "chars": 100000,
+      "wall_seconds": 0.9818620000005467,
+      "process_seconds": 0.484375,
+      "span": null
+    },
+    {
+      "chars": 200000,
+      "wall_seconds": 1.5491879000037443,
+      "process_seconds": 0.859375,
+      "span": null
+    }
+  ]
+}

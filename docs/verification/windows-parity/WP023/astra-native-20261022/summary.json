@@ -1,0 +1,17 @@
+{
+  "failure": null,
+  "input_count": 1082,
+  "changed_inputs": [],
+  "suite_count": 29,
+  "console_assertions": 1134,
+  "controlled_cases": 31,
+  "passed": true,
+  "scope": "Console fixture/owned filesystem plus controlled fake brokers only. No GUI, live provider, real engine, manual or release acceptance.",
+  "deferred_projects": {
+    "FrozenRunner.Tests": "Fresh source-bound frozen engine required; integrator gate.",
+    "FrozenCancellation.Tests": "Fresh frozen engine and exclusive runtime slot required; original 50 cycles/2000 files preserved.",
+    "ProtectedProviderStore.Tests": "Fresh frozen engine plus real Windows DPAPI/Python integration; separate isolated settings gate.",
+    "ProviderRoundtrip.Tests": "Real Python provider configuration/broker processes; separate integration gate.",
+    "ReportExport.Tests": "Runs installed Edge/Chrome headless PDF export; separate browser process gate, not pure consumer fixture."
+  }
+}

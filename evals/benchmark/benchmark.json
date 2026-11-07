@@ -126,6 +126,81 @@
           "note": "Internal state-changing route with no authentication."
         }
       ]
+    },
+    {
+      "id": "express-docs-demo",
+      "path": "evals/benchmark/cases/express-docs-demo",
+      "expected": [
+        {
+          "category": "injection",
+          "route": "/docs/raw",
+          "method": "GET",
+          "file": "server.js",
+          "line": 12,
+          "severity": "high",
+          "note": "Query value joined into a filesystem path with no basename/containment check (path traversal, two-line flow)."
+        },
+        {
+          "category": "injection",
+          "route": "/preview",
+          "method": "GET",
+          "file": "server.js",
+          "line": 26,
+          "severity": "medium",
+          "note": "Caller-chosen URL fetched server-side (SSRF, two-line flow). /status/:service is the clean twin (fixed host)."
+        }
+      ]
+    },
+    {
+      "id": "hooks-admin-demo",
+      "path": "evals/benchmark/cases/hooks-admin-demo",
+      "expected": [
+        {
+          "category": "bola",
+          "route": "/docs/{doc_id}",
+          "method": "GET",
+          "file": "app.py",
+          "line": 10,
+          "severity": "medium",
+          "note": "Doc fetched by client-supplied id with parameterized SQL but no ownership scoping in the handler."
+        },
+        {
+          "category": "unauth_state_change",
+          "route": "/docs/{doc_id}",
+          "method": "DELETE",
+          "file": "app.py",
+          "line": 19,
+          "severity": "high",
+          "note": "Doc deleted with no authentication. Id-keyed write, but the missing control is authentication (POST /admin/sync is the guarded twin)."
+        },
+        {
+          "category": "unauth_state_change",
+          "route": "/admin/bulk",
+          "method": "POST",
+          "file": "app.py",
+          "line": 61,
+          "severity": "high",
+          "note": "Privileged reindex with no authentication. POST /admin/sync is the twin guarded by a Depends(require_admin) dependency."
+        },
+        {
+          "category": "unauth_state_change",
+          "route": "/jobs/run",
+          "method": "POST",
+          "file": "app.py",
+          "line": 78,
+          "severity": "high",
+          "note": "Job inserted with no authentication (parameterized SQL — no injection)."
+        },
+        {
+          "category": "webhook_exposure",
+          "route": "/hooks/github",
+          "method": "POST",
+          "file": "app.py",
+          "line": 27,
+          "severity": "high",
+          "note": "Webhook-style route writes events with no signature verification. POST /hooks/verified is the HMAC twin; GET /hooks/events is read-only."
+        }
+      ]
     }
   ]
 }

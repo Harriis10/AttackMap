@@ -1,0 +1,82 @@
+{
+  "mode": "after-reviewed",
+  "python": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+  "cases": {
+    "fastapi-mixed-mounts": {
+      "fixture": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\python-mounts-fixtures\\fastapi-mixed-mounts",
+      "sha256": {
+        "main.py": "1da620be930878a8bd95442ea4717251112a23edc278041d455ca886a110f72e",
+        "routers.py": "2c7c4005d8afb23e8dff77f8cf424b74a4e798a00d9ea2df38a8de42d0802241",
+        "guards.py": "f7053070b8d1466fd4075331563645d825fae6991ca4d50c67047394827a198b"
+      },
+      "results": {
+        "builtin_python_service": {
+          "routes": [],
+          "framework_hints": [
+            {
+              "hint": "asgi_app:fastapi",
+              "file": "main.py",
+              "line": 4,
+              "evidence_text": "FastAPI() application object",
+              "confidence": 0.9
+            },
+            {
+              "hint": "fastapi_router_mount:/private/items",
+              "file": "main.py",
+              "line": 5,
+              "evidence_text": "router 'router' mounted at /private/items (defined in routers.py:2; route paths retain per-file extraction; declared wiring only)",
+              "confidence": 0.85
+            },
+            {
+              "hint": "fastapi_router_mount:/public/items",
+              "file": "main.py",
+              "line": 6,
+              "evidence_text": "router 'router' mounted at /public/items (defined in routers.py:2; route paths retain per-file extraction; declared wiring only)",
+              "confidence": 0.85
+            }
+          ],
+          "auth_hints": [
+            {
+              "hint": "auth_dependency_definition",
+              "file": "guards.py",
+              "line": 2,
+              "evidence_text": "def verify_token verifies caller credentials",
+              "confidence": 0.8
+            }
+          ],
+          "limitations": []
+        },
+        "installed_python_plugin": {
+          "routes": [],
+          "framework_hints": [
+            {
+              "hint": "fastapi",
+              "file": "guards.py",
+              "line": 1,
+              "evidence_text": "from fastapi import HTTPException",
+              "confidence": 0.7
+            },
+            {
+              "hint": "fastapi",
+              "file": "main.py",
+              "line": 1,
+              "evidence_text": "from fastapi import FastAPI, Depends",
+              "confidence": 0.7
+            },
+            {
+              "hint": "fastapi",
+              "file": "routers.py",
+              "line": 1,
+              "evidence_text": "from fastapi import APIRouter",
+              "confidence": 0.7
+            }
+          ],
+          "auth_hints": [],
+          "limitations": []
+        }
+      }
+    }
+  },
+  "source_file": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\ecosystem_python.py",
+  "source_sha256": "29079ad382389ddb2a987130642cae0a2f28fb957a15dad3bb94e5b66692a101"
+}

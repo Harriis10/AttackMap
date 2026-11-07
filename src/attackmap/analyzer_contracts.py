@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
@@ -13,9 +14,18 @@ from .recon_models import ScanResult
 AnalyzerResult = ScanResult
 
 # `name` must be a slug: lowercase letters, digits, hyphens. This is the
-# entry-point key AttackMap uses to identify the analyzer, so it needs
-# to be safe in URLs, filesystem paths, and CLI arguments.
+# entry-point key AttackMap uses to identify the analyzer, so it needs to
+# be safe in URLs, filesystem paths, and CLI arguments.
 _ANALYZER_NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+# Versioned extraction protocol (AM050 / C36). The analyzer I/O contract:
+# input is a repository root path (core may additionally forward optional
+# progress/recall/index kwargs to analyzers that accept them — old plugins
+# are called as plain analyze(root)); output is an AnalyzerResult (or a
+# dict coercible to one) plus the static AnalyzerMetadata. Bumping the
+# major version means a breaking protocol change; every current official
+# analyzer is compatible with "1.0".
+EXTRACTION_PROTOCOL_VERSION = "1.0"
 
 
 class AnalyzerMetadata(BaseModel):
@@ -67,8 +77,9 @@ class AnalyzerMetadata(BaseModel):
     priority: int = Field(
         default=100,
         ge=0,
-        description="Discovery ordering hint. Lower runs first when multiple "
-        "analyzers match. Ties are broken by entry-point name. Convention: "
+        description="Run order across built-ins and plugins: lower runs first, "
+        "ties broken by analyzer name. Merge is first-seen-wins in that order, "
+        "so a lower value also wins a duplicate signal. Convention: "
         "0-49 is broad language analyzers (python, node-service); 50-149 is "
         "framework analyzers (spring, laminas); 150+ is app-specific "
         "analyzers (omeka-s).",
@@ -76,13 +87,16 @@ class AnalyzerMetadata(BaseModel):
     experimental: bool = Field(
         default=True,
         description="Whether this analyzer is still stabilizing. Doesn't "
-        "affect execution, just how core presents it in listings.",
+        "affect execution, just how core presents it in listings. "
+        "Experimental analyzers should normally leave enabled_by_default False.",
     )
     enabled_by_default: bool = Field(
         default=False,
         description="Whether to run this analyzer without an explicit "
-        "--module flag. Broad language analyzers set this True; specialty "
-        "framework/app analyzers usually leave it False.",
+        "--module flag. False makes it opt-in: it runs only when selected "
+        "with -m (detect() still gates it), and the CLI notes when an opt-in "
+        "analyzer matched but didn't run. Broad language analyzers set this "
+        "True; specialty framework/app analyzers usually leave it False.",
     )
 
     @field_validator("name")
@@ -161,6 +175,10 @@ __all__ = [
     "AnalyzerMetadata",
     "AnalyzerRepositoryModule",
     "AnalyzerProtocol",
+    "EXTRACTION_PROTOCOL_VERSION",
+    "ExtractionCompatibility",
+    "check_extraction_compatibility",
+    "describe_extraction_protocol",
     "normalize_analyzer_metadata",
 ]
 
@@ -188,3 +206,85 @@ def normalize_analyzer_metadata(value: object) -> AnalyzerMetadata:
         if hasattr(value, key):
             payload[key] = getattr(value, key)
     return AnalyzerMetadata.model_validate(payload)
+
+
+def describe_extraction_protocol() -> dict[str, object]:
+    """Machine-readable summary of extraction protocol ``1.0``.
+
+    The single source of truth for what core feeds an analyzer and what it
+    expects back. Kept in code (not only docs) so the optional isolated
+    host and compatibility checks can reference one versioned contract.
+    """
+    return {
+        "protocol": "attackmap.analyzer.extraction",
+        "version": EXTRACTION_PROTOCOL_VERSION,
+        "input": {
+            "root": "Absolute path of the repository to analyze (read-only expectation).",
+            "options": (
+                "None in protocol 1.0. Core may forward optional progress/recall/"
+                "index keyword arguments to analyzers whose analyze() accepts them; "
+                "plugins written against analyze(root) are called unchanged."
+            ),
+        },
+        "output": {
+            "result": (
+                "AnalyzerResult (attackmap ScanResult), or a dict coercible to it. "
+                "Core validates, stamps provenance and merges per merge.MERGE_SCHEMA."
+            ),
+            "errors": (
+                "In-process: raising or returning an invalid value records an "
+                "analyzer_errors entry and the scan continues (#220). In the optional "
+                "isolated host: non-zero exit, timeout, output-size or memory breach "
+                "yields a named partial-coverage analyzer_errors entry."
+            ),
+        },
+        "metadata": {
+            "type": "AnalyzerMetadata",
+            "schema": "attackmap.analyzer_contracts.AnalyzerMetadata.model_json_schema()",
+        },
+        "isolation": {
+            "optional": True,
+            "module": "attackmap.analyzer_host",
+            "note": (
+                "Process isolation for fault containment, not a security sandbox. "
+                "See docs/external-analyzers.md for the limits actually enforced."
+            ),
+        },
+    }
+
+
+@dataclass(frozen=True)
+class ExtractionCompatibility:
+    """Result of checking one analyzer against the extraction protocol."""
+
+    analyzer: str
+    protocol_version: str = EXTRACTION_PROTOCOL_VERSION
+    compatible: bool = True
+    issues: tuple[str, ...] = field(default_factory=tuple)
+
+
+def check_extraction_compatibility(analyzer: object) -> ExtractionCompatibility:
+    """Check a live analyzer object against extraction protocol ``1.0``.
+
+    Additive and backwards compatible: every analyzer that satisfies the
+    long-standing duck-typed contract (callable ``analyze``, normalizable
+    ``metadata`` with a slug ``name``) passes. Used by core tests over the
+    built-ins and any installed plugin analyzers.
+    """
+    issues: list[str] = []
+    name = getattr(analyzer, "name", None)
+    if not isinstance(name, str) or not name.strip():
+        issues.append("analyzer exposes no usable .name")
+        name = "unknown"
+    analyze = getattr(analyzer, "analyze", None)
+    if not callable(analyze):
+        issues.append("analyze() is missing or not callable")
+    try:
+        normalize_analyzer_metadata(getattr(analyzer, "metadata", None))
+    except Exception as exc:
+        issues.append(f"metadata does not satisfy AnalyzerMetadata ({type(exc).__name__})")
+    return ExtractionCompatibility(
+        analyzer=name if isinstance(name, str) else "unknown",
+        compatible=not issues,
+        issues=tuple(issues),
+    )

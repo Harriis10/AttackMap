@@ -1,4 +1,4 @@
-from attackmap.models import AttackSurface, AuthHint, DatabaseHint, EdgeHint, ExternalCall, FrameworkHint, ProtocolHint, Route, ScanResult, SecretHint, ServiceHint
+from attackmap.models import AttackSurface, AuthHint, DatabaseHint, EdgeHint, ExternalCall, FrameworkHint, ProtocolHint, Route, ScanResult, SecretHint, ServiceHint, TaintChain
 from attackmap.threat_model import (
     _build_probable_chains,
     confidence_bucket,
@@ -13,6 +13,7 @@ def test_webhook_route_generates_high_severity_finding() -> None:
         routes=[Route(path="/webhook/stripe", method="POST", file="api.py")],
         databases=[DatabaseHint(kind="postgresql", file="db.py")],
         external_calls=[ExternalCall(target="https://api.example.com/process", file="api.py")],
+        taint_chains=[TaintChain(route_path="/webhook/stripe", route_method="POST", route_file="api.py", sink_kind="ssrf", sink_file="api.py", hops=0, sanitized=True)],
     )
 
     findings = generate_findings(scan)
@@ -631,6 +632,7 @@ def test_findings_carry_prioritization_tags() -> None:
         databases=[DatabaseHint(kind="postgresql", file="api.py")],
         external_calls=[ExternalCall(target="https://vendor.example", file="api.py")],
         secret_hints=[SecretHint(name="API_KEY", file="config.py")],
+        taint_chains=[TaintChain(route_path="/webhook/x", route_method="POST", route_file="api.py", sink_kind="ssrf", sink_file="api.py", hops=0, sanitized=True)],
     )
     findings = generate_findings(scan)
     tag_map = {f.title: f.tags for f in findings}

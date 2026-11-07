@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "scope": "Sealedproduction source all3Windows interpreters green across original311 and corrective312/313 fullruns. PIDfixture corrected for312/313, original311 predates test-only fixture repair. Originalnegative runs preserved; no cleancheckout/otherOS/manual/M3 acceptance.",
+  "results": {
+    "311": {
+      "exit": {
+        "exit_code": 0,
+        "source_changes": [],
+        "source_unchanged": true,
+        "finished_utc": "2026-10-15T15:40:07.329110+00:00"
+      },
+      "junit": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "4",
+          "tests": "3218",
+          "time": "653.487",
+          "timestamp": "2026-10-15T17:29:11.656500+02:00",
+          "hostname": "corpsec"
+        }
+      ],
+      "log": ".pytest_cache\\m3-final-source-py311-90775f10dbcf45e59b30c8238c1b4efd\\pytest.log",
+      "log_sha256": "f027f8f38e17ffba6cfacd541535027d1a4cc014679224c986c8f239e1b20756"
+    },
+    "313": {
+      "exit": {
+        "exit_code": 1,
+        "source_changes": [],
+        "source_unchanged": true,
+        "finished_utc": "2026-10-15T15:39:58.483007+00:00"
+      },
+      "junit": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "4",
+          "tests": "3218",
+          "time": "644.127",
+          "timestamp": "2026-10-15T17:29:11.669312+02:00",
+          "hostname": "corpsec"
+        }
+      ],
+      "log": ".pytest_cache\\m3-final-source-py313-84563c217d49413fb9fc0a45b763e81a\\pytest.log",
+      "log_sha256": "4aef6daf2e7236d220a4ae600b3a65b9dbae3dba4bf9c1a86584ebf0d8b68b02"
+    },
+    "312": {
+      "exit": {
+        "exit_code": 1,
+        "source_changes": [],
+        "source_unchanged": true,
+        "finished_utc": "2026-10-15T15:41:36.038214+00:00"
+      },
+      "junit": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "3",
+          "skipped": "4",
+          "tests": "3218",
+          "time": "743.189",
+          "timestamp": "2026-10-15T17:29:11.198507+02:00",
+          "hostname": "corpsec"
+        }
+      ],
+      "log": ".pytest_cache\\m3-final-source-py312-152efdbdbdf84659af0efb41686e1724\\pytest.log",
+      "log_sha256": "0c387ee81a198b729147c9be42bd0aa9021638325b99ae90f280b30493f5c187",
+      "failures": [
+        {
+          "node": "long_word",
+          "elapsed_seconds": 5.0207196,
+          "limit_seconds": 5
+        },
+        {
+          "node": "router_assign",
+          "elapsed_seconds": 5.1535374,
+          "limit_seconds": 5
+        },
+        {
+          "node": "many_matches",
+          "elapsed_seconds": 26.4767502,
+          "limit_seconds": 25
+        }
+      ]
+    }
+  },
+  "pending": {},
+  "gate_accepted": false,
+  "corrective312full": {
+    "session": 58170,
+    "exit": {
+      "exit_code": 0,
+      "source_changes": [],
+      "source_unchanged": true,
+      "finished_utc": "2026-10-15T15:54:14.339276+00:00"
+    },
+    "passed": 3214,
+    "skipped": 4,
+    "seconds": 529.34,
+    "junit": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "4",
+        "tests": "3218",
+        "time": "528.796",
+        "timestamp": "2026-10-15T17:45:23.821863+02:00",
+        "hostname": "corpsec"
+      }
+    ],
+    "log": ".pytest_cache\\m3-final-source-py312-serial-f1bebecaacfa4c8bb118ff5e7947a9c4\\pytest.log",
+    "log_sha256": "246249a11bf8d19d0eeec7424edc283fe911fe4d65ac9ec20651d45977d19c77"
+  },
+  "corrective313full": {
+    "session": 80020,
+    "exit": {
+      "exit_code": 0,
+      "source_changes": [],
+      "source_unchanged": true,
+      "finished_utc": "2026-10-15T16:02:55.495884+00:00"
+    },
+    "passed": 3214,
+    "skipped": 4,
+    "seconds": 496.27,
+    "junit": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "4",
+        "tests": "3218",
+        "time": "495.826",
+        "timestamp": "2026-10-15T17:54:38.084811+02:00",
+        "hostname": "corpsec"
+      }
+    ],
+    "log": ".pytest_cache\\m3-final-source-py313-serial-d4168ad5ff99452eb6df29f6da940487\\pytest.log",
+    "log_sha256": "fc0fa14647e7dac37a98da0fb812801f8d8ed28919e681046d7db61b7d023375"
+  },
+  "same_production_source_across_three_green_runs": {
+    "files": 115,
+    "sha256_of_sorted_path_hash_mapping": "809f7205c476eb9741c0db8d51ce9b68cc04b084fcf78a768e97d3c99df4aed2",
+    "equal": true,
+    "note": "311 testfixturepredatesPIDatomicrepair;productionfilesexactmatch. SubsequentC15batchnotcovered."
+  }
+}

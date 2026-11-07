@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "validation_status": "Unsigned candidate checks passed; final full source regressions pending/nonaccepted; no M3 promotion",
+  "package": "dev-20261015153700-2ef7b386",
+  "archive_sha256": "b8fcb9ec291b6831ab33fc784285365e85be3ba1dc8c70276d12e21aa4f7241a",
+  "native_dll_sha256": "a7201cb2ecddd9eaeabd3481566e7237ce2c4298883c383a5a38fe2f92f5dce9",
+  "engine_sha256": "b5f839a26d3f2f0bb93a77a555e75fb0b48583b89b30e85688a746f2ee43a7dd",
+  "isolated_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-finalsource-package-4d2307a3486147908f62139c813ba64c",
+  "processes": {
+    "startup": {
+      "exit_code": 0,
+      "pid": 85708
+    },
+    "report": {
+      "pid": 90628,
+      "exit_code": 0
+    },
+    "scan": {
+      "pid": 93888,
+      "exit_code": 0
+    }
+  },
+  "startup": {
+    "passed": true,
+    "bundledEngine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-finalsource-package-4d2307a3486147908f62139c813ba64c\\install\\versions\\dev-20261015153700-2ef7b386\\app\\engine\\attackmap.exe",
+    "automaticScan": false,
+    "aiEnabled": false,
+    "cveEnabled": false,
+    "personalSettingsRead": false,
+    "manualStartupAcceptance": false
+  },
+  "existing_report": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "findingViewport": {
+      "width": 1055,
+      "height": 351,
+      "listHeight": 297,
+      "inspectorWidth": 519,
+      "stacked": false
+    },
+    "reviewVisible": true,
+    "sourceLocations": [
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 634,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      },
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 635,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      }
+    ],
+    "legacyIntegrity": "unverified",
+    "runSummary": "Selected repository: none\nRun state: Idle\nDisplayed report: Legacy import; run identity unavailable\nReport repository: C:\\tmp\\juice-shop\nScan timestamp unavailable; opened (client UTC): 2026-10-15T15:41:24.5774242Z; Engine scan timing unavailable (missing, unsupported or unverifiable).",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "tiny_coupled_scan": {
+    "passed": true,
+    "loaded": 2,
+    "error": null,
+    "runSummary": "Selected repository: C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-finalsource-package-4d2307a3486147908f62139c813ba64c\\tiny-repository\nRun state: Engine completed; policy not_evaluated; artifacts ready\nDisplayed report: 23e47246f1ee45e4babb6458325dfb06\nReport repository: C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-finalsource-package-4d2307a3486147908f62139c813ba64c\\tiny-repository\nRequested at (client UTC): 2026-10-15T15:41:26.7572163Z; Engine analysis started (UTC): 2026-10-15T15:41:29.6326880Z; analysis finished before publication (UTC): 2026-10-15T15:41:29.8805300Z; outcome: completed. This is not publication completion time.",
+    "coverage": "Distinct accepted source paths enumerated by analyzers: 1\nEnumeration does not establish complete language or runtime coverage.\nReported file count (legacy aggregate; may overlap): 1\nCoverage limitations:\nNone supplied; completeness is unverified.\nAnalyzer errors (as supplied): []",
+    "options": {
+      "recall": false,
+      "strict_analyzers": false,
+      "no_suppress": false,
+      "cve": false,
+      "secrets_history": 0,
+      "timeout_seconds": 600
+    },
+    "modules": ""
+  },
+  "scan_timing": {
+    "schema_version": "1.0",
+    "clock": "engine_utc",
+    "scope": "analysis_pipeline_before_publication",
+    "started_at": "2026-10-15T17:41:29.632688+02:00",
+    "finished_at": "2026-10-15T17:41:29.88053+02:00",
+    "outcome": "completed"
+  },
+  "pointer": {
+    "generation": "23e47246f1ee45e4babb6458325dfb06",
+    "manifest_sha256": "5656118472787f30547f84b7610f6c755670b0380769d75dbc111d7ccdb1ed9e"
+  },
+  "manifest_sha256": "5656118472787f30547f84b7610f6c755670b0380769d75dbc111d7ccdb1ed9e",
+  "verified_artifacts": [
+    {
+      "path": "scan.json",
+      "sha256": "54495ae5821f46677532e466f5bbaa7299a5a6573d44c86f08cea9c1b2626339",
+      "size_bytes": 2714
+    },
+    {
+      "path": "findings.json",
+      "sha256": "cc73a8816ee96e42c53ae2925eec5ce61ba25560dd930bd04a6eb2f5338b5e90",
+      "size_bytes": 9833
+    },
+    {
+      "path": "attack_paths.json",
+      "sha256": "0295e7c30f3d6b5ceee5932cca9e0db0626ea9047da66784f52b1f5372f57216",
+      "size_bytes": 648
+    },
+    {
+      "path": "attack_surfaces.json",
+      "sha256": "10de881a14764c6590eb2e468d2184c57ac4752901e2ac5e32e0fd7c3efcd31e",
+      "size_bytes": 760
+    },
+    {
+      "path": "exploitability.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "path": "suppressed_findings.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "path": "defensive-review.json",
+      "sha256": "d4c969811ec4bfdb6b60aa684b33989b50f5152b956c937fe819a6d03c5ac62c",
+      "size_bytes": 28215
+    },
+    {
+      "path": "review-context-pack.json",
+      "sha256": "0a0f33142e8b0b03730c328ddd4e886716a2f7fc2f0009d0f5bf3a1f948b6dcf",
+      "size_bytes": 32513
+    },
+    {
+      "path": "attackmap-report.json",
+      "sha256": "1f9e7d3c863c898604572d2058e11e48705f9d23fbca85860946c39c4f462c10",
+      "size_bytes": 86560
+    },
+    {
+      "path": "run-manifest.json",
+      "sha256": "6a22d76f44593579860f694ae8a1ec1e3f6928228fb457f1f94b813681543ea1",
+      "size_bytes": 1112
+    },
+    {
+      "path": "attackmap-report.sarif",
+      "sha256": "d2df4c7993d52dc01c7a12ff43c285e6d91110ba431a0762c58088194ff9890d",
+      "size_bytes": 10641
+    },
+    {
+      "path": "architecture.md",
+      "sha256": "1ad3163d0f574b8ecd4a36107df82b60777bb77aa2b907c79e3320997a66b442",
+      "size_bytes": 753
+    },
+    {
+      "path": "attack-surface.md",
+      "sha256": "a04f1608cc77f5c56155b34e46d8dd5679ca731e24a670e73ad7f365c59ef3b4",
+      "size_bytes": 1047
+    },
+    {
+      "path": "defensive-review.md",
+      "sha256": "25995d4913bd9bcd138715a65c2d609872ccb74004e6e91904b426df6ed9b99d",
+      "size_bytes": 5487
+    },
+    {
+      "path": "attackmap-exploitability.md",
+      "sha256": "ea1354339fabe2e2c4e938c6c2e592e65f70e02ee610b0b71334ed6d6bde3d32",
+      "size_bytes": 237
+    },
+    {
+      "path": "attackmap-paths.md",
+      "sha256": "2716134389ac6523942e16707dcb666d4333cff29d80eb4036b9886b1a32a95d",
+      "size_bytes": 786
+    },
+    {
+      "path": "attackmap-topology.md",
+      "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+      "size_bytes": 71
+    },
+    {
+      "path": "attackmap-paths.dot",
+      "sha256": "d3422abae799c54f1ff5117ef5df8504d1f068d190974c9148cb01266774e452",
+      "size_bytes": 917
+    },
+    {
+      "path": "attackmap-topology.dot",
+      "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+      "size_bytes": 123
+    }
+  ],
+  "checks": {
+    "exact_installed_engine_selected": true,
+    "no_personal_settings_read": true,
+    "engine_timing_exact_canonical_manifest": true,
+    "client_requested_separate": true,
+    "test_owned_smoke_outputs_removed": true
+  },
+  "limitations": [
+    "Final full regressions were pending at candidate creation; root reported Python3.12 failure markers before authoritative terminal. No pass inferred.",
+    "Current Windows10 dirty-source development scope, no Windows11/macOS/clean-machine/signing/manual acceptance.",
+    "Tiny owned coupled scan only; no repeated Juice Shop scan or remote AI/CVE request.",
+    "User-open historical package untouched; newer candidate is not M3 promotion."
+  ],
+  "cleanup": {
+    "appdata_snapshot_unchanged": true,
+    "rollback_selected": "dev-20261015144954-78c3f581",
+    "appdata_scope": "Existing files under LOCALAPPDATA/AttackMap and APPDATA/AttackMap; no contents recorded",
+    "uninstall_completed": true,
+    "existing_appdata_files_count": 1,
+    "user_preview_or_package_touched": false,
+    "old_version_removed": true,
+    "new_version_removed": true,
+    "current_pointer_removed": true,
+    "rollforward_selected": "dev-20261015153700-2ef7b386"
+  }
+}

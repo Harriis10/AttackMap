@@ -1,0 +1,166 @@
+{
+  "suite": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "12",
+    "skipped": "7",
+    "tests": "4183",
+    "time": "5107.068",
+    "timestamp": "2026-10-21T03:58:57.716908+02:00",
+    "hostname": "corpsec"
+  },
+  "outcomes": [
+    {
+      "kind": "skipped",
+      "class": "tests.test_analyzers",
+      "name": "test_discover_installed_analyzers_includes_php_web_when_installed",
+      "seconds": "0.011",
+      "message": "could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'",
+      "details": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_analyzers.py:134: could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'"
+    },
+    {
+      "kind": "skipped",
+      "class": "tests.test_analyzers",
+      "name": "test_analyze_repository_uses_installed_php_web_analyzer_for_php_routes",
+      "seconds": "0.074",
+      "message": "could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'",
+      "details": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_analyzers.py:604: could not import 'attackmap_analyzer_php_web': No module named 'attackmap_analyzer_php_web'"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_desktop_reference",
+      "name": "test_sidecar_hash_metadata_and_identical_rerun",
+      "seconds": "0.048",
+      "message": "ValueError: Inside the workspace, generated fixtures must stay under .pytest_cache",
+      "details": "tests\\test_desktop_reference.py:33: in test_sidecar_hash_metadata_and_identical_rerun\n    manifest = generator.generate(tmp_path, **options)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntools\\generate_desktop_reference.py:82: in generate\n    target = _output_directory(output)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\ntools\\generate_desktop_reference.py:76: in _output_directory\n    raise ValueError(\"Inside the workspace, generated fixtures must stay under .pytest_cache\")\nE   ValueError: Inside the workspace, generated fixtures must stay under .pytest_cache"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_desktop_reference",
+      "name": "test_rejects_different_existing_output_before_other_files_are_written",
+      "seconds": "0.051",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'overwrite'\n  Actual message: 'Inside the workspace, generated fixtures must stay under .pytest_cache'",
+      "details": "tests\\test_desktop_reference.py:46: in test_rejects_different_existing_output_before_other_files_are_written\n    with pytest.raises(ValueError, match=\"overwrite\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AssertionError: Regex pattern did not match.\nE     Expected regex: 'overwrite'\nE     Actual message: 'Inside the workspace, generated fixtures must stay under .pytest_cache'"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_installer_entry",
+      "name": "test_actual_cli_help_with_forced_legacy_redirected_output",
+      "seconds": "30.222",
+      "message": "subprocess.TimeoutExpired: Command '['C:\\\\Projects\\\\INPROGRESS\\\\AttackMap\\\\.venv\\\\Scripts\\\\python.exe', 'C:\\\\Projects\\\\INPROGRESS\\\\AttackMap\\\\installer\\\\entry.py', 'analyze', '--help']' timed out after 30 seconds",
+      "details": "tests\\test_installer_entry.py:71: in test_actual_cli_help_with_forced_legacy_redirected_output\n    result = subprocess.run([sys.executable, str(ENTRY), \"analyze\", \"--help\"], capture_output=True,\nC:\\Program Files\\Python313\\Lib\\subprocess.py:556: in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\subprocess.py:1222: in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\subprocess.py:1665: in _communicate\n    raise TimeoutExpired(self.args, orig_timeout)\nE   subprocess.TimeoutExpired: Command '['C:\\\\Projects\\\\INPROGRESS\\\\AttackMap\\\\.venv\\\\Scripts\\\\python.exe', 'C:\\\\Projects\\\\INPROGRESS\\\\AttackMap\\\\installer\\\\entry.py', 'analyze', '--help']' timed out after 30 seconds"
+    },
+    {
+      "kind": "skipped",
+      "class": "tests.test_llm_cli_isolation",
+      "name": "test_live_hostile_repo_hooks_and_mcp_never_fire",
+      "seconds": "0.005",
+      "message": "live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI",
+      "details": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_llm_cli_isolation.py:158: live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_resource_budgets",
+      "name": "test_time_budget_check_overhead_is_negligible",
+      "seconds": "0.585",
+      "message": "AssertionError: 5627.674000133993\nassert 5627.674000133993 < 1000",
+      "details": "tests\\test_resource_budgets.py:112: in test_time_budget_check_overhead_is_negligible\n    assert per_check_ns < 1_000, per_check_ns\nE   AssertionError: 5627.674000133993\nE   assert 5627.674000133993 < 1000"
+    },
+    {
+      "kind": "skipped",
+      "class": "tests.test_resource_budgets",
+      "name": "test_cancellation_under_load_terminates_promptly_with_partial_coverage",
+      "seconds": "0.005",
+      "message": "cancellation-under-load proof: a ~5000-file fixture needs ~2 minutes; run with ATTACKMAP_STRESS_TESTS=1",
+      "details": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_resource_budgets.py:218: cancellation-under-load proof: a ~5000-file fixture needs ~2 minutes; run with ATTACKMAP_STRESS_TESTS=1"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[long_word]",
+      "seconds": "16.772",
+      "message": "assert (108132.2416743 - 108115.6060582) < 5\n +  where 108132.2416743 = <built-in function perf_counter>()\n +    where <built-in function perf_counter> = time.perf_counter",
+      "details": "tests\\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time\n    assert time.perf_counter() - start < 5\nE   assert (108132.2416743 - 108115.6060582) < 5\nE    +  where 108132.2416743 = <built-in function perf_counter>()\nE    +    where <built-in function perf_counter> = time.perf_counter"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[router_assign]",
+      "seconds": "21.103",
+      "message": "assert (108153.3996327 - 108132.450699) < 5\n +  where 108153.3996327 = <built-in function perf_counter>()\n +    where <built-in function perf_counter> = time.perf_counter",
+      "details": "tests\\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time\n    assert time.perf_counter() - start < 5\nE   assert (108153.3996327 - 108132.450699) < 5\nE    +  where 108153.3996327 = <built-in function perf_counter>()\nE    +    where <built-in function perf_counter> = time.perf_counter"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[blueprint]",
+      "seconds": "10.610",
+      "message": "assert (108164.0597743 - 108153.52178) < 5\n +  where 108164.0597743 = <built-in function perf_counter>()\n +    where <built-in function perf_counter> = time.perf_counter",
+      "details": "tests\\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time\n    assert time.perf_counter() - start < 5\nE   assert (108164.0597743 - 108153.52178) < 5\nE    +  where 108164.0597743 = <built-in function perf_counter>()\nE    +    where <built-in function perf_counter> = time.perf_counter"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_scan_limits",
+      "name": "test_long_lines_under_the_cap_scan_in_linear_time[graphql_field]",
+      "seconds": "10.235",
+      "message": "assert (108174.3173874 - 108164.133232) < 5\n +  where 108174.3173874 = <built-in function perf_counter>()\n +    where <built-in function perf_counter> = time.perf_counter",
+      "details": "tests\\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time\n    assert time.perf_counter() - start < 5\nE   assert (108174.3173874 - 108164.133232) < 5\nE    +  where 108174.3173874 = <built-in function perf_counter>()\nE    +    where <built-in function perf_counter> = time.perf_counter"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_scan_limits",
+      "name": "test_many_matches_in_a_large_file_scan_in_linear_time",
+      "seconds": "70.290",
+      "message": "assert (108244.7572653 - 108174.5479469) < 25\n +  where 108244.7572653 = <built-in function perf_counter>()\n +    where <built-in function perf_counter> = time.perf_counter",
+      "details": "tests\\test_scan_limits.py:82: in test_many_matches_in_a_large_file_scan_in_linear_time\n    assert time.perf_counter() - start < 25\nE   assert (108244.7572653 - 108174.5479469) < 25\nE    +  where 108244.7572653 = <built-in function perf_counter>()\nE    +    where <built-in function perf_counter> = time.perf_counter"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_scanned_coverage",
+      "name": "test_unreadable_file_is_not_enumerated[scan_files-locked.py]",
+      "seconds": "0.106",
+      "message": "AssertionError: assert (['locked.py'] == []\n  \n  Left contains one more item: 'locked.py'\n  Use -v to get more diff)",
+      "details": "tests\\test_scanned_coverage.py:52: in test_unreadable_file_is_not_enumerated\n    assert result.scanned_files == [] and result.files_scanned == 0\nE   AssertionError: assert (['locked.py'] == []\nE     \nE     Left contains one more item: 'locked.py'\nE     Use -v to get more diff)"
+    },
+    {
+      "kind": "skipped",
+      "class": "tests.test_sdk_fs",
+      "name": "test_unreadable_file_returns_none",
+      "seconds": "0.004",
+      "message": "chmod 000 is not enforced on Windows or for root",
+      "details": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_sdk_fs.py:95: chmod 000 is not enforced on Windows or for root"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_secrets_deep",
+      "name": "test_history_on_a_non_git_directory",
+      "seconds": "0.857",
+      "message": "IndexError: list index out of range",
+      "details": "tests\\test_secrets_deep.py:239: in test_history_on_a_non_git_directory\n    assert hits == [] and \"not a git repository\" in notes[0]\n                                                    ^^^^^^^^\nE   IndexError: list index out of range"
+    },
+    {
+      "kind": "failure",
+      "class": "tests.test_taint_flow",
+      "name": "test_flow_pass_stays_linear_on_a_large_file",
+      "seconds": "29.615",
+      "message": "assert (109564.9506281 - 109535.6032476) < 20\n +  where 109564.9506281 = <built-in function perf_counter>()\n +    where <built-in function perf_counter> = time.perf_counter",
+      "details": "tests\\test_taint_flow.py:406: in test_flow_pass_stays_linear_on_a_large_file\n    assert time.perf_counter() - start < 20\nE   assert (109564.9506281 - 109535.6032476) < 20\nE    +  where 109564.9506281 = <built-in function perf_counter>()\nE    +    where <built-in function perf_counter> = time.perf_counter"
+    },
+    {
+      "kind": "skipped",
+      "class": "tests.test_ui_export",
+      "name": "test_export_endpoint_rejects_symlinked_path",
+      "seconds": "0.002",
+      "message": "Windows tests run without symlink creation privileges",
+      "details": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_ui_export.py:242: Windows tests run without symlink creation privileges"
+    },
+    {
+      "kind": "skipped",
+      "class": "tests.test_unreadable_and_fleet_failures",
+      "name": "test_unreadable_file_is_skipped_and_reported",
+      "seconds": "0.002",
+      "message": "chmod 000 is not enforced on Windows or for root",
+      "details": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_unreadable_and_fleet_failures.py:31: chmod 000 is not enforced on Windows or for root"
+    }
+  ]
+}

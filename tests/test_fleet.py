@@ -9,7 +9,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from attackmap.cli import app
-from attackmap.contracts import ContractLink
+from attackmap.contracts import ContractLink, DeploymentAliases
 from attackmap.fleet import (
     FleetRepoResult,
     FleetScan,
@@ -132,7 +132,7 @@ def test_summary_lists_cross_repo_links() -> None:
     )
     md = render_fleet_summary(fleet)
     assert "Cross-repo links" in md
-    assert "1 client→server contract link(s)" in md
+    assert "1 observed client→server contract link(s)" in md
     assert "`client`" in md and "`server`" in md
     assert "/api/orders/<id>" in md and "c.py:3" in md
 
@@ -156,6 +156,84 @@ def test_fleet_summary_json_includes_links() -> None:
     assert link["client_repo"] == "client" and link["server_repo"] == "server"
     assert link["client_location"] == "c.py:3"
     assert link["server_location"] == "s.py:5"
+
+
+def _proxied_link() -> ContractLink:
+    # A proxy-fronted seam (C28): observed through the declared proxy, with
+    # the proxy identity and the resolving declaration carried on the link.
+    return ContractLink(
+        client_repo="client",
+        server_repo="server",
+        method="GET",
+        path_template="api/orders/*",
+        client_target="http://edge.internal/api/orders/",
+        client_file="c.py",
+        client_line=3,
+        server_route_path="/api/orders/<id>",
+        server_file="s.py",
+        server_line=5,
+        scheme="http",
+        resolution="observed_via_proxy",
+        alias_provenance="proxies:edge.internal",
+        proxy_host="edge.internal",
+    )
+
+
+def test_summary_renders_provenance_and_via_proxy_links() -> None:
+    aliased = ContractLink(
+        client_repo="client",
+        server_repo="server",
+        method="GET",
+        path_template="api/orders/*",
+        client_target="https://orders.bsky.social/api/orders/",
+        client_file="c.py",
+        client_line=3,
+        server_route_path="/api/orders/<id>",
+        server_file="s.py",
+        server_line=5,
+        alias_provenance="hosts:orders.bsky.social",
+    )
+    fleet = FleetScan(
+        results=[_result("client", []), _result("server", [])],
+        links=[_link(), aliased, _proxied_link()],
+    )
+    md = render_fleet_summary(fleet)
+    # Provenance is rendered next to each observed link; identity-resolved
+    # links say so plainly.
+    assert "hosts:orders.bsky.social" in md
+    assert "repo identity" in md
+    # Via-proxy links get their own section, distinct from direct edges.
+    assert "1 observed link(s) via a declared proxy" in md
+    assert "`edge.internal`" in md
+    assert "proxies:edge.internal" in md
+
+
+def test_mermaid_routes_via_proxy_links_through_proxy_node() -> None:
+    fleet = FleetScan(
+        results=[_result("client", []), _result("server", [])],
+        links=[_link(), _proxied_link()],
+    )
+    graph = render_fleet_graph_mermaid(fleet)
+    # The proxy appears as its own node; the proxied seam routes through it
+    # (client → proxy → server) instead of a direct client→server edge.
+    assert '"proxy: edge.internal"' in graph
+    assert graph.index("R0") < graph.index('["proxy: edge.internal"]')  # stable node block
+    assert "-->|\"GET /api/orders/*\"| P0" in graph
+    assert "P0 -->|\"GET /api/orders/*\"| R1" in graph
+    # The direct observed link keeps its own unproxied edge.
+    assert "R0 -->|\"GET /api/orders/*\"| R1" in graph
+
+
+def test_fleet_summary_json_carries_provenance_scheme_and_proxy() -> None:
+    fleet = FleetScan(
+        results=[_result("client", []), _result("server", [])], links=[_proxied_link()]
+    )
+    data = fleet_summary_json(fleet)
+    link = data["cross_repo_links"][0]
+    assert link["resolution"] == "observed_via_proxy"
+    assert link["proxy_host"] == "edge.internal"
+    assert link["alias_provenance"] == "proxies:edge.internal"
+    assert link["scheme"] == "http"
 
 
 # ---------------------------------------------------------------------------
@@ -256,7 +334,7 @@ def test_multi_repo_cross_boundary_flow_end_to_end(tmp_path: Path) -> None:
         '    return requests.get("http://order-svc/api/orders/" + oid)\n',
         encoding="utf-8",
     )
-    server = tmp_path / "server"
+    server = tmp_path / "order-svc"  # the call's host must identify this repo (C28)
     server.mkdir()
     (server / "api.py").write_text(
         "from flask import Flask\napp = Flask(__name__)\n\n\n"
@@ -272,7 +350,7 @@ def test_multi_repo_cross_boundary_flow_end_to_end(tmp_path: Path) -> None:
     assert len(flows) == 1
     f = flows[0]
     assert f["basis"] == "taint" and f["detail"] == "sql_execute"
-    assert f["client_repo"] == "client" and f["server_repo"] == "server"
+    assert f["client_repo"] == "client" and f["server_repo"] == "order-svc"
     assert f["speculative"] is True
     # cites both sides
     assert f["client_location"].startswith("app.py")
@@ -299,7 +377,7 @@ def test_multi_repo_trust_gap_end_to_end(tmp_path: Path) -> None:
         '    return requests.post("http://order-svc/api/orders/" + oid)\n',
         encoding="utf-8",
     )
-    server = tmp_path / "server"
+    server = tmp_path / "order-svc"  # the call's host must identify this repo (C28)
     server.mkdir()
     (server / "api.py").write_text(
         "from flask import Flask\napp = Flask(__name__)\n\n\n"
@@ -313,7 +391,240 @@ def test_multi_repo_trust_gap_end_to_end(tmp_path: Path) -> None:
     data = json.loads((out / "fleet-summary.json").read_text())
     gaps = data["trust_gaps"]
     assert len(gaps) == 1
-    assert gaps[0]["client_repo"] == "client" and gaps[0]["server_repo"] == "server"
+    assert gaps[0]["client_repo"] == "client" and gaps[0]["server_repo"] == "order-svc"
     assert gaps[0]["method"] == "POST"
     assert gaps[0]["speculative"] is True
     assert "Trust-assumption gaps" in (out / "fleet-summary.md").read_text()
+
+
+# ---------------------------------------------------------------------------
+# service-resolution declarations end to end (C28)
+# ---------------------------------------------------------------------------
+
+_SEAM_FLEET = Path(__file__).parent / "fixtures" / "service-seam-fleet"
+
+
+def test_service_resolution_flags_thread_to_fleet_links(tmp_path: Path) -> None:
+    # The checked-in seam fixture (web-app -> auth-api) proves each new flag
+    # end to end: --via-proxy, --service-port, --service-protocol, and the
+    # existing --service-alias all reach link_contracts and show up in the
+    # fleet summary with resolutions, reasons, and provenance.
+    web_app = _SEAM_FLEET / "web-app"
+    auth_api = _SEAM_FLEET / "auth-api"
+    out = tmp_path / "out"
+    result = runner.invoke(
+        app,
+        [
+            "analyze", str(web_app), str(auth_api), "-o", str(out),
+            "--via-proxy", "edge.internal=auth-api",
+            "--service-port", "auth-api=8443",
+            "--service-protocol", "auth-api=https",
+            "--service-alias", "auth.bsky.social=auth-api",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads((out / "fleet-summary.json").read_text())
+    by_target = {lk["client_target"]: lk for lk in data["cross_repo_links"]}
+    assert len(by_target) == 4
+    proxied = by_target["https://edge.internal/users/"]
+    assert proxied["resolution"] == "observed_via_proxy"
+    assert proxied["proxy_host"] == "edge.internal"
+    assert proxied["alias_provenance"] == "proxies:edge.internal"
+    assert by_target["https://auth-api:8443/users/"]["resolution"] == "observed"
+    assert (
+        by_target["https://auth-api:8443/users/"]["alias_provenance"]
+        == "service_ports:auth-api:8443"
+    )
+    insecure = by_target["http://auth-api:8443/users/"]
+    assert insecure["resolution"] == "candidate"
+    assert insecure["resolution_reason"] == "scheme_mismatch"
+    assert insecure["scheme"] == "http"
+    public = by_target["https://auth.bsky.social/users/"]
+    assert public["resolution"] == "observed"
+    assert public["alias_provenance"] == "hosts:auth.bsky.social"
+    # Markdown and mermaid render the proxied seam and provenance distinctly.
+    md = (out / "fleet-summary.md").read_text()
+    assert "via a declared proxy" in md and "edge.internal" in md
+    assert "hosts:auth.bsky.social" in md
+    graph = (out / "fleet-graph.md").read_text()
+    assert "proxy: edge.internal" in graph
+
+
+def test_service_declaration_flags_reject_malformed_values(tmp_path: Path) -> None:
+    a = _repo(tmp_path, "svcA")
+    b = _repo(tmp_path, "svcB")
+    result = runner.invoke(
+        app, ["analyze", str(a), str(b), "-o", str(tmp_path / "out"), "--service-port", "svcA=https"]
+    )
+    assert result.exit_code != 0
+    assert "service port" in _norm(result.output)
+    result = runner.invoke(
+        app, ["analyze", str(a), str(b), "-o", str(tmp_path / "out"), "--via-proxy", "svcA:8080=svcB"]
+    )
+    assert result.exit_code != 0
+    assert "bare hostname" in _norm(result.output)
+
+
+def test_service_declaration_flags_rejected_for_single_repo(tmp_path: Path) -> None:
+    repo = _repo(tmp_path, "solo")
+    result = runner.invoke(
+        app, ["analyze", str(repo), "-o", str(tmp_path / "out"), "--via-proxy", "edge=solo"]
+    )
+    assert result.exit_code != 0
+    assert "multi-repo fleet scans only" in _norm(result.output)
+
+
+# ---------------------------------------------------------------------------
+# config-file seam extraction end to end (C28)
+# ---------------------------------------------------------------------------
+
+_DEPLOY_FLEET = Path(__file__).parent / "fixtures" / "deployment-seam-fleet"
+
+
+def test_config_files_resolve_fleet_seams_without_cli_flags(tmp_path: Path) -> None:
+    # The counterpart of the CLI-flag test above, with NO flags: k8s Service
+    # + Ingress + compose + nginx configs in the scanned repos declare the
+    # seams, ports, and protocols, and link_contracts resolves them with file
+    # provenance. Negative controls (undeclared port, multi-backend upstream,
+    # scheme contradictions) stay candidates with reasons.
+    out = tmp_path / "out"
+    result = runner.invoke(
+        app,
+        [
+            "analyze",
+            str(_DEPLOY_FLEET / "web-app"),
+            str(_DEPLOY_FLEET / "auth-api"),
+            str(_DEPLOY_FLEET / "feed-generator"),
+            "-o",
+            str(out),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads((out / "fleet-summary.json").read_text())
+    by_target = {lk["client_target"]: lk for lk in data["cross_repo_links"]}
+    assert len(by_target) == 9
+    # Listen port + protocol declared by a k8s Service manifest (appProtocol).
+    k8s = by_target["https://auth-api:8443/users/"]
+    assert k8s["resolution"] == "observed"
+    assert k8s["alias_provenance"] == "service_ports:auth-api:8443 (auth-api/k8s/service.yaml)"
+    # Same host+port, plain http against the declared appProtocol: the scheme
+    # contradiction keeps it a candidate citing the contradicting declaration.
+    insecure = by_target["http://auth-api:8443/users/"]
+    assert insecure["resolution"] == "candidate"
+    assert insecure["resolution_reason"] == "scheme_mismatch"
+    assert insecure["alias_provenance"] == (
+        "service_protocols:auth-api:https (auth-api/k8s/service.yaml)"
+    )
+    # Listen port from docker-compose; protocol from nginx's proxy_pass scheme.
+    compose = by_target["https://feed-generator:9000/feeds/"]
+    assert compose["resolution"] == "observed"
+    assert compose["alias_provenance"] == (
+        "service_ports:feed-generator:9000 (feed-generator/docker-compose.yml)"
+    )
+    feed_insecure = by_target["http://feed-generator:9000/feeds/"]
+    assert feed_insecure["resolution"] == "candidate"
+    assert feed_insecure["resolution_reason"] == "scheme_mismatch"
+    assert feed_insecure["alias_provenance"] == (
+        "service_protocols:feed-generator:https (auth-api/deploy/nginx/edge.conf)"
+    )
+    # Proxies declared by an nginx single-backend upstream and a k8s Ingress.
+    proxied = by_target["http://edge.internal/users/"]
+    assert proxied["resolution"] == "observed_via_proxy"
+    assert proxied["proxy_host"] == "edge.internal"
+    assert proxied["alias_provenance"] == "proxies:edge.internal (auth-api/deploy/nginx/edge.conf)"
+    via_ingress = by_target["https://auth.ingress.cluster.local/users/"]
+    assert via_ingress["resolution"] == "observed_via_proxy"
+    assert via_ingress["proxy_host"] == "auth.ingress.cluster.local"
+    assert via_ingress["alias_provenance"] == (
+        "proxies:auth.ingress.cluster.local (auth-api/k8s/ingress.yaml)"
+    )
+    via_feed_edge = by_target["https://feed-edge.internal/feeds/"]
+    assert via_feed_edge["resolution"] == "observed_via_proxy"
+    assert via_feed_edge["proxy_host"] == "feed-edge.internal"
+    # Negative controls stay candidates with reasons, never guesses.
+    wrong_port = by_target["https://auth-api:9999/users/"]
+    assert wrong_port["resolution"] == "candidate"
+    assert wrong_port["resolution_reason"] == "explicit_port"
+    ambiguous = by_target["http://edge-multiple.internal/users/"]
+    assert ambiguous["resolution"] == "candidate"
+    assert ambiguous["resolution_reason"] == "unresolved_host"
+    # Skipped extractions surface as explicit notes, and the config-extracted
+    # provenance renders in the summary.
+    assert "Config extraction:" in result.output
+    assert "multi_backend" in result.output
+    assert "malformed" in result.output
+    md = (out / "fleet-summary.md").read_text()
+    assert "auth-api/k8s/service.yaml" in md
+    assert "via a declared proxy" in md
+    assert "auth-api/k8s/ingress.yaml" in md
+
+
+def test_cli_service_port_overrides_config_declaration(tmp_path: Path) -> None:
+    # CLI declarations beat same-key config entries: --service-port
+    # auth-api=9999 overrides the k8s Service's 8443, so 9999 resolves with a
+    # bare (CLI) provenance and 8443 falls back to an unvouched explicit port.
+    out = tmp_path / "out"
+    result = runner.invoke(
+        app,
+        [
+            "analyze",
+            str(_DEPLOY_FLEET / "web-app"),
+            str(_DEPLOY_FLEET / "auth-api"),
+            str(_DEPLOY_FLEET / "feed-generator"),
+            "-o",
+            str(out),
+            "--service-port", "auth-api=9999",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads((out / "fleet-summary.json").read_text())
+    by_target = {lk["client_target"]: lk for lk in data["cross_repo_links"]}
+    assert by_target["https://auth-api:9999/users/"]["resolution"] == "observed"
+    assert by_target["https://auth-api:9999/users/"]["alias_provenance"] == (
+        "service_ports:auth-api:9999"
+    )
+    assert by_target["https://auth-api:8443/users/"]["resolution"] == "candidate"
+    assert by_target["https://auth-api:8443/users/"]["resolution_reason"] == "explicit_port"
+    # Untouched config declarations still apply.
+    assert by_target["https://feed-generator:9000/feeds/"]["resolution"] == "observed"
+
+
+def test_effective_deployment_aliases_merges_and_falls_back(tmp_path: Path) -> None:
+    from attackmap.scan_service import ScanRequest, _effective_deployment_aliases
+
+    fleet = Path(__file__).parent / "fixtures" / "deployment-seam-fleet"
+    repos = [fleet / "web-app", fleet / "auth-api", fleet / "feed-generator"]
+    # No CLI declarations: the config-extracted set is the effective one.
+    base, notes = _effective_deployment_aliases(ScanRequest(repo_paths=repos, output=tmp_path))
+    assert base is not None
+    assert base.service_ports["auth-api"] == 8443
+    assert base.service_protocols == {"auth-api": "https", "feed-generator": "https"}
+    assert base.proxies == {
+        "edge.internal": "auth-api",
+        "feed-edge.internal": "feed-generator",
+        "auth.ingress.cluster.local": "auth-api",
+    }
+    assert notes
+    # CLI overrides a config key without inheriting its file provenance.
+    cli_overridden, _ = _effective_deployment_aliases(
+        ScanRequest(
+            repo_paths=repos,
+            output=tmp_path,
+            deployment_aliases=DeploymentAliases(service_ports={"auth-api": 9999}),
+        )
+    )
+    assert cli_overridden.service_ports["auth-api"] == 9999
+    assert "service_ports:auth-api:9999" not in cli_overridden.source_files
+    assert cli_overridden.proxies["edge.internal"] == "auth-api"  # config entries kept
+    # Conflicting topologies (CLI alias vs config proxy on one host): the CLI
+    # set alone is used, with an explicit note.
+    cli_conflict, conflict_notes = _effective_deployment_aliases(
+        ScanRequest(
+            repo_paths=repos,
+            output=tmp_path,
+            deployment_aliases=DeploymentAliases(hosts={"edge.internal": "auth-api"}),
+        )
+    )
+    assert cli_conflict.hosts == {"edge.internal": "auth-api"}
+    assert cli_conflict.proxies == {}
+    assert any("conflicted" in n for n in conflict_notes)

@@ -1,0 +1,29 @@
+{
+  "command": [
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "tests/test_topology.py",
+    "tests/test_wp032_unknown_auth_topology.py::test_complete_dns_label_and_existing_special_cases",
+    "tests/test_wp032_unknown_auth_topology.py::test_distinct_hyphenated_peer_edges_do_not_collapse_to_auth",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp032-topology-stable-temp",
+    "--junitxml",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP032\\r8-r10a-canonical-20261021-a\\topology-stable.xml"
+  ],
+  "cwd": "C:\\Projects\\INPROGRESS\\AttackMap",
+  "pythonpath": "C:\\Projects\\INPROGRESS\\AttackMap\\src",
+  "pid": 14672,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 38.306,
+  "collected": 19,
+  "failures": 0,
+  "errors": 0,
+  "changed_inputs": []
+}

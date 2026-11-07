@@ -1,0 +1,2826 @@
+{
+  "scope": "Actual final frozen Windows fleet formats; two tiny owned repos; no AI/CVE; no benchmark or platform acceptance claim",
+  "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+  "engine_sha256": "ebafb3277271d6a87703e07e0c4b4b5d21d3d296a0f200990223a439be280013",
+  "formats": [
+    "all",
+    "json",
+    "markdown"
+  ],
+  "runs": [
+    {
+      "format": "all",
+      "workers": 1,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 2.987,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1",
+        "--format",
+        "all",
+        "--fleet-workers",
+        "1",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "eaf6348331452410af77d03f31ee969dc30a9b321fc54d17723227bc5397ad4b",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "a648c133212c326d16b73acc9899fb09181be855cb8092c8ad066b3690874c7a",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "75a33764c9a60fcf028c9331a4786bd59c1b0610fcc4781eafe760c627af6056",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5"
+        }
+      ]
+    },
+    {
+      "format": "all",
+      "workers": 2,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 4.007,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2",
+        "--format",
+        "all",
+        "--fleet-workers",
+        "2",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "4b617585740359a15b74077fdafed09a22020964a311d98305820bf504e28053",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "aa2e9d5325d08ee0a8116f791b142ac6f5f0c05fe50015dcfcd6d26af343d4a9",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "cbeac5ce21ca49dbad057d537b1b841da7b44ef3bdf1aa7e0bee412692e06551",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09"
+        }
+      ]
+    },
+    {
+      "format": "json",
+      "workers": 1,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 3.428,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1",
+        "--format",
+        "json",
+        "--fleet-workers",
+        "1",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "d29ad02014a974df5502b0e9a35ff3ea37465ff8d8bf8df5017dd36acc0b39b6",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "0d58d82fccbf01e9aa00a1fd7ef79ec9a0ad505903c8e2a30e520a6fac0005b8",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "a89d91ed49275ed4bf0e8b6613616aed7138c40d96a5e73b7cc5624a9e8873ae",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7"
+        }
+      ]
+    },
+    {
+      "format": "json",
+      "workers": 2,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 4.071,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2",
+        "--format",
+        "json",
+        "--fleet-workers",
+        "2",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "c9411c69eca514c6d950a774f4b8322166161d8cf65ed68d86fd2461930208b3",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "030bfabcb7b12010dc4aa0452755ee5479fa77c09d6423afa6157e3a556c9ca4",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "c4ca3fe364c6394f0cd7bf7275760a94a1378437f553f1d329905fa64b3df2cf",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223"
+        }
+      ]
+    },
+    {
+      "format": "markdown",
+      "workers": 1,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 3.218,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1",
+        "--format",
+        "markdown",
+        "--fleet-workers",
+        "1",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "12a8dfd7e268087abc201a410eed5e6a38a637b2af63cfe1f5bae4b7e39f5523",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "5168d921bc792d1ee5fbdf1778aee453d53d47f19f3d83079cf9c7d988deb6e7",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "db16fd02225015a0d87feb062c4a628973adc7dbd32a2925eb15f1193522f4e4",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1"
+        }
+      ]
+    },
+    {
+      "format": "markdown",
+      "workers": 2,
+      "exit_code": 0,
+      "elapsed_seconds_diagnostic_only": 5.433,
+      "command": [
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-post-matrix\\dist\\attackmap\\attackmap.exe",
+        "analyze",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+        "--output",
+        "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2",
+        "--format",
+        "markdown",
+        "--fleet-workers",
+        "2",
+        "--no-progress",
+        "--module",
+        "python-web",
+        "--module",
+        "config"
+      ],
+      "parent_manifest_sha256": "1cce61dc23548e92a222059f85d54deb4eee9099c4dcf5b2009c0481e90f0cf1",
+      "children": [
+        {
+          "repo_id": "service-one",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\service one",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "34f28ca787050b2f467781e4d0f1754cd41aa3122462ffd95a6b1752143c17f3",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87"
+        },
+        {
+          "repo_id": "slu-ba-dv",
+          "repo_root": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-frozen-fleet-current\\fixtures with spaces žluťoučký\\služba dvě",
+          "findings": [
+            {
+              "id": "1bcdb6fca625f82a",
+              "identity_scheme": "rule-aggregate/v2",
+              "title": "Heuristic scan found only a limited attack surface",
+              "severity": "low",
+              "rule_id": "limited-surface",
+              "entity_id": null,
+              "evidence": [
+                "No major route, secret, or integration patterns triggered a stronger finding."
+              ],
+              "locations": [],
+              "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+              "confidence": "low",
+              "attack_techniques": [],
+              "tags": [
+                "weak-signal"
+              ],
+              "score": 5,
+              "exploitability": null,
+              "exploitability_tier": null,
+              "code_flows": [],
+              "taxonomy": null,
+              "context": {
+                "context_version": "1.0",
+                "finding_id": "1bcdb6fca625f82a",
+                "claim": {
+                  "kind": "heuristic_static_analysis",
+                  "text": "Heuristic scan found only a limited attack surface",
+                  "evidence_kind": "heuristic_static_claim",
+                  "runtime_verification": "unknown"
+                },
+                "priority": {
+                  "severity": "low",
+                  "confidence": "low",
+                  "score": 5,
+                  "exploitability_score": null,
+                  "exploitability_tier": null,
+                  "factors": [
+                    {
+                      "name": "severity",
+                      "value": "low",
+                      "source": "finding.severity",
+                      "points": null
+                    },
+                    {
+                      "name": "confidence",
+                      "value": "low",
+                      "source": "finding.confidence",
+                      "points": null
+                    }
+                  ],
+                  "point_contributions": "not_supplied",
+                  "meaning": "Heuristic prioritization; not verified exploitation."
+                },
+                "source": {
+                  "role": "unknown",
+                  "locations": [],
+                  "policy": "attackmap.evidence.is_low_quality_source"
+                },
+                "evidence": {
+                  "text": [
+                    "No major route, secret, or integration patterns triggered a stronger finding."
+                  ],
+                  "basis": "heuristic_static",
+                  "observation_links": "unknown",
+                  "candidates": [],
+                  "candidates_truncated": false
+                },
+                "observed_controls": {
+                  "status": "unknown",
+                  "items": [],
+                  "reason": "No stable finding-to-control association is supplied."
+                },
+                "trust_chain": {
+                  "status": "unknown",
+                  "source": "not_supplied",
+                  "flows": [],
+                  "trust_boundary_crossing": "unknown",
+                  "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+                },
+                "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+                "suppression": {
+                  "state": "active",
+                  "reason": null
+                },
+                "uncertainty": [
+                  "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+                  "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+                  "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+                  "Structured source location is unavailable; source role is unknown.",
+                  "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+                ]
+              }
+            }
+          ],
+          "scanned_files": [
+            "app.py"
+          ],
+          "files_scanned": 1,
+          "manifest_sha256": "7b094c161178a149a523023a89300caa8feb77d69925717bb2aa067e5bd70638",
+          "report_dir": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87"
+        }
+      ]
+    }
+  ],
+  "serial_parallel_normalized_equal": true,
+  "cross_format_normalized_equal": true,
+  "all_manifest_artifact_hashes_verified": true,
+  "failure_case": {
+    "status": "passed_separate_probe",
+    "proof": "desktop/windows/verification/native-frozen-fleet-worker-death-post-matrix-utf8-2026-10-15.json"
+  },
+  "limitations": [
+    "Concurrent Python platform regression load; timings are diagnostic only.",
+    "No UI, clean-host, signing, macOS or full M3 acceptance."
+  ],
+  "recorded_utc": "2026-10-15T14:43:16.986123+00:00",
+  "artifact_hashes": [
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\artifact-manifest.json",
+      "manifest_sha256": "eaf6348331452410af77d03f31ee969dc30a9b321fc54d17723227bc5397ad4b",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\fleet-summary.json",
+          "sha256": "2c67feb84608dbbbe91bd323fdb3efdc221258dbe7264ade6ba4b2059e9ce558",
+          "bytes": 1247
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\run-manifest.json",
+          "sha256": "009271d43e8fea383d6a84ed1286808ec675324c2e22ca152bb16824bd5f5dbf",
+          "bytes": 92
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\fleet-summary.md",
+          "sha256": "7e86616b9964423315fc758c6d7050e00e4e18deb4262b865f359a6fb0fd70d4",
+          "bytes": 1103
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\fleet-graph.md",
+          "sha256": "4f823c048938c37637a9d8bb5582255119d6d30dfdc17f5a84126896b0b6f9e8",
+          "bytes": 70
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\artifact-manifest.json",
+      "manifest_sha256": "a648c133212c326d16b73acc9899fb09181be855cb8092c8ad066b3690874c7a",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\scan.json",
+          "sha256": "df47d2930d344d54a373d66e895e79a98c70196bd232b9a10b507ce04cec99bd",
+          "bytes": 2111
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\defensive-review.json",
+          "sha256": "4d7dfb00f7310f57b43a6ca8462730f13838b5d0af38e7260f0300c86283b328",
+          "bytes": 9656
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\review-context-pack.json",
+          "sha256": "986d8d9c0c69156af3cc6f26f63b2f7bf20bc88f9b8411679020e6326b98af88",
+          "bytes": 12209
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-report.json",
+          "sha256": "4b2a816f43c1220295975a7f609173054df5a590a12cc023580a04cd65d5ee85",
+          "bytes": 34356
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\run-manifest.json",
+          "sha256": "f5109e93a9324136dae4e6d8ba5eba4bbdcf2cc46b2b811fb22ff6c533edcacd",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\service-one\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\artifact-manifest.json",
+      "manifest_sha256": "75a33764c9a60fcf028c9331a4786bd59c1b0610fcc4781eafe760c627af6056",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\scan.json",
+          "sha256": "4418fe1ab8eb8798e23c09c503638226add0589c4bb154be98ff7e15a2ac540c",
+          "bytes": 2120
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\defensive-review.json",
+          "sha256": "5acbf0e690122b374d53f6fce9f2ebe5d943c88c74e0b4cb6884919ef9477b26",
+          "bytes": 9674
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\review-context-pack.json",
+          "sha256": "0d8ec6161ea5f00f7245261255905c86ffd14a79b291a6ac32e0ecb1f6f8728c",
+          "bytes": 12227
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-report.json",
+          "sha256": "910078f098c4fbc916ccd2d2decd1acd42f177999a583c39635ebcf21716e4f5",
+          "bytes": 34401
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\run-manifest.json",
+          "sha256": "99da84494f1a414f77c4befc799073d34818954b51931199be3c52c79e15d55f",
+          "bytes": 644
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-1\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\slu-ba-dv\\20261015T144224-1247a94cb958461a9c406b483595e5a5\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\artifact-manifest.json",
+      "manifest_sha256": "4b617585740359a15b74077fdafed09a22020964a311d98305820bf504e28053",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\fleet-summary.json",
+          "sha256": "bfb5612c67bd85cd448794534a512490f877c54902ea8960747cfe6a8f28e5cc",
+          "bytes": 1247
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\run-manifest.json",
+          "sha256": "c7c75abd1a714d150505a2cdb28921d14194b064bbc246d059b02693347b5047",
+          "bytes": 92
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\fleet-summary.md",
+          "sha256": "7e86616b9964423315fc758c6d7050e00e4e18deb4262b865f359a6fb0fd70d4",
+          "bytes": 1103
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\fleet-graph.md",
+          "sha256": "4f823c048938c37637a9d8bb5582255119d6d30dfdc17f5a84126896b0b6f9e8",
+          "bytes": 70
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\artifact-manifest.json",
+      "manifest_sha256": "aa2e9d5325d08ee0a8116f791b142ac6f5f0c05fe50015dcfcd6d26af343d4a9",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\scan.json",
+          "sha256": "df47d2930d344d54a373d66e895e79a98c70196bd232b9a10b507ce04cec99bd",
+          "bytes": 2111
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\defensive-review.json",
+          "sha256": "4d7dfb00f7310f57b43a6ca8462730f13838b5d0af38e7260f0300c86283b328",
+          "bytes": 9656
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\review-context-pack.json",
+          "sha256": "986d8d9c0c69156af3cc6f26f63b2f7bf20bc88f9b8411679020e6326b98af88",
+          "bytes": 12209
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-report.json",
+          "sha256": "4b2a816f43c1220295975a7f609173054df5a590a12cc023580a04cd65d5ee85",
+          "bytes": 34356
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\run-manifest.json",
+          "sha256": "e0b6db1c37f4f26c0b03b30990336b96885e52512e3c346859ed4936658bbb63",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\service-one\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\artifact-manifest.json",
+      "manifest_sha256": "cbeac5ce21ca49dbad057d537b1b841da7b44ef3bdf1aa7e0bee412692e06551",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\scan.json",
+          "sha256": "4418fe1ab8eb8798e23c09c503638226add0589c4bb154be98ff7e15a2ac540c",
+          "bytes": 2120
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\defensive-review.json",
+          "sha256": "5acbf0e690122b374d53f6fce9f2ebe5d943c88c74e0b4cb6884919ef9477b26",
+          "bytes": 9674
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\review-context-pack.json",
+          "sha256": "0d8ec6161ea5f00f7245261255905c86ffd14a79b291a6ac32e0ecb1f6f8728c",
+          "bytes": 12227
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-report.json",
+          "sha256": "910078f098c4fbc916ccd2d2decd1acd42f177999a583c39635ebcf21716e4f5",
+          "bytes": 34401
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\run-manifest.json",
+          "sha256": "2fee422421cb527a21c6c42ccc031efbd9306672cd1e01cf9b0c5ff236699b2e",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-all-2\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\slu-ba-dv\\20261015T144227-8c223f0c0d664fba9d84572be025bb09\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\artifact-manifest.json",
+      "manifest_sha256": "d29ad02014a974df5502b0e9a35ff3ea37465ff8d8bf8df5017dd36acc0b39b6",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\fleet-summary.json",
+          "sha256": "e776df28765387775cce88983217e493eb95c8a04427c6d2d3114e92b958fe6c",
+          "bytes": 1249
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\run-manifest.json",
+          "sha256": "c5a5c03c738c9c363a3a1c53700755f9aee7a844282148766b970ef9aca7cf5e",
+          "bytes": 93
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\fleet-summary.md",
+          "sha256": "7e86616b9964423315fc758c6d7050e00e4e18deb4262b865f359a6fb0fd70d4",
+          "bytes": 1103
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\fleet-graph.md",
+          "sha256": "4f823c048938c37637a9d8bb5582255119d6d30dfdc17f5a84126896b0b6f9e8",
+          "bytes": 70
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\artifact-manifest.json",
+      "manifest_sha256": "0d58d82fccbf01e9aa00a1fd7ef79ec9a0ad505903c8e2a30e520a6fac0005b8",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\scan.json",
+          "sha256": "df47d2930d344d54a373d66e895e79a98c70196bd232b9a10b507ce04cec99bd",
+          "bytes": 2111
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\defensive-review.json",
+          "sha256": "4d7dfb00f7310f57b43a6ca8462730f13838b5d0af38e7260f0300c86283b328",
+          "bytes": 9656
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\review-context-pack.json",
+          "sha256": "986d8d9c0c69156af3cc6f26f63b2f7bf20bc88f9b8411679020e6326b98af88",
+          "bytes": 12209
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-report.json",
+          "sha256": "4b2a816f43c1220295975a7f609173054df5a590a12cc023580a04cd65d5ee85",
+          "bytes": 34356
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\run-manifest.json",
+          "sha256": "e3cac67c0f520a4bd44f5bf1fdca9cd5b942e56bf1d7dde74ef3489a3da28663",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\service-one\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\artifact-manifest.json",
+      "manifest_sha256": "a89d91ed49275ed4bf0e8b6613616aed7138c40d96a5e73b7cc5624a9e8873ae",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\scan.json",
+          "sha256": "4418fe1ab8eb8798e23c09c503638226add0589c4bb154be98ff7e15a2ac540c",
+          "bytes": 2120
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\defensive-review.json",
+          "sha256": "5acbf0e690122b374d53f6fce9f2ebe5d943c88c74e0b4cb6884919ef9477b26",
+          "bytes": 9674
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\review-context-pack.json",
+          "sha256": "0d8ec6161ea5f00f7245261255905c86ffd14a79b291a6ac32e0ecb1f6f8728c",
+          "bytes": 12227
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-report.json",
+          "sha256": "910078f098c4fbc916ccd2d2decd1acd42f177999a583c39635ebcf21716e4f5",
+          "bytes": 34401
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\run-manifest.json",
+          "sha256": "720968adec40ae54566c62954d527ebd4746f1e6d9a7d825af765fdc1bc20112",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-1\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\slu-ba-dv\\20261015T144232-c2f1699ab14544e2a94205b1f45107f7\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\artifact-manifest.json",
+      "manifest_sha256": "c9411c69eca514c6d950a774f4b8322166161d8cf65ed68d86fd2461930208b3",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\fleet-summary.json",
+          "sha256": "1e1978e9af429f9d46d2579bef76bacb158d58fb586f4bb9738425eab8a63963",
+          "bytes": 1249
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\run-manifest.json",
+          "sha256": "a7cff5bf64c39b85bf37e0b1d0449e2e5658eef40469cce3291fe1fd8f90a224",
+          "bytes": 93
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\fleet-summary.md",
+          "sha256": "7e86616b9964423315fc758c6d7050e00e4e18deb4262b865f359a6fb0fd70d4",
+          "bytes": 1103
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\fleet-graph.md",
+          "sha256": "4f823c048938c37637a9d8bb5582255119d6d30dfdc17f5a84126896b0b6f9e8",
+          "bytes": 70
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\artifact-manifest.json",
+      "manifest_sha256": "030bfabcb7b12010dc4aa0452755ee5479fa77c09d6423afa6157e3a556c9ca4",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\scan.json",
+          "sha256": "df47d2930d344d54a373d66e895e79a98c70196bd232b9a10b507ce04cec99bd",
+          "bytes": 2111
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\defensive-review.json",
+          "sha256": "4d7dfb00f7310f57b43a6ca8462730f13838b5d0af38e7260f0300c86283b328",
+          "bytes": 9656
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\review-context-pack.json",
+          "sha256": "986d8d9c0c69156af3cc6f26f63b2f7bf20bc88f9b8411679020e6326b98af88",
+          "bytes": 12209
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-report.json",
+          "sha256": "4b2a816f43c1220295975a7f609173054df5a590a12cc023580a04cd65d5ee85",
+          "bytes": 34356
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\run-manifest.json",
+          "sha256": "794d99d895bfc0134f644e54f634aceeadd8b16c8f722fbd01a2f40010cc2a92",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\service-one\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\artifact-manifest.json",
+      "manifest_sha256": "c4ca3fe364c6394f0cd7bf7275760a94a1378437f553f1d329905fa64b3df2cf",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\scan.json",
+          "sha256": "4418fe1ab8eb8798e23c09c503638226add0589c4bb154be98ff7e15a2ac540c",
+          "bytes": 2120
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\defensive-review.json",
+          "sha256": "5acbf0e690122b374d53f6fce9f2ebe5d943c88c74e0b4cb6884919ef9477b26",
+          "bytes": 9674
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\review-context-pack.json",
+          "sha256": "0d8ec6161ea5f00f7245261255905c86ffd14a79b291a6ac32e0ecb1f6f8728c",
+          "bytes": 12227
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-report.json",
+          "sha256": "910078f098c4fbc916ccd2d2decd1acd42f177999a583c39635ebcf21716e4f5",
+          "bytes": 34401
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\run-manifest.json",
+          "sha256": "f87d494e09dd2b852ecb17d39e85b7646607e3506487e28bef0483809b5473b9",
+          "bytes": 644
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-json-2\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\slu-ba-dv\\20261015T144234-f03218e60c564323b6ed1f1895e26223\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\artifact-manifest.json",
+      "manifest_sha256": "12a8dfd7e268087abc201a410eed5e6a38a637b2af63cfe1f5bae4b7e39f5523",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\fleet-summary.json",
+          "sha256": "4ee85b6c49165dd5a33da9d53814fb38cb9371d17c266e2ddf0f0e70d6257062",
+          "bytes": 1257
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\run-manifest.json",
+          "sha256": "ed162f54ab4bcdd102e943d9c67ddd63e305ee2609aa6e1f2b9af0dfa0193ffd",
+          "bytes": 92
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\fleet-summary.md",
+          "sha256": "7e86616b9964423315fc758c6d7050e00e4e18deb4262b865f359a6fb0fd70d4",
+          "bytes": 1103
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\fleet-graph.md",
+          "sha256": "4f823c048938c37637a9d8bb5582255119d6d30dfdc17f5a84126896b0b6f9e8",
+          "bytes": 70
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\artifact-manifest.json",
+      "manifest_sha256": "5168d921bc792d1ee5fbdf1778aee453d53d47f19f3d83079cf9c7d988deb6e7",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\scan.json",
+          "sha256": "df47d2930d344d54a373d66e895e79a98c70196bd232b9a10b507ce04cec99bd",
+          "bytes": 2111
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\defensive-review.json",
+          "sha256": "4d7dfb00f7310f57b43a6ca8462730f13838b5d0af38e7260f0300c86283b328",
+          "bytes": 9656
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\review-context-pack.json",
+          "sha256": "986d8d9c0c69156af3cc6f26f63b2f7bf20bc88f9b8411679020e6326b98af88",
+          "bytes": 12209
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-report.json",
+          "sha256": "4b2a816f43c1220295975a7f609173054df5a590a12cc023580a04cd65d5ee85",
+          "bytes": 34356
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\run-manifest.json",
+          "sha256": "e99533a7c966d0c7b75140fdff928d88103148091e0af0fac6a7b9c7c7b178b3",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\service-one\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\artifact-manifest.json",
+      "manifest_sha256": "db16fd02225015a0d87feb062c4a628973adc7dbd32a2925eb15f1193522f4e4",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\scan.json",
+          "sha256": "4418fe1ab8eb8798e23c09c503638226add0589c4bb154be98ff7e15a2ac540c",
+          "bytes": 2120
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\defensive-review.json",
+          "sha256": "5acbf0e690122b374d53f6fce9f2ebe5d943c88c74e0b4cb6884919ef9477b26",
+          "bytes": 9674
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\review-context-pack.json",
+          "sha256": "0d8ec6161ea5f00f7245261255905c86ffd14a79b291a6ac32e0ecb1f6f8728c",
+          "bytes": 12227
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-report.json",
+          "sha256": "910078f098c4fbc916ccd2d2decd1acd42f177999a583c39635ebcf21716e4f5",
+          "bytes": 34401
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\run-manifest.json",
+          "sha256": "099b5441c8d82b942843e7c7053a45027566b2c2954d446aba8664b09cf5238e",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-1\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\slu-ba-dv\\20261015T144239-fa48adb520fe40f88b48aa2c71cbdab1\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\artifact-manifest.json",
+      "manifest_sha256": "1cce61dc23548e92a222059f85d54deb4eee9099c4dcf5b2009c0481e90f0cf1",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\fleet-summary.json",
+          "sha256": "aa14438800da059927fe31da957f586b1c7e0a9987905d173809942b99639abc",
+          "bytes": 1257
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\run-manifest.json",
+          "sha256": "71bf6eae61703691b05f2a122a4a5939c1e7f6088a270831fe7f059ebfe5f51f",
+          "bytes": 93
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\fleet-summary.md",
+          "sha256": "7e86616b9964423315fc758c6d7050e00e4e18deb4262b865f359a6fb0fd70d4",
+          "bytes": 1103
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\fleet-graph.md",
+          "sha256": "4f823c048938c37637a9d8bb5582255119d6d30dfdc17f5a84126896b0b6f9e8",
+          "bytes": 70
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\artifact-manifest.json",
+      "manifest_sha256": "34f28ca787050b2f467781e4d0f1754cd41aa3122462ffd95a6b1752143c17f3",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\scan.json",
+          "sha256": "df47d2930d344d54a373d66e895e79a98c70196bd232b9a10b507ce04cec99bd",
+          "bytes": 2111
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\defensive-review.json",
+          "sha256": "4d7dfb00f7310f57b43a6ca8462730f13838b5d0af38e7260f0300c86283b328",
+          "bytes": 9656
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\review-context-pack.json",
+          "sha256": "986d8d9c0c69156af3cc6f26f63b2f7bf20bc88f9b8411679020e6326b98af88",
+          "bytes": 12209
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-report.json",
+          "sha256": "4b2a816f43c1220295975a7f609173054df5a590a12cc023580a04cd65d5ee85",
+          "bytes": 34356
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\run-manifest.json",
+          "sha256": "f7f202826a3999d93cff28e2c45984f025d305f5a7fbdeaaad167bb11b1fa8a6",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\service-one\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    },
+    {
+      "manifest_path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\artifact-manifest.json",
+      "manifest_sha256": "7b094c161178a149a523023a89300caa8feb77d69925717bb2aa067e5bd70638",
+      "artifacts": [
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\scan.json",
+          "sha256": "4418fe1ab8eb8798e23c09c503638226add0589c4bb154be98ff7e15a2ac540c",
+          "bytes": 2120
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\findings.json",
+          "sha256": "6086194c43b2a934243ed4b3da5aef46e0a603a5dea6f4c1fcdafee45c9a6524",
+          "bytes": 3310
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attack_paths.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attack_surfaces.json",
+          "sha256": "a9126141cc0b2db79610f1c72b8a8fd862ba2f2589a87a2e64f457e423fc3ce4",
+          "bytes": 775
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\exploitability.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\suppressed_findings.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "bytes": 3
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\defensive-review.json",
+          "sha256": "5acbf0e690122b374d53f6fce9f2ebe5d943c88c74e0b4cb6884919ef9477b26",
+          "bytes": 9674
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\review-context-pack.json",
+          "sha256": "0d8ec6161ea5f00f7245261255905c86ffd14a79b291a6ac32e0ecb1f6f8728c",
+          "bytes": 12227
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-report.json",
+          "sha256": "910078f098c4fbc916ccd2d2decd1acd42f177999a583c39635ebcf21716e4f5",
+          "bytes": 34401
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\run-manifest.json",
+          "sha256": "c99f2931b6530a1f3c88694702434ce47db634c40c400187e099e82198be0264",
+          "bytes": 645
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-report.sarif",
+          "sha256": "a9d2c8c5f602fcdab356dc75026ef8d51e679a119af0c22830d934ae04ecf8e2",
+          "bytes": 2419
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\architecture.md",
+          "sha256": "dca7a55c8712f955a32289dac9b6cf632934e957c64df77f32adcf5a4531e20f",
+          "bytes": 749
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attack-surface.md",
+          "sha256": "a8b3a84d1abf67660ca0c4ad063e0746fa478518323c1f048ab61df63c532d27",
+          "bytes": 967
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\defensive-review.md",
+          "sha256": "0070dceaa83e04f64b20afb586313b90dac023eacc112607e008c5f17bf336db",
+          "bytes": 2528
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-exploitability.md",
+          "sha256": "0dfee8caec27743c91f722f9099f57848d17dd851d6edf463480765198d1f033",
+          "bytes": 131
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-paths.md",
+          "sha256": "78d1310d02124f364cfcaf6def45598f18bfe7d8a10c0622ef9c01428ab05514",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-topology.md",
+          "sha256": "38c3747f740944b42e8e0697b07a665ea8d15c47fc88133564b925f658aca2e4",
+          "bytes": 71
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-paths.dot",
+          "sha256": "b8f1e2fe3810a206a26ffe92665432b1c0561ed1d9ca6e71e93fde9e19039554",
+          "bytes": 130
+        },
+        {
+          "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\output-markdown-2\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\slu-ba-dv\\20261015T144242-cdbbae1152244dfa9be14ec20d7e3e87\\attackmap-topology.dot",
+          "sha256": "91324675355b3afc3f933ba5aac84c41f4113e2d64d207b30fd1c0eb243755aa",
+          "bytes": 123
+        }
+      ]
+    }
+  ],
+  "harness": {
+    "path": ".pytest_cache\\m3-post-matrix-fleet\\formats-current\\run_matrix.py",
+    "sha256": "2525981e697eb4737f88360a7a4489ee90559eee7c622ffa5a0c851ae0f8ba3e"
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "AttackMap",
+          "version": "0.0.0-dev",
+          "informationUri": "https://github.com/mlaify/AttackMap",
+          "rules": [
+            {
+              "id": "debug-enabled",
+              "name": "Debug mode or unrestricted management endpoints enabled",
+              "shortDescription": {
+                "text": "Debug mode or unrestricted management endpoints enabled"
+              },
+              "fullDescription": {
+                "text": "Debug mode or unrestricted management endpoints enabled"
+              },
+              "help": {
+                "text": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE.",
+                "markdown": "Never ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "web-hardening",
+                  "external/cwe/cwe-489",
+                  "external/cwe/cwe-215"
+                ],
+                "security-severity": "4.5",
+                "cwe": [
+                  "CWE-489",
+                  "CWE-215"
+                ],
+                "owasp": [
+                  "A05:2021",
+                  "API8:2023"
+                ],
+                "asvs": [
+                  "V14.3.2"
+                ],
+                "attack": [
+                  "T1190"
+                ]
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/489.html",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "489",
+                    "toolComponent": {
+                      "name": "CWE"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                },
+                {
+                  "target": {
+                    "id": "215",
+                    "toolComponent": {
+                      "name": "CWE"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            }
+          ],
+          "supportedTaxonomies": [
+            {
+              "name": "CWE"
+            }
+          ]
+        }
+      },
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "description": {
+            "text": "Root of the scanned repository."
+          }
+        }
+      },
+      "results": [
+        {
+          "ruleId": "debug-enabled",
+          "level": "warning",
+          "message": {
+            "text": "Debug mode or unrestricted management endpoints enabled",
+            "markdown": "**Debug mode or unrestricted management endpoints enabled**\n\nNever ship with debug mode on (Flask/Django `DEBUG`, Rails `consider_all_requests_local`) or Spring actuator endpoints exposed with `*`. Debug consoles leak internals and can enable RCE."
+          },
+          "partialFingerprints": {
+            "attackmapInstance/v1": "0296918997bb3f77b2cd210355e70dd3"
+          },
+          "properties": {
+            "tags": [
+              "web-hardening"
+            ],
+            "security-severity": "4.5",
+            "confidence": "medium",
+            "rank": 37.0,
+            "evidence": [
+              "app.py:7 \u2014 app.run(debug=True)"
+            ]
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "taxonomies": [
+        {
+          "name": "CWE",
+          "organization": "MITRE",
+          "informationUri": "https://cwe.mitre.org/",
+          "shortDescription": {
+            "text": "The MITRE Common Weakness Enumeration"
+          },
+          "taxa": [
+            {
+              "id": "215",
+              "name": "Insertion of Sensitive Information Into Debugging Code",
+              "shortDescription": {
+                "text": "Insertion of Sensitive Information Into Debugging Code"
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/215.html"
+            },
+            {
+              "id": "489",
+              "name": "Active Debug Code",
+              "shortDescription": {
+                "text": "Active Debug Code"
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/489.html"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

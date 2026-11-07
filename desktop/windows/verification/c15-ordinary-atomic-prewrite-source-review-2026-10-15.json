@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "recorded_utc": "2026-10-15T17:10:05.883121+00:00",
+  "scope": "Read-only source counterexample restricted to two ordinary atomic output preparation sites; no reproduction run or broad filesystem audit",
+  "result": "actionable prewrite ordering gap",
+  "sources": [
+    {
+      "path": "src/attackmap/pipeline.py",
+      "sha256": "a2058a92cc48b8187b3ef59b91027a05dfd7b1d8f1e102ba6023b3c1d1302179"
+    },
+    {
+      "path": "src/attackmap/scan_service.py",
+      "sha256": "5959151212964672d007c3ecb3f4dc75be11b813144f6085248f1c15c7a153da"
+    },
+    {
+      "path": "src/attackmap/safe_fs.py",
+      "sha256": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2"
+    },
+    {
+      "path": "src/attackmap/artifact_publisher.py",
+      "sha256": "8121f68ac61e8229e4882fc6104f22d3f43ba857836ad7e5a90917baadb67494"
+    }
+  ],
+  "sites": [
+    {
+      "path": "src/attackmap/scan_service.py",
+      "lines": "691-694",
+      "behavior": "ensure_output_dir(request.output, mark=True) before analyzer selection and ordinary atomic generation validation"
+    },
+    {
+      "path": "src/attackmap/pipeline.py",
+      "lines": "912-914",
+      "behavior": "ensure_output_dir(base, mark=True) before generation_dir strict _safe check"
+    }
+  ],
+  "counterexample": {
+    "input": "Existing Windows junction output directory or junction ancestor pointing to an owned external destination, absent .attackmap-output marker, ordinary atomic request",
+    "reason": "safe_fs.ensure_output_dir217-224 checks is_symlink but not Windows reparse attributes/tags. safe_write_text245-250 resolves marker parent and output to the same redirected target, so relative containment succeeds. Marker creation therefore precedes artifact_publisher.generation_dir52 strict refusal.",
+    "effect": "Marker or missing directories may be created through the junction before later rejection; previous current pointer need not change for this side effect to violate refusal-before-write.",
+    "evidence_type": "Source-derived counterexample only; no actual runtime reproduction or cleanup claim"
+  },
+  "minimal_solution_proposal": {
+    "policy": "Use the existing publisher strict lexical root-to-leaf lstat/reparse policy before any atomic output creation/marking; preserve the existing non-atomic policy separately.",
+    "shared_api": "Small artifact_publisher preparation API wrapping _safe(Path(base)) then ensure_output_dir(base, mark=True); ordinary atomic service and pipeline call this instead of preliminary safe_fs ensure. No duplicate junction implementation.",
+    "compatibility": "Preserve typed ScanRequestError mapping at service boundary and existing non-atomic behavior. Generation and diagnostic APIs retain existing strict checks. Avoid generation allocation or extra diagnostics solely to validate output.",
+    "focused_tests": [
+      "Actual owned base and ancestor junctions through ordinary atomic service and pipeline refuse before marker/directory writes, preserving target bytes and current pointer",
+      "Normal missing output parents still succeed",
+      "Analyzer selection failure with redirected output retains original typed error and no redirected writes",
+      "IO verification failure fails closed before creation"
+    ]
+  },
+  "limits": [
+    "No source/test edits or test campaign performed",
+    "Not a race-free handle-based confinement requirement or claim",
+    "Existing publisher-only cross-version tests do not prove these earlier callsites safe",
+    "Current sealed matrix results remain preserved; proposal postdates its source snapshot"
+  ]
+}

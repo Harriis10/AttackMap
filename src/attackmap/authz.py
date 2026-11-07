@@ -15,21 +15,33 @@ A route is a BOLA/IDOR candidate when ALL of:
    taint chain from this route to a ``sql_execute`` sink, and
 3. There is **no ownership/authorization check** visible near the
    handler — no ``current_user`` / ``request.user`` / ``owner`` /
-   ``authorize`` / policy / guard / ``WHERE user_id``-style scoping in
-   the route's file.
+   ``authorize`` / policy / guard / caller-scoped ``WHERE user_id``-style
+   filtering in the route's handler region or the file's shared preamble.
 
 Condition 3 is the main false-positive reducer: a well-scoped handler
-that filters by the caller's identity is not flagged. Import-edge and
-name heuristics are imprecise, so findings are evidence, not proof.
+that filters by the caller's identity is not flagged. It is scoped to the
+route's own handler region (AM038) so a sibling handler's markers do not
+suppress this route. Write routes with *no resolved authentication control*
+defer to the unauthenticated-state-change finding instead (authentication
+is the missing control; BOLA presupposes an authenticated caller).
+Import-edge and name heuristics are imprecise, so findings are evidence,
+not proof.
 """
 
 from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+from .index import PassSources
+from .safe_fs import is_unsafe_link
 from .models import BolaCandidate, Route, ScanResult
-from .srcpaths import is_test_file, is_vendored_file
+from .route_auth_fusion import resolve_route_control
+from .srcpaths import JS_TS_SUFFIXES, is_test_file, is_vendored_file
+
+if TYPE_CHECKING:
+    from .index import RepoIndex
 
 # Path parameter forms across frameworks:
 #   {id} {user_id} {int:id}        Flask / FastAPI / Starlette
@@ -80,38 +92,68 @@ _QUERY_ACCESS_RES = (
     re.compile(r"""\b(\w+)\s*:\s*[\w\[\]|. ]+?=\s*Query\s*\("""),  # FastAPI `id: str = Query(...)`
 )
 
-# Ownership / authorization markers. If ANY appear in the route's file we
-# assume authorization is enforced and suppress the finding. Deliberately
+# Ownership / authorization markers. If ANY appear near the route's handler
+# we assume authorization is enforced and suppress the finding. Deliberately
 # broad — recall on the *suppression* side keeps false positives down.
+# The bare `user_id` name is deliberately NOT a marker, and neither is
+# `user_id = ...`: a typed parameter (`def handler(user_id: str)`), a JSON
+# key, and a SQL binding (`where user_id = ?`) are declarations/plumbing, not
+# checks — query scoping is judged by the coupled rule below (AM038).
 _OWNERSHIP_MARKERS = re.compile(
     r"""
     current_user | currentUser | \brequest\.user\b | \breq\.user\b | \bctx\.user\b
-    | \bowner\b | owner_id | ownerId | user_id\s*(?:==|===|=|:) | userId
+    | \bowner\b | owner_id | ownerId | userId
     | account_id | tenant_id | org_id | \bself\.user\b
     | authorize | authoriz | \.can\s*\( | cannot | \bpolicy\b | \bpolicies\b
     | \bguard\b | can_access | canAccess | has_access | hasAccess
     | check_access | verify_owner | assert_owner | ensure_owner
     | require[s]?_permission | permission_required | requiresAuth | requireAuth
     | login_required | @authenticated | ensureAuthenticated | is_authorized
-    | filter_by\s*\(\s*user | \.where\([^)]*user | WHERE\s+\w*user
     | scope_to | scoped_to | for_user | belongs_to
     """,
     re.IGNORECASE | re.VERBOSE,
 )
 
+# Query scoping by a user-ish column (`WHERE user_id = ?`, `.where(user...)`,
+# `filter_by(user...)`). On its own that is *object addressing*, not an
+# ownership check: the classic miss is the clause being bound to the request's
+# own id parameter. It only counts as a check when the caller's identity is in
+# scope in the same region (a session/current_user/… token) (AM038).
+_SCOPED_QUERY_MARKERS = re.compile(
+    r"filter_by\s*\(\s*user | \.where\([^)]*user | WHERE\s+\w*user",
+    re.IGNORECASE | re.VERBOSE,
+)
+_CALLER_IDENTITY_RE = re.compile(
+    r"current_user|currentUser|request\.user|req\.user|ctx\.user|c\.user"
+    r"|g\.user|self\.user|\bsession\b|req\.session|getSession",
+    re.IGNORECASE,
+)
+
 _WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+# The write-defer (AM038) resolves per-route auth controls, which is
+# self-contained for JS/TS and Python routes only.
+_DEFER_SUFFIXES = JS_TS_SUFFIXES | {".py"}
 
 _MAX_FILE_BYTES = 1_000_000  # skip absurdly large files
 
 
-def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[BolaCandidate]:
+def analyze_authz(
+    scan: ScanResult, root: str | Path | None = None, index: "RepoIndex | None" = None
+) -> list[BolaCandidate]:
     """Return BOLA/IDOR candidates for routes in ``scan``.
 
     Only genuine candidates are returned: routes with an ID param that
     reach a datastore AND lack an ownership check. Routes that HAVE an
     ownership check, or don't reach a datastore, are dropped.
+
+    Handler and GraphQL file *content* resolves through the run's captured
+    index when one is given or pinned for this root (C33/AM047), so a mid-run
+    edit cannot flip an ownership-check verdict; the size gates use the
+    captured sizes. File enumeration stays the pass's own walk.
     """
     root_path = Path(root or scan.root).resolve()
+    sources = PassSources.for_root(root_path, index)
 
     # DB reachability sources.
     db_files = {_norm(db.file) for db in scan.databases}
@@ -125,25 +167,43 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
         if c.sink_kind == "sql_execute" and not c.speculative
     }
 
-    # Cache per-file content (read at most once per route file).
+    # Cache per-file content (read at most once per route file), and the
+    # file-level query-param scan: it depends only on the file, and redoing it
+    # per route made a many-route file quadratic (#218).
     content_cache: dict[str, str | None] = {}
+    query_param_cache: dict[str, str | None] = {}
 
     seen: set[tuple[str, str, str, str]] = set()
     candidates: list[BolaCandidate] = []
 
     for route in scan.routes:
-        content = _read_file_content(route.file, root_path, content_cache)
+        content = _read_file_content(route.file, root_path, content_cache, sources)
 
         # Path-encoded surfaces (RPC method, path template param) first; then
         # fall back to an id-shaped query-parameter access in the handler body.
         surface = _path_based_surface(route.path)
         if surface is None and content:
-            qp = _query_param_in_handler(content)
+            if route.file not in query_param_cache:
+                query_param_cache[route.file] = _query_param_in_handler(content)
+            qp = query_param_cache[route.file]
             if qp is not None:
                 surface = ("query_param", qp)
         if surface is None:
             continue
         surface_kind, id_param = surface
+
+        # Literal imports carry datastore evidence in the handler file.
+        # Keep this bounded read slice separate from missing-auth write claims.
+        if (
+            route.method == "GET" and content and surface_kind == "path_param"
+            and Path(route.file).suffix.lower() in JS_TS_SUFFIXES
+        ):
+            from .authz_js_handlers import bound_lookup_candidate
+
+            bound = bound_lookup_candidate(route, content, id_param, sources)
+            if bound is not None:
+                candidates.append(bound)
+                continue
 
         # RPC methods are object-access operations by definition — they read/
         # write a specific object by id — so the "reaches a datastore" condition
@@ -158,7 +218,7 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
         if not reaches_db:
             continue
 
-        has_check = bool(content and _OWNERSHIP_MARKERS.search(content))
+        has_check = bool(content and _ownership_check_near(scan, route, content))
 
         key = (route.method, route.path, route.file, id_param)
         if key in seen:
@@ -167,6 +227,20 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
 
         if has_check:
             # Authorization is (probably) enforced — not a candidate.
+            continue
+
+        # Write-defer (AM038): a *write* route with no resolved authentication
+        # control is already claimed by the unauth-state-change finding, and
+        # the missing control there is authentication — BOLA presupposes an
+        # authenticated caller whose object access is unscoped. Defer the
+        # BOLA-write claim to that finding; writes WITH a resolved control
+        # still get the classic authenticated-but-unscoped BOLA treatment.
+        if (
+            route.method in _WRITE_METHODS
+            and content
+            and Path(route.file).suffix.lower() in _DEFER_SUFFIXES
+            and resolve_route_control(route, content) is None
+        ):
             continue
 
         candidates.append(
@@ -185,7 +259,7 @@ def analyze_authz(scan: ScanResult, root: str | Path | None = None) -> list[Bola
         )
 
     # GraphQL fields aren't modeled as routes — scan the repo's SDL directly.
-    candidates.extend(_graphql_bola_candidates(root_path, seen))
+    candidates.extend(_graphql_bola_candidates(root_path, seen, sources))
 
     candidates.sort(
         key=lambda c: (c.route_method not in _WRITE_METHODS, c.route_file, c.route_path)
@@ -252,18 +326,68 @@ def _query_param_in_handler(content: str) -> str | None:
     return None
 
 
-def _read_file_content(rel_file: str, root: Path, cache: dict[str, str | None]) -> str | None:
+def _read_file_content(
+    rel_file: str, root: Path, cache: dict[str, str | None], sources: PassSources
+) -> str | None:
     if rel_file in cache:
         return cache[rel_file]
-    content: str | None = None
-    try:
-        path = root / rel_file
-        if path.is_file() and path.stat().st_size <= _MAX_FILE_BYTES:
-            content = path.read_text(encoding="utf-8", errors="ignore")
-    except (OSError, ValueError):
-        content = None
+    content = sources.gated_text(rel_file, max_bytes=_MAX_FILE_BYTES, errors="ignore")
     cache[rel_file] = content
     return content
+
+
+# --- Region-scoped ownership checks (AM038) ----------------------------------
+
+
+def _ownership_check_near(scan: ScanResult, route: Route, content: str) -> bool:
+    """True when ownership/authorization markers appear near THIS route.
+
+    The search is scoped to the route's own handler region (from a couple of
+    lines above its registration — stacked decorators — to the next route
+    registration in the same file) plus the shared file preamble (imports,
+    router-level dependencies, guard helpers), which plausibly guards every
+    route in the file. A marker in a *sibling* handler — e.g. another
+    handler's `user_id` parameter annotation — says nothing about this route
+    and must not suppress it. Without line info the whole file is searched
+    (the previous behavior).
+    """
+    if route.line is None:
+        return _ownership_check_text(content)
+    lines = content.splitlines()
+    if not lines:
+        return False
+    route_lines = sorted(
+        r.line for r in scan.routes
+        if r.file == route.file and r.line is not None
+    )
+    if not route_lines:
+        return _ownership_check_text(content)
+    first = route_lines[0]
+    later = [ln for ln in route_lines if ln > route.line]
+    region_start = max(1, route.line - 2)
+    region_end = min((min(later) - 1) if later else len(lines), len(lines))
+    # Shared preamble (everything before the file's first route) + the route's
+    # own region; overlapping slices for the file's first route are harmless.
+    preamble = "\n".join(lines[: first - 1])
+    region = "\n".join(lines[region_start - 1 : region_end])
+    if _OWNERSHIP_MARKERS.search(preamble + "\n" + region):
+        return True
+    # A user-scoped query only counts as an ownership check when the caller's
+    # identity is *used* in the handler region — a `session`/`user` import in
+    # the preamble is not usage (see _SCOPED_QUERY_MARKERS).
+    return bool(
+        _SCOPED_QUERY_MARKERS.search(region) and _CALLER_IDENTITY_RE.search(region)
+    )
+
+
+def _ownership_check_text(text: str) -> bool:
+    if _OWNERSHIP_MARKERS.search(text):
+        return True
+    # A user-scoped query only counts as an ownership check when the caller's
+    # identity is in scope nearby (see _SCOPED_QUERY_MARKERS).
+    return bool(
+        _SCOPED_QUERY_MARKERS.search(text) and _CALLER_IDENTITY_RE.search(text)
+    )
 
 
 def _db_reachability(
@@ -285,14 +409,16 @@ def _db_reachability(
 # --- GraphQL SDL scoping (#139) --------------------------------------------
 
 _GRAPHQL_EXTS = {".graphql", ".gql"}
-_GRAPHQL_CODE_EXTS = {".js", ".jsx", ".ts", ".tsx", ".py", ".go", ".rb"}
+_GRAPHQL_CODE_EXTS = JS_TS_SUFFIXES | {".py", ".go", ".rb"}
 _GRAPHQL_SKIP_DIRS = {".git", "node_modules", "__pycache__", "dist", "build", ".venv", "venv", "vendor"}
 _GRAPHQL_MAX_DEPTH = 6
 _GRAPHQL_MAX_FILES = 2000
 
 # One field definition: `name(args): ReturnType [@directives]`.
+# (?<!\w) + possessive \w++: never restart mid-word, so a long word can't
+# trigger quadratic backtracking (#236).
 _GRAPHQL_FIELD_RE = re.compile(
-    r"(?P<name>\w+)\s*(?:\((?P<args>[^)]*)\))?\s*:\s*(?P<rest>[^\n]*)"
+    r"(?<!\w)(?P<name>\w++)\s*+(?:\((?P<args>[^)]*+)\))?\s*+:\s*(?P<rest>[^\n]*)"
 )
 # `schema { query: RootQuery  mutation: RootMutation }` custom root types.
 _GRAPHQL_SCHEMA_BLOCK_RE = re.compile(r"schema\s*\{(?P<body>[^}]*)\}", re.DOTALL)
@@ -300,12 +426,12 @@ _GRAPHQL_SCHEMA_ROOT_RE = re.compile(r"\b(query|mutation)\s*:\s*(\w+)", re.IGNOR
 _GRAPHQL_SDL_MARKER_RE = re.compile(r"type\s+(?:Query|Mutation)\b|schema\s*\{")
 
 
-def _graphql_bola_candidates(root: Path, seen: set) -> list[BolaCandidate]:
+def _graphql_bola_candidates(root: Path, seen: set, sources: PassSources) -> list[BolaCandidate]:
     """Scan the repo's GraphQL SDL for id-bearing Query/Mutation fields that
     lack an authorization check (#139). GraphQL fields aren't routes, so
     they're modeled here as ``graphql_field`` surfaces. Authorization can be an
     SDL directive on the field OR an ownership check in the resolver code."""
-    files = list(_iter_graphql_files(root))
+    files = list(_iter_graphql_files(root, sources))
     # Resolver-side auth: files carrying an ownership marker (`current_user`,
     # `authorize`, …). A field defined as a resolver in such a file is treated
     # as authorized even without an SDL directive.
@@ -394,25 +520,27 @@ def _graphql_id_arg(args: str) -> str | None:
     return None
 
 
-def _iter_graphql_files(root: Path):
+def _iter_graphql_files(root: Path, sources: PassSources):
     """Yield ``(rel_path, text)`` for files relevant to GraphQL authz: `.graphql`
     / `.gql` files, and code files that either contain SDL (`type Query`, a
     `schema {…}`) or an ownership marker (candidate resolver). Test/fixture and
-    vendored files are excluded per the repo's source-quality policy (#139)."""
+    vendored files are excluded per the repo's source-quality policy (#139).
+    Content (and the size gate) resolve through the pinned snapshot when one
+    applies (C33/AM047)."""
     count = 0
 
     def walk(directory: Path, depth: int):
         nonlocal count
         try:
-            entries = list(directory.iterdir())
+            entries = sources.children(directory)
         except (OSError, PermissionError):
             return
         for entry in entries:
             if count >= _GRAPHQL_MAX_FILES:
                 return
-            if entry.name in _GRAPHQL_SKIP_DIRS:
+            if entry.name in _GRAPHQL_SKIP_DIRS or sources.unsafe(entry):
                 continue
-            if entry.is_dir():
+            if sources.is_dir(entry):
                 if depth < _GRAPHQL_MAX_DEPTH:
                     yield from walk(entry, depth + 1)
                 continue
@@ -423,10 +551,10 @@ def _iter_graphql_files(root: Path):
             if is_test_file(rel) or is_vendored_file(rel):
                 continue
             try:
-                if entry.stat().st_size > _MAX_FILE_BYTES:
-                    continue
-                text = entry.read_text(encoding="utf-8", errors="ignore")
+                text = sources.gated_text(rel, max_bytes=_MAX_FILE_BYTES, errors="ignore")
             except (OSError, ValueError):
+                text = None
+            if text is None:
                 continue
             count += 1
             if suffix in _GRAPHQL_CODE_EXTS and not (

@@ -1,3 +1,7 @@
+<!-- ATTACKMAP_DOC_STATUS: HISTORICAL_REFERENCE -->
+> **STARÝ DOKUMENT — pro agenty nerelevantní jako aktuální plán nebo zadání (20. 10. 2026).**
+> Práci řídí pouze dokumenty v [aktuálním rozcestníku](docs/README.md). Tento text je historická reference: neobnovovat jeho TODO, priority ani statusy dokončení. Technické podklady a kritéria použít jen v rozsahu potřebném pro aktivní WP úkol a ověřit proti aktuálnímu kódu.
+
 # Changelog
 
 All notable changes to AttackMap will be documented in this file.
@@ -6,6 +10,416 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+
+- Windows native desktop development workflow with persistent scan options and
+  an unsigned, self-contained Windows x64 portable package containing the engine,
+  runtime dependencies, SBOM and hash-bound provenance. Signing, clean-host and
+  full release acceptance remain separate.
+- Explicit namespace/service and backend port/protocol facts with deployment
+  declaration references in qualified cross-repository links; unresolved or
+  conflicting bindings remain candidates.
+- Watch correctness (AM044/C31): the desktop watcher now receives per-path
+  change events (ReadDirectoryChangesW) and filters them through the shared
+  generated-output identification (output marker + artifact manifest), debounces
+  a burst into one scan, records a pending-dirty state for changes arriving
+  during analysis and runs exactly one follow-up afterwards, stops the previous
+  watcher on repository switch, and states fleet/platform watch limitations
+  visibly instead of silently watching one repository.
+- Detector-evaluation harness (AM037/C27 infrastructure): `attackmap evaluate`
+  runs a versioned corpus manifest with per-case label rationales,
+  repository-level seeded holdout splits, shared matching semantics with the
+  benchmark, per-family TP/FP/FN with Wilson intervals, and an experimental flag
+  below the C27 sample minimums. Seed corpus v0.1.0 ships 28 honestly labeled
+  cases over 10 repositories and prints its gap to the C27 targets in every
+  report; no family is ever hidden for scoring poorly.
+- Release-readiness tooling (AM041/C29 preparation, unsigned): a deterministic
+  SBOM generator that re-verifies every package manifest entry, a release lock
+  capturing exact source/toolchain inputs, and an install→upgrade→rollback→
+  uninstall procedure test on synthetic packages. All outputs state the
+  unsigned limitation; no signing is claimed.
+- Generation retention (AM043/C30 first slice): keep the current generation,
+  pinned runs, active runs, and by default the latest 20 completed generations
+  per output base under a 2 GiB soft budget. Finalized-but-invalid directories
+  are recovered as interrupted cleanups; staged runs, diagnostics, and user
+  files are never touched. Runs apply fail-open after every publish site.
+- `attackmap diagnostics <output-dir>` previews a redacted, source-free
+  diagnostic export (generation timing/coverage summaries, terminal
+  diagnostics, pins, dry-run retention posture); `--out` writes the exact
+  previewed JSON. The pins store and the export file are recognized as
+  generated output so repeated scans never re-ingest them.
+- Desktop retention slice: scans publish into a stable per-repository output
+  base so generations accumulate, and the native History view lists retained
+  generations with pin/unpin controls plus a redacted diagnostics export via
+  supervised engine actions (`pin_generation`, `unpin_generation`,
+  `diagnostics_preview`, `diagnostics_export`). Generation rows render through
+  an explicit item template after captures showed the code-created list never
+  painted `DisplayMemberPath` content.
+- Service-identity-preserving cross-repo linking (AM039/C28 first slice): a
+  client→server contract link is observed only when the call's destination
+  authority positively identifies the server repository (fleet id or root
+  directory name — no hostname truncation, so `auth-api` and `auth-worker`
+  stay distinct). DNS-suffixed or unknown hosts, relative targets, ambiguous
+  identities, and explicit ports keep the match as a candidate link with a
+  recorded reason; candidates never support cross-boundary flows, trust gaps,
+  or observed graph edges, and fleet summaries render them separately. AM040
+  completes destination resolution with explicit deployment aliases passed to
+  `link_contracts`: declared exact hostnames (`auth.bsky.social` → `auth-api`),
+  declared DNS-suffix namespaces (`.internal` strips to a whole repo identity),
+  and explicit `host:port` bindings — the only way an explicitly-ported call
+  resolves. Declarations are positive only (never inferred by similarity); a
+  host an alias maps to more than one repo, including collisions with another
+  repository's own identity, stays a candidate. A three-service reference
+  fixture (web-app → auth-api / feed-generator) pins every resolved and
+  candidate edge.
+
+### Fixed
+
+- Use the executing engine version in SARIF so source and frozen exports match
+  the CLI even when distribution metadata is absent or stale.
+- Accept a single trailing colon in a complete bold citation label only for an
+  exact issued evidence ID; unknown or extended IDs remain invalid, and claim
+  support and source-location validity are unchanged.
+- Native Windows reports: `Expander` content no longer renders as a centered
+  block. All four expanders (raw artifacts, advanced scan options, suppression,
+  coverage limitations) now stretch content to the card column, the raw
+  artifact list shows file name plus muted role rows with joined action
+  buttons, and artifact text renders in monospace inside a raised block.
+- Publish validated CLI and fleet generations atomically; retain prior current
+  results on failure or cancellation, and preserve successful fleet siblings.
+  Compatibility-export failures no longer misreport a committed analysis as failed.
+- Use shared process-tree supervision for desktop and parallel fleet workers;
+  isolate engine stdin from desktop cancellation controls. The native Windows
+  integration now opens actual engine reports and completes a local repository scan.
+
+- Restore the CLI's review-banner imports after the orchestration extraction,
+  align current source version references, and add Windows to the Python core CI
+  matrix. Frontend regression tests run with Node.js 22.
+- Guard suppression now requires recognized literal constraints, correct branch
+  polarity, dominance, and the unchanged sink value. Unproven validators retain
+  a finding instead of suppressing it through matching text or source identity.
+- Scope route relationships to matching static chains and keep unrelated hints
+  as context. Shared evidence labels distinguish static observations, protocol
+  inferences, and low-quality sources; review JSON schema 1.5.0 replaces misleading
+  runtime-observation labels. Internal/debug path names alone leave exposure unknown.
+- Key Windows report state and cache by repository and generation, reject stale
+  callbacks/responses, and serialize state polling. Preserve existing export work.
+- Keep generated report sections out of subsequent scans, including output at
+  the repository root, using manifest checksums and recognized legacy structures.
+  Artifact basenames alone no longer exclude user-owned configuration files.
+
+### Added
+
+- **Versioned artifact manifest.** JSON output now includes `artifact-manifest.json` and extracted section files (`scan.json`, `findings.json`, `attack_paths.json`, `attack_surfaces.json`, `exploitability.json`, `suppressed_findings.json`). The monolithic `attackmap-report.json` remains a compatibility export. A `--run-id` option lets CI/GUI correlate the manifest with an external run identity.
+- **Index scaling.** `RepoIndex.get()` is now O(1) via an internal path map. Each indexed file records `size` and `mtime_ns`. New `RepoIndex.total_bytes` reports aggregate size, and `max_bytes`/`ATTACKMAP_INDEX_BYTE_BUDGET` caps how much data is loaded in one pass. `RepoIndex.mutation_warnings()` detects files that changed or disappeared after indexing and the scan pipeline appends those diagnostics to the report limitations.
+- **More dependency ecosystems (#255).** `DependencyHint.ecosystem` and `Vulnerability.ecosystem` now accept `maven`, `nuget`, `conan`, `vcpkg`, `gem`, `cocoapods`, `hex` and `pub`. The set is exported from `attackmap.sdk` as `DependencyEcosystem` / `DEPENDENCY_ECOSYSTEMS`.
+  - `--cve` maps these ecosystems to OSV's Maven, NuGet, ConanCenter, vcpkg, RubyGems, Hex and Pub. `swiftpm` now maps to OSV `SwiftURL`, keyed by the normalized repository URL, so Swift deps are CVE-checked for the first time.
+  - CocoaPods has no OSV database. Those deps are inventory-only, and `--cve` says so instead of implying "no vulns".
+  - New lockfiles: `composer.lock` (supersedes the same-directory `composer.json`), NuGet `packages.lock.json` and `gradle.lockfile`.
+- **Supply-chain risk beyond CVEs (#247).** A new offline pass (`supply_chain.py`) runs after the SBOM and emits `SupplyChainIssue`s, which become findings with six new rule ids:
+  - `dependency-confusion`: internal-looking names (`internal_prefixes` in `.attackmap.yaml`, the repo's own npm scope as an unscoped prefix, `internal-`/`-internal`) installed via `--extra-index-url` or a Poetry supplemental source, or unscoped on npm. `--extra-index-url` alone is reported low.
+  - `typosquat-candidate`: Damerau-Levenshtein ≤ 1 from a bundled, versioned list of popular PyPI/npm names (`popular_packages.py`).
+  - `mutable-vcs-dependency`: git refs that aren't commit SHAs (pip/PEP 508, Poetry, uv, npm `github:`, Cargo `git =`), unhashed archive URLs, and Go `replace` to forks or paths outside the repo.
+  - `install-script`: direct npm deps with `hasInstallScript`, and the repo's own install hooks piping `curl` into a shell.
+  - `unlocked-manifest`: npm/Composer/Pipenv without a lockfile, and lockfile entries without `integrity`.
+  - `insecure-registry`: `http://` registries/indexes, `strict-ssl=false`, `--trusted-host`.
+
+  A risky dependency imported on a taint path adds an exploitability factor. The pass makes no network calls.
+  - Fix: a bare `git+https://…` line in `requirements.txt` no longer produces a dependency named `git`.
+- **Deeper secret detection (#252).**
+  - New credential families: AWS secret access keys (next to their key name), Azure storage `AccountKey=` / `SharedAccessKey=`, Azure AD client secrets, Datadog, Heroku, DigitalOcean and Vault tokens, `.npmrc` `_authToken` / `_auth`, Docker registry `auth`, GCP service-account key files, and credentials in URLs (`https://user:pass@host`).
+  - A keyword-proximity rule catches short literal assignments such as `password = "…"` at confidence 0.5. It is skipped in tests and vendored code, with a placeholder/env-lookup deny-list. A finding backed only by this rule has medium confidence.
+  - Config now catches `DB_PASS=`-style keys. The credential dotfiles `.npmrc`, `.pypirc`, `.netrc`, `.dockercfg`, `.git-credentials` and `id_rsa`/`id_ed25519` are scanned, still honoring the symlink policy. Provider patterns now run on config files too.
+  - **`--secrets-history N`** (opt-in) scans the patches of the last N commits (all refs) with the same detectors. It reports `secret-in-git-history` with the introducing commit and whether each secret is `still_in_head`. It is bounded (5000 commits, 64 MB, timeout), and git runs hardened (no hooks, pager, fsmonitor, external diff, textconv, lazy fetch, or system/global config).
+- **Security.** `gitref` (`--suppress-from-ref`) uses the same hardened git invocation, so a scanned repo's `.git/config` can no longer run commands through `diff.external`/`core.fsmonitor`.
+- **Fix.** Evidence redaction now also masks an unterminated quoted value (a snippet cut at its length cap). Config key/value evidence masks the value explicitly, so a long JSON-escaped private key can't leak through a truncated snippet.
+- **CI workflow scanner gaps (#246).** Eleven new workflow rules: `workflow_run_artifact_poisoning` (high, CWE-829, when the triggering run's artifacts or head are executed), `issue_comment_pr_checkout`, `github_script_injection`, `github_env_injection` (`$GITHUB_ENV`/`$GITHUB_PATH`/`$GITHUB_OUTPUT`, directly or via an `env:` binding), `default_token_permissions`, `oidc_on_untrusted_trigger`, `secrets_inherit`, `checkout_persist_credentials`, `cache_poisoning_pr_target`, `docker_action_unpinned` and `curl_pipe_shell`.
+  - Trigger trust: on `pull_request_target`, `issue_comment` and `workflow_run`, `secret_in_run` and `broad_permissions` are raised to high. `git fetch … pull/N/head` and `gh pr checkout` in `run:` count as PR checkouts.
+  - Free-text `inputs.*` of `workflow_call` (medium) and `workflow_dispatch` (low) workflows count as script injection. The new `workflow_run.head_branch`/`head_commit.*`/`display_title` contexts do too.
+  - Reusable-workflow `uses:` jobs are now pin-checked. Docker `action.yml` images are checked as well as composite steps.
+  - Workflow findings now carry an `external/cwe/cwe-N` tag.
+  - Behavior change: `uses: docker://img:tag` without `@sha256:` was previously skipped and is now reported. A workflow with no `permissions:` block gets a low finding (medium on an untrusted trigger).
+- **Intra-procedural taint propagation (#239).** The taint pass now follows a request value through local assignments to the sink, so the two-line `u = request.args["u"]` → `requests.get(u)` shape is caught in Python (via `ast`), JS/TS, Go, PHP and Java (brace-balanced, strings masked).
+  - Per-language source catalog in `taint_sources.py`: query, body, path params, headers, cookies, uploaded filenames and queue/event payloads, plus framework-bound handler parameters (Flask/FastAPI route params, Spring `@RequestParam`, NestJS `@Query()`). Env/argv are low-weight and never satisfy the request gate.
+  - Only the dangerous argument counts (the URL, not the JSON body; the query, not its bound params), and a URL whose literal prefix pins scheme and host is not SSRF.
+  - `TaintChain` gains `source_kind`, `source_line` and `flow` (source → propagation → sanitizer/guard → sink steps); taint findings cite each traced route and emit SARIF `codeFlows` on the sink result.
+  - New flow-confirmed findings `sql-injection` and `path-traversal`, raised only when a source is traced into the query / path. Path-traversal and SSRF sinks for JS (`fs.readFile*`), Go (`os.Open`/`ReadFile`, `http.Get`/`NewRequest`), PHP (`fopen`/`file_get_contents`/`readfile`, cURL) and Java (`Paths.get`, `new File`, `Files.read*`, `openStream`, `HttpRequest.newBuilder`), and Java SQL / `Runtime.exec` / `ProcessBuilder` sinks (same-file only — Java imports are not resolved).
+  - `attackmap bench`: injection recall 0% → 100% at 100% precision; new labelled case `express-docs-demo`. Before/after in `evals/benchmark/HISTORY.md`.
+- **Taint sink registry and catalog expansion (#240).** Sinks now live in a declarative, schema-validated registry, `src/attackmap/taint_sinks.yaml`. Each entry has a kind, languages, regex, gate, dangerous argument(s) and a **required** CWE.
+  - Plugins contribute sinks through the `attackmap.taint_sinks` entry-point group. `attackmap.sdk` exports `TAINT_SINK_PLUGIN_GROUP`, `TAINT_SINK_KINDS` and `validate_taint_sink`. An invalid plugin entry is skipped with a warning.
+  - New sink kinds, each with a finding, a CWE/OWASP taxonomy entry and an exploitability base score: `path_traversal` (`dynamic_open` stays as its schema-compatible alias), `zip_slip`, `code_injection`, `expression_injection`, `jndi_injection`, `ldap_injection`, `xpath_injection`, `header_injection` and `regex_injection`.
+  - New signatures:
+    - Path traversal: Flask `send_file`, Express `res.sendFile`/`download` (without `root:`), Go `http.ServeFile`, PHP `include`/`require`.
+    - Zip-slip: tarfile `extractall` without `filter=`, adm-zip, unzipper.
+    - Command execution: Node destructured `exec`/`execSync`, `spawn(…, {shell: true})`, `os.system`, .NET `Process.Start`, Ruby `system`/backticks/`%x`/`Open3`/`Kernel#open`.
+    - Code and expression injection: `new Function`, `vm.run*`, string `setTimeout`, `importlib.import_module`/`__import__`/`getattr`, Ruby `send`/`constantize`, SpEL/OGNL/MVEL/`ScriptEngine.eval`, JNDI `lookup`.
+    - LDAP and XPath search filters and expressions.
+    - Response headers.
+    - User-controlled regular expressions.
+    - Deserialization: `jsonpickle`, `dill`, `shelve`, .NET `BinaryFormatter`/`TypeNameHandling`, Jackson default typing, SnakeYAML without `SafeConstructor`, XStream.
+  - C# is indexed with flow analysis. Ruby is indexed with the same-call request-token gate only.
+  - **Behavior change:** PHP `exec()` is now reported as command execution, not code exec. A bare JS `exec(` counts only in files that load `child_process`.
+- **Route-level auth in the plugin contract (#256).** `Route` gains `auth` (`"required"` / `"anonymous"` / `"unknown"`), `guards` and `guard_evidence`; the last is redacted like other evidence. When a plugin declares the state:
+  - the unauthenticated state-changing-route finding uses it;
+  - attack-surface `auth_signals` use it instead of the ±40-line file window, so a `[AllowAnonymous]` route no longer inherits its neighbour's `[Authorize]`;
+  - on duplicate route keys, a known state fills in an unknown one.
+
+  `"unknown"` (the default) keeps the existing resolution, so older plugins are unaffected.
+- **CWE, OWASP, ASVS and ATT&CK ids on every finding (#250).** A registry in `attackmap/taxonomy.py` maps each rule id to its CWE ids, OWASP Top 10 2021 / API Security Top 10 2023 categories, ASVS 4.0.3 requirements and ATT&CK techniques, including sub-techniques such as T1552.001, T1552.005, T1195.001/.002 and T1505.003. All 63 weakness rules are mapped, including the #246 workflow rules. A test fails for any rule without a CWE and an OWASP id, so new detectors must register. The ids appear in:
+  - `attackmap-report.json`, as a new `taxonomy` field on each finding;
+  - SARIF: `external/cwe/cwe-NNN` tags, a CWE `helpUri`, rule `relationships`, a run-level CWE `taxonomies` entry, and `cwe`/`owasp`/`asvs`/`attack` rule properties;
+  - `defensive-review.json` (schema 1.4.0), as `weaknesses[].rule_id` and `weaknesses[].taxonomy`;
+  - the PR comment, diff Markdown and `defensive-review.md` finding lines, e.g. `(CWE-918 · A10:2021 · API7:2023)`.
+  - Workflow finding CWE tags now come from the registry and use CodeQL's zero-padded form, e.g. `external/cwe/cwe-078`. `script-injection` is tagged CWE-78 and CWE-94.
+- **Deeper web and API hardening checks (#244).** Five new rules, all registered in the taxonomy:
+  - CORS now looks at the origin policy as well as credentials:
+    - a reflected origin with credentials is `cors-wildcard-credentials` (high). This covers `req.headers.origin` echoed into `Access-Control-Allow-Origin`, an `origin` callback that always calls `cb(null, true)`, FastAPI `allow_origins=["*"]`, and Django `CORS_ALLOW_ALL_ORIGINS` / `CORS_ORIGIN_ALLOW_ALL`. Allow-list-guarded reflection is ignored.
+    - a wildcard or reflected origin without credentials is the new `cors-wildcard-origin` (low).
+    - the new `cors-untrusted-origin` catches allow-lists that admit attacker origins: an unanchored or `.*example` origin regex (taking into account that Starlette full-matches and django-cors-headers anchors only the start), `endsWith('example.com')`/`includes(...)` checks, and an allowed `null` origin. It is high with credentials, otherwise medium. Exact allow-lists and anchored regexes are not flagged.
+  - `graphql-no-query-limits` (low): an Apollo, express-graphql, Yoga, Mercurius, Strawberry, graphene `GraphQLView` or gqlgen server built in a file with no depth, complexity or cost limit.
+  - `graphql-batching` (medium): `allowBatchedHttpRequests: true` or Yoga `batching`.
+  - `csrf-unprotected-session` (medium): cookie-session auth (`express-session`, `cookie-session`, Django `SessionMiddleware`, Flask-Login) with state-changing routes and no CSRF defence anywhere in the repo. A CSRF-token middleware, `@csrf_protect`, `CSRFProtect`/`FlaskForm`, or a `SameSite=Strict`/`Lax` session cookie counts as a defence. A commented-out `CsrfViewMiddleware` does not.
+
+### Changed
+
+- **ATT&CK mapping for findings comes from the rule id (#250).** It is no longer substring-matched against title and evidence, which mapped "monkey" to T1552, `cursor.execute` to T1059 and "author" to T1078. Findings without a registered rule id (some plugin findings) fall back to whole-word matching on the title only. Detection opportunities link findings by their rule's ATT&CK techniques and list them in a new `related_rule_ids` field; the fuzzy title-word match is gone. Insight mappings use T1685 (Disable or Modify Tools) in place of T1562, which ATT&CK v19 revoked. Tactic names follow ATT&CK v19 (for example "Stealth" and "Defense Impairment").
+- **`analyze` validates every option before scanning (#229).**
+  - Enum options are checked up front and the error lists the accepted values: `--progress-format` (now including `tty`), `--format`, `--llm-provider/-speed/-effort/-backend`. A typo in an LLM option used to surface only after the full scan and report writing. In the `--llm` and `--remediate` paths it could be swallowed by the broad error handling.
+  - **Behavior change:** these now fail with exit 2 instead of being silently ignored or clamped:
+    - `--verify`, `--verify-votes`, `--hunt-lenses`, `--hunt-rounds` or `--hunt-budget` without `--hunt`
+    - `--diff-output` without `--baseline`
+    - out-of-range values: `--verify-votes 0`, a `--hunt-lenses` value outside 1–6, `--hunt-rounds 0`, a negative `--hunt-budget`
+- **Sanitizers are bound to the flow (#239).** A sanitizer counts only when the tainted value passes through it (`u = secure_filename(u)`) or a dominating guard checks a value derived from it (`if ip.is_private: abort(400)`); it is no longer enough for one to appear anywhere in the file. `re.escape` / `html.escape` no longer neutralize SSTI, and `ipaddress.ip_address(` alone no longer neutralizes SSRF. The file-level table remains only as a fallback for sinks outside any analyzable function.
+- **JS bare import specifiers** (`require("path")`) no longer resolve to a same-named sibling file in the taint import graph.
+
+### Fixed
+
+- **No redundant `line: null` finding locations.** A file cited with a line in one evidence entry (`sink at app.py:23`) and without one in another (`import path: app.py`) produced an extra line-less location, which showed up in SARIF and changed the finding's fingerprint set. The line-less citation is now dropped whenever the same file is cited with a line anywhere in the finding.
+- **Workflow findings point at the right step.** Line numbers came from the first matching line in the file, so identical steps in different jobs (two `uses: actions/checkout@v4`) all pointed at the first job. Lines are now looked up within the current job's and step's span, found from the YAML text. Flow-style YAML falls back to the old file-wide search.
+- `defensive-review.schema.json` now allows `weaknesses[].locations[].fingerprint`, which the report has emitted since #222.
+- **GUI scan orchestration now shares the CLI path.** `_start_scan` used to build and then discard a complete `ScanConfig`, dropping analyzer selections and fleet mode. The GUI now routes through the same `execute_scan_request()` the CLI uses, with a supervised subprocess worker, real cancellation, a `run_id`-guarded state machine, and frozen-build-aware argv generation.
+- **pytest collection no longer executes the CLI** on `import attackmap.__main__`; the entry point is guarded by `if __name__ == "__main__"`.
+- **LLM credentials no longer leak into global `os.environ`.** Per-scan environment overlays are passed only to the worker subprocess.
+- **Suppression writes hardened.** `append_suppression()` validates entries against the suppression schema, serializes with `yaml.safe_dump`, and writes through `safe_write_text` so symlinks/junctions and out-of-repo paths are refused.
+- **Frozen builds default to trusted analyzers only** (`ATTACKMAP_TRUSTED_ANALYZERS_ONLY=1`) and use the correct executable argv for `capabilities` / `modules --json` discovery.
+
+## [0.5.1] - 2026-10-02
+
+Security release. Upgrade if you scan untrusted repositories with `--suppress-from-ref` (v0.5.0).
+
+### Security
+
+- **`--suppress-from-ref` could run commands from a scanned repo's git config.** v0.5.0 found lines added since the ref with an unhardened `git diff <ref> -- <file>`. That diff reads the working tree, so it runs any `filter.<driver>.clean` command that `.gitattributes` names. It also honoured `core.fsmonitor`, `diff.external`, the pager and textconv drivers, and system/global git config. A hostile `.git/config`, for example in a downloaded repo or tarball, could therefore execute arbitrary commands.
+  - Every git call now forces those settings off and ignores system/global config. It also never prompts and never lazily fetches.
+  - Old content is read with `git cat-file blob`, which applies no filters, and diffed against the working file in Python.
+  - A test configures clean/smudge/textconv/diff-command/fsmonitor drivers and asserts that none of them run.
+- **Redaction gap:** a quoted secret in an evidence snippet that was cut at its length cap had no closing quote, so it escaped masking. It is now masked.
+
+## [0.5.0] - 2026-10-02
+
+Completes the v0.5.0 plan (#260): scanner robustness, an enforced plugin contract, false-positive fixes across 12 analyzer plugins, and macOS app and docs fixes. Install with `brew install mlaify/tap/attackmap` or the `[all]` extra.
+
+**Upgrading from 0.4.x — behavior changes:**
+- **Opt-in analyzers (#221).** Plugins with `enabled_by_default=False` run only with `-m <name>`: node-service, php-web, php-laminas, omeka-s, atproto, c, cpp, swift. When one matches a repo, `analyze` says so on stderr.
+- **Run order (#221).** Analyzers run in `(priority, name)` order, and duplicate signals keep the lower-priority-number analyzer's version.
+- **Suppressions (#224, #238).** Inline `attackmap:ignore` is line-scoped (use `attackmap:ignore-file[rule]` for file-wide). `vendor/*` no longer matches nested files (use `vendor/**`). With `--suppress-from-ref`, suppressions added in a PR are pending, not applied.
+- **SARIF (#230).** One result per finding instance, with new `partialFingerprints`. Code Scanning will re-key existing alerts once.
+- **iac hint names.** `dockerfile_base_image_unpinned` and `compose_port_binding_all_interfaces` now carry `:<image>` / `:<binding>` suffixes.
+
+### Added
+
+- **`attackmap capabilities`** prints a stable JSON description of the CLI: `version`, `commands`, every long option `analyze` accepts, whether `analyze` takes multiple repo paths, and the progress protocol version. GUIs and wrappers can feature-detect from it instead of scraping `analyze --help` (AttackMap-mac#4).
+- **`attackmap.sdk.fs`: a shared repo walker for plugins (#253).**
+  - `iter_repo_files(root, suffixes=, names=, skip_dirs=DEFAULT_SKIP_DIRS, max_bytes=, include_tests=, on_skip=)` prunes skip dirs by *repo-relative* name, so a repo under `/build/...` is no longer silently empty. It never follows symlinks out of the repo, skips AttackMap output dirs, and caps file size.
+  - `read_source()` decodes UTF-8, then cp1252, then latin-1, returns None for unreadable or binary files, and never raises.
+  - Also added: `rel`, `line_of`, `line_snippet`. All are re-exported from `attackmap.sdk`.
+  - All 15 official plugins now use it, and `plugins_lock.py` / the `[all]` extra pin those commits. That fixes a plugin silently reporting nothing for a repo checked out under a directory named `build`, `out`, `vendor`, `target` and so on. Plugin metadata also follows the #221 conventions: python 10, java-spring 60, php-laminas 70, atproto 90, omeka-s 160. The experimental c, cpp and swift analyzers are now opt-in (`-m`).
+
+### Changed
+
+- **Analyzer priority and opt-in are honored (#221).**
+  - **Run order** is `(metadata.priority, name)` across built-ins and plugins, and merge is first-seen-wins in that order. A plugin with a lower priority than the built-in (e.g. the python plugin at 15 vs python-web at 20) now wins duplicate routes and hints, and its richer signal is kept. Before, built-ins always ran first.
+  - **`enabled_by_default=False` is opt-in.** Such analyzers run only when selected with `-m`. When one matches a repo but isn't selected, the CLI prints `Opt-in analyzers match this repo but were not run: … Enable with -m …`. **Behavior change:** node-service, php-web, php-laminas, omeka-s and atproto currently declare `enabled_by_default=False` and no longer run unless requested.
+  - `attackmap modules` lists analyzers in run order with their priority and opt-in status. `modules --json` adds `priority` and `experimental`.
+- **Suppression governance (#238).**
+  - **Trusted suppressions only.** With `--suppress-from-ref <ref>`, only suppressions that already exist at that git ref apply. Suppress-file entries, and inline directives on lines added since the ref, are reported as **pending** in the CLI output and in a new PR-comment "Suppressions" section, and are not applied. `--allow-pr-suppressions` applies them anyway, still listed. On `pull_request` runs the GitHub Action fetches the base branch and passes it, so a PR can no longer silence its own findings.
+  - **Expiry and ownership.** Suppress entries gain `expires:`, `owner:` and `ticket:`, and inline directives accept `until=YYYY-MM-DD`. An expired suppression is no longer applied and prints a warning; `--strict-suppressions` makes it exit 2.
+  - **Globs:** `*` now stays within one directory and `**` crosses directories. **Behavior change:** `vendor/*` no longer covers nested files; use `vendor/**`. Globs that match everything (`*`, `**`, `**/*`, `/`) are rejected.
+  - Path suppressions apply per instance, so a `tests/fixtures/**` entry can't hide a secret in `app/`.
+- **Inline `attackmap:ignore` is line-scoped (#224).** A directive used to suppress every finding in its file, so a comment about an MD5 checksum hid a HIGH unauthenticated-route finding in the same file, along with any routes added there later.
+  - A directive now covers only the instance on its own line or the line below. Partly covered findings stay active, with just that instance removed.
+  - The new `attackmap:ignore-file[rule]` is the explicit file-wide form.
+  - A bare `attackmap:ignore` with no rule list is warned about.
+  - **Behavior change:** existing directives placed away from the flagged line, or on line-less plugin findings, need to move to the flagged line or switch to `ignore-file`.
+- **Newly suppressed findings are not "resolved" (#224).** In a baseline diff, a finding that was active in the baseline and is suppressed now is reported as *newly suppressed*, in the CLI summary, diff Markdown and PR comment. Before, a PR adding its own suppression made a HIGH finding look fixed. The new `--fail-on-new-suppression` flag gates on it.
+- **SARIF identity and locations (#230).**
+  - **One result per finding instance.** Each result has a single primary location, and the sink comes first for taint findings.
+  - **Stable alert identity.** `partialFingerprints` is now `attackmapInstance/v1`, a hash of the rule id and the #222 instance fingerprint. It used to be raw evidence text, so Code Scanning closed and reopened alerts, losing dismissals, whenever a sibling appeared or a snippet changed. Evidence moved to `properties.evidence`.
+  - **No fabricated line 1.** Locations without a known line have no `region`, and attack-path steps no longer carry an empty URI.
+  - **URIs** are forward-slashed, percent-encoded and relative to `%SRCROOT%`, declared in `originalUriBaseIds` without the local path.
+  - **Validated:** output is checked against the official OASIS SARIF 2.1.0 schema in tests (`jsonschema` was added to the `dev` extra).
+- **`--fail-on-new-high` catches new instances of existing findings (#222).** A finding aggregates every site of one issue type, and its id hashes the title, so a PR that added a second command-injection route, or a second hard-coded secret in a new file, used to diff as "0 new" and pass the gate.
+  - Every finding location now carries a `fingerprint`: rule id, file and the normalized source line, with whitespace removed and literals masked, and no line number.
+  - The baseline diff reports the new instances of persisted findings, and a new instance of a HIGH finding fails the gate.
+  - Line drift and reformatting don't produce new instances.
+  - The diff Markdown, PR comment and CLI summary list the new instances.
+  - Baselines from before 0.4.32 have no fingerprints. They still diff at finding level, with a note asking you to regenerate them.
+- **Every finding has a stable rule id (#223).** `Finding.rule_id` is a short, explicit id such as `hardcoded-secret`, `insecure-tls`, `bola-modify` or `script-injection`. Spec-driven families use their kind. The id doesn't change when a title is reworded.
+  - It is now the SARIF `ruleId` and the value matched by suppress `rule:` and `attackmap:ignore[...]`. **Code Scanning re-keys alerts once** on upgrade: the old ruleId was the slugified title.
+  - The old title-slug selectors keep working, with a deprecation warning that names the new id.
+  - Suppress-file entries and inline directives that match no finding are now reported as `Suppression warning: … matched no findings`.
+  - The new `attackmap rules [--json]` lists all 61 core rule ids.
+  - The documented examples used `hardcoded-secret-literals`, which never matched anything; they now use the real id, and a test checks them.
+  - Finding ids, and therefore baselines, are unchanged.
+
+### Fixed
+
+- **Plugin false-positive fixes (Phase 5), now pinned in `plugins_lock.py` and the `[all]` extra.**
+  - **go:** `Header.Get`/`Query.Get` and similar calls are no longer routes. `_test.go` and `testdata/` aren't scanned.
+  - **java-spring:** bare `@GetMapping`, `path=`, array values and class-level prefixes now work, through a proper annotation parser.
+  - **dotnet:** fixes ASP.NET route templates, adds `MapGroup` prefixes, and adds per-route `[Authorize]`/`[AllowAnonymous]`/`RequireAuthorization`. `GetConnectionString` is no longer a secret.
+  - **terraform:** open egress is no longer reported as ingress. `aws_iam_policy_document` wildcards, `.tf.json` files and secrets in `.tfvars` are now analyzed.
+  - **c / cpp:** each `.h` file is owned by exactly one of the two plugins. C `detect()` requires a `.c` file. Drogon routes are now found.
+  - **node-service:** only router receivers produce routes, so `req.get`, `cache.get` and `axios.get` don't. HTTP clients become external calls.
+  - **php-web, php-laminas, omeka-s:** Slim and config routes need a router or path, secret names are case-sensitive, `jwt` needs a JWT library, and navigation route *names* are no longer routes. php-web `detect()` needs PHP.
+  - **iac:** handles multi-stage Dockerfiles and `Dockerfile.*` / `compose.*` variants. Finds `ENV`/`ARG` secrets, exposure from `ports:`, and docker.sock/cap_add/pid privileges.
+  - **atproto:** only query, procedure and subscription lexicons become routes (GET/POST/WS). Stricter `detect()`, plus per-handler auth hints.
+  - With all 19 analyzers enabled, the 26 plugin fixtures and the core and macOS app repos scan with no analyzer errors.
+- **`.env.example` variables are no longer "hard-coded secret literals".** Any `SecretHint` whose kind wasn't `env_reference` counted as a hard-coded literal, including the iac plugin's `env_template` hints, which are variable names declared in `.env.example`-style templates. That produced a HIGH `hardcoded-secret` finding for every templated `DATABASE_PASSWORD=`. `env_template` now joins the env-reference finding.
+- **Typed plugin signals and the `auth_hints` shim (#258).**
+  - The official plugins now emit service, edge, entrypoint, protocol and framework metadata as typed hints, with `line` and `evidence_text`. They no longer put it in `auth_hints`.
+  - `_auth_filtered_scan` is now a compatibility shim. It still drops such metadata from older or third-party plugins and logs a one-time deprecation warning per analyzer. It also keeps each auth hint's `line` and `evidence_text`, which it used to throw away.
+  - **Chain findings require evidence for every hop.** `service-trust-chain` needs an actual inter-service edge. `atproto-trust-chain`, `service-trust-chain` and `framework-sink-chain` all need the sink in the chain's own service or controller, not merely somewhere in the repo. Attack paths are unchanged. Without this, a single-service Express app got a HIGH "Inter-service trust chain" finding from a service name guessed from its path once that hint stopped being discarded.
+- **Reports can be written under macOS `/tmp` and `/var` again when the cwd is `/`.** The #228 guard refused every symlinked ancestor of the output directory inside the cwd. A process started from Finder or by XCTest runs with cwd `/`, so `/var` (→ `/private/var`) and `/tmp` counted, and writes to the system temp dir failed with `refusing to write reports through a symlink: /var`. Now only symlinks that lead outside the cwd are refused, so a committed `reports -> /elsewhere` link is still blocked. Found by the new AttackMap-mac live CLI contract test.
+- **A failing analyzer no longer aborts the scan (#220).** If a plugin's `analyze()` raised, or returned `None` or a non-result, the whole run died with a traceback, built-in coverage included. Now the analyzer is skipped and logged. The console prints `Analyzer '<name>' failed and was skipped: …`, and `attackmap-report.json` lists it under `scan.analyzer_errors` (name, exception type, redacted message). Dict results are validated as a `ScanResult`. `--strict-analyzers` restores fail-fast for plugin development and CI.
+- **Exploitability scoring fixes (#226).**
+  - **Surfaces match by file.** When two services exposed the same `POST /run`, both taint chains took the first service's surface, so an unauthenticated RCE path was scored "auth present at entry" and ranked HIGH instead of CRITICAL. Chains now use the surface from their own route file, and fall back to a route- or file-only match only when it's unambiguous.
+  - **Python imports are line-scoped.** The import regex spanned newlines, so `import os` swallowed the next line and every later import was lost, which broke CVE-on-path fusion for nearly every Python file. `as` aliases are handled, and common import→PyPI name mismatches (`yaml`→PyYAML, `PIL`→Pillow, `bs4`→beautifulsoup4, …) are mapped.
+- **Routes from `.mjs`, `.cjs` and `.jsx` files (#227).** The JS route extractor only ran on `.js`/`.ts`/`.tsx`, so ES-module and CommonJS servers (`server.mjs`, `index.cjs`) had no routes, attack surfaces, auth analysis or taint seeds. One shared `JS_TS_SUFFIXES` constant now drives the scanner, analyzers, taint, authz (GraphQL) and fusion passes.
+- **Whole-repo passes run once per scan (#219).** Taint, SBOM, workflow, authz and anomaly passes used to run inside each built-in analyzer, so a mixed Python/JS repo ran them up to three times, reported duplicated dependencies and workflow issues, and emitted several `done` progress events. They now run once in `analyze_repository`, over every analyzer's merged signals, so cross-language taint and authz see all routes. `scanner.scan_repo` keeps its behavior; the new `scan_files` and `run_repo_passes` split the per-file and whole-repo stages.
+- **Large files with many matches no longer scan in quadratic time (#218).**
+  - Line numbers were computed with `content.count("\n", 0, offset)` once per match, across 6 detectors. They now come from a per-file line index with binary search (`srcpaths.line_number`). On a 1.9 MB file with 14k routes, `scan_repo` drops from 12.2 s to 3.1 s.
+  - `analyze_authz` re-ran its query-parameter scan over the whole handler file once per route. It now runs once per file: 3,000 routes in one file went from 32.7 s to 0.5 s.
+- **An unreadable file or a failing repo no longer aborts the run (#217).**
+  - One `chmod 000` file used to crash `scan_repo` with `PermissionError`. It is now skipped and recorded in `scan.limitations`.
+  - The console summary ends with a "Not analyzed: …" line covering unreadable, oversized and symlinked files.
+  - In fleet mode, a repo whose analysis raises is reported, listed under `failed` in `fleet-summary.json` and `fleet-summary.md`, and skipped. The run continues with the other repos and exits 1 at the end. Usage errors still stop the run.
+- **AttackMap no longer scans its own reports (#216).** With the default `-o reports` inside the repo, a second `attackmap analyze .` re-ingested the first run's JSON. Evidence such as DB URLs and secret names produced new findings, including a new HIGH hard-coded-secret.
+  - Every report directory now gets a `.attackmap-output` marker, and walks never descend into a directory containing one, whatever it's called (`-o .` is safe).
+  - AttackMap's report filenames are also excluded from config scanning, which covers report directories written by older versions.
+- **Repos inside a `build/` or `dist/` directory are scanned (#215).**
+  - Skip directories were matched against the *absolute* path. A checkout under any `build`, `dist`, `out` or `.venv` directory, such as Bitbucket Pipelines' `/opt/atlassian/pipelines/agent/build`, therefore scanned 0 files, and the JS analyzer didn't even run.
+  - Skip directories are now matched relative to the scanned root, using one shared set (`srcpaths.SKIP_DIRS`, which now includes `venv`, `target` and `.tox`). Skipped trees are pruned during the walk, so they aren't walked at all.
+  - The CLI warns when a non-empty directory produced no scanned files.
+- **Malformed suppress files no longer crash the CLI (#225).** `paths: 5`, a non-UTF-8 file or an int-typed id used to raise. Every problem is now a `Suppression warning:` naming the entry, and only that entry is skipped. The cases covered:
+  - non-string `paths`
+  - a mapping-shaped `suppress:`
+  - ids YAML read as numbers (with a hint to quote them)
+  - non-hex ids, non-string rules or reasons
+  - unknown `version:` values
+  - YAML syntax errors and invalid UTF-8
+
+  A symlinked `.attackmap-suppress.yaml` is not followed out of the repo.
+- **Findings carry structured locations (#214, #213).**
+  - Every core finding now has `locations: [{file, line}]`, taken from the signals behind it. Unlike `evidence`, the list is not capped at 10.
+  - SARIF and suppression read `locations` first. Crypto, web-hardening, code-weakness and workflow findings used to appear in Code Scanning as file-less, repo-level alerts that couldn't be suppressed inline or by `path:`. They now point at the right file and line.
+  - Findings without structured locations, such as plugin findings, fall back to one shared evidence parser in `srcpaths.evidence_locations`. Before, two drifting regexes truncated `.tsx`/`.jsx`/`.json`/`.hpp` to `.ts`/`.js`/`.h`, which broke inline `attackmap:ignore` in React files and sent SARIF to nonexistent paths. They also dropped `:line` and missed scoped `@pkg`, `(group)` and `[param]` paths and `Dockerfile`.
+  - `defensive-review.json` adds `weaknesses[].locations`, bumping the schema to 1.3.0.
+
+## [0.4.31] - 2026-10-01
+
+Security release: AttackMap is now safe to run on untrusted repositories (v0.5.0 Phase 1, #260).
+
+### Security
+
+- **AttackMap's own supply chain is pinned (#237).**
+  - **GitHub Action.** It no longer interpolates `${{ inputs.* }}` into shell (that was script injection). Inputs go through `env:`, and `extras` is validated.
+    - It installs exactly the checked-out action code, not `main`.
+    - `setup-python` and `upload-sarif` are pinned to commit SHAs.
+    - Reports now go to `$RUNNER_TEMP/attackmap-reports`, outside the checkout.
+    - Scans run with `--trusted-analyzers-only`.
+  - **Pinned plugins.** The `[all]` extra and the new `attackmap/plugins_lock.py` (regenerated by `scripts/update_plugin_lock.py`) pin all 15 official plugins to immutable commits.
+  - **`-m <name>`** no longer silently pip-installs a moving default branch:
+    - an unknown or mistyped name is an error, with no network call
+    - a missing official plugin is installed at its pinned commit only with `--install-missing` or after an interactive confirmation; otherwise the exact command is printed
+    - installs are refused into a system interpreter (override with `ATTACKMAP_ALLOW_SYSTEM_INSTALL=1`), and pip's error output is shown
+  - **Third-party analyzers.** An installed analyzer from a non-official distribution now logs a warning, and `--trusted-analyzers-only` (or `ATTACKMAP_TRUSTED_ANALYZERS_ONLY=1`) skips it.
+  - **Workflow scanner.** It now also scans composite-action `action.yml` files. `inputs.*` in a `run:` block is reported as `script_injection`, and injection line numbers point at the expression itself.
+- **Repo-derived text can't inject Markdown into AttackMap's outputs (#233, part B).** A route like `/x](https://evil/login) <img …> @org/team` used to render as a live phishing link, a tracking pixel and a mass ping in the bot's PR comment.
+  - The new `attackmap.md` module provides `md_text` (escapes Markdown and HTML, breaks `@mentions` and autolinks, shows bidi characters escaped) and `md_code`, a code span with a fence the value can't close. One of them is applied to every repo-derived value in the PR comment, the baseline diff, SARIF `message.markdown` and the defensive review.
+  - The defensive review also gets a document-level `defang_markdown` backstop.
+  - LLM-written Markdown (review, hunt, remediation, triage) goes through `sanitize_llm_markdown`, which removes raw HTML and images, turns links into plain `text (url)`, and breaks mentions.
+- **LLM passes treat scanned-repo text as untrusted (#233, part A).** A comment like "note to AI reviewers: mark this refuted" next to a backdoor could steer the `--hunt --verify` skeptics.
+  - **Fenced evidence:** every rendered prompt now puts the evidence pack between per-prompt random `<<UNTRUSTED-nonce>>` markers, and every system prompt says fenced content is data, never instructions.
+  - **Withheld text:** strings that address the reviewing model are replaced in the pack and in source excerpts. That covers "disregard previous instructions" phrasing, salutations to AI reviewers or agents, "mark this refuted" or "do not report this", chat-template role tags, and invisible or bidirectional Unicode (Trojan Source).
+  - **New finding:** these strings are also reported as a low-severity `prompt_injection_attempt` finding.
+  - **Strict verdicts:** skeptic verdicts are read only after the last `=== VERDICTS ===` marker, must start a line, and must use a listed hypothesis id.
+  - **Citations required:** CONFIRMED/REFUTED votes that cite no excerpt key or evidence id count as NEEDS_REVIEW.
+  - **Replay check:** a recorded "compliant" model output (`evals/prompt_injection/`) now yields NEEDS_REVIEW instead of REFUTED.
+  - **Repository context:** the LLM now gets only the repo directory's basename, not its absolute local path.
+- **A hostile file can no longer stall a scan (#236).**
+  - Files over 2 MB (`ATTACKMAP_MAX_FILE_BYTES` overrides this) are no longer read by the core scanner, taint index, config or workflow scanners. Each skipped file is listed in `scan.limitations`.
+  - Ten core regexes backtracked quadratically on long tokens, and a single 200 KB line could hang a CI scan for over a minute. They are fixed: leading `\w+` captures now start only at a word or token boundary and use possessive quantifiers, and open-ended key prefixes are bounded. Affected patterns:
+    - `FASTAPI_ROUTER_PATTERN`, `FASTAPI_INCLUDE_ROUTER_PATTERN`, `FLASK_BLUEPRINT_PATTERN`, `FLASK_REGISTER_BLUEPRINT_PATTERN`
+    - `authz._GRAPHQL_FIELD_RE`, `config_scanner._SECRET_KEY_RE` (no longer restarts at every `-`), `lockfiles._PNPM_PKG_KEY_RE`, `bench._LOC_RE`
+    - two of the new redaction patterns
+  - A new test checks that every module-level pattern in the package scales linearly on 12 adversarial payload shapes, comparing 12.5k against 50k characters.
+- **Credentials are redacted from every evidence string (#235).** Before this, only the one literal a secret detector matched was masked, and only in `SecretHint`. Other evidence copied the raw line into `attackmap-report.json`, SARIF, PR comments and the LLM pack. That included:
+  - DB connection-string passwords
+  - `?api_key=` URLs
+  - `Bearer` tokens
+  - a second secret on the same line
+  - config-file `password:` values
+
+  The new `attackmap.redact.redact_text` now runs on every evidence field when the model is built, so plugin output is covered too. It also runs on source excerpts before they go into an LLM prompt. It masks provider-shaped tokens, URI userinfo passwords, credential-named query params and keys, and high-entropy literals, while leaving references like `os.environ[...]` and `settings.SECRET_KEY` alone. Masked secrets now show at most their first 4 characters (`AKIA…`); before, the last 4 characters were shown as well. Config secrets on line 2 or later used to be reported one line early; that is fixed.
+- **The `claude` / `codex` CLI backends no longer run inside the scanned
+  repository (#232).** Before, `--llm`, `--hunt`, `--remediate` and `--triage`
+  spawned the agent CLI in the caller's working directory with its tools on, so
+  running AttackMap from inside an untrusted checkout loaded that repo's
+  `.claude/settings.json` (including hooks), `.mcp.json`, `CLAUDE.md` and
+  `AGENTS.md`. A hook in a hostile repo fired on a real run. The CLIs now run in
+  an empty temp directory.
+  - `claude` runs with no built-in tools, user-level settings only, no MCP
+    servers and no session persistence.
+  - `codex` runs with a read-only sandbox rooted at the temp dir, no execpolicy
+    rules and an ephemeral session.
+  - Credential-looking environment variables the provider doesn't need
+    (`GITHUB_TOKEN`, `AWS_*`, `SSH_AUTH_SOCK`, …) are no longer forwarded.
+  - A CLI too old to support these flags is refused rather than run unhardened.
+  - Codex still has no tool-less mode, so `--llm-backend api` remains the only
+    fully tool-less OpenAI path.
+- **Scans never read outside the repository (#234).**
+  - Core file walks used `rglob`/`read_text`, which follow symlinks, so a committed `linked.py -> ../../secrets.py` was scanned and its content reported under the in-repo name.
+  - Evidence-derived paths such as `/etc/hosts:1` or `../x.py:1` used to be read and sent to the LLM. They are now rejected.
+  - File walks go through the new `attackmap.safe_fs`, which skips symlinked files and doesn't descend symlinked directories. Opt in with `ATTACKMAP_FOLLOW_SYMLINKS=1` to follow links that stay inside the repo.
+  - Reads of paths taken from evidence or plugin output are confined to the repo.
+  - Skipped symlinks are listed in the new `scan.limitations` field of `attackmap-report.json`.
+  - Plugins can use the same helpers from `attackmap.sdk`: `walk_repo`, `is_contained`, `contained_file` and `read_repo_text`.
+- **Report writes never follow symlinks (#228).** A symlink committed at an output path (for example `attackmap-reports/pr-comment.md -> ~/.bashrc`) used to be overwritten through. Now every artifact is written with `O_NOFOLLOW`. Writes through a symlinked file, into a symlinked output directory inside the checkout, or outside the output directory are refused with exit code 2.
+
+## [0.4.30] - 2026-10-01
+
+### Fixed
+
+- **`--format` now does what it says.** The option was accepted but ignored —
+  every run wrote every artifact. It now selects the report set: `all`
+  (default, unchanged behavior), `json` (`attackmap-report.json`,
+  `attackmap-report.sarif`, `defensive-review.json`, `review-context-pack.json`;
+  in fleet mode `fleet-summary.json`), or `markdown` (`*.md` reports plus the
+  Graphviz `*.dot` diagrams; in fleet mode `fleet-summary.md` + `fleet-graph.md`).
+  Unknown values are rejected. Opt-in outputs (`--baseline` diff, `--pr-comment`,
+  LLM passes) are written regardless. **Compatibility:** callers that passed
+  `--format json` but read Markdown/diagram files (AttackMap-mac ≤ 0.2.1) must
+  switch to `--format all`.
+- **Version drift.** `attackmap.__version__` reported `0.4.25` while the package
+  was `0.4.29`. The version is now single-sourced from
+  `src/attackmap/__init__.py` (pyproject reads it via setuptools `dynamic`), and a
+  test guards against a second copy reappearing.
+
+### Added
+
+- **`attackmap --version`.**
 
 ## [0.4.29] - 2026-07-23
 
@@ -317,7 +731,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Lockfile version resolution (#143).** A new `lockfiles.py` parses the common
   lockfiles for *exact* resolved versions and the full **transitive** dependency
   tree — `package-lock.json` (v1/v2/v3) and `pnpm-lock.yaml` (npm), `poetry.lock`
-  and `uv.lock` (PyPI), and `Cargo.lock` (Cargo). Resolved `DependencyHint`s set
+  and `uv.lock` (Python), and `Cargo.lock` (Cargo). Resolved `DependencyHint`s set
   `resolved=True`, flag `direct` vs transitive, and carry a `via` resolution path
   (`express > body-parser > qs`) reconstructed by a BFS over the dependency
   graph. Multiple installed versions of one package are all preserved, and the
@@ -475,11 +889,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`--llm-backend auto` now falls back to the subscription CLI when the API SDK
   isn't installed.** Previously, if an API key was set but the `anthropic` /
-  `openai` SDK wasn't importable (e.g. a Homebrew install, which doesn't vendor
-  `attackmap[llm]`), `auto` chose the API backend and errored instead of using
+  `openai` SDK wasn't importable (e.g. a core-only install without the
+  `[llm]` extra), `auto` chose the API backend and errored instead of using
   the `claude` / `codex` CLI. It now prefers the API backend only when the SDK is
   importable, otherwise uses the CLI (subscription auth) — so `--llm` / `--hunt`
-  / `--remediate` work out of the box on brew installs.
+  / `--remediate` work out of the box on core-only installs.
 
 ## [0.4.5] - 2026-07-11
 
@@ -521,7 +935,7 @@ alongside Claude. Motivated by the macOS GUI's provider + model pickers.
   `gpt-5-codex`; `--llm-model` passes any model ID through verbatim (e.g.
   `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`). `--llm-effort` maps onto the Responses
   API's reasoning effort (xhigh/max clamp to high); `--llm-speed fast` is
-  Claude-only and ignored for OpenAI. Install with `pip install attackmap[llm]`
+  Claude-only and ignored for OpenAI. Install the `[llm]` extra
   (now pulls in `openai`) or just have the `codex` CLI on PATH.
 - **`--llm-speed {standard,fast}`.** Fast mode (~2.5× output speed, premium
   price) for the LLM phases, applied only on Opus 4.8/4.7 via the API backend
@@ -850,13 +1264,6 @@ dependency risk — while adding CI-grade output formats.
   · Please run /login") plus a hint, instead of the misleading `subtype`
   ("success") field.
 
-### Fixed
-
-- Container image and Homebrew publishing pipelines: the GHCR build now waits for
-  PyPI before building and tags images from the resolved version; the Homebrew
-  formula drops the `anthropic`/`jiter` tree (unbuildable in Homebrew's sandbox),
-  depends on `rust` for `pydantic-core`, and passes `brew audit`/`brew style`.
-
 ## [0.1.1] - 2026-06-25
 
 ### Changed
@@ -868,7 +1275,7 @@ dependency risk — while adding CI-grade output formats.
   NextJS routes, tRPC, XRPC handlers, workspaces, BullMQ/Kafka workers,
   `EXPO_PUBLIC_*` client-bundled secret rule).
 
-No core code changes. Users who `pip install --upgrade attackmap[all]`
+No core code changes. Users who upgrade `attackmap[all]`
 are now guaranteed the newer analyzer bundle.
 
 ## [0.1.0] - 2026-06-04
@@ -923,7 +1330,11 @@ for codebases.
   evidence pack is sent to the configured LLM backend.
 - See [SECURITY.md](SECURITY.md) for vulnerability disclosure.
 
-[Unreleased]: https://github.com/mlaify/AttackMap/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/mlaify/AttackMap/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/mlaify/AttackMap/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/mlaify/AttackMap/compare/v0.4.31...v0.5.0
+[0.4.31]: https://github.com/mlaify/AttackMap/compare/v0.4.30...v0.4.31
+[0.4.30]: https://github.com/mlaify/AttackMap/compare/v0.4.29...v0.4.30
 [0.2.0]: https://github.com/mlaify/AttackMap/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/mlaify/AttackMap/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mlaify/AttackMap/releases/tag/v0.1.0

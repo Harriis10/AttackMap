@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://attackmap.dev/schemas/artifact-manifest.schema.json",
+  "title": "AttackMap Artifact Manifest",
+  "description": "Versioned index of files produced by a single AttackMap scan generation.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "generation_id",
+    "engine_version",
+    "created_at",
+    "exit_state",
+    "run_identity",
+    "sections",
+    "compatibility_exports"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "artifact_type": { "type": "string" },
+    "generation_id": { "type": "string" },
+    "engine_version": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "exit_state": {
+      "type": "object",
+      "required": ["exit_code", "status"],
+      "properties": {
+        "exit_code": { "type": "integer" },
+        "status": { "type": "string" },
+        "snapshot_state": {
+          "type": "string",
+          "enum": ["incomplete"],
+          "description": "Present only when publication-time snapshot verification found drift; the run is marked incomplete with a limitation listing affected paths (C33)."
+        }
+      }
+    },
+    "run_identity": {
+      "type": "object",
+      "required": ["repo_root", "repo_name", "analyzers"],
+      "properties": {
+        "repo_root": { "type": "string" },
+        "repo_name": { "type": "string" },
+        "analyzers": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "snapshot": {
+          "type": "object",
+          "description": "Content-identified scan snapshot identity and publication-time verification (C33/AM047). Absent on pre-snapshot manifests.",
+          "properties": {
+            "snapshot_id": { "type": "string" },
+            "file_count": { "type": "integer" },
+            "total_size": { "type": "integer" },
+            "config_identity": { "type": "string" },
+            "index_config": { "type": "object" },
+            "analyzer_identity": { "type": "string" },
+            "verification": { "type": "object" }
+          }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "format", "role"],
+        "properties": {
+          "name": { "type": "string" },
+          "path": { "type": "string" },
+          "format": { "type": "string" },
+          "role": { "type": "string" },
+          "checksum": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "compatibility_exports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "format", "role"],
+        "properties": {
+          "name": { "type": "string" },
+          "path": { "type": "string" },
+          "format": { "type": "string" },
+          "role": { "type": "string" },
+          "checksum": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

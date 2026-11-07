@@ -1,0 +1,229 @@
+{
+  "status": "SECOND_OWNED_CANDIDATE_BYTE_FAILURE_PASS_EXISTING_METADATA_PRODUCTION_BLOCKER",
+  "session": 22183,
+  "failed_preparation": "First preparation command exited1 with cp1250 UnicodeDecodeError reading UTF8 adapter; no candidate created. Explicit UTF8 preparation then succeeded.",
+  "command": "$env:PYTHONPATH='C:/tmp/attackmap-wp034/10k-20261021-02/source/src'; $env:PYTHONDONTWRITEBYTECODE='1'; & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-prepare-section-prototype.py; if ($LASTEXITCODE -eq 0) { & ./.tools/wp024-freeze-venv/Scripts/python.exe .tmp/wp034-publication-section-prototype.py }",
+  "baseline_source": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source",
+  "owned_candidate": "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\source",
+  "tree_file_count": 138,
+  "changed_files": [
+    "src/attackmap/report.py",
+    "src/attackmap/safe_fs.py"
+  ],
+  "delta": [
+    {
+      "path": "src/attackmap/safe_fs.py",
+      "baseline_sha256": "576a211b3584890137345dc0b35b79ad4f5959969cf8b58435753a2efdbc19e2",
+      "candidate_sha256": "4f9a22a7ca6398071f2d7407bb73d22c33aeac8fe2c1845b3032cab92a5b9dcd"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "baseline_sha256": "20bd67d3390bfaa7e44bd98024a9f1689d9b2f731766865ec62616801cf4b796",
+      "candidate_sha256": "15eb286c792e45c4b3fb31ba1d8a42883af0c8a5f61a021164d067061e661e27"
+    }
+  ],
+  "first_candidate_artifacts_unchanged": true,
+  "checks": {
+    "byte_golden_cases": 8,
+    "failures_preserve_report_and_valid_current_generation": [
+      "encoder",
+      "write",
+      "close",
+      "replace",
+      "fdopen"
+    ],
+    "outside_path_rejected": true,
+    "symlink_results": {
+      "target": "rejected",
+      "directory": "rejected"
+    },
+    "ordinary_writer_bytes": true,
+    "exclusive_collision_preserves_foreign_stage": true,
+    "file_identity": {
+      "before": 4222124654321212,
+      "legacy_after": 4222124654321212,
+      "replacement_after": 4222124654321225
+    },
+    "production_blocker": "Existing-target replacement changes file identity; ACL/metadata equivalence not qualified."
+  },
+  "runs": [
+    {
+      "label": "checks",
+      "number": 0,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 20639744,
+      "whole_child_wall_seconds": 5.179813099995954
+    },
+    {
+      "label": "baseline",
+      "number": 1,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 160940032,
+      "whole_child_wall_seconds": 9.443809999997029
+    },
+    {
+      "label": "candidate",
+      "number": 2,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 125607936,
+      "whole_child_wall_seconds": 10.782501499998034
+    },
+    {
+      "label": "candidate",
+      "number": 3,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 124346368,
+      "whole_child_wall_seconds": 13.582203899990418
+    },
+    {
+      "label": "baseline",
+      "number": 4,
+      "exit_code": 0,
+      "abort": null,
+      "cleanup_verified": true,
+      "peak_owned_job_commit_bytes": 162693120,
+      "whole_child_wall_seconds": 19.598907199993846
+    }
+  ],
+  "actual_serialization_results": [
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126648320,
+        "working_set_bytes": 91852800,
+        "peak_commit_bytes": 120070144,
+        "private_bytes": 84705280
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 165658624,
+        "working_set_bytes": 92745728,
+        "peak_commit_bytes": 160047104,
+        "private_bytes": 85377024
+      },
+      "wall_seconds": 2.3354810000018915,
+      "cpu_seconds": 2.03125,
+      "owned_job_lifetime_peak_commit_bytes": 160940032
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126107648,
+        "working_set_bytes": 91480064,
+        "peak_commit_bytes": 119422976,
+        "private_bytes": 84172800
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 132050944,
+        "working_set_bytes": 92868608,
+        "peak_commit_bytes": 124710912,
+        "private_bytes": 85336064
+      },
+      "wall_seconds": 2.8903359999967506,
+      "cpu_seconds": 2.421875,
+      "owned_job_lifetime_peak_commit_bytes": 125607936
+    },
+    {
+      "implementation": "candidate",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126509056,
+        "working_set_bytes": 91668480,
+        "peak_commit_bytes": 119771136,
+        "private_bytes": 84439040
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 130867200,
+        "working_set_bytes": 92864512,
+        "peak_commit_bytes": 123441152,
+        "private_bytes": 85860352
+      },
+      "wall_seconds": 3.3863203000073554,
+      "cpu_seconds": 2.625,
+      "owned_job_lifetime_peak_commit_bytes": 124346368
+    },
+    {
+      "implementation": "baseline",
+      "input_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_sha256": "eb9e4639b570133e7801c110c466b020e841d9e3e36ef4d7ed06e228c36ea349",
+      "output_bytes": 36895649,
+      "before_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 126603264,
+        "working_set_bytes": 91820032,
+        "peak_commit_bytes": 119959552,
+        "private_bytes": 84934656
+      },
+      "after_serialization_memory": {
+        "available": true,
+        "peak_working_set_bytes": 167067648,
+        "working_set_bytes": 93003776,
+        "peak_commit_bytes": 161792000,
+        "private_bytes": 85815296
+      },
+      "wall_seconds": 3.607398000007379,
+      "cpu_seconds": 2.0625,
+      "owned_job_lifetime_peak_commit_bytes": 162693120
+    }
+  ],
+  "medians_separate_wall_cpu_job_peak": {
+    "baseline": {
+      "cpu_seconds": 2.046875,
+      "wall_seconds": 2.971439500004635,
+      "owned_job_lifetime_peak_commit_bytes": 161816576.0
+    },
+    "candidate": {
+      "cpu_seconds": 2.5234375,
+      "wall_seconds": 3.138328150002053,
+      "owned_job_lifetime_peak_commit_bytes": 124977152.0
+    }
+  },
+  "artifacts": {
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-prepare-section-prototype.py": "0aaad9d8bc1cf5c7213c50c75f60d38f7785b105a35e58903e6d3a07a5717aa4",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-section-prototype.py": "06a80bcd2c59550299264d11dc2519c90a7f165607c9037db1bf9a25c9ab54c0",
+    "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-publication-section-candidate.diff": "2d74ed3d2f7cd0c76fdcc6354f0ebcb814d3624269f29c8d74bcb7003c793540",
+    "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\source-delta.json": "795b736fc3d486ee0123b7d3ec669860bb2d54f0a055cdd77f53d4d0df35b311",
+    "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\campaign-runs.json": "2afac37264d442e51949ee3f2379f4ec7b68896acac908599e4ab03314dd989f",
+    "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\checks-result.json": "fc0dea5d98547a3bb521208f3f092ea7b40d417b30d8bba919327a476c5741e7",
+    "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\1-baseline-result.json": "842ab57a0c7f1ccbbcaa4ee03e8050ab74155424902037adf6baf23d973fdc44",
+    "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\2-candidate-result.json": "0ac481c6361b74793932e2193948adc49c1ae85ce3c6180b4981041bfd8817e8",
+    "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\3-candidate-result.json": "74e87a345960809940121f6fbb0b3007e1a82983557f3659e299363b94a15daa",
+    "C:\\tmp\\attackmap-wp034\\publication-section-candidate-20261021-01\\4-baseline-result.json": "1dfb3fc8958c942256614027e5337e55fd74236ab1a5374b21bf7e6211d16d45"
+  },
+  "scope": "Top-level plain string-key dict preserves insertion order, root formatting and key escaping, C-dumps each value with indent2 and adds two spaces after formatting newlines. Other root types retain complete C-dumps fallback. Report dictionary construction/return untouched.",
+  "failure_behavior": [
+    "Encoder/write/close/replace/fdopen errors preserve existing report bytes and validated prior current-generation pointer; owned stage removed. Ordinary safe_write_text flags/API remain unchanged.",
+    "Exclusive-stage collision does not overwrite/remove pre-existing foreign stage. Actual target and escaping-directory symlinks rejected; outside file unchanged.",
+    "Added raw-descriptor close if fdopen wrapping raises, before owned stage cleanup. No fsync/durability guarantee or generation commit change."
+  ],
+  "production_blocker": "Existing target replacement changes file identity; measured legacy truncate st_ino stayed4222124654321212, replacement became4222124654321225. Destination-specific ACL/security metadata/hardlink semantics are not preserved/qualified. This candidate must NOT replace legacy existing-target behavior in production without a separately reviewed policy/design.",
+  "possible_next_design": "Keep legacy existing-target truncate semantics only after successful staging encode: revalidate/open through shared existing checks, bounded-copy closed stage bytes into target, then close; this preserves inode/ACL and encoder-failure protection but write failure can partially truncate as legacy did. Requires explicit root review; not implemented or qualified. New-target stage replace can retain stronger commit. Concurrent target creation/replacement needs an explicit fail-closed identity policy, not an exists-only race.",
+  "limits": [
+    "Largest section/scalar remains unbounded; replace indentation can hold a second full section text plus encode bytes.",
+    "Job peaks include startup/input decoding and are lifetime counters, not a resettable stage peak. Timed CPU/wall cover serialization and write only.",
+    "Concurrent host, ABBA two measurements each; no general speed or full-pipeline/C35 claim. Does not fix857MB scan-stage peak or qualify50k/100k.",
+    "Exact actual36,895,649-byte report hashes and eight JSON fixture cases matched; this is serialization-only, not full write_reports or generation publish pipeline acceptance.",
+    "Canonical source/tests/defaults/scope unchanged. First completed copy and all its recorded artifacts verified unchanged."
+  ]
+}

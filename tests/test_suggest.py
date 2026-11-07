@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 import json
 from pathlib import Path
 
@@ -195,13 +197,18 @@ def test_ranking_more_matched_signals_ranks_higher(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_cli_suggest_prints_pip_lines_for_python_repo(tmp_path: Path) -> None:
+def test_cli_suggest_prints_pip_lines_for_python_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("attackmap.suggest._installed_analyzer_names", lambda: set())
     (tmp_path / "pyproject.toml").write_text("[project]\nname='x'\n", encoding="utf-8")
     (tmp_path / "app.py").write_text("print(1)\n", encoding="utf-8")
     result = runner.invoke(app, ["suggest", str(tmp_path)])
     assert result.exit_code == 0
     assert "attackmap-analyzer-python" in result.stdout
-    assert "pip install attackmap-analyzer-python" in result.stdout
+    # Pinned to the plugin lock's immutable commit (#237), shell-quoted.
+    assert re.search(
+        r"pip install 'attackmap-analyzer-python @ git\+https://github\.com/mlaify/attackmap-analyzer-python\.git@[0-9a-f]{40}'",
+        result.stdout,
+    )
 
 
 def test_cli_suggest_empty_repo_exits_0(tmp_path: Path) -> None:
@@ -216,6 +223,7 @@ def test_cli_suggest_nonexistent_path_exits_1(tmp_path: Path) -> None:
 
 
 def test_cli_suggest_install_requires_confirmation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("attackmap.suggest._installed_analyzer_names", lambda: set())
     (tmp_path / "pyproject.toml").write_text("[project]\nname='x'\n", encoding="utf-8")
 
     called: list[str] = []
@@ -263,3 +271,13 @@ def test_cli_suggest_shows_installed_flag(
     assert result.exit_code == 0
     assert "attackmap-analyzer-python" in result.stdout
     assert "installed" in result.stdout
+
+
+def test_suggestion_install_url_uses_repo_name_override() -> None:
+    from attackmap.suggest import Suggestion
+
+    s = Suggestion(plugin="attackmap-analyzer-omeka-s", analyzer_name="omeka-s", matched_signals=())
+    assert re.fullmatch(
+        r"pip install 'attackmap-analyzer-omeka-s @ git\+https://github\.com/mlaify/attack-map-analyzer-omeka-s\.git@[0-9a-f]{40}'",
+        s.pip_install,
+    )

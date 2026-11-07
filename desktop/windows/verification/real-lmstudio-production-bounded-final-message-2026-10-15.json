@@ -1,0 +1,124 @@
+{
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "model": "cyberstag-security-26b-a4b-v1",
+  "source_report_sha256": "bcc0a8815c6e8acfdba962f6af51989ebd3f8de5cde856c0ee32e10b4c1ef263",
+  "source_findings": 18,
+  "started_at": "2026-10-15T17:43:36.885462+00:00",
+  "scope": "Full original18finding inputs through production local-only bounded context selection; partial selected evidence review",
+  "status": "completed",
+  "usage": {
+    "input_tokens": 5930,
+    "output_tokens": 4095
+  },
+  "result_model": "cyberstag-security-26b-a4b-v1",
+  "stop_reason": "completed",
+  "markdown_characters": 662,
+  "finished_at": "2026-10-15T17:45:59.066204+00:00",
+  "actual_requests": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:1234/v1/responses",
+      "utc": "2026-10-15T17:43:37.808973+00:00",
+      "body_bytes": 19074,
+      "body_sha256": "a27fe07a1143221d41c22738a37de09cf4052e90c46577657d893ee2b4e7f001"
+    }
+  ],
+  "provider_output_types": [
+    "reasoning",
+    "message"
+  ],
+  "provider_status": [
+    "completed"
+  ],
+  "incomplete_details": [
+    null
+  ],
+  "original_handle": 71370,
+  "original_process_exit_code": 0,
+  "final_message_present": true,
+  "complete_review": false,
+  "quality_outcome": "truncated final message; not a complete useful review",
+  "provider_usage": {
+    "input_tokens": 5930,
+    "output_tokens": 4095,
+    "total_tokens": 10025,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens_details": {
+      "reasoning_tokens": 3954
+    }
+  },
+  "prompt_characters": 17715,
+  "elapsed_seconds": 142.180742,
+  "context_selection": {
+    "available_count_scope": "Candidate records in the evidence pack, after existing pack limits; not total repository coverage.",
+    "character_budget": 14000,
+    "omission_policy": "Omitted evidence is unknown, never absent. Full scan totals are retained; selected records are not complete coverage.",
+    "omitted_metadata_sections": [
+      "evidence_counts"
+    ],
+    "scope": "partial selected evidence review",
+    "sections": {
+      "assets": {
+        "available": 9,
+        "included": 1,
+        "omitted": 8
+      },
+      "attack_paths": {
+        "available": 3,
+        "included": 0,
+        "omitted": 3
+      },
+      "attack_surfaces": {
+        "available": 50,
+        "included": 0,
+        "omitted": 50
+      },
+      "attack_techniques_observed": {
+        "available": 19,
+        "included": 0,
+        "omitted": 19
+      },
+      "controls": {
+        "available": 6,
+        "included": 0,
+        "omitted": 6
+      },
+      "detection_opportunities": {
+        "available": 6,
+        "included": 0,
+        "omitted": 6
+      },
+      "findings": {
+        "available": 18,
+        "included": 9,
+        "omitted": 9
+      },
+      "notable_observations": {
+        "available": 26,
+        "included": 0,
+        "omitted": 26
+      }
+    }
+  },
+  "source_files": {
+    "src/attackmap/llm_review.py": "1f4d0ff51e45d09094c7ca1e37383585f9e874845f32bc73d420ef7a33cb8834",
+    "src/attackmap/review_prompts.py": "678ec407a845b4d356a27d02d9161922468694bdfb284de2c305e1c09e483268"
+  },
+  "files": {
+    "context-selection.json": "b19668d97fc961803541e26c9d1a12aa141c74aa24d6735f0e5c2b2f19606d0f",
+    "defensive-review-llm.md": "c98fc02e781e9129306c0b70061ea67b2a0423417713c7a48b98a72da82dcaa9",
+    "provider-response.json": "00a4d1e43cc03b42d9298abc90e9139d8a0a94af7ab75ce6b37d410f0310da0b",
+    "requests.json": "2a5322555311a4b5914f33c7d885bd5a9af6b70abb79941f684af5f07c825f5f",
+    "review-with-scope-notice.md": "77da3d6f3349d2efebd32cb9e01494297bba71f25ea6704f118a42be825f6787",
+    "run.log": "4744db6fda682fe87b5a3608a009e89d64d4c2f6779fa16943770dacf835df54",
+    "run.py": "507b63c2a42e07f5463117a8897d807836bff4bdf2581f92c781c02ad5ad5d62"
+  },
+  "limitations": [
+    "Provider completed/null incomplete_details despite visibly unfinished final sentence",
+    "4095 output tokens include provider reasoning; not all review text",
+    "Partial selection only; no complete-coverage or validated-claim-support assertion",
+    "No protocol switch or remote fallback"
+  ]
+}

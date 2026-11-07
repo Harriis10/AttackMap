@@ -1,0 +1,1251 @@
+{
+  "scan": {
+    "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-j-20261021-01\\fleet-fixtures\\repository-1",
+    "signals": [
+      {
+        "classification_version": "1.0",
+        "source_role": "unknown",
+        "evidence_kind": "static_extraction",
+        "classification_basis": "unknown",
+        "kind": "framework",
+        "label": "flask",
+        "file": "app.py",
+        "line": 1,
+        "confidence": 0.7,
+        "evidence_text": "from flask import Flask, request",
+        "properties": {},
+        "observation_id": "obs-c75d21491dfa5fa72847f318f9f27b48c5a880ff9d737d34d4d86b83fdaf932e",
+        "origins": [
+          {
+            "classification_version": "1.0",
+            "source_role": "unknown",
+            "evidence_kind": "static_extraction",
+            "classification_basis": "unknown",
+            "analyzer": "python",
+            "analyzer_version": "0.1.0",
+            "metadata_status": "known",
+            "file": "app.py",
+            "line": 1,
+            "location_reason": null,
+            "evidence_text": "from flask import Flask, request",
+            "properties": {}
+          }
+        ],
+        "conflicts": []
+      },
+      {
+        "classification_version": "1.0",
+        "source_role": "unknown",
+        "evidence_kind": "static_extraction",
+        "classification_basis": "unknown",
+        "kind": "framework",
+        "label": "wsgi_app:flask",
+        "file": "app.py",
+        "line": 2,
+        "confidence": 0.9,
+        "evidence_text": "Flask() application object",
+        "properties": {},
+        "observation_id": "obs-e9f13bffad65b2c37c343a5409a6cd6d24eae258cb07a98d4b2c92b69d36529c",
+        "origins": [
+          {
+            "classification_version": "1.0",
+            "source_role": "unknown",
+            "evidence_kind": "static_extraction",
+            "classification_basis": "unknown",
+            "analyzer": "python-service",
+            "analyzer_version": "0.1.0",
+            "metadata_status": "known",
+            "file": "app.py",
+            "line": 2,
+            "location_reason": null,
+            "evidence_text": "Flask() application object",
+            "properties": {}
+          }
+        ],
+        "conflicts": []
+      },
+      {
+        "classification_version": "1.0",
+        "source_role": "unknown",
+        "evidence_kind": "static_extraction",
+        "classification_basis": "unknown",
+        "kind": "route",
+        "label": "GET /status",
+        "file": "app.py",
+        "line": 3,
+        "confidence": 0.7,
+        "evidence_text": null,
+        "properties": {
+          "method": "GET",
+          "path": "/status",
+          "auth": "unknown"
+        },
+        "observation_id": "obs-767f3b1ed73aaf19bd74ecdfa3265792b9e57a3e9250b2904ed9d61f5a3f8cfd",
+        "origins": [
+          {
+            "classification_version": "1.0",
+            "source_role": "unknown",
+            "evidence_kind": "static_extraction",
+            "classification_basis": "unknown",
+            "analyzer": "python-web",
+            "analyzer_version": "0.1.0",
+            "metadata_status": "known",
+            "file": "app.py",
+            "line": 3,
+            "location_reason": null,
+            "evidence_text": null,
+            "properties": {
+              "method": "GET",
+              "path": "/status",
+              "auth": "unknown"
+            }
+          }
+        ],
+        "conflicts": []
+      }
+    ],
+    "scanned_files": null,
+    "resource_limit_events": [],
+    "resource_limit_scopes": [
+      "repo_index.file_bytes",
+      "repo_index.index_bytes"
+    ],
+    "resource_limit_reporting": "partial",
+    "languages": [
+      "python"
+    ],
+    "routes": [
+      {
+        "path": "/status",
+        "method": "GET",
+        "file": "app.py",
+        "line": 3,
+        "auth": "unknown",
+        "guards": [],
+        "guard_evidence": null
+      }
+    ],
+    "external_calls": [],
+    "databases": [],
+    "auth_hints": [],
+    "service_hints": [],
+    "edge_hints": [],
+    "entrypoint_hints": [],
+    "protocol_hints": [],
+    "framework_hints": [
+      {
+        "hint": "flask",
+        "file": "app.py",
+        "line": 1,
+        "evidence_text": "from flask import Flask, request",
+        "confidence": 0.7
+      },
+      {
+        "hint": "wsgi_app:flask",
+        "file": "app.py",
+        "line": 2,
+        "evidence_text": "Flask() application object",
+        "confidence": 0.9
+      }
+    ],
+    "secret_hints": [],
+    "taint_chains": [],
+    "dependencies": [],
+    "vulnerabilities": [],
+    "authz_candidates": [],
+    "crypto_weaknesses": [],
+    "web_hardening_issues": [],
+    "code_weaknesses": [],
+    "workflow_issues": [],
+    "supply_chain_issues": [],
+    "secret_history": [],
+    "anomalies": [],
+    "limitations": [
+      "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+    ],
+    "analyzer_errors": [],
+    "files_scanned": 3,
+    "scan_snapshot": {
+      "snapshot_id": "49af85028a1d222e66943621edca4161c80966ce122d522fa271106839dc0c13",
+      "files": {
+        "app.py": "c37338331b62fb48bd894ea1fb40c5cc6dd625e76e96f7c17f29aa339c77dfd8"
+      },
+      "raw_files": {
+        "app.py": "c37338331b62fb48bd894ea1fb40c5cc6dd625e76e96f7c17f29aa339c77dfd8"
+      },
+      "total_size": 119,
+      "index_config": {
+        "capture_sdk_sources": 1,
+        "include_tests": 0,
+        "include_vendored": 0,
+        "index_byte_budget": 0,
+        "index_file_limit": 100000,
+        "max_file_bytes": 2000000
+      },
+      "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+    }
+  },
+  "architecture_summary": "# Architecture Summary\n\n## Overview\n- AttackMap inferred a web-facing repository with 1 entry point.\n- Files scanned: 3\n- Languages detected: python\n- Inferred entry points: 1\n- Datastores detected: none\n- External targets detected: none\n- Auth hints observed: none\n- Secret-like env references: 0\n\n## Entry Point Concentration\n- app.py: 1 routes\n\n## Likely Review Starting Point\n- Start with `app.py`. It contains 1 of the detected routes and is the fastest place to validate exposure and trust boundaries.\n\n## Analyst Notes\n- AttackMap inferred this system shape heuristically from framework patterns, dependencies, and code hints.\n- Treat this as an initial map for security review, then validate the highest-risk routes and boundaries manually.",
+  "attack_surface_summary": "# Attack Surface\n\n## Priority View\n- High-risk entry points: 0\n- Public exposure candidates (static inference): 1\n- Internal exposure candidates (static inference): 0\n- Routes with unknown exposure: 0\n- Routes with likely data access: 0\n- Routes with outbound trust boundaries: 0\n\n## Highest-Risk Entry Points\n- No high-risk entry points were classified\n\n## Auth And Privileged Routes\n- No dedicated auth or admin routes were classified\n\n## Public Application Routes\n- [LOW] GET /status (app.py) -> public_api, public; evidence: static_observed; auth enforcement: unknown; no auth signals observed\n\n## Operational, Internal, And Unknown-Exposure Routes\n- No health, metrics, debug, or internal routes were classified\n\n## External Dependencies\n- Repository context; route ownership is not established by these signals.\n- No explicit outbound HTTP calls detected\n\n## Secrets And Auth Hints\n- No secret-like environment variable usage detected\n- No auth-related keywords observed",
+  "defensive_review": "# Defensive Review\n\n## System Overview\n- AttackMap reviewed a web/service-facing codebase with 1 inferred entry point across 3 scanned files.\n- Raw inferred entry points: 1\n- Static source surfaces (static_observed): 1\n- Protocol/lexicon-derived surfaces (inferred_protocol): 0\n- Internal exposure candidates (static inference): 0\n- Unknown exposure: 0\n- Test/example/mocked surfaces (low_quality): 0\n- Languages: python\n- Datastores: none\n- External dependencies observed: 0\n- Identified assets: 0 | controls observed: 0 | control absences: 1\n\n## Notable Observations\n- No notable cross-cutting observations were generated for this scan.\n\n## ATT&CK Techniques Mapped\n- No ATT&CK techniques were mapped from the current findings/insights.\n\n## Detection Opportunities\n- No detection opportunities were generated for this scan.\n\n## Asset Inventory\n- No high-value assets identified from code signals.\n\n## Defensive Controls\n\n**Expected but not observed (control absences):**\n- `rate_limiting` \u00b7 Rate limiting \u2014 Public routes observed without any rate-limiting markers.\n\n## Strengths\n- 1 route(s) were classified as low-risk operational surfaces.\n- No obvious secret-like environment references were detected in executable paths.\n\n## Weaknesses / Risk Hotspots\n- [LOW | score 3.5] Heuristic scan found only a limited attack surface\n- Reason: heuristic_severity=2.0, heuristic_confidence=1.5\n- Provenance: heuristic_static; source quality=unknown; surface/path association=unknown; runtime unverified\n- Hotspot [score 15.0]: GET `/status` (`app.py:3`) -> public_api / low\n- Reason: exposure=6.0, privilege=3.0\n- Provenance: static_observed=100%, inferred_protocol=0%, low_quality=0%\n\n## Key Evidence Chains\n- No explicit attack path was generated from current signals.\n\n## Recommendations\n- [heuristic_static] Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries. (source quality=unknown; surface/path association=unknown)\n- Add targeted tests for highest-risk routes and service edges to prevent regressions in boundary enforcement.\n\n## Analyst Notes\n- This defensive review is heuristic and intended as an engineering triage starting point.\n- Static observations establish source declarations, never runtime reachability. Repository context does not establish route ownership.\n- Validate top risks with repository-specific architecture context and runtime controls.\n- Notable observations are cross-cutting hypotheses; treat them as triage prompts, not verdicts.",
+  "defensive_review_json": {
+    "schema_version": "1.5.0",
+    "target_metadata": {
+      "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-j-20261021-01\\fleet-fixtures\\repository-1",
+      "files_scanned": 3,
+      "languages": [
+        "python"
+      ]
+    },
+    "system_overview": {
+      "repository_type": "web/service-facing",
+      "raw_inferred_entry_point_count": 1,
+      "external_call_count": 0,
+      "database_count": 0,
+      "auth_hint_count": 0,
+      "secret_hint_count": 0,
+      "asset_count": 0,
+      "control_count_present": 0,
+      "control_count_absent": 1,
+      "notable_observation_count": 0,
+      "detection_opportunity_count": 0,
+      "attack_techniques_observed_count": 0
+    },
+    "attack_surface": {
+      "total_surfaces": 1,
+      "evidence_class_counts": {
+        "static_observed": 1,
+        "inferred_protocol": 0,
+        "low_quality": 0
+      },
+      "surfaces": [
+        {
+          "method": "GET",
+          "route": "/status",
+          "file": "app.py",
+          "line": 3,
+          "category": "public_api",
+          "exposure": "public",
+          "risk": "low",
+          "evidence_class": "static_observed",
+          "auth_signals": [],
+          "auth": "unknown",
+          "data_store_interaction": false,
+          "outbound_integration": false,
+          "relationship_basis": "unknown",
+          "context_signals": [
+            "same-file hint (ownership unknown): flask",
+            "same-file hint (ownership unknown): wsgi_app:flask"
+          ]
+        }
+      ]
+    },
+    "assets": [],
+    "controls": [
+      {
+        "id": "control:absent:rate_limiting",
+        "kind": "rate_limiting",
+        "name": "Rate limiting",
+        "strength": "absent",
+        "scope": "global",
+        "placements": [],
+        "evidence": [],
+        "notes": "Public routes observed without any rate-limiting markers."
+      }
+    ],
+    "notable_observations": [],
+    "detection_opportunities": [],
+    "attack_techniques_observed": [],
+    "strengths": [
+      {
+        "statement": "No strong defensive indicators were detected heuristically.",
+        "evidence_basis": "inferred",
+        "evidence": []
+      }
+    ],
+    "weaknesses_risk_hotspots": {
+      "weaknesses": [
+        {
+          "title": "Heuristic scan found only a limited attack surface",
+          "rule_id": "limited-surface",
+          "taxonomy": null,
+          "severity": "low",
+          "confidence": "low",
+          "evidence_basis": "heuristic_static",
+          "claim_support": "not_assessed",
+          "claim_support_terms": [],
+          "surface_association": "unknown",
+          "candidate_surfaces": [],
+          "candidate_surfaces_truncated": false,
+          "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+          "evidence": [
+            "No major route, secret, or integration patterns triggered a stronger finding."
+          ],
+          "locations": [],
+          "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+          "attack_techniques": []
+        }
+      ],
+      "risk_hotspots": [
+        {
+          "surface": {
+            "method": "GET",
+            "route": "/status",
+            "file": "app.py",
+            "category": "public_api",
+            "risk": "low",
+            "exposure": "public"
+          },
+          "evidence_class": "static_observed",
+          "notes": [
+            "Public application routes are initial footholds for probing input handling and authorization gaps.",
+            "No auth indicators were observed near this route.",
+            "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence."
+          ]
+        }
+      ]
+    },
+    "evidence_chains": [],
+    "recommendations": [
+      {
+        "priority": "low",
+        "evidence_basis": "heuristic_static",
+        "claim_support": "not_assessed",
+        "claim_support_terms": [],
+        "surface_association": "unknown",
+        "candidate_surfaces": [],
+        "candidate_surfaces_truncated": false,
+        "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+        "action": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+        "linked_finding": "Heuristic scan found only a limited attack surface"
+      }
+    ],
+    "raw_structured_signals": {
+      "scan": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-j-20261021-01\\fleet-fixtures\\repository-1",
+        "signals": [
+          {
+            "classification_version": "1.0",
+            "source_role": "unknown",
+            "evidence_kind": "static_extraction",
+            "classification_basis": "unknown",
+            "kind": "framework",
+            "label": "flask",
+            "file": "app.py",
+            "line": 1,
+            "confidence": 0.7,
+            "evidence_text": "from flask import Flask, request",
+            "properties": {},
+            "observation_id": "obs-c75d21491dfa5fa72847f318f9f27b48c5a880ff9d737d34d4d86b83fdaf932e",
+            "origins": [
+              {
+                "classification_version": "1.0",
+                "source_role": "unknown",
+                "evidence_kind": "static_extraction",
+                "classification_basis": "unknown",
+                "analyzer": "python",
+                "analyzer_version": "0.1.0",
+                "metadata_status": "known",
+                "file": "app.py",
+                "line": 1,
+                "location_reason": null,
+                "evidence_text": "from flask import Flask, request",
+                "properties": {}
+              }
+            ],
+            "conflicts": []
+          },
+          {
+            "classification_version": "1.0",
+            "source_role": "unknown",
+            "evidence_kind": "static_extraction",
+            "classification_basis": "unknown",
+            "kind": "framework",
+            "label": "wsgi_app:flask",
+            "file": "app.py",
+            "line": 2,
+            "confidence": 0.9,
+            "evidence_text": "Flask() application object",
+            "properties": {},
+            "observation_id": "obs-e9f13bffad65b2c37c343a5409a6cd6d24eae258cb07a98d4b2c92b69d36529c",
+            "origins": [
+              {
+                "classification_version": "1.0",
+                "source_role": "unknown",
+                "evidence_kind": "static_extraction",
+                "classification_basis": "unknown",
+                "analyzer": "python-service",
+                "analyzer_version": "0.1.0",
+                "metadata_status": "known",
+                "file": "app.py",
+                "line": 2,
+                "location_reason": null,
+                "evidence_text": "Flask() application object",
+                "properties": {}
+              }
+            ],
+            "conflicts": []
+          },
+          {
+            "classification_version": "1.0",
+            "source_role": "unknown",
+            "evidence_kind": "static_extraction",
+            "classification_basis": "unknown",
+            "kind": "route",
+            "label": "GET /status",
+            "file": "app.py",
+            "line": 3,
+            "confidence": 0.7,
+            "evidence_text": null,
+            "properties": {
+              "method": "GET",
+              "path": "/status",
+              "auth": "unknown"
+            },
+            "observation_id": "obs-767f3b1ed73aaf19bd74ecdfa3265792b9e57a3e9250b2904ed9d61f5a3f8cfd",
+            "origins": [
+              {
+                "classification_version": "1.0",
+                "source_role": "unknown",
+                "evidence_kind": "static_extraction",
+                "classification_basis": "unknown",
+                "analyzer": "python-web",
+                "analyzer_version": "0.1.0",
+                "metadata_status": "known",
+                "file": "app.py",
+                "line": 3,
+                "location_reason": null,
+                "evidence_text": null,
+                "properties": {
+                  "method": "GET",
+                  "path": "/status",
+                  "auth": "unknown"
+                }
+              }
+            ],
+            "conflicts": []
+          }
+        ],
+        "scanned_files": null,
+        "resource_limit_events": [],
+        "resource_limit_scopes": [
+          "repo_index.file_bytes",
+          "repo_index.index_bytes"
+        ],
+        "resource_limit_reporting": "partial",
+        "languages": [
+          "python"
+        ],
+        "routes": [
+          {
+            "path": "/status",
+            "method": "GET",
+            "file": "app.py",
+            "line": 3,
+            "auth": "unknown",
+            "guards": [],
+            "guard_evidence": null
+          }
+        ],
+        "external_calls": [],
+        "databases": [],
+        "auth_hints": [],
+        "service_hints": [],
+        "edge_hints": [],
+        "entrypoint_hints": [],
+        "protocol_hints": [],
+        "framework_hints": [
+          {
+            "hint": "flask",
+            "file": "app.py",
+            "line": 1,
+            "evidence_text": "from flask import Flask, request",
+            "confidence": 0.7
+          },
+          {
+            "hint": "wsgi_app:flask",
+            "file": "app.py",
+            "line": 2,
+            "evidence_text": "Flask() application object",
+            "confidence": 0.9
+          }
+        ],
+        "secret_hints": [],
+        "taint_chains": [],
+        "dependencies": [],
+        "vulnerabilities": [],
+        "authz_candidates": [],
+        "crypto_weaknesses": [],
+        "web_hardening_issues": [],
+        "code_weaknesses": [],
+        "workflow_issues": [],
+        "supply_chain_issues": [],
+        "secret_history": [],
+        "anomalies": [],
+        "limitations": [
+          "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+        ],
+        "analyzer_errors": [],
+        "files_scanned": 3,
+        "scan_snapshot": {
+          "snapshot_id": "49af85028a1d222e66943621edca4161c80966ce122d522fa271106839dc0c13",
+          "files": {
+            "app.py": "c37338331b62fb48bd894ea1fb40c5cc6dd625e76e96f7c17f29aa339c77dfd8"
+          },
+          "raw_files": {
+            "app.py": "c37338331b62fb48bd894ea1fb40c5cc6dd625e76e96f7c17f29aa339c77dfd8"
+          },
+          "total_size": 119,
+          "index_config": {
+            "capture_sdk_sources": 1,
+            "include_tests": 0,
+            "include_vendored": 0,
+            "index_byte_budget": 0,
+            "index_file_limit": 100000,
+            "max_file_bytes": 2000000
+          },
+          "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+        }
+      },
+      "attack_surfaces": [
+        {
+          "route": "/status",
+          "method": "GET",
+          "file": "app.py",
+          "category": "public_api",
+          "exposure": "public",
+          "risk": "low",
+          "auth_signals": [],
+          "auth": "unknown",
+          "data_store_interaction": false,
+          "outbound_integration": false,
+          "relationship_basis": "unknown",
+          "context_signals": [
+            "same-file hint (ownership unknown): flask",
+            "same-file hint (ownership unknown): wsgi_app:flask"
+          ],
+          "rationale": [
+            "Public application routes are initial footholds for probing input handling and authorization gaps.",
+            "No auth indicators were observed near this route.",
+            "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+            "Exposure is a static inference; deployment reachability has not been observed."
+          ],
+          "line": 3,
+          "evidence_class": "static_observed"
+        }
+      ],
+      "findings": [
+        {
+          "title": "Heuristic scan found only a limited attack surface",
+          "severity": "low",
+          "rule_id": "limited-surface",
+          "entity_id": null,
+          "evidence": [
+            "No major route, secret, or integration patterns triggered a stronger finding."
+          ],
+          "locations": [],
+          "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+          "confidence": "low",
+          "attack_techniques": [],
+          "tags": [
+            "weak-signal"
+          ],
+          "score": 5,
+          "exploitability": null,
+          "exploitability_tier": null,
+          "code_flows": [],
+          "taxonomy": null
+        }
+      ],
+      "attack_paths": [],
+      "assets": [],
+      "controls": [
+        {
+          "id": "control:absent:rate_limiting",
+          "kind": "rate_limiting",
+          "name": "Rate limiting",
+          "strength": "absent",
+          "scope": "global",
+          "placements": [],
+          "evidence": [],
+          "notes": "Public routes observed without any rate-limiting markers."
+        }
+      ],
+      "notable_observations": [],
+      "detection_opportunities": []
+    },
+    "limitations_meta": {
+      "analysis_mode": "heuristic",
+      "defensive_only": true,
+      "notes": [
+        "static_observed describes source declarations, never runtime reachability; exposure is inferred or unknown.",
+        "Same-file context and repository counts do not establish route ownership or auth enforcement.",
+        "Low-quality paths (tests/fixtures/mocks/examples) are retained in raw signals but separated in evidence class counts.",
+        "Use this artifact as a triage source-of-truth; validate high-priority items with repository context and runtime controls.",
+        "Assets, controls, and notable observations are heuristic overlays; absent-control entries indicate scanner did not find evidence, not necessarily that the control is missing in production.",
+        "ATT&CK technique mappings and detection opportunities are derived from insight kinds and finding-title keywords; treat them as triage hooks for SIEM/detection-engineering work, not authoritative MITRE mappings.",
+        "claim_support fields are closed-set token checks: supported_by_cited_evidence only means the cited evidence text names an identifier, route, or secret-kind the claim names; they never verify a claim's conclusion, and not_assessed never means a claim is false."
+      ]
+    }
+  },
+  "review_context_pack": {
+    "schema_version": "1.0.0",
+    "artifact_type": "attackmap_review_context_pack",
+    "attackmap_review_json": {
+      "schema_version": "1.5.0",
+      "target_metadata": {
+        "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-j-20261021-01\\fleet-fixtures\\repository-1",
+        "files_scanned": 3,
+        "languages": [
+          "python"
+        ]
+      },
+      "system_overview": {
+        "repository_type": "web/service-facing",
+        "raw_inferred_entry_point_count": 1,
+        "external_call_count": 0,
+        "database_count": 0,
+        "auth_hint_count": 0,
+        "secret_hint_count": 0,
+        "asset_count": 0,
+        "control_count_present": 0,
+        "control_count_absent": 1,
+        "notable_observation_count": 0,
+        "detection_opportunity_count": 0,
+        "attack_techniques_observed_count": 0
+      },
+      "attack_surface": {
+        "total_surfaces": 1,
+        "evidence_class_counts": {
+          "static_observed": 1,
+          "inferred_protocol": 0,
+          "low_quality": 0
+        },
+        "surfaces": [
+          {
+            "method": "GET",
+            "route": "/status",
+            "file": "app.py",
+            "line": 3,
+            "category": "public_api",
+            "exposure": "public",
+            "risk": "low",
+            "evidence_class": "static_observed",
+            "auth_signals": [],
+            "auth": "unknown",
+            "data_store_interaction": false,
+            "outbound_integration": false,
+            "relationship_basis": "unknown",
+            "context_signals": [
+              "same-file hint (ownership unknown): flask",
+              "same-file hint (ownership unknown): wsgi_app:flask"
+            ]
+          }
+        ]
+      },
+      "assets": [],
+      "controls": [
+        {
+          "id": "control:absent:rate_limiting",
+          "kind": "rate_limiting",
+          "name": "Rate limiting",
+          "strength": "absent",
+          "scope": "global",
+          "placements": [],
+          "evidence": [],
+          "notes": "Public routes observed without any rate-limiting markers."
+        }
+      ],
+      "notable_observations": [],
+      "detection_opportunities": [],
+      "attack_techniques_observed": [],
+      "strengths": [
+        {
+          "statement": "No strong defensive indicators were detected heuristically.",
+          "evidence_basis": "inferred",
+          "evidence": []
+        }
+      ],
+      "weaknesses_risk_hotspots": {
+        "weaknesses": [
+          {
+            "title": "Heuristic scan found only a limited attack surface",
+            "rule_id": "limited-surface",
+            "taxonomy": null,
+            "severity": "low",
+            "confidence": "low",
+            "evidence_basis": "heuristic_static",
+            "claim_support": "not_assessed",
+            "claim_support_terms": [],
+            "surface_association": "unknown",
+            "candidate_surfaces": [],
+            "candidate_surfaces_truncated": false,
+            "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+            "evidence": [
+              "No major route, secret, or integration patterns triggered a stronger finding."
+            ],
+            "locations": [],
+            "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+            "attack_techniques": []
+          }
+        ],
+        "risk_hotspots": [
+          {
+            "surface": {
+              "method": "GET",
+              "route": "/status",
+              "file": "app.py",
+              "category": "public_api",
+              "risk": "low",
+              "exposure": "public"
+            },
+            "evidence_class": "static_observed",
+            "notes": [
+              "Public application routes are initial footholds for probing input handling and authorization gaps.",
+              "No auth indicators were observed near this route.",
+              "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence."
+            ]
+          }
+        ]
+      },
+      "evidence_chains": [],
+      "recommendations": [
+        {
+          "priority": "low",
+          "evidence_basis": "heuristic_static",
+          "claim_support": "not_assessed",
+          "claim_support_terms": [],
+          "surface_association": "unknown",
+          "candidate_surfaces": [],
+          "candidate_surfaces_truncated": false,
+          "uncertainty": "No detector-owned finding-to-surface IDs are supplied; prose overlap does not establish support or runtime behavior.",
+          "action": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+          "linked_finding": "Heuristic scan found only a limited attack surface"
+        }
+      ],
+      "raw_structured_signals": {
+        "scan": {
+          "root": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP021\\native-full-shell-j-20261021-01\\fleet-fixtures\\repository-1",
+          "signals": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "kind": "framework",
+              "label": "flask",
+              "file": "app.py",
+              "line": 1,
+              "confidence": 0.7,
+              "evidence_text": "from flask import Flask, request",
+              "properties": {},
+              "observation_id": "obs-c75d21491dfa5fa72847f318f9f27b48c5a880ff9d737d34d4d86b83fdaf932e",
+              "origins": [
+                {
+                  "classification_version": "1.0",
+                  "source_role": "unknown",
+                  "evidence_kind": "static_extraction",
+                  "classification_basis": "unknown",
+                  "analyzer": "python",
+                  "analyzer_version": "0.1.0",
+                  "metadata_status": "known",
+                  "file": "app.py",
+                  "line": 1,
+                  "location_reason": null,
+                  "evidence_text": "from flask import Flask, request",
+                  "properties": {}
+                }
+              ],
+              "conflicts": []
+            },
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "kind": "framework",
+              "label": "wsgi_app:flask",
+              "file": "app.py",
+              "line": 2,
+              "confidence": 0.9,
+              "evidence_text": "Flask() application object",
+              "properties": {},
+              "observation_id": "obs-e9f13bffad65b2c37c343a5409a6cd6d24eae258cb07a98d4b2c92b69d36529c",
+              "origins": [
+                {
+                  "classification_version": "1.0",
+                  "source_role": "unknown",
+                  "evidence_kind": "static_extraction",
+                  "classification_basis": "unknown",
+                  "analyzer": "python-service",
+                  "analyzer_version": "0.1.0",
+                  "metadata_status": "known",
+                  "file": "app.py",
+                  "line": 2,
+                  "location_reason": null,
+                  "evidence_text": "Flask() application object",
+                  "properties": {}
+                }
+              ],
+              "conflicts": []
+            },
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "unknown",
+              "kind": "route",
+              "label": "GET /status",
+              "file": "app.py",
+              "line": 3,
+              "confidence": 0.7,
+              "evidence_text": null,
+              "properties": {
+                "method": "GET",
+                "path": "/status",
+                "auth": "unknown"
+              },
+              "observation_id": "obs-767f3b1ed73aaf19bd74ecdfa3265792b9e57a3e9250b2904ed9d61f5a3f8cfd",
+              "origins": [
+                {
+                  "classification_version": "1.0",
+                  "source_role": "unknown",
+                  "evidence_kind": "static_extraction",
+                  "classification_basis": "unknown",
+                  "analyzer": "python-web",
+                  "analyzer_version": "0.1.0",
+                  "metadata_status": "known",
+                  "file": "app.py",
+                  "line": 3,
+                  "location_reason": null,
+                  "evidence_text": null,
+                  "properties": {
+                    "method": "GET",
+                    "path": "/status",
+                    "auth": "unknown"
+                  }
+                }
+              ],
+              "conflicts": []
+            }
+          ],
+          "scanned_files": null,
+          "resource_limit_events": [],
+          "resource_limit_scopes": [
+            "repo_index.file_bytes",
+            "repo_index.index_bytes"
+          ],
+          "resource_limit_reporting": "partial",
+          "languages": [
+            "python"
+          ],
+          "routes": [
+            {
+              "path": "/status",
+              "method": "GET",
+              "file": "app.py",
+              "line": 3,
+              "auth": "unknown",
+              "guards": [],
+              "guard_evidence": null
+            }
+          ],
+          "external_calls": [],
+          "databases": [],
+          "auth_hints": [],
+          "service_hints": [],
+          "edge_hints": [],
+          "entrypoint_hints": [],
+          "protocol_hints": [],
+          "framework_hints": [
+            {
+              "hint": "flask",
+              "file": "app.py",
+              "line": 1,
+              "evidence_text": "from flask import Flask, request",
+              "confidence": 0.7
+            },
+            {
+              "hint": "wsgi_app:flask",
+              "file": "app.py",
+              "line": 2,
+              "evidence_text": "Flask() application object",
+              "confidence": 0.9
+            }
+          ],
+          "secret_hints": [],
+          "taint_chains": [],
+          "dependencies": [],
+          "vulnerabilities": [],
+          "authz_candidates": [],
+          "crypto_weaknesses": [],
+          "web_hardening_issues": [],
+          "code_weaknesses": [],
+          "workflow_issues": [],
+          "supply_chain_issues": [],
+          "secret_history": [],
+          "anomalies": [],
+          "limitations": [
+            "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap."
+          ],
+          "analyzer_errors": [],
+          "files_scanned": 3,
+          "scan_snapshot": {
+            "snapshot_id": "49af85028a1d222e66943621edca4161c80966ce122d522fa271106839dc0c13",
+            "files": {
+              "app.py": "c37338331b62fb48bd894ea1fb40c5cc6dd625e76e96f7c17f29aa339c77dfd8"
+            },
+            "raw_files": {
+              "app.py": "c37338331b62fb48bd894ea1fb40c5cc6dd625e76e96f7c17f29aa339c77dfd8"
+            },
+            "total_size": 119,
+            "index_config": {
+              "capture_sdk_sources": 1,
+              "include_tests": 0,
+              "include_vendored": 0,
+              "index_byte_budget": 0,
+              "index_file_limit": 100000,
+              "max_file_bytes": 2000000
+            },
+            "config_identity": "418ff37a2abf5aa2e211f26149703cfee521f20207563d4c30fe9af4b9168fb5"
+          }
+        },
+        "attack_surfaces": [
+          {
+            "route": "/status",
+            "method": "GET",
+            "file": "app.py",
+            "category": "public_api",
+            "exposure": "public",
+            "risk": "low",
+            "auth_signals": [],
+            "auth": "unknown",
+            "data_store_interaction": false,
+            "outbound_integration": false,
+            "relationship_basis": "unknown",
+            "context_signals": [
+              "same-file hint (ownership unknown): flask",
+              "same-file hint (ownership unknown): wsgi_app:flask"
+            ],
+            "rationale": [
+              "Public application routes are initial footholds for probing input handling and authorization gaps.",
+              "No auth indicators were observed near this route.",
+              "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+              "Exposure is a static inference; deployment reachability has not been observed."
+            ],
+            "line": 3,
+            "evidence_class": "static_observed"
+          }
+        ],
+        "findings": [
+          {
+            "title": "Heuristic scan found only a limited attack surface",
+            "severity": "low",
+            "rule_id": "limited-surface",
+            "entity_id": null,
+            "evidence": [
+              "No major route, secret, or integration patterns triggered a stronger finding."
+            ],
+            "locations": [],
+            "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+            "confidence": "low",
+            "attack_techniques": [],
+            "tags": [
+              "weak-signal"
+            ],
+            "score": 5,
+            "exploitability": null,
+            "exploitability_tier": null,
+            "code_flows": [],
+            "taxonomy": null
+          }
+        ],
+        "attack_paths": [],
+        "assets": [],
+        "controls": [
+          {
+            "id": "control:absent:rate_limiting",
+            "kind": "rate_limiting",
+            "name": "Rate limiting",
+            "strength": "absent",
+            "scope": "global",
+            "placements": [],
+            "evidence": [],
+            "notes": "Public routes observed without any rate-limiting markers."
+          }
+        ],
+        "notable_observations": [],
+        "detection_opportunities": []
+      },
+      "limitations_meta": {
+        "analysis_mode": "heuristic",
+        "defensive_only": true,
+        "notes": [
+          "static_observed describes source declarations, never runtime reachability; exposure is inferred or unknown.",
+          "Same-file context and repository counts do not establish route ownership or auth enforcement.",
+          "Low-quality paths (tests/fixtures/mocks/examples) are retained in raw signals but separated in evidence class counts.",
+          "Use this artifact as a triage source-of-truth; validate high-priority items with repository context and runtime controls.",
+          "Assets, controls, and notable observations are heuristic overlays; absent-control entries indicate scanner did not find evidence, not necessarily that the control is missing in production.",
+          "ATT&CK technique mappings and detection opportunities are derived from insight kinds and finding-title keywords; treat them as triage hooks for SIEM/detection-engineering work, not authoritative MITRE mappings.",
+          "claim_support fields are closed-set token checks: supported_by_cited_evidence only means the cited evidence text names an identifier, route, or secret-kind the claim names; they never verify a claim's conclusion, and not_assessed never means a claim is false."
+        ]
+      }
+    },
+    "analyzer_metadata_used": [
+      {
+        "name": "python",
+        "version": "0.1.0",
+        "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+        "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+        "ecosystems": [
+          "python",
+          "django",
+          "starlette",
+          "aiohttp",
+          "sanic",
+          "litestar"
+        ]
+      },
+      {
+        "name": "python-web",
+        "version": "0.1.0",
+        "description": "Built-in analyzer for Python web frameworks and related security signals.",
+        "scope": "Python source files handled by the current scanner-backed web heuristics.",
+        "ecosystems": [
+          "python",
+          "fastapi",
+          "flask"
+        ]
+      },
+      {
+        "name": "python-service",
+        "version": "0.1.0",
+        "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+        "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+        "ecosystems": [
+          "python",
+          "fastapi",
+          "flask",
+          "django",
+          "celery"
+        ]
+      },
+      {
+        "name": "default",
+        "version": "0.1.0",
+        "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+        "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+        "ecosystems": []
+      }
+    ],
+    "source_quality_rules": {
+      "low_quality_path_segments": [
+        "/tests/",
+        "/__tests__/",
+        "/fixtures/",
+        "/mocks/",
+        "/examples/"
+      ],
+      "handling": {
+        "default": "down-rank low-quality signals in triage and prioritization",
+        "reporting": "retain low-quality signals in raw_structured_signals with explicit evidence-class labeling",
+        "operator_note": "do not treat low-quality-only evidence as strong production exposure without corroboration"
+      }
+    },
+    "output_hints": {
+      "audience": [
+        "security engineers",
+        "software engineers",
+        "tech leads"
+      ],
+      "style": {
+        "tone": "defensive, concrete, non-hype",
+        "reasoning": "evidence-first and uncertainty-aware",
+        "disallowed": [
+          "inventing findings or architecture elements",
+          "offensive exploitation guidance"
+        ]
+      },
+      "prioritization": "focus on highest-impact, highest-confidence chains and trust-boundary issues first"
+    },
+    "domain_hints": {
+      "tags": [
+        "general"
+      ],
+      "signals": []
+    },
+    "rag_expansion_hooks": {
+      "enabled": false,
+      "notes": "local-first context pack; retrieval slots intentionally minimal for future expansion",
+      "slots": []
+    },
+    "limitations_meta": {
+      "analysis_mode": "heuristic",
+      "notes": [
+        "Domain tags are inferred heuristically from routes, hints, and file patterns.",
+        "Analyzer metadata reflects analyzers selected to run after detect-filtering."
+      ]
+    }
+  },
+  "attack_surfaces": [
+    {
+      "route": "/status",
+      "method": "GET",
+      "file": "app.py",
+      "category": "public_api",
+      "exposure": "public",
+      "risk": "low",
+      "auth_signals": [],
+      "auth": "unknown",
+      "data_store_interaction": false,
+      "outbound_integration": false,
+      "relationship_basis": "unknown",
+      "context_signals": [
+        "same-file hint (ownership unknown): flask",
+        "same-file hint (ownership unknown): wsgi_app:flask"
+      ],
+      "rationale": [
+        "Public application routes are initial footholds for probing input handling and authorization gaps.",
+        "No auth indicators were observed near this route.",
+        "Route-to-datastore and outbound ownership are unknown; repository context is not route evidence.",
+        "Exposure is a static inference; deployment reachability has not been observed."
+      ],
+      "line": 3,
+      "evidence_class": "static_observed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "1bcdb6fca625f82a",
+      "identity_scheme": "rule-aggregate/v2",
+      "title": "Heuristic scan found only a limited attack surface",
+      "severity": "low",
+      "rule_id": "limited-surface",
+      "entity_id": null,
+      "evidence": [
+        "No major route, secret, or integration patterns triggered a stronger finding."
+      ],
+      "locations": [],
+      "mitigation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+      "confidence": "low",
+      "attack_techniques": [],
+      "tags": [
+        "weak-signal"
+      ],
+      "score": 5,
+      "exploitability": null,
+      "exploitability_tier": null,
+      "code_flows": [],
+      "taxonomy": null,
+      "context": {
+        "context_version": "1.0",
+        "finding_id": "1bcdb6fca625f82a",
+        "claim": {
+          "kind": "heuristic_static_analysis",
+          "text": "Heuristic scan found only a limited attack surface",
+          "evidence_kind": "heuristic_static_claim",
+          "runtime_verification": "unknown"
+        },
+        "priority": {
+          "severity": "low",
+          "confidence": "low",
+          "score": 5,
+          "exploitability_score": null,
+          "exploitability_tier": null,
+          "factors": [
+            {
+              "name": "severity",
+              "value": "low",
+              "source": "finding.severity",
+              "points": null,
+              "kind": "ordering_band",
+              "note": "primary ranking band: high ranks above medium above low (threat_model severity rank)"
+            },
+            {
+              "name": "confidence",
+              "value": "low",
+              "source": "finding.confidence",
+              "points": null,
+              "kind": "ordering_multiplier",
+              "note": "multiplies the severity weight (10) by 0.5 in threat_model.compute_finding_score; an ordering input, not a calibrated probability"
+            },
+            {
+              "name": "exploitability",
+              "points": null,
+              "kind": "not_applied",
+              "value": "none",
+              "source": "finding.exploitability",
+              "note": "no fused route-to-sink score is attached; exposure, auth-at-entry, reachability and chain-depth contributions are not decomposed for this finding"
+            },
+            {
+              "name": "source_quality",
+              "points": null,
+              "kind": "qualitative_filter",
+              "value": "unknown",
+              "source": "attackmap.evidence.is_low_quality_source over finding.locations",
+              "note": "low-quality sources (tests/fixtures/mocks/examples) are excluded from runtime-surface and hotspot ranking; a filter, not a numeric multiplier"
+            },
+            {
+              "name": "trust_boundary_crossing",
+              "points": null,
+              "kind": "not_applied",
+              "value": "unknown",
+              "source": "engine ranking policy",
+              "note": "not currently a fused ranking factor; see trust_chain.trust_boundary_crossing"
+            }
+          ],
+          "point_contributions": "not_supplied",
+          "decomposition": [],
+          "unresolved_assumptions": [
+            "Scores order findings for triage; they are not calibrated probabilities.",
+            "Trust-boundary crossing is not a fused ranking factor; no per-finding trust-boundary evidence is attached.",
+            "Exposure, privilege sensitivity (auth at entry), reachability and chain depth are not decomposed for this finding: no fused exploitability score is attached.",
+            "Source role is unknown for the cited locations; source-quality weighting cannot be applied."
+          ],
+          "meaning": "Heuristic prioritization; not verified exploitation. Scores order findings for triage; they are not calibrated probabilities."
+        },
+        "source": {
+          "role": "unknown",
+          "locations": [],
+          "policy": "attackmap.evidence.is_low_quality_source"
+        },
+        "evidence": {
+          "text": [
+            "No major route, secret, or integration patterns triggered a stronger finding."
+          ],
+          "basis": "heuristic_static",
+          "observation_links": "unknown",
+          "candidates": [],
+          "candidates_truncated": false
+        },
+        "observed_controls": {
+          "status": "unknown",
+          "items": [],
+          "reason": "No stable finding-to-control association is supplied."
+        },
+        "trust_chain": {
+          "status": "unknown",
+          "source": "not_supplied",
+          "flows": [],
+          "trust_boundary_crossing": "unknown",
+          "meaning": "A detector-owned static data-flow trace is not a verified inter-service trust relationship."
+        },
+        "recommendation": "Treat this as a weak signal, expand parser coverage, and manually validate the real entry points and trust boundaries.",
+        "suppression": {
+          "state": "active",
+          "reason": null
+        },
+        "uncertainty": [
+          "Heuristic static-analysis claim; runtime reachability and exploitation are unverified.",
+          "Source co-location and repository-wide controls do not establish finding ownership or control enforcement.",
+          "Finding-to-control and finding-to-attack-path ID associations are not supplied.",
+          "Structured source location is unavailable; source role is unknown.",
+          "Numeric priority is supplied by the engine; finding-owned point contributions are not supplied."
+        ]
+      }
+    }
+  ],
+  "suppressed_findings": [],
+  "attack_paths": [],
+  "exploitability": []
+}

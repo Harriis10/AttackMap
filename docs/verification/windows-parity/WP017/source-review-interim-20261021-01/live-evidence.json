@@ -1,0 +1,86 @@
+{
+  "mode": "review",
+  "engine_kind": "source-native",
+  "engine": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+    "sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b"
+  },
+  "native_binary": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\integrated-20261021-g\\AttackMap.NativeSpike.dll",
+    "sha256": "558ecb8ab6aa2130cc5ed5371f6a4e9763804cf4a03ce262932227ae5c6ac765"
+  },
+  "source_manifest": {
+    "path": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source-manifest.json",
+    "sha256": "2fcaf131ea1c9c70d45dc5e0052cc426d390a0d78aa19833dedaf402ccbbeda0"
+  },
+  "smoke": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\parity-smoke.json",
+    "sha256": "94a7b15800734656e5e36f84829ef885d03310cff7759ccd8de59ca695336a17"
+  },
+  "process": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\process.json",
+    "sha256": "3fce8792cdc840eea761d3e5f40f29235426b208dcd3180d47067b2b80451b26"
+  },
+  "request": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\reports\\native-request.json",
+    "sha256": "0463cabaacb4a78dc02c9344370ba336094cfa578ef687842fb09db82c2e76c5"
+  },
+  "emitted_provider": {
+    "enable_ai": true,
+    "provider": "openai",
+    "endpoint": "http://127.0.0.1:1234/v1",
+    "model": "cyberstag-security-26b-a4b-v1",
+    "max_calls": 8,
+    "timeout_seconds": 900,
+    "output_token_limit": 32000,
+    "mode": "review",
+    "speed": "standard",
+    "backend": "api"
+  },
+  "provider_pointer": "/options/provider",
+  "provider_fields": {
+    "endpoint": "endpoint",
+    "model": "model",
+    "mode": "mode",
+    "backend": "backend",
+    "speed": "speed",
+    "max_calls": "max_calls",
+    "max_output_tokens": "output_token_limit",
+    "timeout_seconds": "timeout_seconds"
+  },
+  "run_manifest": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\reports\\918a50c3365d4251881a69673657adb3\\run-manifest.json",
+    "sha256": "970d4ed4bf38234a15ed42af496a7c0e55b87aaec14e23170c3a36dff1cb8d53"
+  },
+  "artifact": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\reports\\918a50c3365d4251881a69673657adb3\\defensive-review-llm.md",
+    "sha256": "844c1fa8b936831af92fb0f89a5add43bbadc09b0ab8024ad45cd2bb1b636801"
+  },
+  "metadata": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\reports\\918a50c3365d4251881a69673657adb3\\defensive-review-llm.meta.json",
+    "sha256": "80fb83de1fbbac6867b22f15b04a3797b04d0707baa60b91ec39b419263749b3"
+  },
+  "capture": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\AI-mode.png",
+    "sha256": "4229953117e40cb84fc459bf68937bdbc4d580f26f852f06cbd81db97172ad3b"
+  },
+  "export": {
+    "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\defensive-review-llm.md",
+    "sha256": "844c1fa8b936831af92fb0f89a5add43bbadc09b0ab8024ad45cd2bb1b636801"
+  },
+  "displayed_mode": "review",
+  "displayed_generation": "918a50c3365d4251881a69673657adb3",
+  "selected_report_sha256": "bbbcd5cb3551882df76ece27c0a6e5964acce6f3bcbe842ffcd05fd5bc3b00f2",
+  "isolated_output": true,
+  "provider_event_source": "attackmap-httpx-audit",
+  "audit_nonce": "wp017srcReview20261021a1",
+  "provider_audits": [
+    {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP017\\source-review-interim-20261021-01\\provider-observations\\wp017-wp017srcReview20261021a1-21380-101458a8e74b4484add77a0f5d3feb1d\\http-audit.jsonl",
+      "sha256": "27eaf9c0158c157ca85d23734bed07f98de4256b4f2ef1b6475f3cefef64eae9"
+    }
+  ],
+  "actual_http_requests": 1,
+  "completed_responses": 1,
+  "visual_review": "Root reviewed Reports capture: completed model/usage visible; excessive expanded technical metadata hides narrative in initial viewport. Compact presentation follow-up required; no manual accessibility acceptance."
+}

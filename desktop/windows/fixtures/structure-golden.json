@@ -1,0 +1,116 @@
+{
+  "scan": {
+    "root": "C:/systém/český",
+    "service_hints": [
+      {
+        "hint": "service_name:identity",
+        "file": "src/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/žluťoučký.ts",
+        "line": 12,
+        "evidence_class": "static_observed",
+        "role": "api",
+        "kind": "service",
+        "evidence_text": "supplied service evidence",
+        "origins": [
+          {
+            "analyzer": "overlay",
+            "file": "src/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/long-component/žluťoučký.ts",
+            "line": 12
+          }
+        ],
+        "conflicts": [
+          {
+            "field": "role",
+            "values": [
+              "api",
+              "worker"
+            ]
+          }
+        ],
+        "source_role": "production"
+      }
+    ],
+    "edge_hints": [
+      {
+        "hint": "edge:identity->peer",
+        "file": "config.ts",
+        "properties": {
+          "source": "identity",
+          "destination": "peer",
+          "kind": "http",
+          "role": "candidate"
+        },
+        "relationship_basis": "unknown"
+      }
+    ],
+    "entrypoint_hints": [
+      {
+        "hint": "entrypoint:http",
+        "file": "main.ts"
+      }
+    ],
+    "protocol_hints": [
+      {
+        "hint": "protocol:xrpc",
+        "file": "lexicon.ts"
+      }
+    ],
+    "databases": [
+      {
+        "kind": "postgres",
+        "file": "store.ts",
+        "line": 3,
+        "evidence_text": "supplied datastore evidence"
+      }
+    ],
+    "external_calls": [
+      {
+        "target": "https://peer.example/api",
+        "file": "client.ts",
+        "line": 4
+      }
+    ],
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/účty",
+        "auth": "unknown"
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "pkg-č",
+        "version": "^2.0",
+        "ecosystem": "npm",
+        "file": "package.json",
+        "direct": true,
+        "dev": false,
+        "resolved": false
+      },
+      {
+        "name": "version-missing",
+        "version": null
+      }
+    ],
+    "secret_hints": [
+      {
+        "evidence_text": "SECRET_SENTINEL_NOT_FOR_INVENTORY"
+      }
+    ],
+    "limitations": [
+      "partial fixture coverage"
+    ]
+  },
+  "findings": [],
+  "attack_surfaces": [
+    {
+      "method": "GET",
+      "route": "/účty",
+      "evidence_class": "static_observed",
+      "relationship_basis": "unknown",
+      "exposure": "public",
+      "rationale": [
+        "Static inferred exposure; deployment reachability unknown."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-15T16:51:46.182691+00:00",
+  "scope": "Publisher destination guard cross-version safety; no frozen/package/platform gate claim",
+  "sourceStable": true,
+  "sources": [
+    {
+      "path": "src/attackmap/artifact_publisher.py",
+      "sha256": "8121f68ac61e8229e4882fc6104f22d3f43ba857836ad7e5a90917baadb67494"
+    },
+    {
+      "path": "tests/test_artifact_publisher.py",
+      "sha256": "07c3e34cb7a1d58edbd9d5b3332b1a39a2a959b1b6c0764353488f3fed99d381"
+    }
+  ],
+  "results": [
+    {
+      "python": "3.11",
+      "authoritativeSession": 12882,
+      "exitCode": 0,
+      "passed": 60,
+      "skipped": 0,
+      "seconds": 15.8,
+      "log": {
+        "path": ".pytest_cache/m3-publisher-junction311.log",
+        "sha256": "41a9c372dd9101098325011dd9a20d4eb191a9513defc28ba07d9c28b3dddac9"
+      },
+      "junit": {
+        "path": ".pytest_cache/m3-publisher-junction311.xml",
+        "sha256": "18160f3d17f4b08aba6a355ff9029348edc0c4d0bb2c98ad26499194132c603a"
+      }
+    },
+    {
+      "python": "3.13",
+      "authoritativeSession": 78338,
+      "exitCode": 0,
+      "passed": 60,
+      "skipped": 0,
+      "seconds": 13.59,
+      "log": {
+        "path": ".pytest_cache/m3-publisher-junction313.log",
+        "sha256": "d4935086c819d39ec1c7393713af54c977969e6627a10ee33977ecccbcc2a5d9"
+      },
+      "junit": {
+        "path": ".pytest_cache/m3-publisher-junction313.xml",
+        "sha256": "188127f1ff84d1f4a9fa54d853952ff91121c36d762c3973a6ef2ce173c2b6e2"
+      }
+    }
+  ],
+  "implementation": "Inspect lexical absolute components root-to-leaf with stdlib lstat. Reject symlink mode, Windows FILE_ATTRIBUTE_REPARSE_POINT or nonzero st_reparse_tag. Missing components allowed; other IO errors become UnsafePathError. No Path.is_junction dependency.",
+  "assertions": [
+    "Actual ownedjunction creation required onWindows, includingPython311 without feature-basedskip",
+    "Junction atoutputbase andancestor refused bywrite_diagnostic andgeneration_dir",
+    "Owned target file bytesunchanged andno redirectedfiles/directories",
+    "Normal notyetcreated destination succeeds",
+    "PermissionError failsclosed typed",
+    "Reparse ancestor rejected before descendant lstat",
+    "Existing symlink/atomic publisher tests retained"
+  ],
+  "priorNegative": {
+    "path": "desktop/windows/verification/python-junction-startup-version-probe-2026-10-15.json",
+    "sha256": "311c7d9239ac7bd15a8b654fc3dac13e59794b0c467974e3083c7e3f1014c9a0"
+  },
+  "limitations": [
+    "Conservatively rejects every Windows reparse destination, including OneDrive/cloud-placeholder or other benign reparse entries",
+    "Preflight lstat component checks do not claim race-free OS-handle filesystem confinement against concurrent path replacement",
+    "Owned junction fixtures preserved; no recursive target deletion or global OS changes",
+    "Full corrective matrix/new frozen build still required"
+  ]
+}

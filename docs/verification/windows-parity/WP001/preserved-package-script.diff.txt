@@ -1,0 +1,50 @@
+diff --git a/tools/package_native_windows.ps1 b/tools/package_native_windows.ps1
+index 8e686de..25c1c98 100644
+--- a/tools/package_native_windows.ps1
++++ b/tools/package_native_windows.ps1
+@@ -91,7 +91,7 @@ function Assert-OwnedRoot {
+     Assert-NoLinks $root
+     if (!(Test-Path -LiteralPath (Join-Path $root '.attackmap-development-install'))) { throw 'Refusing an unowned installation directory.' }
+ }
+-function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false) {
++function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false,[switch]$TolerateExtras) {
+     Assert-NoLinks $Folder
+     $manifest=Get-Content -LiteralPath (Join-Path $Folder 'package-manifest.json') -Raw | ConvertFrom-Json
+     if ($manifest.schema_version -ne 1 -or $manifest.package_id -notmatch '^dev-[0-9]{14}-[a-f0-9]{8}$') { throw 'Unsupported package manifest.' }
+@@ -101,18 +101,22 @@ function Validate-Payload([string]$Folder,[bool]$IncludeInstaller=$false) {
+         if ($file.path -notmatch '^[A-Za-z0-9_./ -]+$' -or $file.path.Split('/') -contains '..' -or [IO.Path]::IsPathRooted($file.path)) { throw 'Unsafe package entry.' }
+         $path=Join-Path (Join-Path $Folder 'app') $file.path
+         Assert-NoLinks $path
+-        if (!(Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).Length -ne $file.size_bytes -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $file.sha256) { throw 'Package checksum mismatch; prior installation retained.' }
++        if (!(Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).Length -ne $file.size_bytes -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $file.sha256) { throw "Package checksum mismatch for $($file.path); prior installation retained." }
+         $expected += 'app/' + $file.path
+     }
++    $extras=@()
+     foreach ($entry in Get-ChildItem -LiteralPath $Folder -Recurse -Force) {
+         if ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Redirected package entry.' }
+         # Relative-path resolution without [IO.Path]::GetRelativePath, which
+         # Windows PowerShell 5.1 (.NET Framework) does not provide.
+         if (!$entry.PSIsContainer) {
+             $relative = if ($entry.FullName.StartsWith($Folder.TrimEnd('\','/'), [StringComparison]::OrdinalIgnoreCase)) { $entry.FullName.Substring($Folder.TrimEnd('\','/').Length).TrimStart('\','/').Replace('\','/') } else { '' }
+-            if ($relative -eq '' -or $relative -notin $expected) { throw 'Unrecognized file in owned version; refusing deletion or activation.' }
++            if ($relative -eq '' -or $relative -notin $expected) {
++                if ($TolerateExtras) { $extras += $relative } else { throw "Unrecognized file in package folder: '$relative' (refusing deletion or activation)." }
++            }
+         }
+     }
++    if ($TolerateExtras -and $extras.Count -gt 0) { Write-Warning "Ignoring unrecognized file(s) in the package folder (not part of the verified payload): $($extras -join ', ')" }
+     return $manifest
+ }
+ function Set-Current([string]$Id) {
+@@ -129,7 +133,10 @@ if ($Mode -eq 'Install') {
+     Assert-NoLinks $root
+     if ((Test-Path -LiteralPath $root) -and !(Test-Path -LiteralPath (Join-Path $root '.attackmap-development-install'))) { throw 'Choose a new empty installation path; existing user directories are refused.' }
+     $sourceManifest=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'package-manifest.json') -Raw | ConvertFrom-Json
+-    Validate-Payload $PSScriptRoot $true | Out-Null
++    # The user's extracted folder is not owned storage: tolerate and report
++    # unrecognized files (extraction artifacts, copies parked beside the
++    # payload) while every expected file still has to checksum-match.
++    Validate-Payload $PSScriptRoot $true -TolerateExtras | Out-Null
+     $id=$sourceManifest.package_id
+     if ($id -notmatch '^dev-[0-9]{14}-[a-f0-9]{8}$') { throw 'Invalid package identity.' }
+     New-Item -ItemType Directory -Path (Join-Path $root 'versions') -Force | Out-Null

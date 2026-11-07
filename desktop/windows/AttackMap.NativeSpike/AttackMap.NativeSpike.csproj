@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GraphExplorer.Core/GraphExplorer.Core.csproj" />
+    <ProjectReference Include="../GraphExplorer.NativeView/GraphExplorer.NativeView.csproj" />
+    <Content Include="../GraphExplorer.Core/THIRD-PARTY-NOTICES.txt" Link="licenses/MSAGL.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../GraphExplorer.Web/asset-manifest.json" Link="GraphExplorer.Web/asset-manifest.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromResourceIndex="true" />
+    <Content Include="../GraphExplorer.Web/index.html;../GraphExplorer.Web/app.js;../GraphExplorer.Web/projection.js;../GraphExplorer.Web/styles.css;../GraphExplorer.Web/synthetic-fixture.js" Link="GraphExplorer.Web/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromResourceIndex="true" />
+    <Content Include="../GraphExplorer.Web/vendor/*" Link="GraphExplorer.Web/vendor/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromResourceIndex="true" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+    <Content Include="../fixtures/findings.json" Link="fixtures/findings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="9.350" timestamp="2026-10-31T11:27:49.678800+01:00" hostname="corpsec"><testcase classname="tests.test_fleet_parallelism" name="test_cli_fleet_workers_spawns_parallel_subprocesses[False]" time="0.709"><failure message="AssertionError: &#10;  Fleet: scanning 2 repositories with 2 worker(s)...&#10;  &#10;  Fleet: 0 repositories, 0 finding(s), 0 cross-repo link(s), 0 cross-boundary + 0 trust-gap + 0 anomaly (all speculative). Summary written to: C:\Projects\INPROGRESS\AttackMap\artifacts\wp035-cli-isolation-20261031\baseline-compatible-temp\test_cli_fleet_workers_spawns_0\out\20261031T102752-e5778f43a177468a9698ea54e45dbbe2\fleet-summary.md&#10;  Error: b failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-43_f2mv0'&#10;  Error: a failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-br9k6h9f'&#10;  2 repository scan(s) failed: a, b&#10;  &#10;assert 1 == 0&#10; +  where 1 = &lt;Result SystemExit(1)&gt;.exit_code">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029295D0C3E0&gt;
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/artifacts/wp035-cli-isolation-20261031/baseline-compatible-temp/test_cli_fleet_workers_spawns_0')
+isolated = False
+
+    @pytest.mark.parametrize("isolated", [False, True])
+    def test_cli_fleet_workers_spawns_parallel_subprocesses(
+        monkeypatch: pytest.MonkeyPatch, tmp_path: Path, isolated: bool
+    ) -&gt; None:
+        """Ordinary parallel CLI workers preserve the requested isolation policy."""
+        from typer.testing import CliRunner
+    
+        from attackmap.cli import app
+    
+        a, b = tmp_path / "a", tmp_path / "b"
+        a.mkdir()
+        b.mkdir()
+        commands: list[list[str]] = []
+    
+        def fake_run(
+            argv: list[str], **kwargs: Any
+        ) -&gt; subprocess.CompletedProcess[str]:
+            commands.append(argv)
+            out = Path(argv[argv.index("--output") + 1])
+            out.mkdir(parents=True, exist_ok=True)
+            _write_worker_payload(argv)
+            return subprocess.CompletedProcess(args=argv, returncode=0, stdout="", stderr="")
+    
+        monkeypatch.setattr(scan_service, "_run_supervised_worker", fake_run)
+        result = CliRunner().invoke(
+            app,
+            [
+                "analyze",
+                str(a),
+                str(b),
+                "-o",
+                str(tmp_path / "out"),
+                "--fleet-workers",
+                "2",
+                "--format",
+                "json",
+                *(["--isolated-analyzers"] if isolated else []),
+            ],
+        )
+&gt;       assert result.exit_code == 0, result.output
+E       AssertionError: 
+E         Fleet: scanning 2 repositories with 2 worker(s)...
+E         
+E         Fleet: 0 repositories, 0 finding(s), 0 cross-repo link(s), 0 cross-boundary + 0 trust-gap + 0 anomaly (all speculative). Summary written to: C:\Projects\INPROGRESS\AttackMap\artifacts\wp035-cli-isolation-20261031\baseline-compatible-temp\test_cli_fleet_workers_spawns_0\out\20261031T102752-e5778f43a177468a9698ea54e45dbbe2\fleet-summary.md
+E         Error: b failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-43_f2mv0'
+E         Error: a failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-br9k6h9f'
+E         2 repository scan(s) failed: a, b
+E         
+E       assert 1 == 0
+E        +  where 1 = &lt;Result SystemExit(1)&gt;.exit_code
+
+tests\test_fleet_parallelism.py:459: AssertionError</failure></testcase><testcase classname="tests.test_fleet_parallelism" name="test_cli_fleet_workers_spawns_parallel_subprocesses[True]" time="0.415"><failure message="AssertionError: &#10;  Fleet: scanning 2 repositories with 2 worker(s)...&#10;  &#10;  Fleet: 0 repositories, 0 finding(s), 0 cross-repo link(s), 0 cross-boundary + 0 trust-gap + 0 anomaly (all speculative). Summary written to: C:\Projects\INPROGRESS\AttackMap\artifacts\wp035-cli-isolation-20261031\baseline-compatible-temp\test_cli_fleet_workers_spawns_1\out\20261031T102753-16a9ddfb71f34c96ab0d73b6b99f1f96\fleet-summary.md&#10;  Error: a failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-8esc109v'&#10;  Error: b failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-ondtltdh'&#10;  2 repository scan(s) failed: a, b&#10;  &#10;assert 1 == 0&#10; +  where 1 = &lt;Result SystemExit(1)&gt;.exit_code">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029295D0CB00&gt;
+tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/artifacts/wp035-cli-isolation-20261031/baseline-compatible-temp/test_cli_fleet_workers_spawns_1')
+isolated = True
+
+    @pytest.mark.parametrize("isolated", [False, True])
+    def test_cli_fleet_workers_spawns_parallel_subprocesses(
+        monkeypatch: pytest.MonkeyPatch, tmp_path: Path, isolated: bool
+    ) -&gt; None:
+        """Ordinary parallel CLI workers preserve the requested isolation policy."""
+        from typer.testing import CliRunner
+    
+        from attackmap.cli import app
+    
+        a, b = tmp_path / "a", tmp_path / "b"
+        a.mkdir()
+        b.mkdir()
+        commands: list[list[str]] = []
+    
+        def fake_run(
+            argv: list[str], **kwargs: Any
+        ) -&gt; subprocess.CompletedProcess[str]:
+            commands.append(argv)
+            out = Path(argv[argv.index("--output") + 1])
+            out.mkdir(parents=True, exist_ok=True)
+            _write_worker_payload(argv)
+            return subprocess.CompletedProcess(args=argv, returncode=0, stdout="", stderr="")
+    
+        monkeypatch.setattr(scan_service, "_run_supervised_worker", fake_run)
+        result = CliRunner().invoke(
+            app,
+            [
+                "analyze",
+                str(a),
+                str(b),
+                "-o",
+                str(tmp_path / "out"),
+                "--fleet-workers",
+                "2",
+                "--format",
+                "json",
+                *(["--isolated-analyzers"] if isolated else []),
+            ],
+        )
+&gt;       assert result.exit_code == 0, result.output
+E       AssertionError: 
+E         Fleet: scanning 2 repositories with 2 worker(s)...
+E         
+E         Fleet: 0 repositories, 0 finding(s), 0 cross-repo link(s), 0 cross-boundary + 0 trust-gap + 0 anomaly (all speculative). Summary written to: C:\Projects\INPROGRESS\AttackMap\artifacts\wp035-cli-isolation-20261031\baseline-compatible-temp\test_cli_fleet_workers_spawns_1\out\20261031T102753-16a9ddfb71f34c96ab0d73b6b99f1f96\fleet-summary.md
+E         Error: a failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-8esc109v'
+E         Error: b failed and was skipped - PermissionError: [WinError 5] Přístup byl odepřen: 'C:\\Projects\\INPROGRESS\\AttackMap\\artifacts\\wp035-cli-isolation-20261031\\process-temp\\attackmap-fleet-ondtltdh'
+E         2 repository scan(s) failed: a, b
+E         
+E       assert 1 == 0
+E        +  where 1 = &lt;Result SystemExit(1)&gt;.exit_code
+
+tests\test_fleet_parallelism.py:459: AssertionError</failure></testcase><testcase classname="tests.test_fleet_parallelism" name="test_cli_serial_fleet_preserves_isolation_policy[False]" time="3.205" /><testcase classname="tests.test_fleet_parallelism" name="test_cli_serial_fleet_preserves_isolation_policy[True]" time="1.953" /></testsuite></testsuites>

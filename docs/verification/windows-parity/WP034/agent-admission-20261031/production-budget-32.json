@@ -1,0 +1,198 @@
+{
+  "source_output": "C:\\tmp\\wp034-input-final-20261031\\test_actual_scanner_serial_opt0\\out",
+  "provider_calls": 0,
+  "run_manifest": {
+    "stages": [
+      {
+        "name": "fleet",
+        "milliseconds": 8841.916
+      }
+    ],
+    "diagnostic_context": {
+      "context_version": "1.0",
+      "outcome": "completed",
+      "policy_outcome": "unknown",
+      "stages": [
+        {
+          "stage_id": "fleet",
+          "outcome": "completed",
+          "duration_milliseconds": 8842
+        }
+      ],
+      "analyzers": {
+        "status": "unknown",
+        "requested_count": null,
+        "items": [],
+        "truncated": false
+      },
+      "coverage": {
+        "status": "unknown",
+        "accepted_file_count": null,
+        "legacy_files_scanned_count": null,
+        "analyzer_error_count": null,
+        "limitation_count": null,
+        "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+      },
+      "resource_events": {
+        "status": "unknown",
+        "scopes": [],
+        "items": [],
+        "truncated": false,
+        "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+      },
+      "fleet": {
+        "status": "complete",
+        "requested_count": 2,
+        "completed_count": 2,
+        "failed_count": 0,
+        "cancelled_count": 0,
+        "children": [
+          {
+            "index": 0,
+            "outcome": "completed",
+            "coverage": {
+              "status": "complete",
+              "accepted_file_count": 1,
+              "legacy_files_scanned_count": 1,
+              "analyzer_error_count": 0,
+              "limitation_count": 1,
+              "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+            },
+            "resource_events": {
+              "status": "complete",
+              "scopes": [
+                "repo_index.file_bytes",
+                "repo_index.index_bytes"
+              ],
+              "items": [
+                {
+                  "schema_version": "1.0",
+                  "event_id": "691d63163f6ed8f53e22e595fa93b07f33ea842d6d46ccbfd2482c2b9b4154d7",
+                  "category": "index_bytes",
+                  "producer": "repo_index",
+                  "limit": 16,
+                  "unit": "bytes",
+                  "action": "skipped_file",
+                  "observed_bytes": 26,
+                  "observed_files": null
+                }
+              ],
+              "truncated": false,
+              "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+            }
+          },
+          {
+            "index": 1,
+            "outcome": "completed",
+            "coverage": {
+              "status": "complete",
+              "accepted_file_count": 1,
+              "legacy_files_scanned_count": 1,
+              "analyzer_error_count": 0,
+              "limitation_count": 1,
+              "scope_notice": "Accepted-path enumeration only; not language, rule, runtime or completeness coverage."
+            },
+            "resource_events": {
+              "status": "complete",
+              "scopes": [
+                "repo_index.file_bytes",
+                "repo_index.index_bytes"
+              ],
+              "items": [
+                {
+                  "schema_version": "1.0",
+                  "event_id": "691d63163f6ed8f53e22e595fa93b07f33ea842d6d46ccbfd2482c2b9b4154d7",
+                  "category": "index_bytes",
+                  "producer": "repo_index",
+                  "limit": 16,
+                  "unit": "bytes",
+                  "action": "skipped_file",
+                  "observed_bytes": 26,
+                  "observed_files": null
+                }
+              ],
+              "truncated": false,
+              "scope_notice": "Only listed instrumented byte-limit scopes; other limits remain unknown."
+            }
+          }
+        ],
+        "truncated": false
+      }
+    },
+    "fleet_resource_admission": {
+      "policy": "count_only",
+      "memory_qualification": "unknown",
+      "os_enforced": false,
+      "limitation": "Worker count and deadlines do not bound fleet or retained-parent memory",
+      "worker_limit": 1,
+      "hard_worker_timeout_seconds": 600,
+      "input_bytes": {
+        "policy": "fixed_per_repository_quotas",
+        "total_bytes": 32,
+        "allocated_bytes": 32,
+        "repository_quotas": {
+          "a": 16,
+          "b": 16
+        },
+        "verified_captured_bytes": 26,
+        "capture_status": "partial",
+        "limitation": "Captured input bytes do not bound worker or retained-parent working-set memory"
+      }
+    }
+  },
+  "fleet_architecture_coverage": {
+    "requested_repositories": 2,
+    "available_repositories": 2,
+    "repository_statuses": {
+      "partial": 2
+    },
+    "completed_repositories": 0,
+    "failed_repositories": 0,
+    "partial_repositories": 2,
+    "repository_results_complete": false,
+    "complete": false,
+    "atomic_snapshot": false,
+    "protocols": {
+      "http": {
+        "status": "supported",
+        "basis": "supplied_core_contract_links",
+        "analysis_status": "supplied_links_only"
+      },
+      "producer_consumer": {
+        "status": "unanalysed",
+        "reason": "missing_qualified_identity_and_operation"
+      },
+      "shared_datastore": {
+        "status": "supported",
+        "basis": "explicit_qualified_static_declarations",
+        "analysis_status": "explicit_normalized_signals_only",
+        "declaration_count": 0,
+        "rejected_declaration_count": 0,
+        "resource_count": 0,
+        "association_count": 0,
+        "unmatched_count": 0,
+        "ambiguous_count": 0,
+        "extraction_contract": {
+          "kind": "shared_datastore_declaration",
+          "schema_version": "1.0",
+          "status": "supported",
+          "production_extraction": "normalized_database_signals"
+        }
+      },
+      "rpc_schema": {
+        "status": "unanalysed",
+        "reason": "no_qualified_cross_repository_contract"
+      }
+    }
+  },
+  "repository_statuses": [
+    {
+      "repo_id": "a",
+      "status": "partial"
+    },
+    {
+      "repo_id": "b",
+      "status": "partial"
+    }
+  ]
+}

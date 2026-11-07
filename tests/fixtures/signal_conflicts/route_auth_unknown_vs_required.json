@@ -1,0 +1,28 @@
+{
+  "description": "One analyzer leaves auth unknown, a later one resolves it to required. The typed route upgrades to required (merge upgrade rule) while the normalized observation still records both values as a conflict, so the earlier uncertainty stays visible.",
+  "inputs": [
+    {
+      "root": ".",
+      "files_scanned": 1,
+      "scanned_files": ["src/app.py"],
+      "routes": [
+        {"path": "/admin/export", "method": "POST", "file": "src/app.py", "line": 3, "auth": "unknown", "source_analyzer": "php-web"}
+      ]
+    },
+    {
+      "root": ".",
+      "files_scanned": 1,
+      "scanned_files": ["src/app.py"],
+      "routes": [
+        {"path": "/admin/export", "method": "POST", "file": "src/app.py", "line": 3, "auth": "required", "guards": ["AdminMiddleware"], "source_analyzer": "php-laminas"}
+      ]
+    }
+  ],
+  "expected": {
+    "conflict_field": "auth",
+    "conflict_values": ["required", "unknown"],
+    "origin_analyzers": ["php-laminas", "php-web"],
+    "merged_routes": 1,
+    "typed_auth_after_upgrade": "required"
+  }
+}

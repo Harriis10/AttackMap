@@ -1,0 +1,229 @@
+{
+  "scope": "Windows 10 core Python interpreter matrix; no supported-OS matrix claim",
+  "status": "Post-fix full core Python3.11 and3.12 reruns passed; original negatives preserved",
+  "python311": {
+    "version": "3.11.9",
+    "base": "C:/Python311/python.exe",
+    "setupSession": 42310,
+    "root": ".pytest_cache/m3-matrix-py311",
+    "pytestSession": 82678,
+    "result": {
+      "exitCode": 1,
+      "passed": 3170,
+      "failed": 6,
+      "skipped": 4,
+      "seconds": 502.727,
+      "failures": [
+        {
+          "test": "tests.test_artifact_manifest.test_make_run_id_is_unique_and_well_formed",
+          "message": "AssertionError: assert '20261015T140651-d77d8f4e' != '20261015T140651-d77d8f4e'",
+          "traceback": "def test_make_run_id_is_unique_and_well_formed() -> None:\n        first = make_run_id()\n        second = make_run_id()\n>       assert first != second\nE       AssertionError: assert '20261015T140651-d77d8f4e' != '20261015T140651-d77d8f4e'\n\ntests\\test_artifact_manifest.py:50: AssertionError"
+        },
+        {
+          "test": "tests.test_output_exclusion.test_dot_output_does_not_hide_the_repo",
+          "message": "assert 2 == 1",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py311-a75ae867fc254880b5d980873b621f13/test_dot_output_does_not_hide_0')\n\n    def test_dot_output_does_not_hide_the_repo(tmp_path: Path) -> None:\n        repo = _repo(tmp_path)\n        for _ in range(2):\n            result = runner.invoke(app, [\"analyze\", str(repo), \"-o\", str(repo), \"--format\", \"json\"])\n            assert result.exit_code == 0\n        report = json.loads((repo / \"attackmap-report.json\").read_text(encoding=\"utf-8\"))\n>       assert report[\"scan\"][\"files_scanned\"] == 1\nE       assert 2 == 1\n\ntests\\test_output_exclusion.py:99: AssertionError"
+        },
+        {
+          "test": "tests.test_suggest.test_cli_suggest_prints_pip_lines_for_python_repo",
+          "message": "assert None\n +  where None = <function search at 0x0000016E2DA02980>(\"pip install 'attackmap-analyzer-python @ git\\\\+https://github\\\\.com/mlaify/attackmap-analyzer-python\\\\.git@[0-9a-f]{40}'\", 'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n')\n +    where <function search at 0x0000016E2DA02980> = re.search\n +    and   'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n' = <Result okay>.stdout",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py311-a75ae867fc254880b5d980873b621f13/test_cli_suggest_prints_pip_li0')\n\n    def test_cli_suggest_prints_pip_lines_for_python_repo(tmp_path: Path) -> None:\n        (tmp_path / \"pyproject.toml\").write_text(\"[project]\\nname='x'\\n\", encoding=\"utf-8\")\n        (tmp_path / \"app.py\").write_text(\"print(1)\\n\", encoding=\"utf-8\")\n        result = runner.invoke(app, [\"suggest\", str(tmp_path)])\n        assert result.exit_code == 0\n        assert \"attackmap-analyzer-python\" in result.stdout\n        # Pinned to the plugin lock's immutable commit (#237), shell-quoted.\n>       assert re.search(\n            r\"pip install 'attackmap-analyzer-python @ git\\+https://github\\.com/mlaify/attackmap-analyzer-python\\.git@[0-9a-f]{40}'\",\n            result.stdout,\n        )\nE       assert None\nE        +  where None = <function search at 0x0000016E2DA02980>(\"pip install 'attackmap-analyzer-python @ git\\\\+https://github\\\\.com/mlaify/attackmap-analyzer-python\\\\.git@[0-9a-f]{40}'\", 'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n')\nE        +    where <function search at 0x0000016E2DA02980> = re.search\nE        +    and   'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n' = <Result okay>.stdout\n\ntests\\test_suggest.py:207: AssertionError"
+        },
+        {
+          "test": "tests.test_suggest.test_cli_suggest_install_requires_confirmation",
+          "message": "assert 0 == 1\n +  where 0 = <Result okay>.exit_code",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py311-a75ae867fc254880b5d980873b621f13/test_cli_suggest_install_requi0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E37D0D990>\n\n    def test_cli_suggest_install_requires_confirmation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:\n        (tmp_path / \"pyproject.toml\").write_text(\"[project]\\nname='x'\\n\", encoding=\"utf-8\")\n    \n        called: list[str] = []\n    \n        def fake_install(name: str) -> None:\n            called.append(name)\n    \n        monkeypatch.setattr(\"attackmap.cli.install_analyzer_module\", fake_install)\n        # No confirmation → aborts, no install call.\n        result = runner.invoke(app, [\"suggest\", str(tmp_path), \"--install\"], input=\"n\\n\")\n>       assert result.exit_code == 1\nE       assert 0 == 1\nE        +  where 0 = <Result okay>.exit_code\n\ntests\\test_suggest.py:235: AssertionError"
+        },
+        {
+          "test": "tests.test_supply_chain.test_missing_official_module_without_flag_prints_pinned_command",
+          "message": "assert 0 != 0\n +  where 0 = <Result okay>.exit_code",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py311-a75ae867fc254880b5d980873b621f13/test_missing_official_module_w0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E37DFCE10>\n\n    def test_missing_official_module_without_flag_prints_pinned_command(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:\n        calls: list = []\n        monkeypatch.setattr(analyzers.subprocess, \"run\", lambda *a, **k: calls.append(a))\n        result = runner.invoke(app, [\"analyze\", str(_repo(tmp_path)), \"-m\", \"go\"])\n>       assert result.exit_code != 0\nE       assert 0 != 0\nE        +  where 0 = <Result okay>.exit_code\n\ntests\\test_supply_chain.py:120: AssertionError"
+        },
+        {
+          "test": "tests.test_supply_chain.test_install_missing_installs_the_pinned_commit",
+          "message": "assert (0 == 1)\n +  where 0 = len([])",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py311-a75ae867fc254880b5d980873b621f13/test_install_missing_installs_0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E37B7A8D0>\n\n    def test_install_missing_installs_the_pinned_commit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:\n        installed: list[str] = []\n        state = {\"ready\": False}\n        real_registry = analyzers.get_registered_analyzers\n    \n        def fake_install(repo_name: str) -> None:\n            installed.append(analyzer_install_url(repo_name))\n            state[\"ready\"] = True\n    \n        monkeypatch.setattr(analyzers, \"install_analyzer_module\", fake_install)\n        monkeypatch.setattr(analyzers, \"get_registered_analyzers\", lambda: [*real_registry(), *([_FakeGo()] if state[\"ready\"] else [])])\n        selected = select_requested_analyzers([\"go\"], auto_install=True)\n        assert [a.name for a in selected] == [\"go\"]\n>       assert len(installed) == 1 and SHA.search(installed[0])\nE       assert (0 == 1)\nE        +  where 0 = len([])\n\ntests\\test_supply_chain.py:154: AssertionError"
+        }
+      ],
+      "skips": [
+        {
+          "test": "tests.test_llm_cli_isolation.test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "reason": "live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI"
+        },
+        {
+          "test": "tests.test_sdk_fs.test_unreadable_file_returns_none",
+          "reason": "chmod 000 is not enforced on Windows or for root"
+        },
+        {
+          "test": "tests.test_ui_export.test_export_endpoint_rejects_symlinked_path",
+          "reason": "Windows tests run without symlink creation privileges"
+        },
+        {
+          "test": "tests.test_unreadable_and_fleet_failures.test_unreadable_file_is_skipped_and_reported",
+          "reason": "chmod 000 is not enforced on Windows or for root"
+        }
+      ],
+      "log": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py311/pytest.log",
+      "junit": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py311/results.xml",
+      "sourceScope": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py311/snapshot-scope.json",
+      "environment": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py311/environment.json"
+    },
+    "postFixRerun": {
+      "session": 79556,
+      "status": "completed exit0",
+      "importAssertion": "Explicit live root/src pipeline and artifact_manifest path assertions before pytest.main; inherited PYTHONPATH",
+      "logs": ".pytest_cache/m3-matrix-py311/pytest-rerun.log",
+      "junit": ".pytest_cache/m3-matrix-py311/results-rerun.xml",
+      "sourceInventory": ".pytest_cache/m3-matrix-py311/live-source-checksums-rerun.json",
+      "testInventory": ".pytest_cache/m3-matrix-py311/live-test-checksums-rerun.json",
+      "result": {
+        "exitCode": 0,
+        "passed": 3195,
+        "failed": 0,
+        "skipped": 4,
+        "seconds": 490.05,
+        "explicitSkips": [
+          {
+            "test": "tests.test_llm_cli_isolation.test_live_hostile_repo_hooks_and_mcp_never_fire",
+            "reason": "live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI"
+          },
+          {
+            "test": "tests.test_sdk_fs.test_unreadable_file_returns_none",
+            "reason": "chmod 000 is not enforced on Windows or for root"
+          },
+          {
+            "test": "tests.test_ui_export.test_export_endpoint_rejects_symlinked_path",
+            "reason": "Windows tests run without symlink creation privileges"
+          },
+          {
+            "test": "tests.test_unreadable_and_fleet_failures.test_unreadable_file_is_skipped_and_reported",
+            "reason": "chmod 000 is not enforced on Windows or for root"
+          }
+        ],
+        "changesAfterRerun": {
+          "source": [],
+          "test": []
+        },
+        "junitSuiteSeconds": 489.473,
+        "secondsSource": "pytest terminal summary"
+      }
+    }
+  },
+  "python312": {
+    "version": "3.12.10",
+    "base": "C:/Python312/python.exe",
+    "setupSession": 21867,
+    "root": ".pytest_cache/m3-matrix-py312",
+    "pytestSession": 36828,
+    "result": {
+      "exitCode": 1,
+      "passed": 3170,
+      "failed": 6,
+      "skipped": 4,
+      "seconds": 565.455,
+      "failures": [
+        {
+          "test": "tests.test_artifact_manifest.test_make_run_id_is_unique_and_well_formed",
+          "message": "AssertionError: assert '20261015T140652-41cf7a32' != '20261015T140652-41cf7a32'",
+          "traceback": "def test_make_run_id_is_unique_and_well_formed() -> None:\n        first = make_run_id()\n        second = make_run_id()\n>       assert first != second\nE       AssertionError: assert '20261015T140652-41cf7a32' != '20261015T140652-41cf7a32'\n\ntests\\test_artifact_manifest.py:50: AssertionError"
+        },
+        {
+          "test": "tests.test_output_exclusion.test_dot_output_does_not_hide_the_repo",
+          "message": "assert 2 == 1",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py312-a23f98bdb0fb4842ba51161b04e5eec6/test_dot_output_does_not_hide_0')\n\n    def test_dot_output_does_not_hide_the_repo(tmp_path: Path) -> None:\n        repo = _repo(tmp_path)\n        for _ in range(2):\n            result = runner.invoke(app, [\"analyze\", str(repo), \"-o\", str(repo), \"--format\", \"json\"])\n            assert result.exit_code == 0\n        report = json.loads((repo / \"attackmap-report.json\").read_text(encoding=\"utf-8\"))\n>       assert report[\"scan\"][\"files_scanned\"] == 1\nE       assert 2 == 1\n\ntests\\test_output_exclusion.py:99: AssertionError"
+        },
+        {
+          "test": "tests.test_suggest.test_cli_suggest_prints_pip_lines_for_python_repo",
+          "message": "assert None\n +  where None = <function search at 0x0000020030D0F380>(\"pip install 'attackmap-analyzer-python @ git\\\\+https://github\\\\.com/mlaify/attackmap-analyzer-python\\\\.git@[0-9a-f]{40}'\", 'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n')\n +    where <function search at 0x0000020030D0F380> = re.search\n +    and   'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n' = <Result okay>.stdout",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py312-a23f98bdb0fb4842ba51161b04e5eec6/test_cli_suggest_prints_pip_li0')\n\n    def test_cli_suggest_prints_pip_lines_for_python_repo(tmp_path: Path) -> None:\n        (tmp_path / \"pyproject.toml\").write_text(\"[project]\\nname='x'\\n\", encoding=\"utf-8\")\n        (tmp_path / \"app.py\").write_text(\"print(1)\\n\", encoding=\"utf-8\")\n        result = runner.invoke(app, [\"suggest\", str(tmp_path)])\n        assert result.exit_code == 0\n        assert \"attackmap-analyzer-python\" in result.stdout\n        # Pinned to the plugin lock's immutable commit (#237), shell-quoted.\n>       assert re.search(\n            r\"pip install 'attackmap-analyzer-python @ git\\+https://github\\.com/mlaify/attackmap-analyzer-python\\.git@[0-9a-f]{40}'\",\n            result.stdout,\n        )\nE       assert None\nE        +  where None = <function search at 0x0000020030D0F380>(\"pip install 'attackmap-analyzer-python @ git\\\\+https://github\\\\.com/mlaify/attackmap-analyzer-python\\\\.git@[0-9a-f]{40}'\", 'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n')\nE        +    where <function search at 0x0000020030D0F380> = re.search\nE        +    and   'All recommended plugins are already installed:\\n  - attackmap-analyzer-python (installed)\\n' = <Result okay>.stdout\n\ntests\\test_suggest.py:207: AssertionError"
+        },
+        {
+          "test": "tests.test_suggest.test_cli_suggest_install_requires_confirmation",
+          "message": "assert 0 == 1\n +  where 0 = <Result okay>.exit_code",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py312-a23f98bdb0fb4842ba51161b04e5eec6/test_cli_suggest_install_requi0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002003ACC1FA0>\n\n    def test_cli_suggest_install_requires_confirmation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:\n        (tmp_path / \"pyproject.toml\").write_text(\"[project]\\nname='x'\\n\", encoding=\"utf-8\")\n    \n        called: list[str] = []\n    \n        def fake_install(name: str) -> None:\n            called.append(name)\n    \n        monkeypatch.setattr(\"attackmap.cli.install_analyzer_module\", fake_install)\n        # No confirmation → aborts, no install call.\n        result = runner.invoke(app, [\"suggest\", str(tmp_path), \"--install\"], input=\"n\\n\")\n>       assert result.exit_code == 1\nE       assert 0 == 1\nE        +  where 0 = <Result okay>.exit_code\n\ntests\\test_suggest.py:235: AssertionError"
+        },
+        {
+          "test": "tests.test_supply_chain.test_missing_official_module_without_flag_prints_pinned_command",
+          "message": "assert 0 != 0\n +  where 0 = <Result okay>.exit_code",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py312-a23f98bdb0fb4842ba51161b04e5eec6/test_missing_official_module_w0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002003E947DD0>\n\n    def test_missing_official_module_without_flag_prints_pinned_command(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:\n        calls: list = []\n        monkeypatch.setattr(analyzers.subprocess, \"run\", lambda *a, **k: calls.append(a))\n        result = runner.invoke(app, [\"analyze\", str(_repo(tmp_path)), \"-m\", \"go\"])\n>       assert result.exit_code != 0\nE       assert 0 != 0\nE        +  where 0 = <Result okay>.exit_code\n\ntests\\test_supply_chain.py:120: AssertionError"
+        },
+        {
+          "test": "tests.test_supply_chain.test_install_missing_installs_the_pinned_commit",
+          "message": "assert (0 == 1)\n +  where 0 = len([])",
+          "traceback": "tmp_path = WindowsPath('C:/Users/Precision/AppData/Local/Temp/attackmap-core-py312-a23f98bdb0fb4842ba51161b04e5eec6/test_install_missing_installs_0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002003E94F5C0>\n\n    def test_install_missing_installs_the_pinned_commit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:\n        installed: list[str] = []\n        state = {\"ready\": False}\n        real_registry = analyzers.get_registered_analyzers\n    \n        def fake_install(repo_name: str) -> None:\n            installed.append(analyzer_install_url(repo_name))\n            state[\"ready\"] = True\n    \n        monkeypatch.setattr(analyzers, \"install_analyzer_module\", fake_install)\n        monkeypatch.setattr(analyzers, \"get_registered_analyzers\", lambda: [*real_registry(), *([_FakeGo()] if state[\"ready\"] else [])])\n        selected = select_requested_analyzers([\"go\"], auto_install=True)\n        assert [a.name for a in selected] == [\"go\"]\n>       assert len(installed) == 1 and SHA.search(installed[0])\nE       assert (0 == 1)\nE        +  where 0 = len([])\n\ntests\\test_supply_chain.py:154: AssertionError"
+        }
+      ],
+      "skips": [
+        {
+          "test": "tests.test_llm_cli_isolation.test_live_hostile_repo_hooks_and_mcp_never_fire",
+          "reason": "live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI"
+        },
+        {
+          "test": "tests.test_sdk_fs.test_unreadable_file_returns_none",
+          "reason": "chmod 000 is not enforced on Windows or for root"
+        },
+        {
+          "test": "tests.test_ui_export.test_export_endpoint_rejects_symlinked_path",
+          "reason": "Windows tests run without symlink creation privileges"
+        },
+        {
+          "test": "tests.test_unreadable_and_fleet_failures.test_unreadable_file_is_skipped_and_reported",
+          "reason": "chmod 000 is not enforced on Windows or for root"
+        }
+      ],
+      "log": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py312/pytest.log",
+      "junit": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py312/results.xml",
+      "sourceScope": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py312/snapshot-scope.json",
+      "environment": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-matrix-py312/environment.json"
+    },
+    "postFixRerun": {
+      "session": 29439,
+      "status": "completed exit0",
+      "importAssertion": "Explicit live root/src pipeline and artifact_manifest path assertions before pytest.main; inherited PYTHONPATH",
+      "logs": ".pytest_cache/m3-matrix-py312/pytest-rerun.log",
+      "junit": ".pytest_cache/m3-matrix-py312/results-rerun.xml",
+      "sourceInventory": ".pytest_cache/m3-matrix-py312/live-source-checksums-rerun.json",
+      "testInventory": ".pytest_cache/m3-matrix-py312/live-test-checksums-rerun.json",
+      "result": {
+        "exitCode": 0,
+        "passed": 3195,
+        "failed": 0,
+        "skipped": 4,
+        "seconds": 548.68,
+        "explicitSkips": [
+          {
+            "test": "tests.test_llm_cli_isolation.test_live_hostile_repo_hooks_and_mcp_never_fire",
+            "reason": "live test: set ATTACKMAP_LIVE_CLI_TESTS=1 with an authenticated `claude` CLI"
+          },
+          {
+            "test": "tests.test_sdk_fs.test_unreadable_file_returns_none",
+            "reason": "chmod 000 is not enforced on Windows or for root"
+          },
+          {
+            "test": "tests.test_ui_export.test_export_endpoint_rejects_symlinked_path",
+            "reason": "Windows tests run without symlink creation privileges"
+          },
+          {
+            "test": "tests.test_unreadable_and_fleet_failures.test_unreadable_file_is_skipped_and_reported",
+            "reason": "chmod 000 is not enforced on Windows or for root"
+          }
+        ],
+        "changesAfterRerun": {
+          "source": [],
+          "test": []
+        },
+        "junitSuiteSeconds": 548.138,
+        "secondsSource": "pytest terminal summary"
+      }
+    }
+  },
+  "cachedAnalyzerWheels": 15,
+  "analyzerPinsMatchPyproject": true,
+  "limitations": [
+    "Current stable dirty workspace/live tests, not a clean Git checkout",
+    "Windows 10 host only; no supported-OS matrix acceptance",
+    "Original six-failure runs remain in result fields; successful followups are separate postFixRerun fields",
+    "Four skips per interpreter are listed explicitly; live authenticated Claude CLI disabled",
+    "Python3.13 final full result owned by root, not claimed here"
+  ]
+}

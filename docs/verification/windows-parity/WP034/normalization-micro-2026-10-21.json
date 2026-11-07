@@ -1,0 +1,778 @@
+{
+  "status": "CLEAN_MAIN_THREAD_BASELINE_DIAGNOSTIC_NOT_C35",
+  "tool_session": 10158,
+  "worker": {
+    "diagnostic_only": true,
+    "input": "C:\\tmp\\attackmap-wp034\\1000-profile-20261021-01\\reports\\scan.json",
+    "input_sha256": "a6db0def59166cb1b191b5c61f75cce28979d3916001b5ece48fcf114f9fcb1b",
+    "input_bytes": 7961644,
+    "validated_input_sha256": "5729805ec285a668a5f7a3df9da938c08856b3b936a78222c467a46aa6f0827b",
+    "normalized_signal_count": 6000,
+    "origin_count": 6000,
+    "conflict_count": 0,
+    "cases": [
+      {
+        "function": "merge_normalized_signals",
+        "wall_seconds": 495.24720140000863,
+        "cpu_seconds": 308.25,
+        "output_signals": 6000,
+        "output_sha256": "fb523919d539cb2a26bc6ea149dfb7b4b067d4452d265cb8ab5a856996ead02e",
+        "input_unchanged": true,
+        "output_mutation_isolated": true,
+        "tracemalloc_current_bytes": 18120418,
+        "tracemalloc_peak_bytes": 19752406,
+        "allocation_diff": [
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:72",
+            "size_diff": 8736246,
+            "count_diff": 24004
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:222",
+            "size_diff": 5040000,
+            "count_diff": 14000
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:219",
+            "size_diff": 1536128,
+            "count_diff": 24002
+          },
+          {
+            "traceback": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py:1056",
+            "size_diff": 864311,
+            "count_diff": 12005
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:59",
+            "size_diff": 654781,
+            "count_diff": 6012
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:61",
+            "size_diff": 528000,
+            "count_diff": 12000
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:78",
+            "size_diff": 336000,
+            "count_diff": 6000
+          },
+          {
+            "traceback": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py:520",
+            "size_diff": 240570,
+            "count_diff": 2007
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:56",
+            "size_diff": 111826,
+            "count_diff": 1996
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:80",
+            "size_diff": 53024,
+            "count_diff": 1
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:54",
+            "size_diff": 4571,
+            "count_diff": 80
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\cProfile.py:111",
+            "size_diff": 1404,
+            "count_diff": 24
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\cProfile.py:115",
+            "size_diff": 603,
+            "count_diff": 10
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py:263",
+            "size_diff": 504,
+            "count_diff": 9
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:69",
+            "size_diff": 490,
+            "count_diff": 8
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:70",
+            "size_diff": 435,
+            "count_diff": 7
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:125",
+            "size_diff": 369,
+            "count_diff": 8
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\tracemalloc.py:560",
+            "size_diff": 328,
+            "count_diff": 1
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\tracemalloc.py:423",
+            "size_diff": 328,
+            "count_diff": 1
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py:194",
+            "size_diff": 321,
+            "count_diff": 6
+          }
+        ],
+        "threads_before_after": 1
+      },
+      {
+        "function": "normalized_view_stored_branch",
+        "wall_seconds": 618.4560394999862,
+        "cpu_seconds": 392.3125,
+        "output_signals": 6000,
+        "output_sha256": "fb523919d539cb2a26bc6ea149dfb7b4b067d4452d265cb8ab5a856996ead02e",
+        "input_unchanged": true,
+        "output_mutation_isolated": true,
+        "tracemalloc_current_bytes": 18117641,
+        "tracemalloc_peak_bytes": 20999846,
+        "allocation_diff": [
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:72",
+            "size_diff": 8736246,
+            "count_diff": 24004
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:222",
+            "size_diff": 5040000,
+            "count_diff": 14000
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:219",
+            "size_diff": 1536128,
+            "count_diff": 24002
+          },
+          {
+            "traceback": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py:1056",
+            "size_diff": 864311,
+            "count_diff": 12005
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:59",
+            "size_diff": 654781,
+            "count_diff": 6012
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:61",
+            "size_diff": 528000,
+            "count_diff": 12000
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:78",
+            "size_diff": 336000,
+            "count_diff": 6000
+          },
+          {
+            "traceback": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py:520",
+            "size_diff": 240450,
+            "count_diff": 2006
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:56",
+            "size_diff": 111826,
+            "count_diff": 1996
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:80",
+            "size_diff": 53024,
+            "count_diff": 1
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:54",
+            "size_diff": 4515,
+            "count_diff": 79
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\cProfile.py:111",
+            "size_diff": 1199,
+            "count_diff": 21
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\cProfile.py:115",
+            "size_diff": 886,
+            "count_diff": 15
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py:263",
+            "size_diff": 504,
+            "count_diff": 9
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:69",
+            "size_diff": 426,
+            "count_diff": 7
+          },
+          {
+            "traceback": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py:70",
+            "size_diff": 371,
+            "count_diff": 6
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\copy.py:125",
+            "size_diff": 369,
+            "count_diff": 8
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py:194",
+            "size_diff": 353,
+            "count_diff": 7
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\tracemalloc.py:560",
+            "size_diff": 312,
+            "count_diff": 1
+          },
+          {
+            "traceback": "C:\\Program Files\\Python313\\Lib\\tracemalloc.py:423",
+            "size_diff": 312,
+            "count_diff": 1
+          }
+        ],
+        "threads_before_after": 1
+      }
+    ],
+    "limitation": "Stored normalized branch only; tracemalloc+cProfile overhead, no standalone performance/C35 claim. New synthesis/conflict coverage requires focused tests before any patch."
+  },
+  "campaign": {
+    "diagnostic_only": true,
+    "exit_code": 0,
+    "abort": null,
+    "cleanup_verified": true,
+    "peak_owned_job_commit_bytes": 122990592,
+    "source_stable": true,
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-normalization-micro.py",
+      "--worker"
+    ],
+    "wall_seconds": 1197.7625401999976
+  },
+  "profiles": {
+    "merge_normalized_signals": {
+      "calls": 3522044,
+      "profile_seconds": 495.2456841,
+      "invariants": [],
+      "top_cumulative": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-normalization-micro.py",
+          "line": 32,
+          "name": "<lambda>",
+          "primitive_calls": 1,
+          "calls": 1,
+          "self_seconds": 0.023048100000000002,
+          "cumulative_seconds": 495.24513140000005
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "primitive_calls": 1,
+          "calls": 1,
+          "self_seconds": 23.961713500000002,
+          "cumulative_seconds": 495.2220833
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 410,
+          "name": "model_copy",
+          "primitive_calls": 12000,
+          "calls": 12000,
+          "self_seconds": 2.473452,
+          "cumulative_seconds": 349.00776970000004
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1053,
+          "name": "__deepcopy__",
+          "primitive_calls": 12000,
+          "calls": 18000,
+          "self_seconds": 13.9302547,
+          "cumulative_seconds": 346.53431770000003
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "primitive_calls": 24000,
+          "calls": 534000,
+          "self_seconds": 147.23381260000002,
+          "cumulative_seconds": 330.28641450000003
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 218,
+          "name": "_deepcopy_dict",
+          "primitive_calls": 12000,
+          "calls": 36000,
+          "self_seconds": 18.353477700000003,
+          "cumulative_seconds": 316.6277228
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 192,
+          "name": "_deepcopy_list",
+          "primitive_calls": 12000,
+          "calls": 12000,
+          "self_seconds": 2.7724235000000004,
+          "cumulative_seconds": 114.8640204
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\__init__.py",
+          "line": 185,
+          "name": "dumps",
+          "primitive_calls": 30000,
+          "calls": 30000,
+          "self_seconds": 6.5731862,
+          "cumulative_seconds": 90.1181548
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'get' of 'dict' objects>",
+          "primitive_calls": 1086009,
+          "calls": 1086009,
+          "self_seconds": 86.32411730000001,
+          "cumulative_seconds": 86.32411730000001
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+          "line": 185,
+          "name": "encode",
+          "primitive_calls": 30000,
+          "calls": 30000,
+          "self_seconds": 5.977182900000001,
+          "cumulative_seconds": 83.2753283
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 47,
+          "name": "_canonical",
+          "primitive_calls": 24000,
+          "calls": 24000,
+          "self_seconds": 0.9728135000000001,
+          "cumulative_seconds": 78.9092124
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+          "line": 207,
+          "name": "iterencode",
+          "primitive_calls": 30000,
+          "calls": 30000,
+          "self_seconds": 74.8543808,
+          "cumulative_seconds": 74.8543808
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.id>",
+          "primitive_calls": 648000,
+          "calls": 648000,
+          "self_seconds": 49.2324459,
+          "cumulative_seconds": 49.2324459
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.sorted>",
+          "primitive_calls": 18001,
+          "calls": 18001,
+          "self_seconds": 2.8856374000000002,
+          "cumulative_seconds": 47.4595829
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 57,
+          "name": "<lambda>",
+          "primitive_calls": 6000,
+          "calls": 6000,
+          "self_seconds": 1.0319708,
+          "cumulative_seconds": 44.5739455
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 232,
+          "name": "_keep_alive",
+          "primitive_calls": 54000,
+          "calls": 54000,
+          "self_seconds": 9.795281800000001,
+          "cumulative_seconds": 20.317554
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 39,
+          "name": "_identity",
+          "primitive_calls": 6000,
+          "calls": 6000,
+          "self_seconds": 0.9921776000000001,
+          "cumulative_seconds": 13.1739335
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 62,
+          "name": "copy",
+          "primitive_calls": 18000,
+          "calls": 18000,
+          "self_seconds": 2.8946067,
+          "cumulative_seconds": 8.152273300000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'items' of 'dict' objects>",
+          "primitive_calls": 48001,
+          "calls": 48001,
+          "self_seconds": 7.4660405,
+          "cumulative_seconds": 7.4660405
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 472,
+          "name": "model_dump",
+          "primitive_calls": 24000,
+          "calls": 24000,
+          "self_seconds": 1.6793132000000002,
+          "cumulative_seconds": 6.8845986
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 27,
+          "name": "_semantic_dump",
+          "primitive_calls": 12000,
+          "calls": 12000,
+          "self_seconds": 2.6361126,
+          "cumulative_seconds": 6.6192964000000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'append' of 'list' objects>",
+          "primitive_calls": 60000,
+          "calls": 60000,
+          "self_seconds": 5.7879882,
+          "cumulative_seconds": 5.7879882
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1107,
+          "name": "__setattr__",
+          "primitive_calls": 18000,
+          "calls": 18000,
+          "self_seconds": 1.3251870000000001,
+          "cumulative_seconds": 5.4615933000000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'to_python' of 'pydantic_core._pydantic_core.SchemaSerializer' objects>",
+          "primitive_calls": 24000,
+          "calls": 24000,
+          "self_seconds": 5.2052854,
+          "cumulative_seconds": 5.2052854
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'copy' of 'set' objects>",
+          "primitive_calls": 18000,
+          "calls": 18000,
+          "self_seconds": 3.5078284,
+          "cumulative_seconds": 3.5078284
+        }
+      ]
+    },
+    "normalized_view_stored_branch": {
+      "calls": 3618018,
+      "profile_seconds": 618.4548332,
+      "invariants": [],
+      "top_cumulative": [
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp034-normalization-micro.py",
+          "line": 33,
+          "name": "<lambda>",
+          "primitive_calls": 1,
+          "calls": 1,
+          "self_seconds": 0.0131275,
+          "cumulative_seconds": 618.4542629
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 84,
+          "name": "normalized_view",
+          "primitive_calls": 1,
+          "calls": 1,
+          "self_seconds": 0.24229610000000001,
+          "cumulative_seconds": 618.4411354
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 51,
+          "name": "merge_normalized_signals",
+          "primitive_calls": 1,
+          "calls": 1,
+          "self_seconds": 29.955679900000003,
+          "cumulative_seconds": 587.6468633000001
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 410,
+          "name": "model_copy",
+          "primitive_calls": 12000,
+          "calls": 12000,
+          "self_seconds": 3.1372726,
+          "cumulative_seconds": 395.7064487
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1053,
+          "name": "__deepcopy__",
+          "primitive_calls": 12000,
+          "calls": 18000,
+          "self_seconds": 15.916269400000001,
+          "cumulative_seconds": 392.56917610000005
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 119,
+          "name": "deepcopy",
+          "primitive_calls": 24000,
+          "calls": 534000,
+          "self_seconds": 165.5239213,
+          "cumulative_seconds": 373.68197940000005
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 218,
+          "name": "_deepcopy_dict",
+          "primitive_calls": 12000,
+          "calls": 36000,
+          "self_seconds": 19.7853831,
+          "cumulative_seconds": 357.4204408
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\__init__.py",
+          "line": 185,
+          "name": "dumps",
+          "primitive_calls": 42000,
+          "calls": 42000,
+          "self_seconds": 13.044287800000001,
+          "cumulative_seconds": 148.2885146
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+          "line": 185,
+          "name": "encode",
+          "primitive_calls": 42000,
+          "calls": 42000,
+          "self_seconds": 10.7045697,
+          "cumulative_seconds": 134.7327007
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\json\\encoder.py",
+          "line": 207,
+          "name": "iterencode",
+          "primitive_calls": 42000,
+          "calls": 42000,
+          "self_seconds": 119.3643548,
+          "cumulative_seconds": 119.3643548
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 192,
+          "name": "_deepcopy_list",
+          "primitive_calls": 12000,
+          "calls": 12000,
+          "self_seconds": 2.9347263000000003,
+          "cumulative_seconds": 115.1855386
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'get' of 'dict' objects>",
+          "primitive_calls": 1086000,
+          "calls": 1086000,
+          "self_seconds": 97.6778278,
+          "cumulative_seconds": 97.6778278
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 47,
+          "name": "_canonical",
+          "primitive_calls": 24000,
+          "calls": 24000,
+          "self_seconds": 1.4521852000000002,
+          "cumulative_seconds": 97.62501970000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.sorted>",
+          "primitive_calls": 18001,
+          "calls": 18001,
+          "self_seconds": 4.011386,
+          "cumulative_seconds": 57.82945
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 39,
+          "name": "_identity",
+          "primitive_calls": 18000,
+          "calls": 18000,
+          "self_seconds": 5.0213057,
+          "cumulative_seconds": 57.136985800000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.id>",
+          "primitive_calls": 648000,
+          "calls": 648000,
+          "self_seconds": 56.8091397,
+          "cumulative_seconds": 56.8091397
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 57,
+          "name": "<lambda>",
+          "primitive_calls": 6000,
+          "calls": 6000,
+          "self_seconds": 1.3123953000000002,
+          "cumulative_seconds": 53.81806400000001
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 232,
+          "name": "_keep_alive",
+          "primitive_calls": 54000,
+          "calls": 54000,
+          "self_seconds": 11.2483497,
+          "cumulative_seconds": 22.7265388
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'items' of 'dict' objects>",
+          "primitive_calls": 48001,
+          "calls": 48001,
+          "self_seconds": 10.0216887,
+          "cumulative_seconds": 10.0216887
+        },
+        {
+          "file": "C:\\Program Files\\Python313\\Lib\\copy.py",
+          "line": 62,
+          "name": "copy",
+          "primitive_calls": 18000,
+          "calls": 18000,
+          "self_seconds": 3.5877859,
+          "cumulative_seconds": 9.1405188
+        },
+        {
+          "file": "C:\\tmp\\attackmap-wp034\\10k-20261021-02\\source\\src\\attackmap\\signal_provenance.py",
+          "line": 27,
+          "name": "_semantic_dump",
+          "primitive_calls": 12000,
+          "calls": 12000,
+          "self_seconds": 3.1597823000000003,
+          "cumulative_seconds": 8.167233000000001
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 472,
+          "name": "model_dump",
+          "primitive_calls": 24000,
+          "calls": 24000,
+          "self_seconds": 2.0119499000000003,
+          "cumulative_seconds": 8.0392157
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'append' of 'list' objects>",
+          "primitive_calls": 60000,
+          "calls": 60000,
+          "self_seconds": 6.994360800000001,
+          "cumulative_seconds": 6.994360800000001
+        },
+        {
+          "file": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Lib\\site-packages\\pydantic\\main.py",
+          "line": 1107,
+          "name": "__setattr__",
+          "primitive_calls": 18000,
+          "calls": 18000,
+          "self_seconds": 1.6911676000000002,
+          "cumulative_seconds": 6.256236
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'to_python' of 'pydantic_core._pydantic_core.SchemaSerializer' objects>",
+          "primitive_calls": 24000,
+          "calls": 24000,
+          "self_seconds": 6.0272658,
+          "cumulative_seconds": 6.0272658
+        }
+      ]
+    }
+  },
+  "artifacts": {
+    "campaign-result.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\campaign-result.json",
+      "sha256": "ac895e3bf85bf7b0006c6873d1d0d46330edd0f4e2a9b97a99edf5e82dd46374",
+      "bytes": 419
+    },
+    "merge_normalized_signals.allocations": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\merge_normalized_signals.allocations",
+      "sha256": "83d80a479986db2f232319b0945dcde027a6af595fbc4a3a2783f9207f9ab33a",
+      "bytes": 1248296
+    },
+    "merge_normalized_signals.pstats": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\merge_normalized_signals.pstats",
+      "sha256": "7fa28f818dd159648be51d0455d7671a6eb24734002520c916a1335f49a1635a",
+      "bytes": 6865
+    },
+    "normalized_view_stored_branch.allocations": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\normalized_view_stored_branch.allocations",
+      "sha256": "90501b8f244ca98b329a6a1b35dfd561b7c4bafda6ddb1c5dc40cfaf86dc2add",
+      "bytes": 1355432
+    },
+    "normalized_view_stored_branch.pstats": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\normalized_view_stored_branch.pstats",
+      "sha256": "bb132db5cfd4943800931f9b895eaa69b7d7f8b76631fa5179e6951a20481129",
+      "bytes": 5969
+    },
+    "source-input-identity.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\source-input-identity.json",
+      "sha256": "11b501f4559e9b8f7ccc80a5dbb521e6e55b5613ef36731aaf5dbe8056d1421f",
+      "bytes": 360
+    },
+    "stderr.log": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stdout.log": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "worker-result.json": {
+      "path": "C:\\tmp\\attackmap-wp034\\normalization-micro-20261021-01\\worker-result.json",
+      "sha256": "467ecaa42bb0f26b27ac997f7bd30293fc4af0c0ce234363ebfc38f93d272eb4",
+      "bytes": 8890
+    }
+  },
+  "limitations": [
+    "Combined cProfile and12frame tracemalloc overhead; these times are not production estimates or product speed claims.",
+    "Pure normalized published6000signal stream; normalized_view stored-identity branch only. No pipeline rerun or future conflict/subclass equivalence proof.",
+    "Tracemalloc Python allocations are not whole-process memory; OSownedjobpeak separate.",
+    "Canonical source untouched, baseline sealedsource2 and publishedinput unchanged."
+  ]
+}

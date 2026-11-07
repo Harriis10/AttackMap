@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="27" failures="0" skipped="0" tests="27" time="2.093" timestamp="2026-10-31T09:30:15.074222+01:00" hostname="corpsec"><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[grpc-worker:9000]" time="0.018"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup0')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup0/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[grpc-worker-edge.internal]" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup1')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup1/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[kafka-worker:9000]" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup2')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup2/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[kafka-worker-edge.internal]" time="0.015"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup3')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup3/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[wss-worker:9000]" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup4')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup4/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[wss-worker-edge.internal]" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup5')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup5/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[ftp-worker:9000]" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup6')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup6/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_non_http_scheme_never_supports_http_contract_or_trust_path[ftp-worker-edge.internal]" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup7')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_non_http_scheme_never_sup7/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_alias_origins_and_negative_multi_backend_controls" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_alias_origins_and_0')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_alias_origins_and_0/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[https://API:08443/Api/Items/42-api-observed--service_ports:api:8443 (api/service.yaml)]" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit0')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit0/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[http://api:8443/Api/Items/42-api-candidate-scheme_mismatch-service_protocols:api:https (api/service.yaml)]" time="0.020"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit1')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit1/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[grpc://api:8443/Api/Items/42-api-candidate-scheme_mismatch-service_protocols:api:https (api/service.yaml)]" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit2')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit2/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[http://worker:9000/Api/Items/42-worker-observed--service_ports:worker:9000 (worker/service.yaml)]" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit3')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit3/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[https://worker:9000/Api/Items/42-worker-candidate-scheme_mismatch-service_protocols:worker:http (caller/nginx.conf)]" time="0.018"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit4')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit4/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[http://api-edge.internal/Api/Items/42-api-observed_via_proxy--proxies:api-edge.internal (caller/nginx.conf)]" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit5')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit5/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[https://worker-edge.internal/Api/Items/42-worker-observed_via_proxy--proxies:worker-edge.internal (caller/nginx.conf)]" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit6')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit6/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[grpc://api-edge.internal/Api/Items/42-api-candidate-unsupported_protocol-None]" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit7')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit7/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[http://multi-edge.internal/Api/Items/42-api-candidate-unresolved_host-None]" time="0.015"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit8')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit8/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[http://ports-edge.internal/Api/Items/42-worker-candidate-unresolved_host-None]" time="0.022"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit9')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit9/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[https://api.production.svc.cluster.local:8443/Api/Items/42-api-candidate-unresolved_host-None]" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit10')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit10/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[https://api.preview.svc.cluster.local:8443/Api/Items/42-api-candidate-unresolved_host-None]" time="0.016"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit11')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit11/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[http://worker:9001/Api/Items/42-worker-candidate-explicit_port-None]" time="0.019"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit12')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit12/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_config_only_three_repository_identity_matrix[/Api/Items/42-api-candidate-no_destination-None]" time="0.018"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit13')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_config_only_three_reposit13/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_route_case_survives_dns_normalization_without_cross_handler_evidence" time="0.025"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_route_case_survives_dns_n0')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_route_case_survives_dns_n0/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_declared_namespace_is_exact_and_still_checks_protocol" time="0.020"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_declared_namespace_is_exa0')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_declared_namespace_is_exa0/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_port_name_does_not_become_tls_declaration" time="0.019"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_port_name_does_not_become0')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_port_name_does_not_become0/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase><testcase classname="tests.test_wp032_protocol_fleet" name="test_graph_evidence_and_finding_score_references_use_exact_context" time="0.017"><error message="failed on setup with &quot;pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain&#10;hops&#10;  Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/missing&quot;">tmp_path = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_graph_evidence_and_findin0')
+
+    @pytest.fixture
+    def corpus(tmp_path):
+        root = tmp_path / "fleet"
+        shutil.copytree(FIXTURE, root)
+&gt;       scans = fixture_scans(root)
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\test_wp032_protocol_fleet.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Projects/INPROGRESS/AttackMap/.tmp/wp032-protocol-20261031-red-approved/test_graph_evidence_and_findin0/fleet')
+
+    def fixture_scans(root: Path):
+        """The configs are real extractor input; these app signals are explicit fixtures."""
+        scans = {name: ScanResult(root=str((root / name).resolve())) for name in ("caller", "api", "worker")}
+        for name in ("api", "worker"):
+            for path, line, sink_line in [(UPPER, 2, 4)] + ([(LOWER, 6, 8)] if name == "api" else []):
+                scans[name].routes.append(Route(path=path, method="POST", file="handlers.py", line=line,
+                                                 source_analyzer="wp032-normalized-fixture"))
+&gt;               scans[name].taint_chains.append(TaintChain(route_path=path, route_method="POST",
+                    route_file="handlers.py", route_line=line, sink_kind="sql_execute", sink_file="handlers.py",
+                    sink_line=sink_line, files=["handlers.py"], source_analyzer="wp032-normalized-fixture"))
+E               pydantic_core._pydantic_core.ValidationError: 1 validation error for TaintChain
+E               hops
+E                 Field required [type=missing, input_value={'route_path': '/Api/Item...032-normalized-fixture'}, input_type=dict]
+E                   For further information visit https://errors.pydantic.dev/2.14/v/missing
+
+tests\test_wp032_protocol_fleet.py:34: ValidationError</error></testcase></testsuite></testsuites>

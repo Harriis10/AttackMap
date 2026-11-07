@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-15T15:06:19.567766+00:00",
+  "scope": "Focused wording-only source update; static risk-score headings and model-assessment help. Scoring, tiers, ordering, CLI options and verification outcomes unchanged. Existing dirty integration changes preserved.",
+  "verification": {
+    "pytest": "60 passed in 5.41s",
+    "tests": [
+      "test_exploitability.py",
+      "test_pr_comment.py",
+      "test_report.py",
+      "test_markdown_escaping.py",
+      "test_cli_validation.py",
+      "test_ui_freshness.py"
+    ],
+    "web_render": "8 actual JS renderer assertions passed for overview and empty/populated ranking",
+    "python": "3.13 .venv with explicit live src PYTHONPATH"
+  },
+  "limitations": [
+    "No full regression rerun; no package/frozen rebuild. Existing preview package retains previous wording.",
+    "No exhaustive generated model prose audit or C03/C07 gate closure."
+  ],
+  "files": [
+    {
+      "path": "src/attackmap/ui/web/src/app.js",
+      "sha256": "60aad50fa04217c816f5b3e5a580ea9bca0ac4b4355c597bf6ce35ecf20392d5"
+    },
+    {
+      "path": "src/attackmap/report.py",
+      "sha256": "1ff2b744fc698cb2d00f813918f84c3c0e6962ac98b459d7d02a8a5979ba4927"
+    },
+    {
+      "path": "src/attackmap/cli.py",
+      "sha256": "ac7fa3a28e6384807bb6890a6af88c74baf058fc97437ae5b4bbc11be095319e"
+    },
+    {
+      "path": "tests/test_exploitability.py",
+      "sha256": "05decf553be2e4308998138173d72a84258be222d04de5a1e11cc7e3ecc05617"
+    },
+    {
+      "path": "tests/test_pr_comment.py",
+      "sha256": "4393cbfee25fbbce793a0013cfdd07f94c9a6f64001cf122eda7b9cdfd11f871"
+    },
+    {
+      "path": "tests/test_report.py",
+      "sha256": "c314e923a2dc491f5e1be16910ad7387caa346ac8df45cdce58320ea94ce8d3c"
+    }
+  ]
+}

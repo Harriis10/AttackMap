@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "verified_utc": "2026-10-15T12:26:01.9028706Z",
+  "package_id": "dev-20261015122056-689698df",
+  "archive_path": "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\artifacts\\development-packages\\dev-20261015122056-689698df.zip",
+  "archive_sha256": "100a6fc41ca2efdee6b6f76a0415ba307e6314fdc5fe536dbd94ad3331e4f9b1",
+  "installed_dll_sha256": "104df1996d88d0cbb206f1f7a72c694d3377e68c06250028b0c00cf6bf6629bb",
+  "installed_exe_sha256": "da53621eea027ba4721db501032d67a5cf325ab586e01ef1b0595178bb28477e",
+  "launch": {
+    "started_utc": "2026-10-15T12:24:51.671424Z",
+    "pid": 49556,
+    "installed_app": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\native-package-launch-7ff57cb97edb435991aadf9feac305ae\\install\\versions\\dev-20261015122056-689698df\\app",
+    "report": "C:\\Projects\\INPROGRESS\\AttackMap\\.pytest_cache\\m3-juice-shop\\attackmap-report.json"
+  },
+  "process": {
+    "pid": 49556,
+    "exited": true,
+    "exit_code": 0
+  },
+  "smoke": {
+    "passed": true,
+    "loaded": 18,
+    "selected": "c02c2871b4fbaca4",
+    "reviewVisible": true,
+    "sourceLocations": [
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 634,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      },
+      {
+        "RelativePath": "server.ts",
+        "FullPath": "C:\\tmp\\juice-shop\\server.ts",
+        "Line": 635,
+        "Status": "valid",
+        "ScanTimeSha256": null,
+        "LiveSha256": "7eb89865af661ae74c77ace4af306f0185f661981aadc693a701b23fd0c323c7",
+        "Comparison": "unknown",
+        "Warning": "Live file may differ from the scan; no explicit whole-file scan-time SHA-256 is available."
+      }
+    ],
+    "legacyIntegrity": "unverified",
+    "runSummary": "Selected repository: none\nRun state: Idle\nDisplayed report: Legacy import; run identity unavailable\nReport repository: C:\\tmp\\juice-shop\nScan timestamp unavailable; opened (client UTC): 2026-10-15T12:24:53.5098156Z",
+    "coverage": "Reported file count (legacy aggregate; may overlap): 862\nCoverage limitations:\nUnique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.\noversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4\noversized file skipped (> 2000000 bytes): screenshots/slideshow.gif\nAnalyzer errors (as supplied): []"
+  },
+  "checks": {
+    "no_timeout_restart": true,
+    "unknown_smoke_file_uninstall_refused": true,
+    "uninstall_completed": true,
+    "only_exact_test_owned_smoke_file_removed": true,
+    "canonical_report_findings_18": true,
+    "actual_installed_executable_launched": true,
+    "reports_view_visible": true,
+    "user_owned_root_file_preserved": true,
+    "installed_payload_checksum_validation": true
+  },
+  "limitations": [
+    "Unsigned Windows x64 development package, not public C29 release.",
+    "Test host already contains developer runtimes; no clean-machine prerequisite proof.",
+    "Import/report handler smoke only; no interactive dialog, Narrator, keyboard or full UI automation acceptance.",
+    "Python engine is not bundled; installed application report smoke did not execute an engine scan or provider request.",
+    "Imported canonical report correctly disclosed legacy identity/integrity and unknown scan-time source hashes.",
+    "No real user desktop, Start menu or registry installation; isolated workspace target only."
+  ]
+}

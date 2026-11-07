@@ -11,8 +11,8 @@ verification into a jury:
    list against the real source — no skeptic sees another's verdict.
 3. **Combine by majority vote.** A lead is CONFIRMED only on a strict majority
    of confirmations; NEEDS_REVIEW only when a strict majority flags the evidence
-   as insufficient; otherwise REFUTED. Ties, splits, missing votes, and
-   uncertainty never confirm — confirmation is the outcome that must clear a bar.
+   as insufficient; REFUTED also requires a strict majority. Ties, splits,
+   missing votes, and uncertainty remain explicitly inconclusive.
 
 `combine_verdicts` is a pure function (unit-tested); the LLM calls are injected
 so the orchestration is testable offline.
@@ -25,7 +25,13 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from typing import Literal
 
-from .review_prompts import HYPOTHESIS_MARKER
+from .ai_budget import (AiBudget, AiBudgetExhausted, budget_scope,
+                        current_budget, reservation_scope)
+from .citations import (ClaimSupport, CitationContext, assess_claim_support,
+                        claim_support_state, citation_scope, context_from_payload,
+                        current_citation_context, validate_references)
+
+from .review_prompts import HYPOTHESIS_MARKER, VERDICT_MARKER, build_citation_context
 
 Verdict = Literal["confirmed", "refuted", "needs_review"]
 
@@ -42,24 +48,35 @@ class Hypothesis:
 class Consensus:
     id: str
     title: str
-    verdict: Verdict
+    verdict: Literal["confirmed", "refuted", "needs_review", "inconclusive"]
     confirmed: int = 0
     refuted: int = 0
     needs_review: int = 0
     # (verdict, reason) per skeptic that gave one, so the report can quote a
     # reason that agrees with the consensus verdict.
     reasons: list[tuple[Verdict, str]] = field(default_factory=list)
+    abstained: int = 0
+    planned_votes: int = 0
+    assessment_kind: Literal["model_assessment"] = "model_assessment"
+    # Closed-set deterministic claim support (AM016): "supported_by_cited_evidence"
+    # only when a captured span bound to a cited reference contains an
+    # identifier/route/secret-kind the hypothesis names. Distinct from the
+    # model verdict above and never implied by reference validity.
+    claim_support: ClaimSupport = "not_assessed"
+    claim_support_terms: tuple[str, ...] = ()
 
 
 # `H1: title [evidence: …]` lines in the generation pass's marker block.
 _HYP_LINE_RE = re.compile(r"^\s*(H\d+)\s*[:.\-]\s*(.+?)\s*$", re.MULTILINE)
 # `VERDICT H1: CONFIRMED — reason` lines from each skeptic pass. Tolerant of
 # spacing, the id in brackets, and NEEDS REVIEW / NEEDS-REVIEW spelling.
+# Anchored to the start of a line (#233): a VERDICT phrase quoted mid-line —
+# e.g. from a repo comment echoed by the model — is not a vote.
 _VERDICT_RE = re.compile(
-    r"VERDICT\s*\[?\s*(H\d+)\s*\]?\s*[:\-]\s*"
+    r"^[ \t>*-]*VERDICT\s*\[?\s*(H\d+)\s*\]?\s*[:\-]\s*"
     r"(CONFIRMED|REFUTED|NEEDS[ _\-]?REVIEW)\b"
-    r"\s*(?:[—:\-]\s*(.*))?",
-    re.IGNORECASE,
+    r"[ \t]*(?:[—:\-][ \t]*(.*))?[ \t]*$",
+    re.IGNORECASE | re.MULTILINE,
 )
 
 _VERDICT_NORMALIZE = {
@@ -165,11 +182,23 @@ def dedupe_hypotheses(passes: list[list[Hypothesis]]) -> list[Hypothesis]:
     return [replace(h, id=f"H{i + 1}") for i, h in enumerate(kept)]
 
 
-def parse_verdicts(markdown: str) -> dict[str, tuple[Verdict, str]]:
-    """Parse ``VERDICT H<n>: <verdict> — <reason>`` lines from one skeptic pass."""
+def parse_verdicts(
+    markdown: str, allowed_ids: set[str] | None = None
+) -> dict[str, tuple[Verdict, str]]:
+    """Parse ``VERDICT H<n>: <verdict> — <reason>`` lines from one skeptic pass.
+
+    Hardened against prompt injection (#233): when the output contains the
+    ``=== VERDICTS ===`` marker only the block after its last occurrence is
+    read; verdicts must start a line; and with ``allowed_ids`` any id that
+    isn't in the hypothesis list is ignored.
+    """
+    idx = markdown.rfind(VERDICT_MARKER)
+    region = markdown[idx + len(VERDICT_MARKER):] if idx != -1 else markdown
     out: dict[str, tuple[Verdict, str]] = {}
-    for match in _VERDICT_RE.finditer(markdown):
+    for match in _VERDICT_RE.finditer(region):
         hid = match.group(1).upper()
+        if allowed_ids is not None and hid not in allowed_ids:
+            continue
         raw = re.sub(r"[ \-]", "_", match.group(2).upper())
         verdict = _VERDICT_NORMALIZE.get(raw)
         if verdict is None:
@@ -179,30 +208,59 @@ def parse_verdicts(markdown: str) -> dict[str, tuple[Verdict, str]]:
     return out
 
 
+def enforce_citations(
+    verdicts: dict[str, tuple[Verdict, str]],
+    hypotheses: list[Hypothesis],
+    excerpt_keys: list[str] | None = None,
+    *, citation_context: CitationContext | None = None,
+) -> dict[str, tuple[Verdict, str]]:
+    """Require exact allowed source references; never infer semantic support.
+
+    Legacy excerpt-key lists alone cannot prove a captured span. Missing source
+    context now means unavailable references, rather than disabling the check.
+    """
+    captured = citation_context or current_citation_context()
+    by_id = {h.id: h for h in hypotheses}
+    out: dict[str, tuple[Verdict, str]] = {}
+    for hid, (verdict, reason) in verdicts.items():
+        hyp = by_id.get(hid)
+        if hyp is None:
+            continue
+        if verdict != "needs_review":
+            validation = validate_references(reason, captured) if captured is not None else None
+            if validation is None or not validation.source_reference_valid:
+                out[hid] = ("needs_review", f"unvalidated captured-source reference in {verdict} model verdict; claim support not assessed: {reason}".strip())
+                continue
+        out[hid] = (verdict, reason)
+    return out
+
+
 def combine_verdicts(
     hypotheses: list[Hypothesis],
     per_pass: list[dict[str, tuple[Verdict, str]]],
 ) -> list[Consensus]:
-    """Combine the skeptic passes into a per-hypothesis consensus:
+    """Require a strict majority of planned passes for any model verdict.
 
-    - **CONFIRMED** only with a *strict majority* of CONFIRMED votes.
-    - **NEEDS_REVIEW** only with a *strict majority* explicitly flagging the
-      excerpt as insufficient (a genuine "a human should read this" signal).
-    - **REFUTED** for everything else — ties, splits, missing votes, and any
-      other uncertainty. Confirmation is the thing that must clear a majority
-      bar; when in doubt a lead is refuted, never confirmed.
-
-    Pure function: no I/O, deterministic given its inputs.
+    Each entry in ``per_pass`` represents one planned vote, including an empty
+    mapping for a failed pass. Missing or malformed votes abstain; they never
+    count as refutations or reduce the denominator. This is model assessment,
+    not verification of exploitability.
     """
     total = len(per_pass)
     results: list[Consensus] = []
     for hyp in hypotheses:
-        confirmed = refuted = needs = 0
+        confirmed = refuted = needs = abstained = 0
         reasons: list[tuple[Verdict, str]] = []
         for votes in per_pass:
             entry = votes.get(hyp.id)
-            if entry is None:
-                refuted += 1  # a skeptic that didn't rule on it does not confirm it
+            if (
+                not isinstance(entry, tuple)
+                or len(entry) != 2
+                or entry[0] not in ("confirmed", "refuted", "needs_review")
+                or not isinstance(entry[1], str)
+                or (entry[0] != "needs_review" and not entry[1].strip())
+            ):
+                abstained += 1
                 continue
             verdict, reason = entry
             if verdict == "confirmed":
@@ -214,11 +272,13 @@ def combine_verdicts(
             if reason:
                 reasons.append((verdict, reason))
         if total and confirmed * 2 > total:
-            final: Verdict = "confirmed"
+            final = "confirmed"
         elif total and needs * 2 > total:
             final = "needs_review"
-        else:
+        elif total and refuted * 2 > total:
             final = "refuted"
+        else:
+            final = "inconclusive"
         results.append(
             Consensus(
                 id=hyp.id,
@@ -227,33 +287,58 @@ def combine_verdicts(
                 confirmed=confirmed,
                 refuted=refuted,
                 needs_review=needs,
+                abstained=abstained,
+                planned_votes=total,
                 reasons=reasons,
             )
         )
     return results
 
 
-_VERDICT_ORDER = {"confirmed": 0, "needs_review": 1, "refuted": 2}
+_VERDICT_ORDER = {"confirmed": 0, "needs_review": 1, "inconclusive": 2, "refuted": 3}
 _VERDICT_HEADING = {
-    "confirmed": "Confirmed",
+    "confirmed": "Model assessment: confirmed",
     "needs_review": "Needs human review",
-    "refuted": "Refuted",
+    "refuted": "Model assessment: refuted",
+    "inconclusive": "Inconclusive",
 }
+
+
+def _assess_consensus_support(hypotheses: list[Hypothesis], consensus: list[Consensus]) -> None:
+    """Deterministic, closed-set claim support per hypothesis (AM016).
+
+    The claim is the hypothesis itself (title plus cited evidence ids); the
+    check is whether a captured span bound to one of its cited references
+    contains an identifier, route, or secret-kind the hypothesis names. This
+    never touches the model verdicts above and is never implied by reference
+    validity alone.
+    """
+    captured = current_citation_context()
+    if captured is None:
+        return
+    for hyp, item in zip(hypotheses, consensus):
+        assessments = assess_claim_support(f"{hyp.title} {hyp.evidence}", captured)
+        item.claim_support = claim_support_state(assessments)
+        item.claim_support_terms = tuple(dict.fromkeys(
+            term for assessment in assessments for term in assessment.matched_terms))
 
 
 def render_consensus_report(consensus: list[Consensus], votes: int) -> str:
     """Render the adjudicated shortlist, grouped by consensus verdict."""
     lines = [
-        "# AttackMap hunt — verified hypotheses",
+        "# AttackMap hunt — model assessments",
         "",
-        f"_Majority vote of {votes} independent skeptic pass(es). A lead is "
-        "CONFIRMED only on a strict majority; NEEDS_REVIEW only when a majority "
-        "flags the evidence as insufficient; otherwise REFUTED — ties and "
-        "uncertainty never confirm._",
+        f"_Assessment by {votes} planned independent skeptic pass(es). Any verdict "
+        "requires a strict majority of planned votes. Missing, failed, or malformed "
+        "votes abstain; no majority is INCONCLUSIVE. Model agreement does not "
+        "establish verified facts or confirmed exploitability. Citation checks "
+        "validate reference identity only; per-claim support below is a separate "
+        "deterministic token check (a cited captured span containing an identifier "
+        "the claim names), never semantic verification._",
         "",
     ]
     ordered = sorted(consensus, key=lambda c: (_VERDICT_ORDER[c.verdict], c.id))
-    for verdict in ("confirmed", "needs_review", "refuted"):
+    for verdict in ("confirmed", "needs_review", "inconclusive", "refuted"):
         group = [c for c in ordered if c.verdict == verdict]
         if not group:
             continue
@@ -261,9 +346,18 @@ def render_consensus_report(consensus: list[Consensus], votes: int) -> str:
         lines.append("")
         for c in group:
             tally = f"{c.confirmed}/{votes} confirmed"
+            tally += f", {c.refuted} refuted, {c.abstained} abstained"
             if c.needs_review:
                 tally += f", {c.needs_review} needs-review"
             lines.append(f"- `{c.id}` — **{c.title}** ({tally})")
+            if c.claim_support == "supported_by_cited_evidence":
+                terms = ", ".join(f"`{term}`" for term in c.claim_support_terms[:6])
+                lines.append(f"  - claim support: supported_by_cited_evidence "
+                             f"(cited span names {terms}) — token presence only, "
+                             "not verification of the claim's conclusion")
+            else:
+                lines.append("  - claim support: not_assessed (no deterministic "
+                             "identifier match in cited captured spans)")
             reason = _reason_for(c)
             if reason:
                 lines.append(f"  - {reason}")
@@ -274,6 +368,8 @@ def render_consensus_report(consensus: list[Consensus], votes: int) -> str:
 def _reason_for(c: Consensus) -> str:
     """Quote a skeptic reason that AGREES with the consensus verdict, so a
     Confirmed item never shows a dissenting `[refuted]` justification."""
+    if c.verdict == "inconclusive":
+        return "No strict majority of planned votes; human review remains necessary."
     for verdict, reason in c.reasons:
         if verdict == c.verdict:
             return reason
@@ -290,23 +386,24 @@ class MajorityVerifyResult:
     model: str
     rounds: int = 1
     usage: dict[str, int] = field(default_factory=dict)
+    assessment_kind: Literal["model_assessment"] = "model_assessment"
+    failed_passes: int = 0
+    allowance: dict = field(default_factory=dict)
+    citation_context: dict = field(default_factory=dict)
 
 
 def _add_usage(total: dict[str, int], usage: dict | None) -> None:
     for key, value in (usage or {}).items():
-        if isinstance(value, int):
+        if type(value) is int and value >= 0:
             total[key] = total.get(key, 0) + value
 
 
 def _account(total: dict[str, int], result) -> None:
-    """Accumulate a call's usage, keeping ``output_tokens`` a best-effort count
-    for the budget guardrail. Backends that don't report it (e.g. the Codex
-    CLI) get an estimate from the response length (~4 chars/token) so
-    ``--hunt-budget`` still bounds them."""
+    """Keep reported counts separate from explicitly unknown provider usage."""
     usage = getattr(result, "usage", None) or {}
     _add_usage(total, usage)
-    if not usage.get("output_tokens"):
-        total["output_tokens"] = total.get("output_tokens", 0) + max(1, len(result.markdown) // 4)
+    if type(usage.get("output_tokens")) is not int or usage["output_tokens"] < 0:
+        total["unknown_output_usage_calls"] = total.get("unknown_output_usage_calls", 0) + 1
 
 
 def _output_spent(usage: dict[str, int]) -> int:
@@ -337,7 +434,10 @@ def _generate_round(
             kwargs["avoid_titles"] = avoid_titles
         if critic_hint:
             kwargs["critic_hint"] = critic_hint
-        g = llm_call("hunt_generate", **kwargs)
+        try:
+            g = llm_call("hunt_generate", **kwargs)
+        except AiBudgetExhausted:
+            break
         _account(usage_total, g)
         backend, model, last_markdown = g.backend, g.model, g.markdown
         parsed = parse_hypotheses(g.markdown)
@@ -347,7 +447,7 @@ def _generate_round(
     return passes, backend, model, last_markdown
 
 
-def run_majority_verify(
+def _run_majority_verify(
     scan,
     attack_surfaces,
     findings,
@@ -402,10 +502,13 @@ def run_majority_verify(
             more_rounds_left = rounds_run < max_rounds
             budget_left = not (token_budget and _output_spent(usage_total) >= token_budget)
             if more_rounds_left and budget_left and accumulated:
-                crit = llm_call(
-                    "hunt_critic",
-                    hypotheses=[{"id": h.id, "title": h.title, "evidence": h.evidence} for h in accumulated],
-                )
+                try:
+                    crit = llm_call(
+                        "hunt_critic",
+                        hypotheses=[{"id": h.id, "title": h.title, "evidence": h.evidence} for h in accumulated],
+                    )
+                except AiBudgetExhausted:
+                    break
                 _account(usage_total, crit)
                 critic_hint = crit.markdown
         hypotheses = accumulated
@@ -431,13 +534,29 @@ def run_majority_verify(
         )
 
     hyp_dicts = [{"id": h.id, "title": h.title, "evidence": h.evidence} for h in hypotheses]
+    allowed_ids = {h.id for h in hypotheses}
     per_pass: list[dict[str, tuple[Verdict, str]]] = []
+    failed_passes = 0
     for _ in range(votes):
-        sk = llm_call("hunt_skeptic", hypotheses=hyp_dicts)
+        try:
+            sk = llm_call("hunt_skeptic", hypotheses=hyp_dicts)
+        except Exception:
+            # Providers wrap transport failures differently. Retain the planned
+            # slot, but never publish exception text (which may contain secrets).
+            failed_passes += 1
+            per_pass.append({})
+            continue
+        if not isinstance(getattr(sk, "markdown", None), str):
+            failed_passes += 1
+            per_pass.append({})
+            continue
         _account(usage_total, sk)
-        per_pass.append(parse_verdicts(sk.markdown))
+        per_pass.append(
+            enforce_citations(parse_verdicts(sk.markdown, allowed_ids), hypotheses)
+        )
 
     consensus = combine_verdicts(hypotheses, per_pass)
+    _assess_consensus_support(hypotheses, consensus)
     report = render_consensus_report(consensus, votes)
     return MajorityVerifyResult(
         report=report,
@@ -448,4 +567,60 @@ def run_majority_verify(
         backend=gen_backend,
         model=gen_model,
         usage=usage_total,
+        failed_passes=failed_passes,
     )
+
+
+def run_majority_verify(scan, attack_surfaces, findings, attack_paths, *, votes: int,
+                        llm_call: Callable, lenses: list[str] | None = None,
+                        max_rounds: int = 1, dry_streak: int = 1,
+                        token_budget: int | None = None, budget: AiBudget | None = None,
+                        max_output_tokens_per_call: int = 32000,
+                        citation_context: CitationContext | None = None) -> MajorityVerifyResult:
+    """Reserve every generation, critic and verification pass before dispatch.
+
+    ``token_budget`` bounds output-token reservations only. Unknown usage keeps
+    the complete allowance charged; skipped verification slots abstain.
+    """
+    planned_calls = max_rounds * max(1, len(lenses or [])) + max(0, max_rounds - 1) + votes
+    ledger = budget or current_budget() or AiBudget(max_calls=max(1, planned_calls),
+        max_seconds=900, output_token_limit=token_budget if token_budget else None)
+    denied = 0
+
+    def reserved_call(mode, **kwargs):
+        nonlocal denied
+        try:
+            # Keep the single shared deadline; provider adapters apply their own
+            # endpoint-specific per-call ceilings without resetting this budget.
+            reservation = ledger.reserve(max_output_tokens=max_output_tokens_per_call,
+                                         timeout_seconds=3600)
+        except AiBudgetExhausted:
+            denied += 1
+            raise
+        result = None
+        try:
+            reservation.check_dispatch()
+            with reservation_scope(reservation):
+                result = llm_call(mode, **kwargs)
+            return result
+        finally:
+            reservation.finish(getattr(result, "usage", None))
+
+    captured = citation_context or current_citation_context()
+    if captured is None:
+        captured = (build_citation_context(scan, attack_surfaces, findings, attack_paths)
+                    if scan is not None else context_from_payload({}, (), repository_root="."))
+    with budget_scope(ledger), citation_scope(captured):
+        result = _run_majority_verify(scan, attack_surfaces, findings, attack_paths,
+            votes=votes, llm_call=reserved_call, lenses=lenses, max_rounds=max_rounds,
+            dry_streak=dry_streak, token_budget=token_budget)
+        result.allowance = ledger.snapshot()
+        result.citation_context = captured.metadata()
+        result.allowance["passes_not_dispatched"] = denied
+        if denied:
+            note = "_AI allowance exhausted or cancelled; some planned passes were not run._\n"
+            if not result.hypothesis_count and not ledger.calls_reserved:
+                result.report = note
+            else:
+                result.report += "\n\n" + note
+        return result

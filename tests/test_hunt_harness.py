@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+from itertools import product
 from pathlib import Path
+
+import pytest
 
 from typer.testing import CliRunner
 
@@ -18,8 +21,16 @@ from attackmap.hunt_harness import (
     run_majority_verify,
 )
 from attackmap.llm_review import LlmReviewResult
+from attackmap.citations import capture_source_spans, context_from_payload
 
 runner = CliRunner()
+
+
+def _source_context(tmp_path):
+    (tmp_path / "db.py").write_text("query\nconstant\n")
+    spans = capture_source_spans(tmp_path, [("db.py", 1), ("db.py", 2)], redact_line=lambda line: line)
+    return context_from_payload({"taint_chains": [{"id": "taint:1", "sink": "db.py:1"},
+        {"id": "taint:2", "sink": "db.py:2"}]}, spans, repository_root=str(tmp_path))
 
 
 def _v(verdict, reason="r"):
@@ -93,14 +104,14 @@ def test_minority_confirm_is_refuted_lowering_false_positives() -> None:
     assert combine_verdicts([Hypothesis("H1", "x")], passes)[0].verdict == "refuted"
 
 
-def test_tie_defaults_to_refuted() -> None:
+def test_tie_is_inconclusive() -> None:
     passes = [{"H1": _v("confirmed")}, {"H1": _v("refuted")}]  # 1-1
-    assert combine_verdicts([Hypothesis("H1", "x")], passes)[0].verdict == "refuted"
+    assert combine_verdicts([Hypothesis("H1", "x")], passes)[0].verdict == "inconclusive"
 
 
-def test_missing_vote_counts_as_refuted() -> None:
+def test_missing_vote_abstains() -> None:
     passes = [{"H1": _v("confirmed")}, {}, {}]  # 2 skeptics didn't rule on it
-    assert combine_verdicts([Hypothesis("H1", "x")], passes)[0].verdict == "refuted"
+    assert combine_verdicts([Hypothesis("H1", "x")], passes)[0].verdict == "inconclusive"
 
 
 def test_majority_needs_review() -> None:
@@ -132,8 +143,8 @@ def test_report_groups_by_verdict_and_shows_tally() -> None:
         ],
     )
     md = render_consensus_report(cons, 3)
-    assert "## Confirmed (1)" in md
-    assert "## Refuted (1)" in md
+    assert "## Model assessment: confirmed (1)" in md
+    assert "## Model assessment: refuted (1)" in md
     assert "`H1`" in md and "2/3 confirmed" in md
 
 
@@ -147,7 +158,7 @@ def _result(markdown: str) -> LlmReviewResult:
     )
 
 
-def test_run_majority_verify_lowers_false_positive_vs_single_vote() -> None:
+def test_run_majority_verify_lowers_false_positive_vs_single_vote(tmp_path) -> None:
     gen_md = "=== HYPOTHESES ===\nH1: SQLi at db.py [evidence: taint:1]\nH2: SSRF [evidence: taint:2]\n"
     # Skeptic 1 confirms H1 (a single-vote verify would ship it); skeptics 2 & 3 refute.
     skeptic_outputs = [
@@ -162,9 +173,10 @@ def test_run_majority_verify_lowers_false_positive_vs_single_vote() -> None:
             return _result(gen_md)
         out = skeptic_outputs[calls["n"]]
         calls["n"] += 1
+        out = "\n".join(line + (" per taint:1" if "H1:" in line else " per taint:2") for line in out.splitlines())
         return _result(out)
 
-    res = run_majority_verify(None, [], [], [], votes=3, llm_call=llm_call)
+    res = run_majority_verify(None, [], [], [], votes=3, llm_call=llm_call, citation_context=_source_context(tmp_path))
     assert res.hypothesis_count == 2
     verdicts = {c.id: c.verdict for c in res.consensus}
     assert verdicts["H1"] == "refuted"  # minority confirm → dropped
@@ -191,7 +203,7 @@ def test_report_quotes_reason_matching_consensus_verdict() -> None:
         ],
     )
     md = render_consensus_report(cons, 3)
-    assert "## Confirmed (1)" in md
+    assert "## Model assessment: confirmed (1)" in md
     assert "clearly interpolated" in md or "untrusted into query" in md
     assert "looked parameterized" not in md
 
@@ -363,7 +375,10 @@ def test_loop_respects_token_budget() -> None:
         max_rounds=10, dry_streak=1, token_budget=12,
     )
     assert res.rounds < 10
-    assert res.usage["output_tokens"] >= 12  # stopped after crossing the budget
+    # This fake ignores its final output allowance; the overrun is recorded and
+    # no further dispatch is admitted.
+    assert res.usage["output_tokens"] >= 12
+    assert res.allowance["output_limit_violations"] >= 1
 
 
 def test_budget_counts_only_output_tokens() -> None:
@@ -390,9 +405,8 @@ def test_budget_counts_only_output_tokens() -> None:
     assert res.rounds >= 2
 
 
-def test_budget_estimated_when_backend_reports_no_usage() -> None:
-    """The Codex CLI reports no usage — the budget still bounds it via an
-    output-length estimate (#147c)."""
+def test_budget_reservation_is_retained_when_backend_reports_no_usage() -> None:
+    """Missing usage keeps the allowance charged without fabricating tokens."""
     state = {"n": 0}
 
     def llm_call(mode, hypotheses=None, lens=None, avoid_titles=None, critic_hint=None):
@@ -406,7 +420,10 @@ def test_budget_estimated_when_backend_reports_no_usage() -> None:
 
     res = run_majority_verify(None, [], [], [], votes=1, llm_call=llm_call,
                               max_rounds=10, dry_streak=1, token_budget=50)
-    assert res.rounds < 10  # estimate enforced the budget despite empty usage
+    assert res.rounds < 10
+    assert "output_tokens" not in res.usage
+    assert res.usage["unknown_output_usage_calls"] == 1
+    assert res.allowance["output_tokens_charged_or_reserved"] == 50
 
 
 def test_critic_prompt_includes_evidence() -> None:
@@ -465,24 +482,26 @@ def test_cli_hunt_verify_votes_writes_consensus(tmp_path: Path, monkeypatch) -> 
         if kwargs.get("mode") == "hunt_generate":
             return _result(gen_md)
         # 3 skeptics: 2 confirm, 1 refute → consensus confirmed
+        # Verdicts must cite an excerpt key or evidence id (#233).
         outs = [
-            "VERDICT H1: CONFIRMED — eval on request arg",
-            "VERDICT H1: CONFIRMED — untrusted into eval",
-            "VERDICT H1: REFUTED — arg is constant",
+            "=== VERDICTS ===\nVERDICT H1: CONFIRMED — eval on request arg (taint:1)",
+            "=== VERDICTS ===\nVERDICT H1: CONFIRMED — untrusted into eval, taint:1",
+            "=== VERDICTS ===\nVERDICT H1: REFUTED — arg is constant per taint:1",
         ]
         out = outs[min(seq["n"], len(outs) - 1)]
         seq["n"] += 1
         return _result(out)
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,
-        ["analyze", str(_repo(tmp_path)), "--output", str(out), "--hunt", "--verify", "--verify-votes", "3"],
+        ["analyze", str(_repo(tmp_path)), "--output", str(out), "--hunt", "--verify", "--verify-votes", "3",
+         "--ai-output-tokens", "128000"],
     )
     assert result.exit_code == 0, result.output
     md = (out / "vulnerability-hypotheses.md").read_text(encoding="utf-8")
-    assert "verified hypotheses" in md.lower()
+    assert "model assessments" in md.lower()
     assert "2/3 confirmed" in md
     meta = json.loads((out / "vulnerability-hypotheses.meta.json").read_text(encoding="utf-8"))
     assert meta["verify_votes"] == 3
@@ -498,7 +517,7 @@ def test_cli_hunt_lenses_routes_through_harness(tmp_path: Path, monkeypatch) -> 
             return _result(gen)
         return _result("VERDICT H1: REFUTED — arg is constant")
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,
@@ -528,7 +547,7 @@ def test_cli_hunt_rounds_routes_through_harness(tmp_path: Path, monkeypatch) -> 
             return _result("- try races")
         return _result("VERDICT H1: REFUTED — constant")
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,
@@ -547,7 +566,7 @@ def test_cli_verify_votes_1_uses_single_pass(tmp_path: Path, monkeypatch) -> Non
         seen["modes"].append(kwargs.get("mode"))
         return _result("single-pass hunt+verify output")
 
-    monkeypatch.setattr("attackmap.cli.generate_llm_review", fake)
+    monkeypatch.setattr("attackmap.pipeline.generate_llm_review", fake)
     out = tmp_path / "out"
     result = runner.invoke(
         app,
@@ -556,3 +575,82 @@ def test_cli_verify_votes_1_uses_single_pass(tmp_path: Path, monkeypatch) -> Non
     assert result.exit_code == 0, result.output
     # votes=1 → classic single hunt_verify pass, no harness modes.
     assert seen["modes"] == ["hunt_verify"]
+
+
+@pytest.mark.parametrize("planned", range(6))
+def test_consensus_complete_vote_truth_table(planned: int) -> None:
+    """Every arrangement of usable votes and abstentions through five slots."""
+    for votes in product(("confirmed", "refuted", "needs_review", None), repeat=planned):
+        passes = [{"H1": _v(v, f"evidence for {v}")} if v else {} for v in votes]
+        c = combine_verdicts([Hypothesis("H1", "lead")], passes)[0]
+        expected = next(
+            (v for v in ("confirmed", "refuted", "needs_review") if votes.count(v) * 2 > planned),
+            "inconclusive",
+        )
+        assert c.verdict == expected
+        assert c.abstained == votes.count(None)
+        assert c.planned_votes == planned
+        assert c.confirmed + c.refuted + c.needs_review + c.abstained == planned
+        assert c.assessment_kind == "model_assessment"
+
+
+@pytest.mark.parametrize("malformed", [None, (), ("bogus", "reason"), ("refuted", ""), ("confirmed", None)])
+def test_malformed_vote_abstains(malformed) -> None:
+    c = combine_verdicts([Hypothesis("H1", "lead")], [{"H1": malformed}])[0]
+    assert c.verdict == "inconclusive"
+    assert c.abstained == 1
+    assert c.refuted == 0
+
+
+@pytest.mark.parametrize("failure", [TimeoutError("sentinel-secret"), RuntimeError("sentinel-secret")])
+def test_failed_skeptics_abstain_without_reducing_planned_votes(failure, tmp_path) -> None:
+    calls = 0
+
+    def llm_call(mode, hypotheses=None):
+        nonlocal calls
+        if mode == "hunt_generate":
+            return _result("=== HYPOTHESES ===\nH1: lead [evidence: taint:1]")
+        calls += 1
+        if calls < 3:
+            raise failure
+        return _result("VERDICT H1: REFUTED — constant per taint:1")
+
+    result = run_majority_verify(None, [], [], [], votes=3, llm_call=llm_call, citation_context=_source_context(tmp_path))
+    c = result.consensus[0]
+    assert (c.verdict, c.refuted, c.abstained, c.planned_votes) == ("inconclusive", 1, 2, 3)
+    assert result.failed_passes == 2
+    assert result.assessment_kind == "model_assessment"
+    assert calls == 3
+    assert "sentinel-secret" not in result.report
+    assert "Inconclusive" in result.report
+    assert "2 abstained" in result.report
+    assert "confirmed exploitability" in result.report
+
+
+def test_unparseable_skeptics_are_inconclusive() -> None:
+    def llm_call(mode, hypotheses=None):
+        if mode == "hunt_generate":
+            return _result("=== HYPOTHESES ===\nH1: lead")
+        return _result("VERDICT H1: UNKNOWN — no valid verdict")
+
+    result = run_majority_verify(None, [], [], [], votes=3, llm_call=llm_call)
+    c = result.consensus[0]
+    assert (c.verdict, c.refuted, c.abstained) == ("inconclusive", 0, 3)
+    assert not c.reasons
+
+
+@pytest.mark.parametrize("line", ["VERDICT H1: CONFIRMED nonsense", "VERDICT H1: NEEDS_REVIEW garbage", "VERDICT H1: REFUTED!"])
+def test_malformed_verdict_line_is_not_a_vote(line: str) -> None:
+    assert parse_verdicts(line, {"H1"}) == {}
+
+
+def test_malformed_provider_result_abstains() -> None:
+    def llm_call(mode, hypotheses=None):
+        if mode == "hunt_generate":
+            return _result("=== HYPOTHESES ===\nH1: lead")
+        return None
+
+    result = run_majority_verify(None, [], [], [], votes=2, llm_call=llm_call)
+    c = result.consensus[0]
+    assert (c.verdict, c.abstained, c.planned_votes) == ("inconclusive", 2, 2)
+    assert result.failed_passes == 2

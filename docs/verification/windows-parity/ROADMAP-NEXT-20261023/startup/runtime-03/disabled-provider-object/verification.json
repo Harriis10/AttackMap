@@ -1,0 +1,46 @@
+{
+  "name": "disabled-provider-object",
+  "passed": true,
+  "checks": {
+    "runtime_completed": true,
+    "gate_matches_expected": true,
+    "restored_ai_matches_input": true,
+    "restored_cve_matches_input": true,
+    "no_automatic_scan": true,
+    "no_broker_dispatch": true,
+    "caller_settings_preserved": true,
+    "owned_process_exited": true
+  },
+  "expected_gate_pass": true,
+  "settings_path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\ROADMAP-NEXT-20261023\\startup\\runtime-03\\disabled-provider-object\\settings.json",
+  "settings_sha256_before": "54eb0446df73f252d43a7a58ea1f3fb6fb895706e8f3865994434f362bc1273b",
+  "settings_sha256_after": "54eb0446df73f252d43a7a58ea1f3fb6fb895706e8f3865994434f362bc1273b",
+  "smoke": {
+    "passed": true,
+    "bundledEngine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\roadmap-next-20261023\\startup-native-03\\engine\\attackmap.exe",
+    "automaticScan": false,
+    "aiEnabled": false,
+    "cveEnabled": false,
+    "personalSettingsRead": false,
+    "manualStartupAcceptance": false
+  },
+  "process": {
+    "pid": 19744,
+    "exit_code": 0,
+    "exited": true,
+    "seconds": 1.633568799996283,
+    "timed_out": false,
+    "timeout_seconds": 120,
+    "owned_job_assigned": true,
+    "owned_tree_cleanup_verified": true
+  },
+  "job_accounting": [
+    {
+      "total_processes": 1,
+      "active_before_cleanup": 0,
+      "terminated_processes": 0,
+      "method": "JobObjectBasicAccountingInformation; app assigned while suspended"
+    }
+  ],
+  "failure": null
+}

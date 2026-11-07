@@ -1,0 +1,60 @@
+{
+  "description": "Two analyzers emit the same normalized observation directly (the signals list analyzers can populate) with contradictory exposure properties (public vs internal). The property-conflict channel must be general, not auth-specific.",
+  "inputs": [
+    {
+      "root": ".",
+      "files_scanned": 1,
+      "scanned_files": ["src/service/xrpc/replication.py"],
+      "signals": [
+        {
+          "kind": "service",
+          "label": "service:relay",
+          "file": "src/service/xrpc/replication.py",
+          "line": 7,
+          "properties": {"exposure": "public"},
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "path_convention",
+              "analyzer": "node-service",
+              "file": "src/service/xrpc/replication.py",
+              "line": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "root": ".",
+      "files_scanned": 1,
+      "scanned_files": ["src/service/xrpc/replication.py"],
+      "signals": [
+        {
+          "kind": "service",
+          "label": "service:relay",
+          "file": "src/service/xrpc/replication.py",
+          "line": 7,
+          "properties": {"exposure": "internal"},
+          "origins": [
+            {
+              "classification_version": "1.0",
+              "source_role": "unknown",
+              "evidence_kind": "static_extraction",
+              "classification_basis": "path_convention",
+              "analyzer": "atproto",
+              "file": "src/service/xrpc/replication.py",
+              "line": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "conflict_field": "exposure",
+    "conflict_values": ["internal", "public"],
+    "origin_analyzers": ["atproto", "node-service"]
+  }
+}

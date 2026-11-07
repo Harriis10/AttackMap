@@ -1,0 +1,365 @@
+{
+  "contract": "desktop-parity/v1",
+  "status": "CURRENT_BOUNDARY_FROZEN_2026-10-20",
+  "synthetic": true,
+  "entries": [
+    {
+      "id": "fixtures/desktop-parity/events.json",
+      "sha256": "62dcdbae551a18f436203f6e0775a2ffb7d773cc2ae7aef8ad80ac3c5e19b923",
+      "size_bytes": 862
+    },
+    {
+      "id": "fixtures/desktop-parity/feature-map.json",
+      "sha256": "ab49d0577864b2795dfe4b128da810acf802731bbb152ab154a9e74920023918",
+      "size_bytes": 8197
+    },
+    {
+      "id": "fixtures/desktop-parity/identities.json",
+      "sha256": "021fbad43382d1066f8db1468791dee8634b115c1e398781b35a382d8dcee9e5",
+      "size_bytes": 392
+    },
+    {
+      "id": "fixtures/desktop-parity/identity-paths.json",
+      "sha256": "bf0102a9ec5a7f076fdf49583db62411e3fd400cddfe3c484ca67455dffc7ab2",
+      "size_bytes": 111
+    },
+    {
+      "id": "fixtures/desktop-parity/providers/claude-false.json",
+      "sha256": "e97d2c0aa103c0aa41d5da215aaaa0e8754dbcff72e866328c933b7739ac3289",
+      "size_bytes": 725
+    },
+    {
+      "id": "fixtures/desktop-parity/providers/claude-true.json",
+      "sha256": "0f76f104f5be042e50c1ef0e32ed9b14b194e0d1fd2bb8803a1f95dd343f9526",
+      "size_bytes": 724
+    },
+    {
+      "id": "fixtures/desktop-parity/providers/openai-false.json",
+      "sha256": "d2bf54a93832a430d2cfb2a515e2bfe3cb6b70075eae9a14dbbeb42a7c7a5ed9",
+      "size_bytes": 725
+    },
+    {
+      "id": "fixtures/desktop-parity/providers/openai-true.json",
+      "sha256": "418302464ba9875cdfeb7ca75d4ad989a581b4c3ee58af82754bb91b13428c78",
+      "size_bytes": 724
+    },
+    {
+      "id": "fixtures/desktop-parity/report-empty.json",
+      "sha256": "6cf8d45fcd7d2717a78e825f45b8cf6c321630124bc3f0c4ff1991d8893cfea6",
+      "size_bytes": 332,
+      "expected": {
+        "findings": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "suppressed_findings": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "attack_paths": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "exploitability": {
+          "count": 0,
+          "ids_in_source_order": []
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-parity/report-expectations.json",
+      "sha256": "fc7f1df84cffc0ca2cba1c133059837c95f914e4636e16ab106c41f92756463f",
+      "size_bytes": 21729
+    },
+    {
+      "id": "fixtures/desktop-parity/report-missing-sections.json",
+      "sha256": "f2806b0216c3c525e7026c7c71275b9a2920d8c7e5894c0fbcdafb1cdb8d7508",
+      "size_bytes": 180,
+      "expected": {
+        "findings": {
+          "count": 0,
+          "ids_in_source_order": []
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-parity/report-nonempty-legacy.json",
+      "sha256": "7fcae49df3275f2a0dd23d43804509defcd4be2d7e2075c2f0fc569a7ed6317f",
+      "size_bytes": 3178,
+      "expected": {
+        "findings": {
+          "count": 2,
+          "ids_in_source_order": [
+            "a1",
+            "a2"
+          ]
+        },
+        "suppressed_findings": {
+          "count": 1,
+          "ids_in_source_order": [
+            "s1"
+          ]
+        },
+        "attack_paths": {
+          "count": 1,
+          "ids_in_source_order": [
+            null
+          ]
+        },
+        "exploitability": {
+          "count": 4,
+          "ids_in_source_order": [
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-parity/report-partial-legacy.json",
+      "sha256": "151516b9c1e2767865b6fb23d628f0ca6cdb53b3ff3ad084394cba08351a45fe",
+      "size_bytes": 4381,
+      "expected": {
+        "findings": {
+          "count": 2,
+          "ids_in_source_order": [
+            "a1",
+            "a2"
+          ]
+        },
+        "suppressed_findings": {
+          "count": 1,
+          "ids_in_source_order": [
+            "s1"
+          ]
+        },
+        "attack_paths": {
+          "count": 1,
+          "ids_in_source_order": [
+            null
+          ]
+        },
+        "exploitability": {
+          "count": 4,
+          "ids_in_source_order": [
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-parity/request-current.json",
+      "sha256": "d2bf54a93832a430d2cfb2a515e2bfe3cb6b70075eae9a14dbbeb42a7c7a5ed9",
+      "size_bytes": 725
+    },
+    {
+      "id": "fixtures/desktop-parity/request-previous.json",
+      "sha256": "aa7eac0c9f8af80ad8e5d3de6b1c910073a711f0543f7db8fcf14d849f2f3a1e",
+      "size_bytes": 725
+    },
+    {
+      "id": "fixtures/desktop-parity/request-sentinels.json",
+      "sha256": "7be0586a383ee320aaa0caaae6dc350ba78226a216931d04dcd9d50632f4c85c",
+      "size_bytes": 778
+    },
+    {
+      "id": "fixtures/desktop-parity/request-unsupported-major.json",
+      "sha256": "16a904bb2a073f1e2fccc7175c4ca8629e6609865b7f26d5291a356764c624a3",
+      "size_bytes": 726
+    },
+    {
+      "id": "fixtures/desktop-parity/terminal-cancelled-not_evaluated.json",
+      "sha256": "23a4dd13e412fa8fbacd78fb200414fff8229618a1d4b8838dce14dca7c83a45",
+      "size_bytes": 405
+    },
+    {
+      "id": "fixtures/desktop-parity/terminal-completed-failed.json",
+      "sha256": "b1fc498ec08dd501de4130b4f34c17fa7aa10a65aedd6343ba12b2fea065f950",
+      "size_bytes": 392
+    },
+    {
+      "id": "fixtures/desktop-parity/terminal-completed-passed.json",
+      "sha256": "c3217d934dbeb2f5b8b73bad6bbe1d311754a5b63885747caf392cc5d9a39d53",
+      "size_bytes": 392
+    },
+    {
+      "id": "fixtures/desktop-parity/terminal-failed-not_evaluated.json",
+      "sha256": "5528838e8ad5898bc9c8aa5fd6882f73fe5fa8de8ae12c67a6965135396aed0b",
+      "size_bytes": 399
+    },
+    {
+      "id": "fixtures/desktop-workflows/current.json",
+      "sha256": "377247986d6ae0bf87248de7487dbfe099d0c0606290909dc1233c57b05df7fd",
+      "size_bytes": 5931,
+      "expected": {
+        "findings": {
+          "count": 3,
+          "ids_in_source_order": [
+            "d056a38ac9396730",
+            "ca1f3e4ee304a6cb",
+            "27099086462f591a"
+          ]
+        },
+        "suppressed_findings": {
+          "count": 1,
+          "ids_in_source_order": [
+            "c1d0d53b77973434"
+          ]
+        },
+        "attack_paths": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "exploitability": {
+          "count": 0,
+          "ids_in_source_order": []
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-workflows/previous.json",
+      "sha256": "ed7b3b30b545ec74bc8bf932dad5650234279c8a663bad07d8b63760fc1ef8e0",
+      "size_bytes": 5866,
+      "expected": {
+        "findings": {
+          "count": 4,
+          "ids_in_source_order": [
+            "d056a38ac9396730",
+            "fa95a445934abfc3",
+            "c1d0d53b77973434",
+            "ca1f3e4ee304a6cb"
+          ]
+        },
+        "suppressed_findings": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "attack_paths": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "exploitability": {
+          "count": 0,
+          "ids_in_source_order": []
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-workflows/partial-coverage.json",
+      "sha256": "a87c26c0fa89fcfa95a0fe5fe9a3a0c71409bb0c1f880c60b376e3da48a72ada",
+      "size_bytes": 5096,
+      "expected": {
+        "findings": {
+          "count": 2,
+          "ids_in_source_order": [
+            "d056a38ac9396730",
+            "27099086462f591a"
+          ]
+        },
+        "suppressed_findings": {
+          "count": 1,
+          "ids_in_source_order": [
+            "c1d0d53b77973434"
+          ]
+        },
+        "attack_paths": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "exploitability": {
+          "count": 0,
+          "ids_in_source_order": []
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-workflows/suppressed.json",
+      "sha256": "d52f59b72958a9a180811d0e1e062185ab8adeebb4fa57a7d238051b18ca1228",
+      "size_bytes": 6193,
+      "expected": {
+        "findings": {
+          "count": 3,
+          "ids_in_source_order": [
+            "d056a38ac9396730",
+            "fa95a445934abfc3",
+            "ca1f3e4ee304a6cb"
+          ]
+        },
+        "suppressed_findings": {
+          "count": 1,
+          "ids_in_source_order": [
+            "c1d0d53b77973434"
+          ]
+        },
+        "attack_paths": {
+          "count": 0,
+          "ids_in_source_order": []
+        },
+        "exploitability": {
+          "count": 0,
+          "ids_in_source_order": []
+        }
+      }
+    },
+    {
+      "id": "fixtures/desktop-workflows/expected.json",
+      "sha256": "22d8ad5d2d65be782d78eccd0f42663df8c443160f800569ba852fc42da2291f",
+      "size_bytes": 1830
+    },
+    {
+      "id": "fixtures/desktop-workflows/suppressions.yaml",
+      "sha256": "9c95d411e09bd5700e140f9ef76d1b7c90cb577566dcf69789aff6705d44574e",
+      "size_bytes": 120
+    },
+    {
+      "id": "fixtures/run-contract/faults/duplicate-reordered.json",
+      "sha256": "a96ddb438033686a124dc77876b816cdb104405340dd33fc8ac0abd8aeb406ad",
+      "size_bytes": 1026
+    },
+    {
+      "id": "fixtures/run-contract/faults/cancelling-regression.json",
+      "sha256": "3cac98d9d16a00cc7ba1dbb97d4c36d6bfefb334f58d0c691ffa5290ea48c6d0",
+      "size_bytes": 691
+    },
+    {
+      "id": "tests/fixtures/ui/juice-shop-report.json",
+      "sha256": "7fcae49df3275f2a0dd23d43804509defcd4be2d7e2075c2f0fc569a7ed6317f",
+      "size_bytes": 3178,
+      "expected": {
+        "findings": {
+          "count": 2,
+          "ids_in_source_order": [
+            "a1",
+            "a2"
+          ]
+        },
+        "suppressed_findings": {
+          "count": 1,
+          "ids_in_source_order": [
+            "s1"
+          ]
+        },
+        "attack_paths": {
+          "count": 1,
+          "ids_in_source_order": [
+            null
+          ]
+        },
+        "exploitability": {
+          "count": 4,
+          "ids_in_source_order": [
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      }
+    }
+  ]
+}

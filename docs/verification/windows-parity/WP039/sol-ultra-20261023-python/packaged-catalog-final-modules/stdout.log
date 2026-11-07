@@ -1,0 +1,321 @@
+[
+  {
+    "name": "python",
+    "display_name": "Python Comprehensive Analyzer",
+    "description": "Comprehensive Python analyzer for Django, Starlette, AIOHTTP, Sanic, Litestar, DRF; SQLAlchemy/asyncpg/motor; passlib/PyJWT/authlib; httpx/aiohttp.",
+    "scope": "Python projects (pyproject.toml, setup.py, manage.py, or any *.py tree). Additive over the built-in python-web analyzer.",
+    "ecosystems": [
+      "python",
+      "django",
+      "starlette",
+      "aiohttp",
+      "sanic",
+      "litestar"
+    ],
+    "enabled_by_default": true,
+    "priority": 10,
+    "experimental": false
+  },
+  {
+    "name": "c",
+    "display_name": "C Analyzer",
+    "description": "C ecosystem analyzer covering libmicrohttpd, civetweb, mongoose, libonion, libcurl, OpenSSL, libsodium, sqlite3, libpq, mysql, hiredis, mongoc.",
+    "scope": "C source trees and CMake/Make projects. Detects HTTP server entrypoints, libcurl outbound calls, common DB and crypto libraries.",
+    "ecosystems": [
+      "c",
+      "civetweb",
+      "libmicrohttpd",
+      "mongoose"
+    ],
+    "enabled_by_default": false,
+    "priority": 20,
+    "experimental": true
+  },
+  {
+    "name": "cpp",
+    "display_name": "C++ Analyzer",
+    "description": "C++ analyzer covering Crow, Pistache, Drogon, cpprestsdk, libcurl/cpr, OpenSSL/Botan/libsodium/Crypto++, libpqxx/mongocxx/redis-plus-plus.",
+    "scope": "C++ source trees and CMake projects. Detects modern HTTP frameworks and common DB / crypto libraries.",
+    "ecosystems": [
+      "cpp",
+      "c++",
+      "crow",
+      "pistache",
+      "drogon",
+      "cpprestsdk"
+    ],
+    "enabled_by_default": false,
+    "priority": 20,
+    "experimental": true
+  },
+  {
+    "name": "dotnet",
+    "display_name": "C# / .NET Analyzer",
+    "description": "ASP.NET Core analyzer covering minimal APIs, attribute routing, EF Core, Identity, and JwtBearer.",
+    "scope": ".NET solutions and projects (.csproj, .sln). Detects ASP.NET Core minimal APIs and controllers.",
+    "ecosystems": [
+      "csharp",
+      "dotnet",
+      "aspnetcore"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "go",
+    "display_name": "Go Analyzer",
+    "description": "Go ecosystem analyzer covering net/http, chi, gin, echo, fiber, gorilla/mux, and common DB/auth packages.",
+    "scope": "Go modules and workspaces. go.mod-bearing repos are auto-detected; pure .go trees also work.",
+    "ecosystems": [
+      "go",
+      "golang",
+      "gin",
+      "chi",
+      "echo",
+      "fiber"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "javascript-web",
+    "display_name": "JavaScript / TypeScript Web Analyzer",
+    "description": "Broad built-in analyzer for JavaScript and TypeScript web applications.",
+    "scope": "JavaScript/TypeScript source files (.js/.jsx/.mjs/.cjs/.ts/.tsx). Deep framework coverage lives in attackmap-analyzer-node-service; this is the fallback.",
+    "ecosystems": [
+      "javascript",
+      "typescript",
+      "express",
+      "fastify",
+      "koa",
+      "node"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "php-web",
+    "display_name": "PHP Web Analyzer",
+    "description": "Built-in analyzer for plain PHP web applications: generic routes plus request input, include chains, session/cookie handling, datastores, outbound HTTP.",
+    "scope": "PHP source files (.php). Framework structure lives in php-laminas; Omeka S specifics in omeka-s.",
+    "ecosystems": [
+      "php"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "python-web",
+    "display_name": "Python Web Analyzer",
+    "description": "Built-in analyzer for Python web frameworks and related security signals.",
+    "scope": "Python source files handled by the current scanner-backed web heuristics.",
+    "ecosystems": [
+      "python",
+      "fastapi",
+      "flask"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "rust",
+    "display_name": "Rust Analyzer",
+    "description": "Rust ecosystem analyzer covering axum, actix-web, rocket, common DB/auth crates, and reqwest.",
+    "scope": "Rust crates and workspaces. Cargo-bearing repos are auto-detected; pure .rs trees also work.",
+    "ecosystems": [
+      "rust",
+      "axum",
+      "actix-web",
+      "rocket"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "swift",
+    "display_name": "Swift Analyzer",
+    "description": "Swift ecosystem analyzer: SwiftPM project detection and Package.resolved dependency SBOM. Server-side routes and app attack surface land in later slices.",
+    "scope": "Swift source trees and SwiftPM/Xcode projects. Detects the SwiftPM toolchain, server-side web frameworks in the manifest, and resolved package dependencies for CVE/SBOM.",
+    "ecosystems": [
+      "swift",
+      "swiftpm",
+      "vapor",
+      "hummingbird"
+    ],
+    "enabled_by_default": false,
+    "priority": 20,
+    "experimental": true
+  },
+  {
+    "name": "terraform",
+    "display_name": "Terraform / HCL Analyzer",
+    "description": "Terraform infrastructure-as-code analyzer covering AWS, Azure, and GCP resources, IAM wildcards, open security groups, and secrets.",
+    "scope": "Terraform / OpenTofu projects (.tf files). Detects provider-level resources, public ingress, secret resources, and database engines.",
+    "ecosystems": [
+      "hcl",
+      "terraform",
+      "iac",
+      "aws",
+      "azure",
+      "gcp"
+    ],
+    "enabled_by_default": true,
+    "priority": 20,
+    "experimental": false
+  },
+  {
+    "name": "node-service",
+    "display_name": "Node Service Analyzer",
+    "description": "Broad Node.js/TypeScript service analyzer covering Express/Fastify/NestJS/Hono/Koa/Elysia/tRPC + NextJS routes, XRPC handlers, workspaces, async workers.",
+    "scope": "Node/TypeScript backend and monorepo repositories with service boundaries, framework handlers, RPC handlers, and inter-service/async messaging.",
+    "ecosystems": [
+      "javascript",
+      "typescript",
+      "node-service",
+      "node",
+      "typescript-service"
+    ],
+    "enabled_by_default": false,
+    "priority": 25,
+    "experimental": true
+  },
+  {
+    "name": "config",
+    "display_name": "Config File Analyzer",
+    "description": "Broad built-in analyzer for YAML / TOML / JSON / INI / .env application config files.",
+    "scope": "Application config files. Extracts DB connection strings, external service URLs, and secret-shaped literals; deep IaC parsing (docker-compose service graph, Dockerfile hardening) lives in attackmap-analyzer-iac.",
+    "ecosystems": [
+      "yaml",
+      "toml",
+      "json",
+      "ini",
+      "env"
+    ],
+    "enabled_by_default": true,
+    "priority": 30,
+    "experimental": false
+  },
+  {
+    "name": "iac",
+    "display_name": "IaC / Deployment-Surface Analyzer",
+    "description": "Analyzer for infrastructure-as-code and deployment files: Dockerfile, docker-compose, GitHub Actions, .env templates, shell installers.",
+    "scope": "Deployment / operations repositories where the runtime posture is defined outside application source. Closes the coverage gap Bluesky FINDINGS \u00a72 documented for bluesky-social/pds.",
+    "ecosystems": [
+      "docker",
+      "docker-compose",
+      "github-actions",
+      "env-template",
+      "shell-installer"
+    ],
+    "enabled_by_default": true,
+    "priority": 40,
+    "experimental": false
+  },
+  {
+    "name": "python-service",
+    "display_name": "Python Services Ecosystem Analyzer",
+    "description": "Framework-enrichment overlay for Python web services (FastAPI/Flask/Django/Celery cross-file wiring).",
+    "scope": "Python web-service repositories; adds cross-file router/blueprint/URLconf wiring, framework auth semantics, ORM scoping, and service-boundary signals on top of the per-file python-web pass.",
+    "ecosystems": [
+      "python",
+      "fastapi",
+      "flask",
+      "django",
+      "celery"
+    ],
+    "enabled_by_default": true,
+    "priority": 50,
+    "experimental": true
+  },
+  {
+    "name": "java-spring",
+    "display_name": "Java/Kotlin Spring Boot Analyzer",
+    "description": "Java and Kotlin analyzer with Spring Boot, JAX-RS, Ktor, and Spring Security awareness.",
+    "scope": "Maven, Gradle, and Kotlin Spring Boot projects. Detects Spring MVC, JAX-RS, Ktor, Javalin, and Micronaut routing.",
+    "ecosystems": [
+      "java",
+      "kotlin",
+      "spring",
+      "spring-boot"
+    ],
+    "enabled_by_default": true,
+    "priority": 60,
+    "experimental": false
+  },
+  {
+    "name": "php-laminas",
+    "display_name": "PHP Laminas (Zend MVC) Analyzer",
+    "description": "Framework enrichment for Laminas / Zend MVC: module structure, router config, controllers/actions, service-manager wiring, middleware, validators/filters.",
+    "scope": "Repos with laminas/ or zendframework/ composer dependencies, or Module.php files carrying Laminas/Zend markers.",
+    "ecosystems": [
+      "php",
+      "laminas",
+      "zend-mvc"
+    ],
+    "enabled_by_default": true,
+    "priority": 60,
+    "experimental": true
+  },
+  {
+    "name": "atproto",
+    "display_name": "AT Protocol Analyzer",
+    "description": "Thin protocol-aware overlay analyzer for AT Protocol namespace and XRPC exposure.",
+    "scope": "AT Protocol repositories with lexicons, XRPC namespace usage, and protocol auth/identity cues.",
+    "ecosystems": [
+      "typescript",
+      "javascript",
+      "json",
+      "atproto",
+      "bluesky",
+      "xrpc"
+    ],
+    "enabled_by_default": false,
+    "priority": 90,
+    "experimental": true
+  },
+  {
+    "name": "default",
+    "display_name": "Default Analyzer",
+    "description": "Fallback built-in analyzer for code file suffixes not claimed by a specialized built-in.",
+    "scope": "Any CODE_EXTENSIONS suffix not covered by python-web or javascript-web.",
+    "ecosystems": [],
+    "enabled_by_default": true,
+    "priority": 100,
+    "experimental": false
+  },
+  {
+    "name": "node-atproto",
+    "display_name": "Node / ATProto Overlay Analyzer",
+    "description": "Thin ATProto / Node-service overlay: XRPC lexicon surface, identity and signing hotspots, service boundaries, and cross-file route wiring.",
+    "scope": "Repositories that look like ATProto services (lexicons, @atproto dependencies, did:/NSID markers). Enriches javascript-web; extraction only, never scores.",
+    "ecosystems": [
+      "javascript",
+      "typescript",
+      "atproto",
+      "xrpc",
+      "node-service"
+    ],
+    "enabled_by_default": true,
+    "priority": 150,
+    "experimental": true
+  },
+  {
+    "name": "omeka-s",
+    "display_name": "Omeka S Analyzer",
+    "description": "Application overlay for Omeka S modules: module layout, API adapters vs representations vs routes, admin authentication, media ingestion, view output encoding.",
+    "scope": "Repos with an Omeka S module marker (Omeka\\Module\\AbstractModule) or an omeka/* composer dependency.",
+    "ecosystems": [
+      "php",
+      "omeka-s"
+    ],
+    "enabled_by_default": true,
+    "priority": 160,
+    "experimental": true
+  }
+]

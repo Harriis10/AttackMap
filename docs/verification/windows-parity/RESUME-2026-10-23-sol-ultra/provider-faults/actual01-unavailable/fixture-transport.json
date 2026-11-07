@@ -1,0 +1,31 @@
+{
+  "endpoint": "http://127.0.0.1:8410/v1",
+  "case": "unavailable",
+  "closed": true,
+  "server_thread_joined": true,
+  "handler_threads_joined": true,
+  "events": [
+    {
+      "kind": "received",
+      "method": "POST",
+      "path": "/v1/responses",
+      "request_number": 1,
+      "utc": "2026-10-23T07:55:05.056243+00:00"
+    },
+    {
+      "kind": "response",
+      "method": "POST",
+      "path": "/v1/responses",
+      "request_number": 1,
+      "status": 503,
+      "response_sha256": "784308b23fbd99745f125bc4dd37786c37bde749cca114bf2cf2d0c749d90a36",
+      "response_bytes": 76,
+      "write_completed": true,
+      "utc": "2026-10-23T07:55:05.059160+00:00"
+    }
+  ],
+  "accepted_wp017_live": false,
+  "accepted_manual_ui": false,
+  "accepted_release": false,
+  "completed_real_model_responses": 0
+}

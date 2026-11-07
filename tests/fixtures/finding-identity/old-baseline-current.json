@@ -1,0 +1,76 @@
+{
+  "scan": {
+    "root": "identity-matrix-fixture",
+    "files_scanned": 3,
+    "scanned_files": [
+      "src/search.py",
+      "src/x.py",
+      "src/y.py"
+    ],
+    "signals": [],
+    "limitations": [],
+    "analyzer_errors": []
+  },
+  "findings": [
+    {
+      "title": "SQL query built from request parameters",
+      "rule_id": "sql-injection",
+      "entity_id": "route:/search",
+      "severity": "high",
+      "confidence": "medium",
+      "mitigation": "Parameterize the query.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "locations": [
+        {
+          "file": "src/search.py",
+          "line": 7,
+          "fingerprint": "fp-search-sql"
+        }
+      ],
+      "id": "c80509288b730dd8",
+      "identity_scheme": "rule-entity/v2"
+    },
+    {
+      "title": "Shared prose title",
+      "rule_id": "rule-x",
+      "entity_id": null,
+      "severity": "medium",
+      "confidence": "medium",
+      "mitigation": "Fixture mitigation.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "locations": [
+        {
+          "file": "src/x.py",
+          "line": 1,
+          "fingerprint": "fp-shared-x"
+        }
+      ],
+      "id": "fc9a2ddc76bfdc87",
+      "identity_scheme": "rule-aggregate/v2"
+    },
+    {
+      "title": "Shared prose title",
+      "rule_id": "rule-y",
+      "entity_id": null,
+      "severity": "medium",
+      "confidence": "medium",
+      "mitigation": "Fixture mitigation.",
+      "evidence": [
+        "SYNTHETIC fixture evidence; no repository was scanned."
+      ],
+      "locations": [
+        {
+          "file": "src/y.py",
+          "line": 1,
+          "fingerprint": "fp-shared-y"
+        }
+      ],
+      "id": "7587ee9d85b2d248",
+      "identity_scheme": "rule-aggregate/v2"
+    }
+  ]
+}

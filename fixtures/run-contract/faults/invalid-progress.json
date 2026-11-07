@@ -1,0 +1,34 @@
+{
+  "steps": [
+    {
+      "message": {
+        "schema_version": "1.1",
+        "run_id": "run-fixture-1",
+        "repository_id": "repo-fixture",
+        "generation": 1,
+        "revision": 1,
+        "kind": "progress",
+        "state": "running",
+        "stage": "analyze",
+        "completed_units": 5,
+        "total_units": 4
+      },
+      "expect": "error"
+    },
+    {
+      "message": {
+        "schema_version": "1.1",
+        "run_id": "run-fixture-1",
+        "repository_id": "repo-fixture",
+        "generation": 1,
+        "revision": 1,
+        "kind": "progress",
+        "state": "running",
+        "stage": "analyze",
+        "total_units": 4
+      },
+      "expect": "error"
+    }
+  ],
+  "terminal": false
+}

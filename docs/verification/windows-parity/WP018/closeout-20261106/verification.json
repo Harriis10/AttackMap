@@ -1,0 +1,811 @@
+{
+  "task": "WP018",
+  "status": "DONE",
+  "completed_date": "2026-11-07",
+  "task_acceptance": true,
+  "release_acceptance": false,
+  "base_commit": "9b8e12d40d8d19ed5e9d07b7ec4d04b643513796",
+  "scope": "Desktop fleet contract and supervisor task acceptance; no GUI, C35/C36 maturity or release acceptance",
+  "production_changes": false,
+  "source_inputs_unchanged": true,
+  "release_inputs_count": 284,
+  "schema_inputs_count": 11,
+  "input_digests": {
+    "source_checksums_sha256": "107ec0d67e5bec885142bbc92820ac939ae75283b584dda3720fea9ee52bc0e6",
+    "release_inputs_sha256": "e50cebee2b8034deaf501c70808ecdcf6e6b7a24c2880050d79217369c8064ad",
+    "analyzer_requirements_sha256": "55c57eb7cf4daff109d4ba0dc47b4d08945fa628e3af399e41152d85ebd4d9df"
+  },
+  "build_proof": {
+    "path": ".tmp/wp018-closeout-freeze-20261106-01/build-proof.json",
+    "sha256": "473c55474468aae92d7faab04b2637460ef94aec6c03fff891c57d2cf862bb2c",
+    "size_bytes": 77289
+  },
+  "payload": {
+    "passed": true,
+    "payload_files": 265,
+    "bytes": 44082914,
+    "engine_sha256": "7d9a370d5a1d0f23c8e037039a1a00b29fdeb7e55fdf2541ac9dd81c61f5fba0",
+    "build_proof_sha256": "473c55474468aae92d7faab04b2637460ef94aec6c03fff891c57d2cf862bb2c"
+  },
+  "source_regressions": {
+    "passed": 114,
+    "skipped": 1,
+    "evidence": {
+      "path": "artifacts/wp018-closeout-20261106/source-audit-core-02/results.xml",
+      "sha256": "dd7f7af31d7feff5a2bd6c1ec43b64ba604a50a79eb5fe8899ec4db863311f48",
+      "size_bytes": 15865
+    }
+  },
+  "verifier_regressions": {
+    "passed": 19,
+    "skipped": 0,
+    "evidence": {
+      "path": "artifacts/wp018-closeout-20261106/verifier-gates-03/results.xml",
+      "sha256": "c94c31f4ff3e207de3e259f1749fba37b689731a5ee1b74e7a76e76b4b7cee90",
+      "size_bytes": 2798
+    }
+  },
+  "source_matrix": {
+    "passed": true,
+    "cli_cases": 6,
+    "desktop_workers": [
+      1,
+      2,
+      4
+    ],
+    "engine": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+      "sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b",
+      "kind": "source"
+    },
+    "cases": [
+      {
+        "case": "cli-all-w1",
+        "elapsed_seconds": 11.379749500018079,
+        "memory": {
+          "peak_job_memory_bytes": 49352704,
+          "peak_process_memory_bytes": 41840640,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/cli-all-w1/process.json",
+          "sha256": "082fb588243623056e881d035a60d7d229618c2f0e9bfe7461fc0559e24ec19c",
+          "size_bytes": 1387
+        }
+      },
+      {
+        "case": "cli-all-w2",
+        "elapsed_seconds": 24.629580200009514,
+        "memory": {
+          "peak_job_memory_bytes": 141803520,
+          "peak_process_memory_bytes": 40890368,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/cli-all-w2/process.json",
+          "sha256": "9cf296995eb918bca19c0a3c2d60ca77455e9f5054d36aafc26180b750a37563",
+          "size_bytes": 1388
+        }
+      },
+      {
+        "case": "cli-json-w1",
+        "elapsed_seconds": 13.837313700001687,
+        "memory": {
+          "peak_job_memory_bytes": 49557504,
+          "peak_process_memory_bytes": 42033152,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/cli-json-w1/process.json",
+          "sha256": "95553c523dcf398d82440b5c44cde6fa6a900f3a0b48007e58e07264133c0e14",
+          "size_bytes": 1390
+        }
+      },
+      {
+        "case": "cli-json-w2",
+        "elapsed_seconds": 24.12265039997874,
+        "memory": {
+          "peak_job_memory_bytes": 142155776,
+          "peak_process_memory_bytes": 40890368,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/cli-json-w2/process.json",
+          "sha256": "7eb0d984fa921e6755060ee23188053139a3cf17a45b0e76d9db4d55e9b3bc1b",
+          "size_bytes": 1390
+        }
+      },
+      {
+        "case": "cli-markdown-w1",
+        "elapsed_seconds": 12.629710800014436,
+        "memory": {
+          "peak_job_memory_bytes": 49446912,
+          "peak_process_memory_bytes": 41951232,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/cli-markdown-w1/process.json",
+          "sha256": "beba6ae01a2026f84d58bd878cececf62f47d3edb5b9175821214a45a6748c4b",
+          "size_bytes": 1401
+        }
+      },
+      {
+        "case": "cli-markdown-w2",
+        "elapsed_seconds": 24.846947700018063,
+        "memory": {
+          "peak_job_memory_bytes": 141582336,
+          "peak_process_memory_bytes": 40820736,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/cli-markdown-w2/process.json",
+          "sha256": "010e33b95ce9bf316c8ac765f9d81e036681e35c9b1d9a8d17301050015193d2",
+          "size_bytes": 1403
+        }
+      },
+      {
+        "case": "desktop16-w1",
+        "elapsed_seconds": 171.19575070001883,
+        "memory": {
+          "peak_job_memory_bytes": 148815872,
+          "peak_process_memory_bytes": 105381888,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/desktop16-w1/process.json",
+          "sha256": "7a82e12ed6f31c1110d1006eae71436687b81003391750019217e772624d9c45",
+          "size_bytes": 731
+        }
+      },
+      {
+        "case": "desktop16-w2",
+        "elapsed_seconds": 60.99706359999254,
+        "memory": {
+          "peak_job_memory_bytes": 177635328,
+          "peak_process_memory_bytes": 105566208,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/desktop16-w2/process.json",
+          "sha256": "2baaab787885a896ba036279ea1ac666500ffa62d3307575b6a372f407430fdc",
+          "size_bytes": 730
+        }
+      },
+      {
+        "case": "desktop16-w4",
+        "elapsed_seconds": 44.69765869999537,
+        "memory": {
+          "peak_job_memory_bytes": 272474112,
+          "peak_process_memory_bytes": 105480192,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/desktop16-w4/process.json",
+          "sha256": "afeba85e139ee33678b73440057d71576ad02e44ad834d2076a03c371c910267",
+          "size_bytes": 730
+        }
+      }
+    ],
+    "summary": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/source-attempt04/summary.json",
+      "sha256": "7dc1e41f002282dfd6abfe58cc9eb4d713c53b91c42e51035143814f7dd8cb67",
+      "size_bytes": 3264476
+    }
+  },
+  "frozen_matrix": {
+    "passed": true,
+    "cli_cases": 6,
+    "desktop_workers": [
+      1,
+      2,
+      4
+    ],
+    "engine": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp018-closeout-freeze-20261106-01\\dist\\attackmap\\attackmap.exe",
+      "sha256": "7d9a370d5a1d0f23c8e037039a1a00b29fdeb7e55fdf2541ac9dd81c61f5fba0",
+      "kind": "frozen"
+    },
+    "cases": [
+      {
+        "case": "cli-all-w1",
+        "elapsed_seconds": 11.43473300000187,
+        "memory": {
+          "peak_job_memory_bytes": 55980032,
+          "peak_process_memory_bytes": 49393664,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/cli-all-w1/process.json",
+          "sha256": "edd84dbd34fbfc2fe9ec68cebdbe9516848857e4a0f6724fb6b35183f98af064",
+          "size_bytes": 1382
+        }
+      },
+      {
+        "case": "cli-all-w2",
+        "elapsed_seconds": 26.987956000026315,
+        "memory": {
+          "peak_job_memory_bytes": 160133120,
+          "peak_process_memory_bytes": 47820800,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/cli-all-w2/process.json",
+          "sha256": "a82a56014f80d6f2a0f7ae8ac4abce9a83f64e52537d57d633e15600e4ba7140",
+          "size_bytes": 1382
+        }
+      },
+      {
+        "case": "cli-json-w1",
+        "elapsed_seconds": 22.179653899976984,
+        "memory": {
+          "peak_job_memory_bytes": 55676928,
+          "peak_process_memory_bytes": 49086464,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/cli-json-w1/process.json",
+          "sha256": "4ca0957124a7e822cc188e4ac044ac5c313329c118a086a09916790e56674941",
+          "size_bytes": 1386
+        }
+      },
+      {
+        "case": "cli-json-w2",
+        "elapsed_seconds": 25.909639100020286,
+        "memory": {
+          "peak_job_memory_bytes": 160935936,
+          "peak_process_memory_bytes": 48898048,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/cli-json-w2/process.json",
+          "sha256": "1b89bbf99cc9a7f53899bf91ae56ad3280560f679e027b3403ad96f65d21a4e1",
+          "size_bytes": 1387
+        }
+      },
+      {
+        "case": "cli-markdown-w1",
+        "elapsed_seconds": 14.441500399960205,
+        "memory": {
+          "peak_job_memory_bytes": 55689216,
+          "peak_process_memory_bytes": 49102848,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/cli-markdown-w1/process.json",
+          "sha256": "4701a6cb39279ce59262bdbd62039c7a2df464d6e1148bc91bce48d272aac8f4",
+          "size_bytes": 1398
+        }
+      },
+      {
+        "case": "cli-markdown-w2",
+        "elapsed_seconds": 23.135896200023126,
+        "memory": {
+          "peak_job_memory_bytes": 159678464,
+          "peak_process_memory_bytes": 47820800,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/cli-markdown-w2/process.json",
+          "sha256": "c3bbcb86a170ddb7523b0a901f6e97c17772c570769ad35ff35ff9e9d457b8d3",
+          "size_bytes": 1399
+        }
+      },
+      {
+        "case": "desktop16-w1",
+        "elapsed_seconds": 154.0766699000378,
+        "memory": {
+          "peak_job_memory_bytes": 173580288,
+          "peak_process_memory_bytes": 115650560,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/desktop16-w1/process.json",
+          "sha256": "ddb67669c0295501b0dc05c14f5d5352655c14f56da88ec41e72164ece3fb7cf",
+          "size_bytes": 734
+        }
+      },
+      {
+        "case": "desktop16-w2",
+        "elapsed_seconds": 67.34818679996533,
+        "memory": {
+          "peak_job_memory_bytes": 214106112,
+          "peak_process_memory_bytes": 115589120,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/desktop16-w2/process.json",
+          "sha256": "5c0b32ca5abc0b3e5c1d955299c7aaff906516238687e26d8fae6324e5733c63",
+          "size_bytes": 733
+        }
+      },
+      {
+        "case": "desktop16-w4",
+        "elapsed_seconds": 43.60218780004652,
+        "memory": {
+          "peak_job_memory_bytes": 320094208,
+          "peak_process_memory_bytes": 117010432,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/desktop16-w4/process.json",
+          "sha256": "0f9fd72e66201fce83cc7b8d66fe2dc199b8348308dbd55f6ca62e84ab5ba6ad",
+          "size_bytes": 734
+        }
+      }
+    ],
+    "summary": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/frozen-attempt01/summary.json",
+      "sha256": "d70ada6a8010fb2eb17c1c4bfb483ae505da98022e05f00e195379886a1f050c",
+      "size_bytes": 3317493
+    }
+  },
+  "source_real_partial120": {
+    "passed": true,
+    "cli_cases": 0,
+    "desktop_workers": [
+      2
+    ],
+    "engine": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\wp024-freeze-venv\\Scripts\\python.exe",
+      "sha256": "72b29481593c5da37c99248c82777fbfb56217ea7809b771bc760d0a9ecb179b",
+      "kind": "source"
+    },
+    "cases": [
+      {
+        "case": "desktop16-w2",
+        "elapsed_seconds": 355.76090670004487,
+        "memory": {
+          "peak_job_memory_bytes": 372875264,
+          "peak_process_memory_bytes": 207212544,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/source-juice-auto01/desktop16-w2/process.json",
+          "sha256": "54f2416d77290ec1576783a5056b06da92c8b1f670826ed95dc1c32482e3c04a",
+          "size_bytes": 733
+        }
+      }
+    ],
+    "summary": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/source-juice-auto01/summary.json",
+      "sha256": "e610cc36ca34bd2a80763c4dad5129ae916bcc3cacf07adbadf8dff541d0a6d8",
+      "size_bytes": 26071148
+    }
+  },
+  "frozen_real_partial120": {
+    "passed": true,
+    "cli_cases": 0,
+    "desktop_workers": [
+      2
+    ],
+    "engine": {
+      "path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp018-closeout-freeze-20261106-01\\dist\\attackmap\\attackmap.exe",
+      "sha256": "7d9a370d5a1d0f23c8e037039a1a00b29fdeb7e55fdf2541ac9dd81c61f5fba0",
+      "kind": "frozen"
+    },
+    "cases": [
+      {
+        "case": "desktop16-w2",
+        "elapsed_seconds": 246.45336109999334,
+        "memory": {
+          "peak_job_memory_bytes": 464953344,
+          "peak_process_memory_bytes": 213286912,
+          "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+          "memory_limit_enforced": false
+        },
+        "process": {
+          "path": "artifacts/wp018-closeout-20261106/qualification/frozen-real01/desktop16-w2/process.json",
+          "sha256": "d37b7d2d64d2d4f97ff5eb09ab048733fb653f3fd287bfa610dfa7b0aedb7932",
+          "size_bytes": 732
+        }
+      }
+    ],
+    "summary": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/frozen-real01/summary.json",
+      "sha256": "70823e95da6231f8f2eb6be4c933a8d756d0c36d1d24db09de0c9e335cab33ce",
+      "size_bytes": 26042889
+    }
+  },
+  "source_real": {
+    "passed": true,
+    "children": 2,
+    "workers": 2,
+    "real_scan": {
+      "time_budget": {
+        "seconds": 600,
+        "exceeded": false
+      },
+      "limitations": [
+        "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.",
+        "oversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4",
+        "oversized file skipped (> 2000000 bytes): screenshots/slideshow.gif"
+      ],
+      "resource_limit_events": [
+        {
+          "schema_version": "1.0",
+          "event_id": "121908bd01492a2209accf122f114eaf3714985a11a29b384b2b734ab9fcceb6",
+          "category": "file_bytes",
+          "producer": "repo_index",
+          "limit": 2000000,
+          "unit": "bytes",
+          "action": "skipped_file",
+          "observed_bytes": 3740605,
+          "observed_files": null
+        },
+        {
+          "schema_version": "1.0",
+          "event_id": "28a33bf70198cc0b1a8d0c4cfbd8ceb55e259629c13093e6315f986f3c861848",
+          "category": "file_bytes",
+          "producer": "repo_index",
+          "limit": 2000000,
+          "unit": "bytes",
+          "action": "skipped_file",
+          "observed_bytes": 2232676,
+          "observed_files": null
+        }
+      ],
+      "run_manifest_sha256": "dad98a46bf95449e52681feb9cc975228ffef3b7ff5f5d228b067a1e1991bbef",
+      "analyzer_execution_complete": true
+    },
+    "memory": {
+      "peak_job_memory_bytes": 324284416,
+      "peak_process_memory_bytes": 207527936,
+      "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+      "memory_limit_enforced": false
+    },
+    "summary": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/source-real-pair01/summary.json",
+      "sha256": "266cf7ed2b96b96f19bbf5646379ca0d7ab8fa971d0efa2fb996b654dfbd0818",
+      "size_bytes": 22285545
+    },
+    "process": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/source-real-pair01/desktop16-w2/process.json",
+      "sha256": "52ef54ff1b9399f1c173415a6ba151d445e39ca73d00c7bf9420de6fe6878c68",
+      "size_bytes": 733
+    }
+  },
+  "frozen_real": {
+    "passed": true,
+    "children": 2,
+    "workers": 2,
+    "real_scan": {
+      "time_budget": {
+        "seconds": 600,
+        "exceeded": false
+      },
+      "limitations": [
+        "Unique-file coverage unavailable: one or more analyzers did not enumerate scanned_files; files_scanned is a legacy aggregate and may overlap.",
+        "oversized file skipped (> 2000000 bytes): frontend/src/assets/public/videos/owasp_promo.mp4",
+        "oversized file skipped (> 2000000 bytes): screenshots/slideshow.gif"
+      ],
+      "resource_limit_events": [
+        {
+          "schema_version": "1.0",
+          "event_id": "121908bd01492a2209accf122f114eaf3714985a11a29b384b2b734ab9fcceb6",
+          "category": "file_bytes",
+          "producer": "repo_index",
+          "limit": 2000000,
+          "unit": "bytes",
+          "action": "skipped_file",
+          "observed_bytes": 3740605,
+          "observed_files": null
+        },
+        {
+          "schema_version": "1.0",
+          "event_id": "28a33bf70198cc0b1a8d0c4cfbd8ceb55e259629c13093e6315f986f3c861848",
+          "category": "file_bytes",
+          "producer": "repo_index",
+          "limit": 2000000,
+          "unit": "bytes",
+          "action": "skipped_file",
+          "observed_bytes": 2232676,
+          "observed_files": null
+        }
+      ],
+      "run_manifest_sha256": "5584771c044c965884a9c310289089ddb19d02fe56a081dd74783217b00fe94b",
+      "analyzer_execution_complete": true
+    },
+    "memory": {
+      "peak_job_memory_bytes": 362684416,
+      "peak_process_memory_bytes": 213807104,
+      "source": "Windows JobObjectExtendedLimitInformation high-water counters",
+      "memory_limit_enforced": false
+    },
+    "summary": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/frozen-real-pair01/summary.json",
+      "sha256": "1fb06eea5d73c8b369e4f2f048b39a09cff32bb4110fefcc67bdc1a3f86dfdba",
+      "size_bytes": 22282114
+    },
+    "process": {
+      "path": "artifacts/wp018-closeout-20261106/qualification/frozen-real-pair01/desktop16-w2/process.json",
+      "sha256": "ceaadf6bc5b43c734c38a49aaf13438b07a1536d94e13ad35f38b164d0449351",
+      "size_bytes": 737
+    }
+  },
+  "source_faults": {
+    "passed": true,
+    "cases": [
+      {
+        "scenario": "failure",
+        "outcome": "partial",
+        "preserved_siblings": 1,
+        "result": {
+          "path": "artifacts/wp018-20261106-source-process06/failure/result.json",
+          "sha256": "0c00797e2830dc77426454f28bffb4001f996984d075d2136208150eeeb69db5",
+          "size_bytes": 4483
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-source-process06/failure/previous-generation.json",
+          "sha256": "73f740c216ebcae05ebddd41b2181b55825469c52ce7c9a2cdc1a61c9e4dbb2e",
+          "size_bytes": 10552
+        }
+      },
+      {
+        "scenario": "cancel",
+        "outcome": "cancelled",
+        "preserved_siblings": 1,
+        "result": {
+          "path": "artifacts/wp018-20261106-source-process06/cancel/result.json",
+          "sha256": "7925fee2507ae841a90a13418caec9efa7d00f972bc89c331264be67f7a562dc",
+          "size_bytes": 4486
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-source-process06/cancel/previous-generation.json",
+          "sha256": "5fbfa746a84037d8ae5f405e9b76c1bff0237768a1cc438480215b70d87b560f",
+          "size_bytes": 10551
+        }
+      },
+      {
+        "scenario": "eof",
+        "outcome": "cancelled",
+        "preserved_siblings": 1,
+        "result": {
+          "path": "artifacts/wp018-20261106-source-process06/eof/result.json",
+          "sha256": "2fb4b24e336a3e3f978126678ccc545460c7e6c4234e3164bb6213a441453cdd",
+          "size_bytes": 4452
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-source-process06/eof/previous-generation.json",
+          "sha256": "c4815f6c75e8a72fd4d2a1e159d53f3f8cf39fffb345d7262da86a95309591e0",
+          "size_bytes": 10548
+        }
+      },
+      {
+        "scenario": "timeout",
+        "outcome": "failed",
+        "preserved_siblings": 0,
+        "result": {
+          "path": "artifacts/wp018-20261106-source-process06/timeout/result.json",
+          "sha256": "b2cd448b425dd9ad4866e849380b37a4f7f5208b5add5836ca60ee80fa7ad17d",
+          "size_bytes": 3646
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-source-process06/timeout/previous-generation.json",
+          "sha256": "e503684f34e3d8d58bbe2a6ad309e6308799450fb1c88e582e893340b3ca2b14",
+          "size_bytes": 10552
+        }
+      }
+    ],
+    "summary": {
+      "path": "artifacts/wp018-20261106-source-process06/summary.json",
+      "sha256": "fe53f57bedae6c644422300534b44111a625b9613596cebb1063ec1974406024",
+      "size_bytes": 19202
+    }
+  },
+  "frozen_faults": {
+    "passed": true,
+    "cases": [
+      {
+        "scenario": "failure",
+        "outcome": "partial",
+        "preserved_siblings": 1,
+        "result": {
+          "path": "artifacts/wp018-20261106-frozen-process01/failure/result.json",
+          "sha256": "e92a73163b6c7052d7b26ccd43d9a4d4383452cb913c0c798d3db8e519e10fed",
+          "size_bytes": 4450
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-frozen-process01/failure/previous-generation.json",
+          "sha256": "3edc847f87d614646b260038060aa38a92826aca74615bf6629cf28326ba2e35",
+          "size_bytes": 10552
+        }
+      },
+      {
+        "scenario": "cancel",
+        "outcome": "cancelled",
+        "preserved_siblings": 1,
+        "result": {
+          "path": "artifacts/wp018-20261106-frozen-process01/cancel/result.json",
+          "sha256": "a3eb5296439cc4d3c3a8536dd07bf8f89d3e5553df6f9381022c5bd4cc0e7c49",
+          "size_bytes": 4545
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-frozen-process01/cancel/previous-generation.json",
+          "sha256": "e858b85bc036200ab89c2ccd50abd786e986b173989e771f9d2e6eb206311a48",
+          "size_bytes": 10551
+        }
+      },
+      {
+        "scenario": "eof",
+        "outcome": "cancelled",
+        "preserved_siblings": 1,
+        "result": {
+          "path": "artifacts/wp018-20261106-frozen-process01/eof/result.json",
+          "sha256": "901e9a4ecaf2717ba5366fd1e4eb0fee40fe4c94a862a078477419c3901c090f",
+          "size_bytes": 4512
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-frozen-process01/eof/previous-generation.json",
+          "sha256": "aa08f62f0c81c20e873f870c4694da76d6c0f562cfad124d0514b20829ab748d",
+          "size_bytes": 10548
+        }
+      },
+      {
+        "scenario": "timeout",
+        "outcome": "failed",
+        "preserved_siblings": 0,
+        "result": {
+          "path": "artifacts/wp018-20261106-frozen-process01/timeout/result.json",
+          "sha256": "49d109903202f0bcff7de2aa7bfe4bc4a2aeb937db246bf0b764bd4d24aa63f7",
+          "size_bytes": 4008
+        },
+        "previous_generation": {
+          "path": "artifacts/wp018-20261106-frozen-process01/timeout/previous-generation.json",
+          "sha256": "dacf08e7af3b72ff631709a7e3e9754ebe6ee96548762d90cecba4ba3ab4ffc3",
+          "size_bytes": 10552
+        }
+      }
+    ],
+    "summary": {
+      "path": "artifacts/wp018-20261106-frozen-process01/summary.json",
+      "sha256": "41a1da78f9c21369163a27ddb8e11fa37e4f39f03aa426a2d99b3224eb033013",
+      "size_bytes": 19674
+    }
+  },
+  "source_csharp": {
+    "passed": true,
+    "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.venv\\Scripts\\python.exe",
+    "result": {
+      "path": "artifacts/wp018-20261106-csharp-source04/consumer/result.json",
+      "sha256": "bc28e20809ee90b187a198cb9dff9066093219343a8fa5b613ab16e9abfb6de2",
+      "size_bytes": 12651
+    },
+    "process": {
+      "path": "artifacts/wp018-20261106-csharp-source04/process.json",
+      "sha256": "86a4280c5bd8fb7a899c367b1f44b0aa73bfe1a6a59909630de03a3e519ae95c",
+      "size_bytes": 68586
+    }
+  },
+  "frozen_csharp": {
+    "passed": true,
+    "engine": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp018-closeout-freeze-20261106-01\\dist\\attackmap\\attackmap.exe",
+    "result": {
+      "path": "artifacts/wp018-20261106-csharp-frozen01/consumer/result.json",
+      "sha256": "52d32d17e96afb6b96df44004c456b2c6fac8d6acfe2f9c31eec54cab27d42ba",
+      "size_bytes": 12696
+    },
+    "process": {
+      "path": "artifacts/wp018-20261106-csharp-frozen01/process.json",
+      "sha256": "3ca3a21dfdf99cc6ebd0eb582a3cc993434fbef56b6ea936431d4ffef259e8e7",
+      "size_bytes": 75177
+    }
+  },
+  "native_checks": {
+    "workspace": 73,
+    "qa_inputs": 17,
+    "build": {
+      "path": "artifacts/wp018-20261106-native-checks/build.log",
+      "sha256": "77051fd9f2c4a7fddc5009085f2e2929a1e4fcdff07bffec381c06e0547e504d",
+      "size_bytes": 267
+    },
+    "workspace_log": {
+      "path": "artifacts/wp018-20261106-native-checks/workspace.log",
+      "sha256": "195d2fac31318d789bafb471b1422719bd287bfe366f42315cbfa9983108ce48",
+      "size_bytes": 48
+    },
+    "qa_log": {
+      "path": "artifacts/wp018-20261106-native-checks/qa-inputs.log",
+      "sha256": "a3d3768c4a9b20aa8ed83a51a7f09bb8168cff01d34531e6fbc7768d3f5e8643",
+      "size_bytes": 69
+    }
+  },
+  "independent_reviews": {
+    "independent-source-review": {
+      "path": "artifacts/wp018-closeout-20261106/independent-source-review.json",
+      "sha256": "0f1c7bff4947d4a2e3a31ad5c5ea8556f314beb0c518d768e9b8cfa5c117f18f",
+      "size_bytes": 1414
+    },
+    "independent-csharp-review": {
+      "path": "artifacts/wp018-closeout-20261106/independent-csharp-review.json",
+      "sha256": "3c084d5898b30f09528e4b89adacf8799ef09ad06d8a4f80461f74a7a59c0d41",
+      "size_bytes": 585
+    },
+    "independent-fault-review": {
+      "path": "artifacts/wp018-closeout-20261106/independent-fault-review.json",
+      "sha256": "813e0d7f8ae1edb4774acb80fcaaf68d2b712eb5de7908d7e3236843fcfaa43d",
+      "size_bytes": 1784
+    },
+    "independent-frozen-review": {
+      "path": "artifacts/wp018-closeout-20261106/independent-frozen-review.json",
+      "sha256": "b98e3d8844a66d2f0f0d9ca1b17e0b495485cda55508a6f5ecb232e10fe6fda0",
+      "size_bytes": 1612
+    },
+    "independent-real-review": {
+      "path": "artifacts/wp018-closeout-20261106/independent-real-review.json",
+      "sha256": "f31c57e17679852ac5a66805b08b11e0d09b4b4184cefe521c01385fa40f695f",
+      "size_bytes": 2033
+    },
+    "independent-acceptance-review": {
+      "path": "artifacts/wp018-closeout-20261106/independent-acceptance-review.json",
+      "sha256": "98c7c3a0a4fd0ce487e5c7c32cd68664a50a25c21ef6a4ee47d48bcfdc8bccf0",
+      "size_bytes": 3586
+    }
+  },
+  "failed_attempts_preserved": true,
+  "final_process_census": {
+    "path": "artifacts/wp018-closeout-20261106/final-process-census.json",
+    "sha256": "711710828c11070eb1a9a560f5f5034ced0641b59729c910a61fb665fddd4bf3",
+    "size_bytes": 192
+  },
+  "documentation_review": {
+    "reviewer": "/root/audit_release",
+    "verdict": "PASS",
+    "scope": "Final consistency of four active documents, completion evidence and task acceptance boundaries; recorded from the independent final review."
+  },
+  "verification_sources": [
+    {
+      "path": "tools/verify_wp018_closeout.py",
+      "sha256": "3dedf4189ab0011e1db1ac2ba116696e42be72abbb38e6780bd0e381f7647bb3",
+      "size_bytes": 20266
+    },
+    {
+      "path": "tools/verify_wp018_native.py",
+      "sha256": "6e5736990bc80675b571237a2d6a01d3fb2795a2258247b9d0c9ef4b819d1592",
+      "size_bytes": 16134
+    },
+    {
+      "path": "tools/verify_wp018_csharp.py",
+      "sha256": "5651f1bf1bb07d5c6820a2e5a0a9c8e242c1bd70b341a1df908cc15226e2eed7",
+      "size_bytes": 2628
+    },
+    {
+      "path": "tests/test_wp018_closeout_verifier.py",
+      "sha256": "747f2eab5cbbeab2204136fd0c0231b373bf60428fa878534572f321110ef247",
+      "size_bytes": 5614
+    },
+    {
+      "path": "desktop/windows/FleetWorkspace.Tests/Program.cs",
+      "sha256": "9989f6f92f0e65c7b785ae20e2c8ba0217667225ea405040e6192b2c3298f7f8",
+      "size_bytes": 10381
+    },
+    {
+      "path": "desktop/windows/FleetWorkspace.Tests/LiveFleet.cs",
+      "sha256": "f8760bff70d8c0bd304ed43fcd9c7dc755a17048ff08043528bbbefba4ac0ed0",
+      "size_bytes": 4983
+    },
+    {
+      "path": "desktop/windows/FleetWorkspace.Tests/bin/Release/net8.0/FleetWorkspace.Tests.dll",
+      "sha256": "94ba04acf11e1ea7ea04c9df06b1fa2c46c9375fcbd79234bcaeb82c8200ccb5",
+      "size_bytes": 93696
+    }
+  ]
+}

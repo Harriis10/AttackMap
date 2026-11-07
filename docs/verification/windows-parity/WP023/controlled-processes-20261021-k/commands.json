@@ -1,0 +1,159 @@
+[
+  {
+    "label": "build-ControlledFakeBroker",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "build",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ControlledFakeBroker\\ControlledFakeBroker.csproj",
+      "--no-restore",
+      "-p:NuGetAudit=false",
+      "-p:UseSharedCompilation=false"
+    ],
+    "pid": 21708,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 33.120131999996374
+  },
+  {
+    "label": "restore-NativeFaultBroker",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "restore",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeFaultBroker\\NativeFaultBroker.csproj",
+      "--source",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\controlled-processes-20261021-k\\empty-feed",
+      "--ignore-failed-sources",
+      "-p:NuGetAudit=false"
+    ],
+    "pid": 6340,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 13.36964020000596
+  },
+  {
+    "label": "build-NativeFaultBroker",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "build",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeFaultBroker\\NativeFaultBroker.csproj",
+      "--no-restore",
+      "-p:NuGetAudit=false",
+      "-p:UseSharedCompilation=false"
+    ],
+    "pid": 30548,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 36.24369129999832
+  },
+  {
+    "label": "build-EngineSession.Tests",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "build",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineSession.Tests\\EngineSession.Tests.csproj",
+      "--no-restore",
+      "-p:NuGetAudit=false",
+      "-p:UseSharedCompilation=false"
+    ],
+    "pid": 23132,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 34.720886499999324
+  },
+  {
+    "label": "restore-DesktopActionRunner.Tests",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "restore",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\DesktopActionRunner.Tests\\DesktopActionRunner.Tests.csproj",
+      "--source",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\controlled-processes-20261021-k\\empty-feed",
+      "--ignore-failed-sources",
+      "-p:NuGetAudit=false"
+    ],
+    "pid": 7132,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 13.680704200000037
+  },
+  {
+    "label": "build-DesktopActionRunner.Tests",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "build",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\DesktopActionRunner.Tests\\DesktopActionRunner.Tests.csproj",
+      "--no-restore",
+      "-p:NuGetAudit=false",
+      "-p:UseSharedCompilation=false"
+    ],
+    "pid": 10940,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 36.43970959998842
+  },
+  {
+    "label": "restore-NativeFaultComposition.Tests",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "restore",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeFaultComposition.Tests\\NativeFaultComposition.Tests.csproj",
+      "--source",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\controlled-processes-20261021-k\\empty-feed",
+      "--ignore-failed-sources",
+      "-p:NuGetAudit=false"
+    ],
+    "pid": 32168,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 12.067364899994573
+  },
+  {
+    "label": "build-NativeFaultComposition.Tests",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\.tools\\dotnet\\dotnet.exe",
+      "build",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\NativeFaultComposition.Tests\\NativeFaultComposition.Tests.csproj",
+      "--no-restore",
+      "-p:NuGetAudit=false",
+      "-p:UseSharedCompilation=false"
+    ],
+    "pid": 5868,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 31.14569049999409
+  },
+  {
+    "label": "EngineSession.Tests",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\EngineSession.Tests\\bin\\Debug\\net8.0\\EngineSession.Tests.exe",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ControlledFakeBroker\\bin\\Debug\\net8.0\\ControlledFakeBroker.exe",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\controlled-processes-20261021-k\\EngineSession.Tests-proof.json"
+    ],
+    "pid": 26844,
+    "exit_code": 0,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 44.235571600002004
+  },
+  {
+    "label": "DesktopActionRunner.Tests",
+    "command": [
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\DesktopActionRunner.Tests\\bin\\Debug\\net8.0\\DesktopActionRunner.Tests.exe",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\desktop\\windows\\ControlledFakeBroker\\bin\\Debug\\net8.0\\ControlledFakeBroker.exe",
+      "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP023\\controlled-processes-20261021-k\\DesktopActionRunner.Tests-proof.json"
+    ],
+    "pid": 13600,
+    "exit_code": 3762504530,
+    "timeout": false,
+    "owned_job_empty_before_close": true,
+    "seconds": 3.062057700008154
+  }
+]

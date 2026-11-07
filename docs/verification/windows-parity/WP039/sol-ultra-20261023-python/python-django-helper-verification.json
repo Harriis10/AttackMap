@@ -1,0 +1,68 @@
+{
+  "scope": "Source-bound deterministic helper and oracle checks; no Django runtime, providers, installation or release acceptance",
+  "helper_command": ".venv/Scripts/python.exe -m pytest tests/test_ecosystem_python_django.py -q -p no:cacheprovider --basetemp=.tmp/wp039-python-20261023/django-pytest-05",
+  "helper_exit_code": 0,
+  "helper_passed": 93,
+  "helper_runtime_seconds": 1.74,
+  "overlay_original_cases_before": 14,
+  "overlay_original_passed_before": 5,
+  "overlay_original_cases_passed_after": 14,
+  "overlay_final_cases": 17,
+  "overlay_final_passed": 17,
+  "settings_adversarial_cases": 8,
+  "settings_adversarial_passed": 8,
+  "source_hashes": [
+    {
+      "Path": "C:\\Projects\\INPROGRESS\\AttackMap\\src\\attackmap\\python_django_routes.py",
+      "Hash": "FAABBE10D84C4366C1891E6A2F93B2268A0121237C6AF682170FE56AF1AE6FD7"
+    },
+    {
+      "Path": "C:\\Projects\\INPROGRESS\\AttackMap\\tests\\test_ecosystem_python_django.py",
+      "Hash": "B8FAF444ABC1F86F87619203547ABEABBB02EE6331A4E91F3861D993B2AD683B"
+    },
+    {
+      "Path": "C:\\Projects\\INPROGRESS\\AttackMap\\docs\\verification\\windows-parity\\WP039\\sol-ultra-20261023-python\\python-django-oracle.py",
+      "Hash": "464FF72ABCFBEEFB910762BA96E4D4F5B3D8F09FB2BB8FC759FC1AF41C32EC98"
+    },
+    {
+      "Path": "C:\\Projects\\INPROGRESS\\AttackMap\\.tmp\\wp039-python-20261023\\django-cases\\oracle-manifest.json",
+      "Hash": "DE57A15A5593BBD6455DDBAB1445F4030240D871EB0843BE7AD9687DD52C8769"
+    }
+  ],
+  "artifacts": [
+    "python-django-before.json",
+    "python-django-after-frozen.json",
+    "python-django-settings-adversarial-final.json",
+    "python-django-review.md"
+  ],
+  "actual_frozen_oracle": {
+    "scope": "Actual released frozen executable on 17 inert fixtures; separate from source/helper checks, no Django runtime or release acceptance",
+    "state": "passed",
+    "exit_code": 0,
+    "case_count": 17,
+    "pass_count": 17,
+    "elapsed_seconds": 105.708,
+    "source_profile_semantics_equal_cases": 17,
+    "ledger_entries": 85,
+    "succeeded_ledger_entries": 85,
+    "profile_id": "python@1.0",
+    "engine_sha256": "6045194b77c0957166a6eb9fece45dbfd9c42441bb9e32cec6d040db6c419b05",
+    "build_proof_sha256": "6e63500be47a21b46d6d3f9d21602d7f8af85d8b1cd268432a6f5720119a828e",
+    "summary": "python-django-frozen-final/summary.json",
+    "summary_sha256": "3c4d6acb8c1d45ba4dbf4aef8c7f9064eaccd94ce8deb15531eb51bdf6553ba6",
+    "provenance": "python-django-frozen-final/freeze-provenance.json",
+    "provenance_sha256": "3a93d6c5d5588bceb04592ff3754f3682a5c3bb74c5217552360b521603bbe8f",
+    "captured_core_file_count": 135,
+    "captured_core_mismatch_count": 0,
+    "live_core_mismatch_files": [
+      "src/attackmap/desktop_fleet.py",
+      "src/attackmap/fleet.py"
+    ],
+    "known_pinned_plugin_residual_cases": [
+      "commented-path",
+      "foreign-path-function"
+    ],
+    "release_input_qualification": "Separate parent investigation remains outside this scoped oracle"
+  },
+  "stable_source_profile_oracle": "python-django-after-stable-profile.json"
+}

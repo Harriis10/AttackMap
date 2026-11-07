@@ -1,0 +1,30 @@
+{
+  "task": "WP015",
+  "date": "2026-10-20",
+  "status": "FINAL_SOURCE_BUILT_MANUAL_PENDING",
+  "offline_checks": {
+    "NativeAiOptions.Tests": 49,
+    "build_errors": 0,
+    "build_warnings": 0,
+    "managed_dll_exit": 0,
+    "engine_dispatches": 0,
+    "provider_dispatches": 0,
+    "log": "resume-native-ai-tests.log",
+    "earlier_NativeOptions_54_and_ProviderConfiguration_16": "not rerun in resumed slice"
+  },
+  "preview_build": {
+    "initial_resumed_final_source": { "errors": 0, "warnings": 0, "elapsed": "00:12:43.92", "log": "resume-preview-build.log" },
+    "final_capture_source": { "errors": 0, "warnings": 0, "elapsed": "00:04:37.85", "exit": 0, "log": "resume-capture-build.log", "restore": false, "inherited_process_error_mode": "0x8003, previous mode restored" },
+    "final_bounds_clip_source": { "errors": 0, "warnings": 0, "elapsed": "00:07:45.16", "exit": 0, "log": "resume-clip-build.log", "restore": false, "inherited_process_error_mode": "0x8003, previous mode restored" },
+    "artifact_directory": "artifacts/wp015-resume",
+    "retained_evidence_contains_no_bin_obj": true,
+    "launched_by_agent": false
+  },
+  "restore": "Only local empty feed and existing .tools/nuget-packages cache; NuGetAudit disabled",
+  "live_provider_http": false,
+  "ProviderRoundtrip.Tests_run": false,
+  "manual_visual_keyboard_text200_acceptance": false,
+  "first_root_visual_review": "Seven PNGs retained under root-visual-resume-20261020/images; inert journey passed, scrolled pages failed visual review due to content overlapping fixed header. Preview bounds clip added; fresh root review pending.",
+  "root_owned_remaining": ["capture execution and pixel review", "keyboard and 200 percent text", "small window", "shell integration", "protected-store integration acceptance"],
+  "capture_contract": "Requires existing capability fixture and trace positional paths, --capture new absolute directory, optional --close; result.json required, error.txt must be absent. PNGs include AI-off clean state and overlapping supported/unsupported-retained scroll pages. No provider or settings actions."
+}

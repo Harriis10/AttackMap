@@ -1,0 +1,74 @@
+{
+  "classification": "scoped preparatory WP039 source extraction and deterministic fixture verification only",
+  "base_commit": "507bddacd72a246a136ca2d46faad2aa661806c1",
+  "files": {
+    "src/attackmap/ecosystem_php.py": "6b70741e058d4132d7d9a611fc2324a31ad64d0a278d2fb2d205fc27fe6a2161",
+    "tests/test_ecosystem_php.py": "c3e073822ae3192a81ce79d2ca776c14a87f94b54e659f3eabece8247b62c4f4",
+    "tests/test_ecosystem_php_nested_routes.py": "e7ca946a5df3f986d913bf39fd5e9e7d42647432548d4cfc0598ba52068447b3"
+  },
+  "focused_tests": {
+    "passed": 90,
+    "xml": "php-routes-focused.xml",
+    "source_sha256": "6b70741e058d4132d7d9a611fc2324a31ad64d0a278d2fb2d205fc27fe6a2161"
+  },
+  "regex_budget_tests": {
+    "passed": 66,
+    "deselected": 642,
+    "xml": "php-routes-regex.xml",
+    "source_stage_sha256": "f9a0f0f87baa57ed226cba7a863eeeda887d8dbfc5659cd1ae029a211a72259e",
+    "note": "PHP regex declarations unchanged by subsequent namespace and incremental token collection fixes"
+  },
+  "independent_review": {
+    "reviewer": "/root/analyzer_catalog",
+    "source_sha256": "6b70741e058d4132d7d9a611fc2324a31ad64d0a278d2fb2d205fc27fe6a2161",
+    "six_semantic_probes_passed": true,
+    "original_P2_alias_false_positive_resolved": true
+  },
+  "resource_boundary_probes": [
+    {
+      "case": "source_character_bound",
+      "characters": 1000049,
+      "elapsed_seconds": 0.2637233000132255,
+      "route_count": 0,
+      "unsupported_hints": [
+        "laminas-route-unsupported:router:nonliteral-or-malformed-config (observed)"
+      ]
+    },
+    {
+      "case": "token_retention_bound",
+      "characters": 100145,
+      "elapsed_seconds": 0.3311091000214219,
+      "route_count": 0,
+      "unsupported_hints": [
+        "laminas-route-unsupported:router:nonliteral-or-malformed-config (observed)"
+      ]
+    },
+    {
+      "case": "nesting_bound",
+      "characters": 182,
+      "elapsed_seconds": 0.0009039000142365694,
+      "route_count": 0,
+      "unsupported_hints": [
+        "laminas-route-unsupported:router:nonliteral-or-malformed-config (observed)"
+      ]
+    }
+  ],
+  "existing_fixtures": [
+    {
+      "path": "tests/fixtures/php-laminas-app/module/Feedback/config/module.config.php",
+      "unchanged_from_base_normalized_lf": true,
+      "current_bytes_sha256": "9f91e5cddf871e91ef147271d7bedbcc6e6025ba80b137879eb5ebe5b0d0c1c5",
+      "base_git_blob_sha256": "9f91e5cddf871e91ef147271d7bedbcc6e6025ba80b137879eb5ebe5b0d0c1c5"
+    },
+    {
+      "path": "tests/fixtures/php-omeka-app/module/ContactBoard/config/module.config.php",
+      "unchanged_from_base_normalized_lf": true,
+      "current_bytes_sha256": "f67a4ddb074f758c0985bc669b8c412a758e7744692edcc6bb98a99ccba90727",
+      "base_git_blob_sha256": "f67a4ddb074f758c0985bc669b8c412a758e7744692edcc6bb98a99ccba90727"
+    }
+  ],
+  "whole_WP039_acceptance": false,
+  "whole_WP042_acceptance": false,
+  "live_provider_calls": false,
+  "gui_or_package_acceptance": false
+}

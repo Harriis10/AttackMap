@@ -1,0 +1,866 @@
+{
+  "corpus": {
+    "name": "attackmap-detector-seed",
+    "version": "0.2.0",
+    "schema_version": "1.0.0",
+    "repositories": 13,
+    "repository_names": [
+      "atproto-service",
+      "auth-gate-pair",
+      "bola-ownership-pair",
+      "clean-flask-demo",
+      "clean-node-demo",
+      "express-docs-demo",
+      "flask-admin-demo",
+      "orders-api-demo",
+      "php-omeka-app",
+      "python-service-app",
+      "sql-param-pair",
+      "webhook-billing-demo",
+      "webhook-verify-pair"
+    ],
+    "positive_cases": 25,
+    "negative_cases": 19,
+    "clean_cases": 2,
+    "line_window": 4,
+    "notes": "Frozen seed corpus v0.1.0: 28 expectations over 10 repositories (17 positive, 9 negative, 2 clean-repository cases). v0.2.0: +18 expectations over three AM052 ecosystem fixtures (atproto-service, php-omeka-app, python-service-app) from the Node/ATProto, PHP/Laminas/Omeka S and Python-service lanes (8 positive, 10 negative; 46 total over 13 repositories). Case paths are relative to the repository root of an AttackMap checkout. Labels were written from the fixture sources, independently of tool output; the four example apps reuse the hand-labeled expectations from evals/benchmark/benchmark.json. The v0.2.0 labels await the C27 human label review; the two negative unauth_state_change python-service entries are only correct with the python-service overlay registered."
+  },
+  "matching_unit": "expectation unit: family + repository-relative file + exact route/method (or line within line_window when the finding cites no route); findings deduplicated by stable finding_id before counting",
+  "split": {
+    "seed": 20261011,
+    "holdout_fraction": 0.3,
+    "tuning_repos": [
+      "atproto-service",
+      "bola-ownership-pair",
+      "clean-flask-demo",
+      "clean-node-demo",
+      "express-docs-demo",
+      "orders-api-demo",
+      "sql-param-pair",
+      "webhook-billing-demo",
+      "webhook-verify-pair"
+    ],
+    "holdout_repos": [
+      "auth-gate-pair",
+      "flask-admin-demo",
+      "php-omeka-app",
+      "python-service-app"
+    ]
+  },
+  "c27_targets": {
+    "repositories": 30,
+    "positive_cases": 300,
+    "negative_cases": 300,
+    "clean_repositories": 10,
+    "per_family_positive": 30,
+    "per_family_negative": 30
+  },
+  "c27_gap": {
+    "repositories_short": 17,
+    "positive_cases_short": 275,
+    "negative_cases_short": 281,
+    "clean_repositories_short": 8
+  },
+  "sides": {
+    "tuning": {
+      "bola": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "precision_ci_95": [
+          0.34238022750665303,
+          1.0
+        ],
+        "recall_ci_95": [
+          0.2076596008020477,
+          0.9385080552796037
+        ],
+        "positives": 3,
+        "negatives": 2,
+        "clean_repos": 2,
+        "experimental": true,
+        "matched_cases": [
+          "webhook-billing-customer-bola-positive",
+          "bola-pair-profile-positive"
+        ],
+        "missed_cases": [
+          "atproto-service-status-list-bola-positive"
+        ],
+        "violated_cases": []
+      },
+      "crypto": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": null,
+        "recall": 0.0,
+        "precision_ci_95": null,
+        "recall_ci_95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "positives": 1,
+        "negatives": 1,
+        "clean_repos": 2,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [
+          "atproto-service-dev-signing-key-crypto-positive"
+        ],
+        "violated_cases": []
+      },
+      "injection": {
+        "tp": 6,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.8571428571428571,
+        "recall": 1.0,
+        "precision_ci_95": [
+          0.4868721707256811,
+          0.9743203756552565
+        ],
+        "recall_ci_95": [
+          0.6096657120978346,
+          1.0
+        ],
+        "positives": 6,
+        "negatives": 4,
+        "clean_repos": 2,
+        "experimental": true,
+        "matched_cases": [
+          "orders-api-create-injection-positive",
+          "orders-api-search-injection-positive",
+          "orders-api-reindex-injection-positive",
+          "express-docs-raw-injection-positive",
+          "express-docs-preview-injection-positive",
+          "sql-param-find-injection-positive"
+        ],
+        "missed_cases": [],
+        "violated_cases": [
+          "clean-node-demo-clean (1 finding(s))"
+        ]
+      },
+      "unauth_state_change": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.75,
+        "precision_ci_95": [
+          0.4385029682449546,
+          1.0
+        ],
+        "recall_ci_95": [
+          0.30064184258240184,
+          0.9544127391902995
+        ],
+        "positives": 4,
+        "negatives": 1,
+        "clean_repos": 2,
+        "experimental": true,
+        "matched_cases": [
+          "webhook-billing-refund-unauth-positive",
+          "orders-api-create-unauth-positive",
+          "orders-api-reindex-unauth-positive"
+        ],
+        "missed_cases": [
+          "atproto-service-moderation-report-unauth-positive"
+        ],
+        "violated_cases": []
+      },
+      "webhook_exposure": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "precision_ci_95": [
+          0.34238022750665303,
+          1.0
+        ],
+        "recall_ci_95": [
+          0.34238022750665303,
+          1.0
+        ],
+        "positives": 2,
+        "negatives": 1,
+        "clean_repos": 2,
+        "experimental": true,
+        "matched_cases": [
+          "webhook-billing-webhook-positive",
+          "webhook-verify-imports-positive"
+        ],
+        "missed_cases": [],
+        "violated_cases": []
+      }
+    },
+    "holdout": {
+      "bola": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "precision_ci_95": [
+          0.20654931437723745,
+          1.0
+        ],
+        "recall_ci_95": [
+          0.20654931437723745,
+          1.0
+        ],
+        "positives": 1,
+        "negatives": 2,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [
+          "flask-admin-order-bola-positive"
+        ],
+        "missed_cases": [],
+        "violated_cases": []
+      },
+      "crypto": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "precision_ci_95": null,
+        "recall_ci_95": null,
+        "positives": 0,
+        "negatives": 0,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [],
+        "violated_cases": []
+      },
+      "injection": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "precision": null,
+        "recall": 0.0,
+        "precision_ci_95": null,
+        "recall_ci_95": [
+          5.551115123125783e-17,
+          0.5614970317550454
+        ],
+        "positives": 3,
+        "negatives": 3,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [],
+        "missed_cases": [
+          "php-omeka-ajax-sqli-positive",
+          "php-omeka-ajax-shell-positive",
+          "php-omeka-redirect-header-positive"
+        ],
+        "violated_cases": []
+      },
+      "unauth_state_change": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "precision_ci_95": [
+          0.5101091635454027,
+          1.0
+        ],
+        "recall_ci_95": [
+          0.5101091635454027,
+          1.0
+        ],
+        "positives": 4,
+        "negatives": 5,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [
+          "flask-admin-cancel-unauth-positive",
+          "flask-admin-role-unauth-positive",
+          "auth-gate-digest-unauth-positive",
+          "python-service-admin-rebuild-unauth-positive"
+        ],
+        "missed_cases": [],
+        "violated_cases": []
+      },
+      "webhook_exposure": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "precision_ci_95": [
+          0.20654931437723745,
+          1.0
+        ],
+        "recall_ci_95": [
+          0.20654931437723745,
+          1.0
+        ],
+        "positives": 1,
+        "negatives": 0,
+        "clean_repos": 0,
+        "experimental": true,
+        "matched_cases": [
+          "python-service-webhook-stripe-positive"
+        ],
+        "missed_cases": [],
+        "violated_cases": []
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "webhook-billing-webhook-positive",
+      "repository": "webhook-billing-demo",
+      "family": "webhook_exposure",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Public webhook endpoint may trust attacker-controlled events"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "webhook-billing-refund-unauth-positive",
+      "repository": "webhook-billing-demo",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "State-changing routes are reachable without an authentication control"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "webhook-billing-customer-bola-positive",
+      "repository": "webhook-billing-demo",
+      "family": "bola",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Possible broken object-level authorization (BOLA/IDOR) on read routes"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "webhook-billing-customer-injection-negative",
+      "repository": "webhook-billing-demo",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "flask-admin-cancel-unauth-positive",
+      "repository": "flask-admin-demo",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "State-changing routes are reachable without an authentication control"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "flask-admin-role-unauth-positive",
+      "repository": "flask-admin-demo",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "State-changing routes are reachable without an authentication control"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "flask-admin-order-bola-positive",
+      "repository": "flask-admin-demo",
+      "family": "bola",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Possible broken object-level authorization (BOLA/IDOR) on read routes"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "flask-admin-order-injection-negative",
+      "repository": "flask-admin-demo",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "flask-admin-login-unauth-negative",
+      "repository": "flask-admin-demo",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "orders-api-create-injection-positive",
+      "repository": "orders-api-demo",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Request input flows into a raw SQL query (SQL injection)"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "orders-api-search-injection-positive",
+      "repository": "orders-api-demo",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Request input flows into a raw SQL query (SQL injection)"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "orders-api-reindex-injection-positive",
+      "repository": "orders-api-demo",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Request input flows into a raw SQL query (SQL injection)"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "orders-api-create-unauth-positive",
+      "repository": "orders-api-demo",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "State-changing routes are reachable without an authentication control"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "orders-api-reindex-unauth-positive",
+      "repository": "orders-api-demo",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "State-changing routes are reachable without an authentication control"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "express-docs-raw-injection-positive",
+      "repository": "express-docs-demo",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Request input flows into a filesystem path (path traversal)"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "express-docs-preview-injection-positive",
+      "repository": "express-docs-demo",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Request-reachable server-side request forgery (SSRF)"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "express-docs-view-injection-negative",
+      "repository": "express-docs-demo",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "express-docs-status-injection-negative",
+      "repository": "express-docs-demo",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "bola-pair-profile-positive",
+      "repository": "bola-ownership-pair",
+      "family": "bola",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Possible broken object-level authorization (BOLA/IDOR) on read routes"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "bola-pair-record-negative",
+      "repository": "bola-ownership-pair",
+      "family": "bola",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "auth-gate-digest-unauth-positive",
+      "repository": "auth-gate-pair",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "State-changing routes are reachable without an authentication control"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "auth-gate-notes-unauth-negative",
+      "repository": "auth-gate-pair",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "sql-param-find-injection-positive",
+      "repository": "sql-param-pair",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Request input flows into a raw SQL query (SQL injection)"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "sql-param-lookup-injection-negative",
+      "repository": "sql-param-pair",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "webhook-verify-imports-positive",
+      "repository": "webhook-verify-pair",
+      "family": "webhook_exposure",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Public webhook endpoint may trust attacker-controlled events"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "webhook-verify-payments-negative",
+      "repository": "webhook-verify-pair",
+      "family": "webhook_exposure",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "clean-flask-demo-clean",
+      "repository": "clean-flask-demo",
+      "family": null,
+      "expectation": "clean",
+      "side": "tuning",
+      "matched": true,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "clean-node-demo-clean",
+      "repository": "clean-node-demo",
+      "family": null,
+      "expectation": "clean",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {
+        "injection": [
+          "Request-reachable server-side request forgery (SSRF)"
+        ]
+      }
+    },
+    {
+      "case_id": "atproto-service-moderation-report-unauth-positive",
+      "repository": "atproto-service",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "atproto-service-status-post-unauth-negative",
+      "repository": "atproto-service",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "atproto-service-status-list-bola-positive",
+      "repository": "atproto-service",
+      "family": "bola",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "atproto-service-profile-checked-bola-negative",
+      "repository": "atproto-service",
+      "family": "bola",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "atproto-service-dev-signing-key-crypto-positive",
+      "repository": "atproto-service",
+      "family": "crypto",
+      "expectation": "positive",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "atproto-service-signing-key-env-crypto-negative",
+      "repository": "atproto-service",
+      "family": "crypto",
+      "expectation": "negative",
+      "side": "tuning",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "php-omeka-ajax-sqli-positive",
+      "repository": "php-omeka-app",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "php-omeka-ajax-shell-positive",
+      "repository": "php-omeka-app",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "php-omeka-redirect-header-positive",
+      "repository": "php-omeka-app",
+      "family": "injection",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "php-omeka-submit-validated-negative",
+      "repository": "php-omeka-app",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "php-omeka-admin-identity-negative",
+      "repository": "php-omeka-app",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "php-omeka-admin-item-bola-negative",
+      "repository": "php-omeka-app",
+      "family": "bola",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "python-service-webhook-stripe-positive",
+      "repository": "python-service-app",
+      "family": "webhook_exposure",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "Public webhook endpoint may trust attacker-controlled events"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "python-service-admin-rebuild-unauth-positive",
+      "repository": "python-service-app",
+      "family": "unauth_state_change",
+      "expectation": "positive",
+      "side": "holdout",
+      "matched": true,
+      "error": null,
+      "matched_by": [
+        "State-changing routes are reachable without an authentication control"
+      ],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "python-service-orders-create-unauth-negative",
+      "repository": "python-service-app",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "python-service-orders-delete-unauth-negative",
+      "repository": "python-service-app",
+      "family": "unauth_state_change",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "python-service-orders-get-bola-negative",
+      "repository": "python-service-app",
+      "family": "bola",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    },
+    {
+      "case_id": "python-service-note-search-injection-negative",
+      "repository": "python-service-app",
+      "family": "injection",
+      "expectation": "negative",
+      "side": "holdout",
+      "matched": false,
+      "error": null,
+      "matched_by": [],
+      "clean_violations": {}
+    }
+  ]
+}

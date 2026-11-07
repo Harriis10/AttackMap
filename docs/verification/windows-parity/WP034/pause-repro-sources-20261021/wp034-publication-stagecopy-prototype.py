@@ -1,0 +1,182 @@
+"""Owned-copy report serialization prototype; no scanner invocation."""
+import hashlib,importlib.util,json,os,shutil,subprocess,sys,time,difflib
+from pathlib import Path
+
+ROOT=Path('C:/Projects/INPROGRESS/AttackMap')
+SOURCE=Path('C:/tmp/attackmap-wp034/10k-20261021-02/source')
+CASE=Path('C:/tmp/attackmap-wp034/publication-stagecopy-candidate-20261021-01')
+INPUT=Path('C:/tmp/attackmap-wp034/1000-profile-20261021-01/reports/attackmap-report.json')
+HELPER='\n\ndef safe_write_json_report(out_dir: str | Path, path: str | Path, value: object) -> None:\n    """Encode before target open, then bounded-copy through the legacy truncate policy."""\n    import json\n    import uuid\n\n    out, target = Path(out_dir), Path(path)\n    _check_output_target(out, target)\n    stage = target.with_name(f".{target.name}-{uuid.uuid4().hex}.tmp")\n    owned = False\n    try:\n        fd = _open_output_fd(out, stage, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0))\n        owned = True\n        try:\n            handle = os.fdopen(fd, "w", encoding="utf-8", newline="")\n        except BaseException:\n            try:\n                os.close(fd)\n            except OSError:\n                pass\n            raise\n        with handle:\n            if type(value) is dict and all(type(key) is str for key in value):\n                if not value:\n                    handle.write("{}")\n                else:\n                    handle.write("{\\n")\n                    first = True\n                    for key, section in value.items():\n                        if not first:\n                            handle.write(",\\n")\n                        first = False\n                        handle.write("  " + json.dumps(key) + ": ")\n                        text = json.dumps(section, indent=2)\n                        handle.write(text.replace("\\n", "\\n  "))\n                        del text\n                    handle.write("\\n}")\n            else:\n                handle.write(json.dumps(value, indent=2))\n            handle.write("\\n")\n        _check_output_target(out, stage)\n        read_fd = _open_output_fd(out, stage, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))\n        try:\n            captured = os.fdopen(read_fd, "rb")\n        except BaseException:\n            try:\n                os.close(read_fd)\n            except OSError:\n                pass\n            raise\n        with captured:\n            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)\n            target_fd = _open_output_fd(out, target, flags)\n            try:\n                destination = os.fdopen(target_fd, "wb")\n            except BaseException:\n                try:\n                    os.close(target_fd)\n                except OSError:\n                    pass\n                raise\n            with destination:\n                while chunk := captured.read(65536):\n                    destination.write(chunk)\n    finally:\n        if owned:\n            stage.unlink(missing_ok=True)\n'
+
+def dump(path,value):path.write_text(json.dumps(value,indent=2)+'\n')
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def load_safe():
+    spec=importlib.util.spec_from_file_location('owned_safe_fs',CASE/'source/src/attackmap/safe_fs.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+
+def checks():
+    from unittest.mock import patch
+    safe=load_safe();out=CASE/'checks';out.mkdir();target=out/'report.json'
+    values=[None,{},[],{'z':1,'a':2},{'nested':[True,False,None,{},[],{'x':'line\n\t"\\é😀'}]},
+            {1:'int',None:'none',False:'bool'}, {'f':[-0.0,1e-30,float('inf'),float('-inf'),float('nan')]},
+            {'long':'x'*200000,'end':'retained'}]
+    for value in values:
+        safe.safe_write_json_report(out,target,value)
+        assert target.read_bytes()==(json.dumps(value,indent=2)+'\n').encode('utf-8')
+    # A real valid prior generation/pointer is independent of the failing new report.
+    from attackmap.artifact_manifest import SECTION_ORDER,SCHEMA_VERSION,ARTIFACT_TYPE
+    from attackmap.artifact_publisher import publish_generation,current_generation,validate_generation,CURRENT_POINTER
+    base=out/'published';old=base/'prior';old.mkdir(parents=True)
+    entries=[]
+    for key,name,role in SECTION_ORDER:
+        p=old/name;p.write_text(json.dumps({'root':'owned'} if key=='scan' else [])+'\n')
+        entries.append({'name':key,'path':name,'role':role,'format':'json','checksum':sha(p)})
+    for name,value in [('attackmap-report.json',{'scan':{'root':'owned'}}),('run-manifest.json',{'stages':[]})]:
+        p=old/name;p.write_text(json.dumps(value)+'\n');entries.append({'name':name,'path':name,'role':'compatibility','format':'json','checksum':sha(p)})
+    dump(old/'artifact-manifest.json',{'schema_version':SCHEMA_VERSION,'artifact_type':ARTIFACT_TYPE,'generation_id':'prior','engine_version':'test','created_at':'2026-10-21','run_identity':{'repo_root':'owned','repo_name':'owned','analyzers':[]},'exit_state':{'exit_code':0,'status':'succeeded'},'sections':entries,'compatibility_exports':[]})
+    publish_generation(base,'prior');pointer=(base/CURRENT_POINTER).read_bytes()
+    target.write_bytes(b'previous-report\n');previous=target.read_bytes();faults=[]
+    def preserved(name,operation):
+        try:operation()
+        except (TypeError,OSError):pass
+        else:raise AssertionError('Expected failure: '+name)
+        assert target.read_bytes()==previous and (base/CURRENT_POINTER).read_bytes()==pointer
+        assert current_generation(base)==old;validate_generation(old)
+        assert not list(out.glob('.report.json-*.tmp'));faults.append(name)
+    preserved('encoder',lambda:safe.safe_write_json_report(out,target,{'good':1,'bad':object()}))
+    fdopen=safe.os.fdopen
+    class FaultFile:
+        def __init__(self,*args,close_failure=False,**kwargs):self.handle=fdopen(*args,**kwargs);self.close_failure=close_failure
+        def __enter__(self):return self
+        def write(self,value):
+            if not self.close_failure:raise OSError('injected write failure')
+            return self.handle.write(value)
+        def __exit__(self,*args):
+            self.handle.close()
+            if self.close_failure:raise OSError('injected close failure')
+    with patch.object(safe.os,'fdopen',lambda *a,**k:FaultFile(*a,**k)):
+        preserved('write',lambda:safe.safe_write_json_report(out,target,{'value':1}))
+    with patch.object(safe.os,'fdopen',lambda *a,**k:FaultFile(*a,close_failure=True,**k)):
+        preserved('close',lambda:safe.safe_write_json_report(out,target,{'value':1}))
+    with patch.object(safe.os,'fdopen',side_effect=OSError('injected descriptor wrap failure')):
+        preserved('stage_fdopen',lambda:safe.safe_write_json_report(out,target,{'value':1}))
+    # Post-encode final copy follows legacy truncate semantics: partial bytes allowed.
+    copy_failures=[]
+    class CopyFault:
+        def __init__(self,handle,mode):self.handle=handle;self.mode=mode
+        def __enter__(self):return self
+        def __exit__(self,*args):self.handle.close()
+        def read(self,size):
+            if self.mode=='read':raise OSError('injected final-copy read failure')
+            return self.handle.read(size)
+        def write(self,value):
+            self.handle.write(value[:5]);self.handle.flush();raise OSError('injected final-copy write failure')
+    for phase in ('read','write'):
+        target.write_bytes(previous)
+        def wrapped(fd,mode,*args,**kwargs):
+            handle=fdopen(fd,mode,*args,**kwargs)
+            return CopyFault(handle,phase) if mode==('rb' if phase=='read' else 'wb') else handle
+        with patch.object(safe.os,'fdopen',wrapped):
+            try:safe.safe_write_json_report(out,target,{'value':'encoded-stage'})
+            except OSError:pass
+            else:raise AssertionError('expected final-copy failure')
+        assert target.read_bytes()!=previous
+        assert (base/CURRENT_POINTER).read_bytes()==pointer and current_generation(base)==old
+        validate_generation(old);assert not list(out.glob('.report.json-*.tmp'))
+        copy_failures.append({'phase':phase,'partial_report_bytes':len(target.read_bytes()),'prior_generation_valid':True})
+    target.write_bytes(previous)
+    outside=CASE/'outside.json';outside.write_bytes(b'outside')
+    try:safe.safe_write_json_report(out,outside,{})
+    except safe.UnsafePathError:pass
+    else:raise AssertionError('escape allowed')
+    assert outside.read_bytes()==b'outside'
+    symlinks={}
+    for name,link,destination,is_dir in [('target',out/'link.json',outside,False),('directory',out/'linked',CASE,True)]:
+        try:link.symlink_to(destination,target_is_directory=is_dir)
+        except OSError as error:symlinks[name]={'skipped':str(error)};continue
+        try:
+            try:safe.safe_write_json_report(out,link if not is_dir else link/'outside.json',{})
+            except safe.UnsafePathError:symlinks[name]='rejected'
+            else:raise AssertionError('symlink allowed')
+        finally:link.unlink()
+    assert outside.read_bytes()==b'outside'
+    from types import SimpleNamespace
+    import uuid
+    collision=out/'.report.json-fixed.tmp';collision.write_bytes(b'not-owned')
+    with patch.object(uuid,'uuid4',return_value=SimpleNamespace(hex='fixed')):
+        try:safe.safe_write_json_report(out,target,{'value':1})
+        except FileExistsError:pass
+        else:raise AssertionError('exclusive stage collision overwritten')
+    assert collision.read_bytes()==b'not-owned' and target.read_bytes()==previous
+    collision.unlink()
+    target.write_bytes(b'identity-probe');before_identity=target.stat().st_ino
+    safe.safe_write_text(out,target,'legacy');legacy_identity=target.stat().st_ino
+    safe.safe_write_json_report(out,target,{'copied':'probe'});copy_identity=target.stat().st_ino
+    assert before_identity==legacy_identity==copy_identity
+    # Existing ordinary writer's output/exception behavior remains available.
+    safe.safe_write_text(out,target,'ordinary\n');assert target.read_bytes()==b'ordinary\n'
+    dump(CASE/'checks-result.json',{'byte_golden_cases':len(values),'failures_preserve_report_and_valid_current_generation':faults,'outside_path_rejected':True,'symlink_results':symlinks,'ordinary_writer_bytes':True,'exclusive_collision_preserves_foreign_stage':True,'file_identity':{'before':before_identity,'legacy_after':legacy_identity,'copy_after':copy_identity},'final_copy_failure_legacy_partial_semantics':copy_failures})
+
+def worker(label,number):
+    safe=load_safe();value=json.loads(INPUT.read_bytes());before=safe_memory()
+    output=CASE/f'{number}-{label}.json';start=time.perf_counter();cpu=time.process_time()
+    if label=='baseline':safe.safe_write_text(CASE,output,json.dumps(value,indent=2)+'\n')
+    else:safe.safe_write_json_report(CASE,output,value)
+    timing={'wall_seconds':time.perf_counter()-start,'cpu_seconds':time.process_time()-cpu}
+    assert sha(output)==sha(INPUT)
+    dump(CASE/f'{number}-{label}-result.json',{'implementation':label,'input_sha256':sha(INPUT),'output_sha256':sha(output),'output_bytes':output.stat().st_size,'before_serialization_memory':before,'after_serialization_memory':safe_memory(),**timing})
+
+def safe_memory():
+    spec=importlib.util.spec_from_file_location('campaign_memory',SOURCE/'tools/measure_memory_admission.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module.memory()
+
+def main():
+    if len(sys.argv)>1:
+        if sys.argv[1]=='checks':checks()
+        else:worker(sys.argv[1],int(sys.argv[2]))
+        return 0
+    CASE.mkdir();shutil.copytree(SOURCE,CASE/'source',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+    path=CASE/'source/src/attackmap/safe_fs.py';text=path.read_text()
+    beginning=text.index('    out = Path(out_dir)',text.index('def safe_write_text('));flags=text.index('    flags = os.O_WRONLY',beginning);opening=text.index('    try:\n        fd = os.open',flags);with_at=text.index('    with os.fdopen(fd, "w"',opening)
+    validation=text[beginning:flags]
+    validation=validation.replace('    out = Path(out_dir)\n    target = Path(path)\n','')
+    opened=text[opening:with_at].replace('        fd = os.open(target, flags, 0o644)','        return os.open(target, flags, 0o644)')
+    support='def _check_output_target(out: Path, target: Path) -> None:\n'+validation+'\n\ndef _open_output_fd(out: Path, target: Path, flags: int) -> int:\n    _check_output_target(out, target)\n'+opened+'\n\n'
+    start=text.index('def safe_write_text(')
+    text=text[:start]+support+text[start:beginning]+'    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)\n    fd = _open_output_fd(Path(out_dir), Path(path), flags)\n'+text[with_at:]+HELPER
+    path.write_text(text)
+    report=CASE/'source/src/attackmap/report.py';text=report.read_text();text=text.replace('from .safe_fs import ensure_output_dir, safe_write_text','from .safe_fs import ensure_output_dir, safe_write_text, safe_write_json_report').replace('write("attackmap-report.json", json.dumps(json_report, indent=2) + "\\n")','safe_write_json_report(out, out / "attackmap-report.json", json_report)');report.write_text(text)
+    delta=[];diff=''
+    for rel in ('src/attackmap/safe_fs.py','src/attackmap/report.py'):
+        a,b=SOURCE/rel,CASE/'source'/rel;delta.append({'path':rel,'baseline_sha256':sha(a),'candidate_sha256':sha(b)})
+        diff+=''.join(difflib.unified_diff(a.read_text().splitlines(True),b.read_text().splitlines(True),fromfile='sealed-source2/'+rel,tofile='owned-candidate/'+rel))
+    (ROOT/'.tmp/wp034-publication-stagecopy-candidate.diff').write_text(diff);dump(CASE/'source-delta.json',delta)
+    spec=importlib.util.spec_from_file_location('campaign',SOURCE/'tools/measure_memory_admission.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    from attackmap.execution.windows import WindowsProcessJob
+    from attackmap.analyzer_host import _query_job_peak_memory
+    runs=[]
+    for number,label in enumerate(('checks','baseline','candidate','candidate','baseline')):
+        job=WindowsProcessJob();handles={};started=time.monotonic();peak=0;abort=None
+        with (CASE/f'{number}-{label}.stdout').open('x') as out,(CASE/f'{number}-{label}.stderr').open('x') as err:
+            process=subprocess.Popen([sys.executable,str(Path(__file__).resolve()),label,str(number)],cwd=SOURCE,stdout=out,stderr=err,creationflags=4)
+            try:
+                job.attach_and_resume(process)
+                while process.poll() is None:
+                    row=module.sample_owned_tree(job,handles);peak=max(peak,_query_job_peak_memory(job.handle))
+                    if max(peak,row['private_bytes'],row['working_set_bytes'])>=3*1024**3 or time.monotonic()-started>1200:
+                        abort='safety_bound';job.terminate();break
+                    time.sleep(.05)
+                code=process.wait(timeout=15);peak=max(peak,_query_job_peak_memory(job.handle))
+            finally:
+                if process.poll() is None:job.terminate();process.wait(timeout=15)
+                until=time.monotonic()+15
+                while job.active() and time.monotonic()<until:time.sleep(.05)
+                cleanup=job.active()==0
+                if not cleanup:job.terminate()
+                for h in handles.values():job._kernel.CloseHandle(h)
+                job.close()
+        runs.append({'label':label,'number':number,'exit_code':code,'abort':abort,'cleanup_verified':cleanup,'peak_owned_job_commit_bytes':peak,'whole_child_wall_seconds':time.monotonic()-started})
+        dump(CASE/'campaign-runs.json',runs)
+        if code or abort or not cleanup:return 1
+    return 0
+
+if __name__=='__main__':raise SystemExit(main())

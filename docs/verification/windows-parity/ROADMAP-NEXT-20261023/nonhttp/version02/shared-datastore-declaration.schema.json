@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "DatastoreSource": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "line": {
+          "title": "Line",
+          "type": "integer"
+        },
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "repository_root": {
+          "title": "Repository Root",
+          "type": "string"
+        },
+        "source_analyzer": {
+          "title": "Source Analyzer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository_root",
+        "file",
+        "line",
+        "observation_id",
+        "source_analyzer"
+      ],
+      "title": "DatastoreSource",
+      "type": "object"
+    },
+    "QualifiedDatastoreIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "title": "Host",
+          "type": "string"
+        },
+        "namespace": {
+          "title": "Namespace",
+          "type": "string"
+        },
+        "port": {
+          "title": "Port",
+          "type": "integer"
+        },
+        "protocol": {
+          "enum": [
+            "postgresql",
+            "mysql",
+            "mongodb",
+            "redis"
+          ],
+          "title": "Protocol",
+          "type": "string"
+        },
+        "resource": {
+          "title": "Resource",
+          "type": "string"
+        },
+        "scope": {
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope",
+        "protocol",
+        "host",
+        "port",
+        "namespace",
+        "resource"
+      ],
+      "title": "QualifiedDatastoreIdentity",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "identity": {
+      "$ref": "#/$defs/QualifiedDatastoreIdentity"
+    },
+    "operation": {
+      "enum": [
+        "read",
+        "write",
+        "read_write"
+      ],
+      "title": "Operation",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/DatastoreSource"
+    }
+  },
+  "required": [
+    "schema_version",
+    "identity",
+    "operation",
+    "source"
+  ],
+  "title": "DatastoreDeclaration",
+  "type": "object"
+}

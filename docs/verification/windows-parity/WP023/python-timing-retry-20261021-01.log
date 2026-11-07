@@ -1,0 +1,52 @@
+.FFFFFFF                                                                 [100%]
+================================== FAILURES ===================================
+________________ test_time_budget_check_overhead_is_negligible ________________
+tests\test_resource_budgets.py:112: in test_time_budget_check_overhead_is_negligible
+    assert per_check_ns < 1_000, per_check_ns
+E   AssertionError: 1779.5640000258572
+E   assert 1779.5640000258572 < 1000
+________ test_long_lines_under_the_cap_scan_in_linear_time[long_word] _________
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (110374.8800273 - 110363.247541) < 5
+E    +  where 110374.8800273 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+______ test_long_lines_under_the_cap_scan_in_linear_time[router_assign] _______
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (110391.4832879 - 110374.9513968) < 5
+E    +  where 110391.4832879 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+________ test_long_lines_under_the_cap_scan_in_linear_time[blueprint] _________
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (110401.7579903 - 110391.6080112) < 5
+E    +  where 110401.7579903 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+______ test_long_lines_under_the_cap_scan_in_linear_time[graphql_field] _______
+tests\test_scan_limits.py:53: in test_long_lines_under_the_cap_scan_in_linear_time
+    assert time.perf_counter() - start < 5
+E   assert (110409.781233 - 110401.822847) < 5
+E    +  where 110409.781233 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+____________ test_many_matches_in_a_large_file_scan_in_linear_time ____________
+tests\test_scan_limits.py:82: in test_many_matches_in_a_large_file_scan_in_linear_time
+    assert time.perf_counter() - start < 25
+E   assert (110478.4564433 - 110409.8527197) < 25
+E    +  where 110478.4564433 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+_________________ test_flow_pass_stays_linear_on_a_large_file _________________
+tests\test_taint_flow.py:406: in test_flow_pass_stays_linear_on_a_large_file
+    assert time.perf_counter() - start < 20
+E   assert (110503.0144145 - 110478.5595188) < 20
+E    +  where 110503.0144145 = <built-in function perf_counter>()
+E    +    where <built-in function perf_counter> = time.perf_counter
+=========================== short test summary info ===========================
+FAILED tests/test_resource_budgets.py::test_time_budget_check_overhead_is_negligible
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[long_word]
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[router_assign]
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[blueprint]
+FAILED tests/test_scan_limits.py::test_long_lines_under_the_cap_scan_in_linear_time[graphql_field]
+FAILED tests/test_scan_limits.py::test_many_matches_in_a_large_file_scan_in_linear_time
+FAILED tests/test_taint_flow.py::test_flow_pass_stays_linear_on_a_large_file
+7 failed, 1 passed in 164.24s (0:02:44)

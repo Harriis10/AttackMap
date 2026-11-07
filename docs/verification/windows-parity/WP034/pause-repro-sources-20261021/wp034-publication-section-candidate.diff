@@ -1,0 +1,116 @@
+--- sealed-source2/src/attackmap/safe_fs.py
++++ owned-candidate/src/attackmap/safe_fs.py
+@@ -233,27 +233,81 @@
+     return out
+ 
+ 
+-def safe_write_text(out_dir: str | Path, path: str | Path, text: str, *, encoding: str = "utf-8") -> None:
+-    """Write ``text`` to ``path`` without following symlinks.
+-
+-    Refuses when ``path`` is (or sits behind) a symlink, or resolves outside
+-    ``out_dir``. The final open uses ``O_NOFOLLOW`` so a symlink swapped in
+-    after the check is not followed either.
+-    """
+-    out = Path(out_dir)
+-    target = Path(path)
++def _check_output_target(out: Path, target: Path) -> None:
+     if out.is_symlink():
+         raise UnsafePathError(f"refusing to write reports into a symlinked directory: {out}")
+     if target.is_symlink():
+         raise UnsafePathError(f"refusing to write through a symlink: {target}")
+     if not target.parent.resolve().is_relative_to(out.resolve()):
+         raise UnsafePathError(f"refusing to write outside the output directory {out}: {target}")
+-    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)
+-    try:
+-        fd = os.open(target, flags, 0o644)
++
++
++def _open_output_fd(out: Path, target: Path, flags: int) -> int:
++    _check_output_target(out, target)
++    try:
++        return os.open(target, flags, 0o644)
+     except OSError as exc:
+         if target.is_symlink():
+             raise UnsafePathError(f"refusing to write through a symlink: {target}") from exc
+         raise
++
++
++def safe_write_text(out_dir: str | Path, path: str | Path, text: str, *, encoding: str = "utf-8") -> None:
++    """Write ``text`` to ``path`` without following symlinks.
++
++    Refuses when ``path`` is (or sits behind) a symlink, or resolves outside
++    ``out_dir``. The final open uses ``O_NOFOLLOW`` so a symlink swapped in
++    after the check is not followed either.
++    """
++    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)
++    fd = _open_output_fd(Path(out_dir), Path(path), flags)
+     with os.fdopen(fd, "w", encoding=encoding, newline="") as handle:
+         handle.write(text)
++
++
++def safe_write_json_report(out_dir: str | Path, path: str | Path, value: object) -> None:
++    """Encode report values through C dumps; commit after close, without a durability claim."""
++    import json
++    import uuid
++
++    out, target = Path(out_dir), Path(path)
++    _check_output_target(out, target)
++    stage = target.with_name(f".{target.name}-{uuid.uuid4().hex}.tmp")
++    owned = False
++    try:
++        fd = _open_output_fd(out, stage, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0))
++        owned = True
++        try:
++            handle = os.fdopen(fd, "w", encoding="utf-8", newline="")
++        except BaseException:
++            try:
++                os.close(fd)
++            except OSError:
++                pass
++            raise
++        with handle:
++            if type(value) is dict and all(type(key) is str for key in value):
++                if not value:
++                    handle.write("{}")
++                else:
++                    handle.write("{\n")
++                    first = True
++                    for key, section in value.items():
++                        if not first:
++                            handle.write(",\n")
++                        first = False
++                        handle.write("  " + json.dumps(key) + ": ")
++                        text = json.dumps(section, indent=2)
++                        handle.write(text.replace("\n", "\n  "))
++                        del text
++                    handle.write("\n}")
++            else:
++                handle.write(json.dumps(value, indent=2))
++            handle.write("\n")
++        _check_output_target(out, stage)
++        _check_output_target(out, target)
++        os.replace(stage, target)
++        owned = False
++    finally:
++        if owned:
++            stage.unlink(missing_ok=True)
+--- sealed-source2/src/attackmap/report.py
++++ owned-candidate/src/attackmap/report.py
+@@ -20,7 +20,7 @@
+ from .review_json import build_defensive_review_json
+ from .taxonomy import taxonomy_label
+ from .sarif import build_sarif
+-from .safe_fs import ensure_output_dir, safe_write_text
++from .safe_fs import ensure_output_dir, safe_write_text, safe_write_json_report
+ from .suppress import SuppressedFinding
+ from .topology import build_service_graph
+ 
+@@ -120,7 +120,7 @@
+         "exploitability": [score.model_dump() for score in exploitability],
+     }
+     if emit_json:
+-        write("attackmap-report.json", json.dumps(json_report, indent=2) + "\n")
++        safe_write_json_report(out, out / "attackmap-report.json", json_report)
+ 
+         # SARIF 2.1.0 for GitHub Code Scanning / VS Code / other SARIF
+         # consumers. Emitted alongside JSON, not in place of it.

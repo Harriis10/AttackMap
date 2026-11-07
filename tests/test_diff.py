@@ -92,7 +92,7 @@ def test_diff_counts_helper() -> None:
         persisted=[FindingSnapshot.from_finding(_finding("P"))],
         resolved=[FindingSnapshot.from_finding(f) for f in (_finding("R1"), _finding("R2"))],
     )
-    assert diff.counts() == {"new": 1, "persisted": 1, "resolved": 2}
+    assert diff.counts() == {"new": 1, "persisted": 1, "resolved": 2, "new_instances": 0, "newly_suppressed": 0}
 
 
 def test_has_new_high_triggers_only_on_new_high_findings() -> None:
@@ -161,7 +161,7 @@ def test_diff_markdown_contains_all_three_sections() -> None:
 
 def test_diff_markdown_empty_sections_say_none() -> None:
     md = render_diff_markdown(DiffReport())
-    assert md.count("_none_") == 3
+    assert md.count("_none_") == 5  # new, new instances (#222), resolved, newly suppressed (#224), persisted
 
 
 def test_diff_markdown_sorts_by_severity_then_title() -> None:
@@ -340,7 +340,7 @@ def test_json_report_findings_carry_stable_id(tmp_path: Path) -> None:
     report = json.loads((out / "attackmap-report.json").read_text(encoding="utf-8"))
     for f in report["findings"]:
         assert "id" in f
-        assert f["id"] == compute_id(f["title"])
+        assert f["id"] == compute_id(f)
 
 
 def test_baseline_round_trip_via_current_report(tmp_path: Path) -> None:
